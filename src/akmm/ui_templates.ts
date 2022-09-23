@@ -1054,7 +1054,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                cursor: "alias",        // cursor: "pointer",
+                cursor: "alias",        // cursor: "alias",
                 name: 'SHAPE', 
                 fill: 'red', 
                 stroke: "#000",  
@@ -1285,7 +1285,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     addNodeTemplateName('Annotation');
 
     nodeTemplateMap.add("ActivityNode",
-    $(go.Node, 'Spot',
+    $(go.Node, 'Auto',
         new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
@@ -1322,6 +1322,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         $(go.Panel, 'Spot',
           $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
             {
+              cursor: 'alias',
               name: 'SHAPE',
               fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
               stroke: '#CDAA7D',
@@ -1329,9 +1330,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
               portId: '', 
               fromLinkable: true, 
               toLinkable: true, 
-              cursor: 'alias',
               fromSpot: go.Spot.RightSide, 
-              toSpot: go.Spot.LeftSide
+              toSpot: go.Spot.LeftSide,
+            //   toLinkableSelfNode: true,
+            //   toLinkableDuplicates: true,
             },
             new go.Binding('fill', 'color'),
             // new go.Binding('strokeWidth', 'isCall',
@@ -1345,7 +1347,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     fill: 'transparent', stroke: null, strokeWidth: 0,
                     cursor: 'move',
-                    desiredSize: new go.Size(100, 60),
+                    desiredSize: new go.Size(75, 50),
                 },
             ),
         ),

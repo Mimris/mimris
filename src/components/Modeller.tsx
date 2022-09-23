@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
+import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
 import genGojsModel from './GenGojsModel'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
@@ -15,7 +16,7 @@ const debug = false;
 const Modeller = (props: any) => {
 
   const dispatch = useDispatch();
-  if (debug) console.log('13 Modeller: props', props);
+  if (debug) console.log('19 Modeller: props', props);
 
   // if (!props.gojsModel)  return <></>
 
@@ -24,15 +25,25 @@ const Modeller = (props: any) => {
   
   let myMetis = props.myMetis;
   let activetabindex = 0
+  let seltasks = props.phFocus?.focusRole?.tasks || []
+  let focusTask = props.phFocus?.focusTask
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
-  // function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
-  //  }
+
+  const [ofilter, setOfilter] = useState('All')
+
+  const [visibleObjects, setVisiblePalette] = useState(false)
+
+  function toggleObjects() { setVisiblePalette(!visibleObjects); } 
+
+  function toggleRefreshObjects() { setRefresh(!refresh); console.log('25', refresh);
+   }
 
 
    if (debug) console.log('27 Modeller: props, refresh', props, refresh);
+
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -182,7 +193,94 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     if (debug) console.log('195 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
+
+  let ndarr = props.gojsMetamodel?.nodeDataArray
+  let taskNodeDataArray: any[] = ndarr
+    // ================================================================================================
+  // Show all the objects in this model
+  // const gojsmodelObjects = props.gojsModelObjects
+
+
+  // let objArr = props.myMetis.gojsModel?.model.objects
+
+  seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
+  let ndArr = props.gojsModel?.nodeDataArray
+  const nodeArray_all = ndArr 
+  // filter out the objects that are marked as deleted
+  const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
+  if (debug) console.log('209 nodeArray_all', nodeArray_all, objectsNotDeleted);
   
+  // // filter out all objects of type Property
+  const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'EntityType' ))
+  const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' ))
+  if (debug) console.log('185 Palette noPropertyObj', noPropertyObj);
+
+   const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
+    if (debug) console.log('Palette handleSetOfilter', filter);
+    setOfilter(filter)
+    // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
+    toggleRefreshObjects()
+  }
+
+  {/* <div style={{transform: "scale(0.9)" }}> */}
+  const selectedObjDiv = (
+    <div >
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
+      {/* { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> } */}
+    </div>
+  )
+
+  let selectTaskDiv = 
+  <>
+    <details><summary markdown="span"  >Modelling Task : </summary>
+      <div className="seltask w-100">
+        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
+      </div>
+      </details>
+    <div>{focusTask?.name}</div>
+  </>
+  // // filter out all objects of type Property
+
+ 
+  let ofilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container' ))
+  
+  if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
+  if (ofilter === '!Property') ofilteredArr = noPropertyObj
+
+  let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
+  // let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
+  
+  if (debug) console.log('165  gojsobjects',  gojsobjects.nodeDataArray);
+  
+
+  useEffect(() => { // -----------------------------------------------------------------------------
+    if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
+    taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
+      ndarr?.find((i: { typename: any; }) => {
+        return (i?.typename === wot) && i 
+      })
+    )
+    seltasks = props.phFocus.focusRole?.tasks
+    if (debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+    const timer = setTimeout(() => {
+      toggleRefreshObjects() 
+    }, 1000);
+    return () => clearTimeout(timer);
+}, [props.phFocus.focusTask?.id])
+
+  const objArr = taskNodeDataArray
+  // Hack: if viewkind === 'Container' then set isGroup to true
+  if (debug) console.log('269 objArr', props.gojsModel, objArr)
+  for (let i = 0; i < objArr?.length; i++) {
+    if (objArr[i]?.viewkind === 'Container') {
+      objArr[i].isGroup = true;
+    }
+  }
+  if (debug) console.log('274 objArr', objArr)
+
+
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
     if (mv && !mv.markedAsDeleted) { 
         const strindex = index.toString()
@@ -238,31 +336,70 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>         
     </>
 
+  const objectsTabDiv =
+    <>
+      {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{selectedObjDiv}</div> */}
+      <div className="workpad p-1 pt-2 bg-white">
+        {/* {selectTaskDiv} */}
+        <GoJSPaletteApp // this is the Objects list
+          divClassName="diagram-component-objects"
+          nodeDataArray={gojsobjects.nodeDataArray}
+          linkDataArray={[]}
+          metis={props.metis}
+          myMetis={props.myMetis}
+          myGoModel={props.myGoModel}
+          phFocus={props.phFocus}
+          dispatch={props.dispatch}
+        />
+      </div>
+    </>
+  
   return (
     (props.modelType === 'model') 
     ? // modelling
       <div className="modeller-workarea mt-2 ml-1 mb-1 " >
-        <div className="modeller--topbar m-0 p-0" style={{ minWidth: "100%" }}>
+        <div className="modeller--topbar m-0 p-0" >
           <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "10%"}} >Modeller </span>
           <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         </div>
-        <div className="mt-2">
-          {modelviewTabDiv} 
-        </div>
-        <div className="modeller--footer-buttons">
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button>
-          <button className="btn-sm  py-0" 
-            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
-            onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
-            {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
-          </button>
-          {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-        <span className="sourceName pl-1 pr-1 ml-1 mt-1 mr-1 float-right" style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee", fontSize: "small"}}>
-            Current source:  {props.phSource} 
-          </span> 
+        <div className="modeller--workarea m-0 p-0" style={{ minWidth: "90%" }}>
+          <Row>
+            <Col className="modeller--workarea-objects mr-0 pr-0 mt-2 col-auto " style={{ maxWidth: "166px"}}>
+              <div className="modeller--workarea-objects-content" style={{  backgroundColor: "#bcc",  height: "81vh"}} >
+                <button className="btn-sm px-0 m-0 " style={{ backgroundColor: "#bcc", outline: "0", borderStyle: "none"}}
+                  onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span>&gt;</span>} 
+                </button>
+                {/* <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", height: "100%", border: "solid 1px black" }}> */}
+                  {visibleObjects 
+                    ? (objectsTabDiv) 
+                      ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ backgroundColor: "#bcc", fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</> 
+                      : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ backgroundColor: "#bcc", fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</>
+                    : <div className="btn-vertical m-0 pl-1 p-0" style={{ backgroundColor: "#bcc",  height: "79vh", maxWidth: "20px", padding: "0px" }}><span> O b j e c t s </span> </div>
+                  }
+                {/* </div> */}
+              </div>
+            </Col>
+            <Col className="modelller--workarea-modellingarea w-100">
+            <div className="mt-2 ">
+              {modelviewTabDiv} 
+            </div>
+            <div className="modeller--footer-buttons">
+              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
+              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
+              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
+              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button>
+              <button className="btn-sm  py-0" 
+                data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
+                onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
+                {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
+              </button>
+              {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
+            <span className="sourceName pl-1 pr-1 ml-1 mt-1 mr-1 float-right" style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee", fontSize: "small"}}>
+                Current source:  {props.phSource} 
+              </span> 
+            </div>
+            </Col>
+          </Row>
         </div>
       </div>
     : // palette
@@ -379,14 +516,14 @@ export default Modeller;
 //   // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
 //   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
 //   // useEffect(() => {
-//   //   if (!debug) console.log('65 Modeller', focusModel.name, focusModelview.name);
+//   //   if (debug) console.log('65 Modeller', focusModel.name, focusModelview.name);
 //   //   // activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
 
 //   //   setActiveTab(activeTab)
 //   // }, [activeTab])
 
 //   // useEffect(() => {
-//   //   if (!debug) console.log('78 Modeller', focusModel.name, focusModelview.name, props.phFocus);
+//   //   if (debug) console.log('78 Modeller', focusModel.name, focusModelview.name, props.phFocus);
 //   //   const mv = modelviews[0]
 //   //   if (focusModelview.id !== modelview[0]?.id) return
 //   //   dispatchFocusModelview( { id: mv.id, name: mv.name })
@@ -395,13 +532,13 @@ export default Modeller;
 //   //     setRefresh(!refresh)
 //   //   }, 1000);
   
-//   //   if (!debug) console.log('88 Modeller', focusModel.name, focusModelview.name, props.phFocus);
+//   //   if (debug) console.log('88 Modeller', focusModel.name, focusModelview.name, props.phFocus);
 //   //   return () => clearTimeout(timer);
 //   // },[])
 //   useEffect(() =>  {
 //     // if (selmodviews?.length>0)
 //     if (activeTab != undefined || 0) {
-//       if (!debug) console.log('111 Modeller useEffect focusModel', activeTab); 
+//       if (debug) console.log('111 Modeller useEffect focusModel', activeTab); 
 //       const data = {id: selmodviews[0].id, name: selmodviews[0].name}
 //       dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
 //       // setActiveTab(0)
@@ -415,19 +552,19 @@ export default Modeller;
 //   }
 
 //   const dispatchFocusModelview = (id: string, name: string, tabidx) => {
-//     if (!debug) console.log('86 Selector', name, props.phFocus.focusModelview.name, activetabindex, activeTab);
+//     if (debug) console.log('86 Selector', name, props.phFocus.focusModelview.name, activetabindex, activeTab);
 //      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: id, name: name}  })
 //      setFocusModelview({id: id, name: name})
 //      setActiveTab(tabidx)
 
-//     if (!debug) console.log('89 Selector', name, props.phFocus.focusModelview, tabidx);
+//     if (debug) console.log('89 Selector', name, props.phFocus.focusModelview, tabidx);
 //     const timer = setTimeout(() => {
       
 //       genGojsModel(props, dispatch);
 //       setRefresh(!refresh)
 //     }, 1000);
     
-//     if (!debug) console.log('98 Selector', name, props.phFocus.focusModelview, tabidx);
+//     if (debug) console.log('98 Selector', name, props.phFocus.focusModelview, tabidx);
 //     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'}})
 //     return () => clearTimeout(timer);
 //     // setActiveTab(tabidx)
@@ -442,7 +579,7 @@ export default Modeller;
 //     const id = JSON.parse(event.value).id
 //     const name = JSON.parse(event.value).name
 //     const selObj = models.find( (obj: any) => obj.id === id ) // check if exists
-//     if (!debug) console.log('98 Mmodeller', id, name, activeTab);
+//     if (debug) console.log('98 Mmodeller', id, name, activeTab);
 //     // dispatch both model and modelview[0] for the selected model
 //     if (selObj) dispatchFocusModel(id, name)
 //     // if (selObj) dispatchFocusModelview(selObj.modelviews[0].id, selObj.modelviews[0].name)

@@ -14,6 +14,7 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 // import './Diagram.css';
 
 interface DiagramProps {
+  divClassName: string;
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   layout: string | null;
@@ -242,12 +243,19 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       }
       
     }
-  
+
+    
     public render() {
+      const divclassname = (this.props.divClassName === 'diagram-component-objects') 
+        ? 'diagram-component-objects' 
+        : (this.props.divClassName === 'diagram-component-target') 
+          ? 'diagram-component-target'
+          : 'diagram-component-palette'
+
       return (
         <ReactDiagram
           ref={this.diagramRef}
-          divClassName        = 'diagram-component'
+          divClassName        = {divclassname}
           initDiagram         = {this.initPalette}
           nodeDataArray       = {this.props?.nodeDataArray}
           linkDataArray       = {this.props?.linkDataArray}

@@ -652,13 +652,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } 
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
+              if (debug) console.log('655 myMetis', myMetis);
               myDiagram.handleOpenModal(node, modalContext);
-              if (debug) console.log('730 myMetis', myMetis);
             },
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 return true;
+              // } else if (node.category === constants.gojs.C_OBJECTTYPE) {
+              //     return true;
               } else {
                 return false;
               }

@@ -494,7 +494,7 @@ export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedF
 
 }
 
-export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any, deletedObjects: any, deletedLinks: any, deletedRelships: any, deletedTypeviews: any, context: any) {
+export function deleteNode(data: any, deletedFlag: boolean, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const myDiagram   = context.myDiagram;
@@ -503,7 +503,6 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
         const myGoMetamodel = context.myGoMetamodel;
         let node = myGoMetamodel?.findNode(data.key) as gjs.goObjectNode;
         if (node) {
-            //let typeid = data.objecttype;
             let typename = data.name;
             let objtype = myMetamodel.findObjectTypeByName(typename);
             if (objtype) {
@@ -512,20 +511,17 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 if (objtypeview) {
                     objtypeview.markedAsDeleted = deletedFlag;
                 }
-                // Register change in jsn
-                const delNode = new jsn.jsnObjectType(objtype, false);
-
                 // Replace myGoModel.nodes with a new array
-                let nodes = new Array();
-                if (myGoMetamodel) {
-                    for (let i = 0; i < myGoMetamodel.nodes?.length; i++) {
-                        let n = myGoMetamodel.nodes[i];
-                        if (n.key !== node.key) {
-                            nodes.push(n);
-                        }
-                    }
-                    myGoMetamodel.nodes = nodes;
-                }
+                // let nodes = new Array();
+                // if (myGoMetamodel) {
+                //     for (let i = 0; i < myGoMetamodel.nodes?.length; i++) {
+                //         let n = myGoMetamodel.nodes[i];
+                //         if (n.key !== node.key) {
+                //             nodes.push(n);
+                //         }
+                //     }
+                //     myGoMetamodel.nodes = nodes;
+                // }
             }
         }
     } else 
@@ -540,8 +536,6 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             objview.markedAsDeleted = deletedFlag;
             objview.group = "";
             const object = objview.object;
-            const jsnObjview = new jsn.jsnObjectView(objview);
-            deletedObjviews.push(jsnObjview);
             if (debug) console.log('477 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
@@ -549,7 +543,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 const groupMembers = node.getGroupMembers(myGoModel);
                 for (let i=0; i<groupMembers?.length; i++) {
                     const member = groupMembers[i];
-                    deleteNode(member, deletedFlag, deletedObjviews, deletedObjects, deletedLinks, deletedRelships, deletedTypeviews, context);
+                    deleteNode(member, deletedFlag, context);
                     myDiagram.requestUpdate();
                 }
             }
@@ -564,27 +558,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             // First delete object
             if (object) {
                 object.markedAsDeleted = deletedFlag;          
-                const jsnObj = new jsn.jsnObject(object);
-                deletedObjects.push(jsnObj);   
                 if (debug) console.log('499 delete object', object);
             }         
-            // Then handle all other object views of the deleted object
-            // const objviews = object?.objectviews;
-            // if (debug) console.log('503 selection', myDiagram.selection);
-            // if (debug) console.log('504 delete objviews', objviews);
-            // for (let i=0; i<objviews?.length; i++) {
-            //     const objview = objviews[i];
-            //     if (objview.id === node.objectview.id)
-            //         continue;
-            //     if (objview) {
-            //         if (debug) console.log('510 delete objview', objview);
-            //         objview.markedAsDeleted = deletedFlag;
-            //         // Register change in jsn
-            //         const jsnObjview = new jsn.jsnObjectView(objview);
-            //         deletedObjviews.push(jsnObjview);
-            //         // deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
-            //     }
-            // }
             if (debug) console.log('518 nodes to delete', myDiagram.selection);
             myDiagram.requestUpdate();
             let connectedRels = object?.inputrels;
@@ -605,13 +580,9 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                                 myDiagram.model.removeLinkData(link); 
                             }
                             relview.markedAsDeleted = deletedFlag;
-                            const jsnRelview = new jsn.jsnRelshipView(relview);
-                            deletedLinks.push(jsnRelview);
                             if (debug) console.log('540 delete relview', relview);
                         }
                     }
-                    const jsnRel = new jsn.jsnRelationship(rel);
-                    deletedRelships.push(jsnRel);
                     if (debug) console.log('545 delete rel', rel);
                 }
             }
@@ -629,13 +600,9 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                             const link = myGoModel.findLinkByViewId(relview.id);
                             if (link) link.markedAsDeleted = deletedFlag;
                             relview.markedAsDeleted = deletedFlag;
-                            const jsnRelview = new jsn.jsnRelshipView(relview);
-                            deletedLinks.push(jsnRelview);
                             if (debug) console.log('564 delete relview', relview);
                         }
                     }
-                    const jsnRel = new jsn.jsnRelationship(rel);
-                    deletedRelships.push(jsnRel);
                     if (debug) console.log('569 delete rel', rel);
                 }
             }
@@ -643,50 +610,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
     }
 }
 
-export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedTypeviews: any, context: any) {
-    const myMetis   = context.myMetis;
-    objview.markedAsDeleted = deletedFlag;
-    const object = objview.object;
-    if (object && !myMetis.deleteViewsOnly) {
-        const oviews = myMetis.getObjectViewsByObject(object.id);
-        if (debug) console.log('582 oviews', oviews);
-        // Handle object views
-        // if (oviews) {
-        //     const noViews = oviews.length;
-        //     for (let i = 0; i < noViews; i++) {
-        //         // handle each objectview
-        //         const oview = oviews[i];
-        //         oview.markedAsDeleted = deletedFlag;
-        //         if (debug) console.log('489 delete oview', oview);
-        //         // Register change in jsn
-        //         const jsnObjview = new jsn.jsnObjectView(oview);
-        //         deletedNodes.push(jsnObjview);
-        //         // Handle objecttypeview
-        //         //deleteObjectTypeView(oview, deletedFlag, deletedTypeviews);
-        //     }
-        // }               
-    }
-}
-
-export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boolean, deletedTypeviews: any) {
-    const object = objview?.object;
-    const objtype  = object?.type;
-    const typeview = objview?.typeview;
-    const defaultTypeview = objtype?.typeview;
-    if (typeview && defaultTypeview) {
-        if (typeview.id !== defaultTypeview.id) {
-            if (typeview.markedAsDeleted !== deletedFlag) {
-                typeview.markedAsDeleted = deletedFlag;
-                if (debug) console.log('610 delete typeview', typeview);
-                // Register change in jsn
-                const jsnTypeview = new jsn.jsnObjectTypeView(typeview);
-                deletedTypeviews.push(jsnTypeview);
-            }
-        }
-    }
-}
-
-export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedRelships: any[], deletedTypeviews: any[], context: any) {
+export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;
     const myGoModel   = context.myGoModel;
@@ -707,8 +631,6 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         if (myMetis.deleteViewsOnly) {
             relview.markedAsDeleted = deletedFlag;
             relship?.removeRelationshipView(relview);
-            const delLink = new jsn.jsnRelshipView(relview);
-            deletedLinks.push(delLink);
             if (debug) console.log('707 deleteLink', relship, relview);
             return;
         }
@@ -717,8 +639,6 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         if (relship) {
             relship.markedAsDeleted = deletedFlag;
             relview.markedAsDeleted = deletedFlag;
-            const jsnRelview = new jsn.jsnRelshipView(relview);
-            deletedLinks.push(jsnRelview);
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
@@ -726,22 +646,17 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                     if (debug) console.log('721 rview', rview);
                     if (!rview.markedAsDeleted) {
                         rview.markedAsDeleted = deletedFlag;
-                        const jsnRelview = new jsn.jsnRelshipView(rview);
-                        deletedLinks.push(jsnRelview);
                         if (debug) console.log('725 rview', rview);
                         // Handle relshiptypeview
-                        deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);
+                        deleteRelshipTypeView(rview, deletedFlag);
                     }
                 }
            }
-           const jsnRelship = new jsn.jsnRelationship(relship);
-           if (debug) console.log('732 jsnRelship', jsnRelship);
-           deletedRelships.push(jsnRelship);
         }      
     }
 }
 
-export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFlag: boolean, deletedTypeviews: any) {
+export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFlag: boolean) {
 
     const relship = relview?.relship;
     const reltype  = relship?.type;
@@ -752,9 +667,6 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
             if (typeview.markedAsDeleted !== deletedFlag) {
                 typeview.markedAsDeleted = deletedFlag;
                 if (debug) console.log('683 delete typeview', typeview);
-                // Register change in jsn
-                const jsnTypeview = new jsn.jsnRelshipTypeView(typeview);
-                deletedTypeviews.push(jsnTypeview);
             }
         }
     }
@@ -1069,8 +981,6 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     }
                 }
             }
-
-
             const modNode = new jsn.jsnObjectView(objview);
             modifiedNodes.push(modNode);
 
@@ -1248,11 +1158,10 @@ export function createRelationship(data: any, context: any) {
         }
         if (debug) console.log('1007 includeInherited', myModelview.includeInheritedReltypes);
         if (fromType && toType) {
-            let defText = constants.types.AKM_GENERIC_REL;
+            const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
+            let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;
             let includeInherited = false;
             if (myModelview.includeInheritedReltypes) {
-                const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';            
-                defText = appliesToLabel ? "" : constants.types.AKM_GENERIC_REL;
                 includeInherited = true;
             }
             const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);

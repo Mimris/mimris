@@ -72,10 +72,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
     let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
-    if (myMetis.isAdminType(selObj?.type)) {
-      inst = selObj;
-      type = inst.type;
-    } else {
+    if (debug) console.log('75 selObj', selObj);
+    // if (myMetis.isAdminType(selObj?.objecttype)) {
+    //   inst = selObj.object;
+    //   inst1 = myMetis.findObject(inst?.id);   
+    //   type = selObj.objecttype;
+    //   if (debug) console.log('78 inst, type', inst, type);
+    // } // else {
       switch(category) {
         case constants.gojs.C_OBJECT:
           inst = selObj.object;
@@ -117,7 +120,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
           break;       
       }
-    }
+      if (debug) console.log('123 inst, type', inst, type);
+    // }
     if (debug) console.log('121 selObj, this.props', selObj, this.props);
     // Set chosenType
     let typename = "";
@@ -129,8 +133,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('128 type', type);
         if (type?.name === 'Method') {
           chosenType = null;
-        } else if (myMetis.isAdminType(type)) {
-          chosenType = null;
+        // } else if (myMetis.isAdminType(type)) {
+        //   chosenType = null;
         } else {
           currentType = inst.type;
           chosenType = currentType;
@@ -230,6 +234,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (debug) console.log('229 inst, properties', inst, properties);
         } else {
           let flag = false;
+          inst = myMetis.findObject(inst.id);
+          type = myMetis.findObjectType(type.id);
           const typeProps = type?.getProperties(flag);
           const inheritedProps = inst?.getInheritedProperties(myModel);
           if (inheritedProps?.length>0)
@@ -607,7 +613,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_OBJECT) {
+                } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
                   if (selObj.viewkind === 'Object') {             
                     values = uit.getNodeTemplateNames();
                     defValue = '';
@@ -621,7 +627,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               break;
             case 'figure':
-                if (selObj.category === 'Object') {
+                if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
                   values = uit.getFigureNames();
                   defValue = '';
                   fieldType = 'radio';

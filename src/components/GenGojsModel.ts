@@ -658,7 +658,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             }
           }
           if (includeReltype) {
-            if (debug) console.log('622 reltype', reltype);
+            if (debug) console.log('661 reltype', reltype);
             if (!reltype.typeview) 
                 reltype.typeview = reltype.newDefaultTypeView(reltype.relshipkind);
             if (!reltype.fromObjtype) 
@@ -667,13 +667,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
-            if (debug) console.log('631 reltype, link', reltype, link);
+            if (debug) console.log('670 reltype, link', reltype, link);
             if (link.loadLinkContent()) {
               link.relshipkind = reltype.relshipkind;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
-              if (debug) console.log('536 link', link);
+              link.category = constants.gojs.C_RELSHIPTYPE;
+              if (debug) console.log('676 link', link);
               myGoMetamodel.addLink(link);
             }            
           }

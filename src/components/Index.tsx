@@ -196,6 +196,16 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.09.24</CardTitle>
+                    <CardText >
+                          &bull; Objects moved from Palette area to Modeller Area<br />
+                          &bull; More models added to https://github.com/Kavca/<br />
+                          &bull; Added dialogbox at startup asking if you want to load the saved - refreshed model project.<br />
+                          &bull; This can be nice if the Browser crash or stop responding.<br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.08.22</CardTitle>
                     <CardText >
                           &bull; New functionality for metamodelling of activity/task modelling.<br />

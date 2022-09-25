@@ -35,6 +35,7 @@ const LoadGitHub = (props: any) => {
   let phSource = props.phSource
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
+  
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
@@ -210,7 +211,7 @@ const LoadGitHub = (props: any) => {
   useEffect(() => {
     setModels([]);
     setDirs([]);
-    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
+    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {

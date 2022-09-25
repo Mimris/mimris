@@ -88,6 +88,7 @@ export const SaveAllToFileDate = (data, name, type) => {
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault()
     const reader = new FileReader()
+    reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
     console.log('92 ReadModelFromFile', reader.fileName)
     if (!reader.fileName) return null
@@ -129,8 +130,12 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         if (debug) console.log('60 SaveModelToFile', mvindex, mvlength);
 
+
+        // ---------------------  load Project ---------------------
+        console.log('134 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
         let data
         if (modelff.phData) { // if modelff has phData, then it is a project file
+            console.log('136 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,

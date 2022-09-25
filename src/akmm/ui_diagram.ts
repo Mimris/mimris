@@ -449,6 +449,19 @@ export function editTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }    
 
+export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const icon = "";
+    const modalContext = {
+      what:       "editModelview",
+      title:      "Edit Modelview",
+      icon:       icon,
+      myDiagram:  myDiagram
+    }
+    myMetis.currentNode = node;
+    myMetis.myDiagram = myDiagram;
+    myDiagram.handleOpenModal(node, modalContext);
+}    
+
 export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any) {
     const n = myDiagram.findNodeForKey(inst.key);
     if (n) {

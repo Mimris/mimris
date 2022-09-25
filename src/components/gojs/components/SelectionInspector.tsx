@@ -73,56 +73,49 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
     let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
     if (debug) console.log('75 selObj', selObj);
-    // if (myMetis.isAdminType(selObj?.objecttype)) {
-    //   inst = selObj.object;
-    //   inst1 = myMetis.findObject(inst?.id);   
-    //   type = selObj.objecttype;
-    //   if (debug) console.log('78 inst, type', inst, type);
-    // } // else {
-      switch(category) {
-        case constants.gojs.C_OBJECT:
-          inst = selObj.object;
-          inst1 = myMetis.findObject(inst?.id);   
-          if (inst1) inst = inst1;
-          instview = selObj.objectview;
-          instview = myMetis.findObjectView(instview?.id);
-          type = selObj.objecttype;
-          type1 = myMetis.findObjectType(type?.id);
-          if (type1) type = type1;
-          objtypeview = type?.typeview;
-          objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
-          break;
-        case constants.gojs.C_OBJECTTYPE:
-          type = selObj.objecttype;
-          type1 = myMetis.findObjectType(type?.id);
-          if (type1) type = type1;
-          objtypeview = type?.typeview;
-          objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
-          break;
-        case constants.gojs.C_RELATIONSHIP:
-          inst = selObj.relship;
-          inst1 = myMetis.findRelationship(inst?.id);   
-          if (inst1) inst = inst1;
-          instview = selObj.relshipview;
-          instview = myMetis.findRelationshipView(instview?.id);
-          type = selObj.relshiptype;
-          type1 = myMetis.findRelationshipType(type?.id);
-          if (type1) type = type1;
-          reltypeview = type?.typeview;
-          reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
-          if (debug) console.log('119 inst, instview, type, reltypeview', inst, instview, type, reltypeview);
-          break;
-        case constants.gojs.C_RELSHIPTYPE:
-          type = selObj.reltype;
-          type1 = myMetis.findRelationshipType(type?.id);
-          if (type1) type = type1;
-          reltypeview = type?.typeview;
-          reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
-          break;       
-      }
-      if (debug) console.log('123 inst, type', inst, type);
-    // }
-    if (debug) console.log('121 selObj, this.props', selObj, this.props);
+    switch(category) {
+      case constants.gojs.C_OBJECT:
+        inst = selObj.object;
+        inst1 = myMetis.findObject(inst?.id);   
+        if (inst1) inst = inst1;
+        instview = selObj.objectview;
+        instview = myMetis.findObjectView(instview?.id);
+        type = selObj.objecttype;
+        type1 = myMetis.findObjectType(type?.id);
+        if (type1) type = type1;
+        objtypeview = type?.typeview;
+        objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        break;
+      case constants.gojs.C_OBJECTTYPE:
+        type = selObj.objecttype;
+        type1 = myMetis.findObjectType(type?.id);
+        if (type1) type = type1;
+        objtypeview = type?.typeview;
+        objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        break;
+      case constants.gojs.C_RELATIONSHIP:
+        inst = selObj.relship;
+        inst1 = myMetis.findRelationship(inst?.id);   
+        if (inst1) inst = inst1;
+        instview = selObj.relshipview;
+        instview = myMetis.findRelationshipView(instview?.id);
+        type = selObj.relshiptype;
+        type1 = myMetis.findRelationshipType(type?.id);
+        if (type1) type = type1;
+        reltypeview = type?.typeview;
+        reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+        if (debug) console.log('119 inst, instview, type, reltypeview', inst, instview, type, reltypeview);
+        break;
+      case constants.gojs.C_RELSHIPTYPE:
+        type = selObj.reltype;
+        type1 = myMetis.findRelationshipType(type?.id);
+        if (type1) type = type1;
+        reltypeview = type?.typeview;
+        reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+        break;       
+    }
+    if (debug) console.log('123 inst, type', inst, type);
+    if (debug) console.log('121 selObj, this.props, inst, type', selObj, this.props, inst, type);
     // Set chosenType
     let typename = "";
     let includeInherited = false;
@@ -133,8 +126,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('128 type', type);
         if (type?.name === 'Method') {
           chosenType = null;
-        // } else if (myMetis.isAdminType(type)) {
-        //   chosenType = null;
         } else {
           currentType = inst.type;
           chosenType = currentType;
@@ -284,7 +275,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObject":
         item = chosenInst;
-        if (type?.name === 'Label')
+        if (type?.name === constants.types.AKM_LABEL)
           isLabel = true;
         break;
       case "editRelationshipType":
@@ -292,6 +283,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editRelationship":
         item = inst;
+        break;
+      case "editModelview":
+        item = modelview;
         break;
       case "editObjectview":
       case "editRelshipview":

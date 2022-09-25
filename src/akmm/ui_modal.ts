@@ -693,9 +693,38 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const type = obj?.type;
       if (debug) console.log('589 selObj, obj, type', selObj, obj, type);
       let properties;
-      if (type?.name === 'Method')
+      if (type?.name === 'Method') {
         properties = obj.setAndGetAllProperties(myMetis);
-      else 
+      } else if (type?.name === 'Modelview') {
+        // This should be moved to case: "editModelview"
+        const mv = myMetis.findModelView(obj.modelviewId);
+        if (mv) {
+          properties = type?.getProperties(false);
+          if (debug) console.log('700 type, properties', type, properties);
+          for (let i=0; i<properties?.length; i++) {
+            const prop = properties[i];
+            if (!prop)
+              continue;
+            switch(prop.name) {
+              case 'layout':
+              case 'link curve':
+              case 'link routing':
+              case 'askForRelshipName':
+              case 'includeInheritedReltypes':
+              case 'UseUMLrelshipkinds':
+                mv[prop.name] = obj[prop.name];
+            }
+          }
+          if (debug) console.log('715 mv', mv);
+          const jsnModelview = new jsn.jsnModelView(mv);
+          modifiedModelviews.push(jsnModelview);
+          modifiedModelviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+          })
+        }
+      } else 
         properties = type?.getProperties(false);
       if (debug) console.log('597 properties', properties);
       const jsnObject = new jsn.jsnObject(obj);
@@ -1209,6 +1238,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         })
         return;
       }
+      break;
+    }
+    case "editModelview": {
       break;
     }
     case "connectToSelected": {

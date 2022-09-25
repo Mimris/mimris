@@ -96,7 +96,7 @@ const Palette = (props: any) => {
         ).filter(Boolean) // remove undefined
         if (debug) console.log('93 taskNodeDataArray', taskNodeDataArray);
       
-    console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
+    if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
     if (debug) console.log('94 seltasks', props.phFocus.focusTask)
     }
   }, [props.phFocus.focusTask?.id])

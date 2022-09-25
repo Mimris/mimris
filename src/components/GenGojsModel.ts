@@ -845,6 +845,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                         if (!mvObj) {
                           mvObj = new akm.cxObject(utils.createGuid(), mv.name, modelviewType, mv.description);
                           mvObj.modelviewId = mv.id;
+                          mvObj.layout = mv.layout;
+                          mvObj['link routing'] = mv['routing'];
+                          mvObj['link curve'] = mv['linkcurve'];
+                          mvObj.showCardinality = mv.showCardinality;
+                          mvObj.askForRelshipName = mv.askForRelshipName;
+                          mvObj.includeInheritedReltypes = mv.includeInheritedReltypes;
                           adminModel.addObject(mvObj);
                           myMetis.addObject(mvObj);
 

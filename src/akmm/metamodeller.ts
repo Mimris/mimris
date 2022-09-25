@@ -653,7 +653,7 @@ export class cxMetis {
         }
         let relshiptypes0: any[] = item.relshiptypes0;
         if (debug) console.log('361 relshiptypes0', relshiptypes0);
-        if (relshiptypes && relshiptypes.length) {
+        if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
                 if (debug) console.log('371 reltype0', reltype0);
                 if (reltype0) {
@@ -673,21 +673,6 @@ export class cxMetis {
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
         }        
-        // if (debug) console.log('396 this', this, metamodel);
-        // relshiptypes = item.relshiptypes;
-        // if (relshiptypes && relshiptypes.length) {
-        //     relshiptypes.forEach(reltype => {
-        //         if (reltype)
-        //             this.importRelshipType(reltype, metamodel);
-        //     });
-        // }
-        // relshiptypeviews = item.relshiptypeviews;
-        // if (relshiptypeviews && relshiptypeviews.length) {
-        //     relshiptypeviews.forEach(reltypeview => {
-        //         if (reltypeview)
-        //             this.importRelshipTypeView(reltypeview, metamodel);
-        //     });
-        // }        
         if (debug) console.log('644 metamodel', metamodel);
     }
     importDatatype(item: any, metamodel: cxMetaModel) {

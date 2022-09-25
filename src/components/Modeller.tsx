@@ -38,7 +38,7 @@ const Modeller = (props: any) => {
 
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
 
-  function toggleRefreshObjects() { setRefresh(!refresh); console.log('25', refresh);
+  function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25', refresh);
    }
 
 

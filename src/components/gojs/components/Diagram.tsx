@@ -2105,26 +2105,55 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Modelview",
             function (e: any, obj: any) {
-              const currentModelview = myMetis.currentModelview; 
-              let currentName = currentModelview.name;
-              const modelviewName = prompt("Enter Modelview name:", currentName);
-              if (modelviewName?.length > 0) {
-                currentModelview.name = modelviewName;
+              if (true) {
+                const currentModelview = myMetis.currentModelview; 
+                let currentName = currentModelview.name;
+                const modelviewName = prompt("Enter Modelview name:", currentName);
+                if (modelviewName?.length > 0) {
+                  currentModelview.name = modelviewName;
+                }
+                const currentDescr = currentModelview.description; 
+                const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
+                if (modelviewDescr?.length > 0) {
+                  currentModelview.description = modelviewDescr;
+                }
+                const jsnModelview = new jsn.jsnModelView(currentModelview);
+                const modifiedModelviews = new Array();  
+                modifiedModelviews.push(jsnModelview);
+                modifiedModelviews?.map(mn => {
+                  let data = (mn) && mn
+                  data = JSON.parse(JSON.stringify(data));
+                  if (debug) console.log('1942 modelview', data);
+                  e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+                })
+              } else {
+                // ToDo: implement a correct edit of modelview
+                // Need a working "uid.editModelview"
+                const currentModelview = myMetis.currentModelview; 
+                const adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
+                if (adminModel) {
+                  let adminModelview = adminModel.modelviews[0];
+                  if (adminModelview) 
+                    adminModelview = myMetis.findModelView(adminModelview.id);
+                  const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
+                  if (modelviewType) {
+                    for (let i=0; i<adminModel?.objects?.length; i++) {
+                      const obj = adminModel.objects[i];
+                      if (debug) console.log('2118 obj', obj);
+                      if (!obj || obj.type?.id !== modelviewType.id) 
+                        continue;
+                      if (obj['modelviewId'] === currentModelview.id) {
+                        if (debug) console.log('2122 currentModelview, modelviewObj', currentModelview, obj);
+                        if (obj) {
+                          const objview = obj.objectviews[0];
+                          const node = new gjs.goObjectNode(utils.createGuid, objview);
+                          uid.editObject(node, myMetis, myDiagram); 
+                        }
+                      }
+                    }
+                  }
+                }
               }
-              const currentDescr = currentModelview.description; 
-              const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
-              if (modelviewDescr?.length > 0) {
-                currentModelview.description = modelviewDescr;
-              }
-              const jsnModelview = new jsn.jsnModelView(currentModelview);
-              const modifiedModelviews = new Array();  
-              modifiedModelviews.push(jsnModelview);
-              modifiedModelviews?.map(mn => {
-                let data = (mn) && mn
-                data = JSON.parse(JSON.stringify(data));
-                if (debug) console.log('1942 modelview', data);
-                e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-              })
             },
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling') {

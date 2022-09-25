@@ -229,6 +229,48 @@
           "modified": false
         },
         {
+          "id": "172801c2-2361-4676-386f-84b17f557c11",
+          "name": "UseUMLrelshipkinds",
+          "description": "",
+          "datatypeRef": "9c426092-98be-4470-97d3-99ee033b6b29",
+          "methodRef": "",
+          "unitCategoryRef": "",
+          "defaultValue": "",
+          "inputPattern": "",
+          "viewFormat": "",
+          "example": "",
+          "markedAsDeleted": false,
+          "modified": false
+        },
+        {
+          "id": "a356e3a0-4a84-4c5e-c0c3-66edbed3695f",
+          "name": "askForRelshipName",
+          "description": "",
+          "datatypeRef": "9c426092-98be-4470-97d3-99ee033b6b29",
+          "methodRef": "",
+          "unitCategoryRef": "",
+          "defaultValue": "",
+          "inputPattern": "",
+          "viewFormat": "",
+          "example": "",
+          "markedAsDeleted": false,
+          "modified": false
+        },
+        {
+          "id": "8d1f31c8-63b6-4b98-0f90-f5cf2f97eefc",
+          "name": "includeInheritedReltypes",
+          "description": "",
+          "datatypeRef": "9c426092-98be-4470-97d3-99ee033b6b29",
+          "methodRef": "",
+          "unitCategoryRef": "",
+          "defaultValue": "",
+          "inputPattern": "",
+          "viewFormat": "",
+          "example": "",
+          "markedAsDeleted": false,
+          "modified": false
+        },
+        {
           "id": "9b0e7361-465d-49e9-9f33-27687b8f14c9",
           "name": "modelviewId",
           "description": "",

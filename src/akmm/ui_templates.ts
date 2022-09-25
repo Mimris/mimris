@@ -1973,13 +1973,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         new go.Binding('points').makeTwoWay(),
         $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] }),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black' }),
-        $(go.TextBlock,  "",
-        {
-            isMultiline: true,  // allow newlines in text
-            editable: true,  // allow in-place editing by user
-        }),
         { segmentOffset: new go.Point(-10, -10) },
-        new go.Binding("text", "name").makeTwoWay(),
         new go.Binding("stroke", "textcolor").makeTwoWay(),
         new go.Binding("scale", "textscale").makeTwoWay(),
     );

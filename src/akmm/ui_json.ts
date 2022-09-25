@@ -1318,6 +1318,7 @@ export class jsnModelView {
     showCardinality:    boolean;
     askForRelshipName:  boolean;
     includeInheritedReltypes: boolean;
+    UseUMLrelshipkinds: boolean;
     modelRef:           string;
     viewstyleRef:       string;
     objectviews:        jsnObjectView[];
@@ -1337,6 +1338,7 @@ export class jsnModelView {
         this.showCardinality    = mv?.showCardinality;
         this.askForRelshipName  = mv?.askForRelshipName;
         this.includeInheritedReltypes = mv?.includeInheritedReltypes;
+        this.UseUMLrelshipkinds = mv?.getModel()?.includeRelshipkind;
         this.viewstyleRef       = mv?.getViewStyle()?.getId();
         this.objectviews        = [];
         this.relshipviews       = [];

@@ -1600,7 +1600,7 @@
             },
             {
               "id": "38e214e8-80f4-4f4f-bf56-feff87579529",
-              "name": "routing",
+              "name": "link routing",
               "description": "",
               "datatypeRef": "",
               "allowedValues": [
@@ -1618,7 +1618,7 @@
             },
             {
               "id": "8148679b-66b8-4035-27ff-d7e3435465f0",
-              "name": "linkcurve",
+              "name": "link curve",
               "description": "",
               "datatypeRef": "",
               "allowedValues": [
@@ -5683,7 +5683,7 @@
             },
             {
               "id": "8148679b-66b8-4035-27ff-d7e3435465f0",
-              "name": "linkcurve",
+              "name": "link curve",
               "description": "",
               "datatypeRef": "",
               "allowedValues": [
@@ -5716,7 +5716,7 @@
             },
             {
               "id": "38e214e8-80f4-4f4f-bf56-feff87579529",
-              "name": "routing",
+              "name": "link routing",
               "description": "",
               "datatypeRef": "",
               "allowedValues": [

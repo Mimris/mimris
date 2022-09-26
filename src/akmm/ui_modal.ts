@@ -946,6 +946,22 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('874 context', context);
         modalContext.context.postOperation(context);        
       } 
+      else if (modalContext.case === 'Add Metamodel') {
+        if (debug) console.log('950 modalContext', modalContext);
+        const context = modalContext.context;
+        const selectedValue = modalContext.selected?.value;
+        let metamodel = myMetis.findMetamodelByName(selectedValue); ;
+        const metamodels = context.args.metamodels;
+        for (let i=0; i<metamodels?.length; i++) {
+          const mm = metamodels[i];
+          if (mm.name === selectedValue)
+              metamodel = mm;
+        }
+        if (debug) console.log('960 metamodel, modalContext: ', metamodel, modalContext);
+        context.args.metamodel = metamodel;
+        modalContext.context.postOperation(context);        
+        break;
+      }
       else if (modalContext.case === 'Replace Metamodel') {
         if (debug) console.log('821 modalContext', modalContext);
         const context = modalContext.context;

@@ -113,11 +113,11 @@ const page = (props:any) => {
     dispatchToStore(data) // dispatch to store the inital model ---------------------------------------
   }, [])
 
-  console.log('111 Modelling data', data);
+  if (debug) console.log('111 Modelling data', data);
   // ask the user if he wants to reload the last state
   useEffect(() => { // load local storage if it exists and dispatch the first model project
         const timer = setTimeout(() => {
-          if (!debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
+          if (debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
           if ((memoryLocState != null) && memoryLocState.length > 0) {
             if ((window.confirm("Do you want to recover your last model project?"))) {
               if (Array.isArray(memoryLocState) && memoryLocState[0]) {

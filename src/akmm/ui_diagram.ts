@@ -68,6 +68,27 @@ export function replaceCurrentMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     askForMetamodel(context);
 }
 
+export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select metamodel among all metamodels (except the current)
+    const args = {
+        "metamodel":          "", 
+        "metamodels":         "",
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentMetamodel": myMetis.currentMetamodel,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Add Metamodel",
+        "title":              "Select Metamodel to Add",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      addMetamodel2,
+        "args":               args
+    }
+    if (debug) console.log('88 context', context);
+    askForMetamodel(context);
+}
+
 export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     // Select metamodel among all metamodels (except the current)
     const args = {
@@ -727,13 +748,13 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
 }
 
 function askForMetamodel(context: any) {
-    if (debug) console.log('223 context', context);
+    if (debug) console.log('750 context', context);
     const myMetis = context.myMetis;
     let myMetamodel = context.myCurrentMetamodel;
     const myDiagram = context.myDiagram;
     const metaModels = [];
     const allMetaModels = myMetis.metamodels;
-    if (debug) console.log('709 allMetaModels', allMetaModels, myMetamodel);
+    if (debug) console.log('756 allMetaModels', allMetaModels, myMetamodel);
     for (let i=0; i<allMetaModels.length; i++) {
         const metaModel = allMetaModels[i];
         if (!metaModel)
@@ -744,10 +765,11 @@ function askForMetamodel(context: any) {
             continue;
         if (myMetamodel && (metaModel.id === myMetamodel?.id)) {
             if (context.case !== 'New Model')
-            continue;
+                continue;
         }
 
         switch (context.case) {
+            case "Add Metamodel":
             case "Delete Metamodel":
             case "Clear Metamodel":
             case "Replace Metamodel":
@@ -766,6 +788,7 @@ function askForMetamodel(context: any) {
         myDiagram:      myDiagram,
         context:        context,
       }
+      if (debug) console.log('790 modalContext', modalContext);
       const mmNameIds = metaModels.map(mm => mm && mm.nameId);
       myDiagram.handleOpenModal(mmNameIds, modalContext);
 }
@@ -849,6 +872,44 @@ function replaceCurrentMetamodel2(context: any) {
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     if (debug) console.log('703 myMetis', myMetis);
+}
+
+function addMetamodel2(context: any) {
+    const currentMetamodel = context.myCurrentMetamodel;
+    const metamodel = context.args.metamodel;
+    const myMetis = context.myMetis;
+    const myDiagram = context.myDiagram;
+    if (debug) console.log('271 currentMetamodel, metamodel', currentMetamodel, metamodel);
+
+    const objecttypes = metamodel.objecttypes;
+    for (let i=0; i<objecttypes?.length; i++) {
+        const objecttype = objecttypes[i];
+        if (!objecttype) continue;
+        if (currentMetamodel.findObjectType(objecttype.id)) 
+            continue;
+        else 
+            currentMetamodel.addObjectType(objecttype);
+    }
+    const relshiptypes = metamodel.relshiptypes;
+    for (let i=0; i<relshiptypes?.length; i++) {
+        const relshiptype = relshiptypes[i];
+        if (!relshiptype) continue;
+        if (currentMetamodel.findRelationshipType(relshiptype.id)) 
+            continue;
+        else 
+            currentMetamodel.addRelationshipType(relshiptype);
+    }
+    const jsnMetamodel = new jsn.jsnMetaModel(currentMetamodel, true);
+    if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
+    const modifiedMetamodels = new Array();
+    modifiedMetamodels.push(jsnMetamodel);
+    modifiedMetamodels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    });
+    if (debug) console.log('302 myMetis', myMetis);
+    alert("The metamodel has been successfully added!");
 }
 
 function deleteMetamodel2(context: any) {

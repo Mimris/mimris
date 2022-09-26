@@ -38,7 +38,7 @@ const LoadRecovery = (props: any) => {
   if (typeof memoryLocState === 'object') return <> </>;
   if (memoryLocState.length === 0) return <> </>;
   if (!Array.isArray(memoryLocState) ) { memoryTmp = [memoryLocState] } else { memoryTmp = memoryLocState }
-  if (!debug) console.log('31 memoryTmp', memoryTmp ) //memoryTmp.map((item: any) => {return { value: item.phSource, label: item.lastUpdate }}))
+  if (debug) console.log('31 memoryTmp', memoryTmp ) //memoryTmp.map((item: any) => {return { value: item.phSource, label: item.lastUpdate }}))
 
   // if memoryLocState is not an array then make it one
 

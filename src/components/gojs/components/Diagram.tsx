@@ -2226,9 +2226,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.addMetamodel(myMetis, myDiagram);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              if (myMetis.modelType === 'Metamodelling') {
+                  return false;
+              } else {
+                const noMetamodels = myMetis.metamodels.length;
+                if (noMetamodels > 2)
+                    return true;
+                else
+                  return false;
+              }
             }),
           makeButton("Delete Metamodel",
             function (e: any, obj: any) {

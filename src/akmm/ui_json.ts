@@ -91,7 +91,7 @@ export class jsnExportMetis {
 export class jsnExportMetaModel {
     metamodels: jsnMetaModel[];
     constructor() {
-        this.metamodels = new Array();;
+        this.metamodels = new Array();
     }
     addMetamodel(metamodel: akm.cxMetaModel, includeViews: boolean) {
         if (metamodel) {
@@ -138,6 +138,7 @@ export class jsnMetaModel {
     id:                 string;
     name:               string;
     description:        string;
+    metamodelRefs:      string[];
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
     objecttypes:        jsnObjectType[];
@@ -163,6 +164,7 @@ export class jsnMetaModel {
         this.id = metamodel.id;
         this.name = metamodel.name;
         this.description = (metamodel.description) ? metamodel.description : "";
+        this.metamodelRefs = [];
         this.viewstyles = [];
         this.geometries = [];
         this.objecttypes = [];
@@ -186,6 +188,14 @@ export class jsnMetaModel {
         this.modified = false;
 
         // Code
+        const subMetamodels = metamodel.getSubMetamodels();
+        if (subMetamodels) {
+            const cnt = subMetamodels.length;
+            for (let i = 0; i < cnt; i++) {
+                const metamodel = subMetamodels[i];
+                this.metamodelRefs.push(metamodel.id);
+            }
+        }
         const objtypes = metamodel.getObjectTypes();
         if (objtypes) {
             const cnt = objtypes.length;
@@ -330,6 +340,12 @@ export class jsnMetaModel {
                     this.addRelshipTypeView(reltypeview);
                 }
             }
+        }
+    }
+    addMetamodel(metamodel: akm.cxMetaModel) {
+        if (metamodel) {
+            const gObjtype = new jsnObjectType(objtype, includeViews);
+            this.objecttypes.push(gObjtype);
         }
     }
     addObjectType(objtype: akm.cxObjectType, includeViews: boolean) {

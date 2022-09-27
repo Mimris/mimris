@@ -896,6 +896,8 @@ function addMetamodel2(context: any) {
         if (!relshiptype) continue;
         if (currentMetamodel.findRelationshipType(relshiptype.id)) 
             continue;
+        else if (relshiptype.name === constants.types.AKM_IS) 
+            continue;
         else 
             currentMetamodel.addRelationshipType(relshiptype);
     }
@@ -917,6 +919,7 @@ function addMetamodel2(context: any) {
         else 
             currentMetamodel.addRelationshipType0(relshiptype);
     }
+    currentMetamodel.addSubMetamodel(metamodel);
     const jsnMetamodel = new jsn.jsnMetaModel(currentMetamodel, true);
     if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
     const modifiedMetamodels = new Array();

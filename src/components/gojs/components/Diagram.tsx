@@ -2230,7 +2230,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   return false;
               } else {
                 const noMetamodels = myMetis.metamodels.length;
-                if (noMetamodels > 2)
+                if (noMetamodels >= 2)
                     return true;
                 else
                   return false;

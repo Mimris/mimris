@@ -547,6 +547,17 @@ export class cxMetis {
         if (!metamodel) 
             return;
         metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
+        let submetamodelRefs = item.metamodelRefs;
+        if (submetamodelRefs && submetamodelRefs.length) {
+            submetamodelRefs.forEach(submetamodelRef => {
+                if (submetamodelRef) {
+                    const submetamodel = this.findMetamodel(submetamodelRef);
+                    if (submetamodel) {
+                        metamodel.addMetamodel(submetamodel);
+                    }
+                }
+            });
+        }
         let datatypes: any[] = item.datatypes;
         if (datatypes && datatypes.length) {
             datatypes.forEach(datatype => {

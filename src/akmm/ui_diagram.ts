@@ -899,6 +899,24 @@ function addMetamodel2(context: any) {
         else 
             currentMetamodel.addRelationshipType(relshiptype);
     }
+    const objecttypes0 = metamodel.objecttypes0;
+    for (let i=0; i<objecttypes0?.length; i++) {
+        const objecttype = objecttypes0[i];
+        if (!objecttype) continue;
+        if (currentMetamodel.findObjectType0(objecttype.id)) 
+            continue;
+        else 
+            currentMetamodel.addObjectType0(objecttype);
+    }
+    const relshiptypes0 = metamodel.relshiptypes0;
+    for (let i=0; i<relshiptypes0?.length; i++) {
+        const relshiptype = relshiptypes0[i];
+        if (!relshiptype) continue;
+        if (currentMetamodel.findRelationshipType0(relshiptype.id)) 
+            continue;
+        else 
+            currentMetamodel.addRelationshipType0(relshiptype);
+    }
     const jsnMetamodel = new jsn.jsnMetaModel(currentMetamodel, true);
     if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
     const modifiedMetamodels = new Array();

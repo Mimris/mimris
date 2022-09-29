@@ -40,8 +40,9 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     let reltypeName = hasPartType?.name // default partof relship in JSON structure
     const IsType = curRelTypes.find((co: { name: string; }) => (co.name === 'Is') && co)
     let relshipKind = 'Association' 
+    let osdutype = ''
     
-    const createObject = (oId: any, oName: string, otypeRef: any, oKey: any, jsonType='object', cNewVal: {}) => {
+    const createObject = (oId: any, oName: string, otypeRef: any, oKey: any, osdutype: string, jsonType='object', cNewVal: {}) => {
         // console.log(' 44 createObject', oName, existObj);
         if (debug) console.log('51 createObject', oName, cNewVal);
         const importedObject = (modelType === 'AKM') // dont include json attributes
@@ -55,6 +56,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     modified: true,
                     externalID: oKey,
                     osduId: oKey,
+                    osduType: osdutype,
                     
                     // jsonType: jsonType,
                     // jsonKey: oName,
@@ -73,10 +75,11 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     osduId: oKey,
                     jsonType: jsonType,
                     jsonKey: oName,
+
                     ...cNewVal // want only attributes
                 }            
 
-        if (debug) console.log('68 Create object: ', importedObject.name);             
+        if (debug) console.log('68 Create object: ', importedObject.name, importedObject);             
         dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
         
         return importedObject
@@ -109,7 +112,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
             // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
 
-            if (debug) console.log('100 Create relship', fromobjectName, importedRel.name, toobjectName );
+        if (debug) console.log('100 Create relship', fromobjectName, importedRel.name, toobjectName );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 
@@ -118,44 +121,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         // const osduMod = JSON.parse(jsonFile) // importert JSON file
         // if (debug) console.log('121 osduMod', osduMod)
 
-
-  
-        // // .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-        // // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
-        // // if  $id contains master-data or work-product-component or work-product then add the file to the model
-        // let newOsduMod =osduMod
-        // if (osduMod['$id'].includes('master-data') || osduMod['$id'].includes('work-product-component') || osduMod['$id'].includes('work-product')) {
-            
-        //     if (osduMod.hasOwnProperty('data')) { // move allOff up to top level and remove data, to make genrerated the same as authoring i osdu 
-        //         console.log('151 found osduMod[data], it must be a grenerated not authoring', osduMod['data'])
-        //         // remove data move content to top and remove data from the jsonobject
-        //         const allOf = osduMod['data']['allOf']
-        //         const data = osduMod.data
-        //         delete osduMod.data
-        //         newOsduMod = {...osduMod, ...allOf}
-        //     }
-            
-        //     const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
-        //     // const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`)
-        //     if (debug) console.log('155 ', osduMod, aspObj)
-
-        //     // move allOf to data
-        //     // const data = osduMod.allOf
-        //     // newOsduMod.data = data
-        //     // remover allOf from newOsduMod
-        //     newOsduMod.allOf = [...osduMod.allOf, aspObj]
-        //     console.log('165 ', newOsduMod)
-        // }
-
-        // if (debug) console.log('32', newOsduMod, newOsduMod["$id"], newOsduMod["x-osdu-schema-source"] );
-        // // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
-        
-        // const topName = (newOsduMod["$id"]) ? newOsduMod["$id"].split('/').slice(-1)[0] : newOsduMod["x-osdu-schema-source"] 
-        // const topModel ={[topName]: newOsduMod} // top object is given topName as key 
-
-
         const osduMod = JSON.parse(jsonFile.toString()) // importert JSON file
-        if (debug) console.log('121 osduMod', osduMod)
+        if (!debug) console.log('121 osduMod', osduMod)
     
         let parentId = null //topModel.id || osduMod["$id"]
         let mainArray = []
@@ -170,34 +137,36 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     
         // if  $id contains master-data or work-product-component or work-product then add the file to the model
         // if (osduMod['$id']?.includes('master-data') || osduMod['$id']?.includes('work-product-component') || osduMod['$id']?.includes('work-product')) {  // removed:  we use all files
-    
-        if (osduMod.hasOwnProperty('properties')) { // if skip system properties from the gererated json files
-            delete osduMod.properties['id'] 
-            delete osduMod.properties['kind'] 
-            delete osduMod.properties['version'] 
-            delete osduMod.properties['acl'] 
-            delete osduMod.properties['legal'] 
-            delete osduMod.properties['tags'] 
-            delete osduMod.properties['createTime'] 
-            delete osduMod.properties['createUser'] 
-            delete osduMod.properties['modifyTime'] 
-            delete osduMod.properties['modifyUser'] 
-            delete osduMod.properties['ancestry'] 
-            delete osduMod.properties['meta'] 
-            console.log('155', osduMod)
-    
-    
-            // remove data move content to top and remove data from the jsonobjecthgg
-            const allOf = osduMod.properties['data']['allOf']
-            delete osduMod.properties.data
-            console.log('142 allOf', allOf)
-    
-    
-            // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
-            const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
-    
-            osduMod['allOf'] = [...allOf, aspObj]
-            if (debug) console.log('150 ', osduMod, aspObj)
+        console.log('141 osduMod', ('data' in osduMod) )
+        console.log('142 osduMod', osduMod.data )
+        console.log('140 osduMod', osduMod.hasOwnProperty('data'))
+        if (osduMod.data !== undefined) { // if data is defined in the json file
+            if (osduMod.hasOwnProperty('properties')) { // if skip system properties from the gererated json files
+                    delete osduMod.properties['id'] 
+                    delete osduMod.properties['kind'] 
+                    delete osduMod.properties['version'] 
+                    delete osduMod.properties['acl'] 
+                    delete osduMod.properties['legal'] 
+                    delete osduMod.properties['tags'] 
+                    delete osduMod.properties['createTime'] 
+                    delete osduMod.properties['createUser'] 
+                    delete osduMod.properties['modifyTime'] 
+                    delete osduMod.properties['modifyUser'] 
+                    delete osduMod.properties['ancestry'] 
+                    delete osduMod.properties['meta'] 
+                    console.log('155', osduMod)
+            
+                    // remove data move content to top and remove data from the jsonobjecthgg
+                    const allOf = osduMod.properties['data']['allOf']
+                    delete osduMod.properties.data
+                    console.log('142 allOf', allOf)
+            
+                    // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
+                    const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
+            
+                    osduMod['allOf'] = [...allOf, aspObj]
+                    if (debug) console.log('150 ', osduMod, aspObj)
+                }
         }
         
         let newOsduMod = osduMod
@@ -305,23 +274,27 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         const osduObjects = osduArray?.map( (osduObj, index) => {
             const [oId, oKey, oVal] = osduObj
             const oName = oKey?.split('|')?.slice(-1)[0] // objectName ; split and slice it, pick last element
-            if (debug) console.log('261 :', oName, oKey)//, oVal);
+            if (debug) console.log('261 :', oName, oKey, oVal);
             // const cNewVal = filterObject(oVal) // filter away subobjects, we only want attributes in cNewVal (objects are handled in the next iteration)
             const cNewVal = filterObject(oVal) // filter away subobjects, we only want attributes in cNewVal (objects are handled in the next iteration)
             const parentName = oKey?.split('|')?.slice(-2,-1)[0] // parentName ; split and slice it, pick second last element
             const jsonType = (Array.isArray(oVal)) ? 'isArray' : 'isObject';
+
+
+            // ==================== -------------------- ==================== -------------------- ====================
 
             // first we create the objects ----------------------------------------------------------------------
             if (index === 0) { // the first object is the in the json file (topObj)
                 //  Set tobObjName = all before dot
                 let topObjName = oName.split('.')[0] // remove the version number from the name
                 // get type from the objects $id attribute and pick the second last element of the path which is the folder name
-                const entityTypePathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : 'EntityType' // filter out the entityType from the file path i.e master-data 
-                let objTypeElementName = camelCase(entityTypePathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
-                if (objTypeElementName === 'Abstract') cNewVal.abstract = true // if the object is abstract, set the abstract property to true
+                const entityPathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : '' ;// filter out the pathelement from the file path i.e master-data 
+                osdutype = camelCase(entityPathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
+                if (osdutype === 'Abstract') cNewVal.abstract = true // if the object is abstract, set the abstract property to true
                 // if (objTypeElementName === 'ReferenceData') cNewVal.abstract = true // if the object is abstract, set the abstract property to true
                 // console.log('221 objTypeElementName', objTypeElementName, cNewVal);
-                objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === objTypeElementName)?.id || curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id // find objecttypeRef for the objecttypeName
+                objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id // find objecttypeRef for the objecttypeName
+                // objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === objTypeElementName)?.id || curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id // find objecttypeRef for the objecttypeName
                 // Hardcoded: we will remove the Abstract from objectName 
                 if (topObjName.includes('Abstract')) {
                     if (topObjName == 'AbstractWorkProductComponent') { // we don't want to create a type WorkproductComponent. It is already a type.
@@ -331,8 +304,9 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         cNewVal.abstract = true
                     }
                 }
-                createObject(oId, topObjName, objecttypeRef, oKey, jsonType, cNewVal) // create the top object   
-                // console.log('215 topObject', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
+                // if (debug) console.log('301 :', oName, oKey, osdutype,  oVal, cNewVal);
+                createObject(oId, topObjName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the top object   
+                console.log('337 topObject', oId, oName, objecttypeRef,oKey, osdutype, jsonType, cNewVal);
 
             } else if (parentName === 'properties') { // this is property and proplink objectsƒ    
                 if (debug) console.log('340 ', oName, oVal);
@@ -345,43 +319,43 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         // objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
 
                         if (oName.includes('IDs') || oName.includes('ID')) { // if the name contains ID, its a link to another object "ObjectName"-ID
-                            cNewVal.linkId = oName.replace('IDs', '') // remove IDs from the name
-                            cNewVal.linkId = oName.replace('ID', '') // remove ID from the name
+                            cNewVal.linkID = oName.replace('IDs', '') // remove IDs from the name
+                            cNewVal.linkID = oName.replace('ID', '') // remove ID from the name
                         } else {
-                            cNewVal.linkId = oName
+                            cNewVal.linkID = oName
                         }
-
+                        console.log('324 relationship', oId, oName, objecttypeRef, oKey, rel.type, jsonType, cNewVal);
                         const propLinkName = 'has'+oName
 
                         // hardcoded transformation of the name
-                        // i.e. if o.linkId is = 'Company' then transform to 'Organisation'   
-                        if (cNewVal.linkId === 'Company') {cNewVal.linkId = 'Organisation'}
-                        if (cNewVal.linkId === 'Owner') {cNewVal.linkId = 'Organisation'}
-                        if (cNewVal.linkId === 'ServiceCompany') {cNewVal.linkId = 'Organisation'}
-                        if (cNewVal.linkId === 'ParentProject') {cNewVal.linkId = 'Project'}
-                        if (cNewVal.linkId === 'StationPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
-                        if (cNewVal.linkId === 'TrajectoryStationPropertyType') {cNewVal.linkId = 'TrajectoryStationPropertyType'}
-                        if (cNewVal.linkId === 'SurveyToolType') {cNewVal.linkId = 'SurveyToolType'}
-                        if (cNewVal.linkId === 'Target') {cNewVal.linkId = 'GeometricTargetSet'}
-                        if (cNewVal.linkId === 'GeographicCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
-                        if (cNewVal.linkId === 'ProjectedCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
-                        if (cNewVal.linkId === 'Feature') {cNewVal.linkId = 'LocalRockVolumeFeature'}
-                        if (cNewVal.linkId === 'ColumnStratigraphicHorizonTop') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'ColumnStratigraphicHorizonBase') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'Interpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'RockVolumeFeature') {cNewVal.linkId = 'RockVolumeFeature'}
-                        if (cNewVal.linkId === 'MarkerPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
-                        if (cNewVal.linkId === 'WellLogType') {cNewVal.linkId = 'LogType'}
-                        if (cNewVal.linkId === 'SamplingDomainType') {cNewVal.linkId = 'WellLogSamplingDomainType'}
-                        if (cNewVal.linkId === 'StartMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-                        if (cNewVal.linkId === 'StopMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-                        if (cNewVal.linkId === 'StartMarker') {cNewVal.linkId = 'Marker'}
-                        if (cNewVal.linkId === 'StopMarker') {cNewVal.linkId = 'Marker'}
-                        if (cNewVal.linkId === 'StartBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'StopBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
+                        // i.e. if o.linkID is = 'Company' then transform to 'Organisation'   
+                        if (cNewVal.linkID === 'Company') {cNewVal.linkID = 'Organisation'}
+                        if (cNewVal.linkID === 'Owner') {cNewVal.linkID = 'Organisation'}
+                        if (cNewVal.linkID === 'ServiceCompany') {cNewVal.linkID = 'Organisation'}
+                        if (cNewVal.linkID === 'ParentProject') {cNewVal.linkID = 'Project'}
+                        if (cNewVal.linkID === 'StationPropertyUnit') {cNewVal.linkID = 'UnitOfMeasure'}
+                        if (cNewVal.linkID === 'TrajectoryStationPropertyType') {cNewVal.linkID = 'TrajectoryStationPropertyType'}
+                        if (cNewVal.linkID === 'SurveyToolType') {cNewVal.linkID = 'SurveyToolType'}
+                        if (cNewVal.linkID === 'Target') {cNewVal.linkID = 'GeometricTargetSet'}
+                        if (cNewVal.linkID === 'GeographicCRS') {cNewVal.linkID = 'CoordinateReferenceSystem'}
+                        if (cNewVal.linkID === 'ProjectedCRS') {cNewVal.linkID = 'CoordinateReferenceSystem'}
+                        if (cNewVal.linkID === 'Feature') {cNewVal.linkID = 'LocalRockVolumeFeature'}
+                        if (cNewVal.linkID === 'ColumnStratigraphicHorizonTop') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'ColumnStratigraphicHorizonBase') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'Interpretation') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'RockVolumeFeature') {cNewVal.linkID = 'RockVolumeFeature'}
+                        if (cNewVal.linkID === 'MarkerPropertyUnit') {cNewVal.linkID = 'UnitOfMeasure'}
+                        if (cNewVal.linkID === 'WellLogType') {cNewVal.linkID = 'LogType'}
+                        if (cNewVal.linkID === 'SamplingDomainType') {cNewVal.linkID = 'WellLogSamplingDomainType'}
+                        if (cNewVal.linkID === 'StartMarkerSet') {cNewVal.linkID = 'WellboreMarkerSet'}
+                        if (cNewVal.linkID === 'StopMarkerSet') {cNewVal.linkID = 'WellboreMarkerSet'}
+                        if (cNewVal.linkID === 'StartMarker') {cNewVal.linkID = 'Marker'}
+                        if (cNewVal.linkID === 'StopMarker') {cNewVal.linkID = 'Marker'}
+                        if (cNewVal.linkID === 'StartBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
 
                         
-                        createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the relationship objects
+                        createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the relationship objects
                         if (debug) console.log('383 not ID ', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     });
@@ -393,7 +367,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     if ((oName.substring(oName.length-3) === 'Set') || (oName === 'Markers')){ // make a collection object
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'Collection')?.id
                         cNewVal.viewkind = 'container'
-                        createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
+                        createObject(oId, oName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the collection objects
                         if (debug) console.log('299  array Set', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else if (oName.includes('ID') || oName.includes('IDs')) { // is this working? when ID its not an array? -------------------------
@@ -402,11 +376,11 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         } else {
                             if (debug) console.log('275  array', oId, oName, oKey, jsonType, cNewVal);
                             objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                            let linkId = oName.replace('ID', '') // remove iD from the name
+                            let linkID = oName.replace('ID', '') // remove iD from the name
                             const propLinkName = 'has' + oName
-                            cNewVal.linkId = oName
-                            if (debug) console.log('277  array', oName, linkId, cNewVal);
-                            createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
+                            cNewVal.linkID = oName
+                            if (debug) console.log('277  array', oName, linkID, cNewVal);
+                            createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the collection objects
                             if (debug) console.log('309  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
                             findOwnerandCreateRelationship(osduObj)
                         }
@@ -419,7 +393,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (debug) console.log('389  array', oId, oName, oKey, jsonType);
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
                         if (oName === 'Markers') oName =  oName.substring(0, oName.length-1) // remove the last character from the name
-                        createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects
+                        createObject(oId, oName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the reference objects
                         if (debug) console.log('320  array else', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     }
@@ -429,51 +403,51 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         const propLinkName = 'has'+oName
 
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                        cNewVal.linkId = oName.replace('IDs', '') // remove IDs from the name
-                        cNewVal.linkId = oName.replace('ID', '') // remove ID from the name
+                        cNewVal.linkID = oName.replace('IDs', '') // remove IDs from the name
+                        cNewVal.linkID = oName.replace('ID', '') // remove ID from the name
                         if (debug) console.log('322 ', oName, cNewVal);
 
                         // hardcoded transformation of the name
-                        // i.e. if o.linkId is = 'Company' then transform to 'Organisation'   
-                        if (cNewVal.linkId === 'Company') {cNewVal.linkId = 'Organisation'}
-                        if (cNewVal.linkId === 'ServiceCompany') {cNewVal.linkId = 'Organisation'}
-                        if (cNewVal.linkId === 'ParentProject') {cNewVal.linkId = 'Project'}
-                        if (cNewVal.linkId === 'StationPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
-                        if (cNewVal.linkId === 'TrajectoryStationPropertyType') {cNewVal.linkId = 'TrajectoryStationPropertyType'}
-                        if (cNewVal.linkId === 'SurveyToolType') {cNewVal.linkId = 'SurveyToolType'}
-                        if (cNewVal.linkId === 'GeographicCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
-                        if (cNewVal.linkId === 'ProjectedCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
-                        if (cNewVal.linkId === 'Feature') {cNewVal.linkId = 'LocalRockVolumeFeature'}
-                        if (cNewVal.linkId === 'ColumnStratigraphicHorizonTop') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'ColumnStratigraphicHorizonBase') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'Interpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'RockVolumeFeature') {cNewVal.linkId = 'RockVolumeFeature'}
-                        if (cNewVal.linkId === 'MarkerPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
-                        if (cNewVal.linkId === 'WellLogType') {cNewVal.linkId = 'LogType'}
-                        if (cNewVal.linkId === 'SamplingDomainType') {cNewVal.linkId = 'WellLogSamplingDomainType'}
-                        if (cNewVal.linkId === 'StartMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-                        if (cNewVal.linkId === 'StopMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-                        if (cNewVal.linkId === 'StartMarker') {cNewVal.linkId = 'Marker'}
-                        if (cNewVal.linkId === 'StopMarker') {cNewVal.linkId = 'Marker'}
-                        if (cNewVal.linkId === 'StartBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'StopBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-                        // if (cNewVal.linkId === 'GeologicUnitInterpretation') {cNewVal.linkId = 'GeologicUnitInterpretation'} // TODO: check if this is correct
+                        // i.e. if o.linkID is = 'Company' then transform to 'Organisation'   
+                        if (cNewVal.linkID === 'Company') {cNewVal.linkID = 'Organisation'}
+                        if (cNewVal.linkID === 'ServiceCompany') {cNewVal.linkID = 'Organisation'}
+                        if (cNewVal.linkID === 'ParentProject') {cNewVal.linkID = 'Project'}
+                        if (cNewVal.linkID === 'StationPropertyUnit') {cNewVal.linkID = 'UnitOfMeasure'}
+                        if (cNewVal.linkID === 'TrajectoryStationPropertyType') {cNewVal.linkID = 'TrajectoryStationPropertyType'}
+                        if (cNewVal.linkID === 'SurveyToolType') {cNewVal.linkID = 'SurveyToolType'}
+                        if (cNewVal.linkID === 'GeographicCRS') {cNewVal.linkID = 'CoordinateReferenceSystem'}
+                        if (cNewVal.linkID === 'ProjectedCRS') {cNewVal.linkID = 'CoordinateReferenceSystem'}
+                        if (cNewVal.linkID === 'Feature') {cNewVal.linkID = 'LocalRockVolumeFeature'}
+                        if (cNewVal.linkID === 'ColumnStratigraphicHorizonTop') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'ColumnStratigraphicHorizonBase') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'Interpretation') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'RockVolumeFeature') {cNewVal.linkID = 'RockVolumeFeature'}
+                        if (cNewVal.linkID === 'MarkerPropertyUnit') {cNewVal.linkID = 'UnitOfMeasure'}
+                        if (cNewVal.linkID === 'WellLogType') {cNewVal.linkID = 'LogType'}
+                        if (cNewVal.linkID === 'SamplingDomainType') {cNewVal.linkID = 'WellLogSamplingDomainType'}
+                        if (cNewVal.linkID === 'StartMarkerSet') {cNewVal.linkID = 'WellboreMarkerSet'}
+                        if (cNewVal.linkID === 'StopMarkerSet') {cNewVal.linkID = 'WellboreMarkerSet'}
+                        if (cNewVal.linkID === 'StartMarker') {cNewVal.linkID = 'Marker'}
+                        if (cNewVal.linkID === 'StopMarker') {cNewVal.linkID = 'Marker'}
+                        if (cNewVal.linkID === 'StartBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
+                        // if (cNewVal.linkID === 'GeologicUnitInterpretation') {cNewVal.linkID = 'GeologicUnitInterpretation'} // TODO: check if this is correct
 
                         if (debug) console.log('346  ', cNewVal);
 
-                        createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                        createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the property objects
                         if (debug) console.log('352 ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else if (oName.substring(oName.length- 4) === 'Type'){ // check if last part of the oName is the characters "Type", its a link to another object "ObjectName"with TYPE included
-                        cNewVal.linkId = oName
+                        cNewVal.linkID = oName
                         const propLinkName = 'has'+oName
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                        createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                        createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the property objects
                         if (debug) console.log('359 TYPE', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else { // if the name does not contain ID or Type, we create a property object
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'Property')?.id
-                        createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                        createObject(oId, oName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the property objects
                         if (debug) console.log('464 not ID ', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     }
@@ -488,10 +462,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 const typeRest = oVal['$ref'].split('/').slice(-1)[0]
                 cNewVal.title = (typeRest) && typeRest.split('.')[0] 
                 const typeRestNoDot = (typeRest) && typeRest.split('.')[0]
-                cNewVal.linkId = (typeRestNoDot) && (typeRestNoDot === 'AbstractWorkProductComponent') ? typeRestNoDot : typeRestNoDot.replace('Abstract', '')
+                cNewVal.linkID = (typeRestNoDot) && (typeRestNoDot === 'AbstractWorkProductComponent') ? typeRestNoDot : typeRestNoDot.replace('Abstract', '')
 
                 const entityName = 'Is'+cNewVal.title
-                createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects               
+                createObject(oId, entityName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the reference objects               
                 if (debug) console.log('330 $ref', oId, entityName, objecttypeRef,oKey, jsonType, cNewVal);  
                 findOwnerandCreateRelationship(osduObj)
             } else if (oName === 'items') { // Items
@@ -501,8 +475,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     const linkedName = parentName.substring(0, parentName.length-3) // remove the last 3 characters "Set", leaving the name of the object to link to
                     const propLinkName = 'has'+linkedName
                     objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                    cNewVal.linkId = linkedName
-                    createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                    cNewVal.linkID = linkedName
+                    createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the property objects
                     if (debug) console.log('349 Set', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
                 } else if (parentName === 'Markers' || parentName === 'Intervals' || parentName?.includes('IDs') ){ // Special case for Markers, Intervals or containing IDs   
@@ -511,7 +485,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     reltypeRef = containsType?.id
                     reltypeName = containsType?.name
                     relshipKind = 'Association'
-                    createObject(oId, oMName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                    createObject(oId, oMName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the property objects
                     if (debug) console.log('398 Markers', oId, oMName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
                 } else if (oVal.allOf) { // 
@@ -521,7 +495,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     if (gchildKeyName) {
                         entityName =    'Is'+gchildKeyName
                         cNewVal.title = gchildKeyNameId
-                        cNewVal.linkId = gchildKeyNameId
+                        cNewVal.linkID = gchildKeyNameId
                         // objecttypeRef = (gchildKeyName === '$ref') ? curObjTypes.find(ot => ot.name === 'PropLink')?.id  : curObjTypes.find(ot => ot.name === objTypeName)?.id // find objecttypeRef for the objecttypeName
                         reltypeRef = containsType?.id 
                         reltypeName = containsType?.name
@@ -533,7 +507,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 }
             } else { // the rest we dont make objects for
                     if (debug) console.log('376 no obj', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);  
-                    // createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects  
+                    // createObject(oId, entityName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the reference objects  
             }
         })
 
@@ -699,13 +673,13 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 if (!obj.hasOwnProperty(i)) continue;
                 if (typeof obj[i] == 'object') continue;
                 const tmpkey = i
-                if (i === 'type') tmpkey = 'osduType' // type is a akmm attribute probably not the same as osdu attribute
+                // if (i === 'type') tmpkey = 'osduType' // type is a akmm attribute probably not the same as osdu attribute
 
                 newobj = {
                     ...newobj,
                     [tmpkey]: obj[i]
                 }
-                // console.log('130', i, obj[i], newobj);
+                console.log('130', i, obj[i], newobj);
             }
             if (debug) console.log('513 :', obj, newobj);
             
@@ -719,3 +693,39 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             return attribute
         }
 }
+
+
+
+
+        // // .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        // // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
+        // // if  $id contains master-data or work-product-component or work-product then add the file to the model
+        // let newOsduMod =osduMod
+        // if (osduMod['$id'].includes('master-data') || osduMod['$id'].includes('work-product-component') || osduMod['$id'].includes('work-product')) {
+            
+        //     if (osduMod.hasOwnProperty('data')) { // move allOff up to top level and remove data, to make genrerated the same as authoring i osdu 
+        //         console.log('151 found osduMod[data], it must be a grenerated not authoring', osduMod['data'])
+        //         // remove data move content to top and remove data from the jsonobject
+        //         const allOf = osduMod['data']['allOf']
+        //         const data = osduMod.data
+        //         delete osduMod.data
+        //         newOsduMod = {...osduMod, ...allOf}
+        //     }
+            
+        //     const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
+        //     // const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`)
+        //     if (debug) console.log('155 ', osduMod, aspObj)
+
+        //     // move allOf to data
+        //     // const data = osduMod.allOf
+        //     // newOsduMod.data = data
+        //     // remover allOf from newOsduMod
+        //     newOsduMod.allOf = [...osduMod.allOf, aspObj]
+        //     console.log('165 ', newOsduMod)
+        // }
+
+        // if (debug) console.log('32', newOsduMod, newOsduMod["$id"], newOsduMod["x-osdu-schema-source"] );
+        // // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
+        
+        // const topName = (newOsduMod["$id"]) ? newOsduMod["$id"].split('/').slice(-1)[0] : newOsduMod["x-osdu-schema-source"] 
+        // const topModel ={[topName]: newOsduMod} // top object is given topName as key 

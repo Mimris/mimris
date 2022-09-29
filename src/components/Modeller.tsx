@@ -31,19 +31,14 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
-
   const [ofilter, setOfilter] = useState('All')
-
   const [visibleObjects, setVisiblePalette] = useState(false)
 
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
-
   function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25', refresh);
    }
 
-
-   if (debug) console.log('27 Modeller: props, refresh', props, refresh);
-
+  if (debug) console.log('27 Modeller: props, refresh', props, refresh);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -138,7 +133,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
 `Description: ${model?.description}
     
 To change Model name, rigth click the background below and select 'Edit Model'.`
-        }>Model :
+        }> Model :
           <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
           onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
           {options}
@@ -204,7 +199,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // let objArr = props.myMetis.gojsModel?.model.objects
 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
-  let ndArr = props.gojsModel?.nodeDataArray
+  let ndArr = props.gojsModelObjects?.nodeDataArray
+  // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr 
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
@@ -249,10 +245,10 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
 
+  // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
-  // let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
   
-  if (debug) console.log('165  gojsobjects',  gojsobjects.nodeDataArray);
+  if (debug) console.log('165  gojsobjects', gojsobjects.nodeDataArray);
   
 
   useEffect(() => { // -----------------------------------------------------------------------------
@@ -299,7 +295,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
-            >
+            > 
               {mv.name}
             </NavLink>
           </NavItem>

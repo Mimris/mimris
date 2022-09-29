@@ -36,7 +36,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    if (!debug) clog('33 GenGojsModel: props', props);
+    if (debug) clog('33 GenGojsModel: props', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
@@ -307,6 +307,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let includeObject = false;
       const obj = objects[i];
       const objtype = obj?.getObjectType();
+      if (!objtype) continue; // added 2022-09-29 sf 
+      if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
       const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);

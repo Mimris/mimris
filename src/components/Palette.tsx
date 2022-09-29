@@ -101,11 +101,11 @@ const Palette = (props: any) => {
     }
   }, [props.phFocus.focusTask?.id])
 
-  // break if no model
+  // break if no model or metamodel
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
   
-  if (debug) clog('103 Palette', props , seltasks, taskNodeDataArray, ndarr);
+  if (debug) clog('103 Palette', props , seltasks);
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
@@ -132,7 +132,7 @@ const Palette = (props: any) => {
  
  const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)
   <div className="workpad p-1 pt-2 bg-white" >
-    <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
+    <div className="mmname mx-0 px-2 my-3" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
     {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
     < GoJSPaletteApp
       nodeDataArray={filteredOtNodeDataArray}

@@ -313,7 +313,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             const parentName = oKey?.split('|')?.slice(-2,-1)[0] // parentName ; split and slice it, pick second last element
             const jsonType = (Array.isArray(oVal)) ? 'isArray' : 'isObject';
 
-
             // ==================== -------------------- ==================== -------------------- ====================
 
             // first we create the objects ----------------------------------------------------------------------
@@ -348,9 +347,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     oVal['x-osdu-relationship'].map((rel: { type: string; }) => {
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
                         if (debug) console.log('324  relationship', rel, objecttypeRef);
- 
                         // objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-
                         if (oName.includes('IDs') || oName.includes('ID')) { // if the name contains ID, its a link to another object "ObjectName"-ID
                             cNewVal.linkID = oName.replace('IDs', '') // remove IDs from the name
                             cNewVal.linkID = oName.replace('ID', '') // remove ID from the name
@@ -359,7 +356,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         }
                         console.log('324 relationship', oId, oName, objecttypeRef, oKey, rel.type, jsonType, cNewVal);
                         const propLinkName = 'has'+oName
-
                         // hardcoded transformation of the name
                         // i.e. if o.linkID is = 'Company' then transform to 'Organisation'   
                         if (cNewVal.linkID === 'Company') {cNewVal.linkID = 'Organisation'}
@@ -386,7 +382,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkID === 'StopMarker') {cNewVal.linkID = 'Marker'}
                         if (cNewVal.linkID === 'StartBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
                         if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
-
                         
                         createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the relationship objects
                         if (debug) console.log('383 not ID ', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
@@ -439,7 +434,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         cNewVal.linkID = oName.replace('IDs', '') // remove IDs from the name
                         cNewVal.linkID = oName.replace('ID', '') // remove ID from the name
                         if (debug) console.log('322 ', oName, cNewVal);
-
                         // hardcoded transformation of the name
                         // i.e. if o.linkID is = 'Company' then transform to 'Organisation'   
                         if (cNewVal.linkID === 'Company') {cNewVal.linkID = 'Organisation'}
@@ -465,7 +459,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkID === 'StartBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
                         if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
                         // if (cNewVal.linkID === 'GeologicUnitInterpretation') {cNewVal.linkID = 'GeologicUnitInterpretation'} // TODO: check if this is correct
-
                         if (debug) console.log('346  ', cNewVal);
 
                         createObject(oId, propLinkName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the property objects

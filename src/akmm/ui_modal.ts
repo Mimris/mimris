@@ -940,6 +940,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const selectedValue = modalContext.selected?.value;
         if (debug) console.log('862 selected: ', modalContext.selectedValue);
         const metamodel = myMetis.findMetamodelByName(selectedValue); 
+        if (!metamodel) {
+          alert ('Metamodel not found');
+          return;
+        }
         context.myTargetMetamodel = metamodel;
         context.myCurrentModelview = myMetis.currentModelview;
         myMetis.currentModel.targetMetamodelRef = metamodel.id;

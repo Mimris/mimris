@@ -891,12 +891,11 @@ function addMetamodel2(context: any) {
             currentMetamodel.addObjectType(objecttype);
     }
     const relshiptypes = metamodel.relshiptypes;
+    if (debug) console.log('894 relshiptypes', relshiptypes);
     for (let i=0; i<relshiptypes?.length; i++) {
         const relshiptype = relshiptypes[i];
         if (!relshiptype) continue;
         if (currentMetamodel.findRelationshipType(relshiptype.id)) 
-            continue;
-        else if (relshiptype.name === constants.types.AKM_IS) 
             continue;
         else 
             currentMetamodel.addRelationshipType(relshiptype);

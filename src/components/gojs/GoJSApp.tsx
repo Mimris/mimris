@@ -276,8 +276,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       "dispatch":         dispatch,
       "pasted":           pasted,
       "done":             done,
-      "askForRelshipName":    myModelview.askForRelshipName,
-      "includeInheritedReltypes": myModelview.includeInheritedReltypes,
+      "askForRelshipName":    myModelview?.askForRelshipName,
+      "includeInheritedReltypes": myModelview?.includeInheritedReltypes,
       "handleOpenModal":  this.handleOpenModal,
       "modifiedLinks":    null,
       "modifiedRelships": null,
@@ -930,14 +930,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('906 myMetis', myMetis); 
+        if (debug) console.log('933 myMetis', myMetis); 
       }
-      if (debug) console.log('932 Deletion completed', myMetis);
+      if (debug) console.log('935 Deletion completed', myMetis);
 
       const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      if (debug) console.log('938 jsnMetis', jsnMetis);
       let data = {metis: jsnMetis}
       data = JSON.parse(JSON.stringify(data));
-      if (debug) console.log('932 PhData', data);
+      if (debug) console.log('941 PhData', data);
       myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })       
 
       return;

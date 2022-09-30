@@ -5423,9 +5423,11 @@ export class cxRelationshipType extends cxObjectType {
     }
     setFromObjectType(objtype: cxObjectType) {
         this.fromObjtype = objtype;
+        this.fromobjtypeRef = objtype.id;
     }
     setToObjectType(objtype: cxObjectType) {
         this.toObjtype = objtype;
+        this.toobjtypeRef = objtype.id;
     }
     numberOfMetamodelsUsage(metis: cxMetis): number {
         let count = 0;
@@ -6323,7 +6325,7 @@ export class cxModel extends cxMetaObject {
                 let obj = this.objects[i];
                 if (obj && !obj.markedAsDeleted) {
                     let type = obj.getType();
-                    if (type && type.getName() === objtypeName)
+                    if (type && type.name === objtypeName)
                         objects.push(obj);
                 }
             }

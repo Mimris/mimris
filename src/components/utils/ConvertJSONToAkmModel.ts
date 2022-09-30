@@ -117,7 +117,40 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 
     }
+        if (false) {
+            // .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+            // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
+            // if  $id contains master-data or work-product-component or work-product then add the file to the model
+            let newOsduMod =osduMod
+            if (osduMod['$id'].includes('master-data') || osduMod['$id'].includes('work-product-component') || osduMod['$id'].includes('work-product')) {
+                
+                if (osduMod.hasOwnProperty('data')) { // move allOff up to top level and remove data, to make genrerated the same as authoring i osdu 
+                    console.log('151 found osduMod[data], it must be a grenerated not authoring', osduMod['data'])
+                    // remove data move content to top and remove data from the jsonobject
+                    const allOf = osduMod['data']['allOf']
+                    const data = osduMod.data
+                    delete osduMod.data
+                    newOsduMod = {...osduMod, ...allOf}
+                }
+                
+                const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
+                // const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`)
+                if (debug) console.log('155 ', osduMod, aspObj)
 
+                // move allOf to data
+                // const data = osduMod.allOf
+                // newOsduMod.data = data
+                // remover allOf from newOsduMod
+                newOsduMod.allOf = [...osduMod.allOf, aspObj]
+                console.log('165 ', newOsduMod)
+            }
+
+            if (debug) console.log('32', newOsduMod, newOsduMod["$id"], newOsduMod["x-osdu-schema-source"] );
+            // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
+            
+            const topName = (newOsduMod["$id"]) ? newOsduMod["$id"].split('/').slice(-1)[0] : newOsduMod["x-osdu-schema-source"] 
+            const topModel ={[topName]: newOsduMod} // top object is given topName as key 
+        }
         // const osduMod = JSON.parse(jsonFile) // importert JSON file
         // if (debug) console.log('121 osduMod', osduMod)
 
@@ -385,13 +418,13 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                             findOwnerandCreateRelationship(osduObj)
                         }
                     } else if (cNewVal['$ref']) { // if the value is a reference we create a EntityType object
-                        objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
+                        objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropCollection')?.id  // change from EntityType
                         createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects
                         if (debug) console.log('319  array $ref', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else {
                         if (debug) console.log('389  array', oId, oName, oKey, jsonType);
-                        objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
+                        objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropCollection')?.id // changed from EntityType
                         if (oName === 'Markers') oName =  oName.substring(0, oName.length-1) // remove the last character from the name
                         createObject(oId, oName, objecttypeRef, oKey, osdutype, jsonType, cNewVal) // create the reference objects
                         if (debug) console.log('320  array else', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
@@ -481,7 +514,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     findOwnerandCreateRelationship(osduObj)
                 } else if (parentName === 'Markers' || parentName === 'Intervals' || parentName?.includes('IDs') ){ // Special case for Markers, Intervals or containing IDs   
                     const oMName  = parentName.substring(0, parentName.length-1) // remove the last plural character s
-                    objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
+                    objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropCollection')?.id
                     reltypeRef = containsType?.id
                     reltypeName = containsType?.name
                     relshipKind = 'Association'
@@ -696,36 +729,3 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
 
 
-
-        // // .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-        // // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
-        // // if  $id contains master-data or work-product-component or work-product then add the file to the model
-        // let newOsduMod =osduMod
-        // if (osduMod['$id'].includes('master-data') || osduMod['$id'].includes('work-product-component') || osduMod['$id'].includes('work-product')) {
-            
-        //     if (osduMod.hasOwnProperty('data')) { // move allOff up to top level and remove data, to make genrerated the same as authoring i osdu 
-        //         console.log('151 found osduMod[data], it must be a grenerated not authoring', osduMod['data'])
-        //         // remove data move content to top and remove data from the jsonobject
-        //         const allOf = osduMod['data']['allOf']
-        //         const data = osduMod.data
-        //         delete osduMod.data
-        //         newOsduMod = {...osduMod, ...allOf}
-        //     }
-            
-        //     const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
-        //     // const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`)
-        //     if (debug) console.log('155 ', osduMod, aspObj)
-
-        //     // move allOf to data
-        //     // const data = osduMod.allOf
-        //     // newOsduMod.data = data
-        //     // remover allOf from newOsduMod
-        //     newOsduMod.allOf = [...osduMod.allOf, aspObj]
-        //     console.log('165 ', newOsduMod)
-        // }
-
-        // if (debug) console.log('32', newOsduMod, newOsduMod["$id"], newOsduMod["x-osdu-schema-source"] );
-        // // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
-        
-        // const topName = (newOsduMod["$id"]) ? newOsduMod["$id"].split('/').slice(-1)[0] : newOsduMod["x-osdu-schema-source"] 
-        // const topModel ={[topName]: newOsduMod} // top object is given topName as key 

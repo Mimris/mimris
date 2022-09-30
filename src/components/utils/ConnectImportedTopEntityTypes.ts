@@ -119,8 +119,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
         // find top level object
         if (targetObject) { // if no targetObject, skip this relationship
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
-            if (debug) console.log('122 ', o.name, targetObject) //, curObjects, curRelships);  
-            if (debug) console.log('123 ', topLevelObject) //, curObjects, curRelships);  
+            if (!debug) console.log('122 ', o.name, targetObject) //, curObjects, curRelships);  
+            if (!debug) console.log('123 ', topLevelObject) //, curObjects, curRelships);  
             // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
             if (debug) console.log('125 ', targetObject, o.name, curObjects, topLevelObject );  
             // if (debug) console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);            
@@ -154,13 +154,13 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
             if ((toobjectId) && (fromobjectId) && (!existRelship)) {
                 if (debug)console.log('155 ', fromtypeRef, fromtypeName, fromobjectName, totypeRef, totypeName, toobjectName);
                 if ((fromobjectId) !== (toobjectId)) {
-                    if (debug) console.log('157 ', reltypeName, fromtypeName, fromobjectName, totypeName, toobjectName);
+                    if (!debug) console.log('157 ', reltypeName, fromtypeName, fromobjectName, totypeName, toobjectName);
                     if (fromtypeName === 'Abstract' || totypeName === 'Abstract') {
                     // if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
                         if (debug) console.log('160 ', fromtypeName, fromobjectName, totypeName, toobjectName);
                         // do nothing
                     } else {
-                        if (debug) console.log('163 ', fromtypeName, fromobjectName, totypeName, toobjectName);
+                        if (!debug) console.log('163 ', fromtypeName, fromobjectName, totypeName, toobjectName);
                         createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Associaton', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     }
                 }

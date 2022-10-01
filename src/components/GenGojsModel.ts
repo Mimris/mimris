@@ -159,7 +159,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      if (debug) console.log('155 GenGojsModel gojsTargetMetamodel', gojsTargetMetamodel);
+      if (debug) console.log('155 GenGojsModel gojsModel', gojsModel);
 
       // /** metamodel */
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);
@@ -568,6 +568,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
     if (debug) console.log('558 myGoModel.links', myGoModel.links);
+    if (debug) console.log('569 myGoModel', myGoModel);
     return myGoModel;
   }
 
@@ -604,8 +605,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           console.log('567 objtypes[i]', objtypes[i]);
           let includeObjtype = false;
           const objtype = objtypes[i];
-          let strokecolor = objtype?.typeview?.strokecolor || "black";
-          let fillcolor = objtype?.typeview?.strokecolor || "white";
+          const outreltypes = objtype.outputreltypes;
+          for (let j=0; j<outreltypes?.length; j++) {
+            const reltype = outreltypes[j];
+            if (reltype) {
+              if (debug) console.log('608 reltype', reltype);
+              if (!reltype.fromObjtype) {
+                if (reltype.fromobjtypeRef)
+                  reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+              }
+              if (!reltype.toObjtype) {
+                if (reltype.toobjtypeRef)
+                  reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
+              }
+            }
+          }
+          let strokecolor = objtype.typeview?.strokecolor;
+          let fillcolor = objtype.typeview?.fillcolor;
           if (objtype) {
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;
@@ -677,7 +693,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
               link.category = constants.gojs.C_RELSHIPTYPE;
-              if (debug) console.log('676 link', link);
+              if (debug) console.log('676 link', link.name, link);
               myGoMetamodel.addLink(link);
             }            
           }

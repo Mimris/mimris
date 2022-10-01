@@ -2330,7 +2330,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   if (debug) console.log('1435 sel', sel.data);
                   const inst = sel.data;
                   if (inst.category === constants.gojs.C_OBJECT) {
-                    let objview = sel.data.objectview;
+                    let objview = inst.objectview;
                     if (objview) {
                       objview = myMetis.findObjectView(objview.id);
                       objview.markedAsDeleted = false;
@@ -2342,6 +2342,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       if (obj) 
                         obj.markedAsDeleted = false;
                     }
+                    if (debug) console.log('2345 objview', objview);
                   }
                   if (inst.category === constants.gojs.C_RELATIONSHIP) {
                     let relview = sel.data.relshipview;

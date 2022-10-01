@@ -1056,13 +1056,13 @@ export class jsnModel {
         }
     }
     addObject(obj: akm.cxObject) {
-        if (obj && !obj.isDeleted() && obj.type) {
-            const gObject = new jsnObject(obj);
+        if (obj && obj.type) {
+                const gObject = new jsnObject(obj);
             this.objects.push(gObject);
         }
     }
     addRelationship(rel: akm.cxRelationship) {
-        if (rel && !rel.isDeleted() && rel.type && rel.fromObject && rel.toObject) {
+        if (rel && rel.type && rel.fromObject && rel.toObject) {
             const gRelship = new jsnRelationship(rel);
             this.relships.push(gRelship);
         }

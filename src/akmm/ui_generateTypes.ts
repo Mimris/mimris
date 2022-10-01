@@ -1411,6 +1411,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
         if (debug) console.log('1399 metamodel', metamodel);
+        myMetis.addMetamodel(metamodel);
         // Dispatch metis
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         if (debug) console.log('1402 jsnMetis: ', jsnMetis);

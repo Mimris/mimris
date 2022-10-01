@@ -618,7 +618,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             }
           }
           let strokecolor = objtype.typeview?.strokecolor;
-          let fillcolor = objtype.typeview?.strokecolor;
+          let fillcolor = objtype.typeview?.fillcolor;
           if (objtype) {
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;

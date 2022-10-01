@@ -534,7 +534,6 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             node.group = "";
             const objview = node.objectview;
             objview.markedAsDeleted = deletedFlag;
-            objview.group = "";
             const object = objview.object;
             if (debug) console.log('477 delete objview', objview);
             // If group, delete members of group

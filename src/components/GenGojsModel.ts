@@ -307,6 +307,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let includeObject = false;
       const obj = objects[i];
       const objtype = obj?.getObjectType();
+      if (!objtype) continue; // added 2022-09-29 sf 
+      if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
       const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);

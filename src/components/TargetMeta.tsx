@@ -83,8 +83,8 @@ const TargetMeta = (props) => {
 
   const palette =
     <>
-      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span> -&gt; Target Metamodel</span> : <span>&lt;</span>}
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
+        onClick={togglePalette}> {visiblePalette ? <span>-&gt; Target Metamodel</span> : <span>&lt;-</span>}
       </button>
       {/* <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
         onChange={toglRefreshid()} 
@@ -92,11 +92,11 @@ const TargetMeta = (props) => {
       </button> */}
       {visiblePalette
         ? <>
-            <div className="mmname bg-light mx-1 px-1" style={{fontSize: "8px"}}>{targetmmnamediv}</div>
+            <div className="mmname bg-light mb-4 mx-1 px-1" style={{fontSize: "10px"}}>{targetmmnamediv}</div>
             <div className="m-1"> {gojsapp} </div>
-            <div className="mmname bg-light mx-1 px-1" style={{fontSize: "8px"}}>{targetmnamediv}</div>
+            <div className="mmname bg-light mb-4 mx-1 px-1" style={{fontSize: "10px"}}>{targetmnamediv}</div>
           </>
-        : <div className="btn-vertical m-0 pl-1 p-0" style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t </span></div>
+        : <div className="btn-vertical m-0 pl-2 p-0 " style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t </span></div>
       }
     </>
 

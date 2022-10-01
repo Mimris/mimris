@@ -264,7 +264,7 @@ const page = (props:any) => {
  
 
   const modellingtabs =  (<>
-      <Nav tabs style={{ minWidth: "170px" }}>
+      <Nav tabs style={{ borderBottom: "0px", minWidth: "170px" }}>
         {/* <NavItem className="text-danger" >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '0' })}
@@ -348,7 +348,7 @@ const page = (props:any) => {
             <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               <Col className="col1 m-0 p-0 pl-3" xs="auto">
                 <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                  {paletteDiv}
+                  {/* {paletteDiv} */}
                 </div>
               </Col>
               <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
@@ -363,7 +363,7 @@ const page = (props:any) => {
         <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
           <div className="workpad p-1 pt-2 bg-white">
             <Row className="row d-flex flex-nowrap h-100">
-              <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Types */}
+              <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Palette */}
                 <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                  <Palette
                     gojsModelObjects={gojsmodelobjects}
@@ -405,6 +405,7 @@ const page = (props:any) => {
                 {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div> */}
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
                   <Modeller // this is the Modeller ara
+                    gojsModelObjects={gojsmodelobjects}
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}

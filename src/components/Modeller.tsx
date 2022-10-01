@@ -31,19 +31,14 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
-
   const [ofilter, setOfilter] = useState('All')
-
   const [visibleObjects, setVisiblePalette] = useState(false)
 
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
-
   function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25', refresh);
    }
 
-
-   if (debug) console.log('27 Modeller: props, refresh', props, refresh);
-
+  if (debug) console.log('27 Modeller: props, refresh', props, refresh);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -130,7 +125,7 @@ Edit this field and click on the Save button.
 
 or Right-click the background below and select 'Edit Project Name'. 
 
-The text 'Project_<currentdate>' will be added to the filename.`
+The suffix '.json' will be added to the filename.`
         }> Project :  
         <input className="ml-2" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
         <span className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
@@ -138,7 +133,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
 `Description: ${model?.description}
     
 To change Model name, rigth click the background below and select 'Edit Model'.`
-        }>Model :
+        }> Model :
           <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
           onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
           {options}
@@ -204,7 +199,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // let objArr = props.myMetis.gojsModel?.model.objects
 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
-  let ndArr = props.gojsModel?.nodeDataArray
+  let ndArr = props.gojsModelObjects?.nodeDataArray
+  // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr 
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
@@ -227,8 +223,6 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     <div >
       { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
       { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
-      {/* { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> } */}
     </div>
   )
 
@@ -241,20 +235,16 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
       </details>
     <div>{focusTask?.name}</div>
   </>
-  // // filter out all objects of type Property
 
- 
+  // // filter out all objects of type 
   let ofilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container' ))
-  
   if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
-
+  // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
-  // let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
   
-  if (debug) console.log('165  gojsobjects',  gojsobjects.nodeDataArray);
+  if (debug) console.log('165  gojsobjects', gojsobjects.nodeDataArray);
   
-
   useEffect(() => { // -----------------------------------------------------------------------------
     if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
     taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
@@ -299,7 +289,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
-            >
+            > 
               {mv.name}
             </NavLink>
           </NavItem>
@@ -363,48 +353,49 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         </div>
         <div className="modeller--workarea m-0 p-0" style={{ minWidth: "90%" }}>
-          <Row>
-            <Col className="modeller--workarea-objects mr-0 pr-0 mt-2 col-auto " style={{ maxWidth: "166px"}}>
-              <div className="modeller--workarea-objects-content" style={{  backgroundColor: "#bcc",  height: "81vh"}} >
-                <button className="btn-sm px-0 m-0 " style={{ backgroundColor: "#bcc", outline: "0", borderStyle: "none"}}
-                  onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span>&gt;</span>} 
+          <Row className="m-0">
+            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto " style={{ margin: "-14px", maxWidth: "166px"}}>
+              <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
+                <button className="btn-sm px-1 m-0 text-left w-100" style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
+                  onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
                 </button>
                 {/* <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", height: "100%", border: "solid 1px black" }}> */}
                   {visibleObjects 
                     ? (objectsTabDiv) 
-                      ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ backgroundColor: "#bcc", fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</> 
-                      : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ backgroundColor: "#bcc", fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</>
-                    : <div className="btn-vertical m-0 pl-1 p-0" style={{ backgroundColor: "#bcc",  height: "79vh", maxWidth: "20px", padding: "0px" }}><span> O b j e c t s </span> </div>
+                      ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{  fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</> 
+                      : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{  fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</>
+                    : <div className="btn-vertical px-1 text-center" style={{ height: "78vh", maxWidth: "20px", padding: "0px" }}><span> O b j e c t s </span> </div>
                   }
                 {/* </div> */}
               </div>
             </Col>
-            <Col className="modelller--workarea-modellingarea w-100">
-            <div className="mt-2 ">
-              {modelviewTabDiv} 
-            </div>
-            <div className="modeller--footer-buttons">
-              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
-              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
-              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
-              <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button>
-              <button className="btn-sm  py-0" 
-                data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
-                onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
-                {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
-              </button>
-              {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-            <span className="sourceName pl-1 pr-1 ml-1 mt-1 mr-1 float-right" style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee", fontSize: "small"}}>
-                Current source:  {props.phSource} 
-              </span> 
-            </div>
+            <Col className="modeller--workarea-modelling px-1 ">
+            {/* <Col className="modelller--workarea-modelling w-100"> */}
+              <div className="mt-2">
+                {modelviewTabDiv} 
+              </div>
+              <div className="modeller--footer-buttons">
+                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
+                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
+                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
+                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button>
+                <button className="btn-sm  py-0" 
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
+                  onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
+                  {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
+                </button>
+                {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
+              <span className="sourceName pl-1 pr-1 ml-1 mt-1 mr-1 float-right" style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee", fontSize: "small"}}>
+                  Current source:  {props.phSource} 
+                </span> 
+              </div>
             </Col>
           </Row>
         </div>
       </div>
     : // palette
       <div className="mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
-        <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
+        <span className="modeller--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
         <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         {metamodelTabDiv} 
         <style jsx>{`

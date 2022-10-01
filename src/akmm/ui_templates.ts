@@ -503,8 +503,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             { contextMenu: contextMenu , cursor: "move" },
             {
             defaultRowSeparatorStroke: "black",
-            desiredSize: new go.Size(140, 60), //sf:  changed from 136 to 140 to force the textbox to make room for all text
-            maxSize: new go.Size(240, 66), 
+            desiredSize: new go.Size(136, 60),
+            maxSize: new go.Size(140, 66), 
             // margin: new go.Margin(2),
             defaultAlignment: go.Spot.Center,
             },
@@ -537,7 +537,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 verticalAlignment: go.Spot.Center,
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                margin: new go.Margin(0,0,0,0),
+                margin: new go.Margin(0,2,0,0),
                 name: "name"
             },        
             new go.Binding("text", "name").makeTwoWay(),

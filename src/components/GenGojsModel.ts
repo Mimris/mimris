@@ -600,9 +600,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myGoMetamodel = new gjs.goModel(utils.createGuid(), "myMetamodel", null);
       const objtypes = metamodel?.getObjectTypes();
       if (objtypes) {
-        if (!debug) console.log('565 objtypes', objtypes);
+        if (debug) console.log('565 objtypes', objtypes);
         for (let i = 0; i < objtypes.length; i++) {
-          console.log('567 objtypes[i]', objtypes[i]);
           let includeObjtype = false;
           const objtype = objtypes[i];
           const outreltypes = objtype.outputreltypes;

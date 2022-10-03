@@ -185,7 +185,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const typeview = objtype.typeview as akm.cxObjectTypeView;
         if (debug) console.log('185 objview, typeview', objview, typeview);
         typeview?.applyObjectViewParameters(objview);
-        if (debug) console.log('187 typeview', typeview);
+        if (!debug) console.log('187 typeview', typeview);
     }
     if (!objtype) { // The object type has not been generated
         return null;

@@ -88,6 +88,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             oldName = objtype.getName();
             objtype.setName(newName);
             objtype.setDescription(currentObj.description);
+            // objtype.typeDescription = currentObj.typeDescription;
             objtype.setViewKind(currentObj.getViewKind());
             objtype.setAbstract(currentObj.getAbstract());
             objtype.markedAsDeleted = object.markedAsDeleted;

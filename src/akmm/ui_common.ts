@@ -1739,10 +1739,11 @@ export function createLink(data: any, context: any): any {
 export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: any, context: any) {
     if (lnk.category === 'Relationship') {
         if (fromNode && toNode) {
+            const myDiagram = context.myDiagram;
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;
             const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
-            if (debug) console.log('1518 link', link);
+            if (!debug) console.log('1518 link', link);
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView
                 relview = myMetis.findRelationshipView(relview.id);
@@ -1750,6 +1751,7 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                 if (debug) console.log('1523 rel, relview', rel, relview);
                 if (rel && relview) {
                     // Before relink
+                    const name = rel.name;
                     let fromObj1 = rel.fromObject;
                     fromObj1 = myMetis.findObject(fromObj1.id);
                     fromObj1.removeOutputrel(rel);
@@ -1757,7 +1759,9 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     toObj1 = myMetis.findObject(toObj1.id);
                     toObj1.removeInputrel(rel);
                     if (debug) console.log('1532 fromobj1, toObj1', fromObj1, toObj1);  
-                    // After relink           
+                    // After relink   
+                    link.category = lnk.category;
+                    link.name = name;        
                     link.setFromNode(lnk.from);
                     const fromObjView = fromNode.objectview;
                     relview.fromObjview = fromObjView;
@@ -1770,7 +1774,8 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     fromObj2.addOutputrel(rel);
                     const toObj2 = rel.toObject;
                     toObj2.addInputrel(rel);
-                    if (debug) console.log('1546 fromobj2, toObj2', fromObj2, toObj2);   
+                    if (debug) console.log('1546 fromobj2, toObj2', fromObj2, toObj2);  
+                    myDiagram.model.setDataProperty(link, 'name', name); 
                     // Do the dispatches          
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     context.modifiedLinks.push(jsnRelview);

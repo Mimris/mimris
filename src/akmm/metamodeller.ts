@@ -6707,6 +6707,7 @@ export class cxInstance extends cxMetaObject {
     type: cxObjectType | cxRelationshipType | null;
     typeRef: string;
     typeName: string;
+    typeDescription: string;
     typeview: cxObjectTypeView | cxRelationshipTypeView | null;
     fromObject: cxInstance | null;
     toObject: cxInstance | null;
@@ -6726,6 +6727,7 @@ export class cxInstance extends cxMetaObject {
         this.type = type;
         this.typeRef = type?.id;
         this.typeName = type?.name;
+        this.typeDescription = type?.description;
         this.typeview = null;
         this.fromObject = null;
         this.toObject = null;

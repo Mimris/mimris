@@ -398,6 +398,7 @@ export class goObjectNode extends goNode {
     object: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
     typename: string;
+    typedescription: string;
     typeview: akm.cxObjectTypeView | null;
     template: string;
     figure: string;
@@ -418,6 +419,7 @@ export class goObjectNode extends goNode {
         this.object         = null;
         this.objecttype     = null;
         this.typename       = "";
+        this.typedescription = "";
         this.template       = objview.template;
         this.figure         = objview.figure;
         this.geometry       = objview.geometry;
@@ -445,10 +447,11 @@ export class goObjectNode extends goNode {
                 if (object.getType()) {
                     this.objecttype = (object.getType() as akm.cxObjectType);
                     this.typename = this.objecttype.getName();
-                    //this.type = this.typename;
+                    this.typedescription = this.objecttype.getDescription();
                 } else {
                     this.objecttype = null;
                     this.typename = "";
+                    this.typedescription = "";
                     //this.type = "";
                 }
             }
@@ -654,13 +657,14 @@ export class goObjectTypeNode extends goNode {
     objecttype: akm.cxObjectType | null;
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
+    typedescription: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = constants.gojs.C_OBJECTTYPE;
         this.objecttype = objtype;
         this.typeview = null;
         this.typename = constants.gojs.C_OBJECTTYPE;
-        
+        this.typedescription = "";
         if (debug) console.log('416 this', this);
         if (objtype) {
             this.setName(objtype.getName());

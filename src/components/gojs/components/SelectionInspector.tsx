@@ -118,6 +118,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('121 selObj, this.props, inst, type', selObj, this.props, inst, type);
     // Set chosenType
     let typename = "";
+    let typedescription = "";
     let includeInherited = false;
     let includeConnected = false;
     let tabIndex = 0;
@@ -131,6 +132,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           chosenType = currentType;
           chosenInst = inst;
           typename = currentType.name;
+          typedescription = currentType.description;
           if (debug) console.log('138 inst', inst);
           if (useTabs && modalContext?.what === 'editObject') {
             let inheritedTypes = inst?.getInheritedTypes();
@@ -171,6 +173,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   const connectedObj = connectedObjects[i];
                   type = connectedObj.type;
                   typename = type.name;
+                  typedescription = type.description;
                   chosenType = type;
                   chosenInst = connectedObj;
                   tabIndex = i+1;
@@ -379,7 +382,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           switch (chosenType.name) {
             case 'EntityType':
               if ((k === 'id') || (k === 'name') || (k === 'description') 
-                  || (k === 'typeName') 
+                  || (k === 'typeName') || (k === 'typeDescription') 
                   || (k === 'abstract') || (k === 'viewkind')
                   )
                 found = true;
@@ -455,9 +458,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   break;
                 }
               }
-              val = selObj[k];
-              if (!val) val = item[k];
-              break;
+              if (k === 'typeDescription') {
+                val = chosenInst.type.description;
+                break;
+              } else {
+                val = selObj[k];
+                  if (!val) val = item[k];
+                  break;
+              }
           }
         
           if (debug) console.log('457 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
@@ -539,6 +547,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           let dtype;
           switch(k) {
             case 'description':
+            case 'typeDescription':
             case 'geometry':
               fieldType = 'textarea';
               break;
@@ -716,6 +725,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               description = 'Unique identifier';
             case "typename":
             case "typeName":
+            case "typedescription":
+            case "typeDescription":
             case "loc":
             case "size":
             case "markedAsDeleted":

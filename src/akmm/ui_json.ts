@@ -529,6 +529,7 @@ export class jsnObjectType {
     abstract:       boolean;
     viewkind:       string;
     typename:       string;
+    typedescription: string;
     typeviewRef:    string;
     properties:     jsnProperty[];
     attributes:     jsnAttribute[];
@@ -541,6 +542,7 @@ export class jsnObjectType {
         this.abstract       = objtype.abstract;
         this.viewkind       = objtype.viewkind;
         this.typename       = 'Object type';
+        this.typedescription = "";
         this.typeviewRef    = objtype.typeview ? objtype.typeview.id : "";
         this.description    = (objtype.description) ? objtype.description : "";
         this.properties     = [];
@@ -1095,6 +1097,7 @@ export class jsnObject {
     viewkind:        string;
     typeRef:         string;
     typeName:        string;
+    typeDescription: string;
     propertyValues:  any[];
     markedAsDeleted: boolean;
     generatedTypeId: string;
@@ -1107,6 +1110,7 @@ export class jsnObject {
         this.viewkind        = object.viewkind;
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
+        this.typeDescription = object.type ? object.type.description : "";
         this.propertyValues  = [];
         this.markedAsDeleted = object.markedAsDeleted;
         this.generatedTypeId = object.generatedTypeId;

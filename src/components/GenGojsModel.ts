@@ -366,6 +366,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (!modelview) return;
     if (!modelview.includeInheritedReltypes)
       modelview.includeInheritedReltypes = model.metamodel.includeInheritedReltypes;
+    let showRelshipNames = modelview.showRelshipNames;
+    if (showRelshipNames == undefined) 
+      showRelshipNames = true;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
@@ -545,7 +548,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           if (debug) console.log('538 modelview, link:', modelview, link);
           link.loadLinkContent(myGoModel);
-
+          if (!showRelshipNames)
+            link.name = " ";
           if (includeDeleted || includeNoObject || includeNoType) {
             link.strokecolor = relcolor;
             link.strokewidth = "1";

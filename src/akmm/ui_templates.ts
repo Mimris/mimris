@@ -504,7 +504,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             {
             defaultRowSeparatorStroke: "black",
             desiredSize: new go.Size(136, 60),
-            maxSize: new go.Size(140, 66), 
+            maxSize: new go.Size(136, 66), 
             // margin: new go.Margin(2),
             defaultAlignment: go.Spot.Center,
             },
@@ -866,7 +866,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                             {
                             defaultRowSeparatorStroke: "black",
                             desiredSize: new go.Size(136, 60),
-                            maxSize: new go.Size(140, 66), 
+                            maxSize: new go.Size(136, 66), 
                             // margin: new go.Margin(2),
                             defaultAlignment: go.Spot.Center,
                             },
@@ -891,8 +891,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                     margin: new go.Margin(0,2,0,0),
                                     name: "name"
                                 },        
-                                new go.Binding("text", "name").makeTwoWay()
-                            ),
+                                new go.Binding("text", "name").makeTwoWay(),
+                                new go.Binding("stroke", "textcolor").makeTwoWay()
+                                ),
                             $(go.TextBlock, textStyle(), // the typename  --------------------
                                 {
                                     row: 1, column: 1, columnSpan: 6,

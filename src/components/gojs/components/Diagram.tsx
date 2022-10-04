@@ -2598,6 +2598,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
+          makeButton("Toggle Show Relationship Names On/Off",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              if (modelview.showRelshipNames == undefined)
+                modelview.showRelshipNames = true;
+              modelview.showRelshipNames = !modelview.showRelshipNames;
+              if (!modelview.showRelshipNames) {
+                alert("Relationship Names will NOT be shown!");
+              } else {
+                alert("Relationship Names will be shown!");
+              }
+              if (debug) console.log('2612 showRelshipNames', modelview.showRelshipNames)
+              const jsnModelview = new jsn.jsnModelView(modelview);
+              if (debug) console.log('2614 jsnModelview', jsnModelview);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
           makeButton("Toggle 'Ask for Relationship Name' On/Off",   
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;

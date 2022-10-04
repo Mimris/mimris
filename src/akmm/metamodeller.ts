@@ -459,6 +459,7 @@ export class cxMetis {
                                         mv.routing = item.routing;
                                         mv.linkcurve = item.linkcurve;
                                         mv.showCardinality = item.showCardinality;
+                                        mv.showRelshipNames = item.showRelshipNames;
                                         mv.askForRelshipName = item.askForRelshipName;
                                         mv.includeInheritedReltypes = item.includeInheritedReltypes;
                                         model.addModelView(mv);
@@ -1005,6 +1006,7 @@ export class cxMetis {
             if (modelview) {
                 modelview.layout = item.layout;
                 modelview.showCardinality = item.showCardinality;
+                modelview.showRelshipNames = item.showRelshipNames;
                 modelview.askForRelshipName = item.askForRelshipName;
                 modelview.includeInheritedReltypes = item.includeInheritedReltypes;
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
@@ -7599,6 +7601,7 @@ export class cxModelView extends cxMetaObject {
     routing: string;
     linkcurve: string;
     showCardinality: boolean;
+    showRelshipNames: boolean;
     askForRelshipName: boolean;
     includeInheritedReltypes: boolean | null;
     template: any;
@@ -7621,6 +7624,7 @@ export class cxModelView extends cxMetaObject {
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
+        this.showRelshipNames = true;
         this.askForRelshipName = false;
         this.includeInheritedReltypes = null; // model?.metamodel?.includeInheritedReltypes;
         this.template = null;
@@ -7639,6 +7643,8 @@ export class cxModelView extends cxMetaObject {
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
+        this.showRelshipNames = true;
+        this.askForRelshipName = false;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

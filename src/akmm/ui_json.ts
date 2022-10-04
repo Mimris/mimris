@@ -1336,6 +1336,7 @@ export class jsnModelView {
     routing:            string;
     linkcurve:          string;
     showCardinality:    boolean;
+    showRelshipNames:   boolean;
     askForRelshipName:  boolean;
     includeInheritedReltypes: boolean;
     UseUMLrelshipkinds: boolean;
@@ -1356,6 +1357,7 @@ export class jsnModelView {
         this.linkcurve          = mv?.linkcurve;
         this.modelRef           = mv?.getModel()?.id;
         this.showCardinality    = mv?.showCardinality;
+        this.showRelshipNames   = mv?.showRelshipNames;
         this.askForRelshipName  = mv?.askForRelshipName;
         this.includeInheritedReltypes = mv?.includeInheritedReltypes;
         this.UseUMLrelshipkinds = mv?.getModel()?.includeRelshipkind;

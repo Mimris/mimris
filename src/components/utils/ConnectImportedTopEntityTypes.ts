@@ -120,7 +120,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
         if (targetObject) { // if no targetObject, skip this relationship
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
             if (!debug) console.log('122 ', o.name, targetObject) //, curObjects, curRelships);  
-            if (!debug) console.log('123 ', topLevelObject) //, curObjects, curRelships);  
+            if (!debug) console.log('123 ', topLevelObject, curObjects, o) //, curObjects, curRelships);  
             // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
             if (debug) console.log('125 ', targetObject, o.name, curObjects, topLevelObject );  
             // if (debug) console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);            

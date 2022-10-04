@@ -110,7 +110,6 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
         setInclProps(!inclProps);
       };
     
- 
       const buttonSaveJSONToFileDiv = 
         <button className="btn-success text-white-50 btn-sm mr-2 w-100  " 
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
@@ -146,8 +145,6 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
         })
       }
 
-
-      
       return (
         <>
           <button className="btn-context btn-secondary float-right mr-1 mb-0 pr-2" onClick={toggle}>{buttonLabel}</button>

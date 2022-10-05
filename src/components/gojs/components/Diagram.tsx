@@ -2758,11 +2758,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('2348 myMetis', myMetis);
             alert("The current model has been repaired");
           },
-      function (o: any) { 
+          function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
-            }),
+          }),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
               if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {

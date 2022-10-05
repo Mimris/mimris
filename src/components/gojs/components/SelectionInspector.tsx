@@ -459,7 +459,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
               if (k === 'typeDescription') {
-                val = chosenInst.type.description;
+                if (chosenInst)  // Object
+                  val = chosenInst.type.description;
+                else // Object type
+                  val = selObj[k];
                 break;
               } else {
                 val = selObj[k];

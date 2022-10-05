@@ -112,13 +112,13 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
             // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
 
-        if (debug) console.log('100 Create relship', fromobjectName, importedRel.name, toobjectName );
+        if (!debug) console.log('100 Create relship', fromobjectId, fromobjectName, importedRel.name, toobjectId, toobjectName );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 
     }
         if (false) {
-            // .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+            // .-.-.-.-.-.-.-.-.-. imported from generated folder in gitlab -.-.-.-.-.-.-.-
             // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
             // if  $id contains master-data or work-product-component or work-product then add the file to the model
             let newOsduMod =osduMod
@@ -170,10 +170,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     
         // if  $id contains master-data or work-product-component or work-product then add the file to the model
         // if (osduMod['$id']?.includes('master-data') || osduMod['$id']?.includes('work-product-component') || osduMod['$id']?.includes('work-product')) {  // removed:  we use all files
-        console.log('141 osduMod', ('data' in osduMod) )
+        // console.log('141 osduMod', ('data' in osduMod) )
         console.log('142 osduMod', osduMod.data )
-        console.log('140 osduMod', osduMod.hasOwnProperty('data'))
-        if (osduMod.data !== undefined) { // if data is defined in the json file
+        console.log('140 osduMod', osduMod, osduMod.hasOwnProperty('data'))
+        if (osduMod.properties.data !== undefined) { // if data is defined in the json file its a generated where all props are in data
             if (osduMod.hasOwnProperty('properties')) { // if skip system properties from the gererated json files
                     delete osduMod.properties['id'] 
                     delete osduMod.properties['kind'] 
@@ -188,20 +188,23 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     delete osduMod.properties['ancestry'] 
                     delete osduMod.properties['meta'] 
                     console.log('155', osduMod)
-            
-                    // remove data move content to top and remove data from the jsonobjecthgg
-                    const allOf = osduMod.properties['data']['allOf']
-                    delete osduMod.properties.data
-                    console.log('142 allOf', allOf)
-            
-                    // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
-                    const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
-            
-                    osduMod['allOf'] = [...allOf, aspObj]
-                    if (debug) console.log('150 ', osduMod, aspObj)
-                }
+            }
+            // move content of data to top and then remove the data from the jsonobjecth
+            const allOf = osduMod.properties['data']['allOf']
+            // osduMod.properties = {...osduMod.properties, allOf}
+            delete osduMod.properties
+            console.log('142 allOf', allOf)
+    
+            // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
+            const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
+    
+            osduMod['allOf'] = [...allOf, aspObj]
+            if (!debug) console.log('150 ', osduMod, aspObj)
+                
+
         }
-        
+
+        console.log('155 osduMod', osduMod )
         let newOsduMod = osduMod
         const externalID = newOsduMod.id || newOsduMod["$id"]
         newOsduMod.externalID = externalID;
@@ -354,7 +357,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         } else {
                             cNewVal.linkID = oName
                         }
-                        console.log('324 relationship', oId, oName, objecttypeRef, oKey, rel.type, jsonType, cNewVal);
+                        if (!debug) console.log('324 relationship', oId, oName, objecttypeRef, oKey, rel.type, jsonType, cNewVal);
                         const propLinkName = 'has'+oName
                         // hardcoded transformation of the name
                         // i.e. if o.linkID is = 'Company' then transform to 'Organisation'   
@@ -541,7 +544,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         // crate relationships between objects
         // create function findOwnerandCreateRelationship(oId, oKey)
         function findOwnerandCreateRelationship(osObj: [any, any, any]) {
-            console.log('432 ', osObj);
+            if (debug) console.log('432 ', osObj);
             const topObj = mainArray[0]
             const topObjId = topObj[0]
             const topObjKey = topObj[1]
@@ -705,7 +708,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     ...newobj,
                     [tmpkey]: obj[i]
                 }
-                console.log('130', i, obj[i], newobj);
+                if (debug) console.log('130', i, obj[i], newobj);
             }
             if (debug) console.log('513 :', obj, newobj);
             

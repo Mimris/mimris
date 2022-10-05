@@ -348,7 +348,7 @@ const page = (props:any) => {
             <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               <Col className="col1 m-0 p-0 pl-3" xs="auto">
                 <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                  {/* {paletteDiv} */}
+                  {paletteDiv}
                 </div>
               </Col>
               <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>

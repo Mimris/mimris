@@ -196,6 +196,15 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.10.04</CardTitle>
+                    <CardText >
+                          &bull; New feature:
+                            - Type descriptions in Object diaglog<br />
+                            - On background menu: Toggle show relationship names.
+                         
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.09.24</CardTitle>
                     <CardText >
                           &bull; Objects moved from Palette area to Modeller Area<br />

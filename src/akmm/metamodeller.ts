@@ -244,6 +244,25 @@ export class cxMetis {
             if (debug) console.log('184 otype, stypes', otype, stypes);
         }
         if (debug) console.log('224 this', this);
+        // Postprocess the annotates typeview
+        let reltypeview = null;
+        const rtype = this.findRelationshipTypeByName(constants.types.AKM_ANNOTATES) ;
+        if (rtype) {
+            const rtview = this.findRelationshipTypeView(rtype.typeview.id);
+            if (rtview)
+                reltypeview = rtview;
+        }
+        const mmodels = this.metamodels;
+        for (let i=0; i<mmodels.length; i++) {
+            const metamodel = mmodels[i];
+            const rtypes = metamodel.relshiptypes;
+            for (let j=0; j<rtypes?.length; j++) {
+                const rtype = rtypes[j];
+                if (rtype.name === 'annotates') {
+                    rtype.typeview = reltypeview;
+                }
+            }
+        }
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels

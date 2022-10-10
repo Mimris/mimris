@@ -73,9 +73,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     // 'object' is the object defining the object type to be generated
     const currentObj = myMetis.findObject(object.id) as akm.cxObject;
     let parentRelType: akm.cxRelationshipType | null = null;
-    if (debug) console.log('76 object, objview', object, objview);
+    if (debug) console.log('76 object, currentObj, objview', object, currentObj, objview);
     if (debug) console.log('77 context', context);
-    let newName  = object?.name;
+    let newName  = object.name;
     let oldName = "";
     newName = utils.camelize(newName);
     newName = utils.capitalizeFirstLetter(newName);
@@ -87,7 +87,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (objtype) {
             oldName = objtype.getName();
             objtype.setName(newName);
-            objtype.setDescription(currentObj.description);
+            objtype.setDescription(object.description);
             // objtype.typeDescription = currentObj.typeDescription;
             objtype.setViewKind(currentObj.getViewKind());
             objtype.setAbstract(currentObj.getAbstract());
@@ -1135,7 +1135,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (debug) console.log('1130 metamodel, reltype', metamodel, reltype);
         }
     }
-    if (debug) console.log('1133 metamodel', metamodel);
+    if (debug) console.log('1133 reltypes, metamodel', reltypes, metamodel);
     if (debug) console.log('1134 system relship types completed', myMetis);
     // ---
     // Adding system types completed

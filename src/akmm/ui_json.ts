@@ -344,8 +344,7 @@ export class jsnMetaModel {
     }
     addMetamodel(metamodel: akm.cxMetaModel) {
         if (metamodel) {
-            const gObjtype = new jsnObjectType(objtype, includeViews);
-            this.objecttypes.push(gObjtype);
+            this.metamodelRefs.push(metamodel.id);
         }
     }
     addObjectType(objtype: akm.cxObjectType, includeViews: boolean) {

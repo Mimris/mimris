@@ -109,7 +109,7 @@ const Palette = (props: any) => {
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
-  if (debug) console.log('111 filteredOtNodeDataArray', filteredOtNodeDataArray)
+  if (!debug) console.log('111 filteredOtNodeDataArray', taskNodeDataArray, filteredOtNodeDataArray)
   
   // ------------------   ------------------
   

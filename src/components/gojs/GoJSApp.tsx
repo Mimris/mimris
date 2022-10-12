@@ -721,8 +721,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }  
               }   
               if (debug) console.log('688 group, node, n', group, node, n);
-              if (n && n.data && n.data.group !== node.group)
+              if (n && n.data && n.data.group !== node.group) {
+                try {
                   myDiagram.model.setDataProperty(n.data, "group", node.group);
+                } catch (error) {
+                  if (debug) console.log('694 error', error);
+                }
+              }
               myDiagram.model.setDataProperty(n.data, "loc", node.loc);
               myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
               if (debug) console.log('693 myGoModel', myGoModel);

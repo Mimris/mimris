@@ -2199,19 +2199,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           function (o: any) {
             if (myMetis.modelType === 'Metamodelling')
               return false;
+            else if (uic.isGenericMetamodel(myMetis)) {
+              return false;
+            }
             return true; 
-            }),
+          }),
           makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
             gen.generateTargetMetamodel(obj, myMetis, myDiagram);
           },
           function (o: any) { 
-            if (debug) console.log('1991 myMetis', myMetis);
+            if (!debug) console.log('1991 myMetis', myMetis);
             if (myMetis.modelType === 'Metamodelling')
               return false;
+            else if (uic.isGenericMetamodel(myMetis)) {
+              return false;
+            }
             return true; 
-            }),
+          }),
           makeButton("Replace Current Metamodel",
             function (e: any, obj: any) {
               uid.replaceCurrentMetamodel(myMetis, myDiagram);
@@ -2219,30 +2225,38 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
-              return true;
-            }),
-          makeButton("Add Metamodel",
-            function (e: any, obj: any) {
-              uid.addMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling') {
-                  return false;
-              } else {
-                const noMetamodels = myMetis.metamodels.length;
-                if (noMetamodels >= 2)
-                    return true;
-                else
-                  return false;
+              else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
               }
+              return true; 
+            }),
+            makeButton("Add Metamodel",
+          function (e: any, obj: any) {
+            uid.addMetamodel(myMetis, myDiagram);
+          },
+          function (o: any) { 
+            if (myMetis.modelType === 'Metamodelling') {
+                return false;
+            } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+            } else {
+              const noMetamodels = myMetis.metamodels.length;
+              if (noMetamodels >= 2)
+                  return true;
+              else
+                return false;
+            }
             }),
           makeButton("Delete Metamodel",
             function (e: any, obj: any) {
               uid.deleteMetamodel(myMetis, myDiagram);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
+              if (myMetis.modelType === 'Metamodelling') {
                 return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
               let cnt = 0;
               const metamodels = myMetis.metamodels;
               for (let i=0; i<metamodels.length; i++) {
@@ -2261,8 +2275,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.clearMetamodel(myMetis, myDiagram);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
+              if (myMetis.modelType === 'Metamodelling') {
                 return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
               let cnt = 0;
               const metamodels = myMetis.metamodels;
               for (let i=0; i<metamodels.length; i++) {

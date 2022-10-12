@@ -3017,3 +3017,10 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
         }
     }
 }
+
+export function isGenericMetamodel(myMetis: akm.cxMetis) {
+    const metamodel = myMetis.currentMetamodel;
+    if (metamodel.name === 'GENERIC_MM')
+        return true;
+    return false;
+}

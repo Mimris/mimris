@@ -332,20 +332,21 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (myNode) {
                   myNode.name = text;
                 // }
-                if (debug) console.log('314 node, field, text', field, text, myNode);
+                if (debug) console.log('314 field, text, node', field, text, myNode);
                 let obj = uic.updateObject(myNode, field, text, context);
-                if (debug) console.log('316 node', data, myNode);
+                if (debug) console.log('316 data, node', data, myNode);
                 if (!obj) 
                   obj = myNode.object;
                 if (obj) {
                   obj.name = text;
+                  obj.text = textvalue;
                   myNode.object = obj;
                   const objviews = obj.objectviews;
                   for (let i=0; i<objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = text;
                     objview.text = textvalue;
-                    if (debug) console.log('328 text', text);
+                    if (debug) console.log('328 objview', objview);
                     // objview.text = myNode.text;
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {

@@ -1318,6 +1318,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         newLink.category = constants.gojs.C_RELATIONSHIP;
         if (fromNode.category === constants.gojs.C_OBJECTTYPE)
           newLink.category = constants.gojs.C_RELSHIPTYPE;
+        myDiagram.model.setDataProperty(newLink, "name", newLink.name);
         if (debug) console.log('729 newLink', newLink);
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;

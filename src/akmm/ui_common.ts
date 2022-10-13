@@ -1743,12 +1743,12 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;
             const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
-            if (debug) console.log('1518 link', link);
+            if (debug) console.log('1746 link', link);
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView
                 relview = myMetis.findRelationshipView(relview.id);
                 const rel = relview?.relship;    // cxRelationship   
-                if (debug) console.log('1523 rel, relview', rel, relview);
+                if (debug) console.log('1751 rel, relview', rel, relview);
                 if (rel && relview) {
                     // Before relink
                     const name = rel.name;
@@ -1758,7 +1758,7 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     let toObj1 = rel.toObject;
                     toObj1 = myMetis.findObject(toObj1.id);
                     toObj1.removeInputrel(rel);
-                    if (debug) console.log('1532 fromobj1, toObj1', fromObj1, toObj1);  
+                    if (debug) console.log('1762 fromobj1, toObj1', fromObj1, toObj1);  
                     // After relink   
                     link.category = lnk.category;
                     link.name = name;        
@@ -1774,8 +1774,9 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     fromObj2.addOutputrel(rel);
                     const toObj2 = rel.toObject;
                     toObj2.addInputrel(rel);
-                    if (debug) console.log('1546 fromobj2, toObj2', fromObj2, toObj2);  
-                    myDiagram.model.setDataProperty(link, 'name', name); 
+                    if (debug) console.log('1777 fromobj2, toObj2', fromObj2, toObj2);  
+                    const myLink = myDiagram.findLinkForKey(link.key);
+                    myLink.category = link.template;
                     // Do the dispatches          
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     context.modifiedLinks.push(jsnRelview);

@@ -432,7 +432,7 @@ export function getConnectedObject(object: akm.cxObject, context: any): akm.cxOb
     for (let i=0; i<children?.length; i++) {
         const child = children[i];
         const test = expandPropScript(child, prop, myMetis);
-        if (debug) console.log('435 child, prop, test', child, prop, test);
+        if (debug) console.log('435 test, child, prop', test, child, prop);
         // Find the first child that fullfills the condition
         if (test)
             return child;   
@@ -451,9 +451,11 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
     if (expression) { 
         const type = object.type;
         expression = substitutePropnamesInExpression(object, expression, myMetis);
-        if (debug) console.log('458 expression', expression);
+        if (debug) console.log('455 expression', expression);
         try {
             retval = eval(expression);
+            if (!retval)
+                retval = expression;
         } catch(e) {
             retval = expression;
         }

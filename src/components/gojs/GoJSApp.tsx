@@ -332,20 +332,21 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (myNode) {
                   myNode.name = text;
                 // }
-                if (debug) console.log('314 node, field, text', field, text, myNode);
+                if (debug) console.log('314 field, text, node', field, text, myNode);
                 let obj = uic.updateObject(myNode, field, text, context);
-                if (debug) console.log('316 node', data, myNode);
+                if (debug) console.log('316 data, node', data, myNode);
                 if (!obj) 
                   obj = myNode.object;
                 if (obj) {
                   obj.name = text;
+                  obj.text = textvalue;
                   myNode.object = obj;
                   const objviews = obj.objectviews;
                   for (let i=0; i<objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = text;
                     objview.text = textvalue;
-                    if (debug) console.log('328 text', text);
+                    if (debug) console.log('328 objview', objview);
                     // objview.text = myNode.text;
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
@@ -689,7 +690,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                       node.scale1 = Number(toScale.valueOf());
                       myDiagram.model.setDataProperty(n, "scale", node.scale1);
-                      myDiagram.model.setDataProperty(n?.data, "scale", node.scale1);
                     }
               }            
               if (debug) console.log('665 node, data,', node, data);
@@ -720,8 +720,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }  
               }   
               if (debug) console.log('688 group, node, n', group, node, n);
-              if (n && n.data && n.data.group !== node.group)
+              if (n && n.data && n.data.group !== node.group) {
+                try {
                   myDiagram.model.setDataProperty(n.data, "group", node.group);
+                } catch (error) {
+                  if (debug) console.log('694 error', error);
+                }
+              }
               myDiagram.model.setDataProperty(n.data, "loc", node.loc);
               myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
               if (debug) console.log('693 myGoModel', myGoModel);
@@ -1313,6 +1318,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         newLink.category = constants.gojs.C_RELATIONSHIP;
         if (fromNode.category === constants.gojs.C_OBJECTTYPE)
           newLink.category = constants.gojs.C_RELSHIPTYPE;
+        myDiagram.model.setDataProperty(newLink, "name", newLink.name);
         if (debug) console.log('729 newLink', newLink);
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;

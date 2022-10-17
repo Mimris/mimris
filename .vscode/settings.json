@@ -3,15 +3,23 @@
     "workbench.preferredLightColorTheme": "Default Dark+",
     "cSpell.words": [
         "ctrace",
+        "focustype",
         "Gojs",
+        "IRTV",
         "metamodel",
         "Metamodelling",
         "metamodels",
+        "mmname",
+        "mmnamediv",
         "mmodel",
+        "mmtask",
+        "mnamediv",
         "MODELVIEW",
         "ndarr",
         "Ofilter",
         "projectname",
-        "seltasks"
+        "seltask",
+        "seltasks",
+        "workpad"
     ]
 }

@@ -7,6 +7,7 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import { setGojsModelObjects } from "../actions/actions";
 import Selector from './utils/Selector'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
+import { setMyMetisParameter } from "../actions/actions";
 
 const debug = false;
 
@@ -80,22 +81,39 @@ const Palette = (props: any) => {
       if (debug) clog('80Palette useEffect', props);
     (mmodel) && genRoleTasks(mmodel, dispatch)
     }
+    
     return () => { isRendered = false; }
   }, [])
 
-  
+  useEffect(() => {
+    // isRendered = true;
+    if (props.phFocus.focusTask.workOnTypes) {
+      taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+        ndarr?.find((i: { typename: any; }) => {
+          return (i?.typename === wot) && i 
+        })
+      ).filter(Boolean) // remove undefined
+    }
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+
+    // return () => { isRendered = false; }
+  }, [props.phFocus.focusModel?.id])
+
   if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+
   useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
     if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
   
-      if (props.phFocus.focusTask.workOnTypes) {
-        taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
-          ndarr?.find((i: { typename: any; }) => {
-            return (i?.typename === wot) && i 
-          })
-        ).filter(Boolean) // remove undefined
-        if (debug) console.log('93 taskNodeDataArray', taskNodeDataArray);
-      
+    if (props.phFocus.focusTask.workOnTypes) {
+      taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+        ndarr?.find((i: { typename: any; }) => {
+          return (i?.typename === wot) && i 
+        })
+      ).filter(Boolean) // remove undefined
     if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
     if (debug) console.log('94 seltasks', props.phFocus.focusTask)
     }
@@ -108,7 +126,7 @@ const Palette = (props: any) => {
   if (debug) clog('103 Palette', props , seltasks);
   
 
-  let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
+  let filteredOtNodeDataArray = taskNodeDataArray// (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
   if (debug) console.log('111 filteredOtNodeDataArray', filteredOtNodeDataArray)
   
   // ------------------   ------------------
@@ -130,7 +148,7 @@ const Palette = (props: any) => {
       {/* <div>{focusTask?.name}</div> */}
     </>
  
- const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)
+ const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
   <div className="workpad p-1 pt-2 bg-white" >
     <div className="mmname mx-0 px-2 my-3" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
     {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}

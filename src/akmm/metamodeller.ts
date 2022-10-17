@@ -7284,7 +7284,7 @@ export class cxObject extends cxInstance {
         }
         return obj;
         }
-    getConnectedObjects(metis: cxMetis) {
+    getConnectedObjects(metis: cxMetis): cxObject[] {
         const type = this.type;
         const properties = type?.properties;
         const objlist = [];
@@ -7294,7 +7294,58 @@ export class cxObject extends cxInstance {
                 const obj = this.getConnectedObject(prop, metis);
                 if (obj)
                     objlist.push(obj);
-             }
+            }
+        } 
+        return objlist;           
+    }
+    getConnectedObjects1(prop: cxProperty, metis: cxMetis): cxObject[] {
+        let objects = null;
+        const inst: any = this;
+        const mtdRef = prop.methodRef;
+        const method = metis.findMethod(mtdRef);
+        const propname = prop.name;
+        if (debug) console.log('7083 prop, method', prop, method);
+        if (method) {
+            const mtdtype = method.methodtype;
+            if ( mtdtype === constants.types.MTD_GETCONNECTEDOBJECT) {
+                let context;
+                if (debug) console.log('7087 method', method);
+                const rtypename = method["reltype"];
+                const reldir = method["reldir"];
+                let reltype = null;
+                if (rtypename !== 'any' && rtypename !== 'null')
+                    reltype = metis.findRelationshipTypeByName(rtypename);
+                if (debug) console.log('7093 rtypename, reltype', rtypename, reltype);
+                const otypename = method["objtype"];
+                let objtype = null;
+                if (otypename !== 'any' && otypename !== 'null')
+                    objtype = metis.findObjectTypeByName(otypename);
+                if (debug) console.log('7098 otypename, objtype', otypename, objtype);
+                context = {
+                    "myMetis":      metis,
+                    "reltype":      reltype,
+                    "reldir":       reldir,
+                    "objtype":      objtype,
+                    "prop":         prop,
+                }
+                objects = ui_mtd.getConnectedObjects(this, context);
+                if (debug) console.log('7107 inst, context, objects', inst, context, objects);
+            }
+        }
+        return objects;
+    }
+    getConnectedObjects2(metis: cxMetis): cxObject[] {
+        const type = this.type;
+        const properties = type?.properties;
+        const objlist = [];
+        for (let i=0; i<properties?.length; i++) {
+            const prop = properties[i];
+            if (prop) {
+                const objects = this.getConnectedObjects1(prop, metis);
+                for (let i=0; i<objects?.length; i++) {
+                    objlist.push(objects[i]);
+                }
+            }
         } 
         return objlist;           
     }
@@ -7305,9 +7356,10 @@ export class cxObject extends cxInstance {
         for (let i=0; i<properties?.length; i++) {
             const prop = properties[i];
             if (prop) {
-                const obj = this.getConnectedObject(prop, metis);
-                if (obj)
+                const objects = this.getConnectedObjects1(prop, metis);
+                for (let i=0; i<objects?.length; i++) {
                     rolelist.push(prop.name);
+                }
              }
         } 
         return rolelist;           
@@ -7357,8 +7409,18 @@ export class cxObject extends cxInstance {
                 }
             }
         }  
-        if (debug) console.log('7171 inherited Porperties', properties);
+        if (debug) console.log('7171 inherited Properties', properties);
         return properties;  
+    }
+    getConnectedProperties(metis: cxMetis): cxProperty[] {
+        const properties = new Array();
+        const objects = this.getConnectedObjects2(metis);
+        for (let i=0; i<objects?.length; i++) {
+            const obj = objects[i];
+            const prop = new cxProperty(utils.createGuid(), obj.type.name, "");
+            properties.push(prop);
+        }
+        return  properties;
     }
     isOfType(typeName: string): boolean {
         let retval = false;

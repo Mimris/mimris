@@ -426,7 +426,7 @@ export function aggregateValue(object: akm.cxObject, context: any) {
 
 export function getConnectedObject(object: akm.cxObject, context: any): akm.cxObject | null {
     const myMetis   = context.myMetis;
-     const prop      = context.prop;
+    const prop      = context.prop;
     const children = getChildren(object, context);
     if (debug) console.log('431 children', children);
     for (let i=0; i<children?.length; i++) {
@@ -438,6 +438,22 @@ export function getConnectedObject(object: akm.cxObject, context: any): akm.cxOb
             return child;   
     }
     return null;
+}
+
+export function getConnectedObjects(object: akm.cxObject, context: any): akm.cxObject[] {
+    const myMetis   = context.myMetis;
+    const prop      = context.prop;
+    const objects   = new Array();
+    const children = getChildren(object, context);
+    if (debug) console.log('431 children', children);
+    for (let i=0; i<children?.length; i++) {
+        const child = children[i];
+        const test = expandPropScript(child, prop, myMetis);
+        if (debug) console.log('435 test, child, prop', test, child, prop);
+        if (test)
+            objects.push(child);
+    }
+    return objects;
 }
 
 export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, myMetis: akm.cxMetis): string {

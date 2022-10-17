@@ -2997,7 +2997,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         includeInherited = true;
         useTabs = true;
       }
-      const connectedObjects = obj1?.getConnectedObjects(myMetis);
+      const connectedObjects = obj1?.getConnectedObjects2(myMetis);
       if (connectedObjects?.length > 0) {
         includeConnected = true;
         useTabs = true;
@@ -3012,6 +3012,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
       const connectedRoles = obj1.getConnectedObjectRoles(myMetis);
       if (debug) console.log('2900 context, obj1, namelist', context, obj1, namelist);
+      if (debug) console.log('2901 connectedRoles', connectedRoles);
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];
@@ -3024,7 +3025,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
       }
-      if (debug) console.log('2913 selpropgroup, namelist', selpropgroup, namelist);
+      if (debug) console.log('2913 modalContext, selpropgroup, namelist', modalContext, selpropgroup, namelist);
       // selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ];
     }
     switch (modalContext?.what) {      
@@ -3118,7 +3119,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectType':
       case 'editObject':
       case 'editObjectview':
-        let selectedData = this.state.selectedData;
         header = modalContext.title;
         category = this.state.selectedData.category;
         if (this.state.selectedData !== null && this.myMetis != null) {

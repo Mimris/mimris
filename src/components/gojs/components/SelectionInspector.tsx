@@ -141,7 +141,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (debug) console.log('143 inheritedTypes', inheritedTypes);
             if (inst?.hasInheritedProperties(myModel)) 
               includeInherited = true;
-            const connectedObjects = inst?.getConnectedObjects(myMetis);
+            const connectedObjects = inst?.getConnectedObjects2(myMetis);
             if (debug) console.log('147 connectedObjects', connectedObjects);
             if (connectedObjects?.length>0) 
               includeConnected = true;
@@ -177,7 +177,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   chosenType = type;
                   chosenInst = connectedObj;
                   tabIndex = i+1;
-                  break;
+                  // break;
                 }
               }
             }
@@ -227,16 +227,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           chosenInst = inst;
           if (debug) console.log('229 inst, properties', inst, properties);
         } else {
-          let flag = false;
+          let includeInherited = false;
+          let includeConnected = false;
           inst = myMetis.findObject(inst.id);
           type = myMetis.findObjectType(type.id);
-          const typeProps = type?.getProperties(flag);
+          const typeProps = type?.getProperties(includeInherited);
           const inheritedProps = inst?.getInheritedProperties(myModel);
           if (inheritedProps?.length>0)
             properties = typeProps.concat(inheritedProps);
           else
             properties = typeProps;
-          if (debug) console.log('236 type, properties', type, properties);
         }
         if (debug) console.log('238 typename, chosenInst, chosenType, properties', typename, chosenInst, chosenType, properties);
       }
@@ -508,6 +508,22 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   }
                   if (debug) console.log('492 item, prop, val', item, prop, val);
                 }
+                // Handle connected objects
+                const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+                if (objs?.length > 1)
+                  val = '';
+                for (let i=0; i<objs?.length; i++) {
+                  const obj = objs[i];
+                  if (obj) {
+                    if (i == 0)
+                      val = obj.name;
+                    else
+                      val += ' | ' + obj.name;
+                  }
+                }
+                // if (objs?.length > 1) {
+                //   val += ', ...';
+                // }
               }
               if (debug) console.log('495 prop, fieldType: ', prop, fieldType);
             }

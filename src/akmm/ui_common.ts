@@ -2951,7 +2951,7 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
     if (obj) {
         if (context.includeConnected) {
             namelist.push(obj.name);
-            const connectedObjects = obj.getConnectedObjects(context.myMetis);
+            const connectedObjects = obj.getConnectedObjects2(context.myMetis);
             if (debug) console.log('3006 connectedObjects', connectedObjects);
             for (let i=0; i<connectedObjects?.length; i++) {
                 const connectedObj = connectedObjects[i];

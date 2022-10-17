@@ -508,10 +508,22 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   }
                   if (debug) console.log('492 item, prop, val', item, prop, val);
                 }
+                // Handle connected objects
                 const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-                if (objs?.length > 1) {
-                  val += ', ...';
+                if (objs?.length > 1)
+                  val = '';
+                for (let i=0; i<objs?.length; i++) {
+                  const obj = objs[i];
+                  if (obj) {
+                    if (i == 0)
+                      val = obj.name;
+                    else
+                      val += ' | ' + obj.name;
+                  }
                 }
+                // if (objs?.length > 1) {
+                //   val += ', ...';
+                // }
               }
               if (debug) console.log('495 prop, fieldType: ', prop, fieldType);
             }

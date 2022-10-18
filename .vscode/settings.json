@@ -2,8 +2,24 @@
     "json.maxItemsComputed": 10000,
     "workbench.preferredLightColorTheme": "Default Dark+",
     "cSpell.words": [
+        "ctrace",
+        "focustype",
+        "Gojs",
+        "IRTV",
+        "metamodel",
         "Metamodelling",
+        "metamodels",
+        "mmname",
+        "mmnamediv",
+        "mmodel",
+        "mmtask",
+        "mnamediv",
         "MODELVIEW",
-        "projectname"
+        "ndarr",
+        "Ofilter",
+        "projectname",
+        "seltask",
+        "seltasks",
+        "workpad"
     ]
 }

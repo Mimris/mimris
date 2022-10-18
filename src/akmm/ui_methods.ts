@@ -370,6 +370,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
     const objects: akm.cxObject[] = [];
     const reltype   = context.reltype;
     const reldir    = context.reldir;
+    const objtype   = context.objtype;
     const useinp    = reldir ? (reldir === 'in') : false;
     let rels  = useinp ? object.inputrels : object.outputrels;
     if (debug) console.log('375 object, rels', object, rels);
@@ -391,8 +392,12 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             child = rel.fromObject as akm.cxObject;
         else
             child = rel.toObject as akm.cxObject;            
-        if (child)
-            objects.push(child);    
+        if (debug) console.log('395 child', child);
+        if (child) {
+            if (child.type.id === objtype.id)
+                objects.push(child);  
+        }  
+        if (debug) console.log('400 child', child);
     }
     return objects;
 }

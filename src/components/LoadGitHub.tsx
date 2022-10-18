@@ -143,26 +143,29 @@ const LoadGitHub = (props: any) => {
     setLoading(false);
     if (debug) console.log('90 onModelChange', model, props) 
     if (model) {
-      if (filename.includes('_MM.json')) { // it is a Metamodel and will be loaded into current project
-        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === model?.id) // current model index
+      if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
+        const mmodel = model; // model is a metamodel
+        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === mmodel?.id) // current mmodel index
+        
         const mmlength = props.ph.phData?.metis?.metamodels.length
-        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
+        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
           phData: {
               ...props.ph.phData,
               metis: {
                   ...props.ph.phData.metis,
                   metamodels: [
-                      ...props.ph.phData.metis.metamodels.slice(0, mmindex),     
-                      model,
+                      ...props.ph.phData.metis.metamodels.slice(0, mmindex),  
+                      mmodel,
                       ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
                   ],
                   models: props.ph.phData.metis.models,   
               },
           }, 
         };
+        if (debug) console.log('166 ', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      } else {
+      } else { // it is a Model and will be loaded into current project
         const data = {
           phData:   model.phData,
           phFocus:  model.phFocus,

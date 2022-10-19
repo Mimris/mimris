@@ -50,6 +50,16 @@ const useTabs = true;
 
 const booleanAsCheckbox = true;
 
+function includesSystemType(metamodel: akm.cxMetaModel) {
+  const objtypes = metamodel.objecttypes;
+  for (let i = 0; i < objtypes.length; i++) {
+    const objtype = objtypes[i];
+    if (objtype.name === 'Property') {
+      return true;
+    }
+  }
+}
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -344,7 +354,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       {
         if (k === 'abstract') {
           if (what !== 'editObject' && what !== 'editObjectType')
-                continue;
+            continue;
+          if (!includesSystemType(myMetamodel))
+            continue;
         }      
         if (k === 'viewkind') {
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editObjectType')
@@ -363,6 +375,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             continue;
         }
         if (k === 'copiedFromId') {
+          continue;
+        }
+        if (k === 'markedAsDeleted') {
           continue;
         }
       }

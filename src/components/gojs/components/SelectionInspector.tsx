@@ -225,7 +225,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           inst = myMetis.findObject(inst.id);
           properties = inst.setAndGetAllProperties(myMetis);
           chosenInst = inst;
-          if (debug) console.log('229 inst, properties', inst, properties);
+          if (debug) console.log('229 chosenInst, properties', chosenInst, properties);
         } else {
           let includeInherited = false;
           let includeConnected = false;
@@ -344,7 +344,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       {
         if (k === 'abstract') {
           if (what !== 'editObject' && what !== 'editObjectType')
-                continue;
+            continue;
+          if (item?.type.name !== 'EntityType')
+            continue;
         }      
         if (k === 'viewkind') {
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editObjectType')
@@ -363,6 +365,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             continue;
         }
         if (k === 'copiedFromId') {
+          continue;
+        }
+        if (k === 'markedAsDeleted') {
           continue;
         }
       }
@@ -510,6 +515,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
                 // Handle connected objects
                 const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+                if (debug) console.log('496 prop, chosenInst, objs', prop, chosenInst, objs);
                 if (objs?.length > 1)
                   val = '';
                 for (let i=0; i<objs?.length; i++) {

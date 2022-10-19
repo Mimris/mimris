@@ -7304,23 +7304,23 @@ export class cxObject extends cxInstance {
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
         const propname = prop.name;
-        if (debug) console.log('7083 prop, method', prop, method);
+        if (debug) console.log('7307 prop, method', prop, method);
         if (method) {
             const mtdtype = method.methodtype;
             if ( mtdtype === constants.types.MTD_GETCONNECTEDOBJECT) {
                 let context;
-                if (debug) console.log('7087 method', method);
+                if (debug) console.log('7312 method', method);
                 const rtypename = method["reltype"];
                 const reldir = method["reldir"];
-                let reltype = null;
-                if (rtypename !== 'any' && rtypename !== 'null')
-                    reltype = metis.findRelationshipTypeByName(rtypename);
-                if (debug) console.log('7093 rtypename, reltype', rtypename, reltype);
                 const otypename = method["objtype"];
                 let objtype = null;
                 if (otypename !== 'any' && otypename !== 'null')
                     objtype = metis.findObjectTypeByName(otypename);
-                if (debug) console.log('7098 otypename, objtype', otypename, objtype);
+                if (debug) console.log('7319 otypename, objtype', otypename, objtype);
+                let reltype = null;
+                if (rtypename !== 'any' && rtypename !== 'null')
+                    reltype = metis.findRelationshipTypeByName2(rtypename, this.type, objtype);
+                if (debug) console.log('7323 rtypename, reltype', rtypename, reltype);
                 context = {
                     "myMetis":      metis,
                     "reltype":      reltype,
@@ -7329,7 +7329,7 @@ export class cxObject extends cxInstance {
                     "prop":         prop,
                 }
                 objects = ui_mtd.getConnectedObjects(this, context);
-                if (debug) console.log('7107 inst, context, objects', inst, context, objects);
+                if (debug) console.log('7332 inst, context, objects', inst, context, objects);
             }
         }
         return objects;

@@ -694,13 +694,14 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     const descr    = object.description;
     const myMetamodel = context.myMetamodel;
     const myTargetMetamodel = context.myTargetMetamodel;
-    let method   = myMetamodel?.findMethodByName(name);
+    // let method   = myMetamodel?.findMethodByName(name);
+    let method   = myTargetMetamodel?.findMethodByName(name);
     if (!method) {
         if (debug) console.log('695 method name:', name);
         method = myMetis.findMethodByName(name);
         if (!method) 
             method = new akm.cxMethod(utils.createGuid(), name, descr);
-        myMetamodel.addMethod(method);
+        // myMetamodel.addMethod(method);
         myTargetMetamodel.addMethod(method);
         myMetis.addMethod(method);  
         if (debug) console.log('702 method:', method);

@@ -1420,12 +1420,12 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
     if (typename) {
         if (debug) console.log('1227 from and to type nodes', fromTypeNode, toTypeNode);
         if (fromTypeNode && toTypeNode) {
-            let reltype   = myMetis.findRelationshipTypeByName(typename);
+            const fromObjType = fromTypeNode.objecttype;
+            const toObjType = toTypeNode.objecttype;
+            let reltype   = myMetis.findRelationshipTypeByName1(typename, fromObjType, toObjType);
             if (debug) console.log('1230 reltype', reltype);
             if (reltype) {  // Existing type - create a copy                  
                 const relkind = reltype.getRelshipKind();
-                const fromObjType = fromTypeNode.objecttype;
-                const toObjType = toTypeNode.objecttype;
                 const reltype2 = new akm.cxRelationshipType(utils.createGuid(), reltype.name, fromObjType, toObjType, "");
                 reltype2.setModified();
                 reltype2.setRelshipKind(relkind);
@@ -1468,8 +1468,8 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                     myDiagram.model.setDataProperty(data, "reltype", reltype);
                     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                     reltype.setModified();
-                    reltype.setFromObjtype(fromTypeNode.objecttype);
-                    reltype.setToObjtype(toTypeNode.objecttype);
+                    reltype.setFromObjtype(fromObjType);
+                    reltype.setToObjtype(toObjType);
                     if (debug) console.log('1279 reltype', reltype);
                     myMetamodel.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);

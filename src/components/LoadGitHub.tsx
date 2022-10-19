@@ -146,7 +146,16 @@ const LoadGitHub = (props: any) => {
       if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
         const mmodel = model; // model is a metamodel
         let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === mmodel?.id) // current mmodel index
-        
+        // import metamodel into current project, but first rename the current if it has the same id
+        // let oldmodel;
+        // if ( mmindex !== -1) { //  found
+        //   const tmpmodel = props.ph.phData?.metis?.metamodels[mmindex]
+        //   oldmodel = {
+        //     ...tmpmodel,
+        //     id: tmpmodel.id+'_old',
+        //     name: tmpmodel.name+'_old',
+        //   }    
+        // }
         const mmlength = props.ph.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
@@ -156,6 +165,7 @@ const LoadGitHub = (props: any) => {
                   ...props.ph.phData.metis,
                   metamodels: [
                       ...props.ph.phData.metis.metamodels.slice(0, mmindex),  
+                      // oldmodel,
                       mmodel,
                       ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
                   ],

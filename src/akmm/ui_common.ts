@@ -2150,8 +2150,10 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
         case 'typeDescription':
             break;
         default:
-            if (type?.properties?.length > 0) {
-            const prop = type.properties.find(p => p.name === k);
+            // const metamodel = model?.metamodel;
+            const properties = type?.getProperties(true);
+            if (properties?.length > 0) {
+            const prop = properties.find(p => p.name === k);
             if (!prop) {
                 retVal = false;
             }

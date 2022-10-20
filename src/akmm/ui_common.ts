@@ -2142,6 +2142,22 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
       if (k === 'fieldType') retVal = false;
     }
+    switch (k) {
+        case 'id':
+        case 'name':
+        case 'description':
+        case 'typeName':
+        case 'typeDescription':
+            break;
+        default:
+            if (type?.properties?.length > 0) {
+            const prop = type.properties.find(p => p.name === k);
+            if (!prop) {
+                retVal = false;
+            }
+            break;
+        }
+    }
     return retVal;
 }
 

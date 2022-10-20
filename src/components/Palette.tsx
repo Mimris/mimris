@@ -62,7 +62,7 @@ const Palette = (props: any) => {
   
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
-  if (!debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
+  if (debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {
@@ -78,7 +78,7 @@ const Palette = (props: any) => {
   useEffect(() => {
     isRendered = true;
     if (isRendered) {
-      if (!debug) clog('80Palette useEffect', props);
+      if (debug) clog('80 Palette useEffect', props);
       (mmodel) && genRoleTasks(mmodel, dispatch)
     }
     if (props.phFocus.focusTask.workOnTypes) {
@@ -89,8 +89,8 @@ const Palette = (props: any) => {
       ).filter(Boolean) // remove undefined
       if (debug) console.log('93 taskNodeDataArray', taskNodeDataArray);
     
-    if (!debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
-    if (!debug) console.log('94 seltasks', props.phFocus.focusTask)
+    if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
+    if (debug) console.log('94 seltasks', props.phFocus.focusTask)
     }
     
     return () => { isRendered = false; }

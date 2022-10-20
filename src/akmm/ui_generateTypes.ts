@@ -251,6 +251,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (debug) console.log('250 objtype', objtype);
     }
     { // Handle properties
+        objtype.properties = new Array();
         objtype.description = currentObj.description;
         const proptypes = new Array();
         getPropertyTypes(object, proptypes, myModel);

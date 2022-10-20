@@ -240,8 +240,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       // Function to specify default text style
       function textStyle() {
         return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
-      }
-      
+      }      
     }
 
     

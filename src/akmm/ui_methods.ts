@@ -394,7 +394,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             child = rel.toObject as akm.cxObject;            
         if (debug) console.log('395 child', child);
         if (child) {
-            if (child.type.id === objtype.id)
+            if (child.type.id === objtype?.id)
                 objects.push(child);  
         }  
         if (debug) console.log('400 child', child);

@@ -345,7 +345,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (k === 'abstract') {
           if (what !== 'editObject' && what !== 'editObjectType')
             continue;
-          if (item?.type.name !== 'EntityType')
+          if (item?.type?.name !== 'EntityType')
             continue;
         }      
         if (k === 'viewkind') {

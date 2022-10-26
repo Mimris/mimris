@@ -17,15 +17,13 @@ Naming conventions
 ex. 
 MyProject_PR.json, MyMetamodel_MM.json, MyModelview_MV.json, MyObject_OB.json, MyRelationship_RE.json, MyWorkspace_WS.json, MyWorkplace_WP.json
 
-
-
 ## Project_PR.json
 
 ```JSON
 {
     "phProject": {
         "remoteUrl": "https://github.com/Kavca/kavca-akm-models/blob/main/metaprojects/Project_PR.json",
-        "README": "READE.md", 
+        "localUrl": "C:/Users/akm/akm-models/metaprojects/Project_PR.json",
         "modelFiles": [
             "https://github.com/Kavca/kavca-akm-models/blob/main/metaprojects/AAAAA_MO.json",
             "https://github.com/Kavca/kavca-akm-models/blob/main/metaprojects/BBBBB_MO.json"
@@ -45,7 +43,10 @@ MyProject_PR.json, MyMetamodel_MM.json, MyModelview_MV.json, MyObject_OB.json, M
         "typeviewFiles": [
 
         ],
-        "README": "READE.md"
+        "svgFiles": [
+
+        ],
+        "README": "README.md"
     },
     "phData": {
       "metis": {
@@ -53,6 +54,8 @@ MyProject_PR.json, MyMetamodel_MM.json, MyModelview_MV.json, MyObject_OB.json, M
         "description": "",
         "metamodels": [   ],
         "models": [ ],
+        "objects": [ ], // ????
+        "relationships": [ ], // ????
         "currentMetamodelRef": "",
         "currentModelRef": "",
         "currentModelviewRef": "",

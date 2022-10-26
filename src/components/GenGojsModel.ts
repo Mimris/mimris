@@ -32,17 +32,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
+  const focusModel = props.phFocus.focusModel
+  const focusModelview = props.phFocus.focusModelview
+  if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   // const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
     if (debug) clog('33 GenGojsModel: props', props);
-    const myMetis = new akm.cxMetis();
-    const tempMetis = myMetis
-    if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
-    myMetis.importData(metis, true);
-    adminModel = buildAdminModel(myMetis);
-    clog('39 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
+
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     if (debug) console.log('43 focusModel, focusModelview', focusModel, focusModelview)
@@ -53,15 +51,38 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     if (debug) console.log('49 models  ', models, 'curmod', curmod.name, 'curmod.modelviews', curmod.modelviews,  'focusModelview:', focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-    const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodel?.id)
-    const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodel?.id)
-    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModel?.id)
+    const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
+    const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
+    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
     const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-    if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModel?.id);
+    if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
+    if (!debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
+    // make metis object containing only current model , curtargetmodel, curmetamodel, curtargetmetamodel
+    const curmodels = (curtargetmodel) ? [curmod, curtargetmodel] : [curmod]
+    const curmetamodels = (curtargetmetamodel) ? [curmetamodel, curtargetmetamodel] : [curmetamodel]
+    if (!debug) console.log('64 GenGojsModel: curmodels',  curmodels, curmetamodels);
+    const metis2 = {
+      name: metis.name,
+      description: metis.description,
+      currentMetamodelRef: metis.currentMetamodelRef,
+      currentModelRef: metis.currentModelRef,
+      currentModelviewRef: metis.currentModelviewRef,
+      currentTargetModelRef: metis.currentTargetModelRef,
+      currentTargetModelviewRef: metis.currentTargetModelviewRef,
+      currentTaskModelRef: metis.currentTaskModelRef,
+      currentTemplateModelRef: metis.currentTemplateModelRef,
+      models: curmodels,
+      metamodels: curmetamodels,
+    }
+    if (!debug) console.log('75 GenGojsModel: metis2', metis2);
 
-    // let curGomodel = props.phMyGoModel?.myGoModel;
-    if (debug) console.log('59 GenGojsModel: curmod', curmod, curmod?.id);
+    const myMetis = new akm.cxMetis();
+    const tempMetis = myMetis
+    if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
+    myMetis.importData(metis2, true);
+    adminModel = buildAdminModel(myMetis);
+    clog('39 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);

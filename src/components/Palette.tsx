@@ -77,41 +77,47 @@ const Palette = (props: any) => {
 
   useEffect(() => {
     isRendered = true;
+    let types =[]
     if (isRendered) {
-      if (debug) clog('80 Palette useEffect', props);
-      (mmodel) && genRoleTasks(mmodel, dispatch)
-    }
-    if (props.phFocus.focusTask.workOnTypes) {
-      taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+      if (!debug) clog('82 Palette useEffect')//, mmodel, genRoleTasks(mmodel, dispatch));
+      types = genRoleTasks(mmodel, dispatch)
+      if (types.length > 0) {
+        taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
         })
-      ).filter(Boolean) // remove undefined
-      if (debug) console.log('93 taskNodeDataArray', taskNodeDataArray);
-    
-    if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
-    if (debug) console.log('94 seltasks', props.phFocus.focusTask)
+        ).filter(Boolean) // remove undefined
+      }
     }
-    
     return () => { isRendered = false; }
   }, [])
 
   useEffect(() => {
-    // isRendered = true;
-    if (props.phFocus.focusTask.workOnTypes) {
-      taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+    // if (props.phFocus.focusTask.workOnTypes) {  // todo: this is when focusTask is implemented
+    //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+    //     ndarr?.find((i: { typename: any; }) => {
+    //       return (i?.typename === wot) && i 
+    //     })
+    //   ).filter(Boolean) // remove undefined
+    // }
+    isRendered = true;
+    let types =[]
+    if (isRendered) {
+      if (!debug) clog('106 Palette useEffect') //, mmodel, genRoleTasks(mmodel, dispatch));
+      types = genRoleTasks(mmodel, dispatch)
+      if (types.length > 0) {
+        taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
         })
-      ).filter(Boolean) // remove undefined
+        ).filter(Boolean) // remove undefined
+      }
     }
-    const timer = setTimeout(() => {
-      setRefresh(!refresh)
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-
-    // return () => { isRendered = false; }
+    // const timer = setTimeout(() => {
+    //   setRefresh(!refresh)
+    // }, 5000);
+    // return () => clearTimeout(timer);
+    return () => { isRendered = false; }
   }, [props.phFocus.focusModel?.id])
 
   if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);

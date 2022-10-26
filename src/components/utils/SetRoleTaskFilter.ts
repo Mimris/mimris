@@ -182,10 +182,14 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 ]
             }
         }
-            
-
-        if (debug) console.log("105 focusTasks", datatask);
+         
+        
+        if (debug) console.log("187 focusTasks", datatask);
         dispatch({ type: 'SET_FOCUS_TASK', data: datatask.focusTask })
+        
+        if (debug) console.log("190 focusTasks", datatask.focusTask.workOnTypes);
+        return datatask.focusTask.workOnTypes
+
     }
  }
 export default genRoleTasks;

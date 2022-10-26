@@ -41,46 +41,20 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (metis != null) {
     if (debug) clog('33 GenGojsModel: props', props);
 
-    const focusModel = (props.phFocus) && props.phFocus.focusModel
-    const focusModelview = (props.phFocus) && props.phFocus.focusModelview
-    const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
-    const focusObjectview = (props.phFocus) && props.phFocus.focusObjectview
-    const focusObject = (props.phFocus) && props.phFocus.focusObject
-
-
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
-    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-    const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
-    const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
-    const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+    const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-    if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
-    if (!debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
-    // make metis object containing only current model , curtargetmodel, curmetamodel, curtargetmetamodel
-    const curmodels = (curtargetmodel) ? [curmod, curtargetmodel] : [curmod]
-    const curmetamodels = (curtargetmetamodel) ? [curmetamodel, curtargetmetamodel] : [curmetamodel]
-    if (!debug) console.log('64 GenGojsModel: curmodels',  curmodels, curmetamodels);
-
-    const metis2 = {
-      name: metis.name,
-      description: metis.description,
-      currentMetamodelRef: metis.currentMetamodelRef,
-      currentModelRef: metis.currentModelRef,
-      currentModelviewRef: metis.currentModelviewRef,
-      currentTargetModelRef: metis.currentTargetModelRef,
-      currentTargetModelviewRef: metis.currentTargetModelviewRef,
-      currentTaskModelRef: metis.currentTaskModelRef,
-      currentTemplateModelRef: metis.currentTemplateModelRef,
-      models: curmodels,
-      metamodels: curmetamodels,
-    }
-    if (!debug) console.log('75 GenGojsModel: metis2', metis2);
-
+    const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    
+    
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
+    // myMetis.importData(metis2, true);
+    const metis2 = buildMinimisedMetis(metis, curmod)
+    if (!debug) console.log('51 GenGojsModel: metis2', metis2);
     myMetis.importData(metis2, true);
     adminModel = buildAdminModel(myMetis);
     clog('39 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
@@ -984,6 +958,108 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }
       return adminModel;
     }
+  }
+
+  function buildMinimisedMetis(metis, curmod) { 
+    // stripped down metis to, where only current models and metamodels include all their objects and relationships, the rest has only id and name (needed for _ADMIN modellen)
+    console.log('957 buildMinimisedMetis', metis, curmod);
+    const models = metis.models;
+    const metamodels = metis.metamodels;
+
+    const focusModel = (props.phFocus) && props.phFocus.focusModel
+    const focusModelview = (props.phFocus) && props.phFocus.focusModelview
+    const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
+    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+    const focusObjectview = (props.phFocus) && props.phFocus.focusObjectview
+    const focusObject = (props.phFocus) && props.phFocus.focusObject
+    const curmodIndex = (models && focusModel?.id) && models.findIndex((m: any) => m.id === focusModel.id)
+    if (debug) console.log('49 models  ', models, 'curmod', curmod.name, 'curmod.modelviews', curmod.modelviews,  'focusModelview:', focusModelview)
+    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
+    const curmetamodelIndex = (curmod) && metamodels.findIndex(mm => mm?.id === curmod?.metamodelRef)
+    const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
+    const curtargetmetamodelIndex = (curmod) && metamodels.findIndex(mm => mm?.id === curmod?.targetMetamodelRef)
+    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
+    const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+    const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+    if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
+    if (!debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
+    // make metis object containing only current model , curtargetmodel, curmetamodel, curtargetmetamodel
+    const strippedMetamodels = metamodels?.map(mm => { 
+      return {
+        ...mm,
+        methods: [],
+        methodtypes: [],
+        objecttypes: [],
+        objecttypes0: [],
+        objecttypeviews: [],
+        objtypegeos: [],
+        relshipstypes0: [],
+        properties: [],
+        relshipstypes: [],
+        relshipstypes0: [],
+        relshipstypeviews: [],
+        viewstyles: [],
+        units: [],
+      }
+    })
+
+    const strippedModels = models?.map(m => {
+      return {
+        ...m,
+        objects: [],
+        relships: [],
+        modelviews: m.modelviews?.map(mv => { return {id: mv.id, name: mv.name, objectviews: [], relshipviews:[]} } )
+      }
+    })
+    if (!debug) console.log('1005 GenGojsModel: strippedModels', models, strippedModels, strippedMetamodels);
+
+    const curModelWithStrippedModels =  [
+      ...strippedModels?.slice(0,curmodIndex), 
+      curmod, 
+      ...strippedModels?.slice(curmodIndex+1, strippedModels.length),
+    ]
+    console.log('1015 curModelWithStrippedModels', curModelWithStrippedModels);
+    const curTargetModelWithStrippedModels = (curtargetmodel) ? [
+      ...curModelWithStrippedModels.slice(0,curtargetmodelIndex),
+      curtargetmodel,
+      ...curModelWithStrippedModels.slice(curtargetmodelIndex+1, curModelWithStrippedModels.length)
+    ] : [curmod]
+
+    const curMetamodelWithStrippedMetamodels = [
+      ...strippedMetamodels.slice(0,curmetamodelIndex),
+      curmetamodel,
+      ...strippedMetamodels.slice(curmetamodelIndex+1, strippedMetamodels.length)
+    ]
+
+    const curTargetMetamodelWithStrippedMetamodels = [
+      ...curMetamodelWithStrippedMetamodels.slice(0,curtargetmetamodelIndex),
+      curtargetmetamodel,
+      ...curMetamodelWithStrippedMetamodels.slice(curtargetmetamodelIndex+1, curMetamodelWithStrippedMetamodels.length)
+    ]
+
+    if (!debug) console.log('1033 GenGojsModel:', curModelWithStrippedModels, curTargetMetamodelWithStrippedMetamodels);
+
+    const curmodels = (curtargetmodel) ? curTargetModelWithStrippedModels : curModelWithStrippedModels
+    const curmetamodels = (curtargetmetamodel) ? curTargetMetamodelWithStrippedMetamodels : curMetamodelWithStrippedMetamodels
+    if (!debug) console.log('1033 GenGojsModel: curmodels',  curmodels, curmetamodels);
+
+    const metis2 = {
+      name: metis.name,
+      description: metis.description,
+      currentMetamodelRef: metis.currentMetamodelRef,
+      currentModelRef: metis.currentModelRef,
+      currentModelviewRef: metis.currentModelviewRef,
+      currentTargetModelRef: metis.currentTargetModelRef,
+      currentTargetModelviewRef: metis.currentTargetModelviewRef,
+      currentTaskModelRef: metis.currentTaskModelRef,
+      currentTemplateModelRef: metis.currentTemplateModelRef,
+      models: curmodels,
+      metamodels: curmetamodels,
+    }
+    if (!debug) console.log('1047 GenGojsModel: metis2', metis2);
+
+    return metis2;
   }
 }
 export default GenGojsModel;

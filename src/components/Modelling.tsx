@@ -75,20 +75,28 @@ const page = (props:any) => {
   const phSource = useSelector(phSource => props.phSource) 
   // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
+  let metis = props.phData?.metis
+  let myMetis = props.phMymetis?.myMetis
+  let myGoModel = props.phMyGoModel?.myGoModel
+  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects // || []
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
-  let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+  // let gojsmetamodelpalette =  myGoModel?.gojsMetamodelPalette 
+  // let gojsmetamodelmodel =  myGoModel?.gojsMetamodelModel 
+  // let gojsmodelobjects = myGoModel?.gojsModelObjects // || []
+  // let gojstargetmetamodel = myGoModel?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  // let gojsmodel =  {nodeDataArray: myGoModel?.nodes, linkDataArray: myGoModel?.links} // props.phGojs?.gojsModel || [] // this is the generated target metamodel
+  // let gojsmetamodel =  myGoModel?.gojsMetamodel 
 
-  if (debug) console.log('57 Modelling: gojsmodel', props);
+  let gojstargetmodel =  props.phGojs?.gojsTargetModel 
+
+  if (!debug) console.log('93 Modelling: gojsmodel', gojsmodel, props.phGojs?.gojsModel);
   
-  let metis = props.phData?.metis
-  let myMetis = props.phMymetis?.myMetis
-  let myGoModel = props.phMyGoModel?.myGoModel
-  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
   const curmod = metis?.models.find(m => m.i === focusModel?.id)
   const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
   const curobjviews = curmodview?.objectviews

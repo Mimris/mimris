@@ -30,7 +30,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   if (debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
-  const metis = (props.phData) && props.phData.metis
+  const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
   const focusModel = props.phFocus.focusModel
   const focusModelview = props.phFocus.focusModelview
@@ -47,15 +47,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
     const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-    
+
     
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
+    myMetis.importData(metis, true);
+    // const metis2 = buildMinimisedMetis(metis, curmod) //Todo: change modelview not load from redux store
+    // if (!debug) console.log('51 GenGojsModel: metis2', metis2);
     // myMetis.importData(metis2, true);
-    const metis2 = buildMinimisedMetis(metis, curmod)
-    if (!debug) console.log('51 GenGojsModel: metis2', metis2);
-    myMetis.importData(metis2, true);
     adminModel = buildAdminModel(myMetis);
     clog('39 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
     
@@ -969,9 +969,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
-    const focusObjectview = (props.phFocus) && props.phFocus.focusObjectview
-    const focusObject = (props.phFocus) && props.phFocus.focusObject
     const curmodIndex = (models && focusModel?.id) && models.findIndex((m: any) => m.id === focusModel.id)
     if (debug) console.log('49 models  ', models, 'curmod', curmod.name, 'curmod.modelviews', curmod.modelviews,  'focusModelview:', focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
@@ -980,8 +977,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
     const curtargetmetamodelIndex = (curmod) && metamodels.findIndex(mm => mm?.id === curmod?.targetMetamodelRef)
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
-    const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
-    const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+ 
     if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
     if (!debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
     // make metis object containing only current model , curtargetmodel, curmetamodel, curtargetmetamodel

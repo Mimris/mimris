@@ -2751,6 +2751,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
                 if (debug) console.log('2697 rel, relviews', rel, relviews);
                 if (relviews.length > 1) {
+                    // Duplicate relationship views between two object views
+                    msg = "\tVerifying relationship " + rel.name + " with multiple relationshipviews.\n";
                     let n = 0;
                     const rvs = [];
                     for (let k=0; k<relviews?.length; k++) {
@@ -2762,6 +2764,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     }
                     if (debug) console.log('2708 n, rel, rvs', n, rel, rvs);
                     if (n>1) {
+                        // Delete all but the first relationship view
                         for (let k=0; k<rvs?.length; k++) {
                             if (k == 0) 
                                 continue;
@@ -2769,7 +2772,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                             rv.markedAsDeleted = true;
                         }
                     }
-                }
+                    msg += "\tIs repaired by deleting all relationship views but the first one";
+                    report += printf(format, msg);
+        }
 
                 if (debug) console.log('2719 relshipview', rview);
                 if (rview && !rview.markedAsDeleted) {
@@ -2804,7 +2809,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         }
     }
     repairRelationshipTypeViews(myMetis);
-    
+
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = {metis: jsnMetis}
@@ -2817,7 +2822,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg += "End Verification";
     if (debug) console.log('2761 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    console.log(report);
     myDiagram.requestUpdate();    
 } 
 

@@ -3,6 +3,7 @@ const debug = false;
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
+import * as uid from './ui_diagram';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
 import * as gen from './ui_generateTypes';
@@ -84,8 +85,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setSize(data.size);
                 objview.setScale(data.scale1);
                 objview.setMemberscale(data.memberscale);
-                objview.setTemplate(data.template);
-                objview.setFigure(data.figure);
+                // objview.setTemplate(data.template);
+                // objview.setFigure(data.figure);
                 let key = data.key.substr(0,36);
                 let node = myGoModel?.findNode(key);
                 if (!node) {
@@ -142,17 +143,17 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 }
                 if (!objtypeView) {
                     const key = utils.createGuid();
-                    objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
+                    objtypeView = new akm.cxObjectTypeView(key, objtype.name, objtype, "");
                 }
                 if (objtypeView) {
                     objview.setTypeView(objtypeView);
                     const otdata = objtypeView.data;
-                    if (data['template'] !== otdata['template']) objview['template'] = data['template'];
-                    if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
-                    if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
-                    if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
-                    if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
-                    if (data['icon'] !== otdata['icon']) objview['icon'] = data['icon'];  
+                    // if (data['template'] !== otdata['template']) objview['template'] = data['template'];
+                    // if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
+                    // if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
+                    // if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
+                    // if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
+                    // if (data['icon'] !== otdata['icon']) objview['icon'] = data['icon'];  
                     // Create the new node                          
                     const node = new gjs.goObjectNode(data.key, objview);
                     if (debug) console.log('137 createObject', node, data);
@@ -1213,6 +1214,7 @@ export function createRelationship(data: any, context: any) {
 }
 
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
+    if (debug) console.log('1216 createRelshipCallback', args);
     const myDiagram = args.context.myDiagram;
     const myGoModel = args.context.myGoModel;
     const myMetis   = args.context.myMetis; 
@@ -1245,8 +1247,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     let relshipview: akm.cxRelationshipView;
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
-    reltypeview.setFromArrow2(reltype.relshipkind);
-    reltypeview.setToArrow2(reltype.relshipkind);
     if (debug) console.log('1198 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
     if (debug) console.log('1200 data, relshipview', data, relshipview);
@@ -1256,7 +1256,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relship.relshipkind = reltype.relshipkind;
         relshipview.setFromArrow2(rel?.relshipkind);
         relshipview.setToArrow2(rel?.relshipkind);
-        relshipview = updateRelationshipView(relshipview);
+        // relshipview = updateRelationshipView(relshipview);
         relship.addRelationshipView(relshipview);
         if (debug) console.log('1337 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
@@ -1268,14 +1268,18 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
             if (!name) name = data.name;
             if (name.length == 0) name = " ";
         }   
-        relshipview = updateRelationshipView(relshipview);
+        // relshipview = updateRelationshipView(relshipview);
         relshipview.id = id;
         relshipview.name = name;
         relship.name = name;
         data.name = name;
         if (debug) console.log('1351 data, relshipview', data, relshipview);
         if (debug) console.log('1352 myModelview, relshipview', myModelview, relshipview);
-        updateLink(data, relshipview.typeview, myDiagram, myGoModel);
+        // updateLink(data, relshipview.typeview, myDiagram, myGoModel);
+
+        let link = myGoModel.findLink(data.key);
+        uid.resetToTypeview(link, myMetis, myDiagram); 
+
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
         myModel.addRelationship(relship);
@@ -1290,16 +1294,16 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
             data = JSON.parse(JSON.stringify(data));
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         })      
-        const modifiedRelviews = new Array();
-        const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1369 jsnRelview', jsnRelview);
-        modifiedRelviews.push(jsnRelview);
-        modifiedRelviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1374 data', data, myModelview);
-            (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        })              
+        // const modifiedRelviews = new Array();
+        // const jsnRelview = new jsn.jsnRelshipView(relshipview);
+        // if (debug) console.log('1369 jsnRelview', jsnRelview);
+        // modifiedRelviews.push(jsnRelview);
+        // modifiedRelviews.map(mn => {
+        //     let data = mn;
+        //     data = JSON.parse(JSON.stringify(data));
+        //     if (debug) console.log('1374 data', data, myModelview);
+        //     (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        // })              
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
@@ -1308,7 +1312,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
-        const link = myDiagram.findLinkForKey(data.key);
+        link = myDiagram.findLinkForKey(data.key);
         if (debug) console.log('1388 link, relshipview', link, relshipview);
         myDiagram.model.setDataProperty(link, "name", name);
         myDiagram.model.setDataProperty(link.data, "name", name);
@@ -1439,7 +1443,8 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 if (reltypeView) {
                     // Copy reltypeview
                     const id = utils.createGuid();
-                    const reltypeView2 = new akm.cxRelationshipTypeView(id, id, reltype2, "");
+                    const name = reltype2.name + '_' + relkind;
+                    const reltypeView2 = new akm.cxRelationshipTypeView(id, name, reltype2, "");
                     if (debug) console.log('1249 reltypeView2', reltypeView2);
                     reltypeView2.setModified();
                     reltypeView2.setRelshipKind(relkind);
@@ -1474,7 +1479,8 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                     myMetamodel.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);
                     // Then create the default relationship typeview
-                    const reltypeView = new akm.cxRelationshipTypeView(utils.createGuid(),reltype.name, reltype, "");   
+                    const name = reltype.name + '_' + reltype.getRelshipKind();
+                    const reltypeView = new akm.cxRelationshipTypeView(utils.createGuid(), name, reltype, "");   
                     if (reltypeView) {
                         if (debug) console.log('1285 reltypeView', reltypeView);
                         reltypeView.setModified();
@@ -1538,7 +1544,8 @@ export function updateRelationshipType(data: any, name: string, value: string, c
             // Get relationship typeview
             let reltypeView = reltype.getDefaultTypeView();
             if (!reltypeView) {
-                reltypeView = new akm.cxRelationshipTypeView(utils.createGuid(), typename, reltype, "");
+                const name = typename + '_' + reltype.getRelshipKind();
+                reltypeView = new akm.cxRelationshipTypeView(utils.createGuid(), name, reltype, "");
                 reltypeView.setModified();
                 reltype.setDefaultTypeView(reltypeView);
                 reltype.setModified();
@@ -1630,14 +1637,14 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
         if (!relview.arrowscale)
             relview.arrowscale = "1.3";
         const typeview = relview.typeview;
-        if (typeview) {
-            const viewdata = typeview.data;
-            for (let prop in viewdata) {
-                if (relview[prop] === viewdata[prop]) {
-                    relview[prop] = "";
-                }
-            }
-        }
+        // if (typeview) {
+        //     const viewdata = typeview.data;
+        //     for (let prop in viewdata) {
+        //         if (relview[prop] === viewdata[prop]) {
+        //             relview[prop] = "";
+        //         }
+        //     }
+        // }
         if (relview.strokewidth === "") {
             relview.strokewidth = "1";
         }
@@ -1723,9 +1730,11 @@ export function createLink(data: any, context: any): any {
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
                         relshipview.setTextScale(scale);
+                        relshipview.strokewidth = "";
+                        relshipview.textscale = "";
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
-                        // let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
+                        let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
                     }
                     if (debug) console.log('1503 typeview, relshipview', typeview, relshipview);
                 }
@@ -2412,9 +2421,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         if (!mm.id) {
             if (debug) console.log('Removing corrupt metamodel', mm);
             metamodels.splice(i, 1);
+            msg += "A corrupt metamodel has been removed\n";
             i--;
         }
-        msg += "A corrupt metamodel has been removed\n";
     }
     // Check for duplicate relship types in the metamodels
     for (let i=0; i<metamodels?.length; i++) {
@@ -2428,6 +2437,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     && rel.toObjtype?.id === rel2.toObjtype?.id
                     && rel.name === rel2.name) {
                     if (debug) console.log('Removing duplicate relship type', rel, rel2);
+                    msg += "A duplicate relship type, " + rel2.name + ", has been removed from metamodel, " + mm.name + "\n";
                     rels.splice(k, 1);
                     k--;
                 }
@@ -2741,6 +2751,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
                 if (debug) console.log('2697 rel, relviews', rel, relviews);
                 if (relviews.length > 1) {
+                    // Duplicate relationship views between two object views
+                    msg = "\tVerifying relationship " + rel.name + " with multiple relationshipviews.\n";
                     let n = 0;
                     const rvs = [];
                     for (let k=0; k<relviews?.length; k++) {
@@ -2752,6 +2764,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     }
                     if (debug) console.log('2708 n, rel, rvs', n, rel, rvs);
                     if (n>1) {
+                        // Delete all but the first relationship view
                         for (let k=0; k<rvs?.length; k++) {
                             if (k == 0) 
                                 continue;
@@ -2759,7 +2772,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                             rv.markedAsDeleted = true;
                         }
                     }
-                }
+                    msg += "\tIs repaired by deleting all relationship views but the first one";
+                    report += printf(format, msg);
+        }
 
                 if (debug) console.log('2719 relshipview', rview);
                 if (rview && !rview.markedAsDeleted) {
@@ -2793,6 +2808,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             }
         }
     }
+    repairRelationshipTypeViews(myMetis);
+
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = {metis: jsnMetis}
@@ -2805,7 +2822,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg += "End Verification";
     if (debug) console.log('2761 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    console.log(report);
     myDiagram.requestUpdate();    
 } 
 
@@ -2859,13 +2876,12 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 if (prop === 'relshipkind') continue;
                 if (prop === 'class') continue;
                 if (prop === 'name') continue;
-                relview[prop] = viewdata[prop];
-                if (propIsColor(prop)) {
-                    if (viewdata[prop] != null)
-                        diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                    if (relview && relview[prop] && relview[prop] !== "") {
-                        diagram.model.setDataProperty(data, prop, relview[prop]);
-                    }
+                if (relview[prop] && relview[prop] !== "") {
+                    // if (propIsColor(prop)) {
+                    //     if (viewdata[prop] != null)
+                    //         diagram.model.setDataProperty(data, prop, viewdata[prop]);
+                    // }
+                    diagram.model.setDataProperty(data, prop, relview[prop]);
                     if (debug) console.log('2904 updateLink', prop, viewdata[prop], relview[prop]);
                 }
                 if (prop === 'toArrow') {
@@ -3042,4 +3058,71 @@ export function isGenericMetamodel(myMetis: akm.cxMetis) {
     if (metamodel.name === 'GENERIC_MM')
         return true;
     return false;
+}
+
+export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
+    myMetis.relshiptypeviews = new Array();
+    const metamodels = myMetis.metamodels;
+    for (let i=0; i<metamodels?.length; i++) {
+        const metamodel = metamodels[i];
+        metamodel.relshiptypeviews = new Array();
+        const reltypeviews = metamodel.relshiptypeviews;
+        for (let j=0; i<reltypeviews?.length; j++) {
+            const reltypeview = reltypeviews[j];
+            if (reltypeview.name === reltypeview.id)
+                continue;
+            else if (reltypeview.name === 'undefined_undefined')
+                continue;
+            else {
+                if (reltypeview.strokewidth === "")
+                    reltypeview.strokewidth = "1";
+                metamodel.relshiptypeviews.push(reltypeview);
+                myMetis.relshiptypeviews.push(reltypeview);
+            }
+        }
+    }
+    return;
+
+    for (let i=0; i<reltypeviews?.length; i++) {
+        const reltypeview = reltypeviews[i];
+        if (reltypeview.markedAsDeleted)
+            continue;
+        const reltypeRef = reltypeview.typeRef;
+        if (reltypeRef) {
+            const reltype = myMetis.findRelationshipType(reltypeRef);
+            if (reltype) {
+                const typeview = reltype.typeview;
+                if (typeview.id === reltypeview.id) {
+                    continue;
+                } else {
+                    reltype.typeview = reltypeview;
+                }
+            }
+            else
+                reltypeview.markedAsDeleted = true;
+        }
+    }
+    const reltypes = myMetis.relshiptypes;
+    for (let i=0; i<reltypes?.length; i++) {
+        const reltype = reltypes[i];
+        if (reltype.markedAsDeleted)
+            continue;
+        const typeview = reltype.typeview;
+        const rtview = myMetis.findRelationshipTypeView(typeview.id);
+        if (!rtview) {
+            typeview.markedAsDeleted = true;
+        }
+    }
+    for (let i=0; i<reltypeviews?.length; i++) {
+        const reltypeview = reltypeviews[i];
+        if (reltypeview.markedAsDeleted)
+            continue;
+        const reltypeRef = reltypeview.typeRef;
+        if (reltypeRef) {
+            const reltype = myMetis.findRelationshipType(reltypeRef);
+            if (!reltype) {
+                reltypeview.markedAsDeleted = true;
+            }
+        }
+    }
 }

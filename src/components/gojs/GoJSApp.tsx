@@ -727,7 +727,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('694 error', error);
                 }
               }
-              myDiagram.model.setDataProperty(n.data, "loc", node.loc);
+              if (n.data)
+                myDiagram.model.setDataProperty(n.data, "loc", node.loc);
               myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
               if (debug) console.log('693 myGoModel', myGoModel);
             }
@@ -1356,7 +1357,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundSingleClicked": {
-        if (debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
+        if (!debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
       }
       break;
       case "BackgroundDoubleClicked": {

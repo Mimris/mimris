@@ -1780,6 +1780,7 @@ export class jsnImportMetis {
     importRelshipTypeView(item: any, metamodel: akm.cxMetaModel) {
         const typeref = item.typeRef;
         const type = jsnMetis.findRelationshipType(typeref);
+        if (debug) console.log('1783 item', item);
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
         if (utils.objExists(type))
             reltypeview.setType(type);
@@ -1791,7 +1792,7 @@ export class jsnImportMetis {
         reltypeview.setToArrow(item.toarrow);
         jsnMetis.addRelationshipTypeView(reltypeview);
         metamodel.addRelationshipTypeView(reltypeview);
-        if (debug) console.log("Importing reltypeview: " + item.id + ", " + item.name);
+        if (debug) console.log("1794 Importing reltypeview: " + item.id + ", " + item.name);
     }
     importProperty(item: any, metamodel: akm.cxMetaModel) {
         let property = metamodel.findProperty(item.id);

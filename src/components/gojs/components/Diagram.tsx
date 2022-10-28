@@ -1351,7 +1351,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   if (debug) console.log('701 link', reltype, defaultTypeview, typeview);
                   if (!typeview || (typeview.id === defaultTypeview.id)) {
                       const id = utils.createGuid();
-                      typeview = new akm.cxRelationshipTypeView(id, id, reltype, "");
+                      const name = reltype.name + '_' + reltype.getRelshipKind();
+                      typeview = new akm.cxRelationshipTypeView(id, name, reltype, "");
                       typeview.data = defaultTypeview.data;
                       typeview.data.strokecolor = "red";
                       typeview.nameId = undefined;
@@ -1870,6 +1871,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("----------",
             function (e: any, obj: any) {
+              console.log('TEST');
             },
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')

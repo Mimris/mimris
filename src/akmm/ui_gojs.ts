@@ -945,6 +945,7 @@ export class goRelshipTypeLink extends goLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
+    strokecolor: string;
     strokewidth: string;
     textcolor:      string;
     arrowscale:     string;
@@ -1018,6 +1019,10 @@ export class goRelshipTypeLink extends goLink {
                         const data: any = typeview.getData();
                         this.addData(data);
                         this.setName(this.reltype.getName());
+                        if (!this.strokwidth)
+                            this.strokewidth = '1';
+                        if (!this.strokecolor)
+                            this.strokecolor = 'black';
                         return true;
                     }
                 }

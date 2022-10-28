@@ -238,7 +238,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           else
             properties = typeProps;
         }
-        if (debug) console.log('238 typename, chosenInst, chosenType, properties', typename, chosenInst, chosenType, properties);
+        if (debug) console.log('241 typename, chosenInst, chosenType, properties', typename, chosenInst, chosenType, properties);
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {
         let flag = false;
@@ -261,7 +261,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (!v) chosenInst[prop.name] = "";  // Sets empty string if undefined
         }
       }
-      if (debug) console.log('259 properties, chosenInst, selObj', properties, chosenInst, selObj);
+      if (debug) console.log('264 properties, chosenInst, selObj', properties, chosenInst, selObj);
     }
 
     const dets = [];
@@ -305,7 +305,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (!item) item = inst;
         hideNameAndDescr = true;
-        if (debug) console.log('219 inst, item', inst, item);
+        if (debug) console.log('308 inst, item', inst, item);
         if (what === "editObjectview")
           useFillColor = true;
         else if (what === "editRelshipview")
@@ -315,8 +315,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
         break;
     }
-    if (debug) console.log('309 myMetis', myMetis);
-    if (debug) console.log('310 item, inst, selObj, chosenInst, type', item, inst, selObj, chosenInst, type);
+    if (debug) console.log('318 myMetis', myMetis);
+    if (debug) console.log('319 item, inst, selObj, chosenInst, type', item, inst, selObj, chosenInst, type);
 
     if (false) {
     // // Check if item has pointer properties

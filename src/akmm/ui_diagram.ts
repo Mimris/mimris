@@ -526,6 +526,8 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
                     continue;              
             }
             rview[prop] = "";
+            if (prop === 'strokewidth')
+                rview[prop] = rtview[prop];
             if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
             myDiagram.model.setDataProperty(l.data, prop, rtview[prop]);
         }

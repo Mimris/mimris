@@ -179,7 +179,7 @@ export function handleSelectDropdownChange(selected, context) {
             name:   typename,
           };
           // set the link attributes
-          const rtviewdata = reltype.typeview.data;
+          const rtviewdata = reltype?.typeview?.data;
           for (let prop in rtviewdata) {
             if (prop === 'id') continue;
             if (prop === 'name') continue;
@@ -401,6 +401,7 @@ export function handleSelectDropdownChange(selected, context) {
         const inst = sel.data;
         if (inst.category === constants.gojs.C_RELATIONSHIP) {
           link = myGoModel.findLink(inst.key);
+          if (!link) return;
           let relship = link.relship;
           relship = myModel.findRelationship(relship.id);
           let relshipview = link.relshipview;
@@ -1221,6 +1222,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
+        myDiagram.clearSelection();
         return;
       }
       if (selObj.category === constants.gojs.C_RELATIONSHIP) {
@@ -1256,6 +1258,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           let data = mn;
           myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
+        myDiagram.clearSelection();
         return;
       }
       break;
@@ -1324,4 +1327,5 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   let data = {metis: jsnMetis}
   data = JSON.parse(JSON.stringify(data));
   myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+  myDiagram.clearSelection();
 }

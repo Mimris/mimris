@@ -25,7 +25,7 @@ let includeNoType = false;
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
-  if (debug) console.log('28 GenGojsModel started', props);
+  console.log('28 GenGojsModel started', props);
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -42,10 +42,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) clog('33 GenGojsModel: props', props);
 
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
-    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-    const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
     const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+    const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
 
     
@@ -75,7 +76,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       //   myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
       if (debug) console.log('75 myTargetMetamodel :', myTargetMetamodel);
 
-      const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
+      const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette();
         if (debug) console.log('78 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
         if (debug) console.log('80 myGoMetamodel', myGoMetamodel);
@@ -171,7 +172,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
         dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
         dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
-
     }
   }
 
@@ -266,7 +266,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('264 obj, objtype', obj, objtype);
         const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
         let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
-        if (typeview.data.viewkind === 'Container') {
+        if (typeview?.data.viewkind === 'Container') {
           objtype.viewkind = 'Container';
         }        
         // Hack
@@ -360,7 +360,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (!model) return;
     if (!modelview) return;
     if (!modelview.includeInheritedReltypes)
-      modelview.includeInheritedReltypes = model.metamodel.includeInheritedReltypes;
+      modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
     let showRelshipNames = modelview.showRelshipNames;
     if (showRelshipNames == undefined) 
       showRelshipNames = true;
@@ -531,7 +531,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (!relcolor) relcolor = 'black';
         if (debug) console.log('523 rel, relview, relcolor:', rel, relview, relcolor);
         if (includeRelview) {
-        //   if (relview.strokewidth === "NaN") relview.strokewidth = "1";
+          if (relview.strokewidth === "NaN") relview.strokewidth = "1";
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
           relview = uic.updateRelationshipView(relview);
@@ -618,8 +618,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               }
             }
           }
+          let typeview = objtype.typeview as akm.cxObjectTypeView;
           let strokecolor = objtype.typeview?.strokecolor;
-          let fillcolor = objtype.typeview?.fillcolor;
+          let fillcolor = typeview?.fillcolor;
           if (objtype) {
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;
@@ -656,7 +657,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (reltype.name === 'isRelatedTo')
             reltype.name = 'generic';
           if (reltype.name === 'contains') {
-            if (reltype.fromObjType === reltype.toObjType)
+            if (reltype.fromObjtype === reltype.toObjtype)
               reltype.markedAsDeleted = true;
           }
           let strokecolor = reltype.typeview?.strokecolor;
@@ -1059,3 +1060,4 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 }
 export default GenGojsModel;
+

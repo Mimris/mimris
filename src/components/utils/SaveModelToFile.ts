@@ -104,7 +104,13 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
         console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+        const existsMetamodel = props.phData?.metis?.metamodels.find(m => m.id === modelff?.metamodelRef)
+        console.log('106 SaveModelToFile', existsMetamodel, props.phData?.metis?.metamodels, modelff?.metamodelRef)
         if (mindex < 0) { mindex = mlength  // mindex = -1, i.e.  not fond, which means adding a new model
+            if (!existsMetamodel) {
+                (window.confirm('The metamodel for this model does not exist. Please load the metamodel first.'))
+                return null
+            }
         } else { // model already exists, ask if to replace
             console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
 

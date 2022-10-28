@@ -6197,7 +6197,7 @@
       ],
       "models": [
         {
-          "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
+          "id": "05d5b929-b985-49ac-cf92-cc095a03889z",
           "name": "INIT_CM",
           "description": "",
           "metamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
@@ -6220,7 +6220,7 @@
               "linkcurve": "None",
               "showCardinality": false,
               "UseUMLrelshipkinds": false,
-              "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
+              "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889z",
               "viewstyleRef": "d4974fe5-4e2f-4977-d2d2-deee46c57dff",
               "objectviews": [],
               "relshipviews": [],
@@ -6306,7 +6306,7 @@
               "valueset": null,
               "copiedFromId": "",
               "UseUMLrelshipkinds": "",
-              "modelId": "05d5b929-b985-49ac-cf92-cc095a03889d"
+              "modelId": "05d5b929-b985-49ac-cf92-cc095a03889z"
             },
             {
               "id": "4aa765df-5d54-459d-6eba-03c3359e3001",
@@ -7046,7 +7046,7 @@
         }
       ],
       "currentMetamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
-      "currentModelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
+      "currentModelRef": "05d5b929-b985-49ac-cf92-cc095a03889z",
       "currentModelviewRef": "1237125b-2f1c-46d3-eb4e-520614917262",
       "currentTemplateModelRef": "",
       "currentTargetMetamodelRef": "",
@@ -7062,7 +7062,7 @@
     "focusTargetModel": null,
     "focusTargetModelview": null,
     "focusModel": {
-      "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
+      "id": "05d5b929-b985-49ac-cf92-cc095a03889z",
       "name": "INIT_CM"
     },
     "focusModelview": {

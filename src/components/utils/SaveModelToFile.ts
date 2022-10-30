@@ -104,44 +104,45 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
         console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
-        const existsMetamodel = props.phData?.metis?.metamodels.find(m => m.id === modelff?.metamodelRef)
-        console.log('106 SaveModelToFile', existsMetamodel, props.phData?.metis?.metamodels, modelff?.metamodelRef)
-        if (mindex < 0) { mindex = mlength  // mindex = -1, i.e.  not fond, which means adding a new model
-            if (!existsMetamodel) {
-                (window.confirm('The metamodel for this model does not exist. Please load the metamodel first.'))
-                return null
-            }
-        } else { // model already exists, ask if to replace
-            console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+        // const existsMetamodel = props.phData?.metis?.metamodels.find(m => m.id === modelff?.metamodelRef)
+        // console.log('106 SaveModelToFile', existsMetamodel, props.phData?.metis?.metamodels, modelff?.metamodelRef)
+        // if (mindex < 0) { mindex = mlength  // mindex = -1, i.e.  not fond, which means adding a new model
+        // if (!existsMetamodel) {
+        //         console.log('111 SaveModelToFile', existsMetamodel)
+        //         const r = (window.confirm('The metamodel for this model does not exist. Please load the metamodel first.'))
+        //         if (r === true) { return null }
+        //     }
+        // } else { // model already exists, ask if to replace
+            // console.log('116 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
 
-            const r = window.confirm("Model already exists! Existing: "+props.phData?.metis?.models[mindex].name+" New: "+modelff?.name+" Do you want to replacen and overwrite it?")
-            // const r = window.confirm("Model already exists, do you want to replace it?")
-            if (r === false) { //  add model
-                // change model id
-                modelff.id = modelff.id + mlength
-                mindex = mlength
-                console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
-            }
-        }
-        let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
+            // const r = window.confirm("Model already exists! Existing: "+props.phData?.metis?.models[mindex].name+" New: "+modelff?.name+" Do you want to replacen and overwrite it?")
+            // // const r = window.confirm("Model already exists, do you want to replace it?")
+            // if (r === false) { //  add model
+            //     // change model id
+            //     modelff.id = modelff.id + mlength
+            //     mindex = mlength
+            //     console.log('124 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+            // }
+        // }
+        // let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
         // if (fmindex < 0) { fmindex = mlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
         
-        if (debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
-        let mvindex, mvlength
-        if (modelff.modelview) {
-            mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
-            mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
-            if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
-        }
+        // if (debug) console.log('130 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
+        // let mvindex, mvlength
+        // if (modelff.modelview) {
+        //     mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
+        //     mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
+        //     if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
+        // }
 
-        if (debug) console.log('60 SaveModelToFile', mvindex, mvlength);
+        if (debug) console.log('138 SaveModelToFile', mvindex, mvlength);
 
 
         // ---------------------  load Project ---------------------
-        console.log('134 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
+        console.log('142 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
         let data
         if (modelff.phData) { // if modelff has phData, then it is a project file
-            console.log('136 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
+            console.log('145 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
@@ -149,6 +150,12 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 phSource: filename,
               }
         } else if (modelff.modelview) { // if modelff has modelview, then it is a modelview file
+
+            let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
+            let mvindex, mvlength
+            mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
+            mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
+            if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
             data = {
                 phData: {
                     ...props.phData,
@@ -173,7 +180,39 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 }, 
             };
-        } else { // then it is a model file
+
+        } else if (filename.includes('_MM')) { // if filename contains _MM, then it is a metamodel file
+            let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === modelff?.id) // current model index
+            const mmlength = props.phData?.metis?.metamodels.length
+            if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
+            if (debug) console.log('189 LoadLocal', metamodelff, mmindex, mmlength);
+            data = {
+                phData: {
+                    ...props.phData,
+                    metis: {
+                        ...props.phData.metis,
+                        metamodels: [ 
+                            ...props.phData.metis.metamodels?.slice(0, mindex),  
+                            {  
+                                ...props.phData.metis.metamodels[mindex],  
+                                ...modelff,
+                            },
+                            ...props.phData.metis.metamodels?.slice(mindex + 1, mlength),
+                        ],
+                    },
+                }, 
+            };    
+        } else { // then it is a model file            console.log('116 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+
+            const r = window.confirm("Model already exists! Existing: "+props.phData?.metis?.models[mindex]?.name+" New: "+modelff?.name+" Do you want to replace (overwrite it)?")
+            // const r = window.confirm("Model already exists, do you want to replace it?")
+            if (r === false) { //  add model but change model id
+                modelff.id = modelff.id + mlength
+                mindex = mlength
+                console.log('124 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+            }
+
+
             data = {
                 phData: {
                     ...props.phData,
@@ -189,7 +228,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 }, 
             };
         }
-        if (debug) console.log('77 SaveModelToFile', data);      
+        if (debug) console.log('193 SaveModelToFile', data);      
         if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })

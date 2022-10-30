@@ -271,6 +271,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let useItem = false;
     let isLabel = false;
     const what = modalContext?.what;
+    if (debug) console.log('273 what', what);
     // For each 'what' set correct item 
     switch (what) {
       case "editObjectType":
@@ -408,6 +409,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let row;
       description = "";
       if (k) {
+        if (debug) console.log('411 k', k);
         let fieldType = 'text';
         let viewFormat = "";
         let readonly = false;
@@ -418,13 +420,18 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let defValue = "";
         let values   = [];
         let val      = item[k]; 
-
+        if (debug) console.log('422 k', k);
         // Handle attributes not to be included in modal
         {
-          if (k !== 'markedAsDeleted') {
-            if (!uic.isPropIncluded(k, type)) 
-              continue;
-          } 
+          if (debug) console.log('425 k', k);
+          if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editRelshipview') {
+            if (k !== 'markedAsDeleted') {
+              if (!uic.isPropIncluded(k, type)) {
+                if (debug) console.log('428 k', k);
+                continue;
+              }
+            } 
+          }
           if (k === 'dash') {
             if (typeof(val) === 'object') {
               val = val.valueOf();
@@ -432,14 +439,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 continue;
             }
           }
+          if (debug) console.log('437 k', k);
           if (typeof(val) === 'object') continue;        
           if (typeof(val) === 'function') continue;
-          
+          if (debug) console.log('440 k', k);
           if (hideNameAndDescr) {
             if (k === 'name' || k === 'description' || k === 'title') continue; 
           }
+          if (debug) console.log('444 k', k);
         }
-        if (debug) console.log('331 k, item[k], instview: ', k, item[k], instview);
+        if (debug) console.log('446 k, item[k], instview: ', k, item[k], instview);
 
         // Get field value (val)
         {

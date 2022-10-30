@@ -2827,6 +2827,62 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
 } 
 
 // Local functions
+function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
+    myMetis.relshiptypeviews = new Array();
+    const metamodels = myMetis.metamodels;
+    for (let i=0; i<metamodels?.length; i++) {
+        const metamodel = metamodels[i];
+        const reltypeviews = metamodel.relshiptypeviews;
+        if (debug) console.log('2780 metamodel, reltypeviews', metamodel, reltypeviews?.length, reltypeviews);
+        metamodel.relshiptypeviews = new Array();
+        const len = reltypeviews?.length;
+        for (let j=0; j<len; j++) {
+            const reltypeview = reltypeviews[j];
+            if (reltypeview.markedAsDeleted)
+                continue;
+            if (reltypeview.name === reltypeview.id)
+                continue;
+            else if (reltypeview.name === 'undefined_undefined')
+                continue;
+            else if (reltypeview.nameId === 'undefined_undefined')            
+                continue;
+            else {
+                if (reltypeview.strokewidth === "")
+                    reltypeview.strokewidth = "1";
+                metamodel.relshiptypeviews.push(reltypeview);
+                myMetis.relshiptypeviews.push(reltypeview);
+            }
+            const reltypeRef = reltypeview.typeRef;
+            if (reltypeRef) {
+                const reltype = myMetis.findRelationshipType(reltypeRef);
+                if (!reltype) {
+                    reltypeview.markedAsDeleted = true;
+                } else {
+                    const typeview = reltype.typeview;
+                    if (typeview.id === reltypeview.id) {
+                        continue;
+                    } else {
+                        reltype.typeview = reltypeview;
+                    }
+                }
+            }
+        }    
+    }
+    const reltypes = myMetis.relshiptypes;
+    for (let i=0; i<reltypes?.length; i++) {
+        const reltype = reltypes[i];
+        if (reltype.markedAsDeleted)
+            continue;
+        const typeview = reltype.typeview;
+            if (typeview) {
+            const rtview = myMetis.findRelationshipTypeView(typeview.id);
+            if (!rtview) {
+                typeview.markedAsDeleted = true;
+            }
+        }
+    }
+}
+
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {
@@ -3058,71 +3114,4 @@ export function isGenericMetamodel(myMetis: akm.cxMetis) {
     if (metamodel.name === 'GENERIC_MM')
         return true;
     return false;
-}
-
-export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
-    myMetis.relshiptypeviews = new Array();
-    const metamodels = myMetis.metamodels;
-    for (let i=0; i<metamodels?.length; i++) {
-        const metamodel = metamodels[i];
-        metamodel.relshiptypeviews = new Array();
-        const reltypeviews = metamodel.relshiptypeviews;
-        for (let j=0; i<reltypeviews?.length; j++) {
-            const reltypeview = reltypeviews[j];
-            if (reltypeview.name === reltypeview.id)
-                continue;
-            else if (reltypeview.name === 'undefined_undefined')
-                continue;
-            else {
-                if (reltypeview.strokewidth === "")
-                    reltypeview.strokewidth = "1";
-                metamodel.relshiptypeviews.push(reltypeview);
-                myMetis.relshiptypeviews.push(reltypeview);
-            }
-        }
-    }
-    return;
-
-    for (let i=0; i<reltypeviews?.length; i++) {
-        const reltypeview = reltypeviews[i];
-        if (reltypeview.markedAsDeleted)
-            continue;
-        const reltypeRef = reltypeview.typeRef;
-        if (reltypeRef) {
-            const reltype = myMetis.findRelationshipType(reltypeRef);
-            if (reltype) {
-                const typeview = reltype.typeview;
-                if (typeview.id === reltypeview.id) {
-                    continue;
-                } else {
-                    reltype.typeview = reltypeview;
-                }
-            }
-            else
-                reltypeview.markedAsDeleted = true;
-        }
-    }
-    const reltypes = myMetis.relshiptypes;
-    for (let i=0; i<reltypes?.length; i++) {
-        const reltype = reltypes[i];
-        if (reltype.markedAsDeleted)
-            continue;
-        const typeview = reltype.typeview;
-        const rtview = myMetis.findRelationshipTypeView(typeview.id);
-        if (!rtview) {
-            typeview.markedAsDeleted = true;
-        }
-    }
-    for (let i=0; i<reltypeviews?.length; i++) {
-        const reltypeview = reltypeviews[i];
-        if (reltypeview.markedAsDeleted)
-            continue;
-        const reltypeRef = reltypeview.typeRef;
-        if (reltypeRef) {
-            const reltype = myMetis.findRelationshipType(reltypeRef);
-            if (!reltype) {
-                reltypeview.markedAsDeleted = true;
-            }
-        }
-    }
 }

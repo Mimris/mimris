@@ -88,7 +88,7 @@ const page = (props:any) => {
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
   // let gojsmetamodelpalette =  myGoModel?.gojsMetamodelPalette 
   // let gojsmetamodelmodel =  myGoModel?.gojsMetamodelModel 
-  // let gojsmodelobjects = myGoModel?.gojsModelObjects // || []
+  // let gojsmodelobjects = {nodeDataArray: myGoModel?.gojsModelObjects // || []
   // let gojstargetmetamodel = myGoModel?.gojsTargetMetamodel || [] // this is the generated target metamodel
   // let gojsmodel =  {nodeDataArray: myGoModel?.nodes, linkDataArray: myGoModel?.links} // props.phGojs?.gojsModel || [] // this is the generated target metamodel
   // let gojsmetamodel =  myGoModel?.gojsMetamodel 
@@ -177,8 +177,8 @@ const page = (props:any) => {
     let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     if (debug) console.log('161 Modelling refresh', mdata);
     // if mdata is longer than 10, remove the last 2 elements
-    if (mdata.length > 3) {mdata = mdata.slice(0, 3)}
-    if (mdata.length > 3) { mdata.pop() }
+    if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
+    if (mdata.length > 2) { mdata.pop() }
     if (debug) console.log('164 Modelling refresh', mdata);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)

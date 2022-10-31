@@ -432,6 +432,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
             } 
           }
+          if (k === 'fs_collection') 
+            continue;
           if (k === 'dash') {
             if (typeof(val) === 'object') {
               val = val.valueOf();

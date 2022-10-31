@@ -2763,25 +2763,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true; 
             }),
           makeButton("Verify and Repair Model",
-          function (e: any, obj: any) {
-            if (debug) console.log('2340 myMetis', myMetis);
-            const myModel = myMetis.currentModel;
-            const modelviews = myModel.modelviews;
-            const myModelview = myMetis.currentModelview;
-            const myMetamodel = myMetis.currentMetamodel;
-            const myGoModel = myMetis.gojsModel;
-            if (debug) console.log('2346 myMetis', myMetis);
-            myDiagram.myGoModel = myGoModel;
-            if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
-            uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
-            if (debug) console.log('2348 myMetis', myMetis);
-            alert("The current model has been repaired");
-          },
-          function (o: any) { 
+            function (e: any, obj: any) {
+              if (debug) console.log('2340 myMetis', myMetis);
+              const myModel = myMetis.currentModel;
+              const modelviews = myModel.modelviews;
+              const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
+              const myGoModel = myMetis.gojsModel;
+              if (debug) console.log('2346 myMetis', myMetis);
+              myDiagram.myGoModel = myGoModel;
+              if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+              uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
+              if (debug) console.log('2348 myMetis', myMetis);
+              alert("The current model has been repaired");
+            },
+            function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
-          }),
+            }),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
               if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {

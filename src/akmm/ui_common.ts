@@ -2408,430 +2408,453 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
 }
 
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {
+
+    if (!debug) console.log('2412 verifyAndRepairModel STARTED');
     const format = "%s\n";
     let msg = "Verification report\n";
-    msg += "First do some initial checks";
     let report = printf(format, msg);
-    // First go through the metamodels and remove corrupt ones
-    // before doing the actual check of the model, 
+    msg = "First do some initial checks\n";
     const metamodels = myMetis.metamodels;
-    if (debug) console.log('2423 metamodels', metamodels);
-    for (let i=0; i<metamodels?.length; i++) {
-        const mm = metamodels[i];
-        if (!mm.id) {
-            if (debug) console.log('Removing corrupt metamodel', mm);
-            metamodels.splice(i, 1);
-            msg += "A corrupt metamodel has been removed\n";
-            i--;
-        }
-    }
-    // Check for duplicate relship types in the metamodels
-    for (let i=0; i<metamodels?.length; i++) {
-        const mm = metamodels[i];
-        const rels = mm.relshiptypes;
-        for (let j=0; j<rels?.length; j++) {
-            const rel = rels[j];
-            for (let k=j+1; k<rels?.length; k++) {
-                const rel2 = rels[k];
-                if (rel.fromObjtype?.id === rel2.fromObjtype?.id 
-                    && rel.toObjtype?.id === rel2.toObjtype?.id
-                    && rel.name === rel2.name) {
-                    if (debug) console.log('Removing duplicate relship type', rel, rel2);
-                    msg += "A duplicate relship type, " + rel2.name + ", has been removed from metamodel, " + mm.name + "\n";
-                    rels.splice(k, 1);
-                    k--;
-                }
+    // First go through the metamodels and remove corrupt ones
+    // before doing the actual check of the model
+    {
+        if (debug) console.log('2423 metamodels', metamodels);
+        for (let i=0; i<metamodels?.length; i++) {
+            const mm = metamodels[i];
+            if (!mm.id) {
+                if (debug) console.log('Removing corrupt metamodel', mm);
+                metamodels.splice(i, 1);
+                msg += "A corrupt metamodel has been removed\n";
+                i--;
             }
         }
     }
-    if (debug) console.log('2437 metamodels', metamodels);
-    // Check if the referenced type exists - otherwse find a type that corresponds
+    // Check for duplicate relship types in the metamodels
+    {
+        for (let i=0; i<metamodels?.length; i++) {
+            const mm = metamodels[i];
+            const rels = mm.relshiptypes;
+            for (let j=0; j<rels?.length; j++) {
+                const rel = rels[j];
+                for (let k=j+1; k<rels?.length; k++) {
+                    const rel2 = rels[k];
+                    if (rel.fromObjtype?.id === rel2.fromObjtype?.id 
+                        && rel.toObjtype?.id === rel2.toObjtype?.id
+                        && rel.name === rel2.name) {
+                        if (debug) console.log('Removing duplicate relship type', rel, rel2);
+                        msg += "A duplicate relship type, '" + rel2.name + "', has been removed from the metamodel, '" + mm.name + "'\n";
+                        rels.splice(k, 1);
+                        k--;
+                    }
+                }
+            }
+        }
+        if (debug) console.log('2437 metamodels', metamodels);
+    }
     if (debug) console.log('2439 model, modelviews', model, modelviews, myMetis);
-    // First handle container views
-    for (let i=0; i<modelviews?.length; i++) {
-        const modelview = modelviews[i];
-        const oviews = modelview.objectviews;
-        for (let i=0; i<oviews?.length; i++) {
-            const oview = oviews[i];
-            if (oview.viewkind === 'Container') {
-                if (!oview.isGroup) {
-                    oview.isGroup = true;
-                    msg += "The container view " + oview.name + " is now a group (isGroup = true)\n";
+    // ????  Check if the referenced type exists - otherwise find a type that corresponds ?????
+    {
+        // Handle container views
+        for (let i=0; i<modelviews?.length; i++) {
+            const modelview = modelviews[i];
+            const oviews = modelview.objectviews;
+            for (let i=0; i<oviews?.length; i++) {
+                const oview = oviews[i];
+                if (oview.viewkind === 'Container') {
+                    if (!oview.isGroup) {
+                        oview.isGroup = true;
+                        msg += "The container view '" + oview.name + "' is now a group (isGroup = true)\n";
+                    }
                 }
             }
         }
     }
     msg += "The initial checks are completed\n";
+    report += printf(format, msg);
     const myGoModel = myDiagram?.myGoModel;
     const defObjTypename = 'Generic';
     const objects = model.objects;
     const modifiedObjects = new Array();
-    msg += "Verifying objects";
-    // Then handle the objects
-    for (let i=0; i<objects?.length; i++) {
-        const obj = objects[i];
-        if (!obj.type) {
-            if (debug) console.log('2434 obj, myMetis', obj, myMetis);
-            const type = myMetis.findObjectTypeByName(defObjTypename);
-            if (type) {
-                obj.type = type;
-                obj.typeRef = type.id;
-                obj.typeName = type.name;
-                msg = "\tVerifying object " + obj.name + " ( without type )\n";
-                msg += "\tObject type has been set to " + defObjTypename;
-                report += printf(format, msg);
-                if (debug) console.log('2443 msg', msg);
-            }
-        }
-        obj.inputrels = new Array();
-        obj.outputrels = new Array();
-        const typeRef = obj.typeRef;
-        const typeName = obj.typeName;
-        if (debug) console.log('2450 obj', obj, model);
-        let objtype = metamodel.findObjectType(typeRef);
-        msg = "\tVerifying object type " + typeRef + " (" + typeName + ")";
-        report += printf(format, msg);
-        let objChanged = false;
-        if (!objtype) {
-            msg = "\tObject type " + typeRef + " (" + typeName + ") was not found";
-            report += printf(format, msg);
-            if (debug) console.log('2458 Type of object not found:', obj);
-            objtype = metamodel.findObjectTypeByName(typeName);
-            if (!objtype) {
-                objtype = myMetis.findObjectTypeByName(defObjTypename);
-            }        
-            obj.type = objtype;
-            obj.typeRef = objtype.id;
-            obj.typeName = objtype.name;
-            objChanged = true;
-            msg = "\tObject type changed to: " + objtype.name;
-            report += printf(format, msg);
-        }
-        if (objtype) {
-            const objviews = obj.objectviews;
-            for (let i=0; i<objviews?.length; i++) {
-                const oview = objviews[i];
-                oview.name = obj.name;
-                if (obj.markedAsDeleted && !oview.markedAsDeleted) {
-                    oview.markedAsDeleted = true;
-                    msg = "\tVerifying object " + obj.name + " that is deleted, but objectview is not.\n";
-                    msg += "\tIs repaired by deleting object view";
-                    report += printf(format, msg);
-                }
-                let typeview = oview.typeview;
-                if (!typeview) {
-                    oview.typeview = objtype.typeview as akm.cxObjectTypeView;
-                    msg = "Object typeview of : " + objtype.name + " set to default";
-                    report += printf(format, msg);
-                } else if (objChanged) {
-                    oview['fillcolor'] = 'red';
-                }
-                const myNode = myGoModel.findNodeByViewId(oview.id);
-                if (myNode) {
-                    myNode.name = oview.name;
-                    const node = myDiagram.findNodeForKey(myNode?.key);
-                    if (node) node.data = myNode; // sf added if (node)
-                }
-            }
-            myDiagram.requestUpdate();
-        }
-    }
-    msg = "Verifying objects is completed\n";
-    report += printf(format, msg);
-
-    // Handle object views
-    msg = "Verifying object views";
-    report += printf(format, msg);
-    let objectviews = [];
-    for (let i=0; i<modelviews?.length; i++) {
-        const modelview = modelviews[i];
-        const oviews = modelview.objectviews;
-        if (i==0)
-            objectviews = oviews;
-        else {
-            objectviews = objectviews?.concat(oviews);
-        }
-    }
-    const objviews = [];
-    if (debug) console.log('2515 objectviews', objectviews);
-    for (let i=0; i<objectviews?.length; i++) {
-        const oview = objectviews[i];
-        if (oview) {
-            if (!oview.id)
-                continue;
-            if (!oview.name)
-                continue;
-            if (!oview.typeview) 
-                continue;
-            if (!oview.objectRef)
-                continue;
-            objviews.push(oview);
-        }
-    }
-    objectviews = objviews;
-    if (debug) console.log('2515 objectviews', objectviews);
-    for (let i=0; i<objectviews?.length; i++) {
-        const oview = objectviews[i];
-        if (oview) {
-            if (!oview.markedAsDeleted) { // Object view is not deleted
-                if (debug) console.log('2520 oview, object:', oview, oview.object);
-                if (oview.object?.markedAsDeleted) {
-                    oview.object.markedAsDeleted = false;
-                    msg = "\tVerifying objectview " + oview.name + " ( with object deleted)\n";
-                    msg += "\tObject has been undeleted";
-                    report += printf(format, msg);
-                } else if (!oview.object) {
-                    oview.markedAsDeleted = true;
-                    msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
-                    msg += "\tObjectview has been deleted";
-                    report += printf(format, msg);
-                    }
-            }
-            else if (!oview.object) { // Object view is deleted and has no object
-                if (!oview.name) {
-                    oview.markedAsDeleted = true;
-                }
-                msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
-                msg += "\tDoing nothing";
-                report += printf(format, msg);
-            }
-        }
-    }
-    myMetis.objectviews = objectviews;
-    msg = "Verifying object views is completed\n";
-    report += printf(format, msg);
-  
-    // Handle the relationships
-    msg += "Verifying relationships";
-    report += printf(format, msg);
-    // First check for duplicate relships
-    msg = "\Checking for duplicate relationships. \n";
-    msg += "\tIf found, they are deleted, including their relationship views.";
-    const relships = model.relships;
-    if (relships) { 
-        for (let i=0; i<relships?.length; i++) {
-            const rel = relships[i];
-            const fromObj  = rel.fromObject as akm.cxObject;
-            const toObj    = rel.toObject as akm.cxObject;
-            const rtype = rel.type as akm.cxRelationshipType;
-            const rels2 = [];
-            if (rtype) {
-                const rels = model.findRelationships(fromObj, toObj, rtype);
-                for (let j=0; j<rels?.length; j++) {
-                    const r = rels[j];
-                    if (r?.type?.id === rtype.id) {
-                        if (r.name === rel.name) {
-                            rels2.push(r);
-                        }
-                    }
-                }
-                for (let j=0; j<rels2.length; j++) {
-                    if (j == 0) continue;
-                    const r = rels2[j];
-                    r.markedAsDeleted = true;    
-                    const rviews = r.relshipviews;          
-                    for (let k=0; k<rviews?.length; k++) {
-                        const rv = rviews[k];
-                        rv.markedAsDeleted = true;
-                    }      
-                }
-            }
-        }
-    }
-    // Check if the referenced type exists - otherwse find a type that corresponds
-    const defRelTypename = constants.types.AKM_GENERIC_REL;
-    if (relships) { // sf added
-        for (let i=0; i<relships?.length; i++) {
-            const rel = relships[i];
-            if (debug) console.log('2283 rel', rel);
-            const fromObj  = rel.fromObject;
-            const toObj    = rel.toObject
-            let   fromType = fromObj?.type;
-            let   toType   = toObj?.type;
-            let typeRef    = rel.typeRef;
-            let typeName   = rel.typeName;
-            let relname    = rel.typeName;
-            if (!typeName) typeName = rel.name;
-            if (!rel.type) {
-                const type = myMetis.findRelationshipTypeByName(defRelTypename);
+    msg = "Verifying objects\n";
+    // Handle the objects
+    {
+        for (let i=0; i<objects?.length; i++) {
+            const obj = objects[i];
+            if (!obj.type) {
+                if (debug) console.log('2434 obj, myMetis', obj, myMetis);
+                const type = myMetis.findObjectTypeByName(defObjTypename);
                 if (type) {
-                    rel.type = type;
-                    rel.typeRef = type.id;
-                    rel.typeName = type.name;
-                    msg = "\tVerifying relationship " + rel.name + " ( without type )\n";
-                    msg += "\tRelationship type has been set to " + defRelTypename;
-                    report += printf(format, msg);
+                    obj.type = type;
+                    obj.typeRef = type.id;
+                    obj.typeName = type.name;
+                    msg += "\tVerifying object '" + obj.name + "' ( without type )\n";
+                    msg += "\tObject type has been set to '" + defObjTypename + "'\n";
+                    if (debug) console.log('2443 msg', msg);
                 }
             }
-            if (!typeRef) {
-                typeRef = rel.type.id;
+            obj.inputrels = new Array();
+            obj.outputrels = new Array();
+            const typeRef = obj.typeRef;
+            const typeName = obj.typeName;
+            if (debug) console.log('2450 obj', obj, model);
+            let objtype = metamodel.findObjectType(typeRef);
+            msg += "\tVerifying object (" + obj.name + ") of type (" + typeName + ")\n";
+            let objChanged = false;
+            if (!objtype) {
+                msg += "\tObject type '" + typeRef + "' ('" + typeName + "') was not found\n";
+                if (debug) console.log('2458 Type of object not found:', obj);
+                objtype = metamodel.findObjectTypeByName(typeName);
+                if (!objtype) {
+                    objtype = myMetis.findObjectTypeByName(defObjTypename);
+                }        
+                obj.type = objtype;
+                obj.typeRef = objtype.id;
+                obj.typeName = objtype.name;
+                objChanged = true;
+                msg += "\tObject type changed to: '" + objtype.name + "'\n";
+                report += printf(format, msg);
+                msg = "";
             }
-            let reltype = metamodel.findRelationshipType(typeRef);
-            if (debug) console.log('2304 fromType and toType', typeRef, typeName, fromType, toType, reltype);
-            msg = "\tVerifying relationship type " + typeRef + " (" + typeName + ")";
-            report += printf(format, msg);
-            if (!reltype) {
-                msg = "\tRelationship type " + typeRef + " (" + typeName + ") was not found";
-                if (debug) console.log('2309 Relationship with unknown type:', typeName);
-                if (typeName === 'hasProperty')  {
-                    typeName = 'has';
-                    toType = metamodel.findObjectTypeByName('Property');
+            if (objtype) {
+                const objviews = obj.objectviews;
+                for (let i=0; i<objviews?.length; i++) {
+                    const oview = objviews[i];
+                    oview.name = obj.name;
+                    if (obj.markedAsDeleted && !oview.markedAsDeleted) {
+                        oview.markedAsDeleted = true;
+                        msg += "\tVerifying object '" + obj.name + "(" + obj.id + ") that is deleted, but objectview is not.\n";
+                        msg += "\tIs repaired by deleting object view\n";
+                    }
+                    let typeview = oview.typeview;
+                    if (!typeview) {
+                        oview.typeview = objtype.typeview as akm.cxObjectTypeView;
+                        msg += "Object typeview of : '" + objtype.name + "' set to default\n";
+                    } else if (objChanged) {
+                        oview['fillcolor'] = 'red';
+                    }
+                    const myNode = myGoModel.findNodeByViewId(oview.id);
+                    if (myNode) {
+                        myNode.name = oview.name;
+                        const node = myDiagram.findNodeForKey(myNode?.key);
+                        if (node) node.data = myNode; // sf added if (node)
+                    }
                 }
-                else if (typeName === 'hasValue') {
-                    typeName = 'has';
-                    toType = metamodel.findObjectTypeByName('Value');
+                myDiagram.requestUpdate();
+            }
+        }
+        msg += "Verifying objects and object types are completed\n";
+        report += printf(format, msg);
+    }
+    msg = "Verifying object views\n";
+    // Handle object views
+    {
+        let objectviews = [];
+        for (let i=0; i<modelviews?.length; i++) {
+            const modelview = modelviews[i];
+            const oviews = modelview.objectviews;
+            if (i==0)
+                objectviews = oviews;
+            else {
+                objectviews = objectviews?.concat(oviews);
+            }
+        }
+        const objviews = [];
+        if (debug) console.log('2515 objectviews', objectviews);
+        for (let i=0; i<objectviews?.length; i++) {
+            const oview = objectviews[i];
+            if (oview) {
+                if (!oview.id) {
+                    msg += "\tObject view '" + oview.name + "' has no id\n";
+                    continue;
+                } 
+                if (!oview.name) {
+                    msg += "\tObject view '" + oview.id + "' has no name\n";
+                    continue;
                 }
-                else if (typeName === 'hasAllowedValue') {
-                    typeName = 'hasAllowed';
-                    toType = metamodel.findObjectTypeByName('Value');
+                if (!oview.typeview) {
+                    msg += "\tObject view '" + oview.name + "' has no typeview\n";
+                    continue;
                 }
-                else if (typeName === 'isOfDatatype') {
-                    typeName = 'isOf';
-                    toType = metamodel.findObjectTypeByName('Datatype');
+                if (!oview.object) {
+                    msg += "\tObject view '" + oview.name + "' has no object\n";
+                    continue;
                 }
-                else if (typeName === 'hasUnittype') { 
-                    typeName = 'has';
-                    toType = metamodel.findObjectTypeByName('Unittype');
+                objviews.push(oview);
+            }
+        }
+        objectviews = objviews;
+        if (debug) console.log('2515 objectviews', objectviews);
+        for (let i=0; i<objectviews?.length; i++) {
+            const oview = objectviews[i];
+            if (oview) {
+                if (!oview.markedAsDeleted) { // Object view is not deleted
+                    if (debug) console.log('2520 oview, object:', oview, oview.object);
+                    if (oview.object?.markedAsDeleted) {
+                        oview.object.markedAsDeleted = false;
+                        msg += "\tVerifying object view '" + oview.name + "' ( with object deleted)\n";
+                        msg += "\tObject has been undeleted";
+                    } else if (!oview.object) {
+                        oview.markedAsDeleted = true;
+                        msg += "\tVerifying objectview '" + oview.name + + "' (" + oview.id + " ( without object )\n";
+                        msg += "\tObjectview has been deleted";
+                        }
                 }
-                const reltypes = metamodel.findRelationshipTypesByName(typeName);
-                if (debug) console.log('2331 Relationship type with name:', typeName, reltypes);
-                if (reltypes) {
-                    for (let i=0; i<reltypes?.length; i++) {
-                        const rtype = reltypes[i] as akm.cxRelationshipType;
-                        let fromObjType = fromType;
-                        if (!fromObjType) fromObjType = rtype.fromObjtype;
-                        let toObjType = toType;
-                        if (!toObjType) toObjType   = rtype.toObjtype;
-                        if (debug) console.log('2339 fromType and toType', typeName, fromObjType, toObjType);
-                        if (fromObjType && toObjType) {
-                            if (debug) console.log('2341 findreltypebyname', typeName, fromObjType.name, toObjType.name);
-                            const rtyp = metamodel.findRelationshipTypeByName2(typeName, fromObjType, toObjType);
-                            if (rtyp) {
-                                reltype = rtyp;
-                                rel.type = reltype;
-                                rel.name = typeName;
-                                msg = "\tRelationship type changed to: " + typeName;
-                                report += printf(format, msg);
-                                if (debug) console.log('2349 Found relationship type:', reltype);
-                                break;
+                else if (!oview.object) { // Object view is deleted and has no object
+                    if (!oview.name) {
+                        oview.markedAsDeleted = true;
+                    } else {
+                        msg += "\tVerifying object view without object'" + oview.name + "' (" + oview.id + ")\n";
+                        msg += "\tDoing nothing\n";
+                    }
+                }
+            }
+        }
+        myMetis.objectviews = objectviews;
+        msg += "Verifying object views is completed\n";
+        report += printf(format, msg);
+    }
+    // Handle the relationships
+    {
+        msg = "Verifying relationships\n";
+        // First check for duplicate relships
+        msg += "\tChecking for duplicate relationships. \n";
+        msg += "\tIf found, they are deleted, including their relationship views.\n";
+        const relships = model.relships;
+        if (relships) { 
+            for (let i=0; i<relships?.length; i++) {
+                const rel = relships[i];
+                const fromObj  = rel.fromObject as akm.cxObject;
+                const toObj    = rel.toObject as akm.cxObject;
+                const rtype = rel.type as akm.cxRelationshipType;
+                const rels2 = [];
+                if (rtype) {
+                    const rels = model.findRelationships(fromObj, toObj, rtype);
+                    for (let j=0; j<rels?.length; j++) {
+                        const r = rels[j];
+                        if (r?.type?.id === rtype.id) {
+                            if (r.name === rel.name) {
+                                rels2.push(r);
                             }
                         }
                     }
-                }
-                if (!reltype) {
-                    reltype = metamodel.findRelationshipTypeByName(defRelTypename);
-                    if (reltype) {
-                        rel.type = reltype;
-                        rel.name = typeName;
-                        msg = "\tVerifying relationship " + rel?.name + " ( without type )\n";
-                        msg += "\tRelationship type has been set to " + defRelTypename;
-                        report += printf(format, msg);
-                    }
-                }
-            }
-            const relviews = rel.relshipviews;
-            for (let i=0; i<relviews?.length; i++) {
-                const rv = relviews[i];
-                rv.name = rel.name;
-            }
-        }
-    }
-    // Handle the relationship views in all modelviews
-    const mviews = model.modelviews;
-    for (let i=0; i<mviews?.length; i++) {
-        const mview = mviews[i];
-        if (mview /*&& mview.id === modelview.id*/) {
-            const rviews = mview.relshipviews;
-            if (debug) console.log('2690 modelview', mview);
-            for (let j=0; j<rviews?.length; j++) {
-                const rview = rviews[j];
-                const rel = rview.relship;
-                const fromObjview = rview.fromObjview;
-                const toObjview = rview.toObjview;
-                const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
-                if (debug) console.log('2697 rel, relviews', rel, relviews);
-                if (relviews.length > 1) {
-                    // Duplicate relationship views between two object views
-                    msg = "\tVerifying relationship " + rel.name + " with multiple relationshipviews.\n";
-                    let n = 0;
-                    const rvs = [];
-                    for (let k=0; k<relviews?.length; k++) {
-                        const rv = relviews[k];
-                        if (!rv.markedAsDeleted) {
-                            rvs.push(rv);
-                            n++;
-                        }
-                    }
-                    if (debug) console.log('2708 n, rel, rvs', n, rel, rvs);
-                    if (n>1) {
-                        // Delete all but the first relationship view
-                        for (let k=0; k<rvs?.length; k++) {
-                            if (k == 0) 
-                                continue;
-                            const rv = rvs[k];
+                    for (let j=0; j<rels2.length; j++) {
+                        if (j == 0) continue;
+                        const r = rels2[j];
+                        r.markedAsDeleted = true;    
+                        const rviews = r.relshipviews;          
+                        for (let k=0; k<rviews?.length; k++) {
+                            const rv = rviews[k];
                             rv.markedAsDeleted = true;
-                        }
-                    }
-                    msg += "\tIs repaired by deleting all relationship views but the first one";
-                    report += printf(format, msg);
-        }
-
-                if (debug) console.log('2719 relshipview', rview);
-                if (rview && !rview.markedAsDeleted) {
-                    const rel = rview.relship;
-                    if (rel && rel.type) {
-                        if (debug) console.log('2723 relshipview', rel);
-                        if (rel.markedAsDeleted && !rview.markedAsDeleted) {
-                            rview.markedAsDeleted = true;
-                            msg = "\tVerifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
-                            msg += "\tIs repaired by deleting relationship view";
-                            report += printf(format, msg);
-                        }                               
-                        if (!rview.typeview) {
-                            rview.typeview = rel.type.typeview as akm.cxRelationshipTypeView;
-                            msg = "\tRelationship typeview of " + rel.type?.name + " set to default";
-                            report += printf(format, msg);
-                        } else {
-                            msg = "\tRelationship typeview of " + rel.type?.name + " found"; 
-                            report += printf(format, msg);
-                        }
-                        const myLink = myGoModel.findLinkByViewId(rview.id);
-                        if (myLink) {
-                            myLink.name = rview.name;
-                            const link = myDiagram.findLinkForKey(myLink?.key);
-                            if (link) {
-                                link.data = myLink;
-                            }
-                        }
+                        }   
+                        if (j == 1)  
+                            msg += "\tDuplicated relationship '" + r.name + "' with views are deleted\n";
                     }
                 }
             }
         }
+        // Check if the referenced type exists - otherwse find a type that corresponds
+        const defRelTypename = constants.types.AKM_GENERIC_REL;
+        if (relships) { // sf added
+            for (let i=0; i<relships?.length; i++) {
+                const rel = relships[i];
+                if (debug) console.log('2283 rel', rel);
+                const fromObj  = rel.fromObject;
+                const toObj    = rel.toObject
+                let   fromType = fromObj?.type;
+                let   toType   = toObj?.type;
+                let typeRef    = rel.typeRef;
+                let typeName   = rel.typeName;
+                let relname    = rel.typeName;
+                if (!typeName) typeName = rel.name;
+                if (!rel.type) {
+                    const type = myMetis.findRelationshipTypeByName(defRelTypename);
+                    if (type) {
+                        rel.type = type;
+                        rel.typeRef = type.id;
+                        rel.typeName = type.name;
+                        msg += "\tVerifying relationship '" + rel.name + "' ( without type )\n";
+                        msg += "\tRelationship type has been set to '" + defRelTypename + "'\n";
+                    }
+                }
+                if (!typeRef) {
+                    typeRef = rel.type.id;
+                }
+                let reltype = metamodel.findRelationshipType(typeRef);
+                if (debug) console.log('2304 fromType and toType', typeRef, typeName, fromType, toType, reltype);
+                msg += "\t\tVerifying relationship type '" + typeName + "' ('" + typeRef + "')\n";
+                if (!reltype) {
+                    msg += "\tRelationship type '" + typeName + "' ('" + typeRef + "') was NOT found\n";
+                    if (debug) console.log('2309 Relationship with unknown type:', typeName);
+                    if (typeName === 'hasProperty')  {
+                        typeName = 'has';
+                        toType = metamodel.findObjectTypeByName('Property');
+                    }
+                    else if (typeName === 'hasValue') {
+                        typeName = 'has';
+                        toType = metamodel.findObjectTypeByName('Value');
+                    }
+                    else if (typeName === 'hasAllowedValue') {
+                        typeName = 'hasAllowed';
+                        toType = metamodel.findObjectTypeByName('Value');
+                    }
+                    else if (typeName === 'isOfDatatype') {
+                        typeName = 'isOf';
+                        toType = metamodel.findObjectTypeByName('Datatype');
+                    }
+                    else if (typeName === 'hasUnittype') { 
+                        typeName = 'has';
+                        toType = metamodel.findObjectTypeByName('Unittype');
+                    }
+                    const reltypes = metamodel.findRelationshipTypesByName(typeName);
+                    if (debug) console.log('2331 Relationship type with name:', typeName, reltypes);
+                    if (reltypes) {
+                        for (let i=0; i<reltypes?.length; i++) {
+                            const rtype = reltypes[i] as akm.cxRelationshipType;
+                            let fromObjType = fromType;
+                            if (!fromObjType) fromObjType = rtype.fromObjtype;
+                            let toObjType = toType;
+                            if (!toObjType) toObjType   = rtype.toObjtype;
+                            if (debug) console.log('2339 fromType and toType', typeName, fromObjType, toObjType);
+                            if (fromObjType && toObjType) {
+                                if (debug) console.log('2341 findreltypebyname', typeName, fromObjType.name, toObjType.name);
+                                const rtyp = metamodel.findRelationshipTypeByName2(typeName, fromObjType, toObjType);
+                                if (rtyp) {
+                                    reltype = rtyp;
+                                    rel.type = reltype;
+                                    rel.name = typeName;
+                                    msg += "\tRelationship type changed to: '" + typeName + "' ( '" + reltype.id + "' )\n";
+                                    if (debug) console.log('2349 Found relationship type:', reltype);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!reltype) {
+                        reltype = metamodel.findRelationshipTypeByName(defRelTypename);
+                        if (reltype) {
+                            rel.type = reltype;
+                            rel.name = typeName;
+                            msg += "\tVerifying relationship '" + rel?.name + "' ( without type )\n";
+                            msg += "\tRelationship type has been set to " + defRelTypename + "\n";
+                        }
+                    }
+                }
+                const relviews = rel.relshipviews;
+                for (let i=0; i<relviews?.length; i++) {
+                    const rv = relviews[i];
+                    rv.name = rel.name;
+                }
+            }
+        }
+        report += printf(format, msg);
     }
+    {
+        msg = "Verifying Relationship views\n";
+        // Handle the relationship views in all modelviews
+        const mviews = model.modelviews;
+        for (let i=0; i<mviews?.length; i++) {
+            const mview = mviews[i];
+            if (mview /*&& mview.id === modelview.id*/) {
+                const rviews = mview.relshipviews;
+                if (debug) console.log('2690 modelview', mview);
+                for (let j=0; j<rviews?.length; j++) {
+                    const rview = rviews[j];
+                    const rel = rview.relship;
+                    const fromObjview = rview.fromObjview;
+                    const toObjview = rview.toObjview;
+                    const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
+                    if (debug) console.log('2697 rel, relviews', rel, relviews);
+                    if (relviews.length > 1) {
+                        // Duplicate relationship views between two object views
+                        msg += "\tVerifying relationship '" + rel.name + "' with multiple relationshipviews.\n";
+                        let n = 0;
+                        const rvs = [];
+                        for (let k=0; k<relviews?.length; k++) {
+                            const rv = relviews[k];
+                            if (!rv.markedAsDeleted) {
+                                rvs.push(rv);
+                                n++;
+                            }
+                        }
+                        if (debug) console.log('2708 n, rel, rvs', n, rel, rvs);
+                        if (n>1) {
+                            // Delete all but the first relationship view
+                            for (let k=0; k<rvs?.length; k++) {
+                                if (k == 0) 
+                                    continue;
+                                const rv = rvs[k];
+                                rv.markedAsDeleted = true;
+                            }
+                        }
+                        msg += "\tIs repaired by deleting all relationship views but the first one\n";
+                        // report += printf(format, msg);
+                        // msg = '';
+                    }
+
+                    if (debug) console.log('2719 relshipview', rview);
+                    if (rview && !rview.markedAsDeleted) {
+                        const rel = rview.relship;
+                        if (rel && rel.type) {
+                            if (debug) console.log('2723 relshipview', rel);
+                            if (rel.markedAsDeleted && !rview.markedAsDeleted) {
+                                rview.markedAsDeleted = true;
+                                msg += "\tVerifying relationship '" + rel.name + "' that is deleted, but relationship view is not.\n";
+                                msg += "\tIs repaired by deleting the relationship view\n";
+                            }                               
+                            if (!rview.typeview) {
+                                rview.typeview = rel.type.typeview as akm.cxRelationshipTypeView;
+                                msg += "\tRelationship typeview of " + rel.type?.name + " set to default\n";
+                            } else {
+                                msg += "\tRelationship typeview of '" + rel.type?.name + "' found\n"; 
+                            }
+                            const myLink = myGoModel.findLinkByViewId(rview.id);
+                            if (myLink) {
+                                myLink.name = rview.name;
+                                const link = myDiagram.findLinkForKey(myLink?.key);
+                                if (link) {
+                                    link.data = myLink;
+                                }
+                            }
+                        }
+                        // report += printf(format, msg);
+                    }
+                }
+            }
+        }
+        msg += "\nVerifying relationship views is completed\n";
+        report += printf(format, msg);
+    }
+    msg = "Verifying relationships is completed\n";
+    report += printf(format, msg);
+
     repairRelationshipTypeViews(myMetis);
 
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2755 jsnMetis', jsnMetis, myMetis);
+    if (!debug) console.log('2755 jsnMetis', jsnMetis, myMetis);
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     if (debug) console.log('2757 data', data, myMetis);
-
-    msg = "Verifying relationships is completed\n\n";
-    msg += "End Verification";
     if (debug) console.log('2761 myGoModel', myGoModel);
+    msg = "End Verification\n";
     report += printf(format, msg);
     console.log(report);
     myDiagram.requestUpdate();    
+
+    if (!debug) console.log('2412 verifyAndRepairModel ENDED');
 } 
 
 // Local functions
 function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
+    const format = "%s\n";
+    let msg = "Repairing relationship type views\n";
+    let report = printf(format, msg);
     myMetis.relshiptypeviews = new Array();
     const metamodels = myMetis.metamodels;
     for (let i=0; i<metamodels?.length; i++) {
         const metamodel = metamodels[i];
+        msg = "\tVerifying relationship type views in metamodel " + metamodel.name;
         const reltypeviews = metamodel.relshiptypeviews;
         if (debug) console.log('2780 metamodel, reltypeviews', metamodel, reltypeviews?.length, reltypeviews);
         metamodel.relshiptypeviews = new Array();
@@ -2840,13 +2863,16 @@ function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
             const reltypeview = reltypeviews[j];
             if (reltypeview.markedAsDeleted)
                 continue;
-            if (reltypeview.name === reltypeview.id)
+            if (reltypeview.name === reltypeview.id) {
+                msg += "\t\tRelship type view name === id - It is skipped";
                 continue;
-            else if (reltypeview.name === 'undefined_undefined')
+            } else if (reltypeview.name === 'undefined_undefined') {
+                msg += "\t\tRelship type view name === 'undefined_undefined' - It is skipped";
                 continue;
-            else if (reltypeview.nameId === 'undefined_undefined')            
+            } else if (reltypeview.nameId === 'undefined_undefined') {          
+                msg += "\t\tRelship type view nameId === 'undefined_undefined' - It is skipped";
                 continue;
-            else {
+            } else {
                 if (reltypeview.strokewidth === "")
                     reltypeview.strokewidth = "1";
                 metamodel.relshiptypeviews.push(reltypeview);
@@ -2866,7 +2892,8 @@ function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
                     }
                 }
             }
-        }    
+        }   
+        report += printf(format, msg); 
     }
     const reltypes = myMetis.relshiptypes;
     for (let i=0; i<reltypes?.length; i++) {

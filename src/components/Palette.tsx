@@ -105,7 +105,7 @@ const Palette = (props: any) => {
     if (isRendered) {
       if (!debug) clog('106 Palette useEffect') //, mmodel, genRoleTasks(mmodel, dispatch));
       types = genRoleTasks(mmodel, dispatch)
-      if (types.length > 0) {
+      if (types?.length > 0) {
         taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 

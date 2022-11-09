@@ -1780,6 +1780,7 @@ export class jsnImportMetis {
     importRelshipTypeView(item: any, metamodel: akm.cxMetaModel) {
         const typeref = item.typeRef;
         const type = jsnMetis.findRelationshipType(typeref);
+        if (!type) return;
         if (debug) console.log('1783 item', item);
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
         if (utils.objExists(type))

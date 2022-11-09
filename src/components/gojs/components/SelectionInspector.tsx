@@ -227,7 +227,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           chosenInst = inst;
           if (debug) console.log('229 chosenInst, properties', chosenInst, properties);
         } else {
-          let includeInherited = false;
+          let includeInherited = true;
           let includeConnected = false;
           inst = myMetis.findObject(inst.id);
           type = myMetis.findObjectType(type.id);
@@ -237,6 +237,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             properties = typeProps.concat(inheritedProps);
           else
             properties = typeProps;
+          if (debug) console.log('240 typename, typeProps, inheritedProps', typename, typeProps, inheritedProps);
         }
         if (debug) console.log('241 typename, chosenInst, chosenType, properties', typename, chosenInst, chosenType, properties);
       }

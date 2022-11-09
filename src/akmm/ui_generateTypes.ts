@@ -373,7 +373,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             } 
 // End failing code             
         }
-        if (!debug) console.log('367 reltype: ', reltype);    
+        if (debug) console.log('367 reltype: ', reltype);    
         if (reltype) {
             reltype.markedAsDeleted = relship.markedAsDeleted;
             myTargetMetamodel?.addRelationshipType(reltype);
@@ -388,7 +388,6 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             reltype.cardinality = relship.cardinality;
         }
     }
-    if (debug) console.log('384 reltype: ', reltype);    
     if (debug) console.log('385 reltype, relname, fromtype, totype: ', reltype, relname, fromtype, totype);
     if (!reltype) {
         if (relname && fromtype && totype) // This is a new relationship type
@@ -419,6 +418,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     }
     if (reltype) { // Create/Modify the relationship typeview
         reltypeview = reltype.typeview;
+        if (debug) console.log('421 reltype, typeview: ', reltype, reltype.typeview);    
         if (!reltypeview) {
             const guid = utils.createGuid();
             const name = reltype.name + '_' + reltype.getRelshipKind();
@@ -429,46 +429,22 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             reltype.setModified();
             myTargetMetamodel?.addRelationshipTypeView(reltypeview);
             myMetis.addRelationshipTypeView(reltypeview);
-            if (debug) console.log('417 reltype, reltypeview', reltype, reltypeview);
+            if (debug) console.log('432 reltype, reltypeview', reltype, reltypeview);
         } else {
+            const name = reltype.name + '_' + reltype.getRelshipKind();
+            reltypeview.name = name;
             reltypeview.applyRelationshipViewParameters(relview);
             reltypeview.setRelshipKind(reltype.relshipkind);
             reltype.setModified();
             // myTargetMetamodel?.addRelationshipTypeView(reltypeview);
             // myMetis.addRelationshipTypeView(reltypeview);
-            if (debug) console.log('425 reltype, reltypeview', reltype, reltypeview);
+            if (debug) console.log('442 reltype, reltypeview', reltype, reltypeview);
         }
-        if (!debug) console.log('427 reltype, reltypeview, relview', reltype, reltypeview, relview);
-        if (debug) console.log('428 relview, reltypeview', relview, reltypeview);
-        if (debug) console.log('429 reltypeview', reltypeview);
-        // const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
-        // if (debug) console.log('428 reltype, jsnRelshipType: ', reltype, jsnRelshipType);
-        // modifiedTypeLinks.push(jsnRelshipType);
-        // const jsnRelTypeview = new jsn.jsnRelshipTypeView(reltypeview);
-        // if (debug) console.log('431 jsnRelTypeview: ', jsnRelTypeview);
-        // modifiedTypeViews.push(jsnRelTypeview);
-        // const jsnRelship = new jsn.jsnRelationship(currentRel);
-        // modifiedRelships.push(jsnRelship);        
-        // if (debug) console.log('435 currentRel, jsnRelship: ', currentRel, jsnRelship);
+        if (debug) console.log('443 reltype, reltypeview, relview', reltype, reltypeview, relview);
+        if (debug) console.log('444 relview, reltypeview', relview, reltypeview);
+        if (debug) console.log('445 reltypeview', reltypeview);
     }
-    // Do the dispatches
-    // modifiedTypeLinks?.map(mn => {
-    //     let data = (mn) && mn;
-    //     data = JSON.parse(JSON.stringify(data));
-    //     myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-    // });
-    // modifiedTypeViews?.map(mn => {
-    //     let data = (mn) && mn;
-    //     data = JSON.parse(JSON.stringify(data));
-    //     myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-    // });
-    // modifiedRelships?.map(mn => {
-    //     let data = (mn) && mn 
-    //     if (debug) console.log('464 data', data);
-    //     data = JSON.parse(JSON.stringify(data));
-    //     myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-    //     })
-    if (!debug) console.log('468 reltype', reltype);
+    if (debug) console.log('468 reltype', reltype);
     return reltype;
 }
 
@@ -959,7 +935,7 @@ export function generateTargetMetamodel2(context: any) {
 }
 
 export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any): akm.cxMetaModel {
-    if (debug) console.log('944 objectviews, relshipviews, context', objectviews, relshipviews, context);
+    if (debug) console.log('965 objectviews, relshipviews, context', objectviews, relshipviews, context);
     const myMetis     = context.myMetis as akm.cxMetis;
     const myMetamodel = context.myMetamodel as akm.cxMetaModel;
     const model       = context.myModel as akm.cxModel;
@@ -1131,11 +1107,20 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             const objtypes = metamodel.objecttypes;
             const fromtype = rtype.fromObjtype;
             const totype = rtype.toObjtype;
-            if (utils.getIntersection(objtypes, [fromtype, totype]).length === 0)
-                continue;
-            const type = myMetamodel.findRelationshipTypeByName1(typename, fromtype, totype);
-            reltypes.push(type);
-            if (debug) console.log('1121 type, typename, fromtype, totype', type, type.name, fromtype.name, totype.name);
+            let found1 = false;
+            let found2 = false;
+            for (let j=0; j<objtypes.length; j++) {
+                const objtype = objtypes[j];
+                if (objtype.id === fromtype.id) 
+                    found1 = true;
+                if (objtype.id === totype.id)
+                    found2 = true;
+            }
+            if (found1 && found2) {
+                const type = myMetamodel.findRelationshipTypeByName1(typename, fromtype, totype);
+                reltypes.push(type);
+                if (debug) console.log('1121 type, typename, fromtype, totype', type, type.name, fromtype.name, totype.name);
+            }
         }
         if (debug) console.log('1123 reltypes', reltypes);
     }
@@ -1280,8 +1265,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         modifiedTypeLinks.push(jsnRelshipType);
                         const relTypeview = reltype.typeview;
                         if (relTypeview) {
-                            metamodel.addRelationshipTypeView(relTypeview); 
-                            myMetis.addRelationshipTypeView(relTypeview); 
                             const jsnRelTypeview = new jsn.jsnRelshipTypeView(relTypeview);
                             if (debug) console.log('1265 Generate Reltypeview', jsnRelTypeview);
                             modifiedRelTypeViews.push(jsnRelTypeview);
@@ -1291,7 +1274,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
-    if (debug) console.log('1216 metamodel ', metamodel);
+    if (debug) console.log('1299 metamodel ', metamodel);
     { // Then handle objects of type "RelshipType"
         for (let i=0; i<objectviews?.length; i++) {
             const objview = objectviews[i];
@@ -1405,13 +1388,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     metamodel.includeInheritedReltypes = model.includeSystemtypes;
     myMetis.currentTargetMetamodel = metamodel;
     myMetis.currentTargetModel = model;
-    { // Dispatch metis
-        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-        if (debug) console.log('1400 jsnMetis: ', jsnMetis);
-        let data = {metis: jsnMetis}
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-    }
+    if (debug) console.log('1419 metamodel ', metamodel);
     { // Remove duplicate relationship types
         const rels = metamodel.relshiptypes;
         for (let j=0; j<rels?.length; j++) {

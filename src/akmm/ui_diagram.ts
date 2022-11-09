@@ -362,7 +362,7 @@ export function deleteModelview(modelView: akm.cxModelView, myMetis: akm.cxMetis
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
     });
-    uic.purgeDeletions(myMetis, myDiagram);
+    uic.purgeModelDeletions(myMetis, myDiagram);
 }
 
 export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
@@ -712,7 +712,7 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     objtypenames = uniqueSet;
     uniqueSet = utils.removeArrayDuplicates(objtypes);
     objtypes = uniqueSet;
-    if (debug) console.log('626 objtypes', objtypes);
+    if (debug) console.log('626 objtypenames, objtypes', objtypenames, objtypes);
     if (debug) console.log('627 myMetis', myMetis);
     const myModelview = myMetis.currentModelview;
     const includeInheritedReltypes = myModelview.includeInheritedReltypes;
@@ -738,13 +738,14 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             reltypeNames.push(rtname);
         }
     }
-    uniqueSet = utils.removeArrayDuplicates(reltypeNames);
-    reltypeNames = uniqueSet;
-
-    let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
-    reltypeNames = difference;
-    if (debug) console.log('653 reltypeNames, linktypeNames, difference', reltypeNames, linktypeNames, difference);
-    reltypeNames.sort();
+    if (debug) console.log('648 reltypeNames', reltypeNames);
+    if (reltypeNames.length > 0) {
+        uniqueSet = utils.removeArrayDuplicates(reltypeNames);
+        reltypeNames = uniqueSet;
+        let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
+        reltypeNames = difference;
+        reltypeNames.sort();
+    }
     if (debug) console.log('655 reltypeNames', reltypeNames);
     return reltypeNames;
 }
@@ -939,7 +940,6 @@ function deleteMetamodel2(context: any) {
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
     if (debug) console.log('271 metamodel, myMetis', metamodel, myMetis);
-    const modifiedMetamodels = new Array();
     const models = myMetis.getModelsByMetamodel(metamodel, false);
     if (debug) console.log('274 models', models);
     let doDelete = false;
@@ -962,46 +962,25 @@ function deleteMetamodel2(context: any) {
         // If the metamodel was generated from a model, remove references in the model
         const generatedFromModel = myMetis.findModel(metamodel.generatedFromModelRef);
         if (generatedFromModel) {
-            const modifiedObjects = [];
             const objects = generatedFromModel.objects;
             for (let i=0; i<objects?.length; i++) {
                 const obj = objects[i];
                 obj.generatedTypeId = "";
-                const jsnObject = new jsn.jsnObject(obj);
-                modifiedObjects.push(jsnObject);
             }
-            modifiedObjects.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                if (debug) console.log('582 object', data);
-                myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-            })        
-            const modifiedRelships = [];
             const relships = generatedFromModel.relationships;
             for (let i=0; i<relships?.length; i++) {
                 const rel = relships[i];
                 rel.generatedTypeId = "";
-                const jsnRelship = new jsn.jsnRelationship(rel);
-                modifiedRelships.push(jsnRelship);
             }
-            modifiedRelships.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                if (debug) console.log('596 relship', data);
-                myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-            }) 
+            const jsnModel = new jsn.jsnModel(generatedFromModel, false);
+            let data = JSON.parse(JSON.stringify(jsnModel));
+            myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
         }       
     }
     const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-    if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
-    modifiedMetamodels.push(jsnMetamodel);
-    modifiedMetamodels.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-    });
-
-    uic.purgeDeletions(myMetis, myDiagram);     
+    let data = JSON.parse(JSON.stringify(jsnMetamodel));
+    myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    // uic.purgeMetaDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
 }
 
@@ -1088,14 +1067,9 @@ function clearMetamodel2(context: any) {
         metamodel.clearContent();
         const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
         if (debug) console.log('654 jsnMetamodel', jsnMetamodel);
-        modifiedMetamodels.push(jsnMetamodel);
-        modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-        });
-
-        uic.purgeDeletions(myMetis, myDiagram);
+        let data = JSON.parse(JSON.stringify(jsnMetamodel));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+        uic.purgeMetaDeletions(myMetis, myDiagram);
     } 
     if (debug) console.log('302 myMetis', myMetis);
 }
@@ -1212,7 +1186,7 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     alert("The model '" + model.name + "' has been deleted!");
-    uic.purgeDeletions(myMetis, myDiagram);
+    uic.purgeModelDeletions(myMetis, myDiagram);
 }
 
 function clearModel1(context: any) {

@@ -1148,6 +1148,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           if (prop === 'abstract') continue;
           if (prop === 'category') continue;
           if (prop === 'class') continue;
+          if (prop === 'fromArrow') 
+            if (selObj[prop] === 'None') selObj[prop] = "";
+          if (prop === 'toArrow') 
+            if (selObj[prop] === 'None') selObj[prop] = "";
           typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
           objtypeview[prop] = selObj[prop];

@@ -2785,8 +2785,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
               if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
-                if (debug) console.log('2402 myMetis', myMetis.currentModel.objects);
-                uic.purgeDeletions(myMetis, myDiagram); 
+                if (debug) console.log('2402 myMetis', myMetis);
+                uic.purgeModelDeletions(myMetis, myDiagram); 
                 if (debug) console.log('2404 myMetis', myMetis);
               }
             },

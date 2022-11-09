@@ -235,7 +235,7 @@ export class cxMetis {
 
         // Postprocess objecttypes
         const objtypes = this.objecttypes;
-        for (let i=0; i<objtypes.length; i++) {
+        for (let i=0; i<objtypes?.length; i++) {
             const otype = objtypes[i];
             const stypes = otype.findSupertypes(0);
             for (let j=0; j<stypes?.length; j++) {
@@ -247,7 +247,7 @@ export class cxMetis {
         if (debug) console.log('224 this', this);
         // Postprocess objecttypeviews
         const objtypeviews = this.objecttypeviews;
-        for (let i=0; i<objtypeviews.length; i++) {
+        for (let i=0; i<objtypeviews?.length; i++) {
             const otypeview = objtypeviews[i];
             if (otypeview && otypeview.name === otypeview.id) {
                 const otype = this.findObjectType(otypeview.typeRef);
@@ -255,6 +255,29 @@ export class cxMetis {
                     otypeview.name = otype.name;
             }
         }
+        // Postprocess relshiptypeviews
+        const mmodels = this.metamodels;
+        for (let i=0; i<mmodels?.length; i++) {
+            const mmodel = mmodels[i];
+            const rtviews = new Array();
+            const reltypeviews = mmodel.relshiptypeviews;
+            for (let i=0; i<reltypeviews?.length; i++) {
+                const rtypeview = reltypeviews[i];
+                const typeRef = rtypeview.typeRef;
+                if (typeRef) 
+                    rtviews.push(rtypeview);
+            }
+            mmodel.relshiptypeviews = rtviews;
+        }
+        const rtviews = new Array();
+        const reltypeviews = this.relshiptypeviews;
+        for (let i=0; i<reltypeviews?.length; i++) {
+            const rtypeview = reltypeviews[i];
+            const typeRef = rtypeview.typeRef;
+            if (typeRef) 
+                rtviews.push(rtypeview);
+        }
+        this.relshiptypeviews = rtviews;
         // Postprocess the annotates typeview
         let reltypeview = null;
         const rtype = this.findRelationshipTypeByName(constants.types.AKM_ANNOTATES) ;
@@ -263,8 +286,7 @@ export class cxMetis {
             if (rtview)
                 reltypeview = rtview;
         }
-        const mmodels = this.metamodels;
-        for (let i=0; i<mmodels.length; i++) {
+        for (let i=0; i<mmodels?.length; i++) {
             const metamodel = mmodels[i];
             const rtypes = metamodel.relshiptypes;
             for (let j=0; j<rtypes?.length; j++) {
@@ -292,7 +314,6 @@ export class cxMetis {
                     metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
                     if (!metamodel) continue;
                     this.addMetamodel(metamodel);
-                    if (debug) console.log('198 item, metamodel', item, metamodel);
                     // Metamodel content
                     let items = item.datatypes;
                     if (items && items.length) {
@@ -394,18 +415,28 @@ export class cxMetis {
                     }
                     metamodel.relshiptypeviews = [];
                     items = item.relshiptypeviews;
+                    items.sort(utils.compare);
                     if (debug) console.log('386 items', items);
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
+                            const item1 = items[i];
+                            const item2 = item[i+1];
+                            if (item2?.name === item1.name && item2?.typeRef === item1.typeRef) {
+                                item1.markedAsDeleted = true;
+                                continue;
+                            }
+                        }
+                        for (let i = 0; i < items.length; i++) {
                             const item = items[i];
                             if (includeDeleted || !item.markedAsDeleted) { 
-                                const rtv = new cxRelationshipTypeView(item.id, "", null, item.description);
+                                const rtv = new cxRelationshipTypeView(item.id, item.name, null, item.description);
                                 if (!rtv) continue;
                                 metamodel.addRelationshipTypeView(rtv);
                                 this.addRelationshipTypeView(rtv);
                             }
                         }
                     }
+                    if (debug) console.log('409 relshiptypeviews', metamodel.name, metamodel.relshiptypeviews);
                     items = item.viewstyles;
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
@@ -722,18 +753,6 @@ export class cxMetis {
             });
         }        
         if (debug) console.log('644 metamodel', metamodel);
-        // for (let i = 0; i < metamodel.relshiptypes?.length; i++) {
-        //     const reltype = metamodel.relshiptypes[i];
-        //     if (reltype) {
-        //         let rtview = reltype.typeview;
-        //         if (!rtview) {
-        //             const name = reltype.name + '_' + reltype.getRelshipKind();
-        //             rtview = new cxRelationshipTypeView(utils.createGuid(), name, reltype, "");
-        //             reltype.typeview = rtview;
-        //             metamodel.addRelationshipTypeView(rtview);
-        //         }
-        //     }
-        // }
         if (debug) console.log('644 metamodel', metamodel);
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
@@ -1423,8 +1442,10 @@ export class cxMetis {
             //reltype.setMetis(this);
             if (this.relshiptypes == null)
                 this.relshiptypes = new Array();
-            if (!this.findRelationshipType(reltype.id))
+            if (!this.findRelationshipType(reltype.id)) {
                 this.relshiptypes.push(reltype);
+                if (debug) console.log('1438 Add reltype', reltype);
+            }
         }
     }
     addObjectTypeView(objtypeview: cxObjectTypeView) {
@@ -1458,7 +1479,6 @@ export class cxMetis {
                 this.relshiptypeviews = new Array();
             if (!this.findRelationshipTypeView(reltypeview.id)) {
                 this.relshiptypeviews.push(reltypeview);
-                if (debug) console.log('1373 reltypeview', reltypeview);
             } else {
                 const len = this.relshiptypeviews.length;
                 for (let i=0; i<len; i++) {
@@ -2814,7 +2834,8 @@ export class cxMetaObject {
         return this.fs_collection;
     }
     getFirestoreId(): string {
-        return this.getFirestoreCollection() + "/" + this.getId();
+        // return this.getFirestoreCollection() + "/" + this.getId();
+        return null;
     }
 }
 
@@ -3740,9 +3761,10 @@ export class cxMetaModel extends cxMetaObject {
         if (relType.category === constants.gojs.C_RELSHIPTYPE) {
             if (this.relshiptypes == null)
                 this.relshiptypes = new Array();
-            if (!this.findRelationshipType(relType.id)) 
+            if (!this.findRelationshipType(relType.id)) {
                 this.relshiptypes.push(relType);
-            else {
+                if (debug) console.log('3757 Add reltype', relType);
+            } else {
                 const types = this.relshiptypes;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
@@ -5406,6 +5428,7 @@ export class cxRelationshipType extends cxObjectType {
         this.nameFrom = "";
         this.cardinalityTo = "";
         this.markedAsDeleted = false;
+        if (debug) console.log('5422 New reltype', this);
     }
     // Methods
     setDefaultTypeView(typeview: cxRelationshipTypeView) {
@@ -7850,8 +7873,8 @@ export class cxModelView extends cxMetaObject {
         if (reltypeView.category === constants.gojs.C_RELSHIPTYPEVIEW) {
             if (this.relshiptypeviews == null)
                 this.relshiptypeviews = new Array();
-            this.relshiptypeviews.push(reltypeView);
-            if (debug) console.log('7461 reltypeView', reltypeView);
+            this.relshiptypeviews.push(reltypeView); 
+            if (debug) console.log('7870 Add reltypeView', reltypeView);
         }
     }
     addObjectView(objview: cxObjectView) {

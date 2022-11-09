@@ -29,7 +29,6 @@ const Palette = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
 
-  
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels

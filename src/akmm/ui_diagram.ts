@@ -526,8 +526,6 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
                     continue;              
             }
             rview[prop] = "";
-            if (prop === 'strokewidth')
-                rview[prop] = rtview[prop];
             if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
             myDiagram.model.setDataProperty(l.data, prop, rtview[prop]);
         }
@@ -673,7 +671,7 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: dispatch only name
     if (debug) console.log('362 myMetis, data', myMetis, data);
 } 
 

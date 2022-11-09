@@ -2280,15 +2280,13 @@ export function purgeMetaDeletions(metis: akm.cxMetis, diagram: any, includeMeta
             continue;
         metis.metamodels.push(mm);
     }
-    // Dispatch the metamodels
-    for (let i=0; i<allMetamodels?.length; i++) {
-        const mm = allMetamodels[i];
-        if (mm.markedAsDeleted)
-            continue;
-        const jsnMetamodel = new jsn.jsnMetaModel(mm, true);
-        let data = JSON.parse(JSON.stringify(jsnMetamodel));
-        diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-    }
+
+    // Do the dispatch
+    const jsnMetis = new jsn.jsnExportMetis(metis, true);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    if (debug) console.log('2288 jsnMetis', jsnMetis, metis);
+    diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
@@ -2396,16 +2394,12 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     const allModels = metis.models;
     const allModelviews = metis.modelviews;
 
-
-    // Dispatch the models
-    for (let i=0; i<allModels?.length; i++) {
-        const m = allModels[i];
-        if (m.markedAsDeleted)
-            continue;
-        const jsnModel = new jsn.jsnModel(m, true);
-        let data = JSON.parse(JSON.stringify(jsnModel));
-        diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
-    }
+    // Do the dispatch
+    const jsnMetis = new jsn.jsnExportMetis(metis, true);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    if (debug) console.log('2402 jsnMetis', jsnMetis, metis);
+    diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {

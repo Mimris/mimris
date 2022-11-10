@@ -255,8 +255,9 @@ export class cxMetis {
                     otypeview.name = otype.name;
             }
         }
-        // Postprocess relshiptypeviews
         const mmodels = this.metamodels;
+        if (false) {
+        // Postprocess relshiptypeviews
         for (let i=0; i<mmodels?.length; i++) {
             const mmodel = mmodels[i];
             const rtviews = new Array();
@@ -278,6 +279,7 @@ export class cxMetis {
                 rtviews.push(rtypeview);
         }
         this.relshiptypeviews = rtviews;
+        }
         // Postprocess the annotates typeview
         let reltypeview = null;
         const rtype = this.findRelationshipTypeByName(constants.types.AKM_ANNOTATES) ;

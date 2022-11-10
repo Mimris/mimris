@@ -2404,6 +2404,8 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     const allModels = metis.models;
     const allModelviews = metis.modelviews;
 
+    repairRelationshipTypeViews(metis);
+
     // Do the dispatch
     const jsnMetis = new jsn.jsnExportMetis(metis, true);
     let data = {metis: jsnMetis}
@@ -2825,7 +2827,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying relationships is completed\n";
         report += printf(format, msg);
     }
-    repairRelationshipTypeViews(myMetis, myDiagram);
+    repairRelationshipTypeViews(myMetis);
 
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
@@ -2844,7 +2846,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     if (debug) console.log('2412 verifyAndRepairModel ENDED');
 } 
 
-function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any) {
+function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
     // Create an empty list of relationship type views
     // For each metamodel: go through each reltype and get the reltypeview
     // Store the combination of metamodel, reltype and reltypeview in a list

@@ -39,7 +39,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    if (debug) clog('42 GenGojsModel: props', props);
+    if (!debug) clog('42 GenGojsModel: props', props);
 
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel

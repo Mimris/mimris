@@ -2281,12 +2281,22 @@ export function purgeMetaDeletions(metis: akm.cxMetis, diagram: any, includeMeta
         metis.metamodels.push(mm);
     }
 
-    // Do the dispatch
-    const jsnMetis = new jsn.jsnExportMetis(metis, true);
-    let data = {metis: jsnMetis}
-    data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2288 jsnMetis', jsnMetis, metis);
-    diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    // Dispatch the metamodels
+    for (let i=0; i<allMetamodels?.length; i++) {
+        const mm = allMetamodels[i];
+        if (mm.markedAsDeleted)
+            continue;
+        const jsnMetamodel = new jsn.jsnMetaModel(mm, true);
+        let data = JSON.parse(JSON.stringify(jsnMetamodel));
+        if (debug) console.log('2291 data', data);
+        diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    }
+    // // Do the dispatch
+    // const jsnMetis = new jsn.jsnExportMetis(metis, true);
+    // let data = {metis: jsnMetis}
+    // data = JSON.parse(JSON.stringify(data));
+    // if (debug) console.log('2288 jsnMetis', jsnMetis, metis);
+    // diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
@@ -2403,7 +2413,7 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
 }
 
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {
-    if (!debug) console.log('2412 verifyAndRepairModel STARTED');
+    if (debug) console.log('2412 verifyAndRepairModel STARTED');
     const format = "%s\n";
     let msg = "Verification report\n";
     let report = printf(format, msg);
@@ -2815,128 +2825,74 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying relationships is completed\n";
         report += printf(format, msg);
     }
-
     repairRelationshipTypeViews(myMetis, myDiagram);
 
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    if (!debug) console.log('2755 jsnMetis', jsnMetis, myMetis);
+    if (debug) console.log('2755 jsnMetis', jsnMetis, myMetis);
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     if (debug) console.log('2757 data', data, myMetis);
     if (debug) console.log('2761 myGoModel', myGoModel);
     msg = "End Verification\n";
+
     report += printf(format, msg);
     console.log(report);
     myDiagram.requestUpdate();    
 
-    if (!debug) console.log('2412 verifyAndRepairModel ENDED');
+    if (debug) console.log('2412 verifyAndRepairModel ENDED');
 } 
 
 function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any) {
-    const format = "%s\n";
-    let msg = "Repairing relationship type views\n";
-    let report = printf(format, msg);
+    // Create an empty list of relationship type views
+    // For each metamodel: go through each reltype and get the reltypeview
+    // Store the combination of metamodel, reltype and reltypeview in a list
+    // Go through all reltypeviews and check if they are in the list
+    // If not, mark them as deleted
+    const myArray = [];
+    for (let i=0; i<myMetis.metamodels?.length; i++) {
+        const metamodel = myMetis.metamodels[i];
+        const reltypes = metamodel.relshiptypes;
+        for (let j=0; j<reltypes?.length; j++) {
+            const reltype = reltypes[j];
+            const reltypeview = reltype.typeview;
+            if (reltypeview) {
+                reltypeview.name = reltype.name + "_" + reltype.relshipkind;
+                myArray.push({metamodel: metamodel, reltype: reltype, reltypeview: reltypeview});
+            }
+        }
+    }
+    if (debug) console.log('3025 myArray', myArray);
+    // Go through all reltypeviews and check if they are in the list
+    // If not, mark them as deleted
     const reltypeviews = myMetis.relshiptypeviews;
-    const relshiptypeviews = new Array();
-    const metamodels = myMetis.metamodels;
-    for (let i=0; i<metamodels?.length; i++) {
-        const metamodel = metamodels[i];
-        msg = "\tVerifying relationship type views in metamodel " + metamodel.name;
-        if (debug) console.log('2780 metamodel, reltypeviews', metamodel, reltypeviews?.length, reltypeviews);
-        const len = reltypeviews?.length;
-        for (let j=0; j<len; j++) {
-            const reltypeview = reltypeviews[j];
-            if (reltypeview.markedAsDeleted)
-                continue;
-            if (reltypeview.name === reltypeview.id) {
-                msg += "\t\tRelship type view name === id - It is skipped\n";
-                continue;
-            } else if (reltypeview.name === 'undefined_undefined') {
-                msg += "\t\tRelship type view name === 'undefined_undefined' - It is skipped\n";
-                if (debug) console.log('2791 reltypeview', reltypeview);
-                continue;
-            } else if (reltypeview.nameId === 'undefined_undefined') {          
-                msg += "\t\tRelship type view nameId === 'undefined_undefined' - It is skipped\n";
-                continue;
-            } else {
-                if (reltypeview.strokewidth === "")
-                    reltypeview.strokewidth = "1";
-                // Check for already included relationship type views
-                let found = false;
-                for (let k=0; k<len; k++) {
-                    const rtview = reltypeviews[k];
-                    if (reltypeview.id === rtview.id) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    // This is a new relationship type view
-                    relshiptypeviews.push(reltypeview);
-                }
+    for (let i=0; i<reltypeviews?.length; i++) {
+        const reltypeview = reltypeviews[i];
+        let found = false;
+        for (let j=0; j<myArray?.length; j++) {
+            const item = myArray[j];
+            if (item.reltypeview.id === reltypeview.id) {
+                found = true;
+                break;
             }
-            if (debug) console.log('2805 metamodel, myMetis', metamodel, myMetis);
-            const reltypeRef = reltypeview.typeRef;
-            if (reltypeRef) {
-                const reltype = myMetis.findRelationshipType(reltypeRef);
-                if (!reltype) {
-                    reltypeview.markedAsDeleted = true;
-                } else {
-                    const typeview = reltype.typeview;
-                    if (typeview?.id === reltypeview.id) {
-                        continue;
-                    } else {
-                        reltype.typeview = reltypeview;
-                    }
-                }
-            }
-        }   
-        if (debug) console.log('2786 metamodel', metamodel);
-        report += printf(format, msg); 
+        }
+        if (!found) {
+            reltypeview.markedAsDeleted = true;
+        }
     }
-    const reltypes = myMetis.relshiptypes;
-    const rtypeviews = [];
-    for (let i=0; i<reltypes?.length; i++) {
-        const reltype = reltypes[i];
-        if (reltype.markedAsDeleted)
-            continue;
-        let cnt = 0;
-        for (let j=0; j<reltypeviews?.length; j++) {
-            const reltypeview = reltypeviews[j];
-            if (reltypeview.typeRef === reltype.id) {
-                if (cnt == 0) {
-                    reltype.typeview = reltypeview;
-                    reltypeview.name = reltype.name + "_" + reltype.relshipkind;
-                    rtypeviews.push(reltypeview);
-                } else {
-                    reltypeview.markedAsDeleted = true;       
-                    if (!debug) console.log('2930 reltypeview', reltypeview);        
-                }
-                cnt++;
+    { // Purge deleted reltypeviews
+        const reltypeviews = myMetis.relshiptypeviews;
+        const len = myMetis.relshiptypeviews?.length;
+        for (let i=len-1; i>=0; i--) {
+            const reltypeview = reltypeviews[i];
+            if (reltypeview.markedAsDeleted) {
+                reltypeviews.splice(i, 1);
             }
         }
     }
-    console.log(report);
-    // Purge deleted reltypeviews
-    const len = relshiptypeviews?.length;
-    for (let i=len-1; i>=0; i--) {
-        const reltypeview = relshiptypeviews[i];
-        if (reltypeview.markedAsDeleted) {
-            relshiptypeviews.splice(i, 1);
-        }
-    }
-    myMetis.relshiptypeviews = relshiptypeviews;
-
-    // Dispatch metis
-    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    let data = {metis: jsnMetis}
-    data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2855 jsnMetis', jsnMetis, myMetis);
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    if (debug) console.log('3055 myMetis', myMetis);
 }
-
 
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);

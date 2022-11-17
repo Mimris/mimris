@@ -2300,6 +2300,7 @@ export function purgeMetaDeletions(metis: akm.cxMetis, diagram: any, includeMeta
 }
 
 export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
+    if (true) {
     // Handle properties
     purgeUnusedProperties(metis);
     // handle modelview contents
@@ -2405,12 +2406,12 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     const allModelviews = metis.modelviews;
 
     repairRelationshipTypeViews(metis);
-
+    }
     // Do the dispatch
     const jsnMetis = new jsn.jsnExportMetis(metis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2402 jsnMetis', jsnMetis, metis);
+    if (!debug) console.log('2402 jsnMetis', jsnMetis, metis);
     diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
@@ -2827,32 +2828,109 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying relationships is completed\n";
         report += printf(format, msg);
     }
+
+    // repairRelationshipTypes(myMetis);
+    purgeUnusedRelshiptypes(myMetis);
     repairRelationshipTypeViews(myMetis);
+    if (debug) console.log('2833 myMetis', myMetis);
 
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2755 jsnMetis', jsnMetis, myMetis);
+    if (debug) console.log('2839 jsnMetis', jsnMetis, myMetis);
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-    if (debug) console.log('2757 data', data, myMetis);
-    if (debug) console.log('2761 myGoModel', myGoModel);
+    if (debug) console.log('2841 data', data, myMetis);
+    if (debug) console.log('2842 myGoModel', myGoModel);
     msg = "End Verification\n";
 
     report += printf(format, msg);
     console.log(report);
     myDiagram.requestUpdate();    
 
-    if (debug) console.log('2412 verifyAndRepairModel ENDED');
+    if (debug) console.log('2849 verifyAndRepairModel ENDED, myMetis', myMetis);
 } 
 
-function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
+export function repairRelationshipTypes(myMetis: akm.cxMetis) {
+    // Create an empty list of relationship types
+    // For each object type, find all relationships: 
+    
+    let myArray = [];
+    const relshiptypes = myMetis.relshiptypes;
+    const metamodels = myMetis.metamodels;
+    if (!debug) console.log('2860 metamodels, relshiptypes', metamodels, relshiptypes);
+    for (let i=0; i<relshiptypes?.length; i++) {
+        const reltype = relshiptypes[i];
+        if (reltype) {
+            const fromObjtypeRef = reltype.fromobjtypeRef;
+            const fromObjtype = myMetis.findObjectType(fromObjtypeRef);
+            const toObjtypeRef = reltype.toobjtypeRef;
+            const toObjtype = myMetis.findObjectType(toObjtypeRef);
+            for (let j=0; j<metamodels?.length; j++) {
+                let metamodel = metamodels[j];
+                if (metamodel) {
+                    const mReltype = metamodel.findRelationshipType(reltype.id);
+                    if (!mReltype) {
+                        metamodel = null;
+                    } else {
+                        const relid = "(" + reltype.id.substring(1,8)+")";
+                        myArray.push({  
+                            name:       fromObjtype.name + "_" + reltype.name + "_" + toObjtype.name + "_" + metamodel?.name + "_" + relid, 
+                            fromtype:   fromObjtype, 
+                            reltype:    reltype, 
+                            totype:     toObjtype, 
+                            metamodel:  metamodel
+                        });
+                    }
+                }
+            }
+        }
+    }
+    myArray.sort(utils.compare);
+    if (!debug) console.log('2891 myArray', myArray);
+    for (let i=0; i<myArray?.length; i++) {
+        const item = myArray[i];
+        const item1 = myArray[i+1];
+        if (item && item1) {
+            const fromtype = item.fromtype;
+            const reltype = item.reltype;
+            const totype = item.totype;
+            const metamodel = item.metamodel as akm.cxMetaModel;
+            const metamodel1 = item1.metamodel as akm.cxMetaModel;
+            const fromtype1 = item1.fromtype;
+            const reltype1 = item1.reltype;
+            const totype1 = item1.totype;
+            if (fromtype == fromtype1 && totype == totype1 && reltype.name == reltype1.name) {
+                if (metamodel != metamodel1) {
+                    const models = myMetis.models;
+                    for (let j=0; j<models?.length; j++) {
+                        const model = models[j];
+                        const relships = model.getRelationshipsByType(reltype1, false);
+                        for (let k=0; k<relships?.length; k++) {
+                            const relship = relships[k];
+                            if (relship) {
+                                relship.type = reltype;
+                            }
+                        }
+                    }
+                    reltype1.markedAsDeleted = true;
+                    metamodel1.addRelationshipType(reltype);
+                    myMetis.addRelationshipType(reltype);
+                    // if (!debug) console.log('2919 metamodel, metamodel1', metamodel, metamodel1);
+                }
+            }
+        }
+    }
+}
+
+
+export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
     // Create an empty list of relationship type views
     // For each metamodel: go through each reltype and get the reltypeview
     // Store the combination of metamodel, reltype and reltypeview in a list
     // Go through all reltypeviews and check if they are in the list
     // If not, mark them as deleted
-    const myArray = [];
+    let myArray = [];
     for (let i=0; i<myMetis.metamodels?.length; i++) {
         const metamodel = myMetis.metamodels[i];
         const reltypes = metamodel.relshiptypes;
@@ -2865,7 +2943,7 @@ function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
             }
         }
     }
-    if (debug) console.log('3025 myArray', myArray);
+    if (debug) console.log('2868 myArray', myArray);
     // Go through all reltypeviews and check if they are in the list
     // If not, mark them as deleted
     const reltypeviews = myMetis.relshiptypeviews;
@@ -2893,9 +2971,104 @@ function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
             }
         }
     }
-    if (debug) console.log('3055 myMetis', myMetis);
+    if (debug) console.log('2896 myMetis', myMetis);
+    myArray = [];
+    const metamodels = myMetis.metamodels;
+    for (let i=0; i<myMetis.relshiptypes?.length; i++) {
+        const reltype = myMetis.relshiptypes[i];
+        const fromobjtypeRef = reltype.fromobjtypeRef;
+        const toobjtypeRef = reltype.toobjtypeRef;
+        const fromObjtype = myMetis.findObjectType(fromobjtypeRef);
+        const toObjtype = myMetis.findObjectType(toobjtypeRef);
+        let metamodel = null;
+        for (let j=0; j<metamodels?.length; j++) {
+            const mmodel = metamodels[j];
+            const rtype = mmodel.findRelationshipType(reltype.id);
+            if (rtype) {
+                metamodel = mmodel;
+                break;
+            }
+        }
+        if (!metamodel) {
+            reltype.markedAsDeleted = true;
+            continue;
+        }
+        myArray.push({
+            name: fromObjtype?.name, relName: reltype?.name, toName: toObjtype?.name,              
+            metamodel: metamodel? metamodel.name : null,
+            fromObjtype: fromObjtype, reltype: reltype, toObjtype: toObjtype}); 
+    }
+    myArray.sort(utils.compare);
+    if (debug) console.log('2904 myArray', myArray);
+    { // Purge deleted reltypes
+        const reltypes = myMetis.relshiptypes;
+        const len = myMetis.relshiptypes?.length;
+        for (let i=len-1; i>=0; i--) {
+            const reltype = reltypes[i];
+            if (reltype.markedAsDeleted) {
+                reltypes.splice(i, 1);
+            }
+        }
+    }
 }
 
+function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {
+    // Go through all reltypes and check if they are used
+    // If not, mark them as deleted
+    const metamodels = myMetis.metamodels;
+    const reltypes = myMetis.relshiptypes; 
+    for (let i=0; i<reltypes?.length; i++) {
+        const reltype = reltypes[i];
+        let found = false;
+        for (let j=0; j<metamodels?.length; j++) {
+            const metamodel = metamodels[j];
+            const rtype = metamodel.findRelationshipType(reltype.id);
+            if (rtype) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            reltype.markedAsDeleted = true;
+        }
+    }
+    { // Purge deleted reltypes
+        const len = myMetis.relshiptypes?.length;
+        for (let i=len-1; i>=0; i--) {
+            const reltype = reltypes[i];
+            if (reltype.markedAsDeleted) {
+                reltypes.splice(i, 1);
+            }
+        }
+    }
+    // Go through all objtypes and check if they are used
+    // If not, mark them as deleted
+    const objtypes = myMetis.objecttypes;
+    for (let i=0; i<objtypes?.length; i++) {
+        const objtype = objtypes[i];
+        let found = false;
+        for (let j=0; j<metamodels?.length; j++) {
+            const metamodel = metamodels[j];
+            const otype = metamodel.findObjectType(objtype.id);
+            if (otype) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            objtype.markedAsDeleted = true;
+        }
+    }
+    { // Purge deleted objtypes
+        const len = myMetis.objecttypes?.length;
+        for (let i=len-1; i>=0; i--) {
+            const objtype = objtypes[i];
+            if (objtype.markedAsDeleted) {
+                objtypes.splice(i, 1);
+            }
+        }
+    }
+}
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {
@@ -2934,7 +3107,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
     let relview;
     if (reltypeView) {
         let viewdata: any = reltypeView.getData();
-        if (debug) console.log('2891 data, viewdata', data, viewdata);
+        if (debug) console.log('3096 data, viewdata', data, viewdata);
         relview = data.relshipview;
         if (relview) {
             for (let prop in viewdata) {
@@ -3105,7 +3278,7 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
             goModel.addLink(link);
         }
     }
-    const objviews = modelview.objviews;
+    const objviews = modelview.objectviews;
     for (let i=0; i<objviews?.length; i++) {
         const oview = objviews[i];
         if (oview.markedAsDeleted)

@@ -978,7 +978,7 @@ function deleteMetamodel2(context: any) {
     const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
     let data = JSON.parse(JSON.stringify(jsnMetamodel));
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-    // uic.purgeMetaDeletions(myMetis, myDiagram);     
+    uic.purgeMetaDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
 }
 

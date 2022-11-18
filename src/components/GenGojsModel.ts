@@ -1054,7 +1054,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       models: curmodels,
       metamodels: curmetamodels,
     }
-    if (!debug) console.log('1047 GenGojsModel: metis2', metis2);
+    if (debug) console.log('1047 GenGojsModel: metis2', metis2);
 
     return metis2;
   }

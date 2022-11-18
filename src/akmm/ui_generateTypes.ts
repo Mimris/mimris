@@ -1073,7 +1073,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
     }
     // Add system object types
-    if (!debug) console.log('1082 objecttypes', objtypes);
+    if (debug) console.log('1082 objecttypes', objtypes);
     for (let i=0; i<objtypes.length; i++) {
         // if (!objtypes[i]) continue; 
         const typename = objtypes[i]?.name;

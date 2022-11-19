@@ -4,14 +4,14 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'rea
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
-// import { loadState, saveState } from './utils/LocalStorage'
-import useLocalStorage  from '../hooks/use-local-storage'
+// import { loadState, saveState } from '../utils/LocalStorage'
+import useLocalStorage  from '../../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
-// import DispatchLocal  from './utils/SetStoreFromLocalStorage'
-import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
-import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
-import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
+// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
+import genGojsModel from '../GenGojsModel'
+import { SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
+import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
+import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadFile = (props: any) => {
   

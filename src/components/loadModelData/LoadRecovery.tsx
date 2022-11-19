@@ -2,13 +2,13 @@
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
-import Select from "react-select"
+// import Select from "react-select"
 // import { loadData } from '../actions/actions'
-// import { loadState, saveState } from './utils/LocalStorage'
-import useLocalStorage  from '../hooks/use-local-storage'
-import { i } from './utils/SvgLetters';
+// import { loadState, saveState } from '../utils/LocalStorage'
+import useLocalStorage  from '../../hooks/use-local-storage'
+// import { i } from '../utils/SvgLetters';
 // import { FaJoint } from 'react-icons/fa';
-// import DispatchLocal  from './utils/SetStoreFromLocalStorage'
+// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
 
 const LoadRecovery = (props: any) => {
 

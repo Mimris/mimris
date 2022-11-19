@@ -4,12 +4,12 @@ import { useDispatch } from 'react-redux'
 import base64 from 'base-64';
 
 // import  Search  from './Search';
-import TextInput from './utils/TextInput';
-import Select from './utils/Select';
-import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from './services/githubService';
-import { loadDataModel } from '../actions/actions';
+import TextInput from '../utils/TextInput';
+import Select from '../utils/Select';
+import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from '../services/githubService';
+// import { loadDataModel } from '../../actions/actions';
 
-import { SaveAllToFile } from './utils/SaveModelToFile';
+import { SaveAllToFile } from '../utils/SaveModelToFile';
 
 const debug = false
 

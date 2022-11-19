@@ -5,16 +5,16 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'rea
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
-// import { loadState, saveState } from './utils/LocalStorage'
+// import { loadState, saveState } from '../utils/LocalStorage'
 import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
-// import DispatchLocal  from './utils/SetStoreFromLocalStorage'
+// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
-import { ReadConvertJSONFromFileToAkm } from './utils/ConvertJSONToAkmModel';
-import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
-import { ConnectImportedTopEntityTypes } from './utils/ConnectImportedTopEntityTypes';
-import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
+import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
+import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
+import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
+import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopEntityTypes';
+import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
     

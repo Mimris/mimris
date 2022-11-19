@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import Selector from './utils/Selector'
-import { loadState, saveState } from './utils/LocalStorage'
-import { FaJoint } from 'react-icons/fa';
+// import { loadState, saveState } from '../utils/LocalStorage'
+// import { FaJoint } from 'react-icons/fa';
 
 const debug = false;
 

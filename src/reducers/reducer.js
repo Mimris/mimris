@@ -3,14 +3,17 @@ const debug = false;
 import {
   FAILURE,
   LOAD_DATA,
+  LOAD_DATA_GITHUB,
+  LOAD_DATAGITHUB_SUCCESS,
   LOAD_DATA_SUCCESS,
   LOAD_DATAMODELLIST,
   LOAD_DATAMODELLIST_SUCCESS,
   LOAD_DATAMODEL,
   LOAD_DATAMODEL_SUCCESS,
   LOAD_TOSTORE_PHDATA,
-  LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
+  LOAD_TOSTORE_PHUSER,
+  LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER,
@@ -87,10 +90,12 @@ import {
 
 // import StartInitStateJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
 import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
+// import LoadInitmodel from '../components/LoadModelData/LoadInitmodel'
 
-const InitStateJson = /*(StartmodelJson) ? StartmodelJson :*/ StartInitStateJson
+const InitStateJson =  StartInitStateJson
+// const InitStateJson = (LoadInitmodel) ? LoadInitmodel : StartInitStateJson
 
-if (debug) console.log('86', InitStateJson); 
+if (debug) console.log('86 InitStateJson', InitStateJson); 
 const InitState =  JSON.parse(JSON.stringify(InitStateJson)) 
 
 // import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'
@@ -151,6 +156,13 @@ function reducer(state = InitialStateStr, action) {
         phData: action.data,   
         phSource: 'Model server'
       }
+    case LOAD_DATAGITHUB_SUCCESS:
+      // if (debug) console.log('160 LOAD_DATA_SUCCESS', action);
+      return {
+        ...state,
+        phData: action.data,   
+        phSource: 'GitHub'
+      }
     case LOAD_DATAMODELLIST_SUCCESS:
       if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
       return {
@@ -179,22 +191,28 @@ function reducer(state = InitialStateStr, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (!debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
       }
-    case LOAD_TOSTORE_PHSOURCE:
-      // if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
-      return {
-        ...state,
-        phSource: action.data
-      }
     case LOAD_TOSTORE_PHFOCUS:
-      // if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
+      if (!debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
       return {
         ...state,
         phFocus: action.data
+      }
+    case LOAD_TOSTORE_PHUSER:
+      if (!debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
+      return {
+        ...state,
+        phUser: action.data
+      }
+    case LOAD_TOSTORE_PHSOURCE:
+      if (!debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
+      return {
+        ...state,
+        phSource: action.data
       }
     case LOAD_TOSTORE_NEWMODEL:
       if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    

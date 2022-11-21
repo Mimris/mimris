@@ -12,7 +12,6 @@ import "../styles/gojs.css"
 // import 'reactjs-popup/dist/index.css';
 // import '../styles/globals.css'
 
-
 class MyApp extends App {
   static async getInitialProps ({ Component, ctx }) {
     let pageProps = {}
@@ -21,10 +20,8 @@ class MyApp extends App {
     } else if (Component.getStaticProps) {
       pageProps = await Component.getStaticProps({ ctx })
     return { pageProps }
-
     }
   }
-
   render () {
     const { Component, pageProps, store } = this.props
     return (

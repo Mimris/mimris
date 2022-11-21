@@ -8,15 +8,17 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
 import genGojsModel from './GenGojsModel'
-import genRoleTasks from "./utils/SetRoleTaskFilter";
-import { addNodeToDataArray } from "../akmm/ui_common";
+// import genRoleTasks from "./utils/SetRoleTaskFilter";
+// import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
 
 const Modeller = (props: any) => {
 
+  if (!debug) console.log('19 Modeller: props', props);
+  if (!props.metis) return <> not found</>
+
   const dispatch = useDispatch();
-  if (debug) console.log('19 Modeller: props', props);
 
   // if (!props.gojsModel)  return <></>
 
@@ -430,7 +432,7 @@ export default Modeller;
 // import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip, ModalFooter } from 'reactstrap';
 // import classnames from 'classnames';
 // import GoJSApp from "./gojs/GoJSApp";
-// import Selector from './utils/Selector'
+// import Selector from '../utils/Selector'
 // import genGojsModel from './GenGojsModel'
 // import genRoleTasks from "./utils/SetRoleTaskFilter";
 // import { addNodeToDataArray } from "../akmm/ui_common";

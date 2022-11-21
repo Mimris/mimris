@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
-import Selector from './utils/Selector'
+import Selector from '../utils/Selector'
 import genGojsModel from './GenGojsModel'
 import { createHook } from "async_hooks";
 

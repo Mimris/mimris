@@ -21,10 +21,10 @@ const LoadFile = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
-  const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models?.map(mn => <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels?.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
 
-  if (debug) console.log('26 LoadLocal', props, typeof(window));
+  if (!debug) console.log('26 LoadLocal', props, typeof(window));
   
   if (typeof window === 'undefined') return null
   

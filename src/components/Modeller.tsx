@@ -15,8 +15,10 @@ const debug = false;
 
 const Modeller = (props: any) => {
 
+  if (!debug) console.log('19 Modeller: props', props);
+  if (!props.metis) return <> not found</>
+
   const dispatch = useDispatch();
-  if (debug) console.log('19 Modeller: props', props);
 
   // if (!props.gojsModel)  return <></>
 

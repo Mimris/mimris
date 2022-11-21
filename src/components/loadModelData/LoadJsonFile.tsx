@@ -18,6 +18,7 @@ import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
     
+  if (!props.ph.phData.metis.models) return null
       const debug = false
       const dispatch = useDispatch()  
       const refresh = props.refresh

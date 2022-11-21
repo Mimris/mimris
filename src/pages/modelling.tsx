@@ -1,8 +1,9 @@
-//@ts-nocheck
+//@ts-check
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
-import { loadData, loadDataModelList } from '../actions/actions'
+// import { loadData, loadDataGithub, loadDataModelList } from '../actions/actions'
 import Link from 'next/link';
+import { useRouter } from "next/router";
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -11,19 +12,60 @@ import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
-import SelectVideo from '../components/SelectVideo'
+// import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
-
-import useLocalStorage from '../hooks/use-local-storage'
-import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
+// import useLocalStorage from '../hooks/use-local-storage'
+// import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
+// import LoadInitial from "../components/loadModelData/LoadInitmodel";
 // import { loadState, saveState } from '../components/utils/LocalStorage'
+
 const debug = false
+
 const page = (props:any) => {
   
-  if (debug) console.log('16 diagram',props)
-
-  const [refresh, setRefresh] = useState(true);
   const dispatch = useDispatch()
+  if (debug) console.log('57 modelling', (props.phList) && props.phList);
+  
+  const [visible, setVisible] = useState(false)
+  function toggle() { setVisible(!visible); }
+  const [visibleTasks, setVisibleTasks] = useState(true)
+  function toggleTasks() {
+    setVisibleTasks(!visibleTasks);
+  }
+  // const state = useSelector(state => state)
+  if (debug) console.log('23 modelling',props)
+  const [refresh, setRefresh] = useState(true);
+  // const [urlParams, setUrlParams] = useState(null);
+
+  // ............ First check if there is
+  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
+  // setUrlParams(query);
+
+
+  useEffect(() => { // load the github model defined in the query
+    dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
+  }, [])
+
+
+  if (false) {
+  // const curStore = async (state) => {
+  //   await LoadInitial(state) 
+  //   .then((data) => 
+  //     {
+  //       dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: curStore.phData })
+  //       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: curStore.phFocus })
+  //       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: curStore.phUser })
+  //       let source = (curStore.phSource === "") ? curStore.phData.metis.name : curStore.phSource
+  //       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: curStore.source })
+
+  //     }
+  //   )
+  //   .catch((err) => console.log('error:', err));
+  // }
+
+  // console.log('32 curStore',curStore)
+
+  
 
   // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   // DispatchFromLocalStore(memoryLocState)
@@ -46,47 +88,16 @@ const page = (props:any) => {
       // }
   //   }
   // }
-
-  // if (!props.phData) {
-  //   dispatch(loadData())
-  // }
-
-  // useEffect(() => {
-  //   if (debug) console.log('47 modelling - useEffect', props);
-  //   if (!props.phList) {
-  //     dispatch(loadDataModelList()) // load list of models in repository
-  //   }
-  // }, [])
-  
-  const state = useSelector(state => state)
-  if (debug) console.log('57 modelling', (props.phList) && props.phList);
-  
-  const [visible, setVisible] = useState(false)
-  function toggle() { setVisible(!visible); }
-  const [visibleTasks, setVisibleTasks] = useState(true)
-  function toggleTasks() {
-    setVisibleTasks(!visibleTasks);
   }
-  
-  // /**
-  // * Set up the Context items and link to select Context modal,
-  // */
-  // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-  // useEffect(() => {
-  //   return () => {
-  //     <SetContext ph={props} />
-  //   };
-  // }, [props.phFocus.focusModel.id])
-  // console.log('42 modelling', state.phUser);
-  
-  const modellingDiv = <Modelling />
-  const [videoURL, setVideoURL] = useState(null)
+ 
+  const modellingDiv = <Modelling /> 
 
-// const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />
+  // const [videoURL, setVideoURL] = useState(null)
+  // const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />
 
   return (
     <div>
-       <Layout user={state.phUser?.focusUser} >
+       <Layout user={props.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper" >
             {/* <div className="header" >

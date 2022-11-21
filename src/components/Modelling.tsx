@@ -4,6 +4,7 @@
 const debug = false;
 
 // import React from "react";
+import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -28,6 +29,7 @@ import { ReadModelFromFile, SaveAllToFile, SaveAllToFileDate } from './utils/Sav
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
+import loadModel from "./utils/LoadGithubmodel";
 // import EditFocusMetamodel from '../components/loadModelData/EditFocusMetamodel'
 // import Tab from '../components/loadModelData/Tab'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
@@ -38,32 +40,21 @@ const clog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
     'background: blue; color: white');
 
+
 const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
-  if (debug) clog('40 Modelling:', props);
+  if (!debug) clog('46 Modelling:', props);
 
-  const dispatch = useDispatch();
   const [mount, setMount] = useState(false)
-  const [refresh, setRefresh] = useState(true);
-
- 
-
-  useEffect(() => {
-    setMount(true)
-  }, [])
-
-  let isRendered = useRef(false);
-
-  if (debug) console.log('33 Modelling', props, props.phUser.focusUser.diagram);
-
-  // const refresh = props.refresh
-  // const setRefresh = props.setRefresh
- 
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
-  // if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState([props])}
   
+  const dispatch = useDispatch();
+  
+  const [refresh, setRefresh] = useState(true);
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
+
+  
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
@@ -86,18 +77,12 @@ const page = (props:any) => {
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // let gojsmetamodelpalette =  myGoModel?.gojsMetamodelPalette 
-  // let gojsmetamodelmodel =  myGoModel?.gojsMetamodelModel 
-  // let gojsmodelobjects = {nodeDataArray: myGoModel?.gojsModelObjects // || []
-  // let gojstargetmetamodel = myGoModel?.gojsTargetMetamodel || [] // this is the generated target metamodel
-  // let gojsmodel =  {nodeDataArray: myGoModel?.nodes, linkDataArray: myGoModel?.links} // props.phGojs?.gojsModel || [] // this is the generated target metamodel
-  // let gojsmetamodel =  myGoModel?.gojsMetamodel 
 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
 
   if (debug) console.log('93 Modelling: gojsmodel', gojsmodel, props.phGojs?.gojsModel);
   
-  const curmod = metis?.models.find(m => m.i === focusModel?.id)
+  const curmod = metis?.models?.find(m => m.i === focusModel?.id)
   const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
   const curobjviews = curmodview?.objectviews
 
@@ -108,50 +93,12 @@ const page = (props:any) => {
 
   if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
 
-  const data = {
-    phData:   props.phData,
-    phFocus:  props.phFocus,
-    phUser:   props.phUser,
-    // phSource: props.phSource,
-    phSource: (phSource === "") && phData.metis.name  || phSource,
-    lastUpdate: props.lastUpdate // new Date().toISOString()
-  }
-
   useEffect(() => {
-    dispatchToStore(data) // dispatch to store the inital model ---------------------------------------
+    setMount(true)
   }, [])
-
-  if (debug) console.log('111 Modelling data', data);
-  // ask the user if he wants to reload the last state
-  useEffect(() => { // load local storage if it exists and dispatch the first model project
-        const timer = setTimeout(() => {
-          if (debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
-          if ((memoryLocState != null) && memoryLocState.length > 0) {
-            if ((window.confirm("Do you want to recover your last model project?"))) {
-              if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-                dispatchToStore(memoryLocState[0]) 
-              } 
-            }
-          }
-        }, 1000); 
-        return () => clearTimeout(timer);
-  }, []) 
-
-  function  dispatchToStore(ph) {  
-  if (debug) console.log('104 dispatchToStore memoryLocState ', memoryLocState);
-    const phData = ph?.phData
-    const phFocus = ph?.phFocus
-    const phUser = ph?.phUser
-    const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
-    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
-    let data = (phSource === "") ? phData.metis.name : phSource
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-  }
-
+  
   useEffect(() => {
-    if (debug) console.log('111 Modelling useEffect', data);
+    if (debug) console.log('111 Modelling useEffect', store);
     genGojsModel(props, dispatch);
     
     const timer = setTimeout(() => {
@@ -160,10 +107,11 @@ const page = (props:any) => {
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id, curmod])
+  }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id])
+  // }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id, curmod])
 
   useEffect(() => { // refresch the model when the focusRefresch changes
-    if (debug) console.log('123 Modelling useEffect', memoryLocState, data);
+    if (debug) console.log('123 Modelling useEffect', memoryLocState, props);
     genGojsModel(props, dispatch);
     function refres() {
       setRefresh(!refresh)
@@ -172,9 +120,9 @@ const page = (props:any) => {
   }, [props.phFocus?.focusRefresh?.id])
 
   function toggleRefresh() {
-    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('152 Modelling', props, memoryLocState, (Array.isArray(memoryLocState)));
     // put currentdata in the first position of the array data
-    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
+    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [props, ...memoryLocState] : [props];
     if (debug) console.log('161 Modelling refresh', mdata);
     // if mdata is longer than 10, remove the last 2 elements
     if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
@@ -193,17 +141,17 @@ const page = (props:any) => {
 
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
-      SaveAllToFileDate(data, projectname, 'Project')
+      SaveAllToFileDate(props, projectname, 'Project')
     }
     function handleSaveAllToFile() {
       const projectname = props.phData.metis.name
-      SaveAllToFile(data, projectname, 'Project')
+      SaveAllToFile(props, projectname, 'Project')
     }
     
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
       const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
-      // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
+      // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
       dispatch({ type: 'SET_FOCUS_TAB', data })
     }
 
@@ -499,7 +447,9 @@ const page = (props:any) => {
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModalDiv);
 
+ 
   return  mount && (
+  // return  (
     <>
       <div className="header-buttons mt-1 p-0 pt-1 d-inline-flex float-right" style={{ transform: "scale(0.6)", transformOrigin: "right", backgroundColor: "#ddd" }}>
         {/* <span className="spacer m-0 p-0 w-50"></span> */}
@@ -542,6 +492,5 @@ const page = (props:any) => {
     </>
   )
 } 
+
 export default Page(connect(state => state)(page));
-
-

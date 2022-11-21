@@ -44,6 +44,7 @@
     "color-convert": "^2.0.1",
     "colornames": "^1.1.1",
     "cookie": "0.4.0",
+    "cors": "^2.8.5",
     "dataloader": "^2.0.0",
     "es6-promise": "^4.1.1",
     "fs": "0.0.1-security",

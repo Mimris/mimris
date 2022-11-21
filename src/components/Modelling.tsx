@@ -29,7 +29,7 @@ import { ReadModelFromFile, SaveAllToFile, SaveAllToFileDate } from './utils/Sav
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-import loadModel from "./utils/LoadGithubmodel";
+// import loadModel from "./utils/LoadGithubmodel";
 // import EditFocusMetamodel from '../components/loadModelData/EditFocusMetamodel'
 // import Tab from '../components/loadModelData/Tab'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
@@ -98,7 +98,7 @@ const page = (props:any) => {
   }, [])
   
   useEffect(() => {
-    if (debug) console.log('111 Modelling useEffect', store);
+    if (debug) console.log('111 Modelling useEffect', props);
     genGojsModel(props, dispatch);
     
     const timer = setTimeout(() => {

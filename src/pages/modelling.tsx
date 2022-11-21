@@ -43,9 +43,11 @@ const page = (props:any) => {
 
 
   useEffect(() => { // load the github model defined in the query
+    if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
     dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
-  }, [])
+  }, [(query.repo)])
 
+  if (query.repo)
 
   if (false) {
   // const curStore = async (state) => {

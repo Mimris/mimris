@@ -2,11 +2,11 @@
 
 import axios from 'axios';
 import { axiosGetCancellable } from './axios.helper';
-import Cors from 'cors'
+// import Cors from 'cors'
 
-const cors = Cors({
-  methods: ['POST', 'GET', 'HEAD'],
-})
+// const cors = Cors({
+//   methods: ['POST', 'GET', 'HEAD'],
+// })
 
 const debug = false
 const axiosConfig = {

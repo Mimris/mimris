@@ -12,6 +12,7 @@ import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
+import useLocalStorage  from '../hooks/use-local-storage'
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
 // import useLocalStorage from '../hooks/use-local-storage'
@@ -25,7 +26,8 @@ const page = (props:any) => {
   
   const dispatch = useDispatch()
   if (debug) console.log('57 modelling', (props.phList) && props.phList);
-  
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+
   const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
   const [visibleTasks, setVisibleTasks] = useState(true)
@@ -42,9 +44,21 @@ const page = (props:any) => {
   // setUrlParams(query);
 
 
-  useEffect(() => { // load the github model defined in the query
-    dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
-  }, [])
+  // useEffect(() => { // load the github model defined in the query
+  //   if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
+  //   dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
+  // }, [(query.repo)])
+
+  // if (!query.repo) {
+  //   if ((memoryLocState != null) && memoryLocState.length > 0) {
+  //     if ((window.confirm("Do you want to recover your last model project?"))) {
+  //       if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+  //         store = (memoryLocState[0]) 
+  //       } 
+  //     }
+  //   }
+
+  // }
 
 
   if (false) {

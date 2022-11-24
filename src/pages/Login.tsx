@@ -90,18 +90,14 @@ const page = (props: any) => {
   const signupDiv = (message) && (session) && (message.mess !== 'Welcome back to AKM Modeller!')
     ? <div>
       <div>Not signed in!</div>
-      <Link href="/signup">
-        <a>Please SignUp</a>
-      </Link>
+      <Link href="/signup">Please SignUp</Link>
     </div>
     : <div>
       {(message) && `${message.mess} ${message.person.name} `}
       <hr />
       {/* {buttonDiv} */}
       <br />
-      <Link href="/settings">
-        <a>Settings</a>
-      </Link>)
+      <Link href="/settings">Settings</Link>)
       </div>
   console.log('110', props.phUser.focusUser);
 

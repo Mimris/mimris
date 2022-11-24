@@ -1,7 +1,9 @@
+'use client';
+
 import Head from 'next/head';
 import TopMenu from './Navbar';
 // import useDarkMode from '../hooks/use-dark-mode';
-// import Toggle from '../utils/Toggle';
+// import Toggle from './utils/Toggle';
 
 const Layout = (props) => {
   // console.log('6 layout', props.user);
@@ -12,7 +14,7 @@ const Layout = (props) => {
     <div style={{ backgroundColor: "#fff" }} >
       <Head>
         <title>AKM Modelling App</title>
-        <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css" crossOrigin="anonymous"/>
+        {/* <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css" crossOrigin="anonymous"/> */}
         {/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reactstrap/4.8.0/reactstrap.min.js"/> */}
         {/* <link rel="icon" href="http://fossland.net/images/spider.gif"/> */}
         <link rel="icon" href="" />

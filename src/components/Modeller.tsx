@@ -1,3 +1,4 @@
+
 //modeller
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
@@ -96,8 +97,8 @@ const Modeller = (props: any) => {
     // const workOnTypes = selObj.workOnTypes
     // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
     const data = (selObj) ? { id: id, name: name} : { id: id, name: name }
-    if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
-    dispatch({ type: type, data: data })
+    // if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
+    dispatch({  type: 'UPDATE_PROJECT_PROPERTIES', data: data })
     // setRefresh(!refresh)
   }
   // const handleMVDoubleClick = (e) => {
@@ -108,11 +109,11 @@ const Modeller = (props: any) => {
   //   if (debug) console.log('69 Modeller: handleMVChange', e);
   //   dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: e.value } });
   // }
+  const type='SET_FOCUS_MODEL'
   const  options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
     selmodels.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
     <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
   )
-  const type='SET_FOCUS_MODEL'
 
 
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 

@@ -46,9 +46,7 @@ export default function Signup() {
       <div>
       {JSON.stringify(message)} 
       <br />
-            <Link href="/login">
-              <a>Login</a>
-            </Link>
+            <Link href="/login">Login</Link>
 
       </div>
     </Layout></>

@@ -72,9 +72,7 @@ const page = (props: any) => {
   return (
     <div>
       <Layout user={props.phUser?.focusUser} >
-        <Link href="/settings">
-          <a>Back</a>
-        </Link>
+        <Link href="/settings">Back</Link>
         <div id="index">
           <div className="wrapper">
             <div className="header" >

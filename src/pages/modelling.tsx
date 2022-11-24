@@ -1,3 +1,5 @@
+'use client';
+
 //@ts-check
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
@@ -26,7 +28,7 @@ const page = (props:any) => {
   
   const dispatch = useDispatch()
   if (debug) console.log('57 modelling', (props.phList) && props.phList);
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
   const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
@@ -71,15 +73,11 @@ const page = (props:any) => {
   //       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: curStore.phUser })
   //       let source = (curStore.phSource === "") ? curStore.phData.metis.name : curStore.phSource
   //       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: curStore.source })
-
   //     }
   //   )
   //   .catch((err) => console.log('error:', err));
   // }
-
   // console.log('32 curStore',curStore)
-
-  
 
   // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   // DispatchFromLocalStore(memoryLocState)
@@ -123,7 +121,9 @@ const page = (props:any) => {
                 <div className="help d-flex">
                   <SetContext className='setContext flex' ph={props} />
                   <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-                  <Link href="/videos"><a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a></Link>
+                  <Link href="/videos" className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}}>Video
+                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a> */}
+                    </Link>
                   {/* <SelectVideo className='VideoModal' buttonLabel='!' phFocus={props.phFocus} />  */}
                   {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>i</button> */}
                 </div>

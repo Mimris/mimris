@@ -36,6 +36,8 @@ class MyDocument extends Document {
         <body className="custom_class">
           <Main />
           <NextScript />
+          <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css" crossOrigin="anonymous"/>
+
           {/* <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous"></link> */}
           {/* <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" /> 
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

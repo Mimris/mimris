@@ -19,7 +19,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
  
-  // if (debug) console.log('17 Modelling', props);
+  if (!debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false);
   function toggleRefresh() { setRefresh(!refresh); }
@@ -52,8 +52,11 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
+  const models = props.phData?.metis.models
+  const focusModelId = props.phFocus?.focusModel.id
+  const curmod = models?.find(m => m.id === focusModelId)
 
+  console.log('61 Table', curmod, focusModelId, models, props.phFocus);
 
     // useEffect(() => {
     //   console.log('80 Modelling useEffect 3', props); 
@@ -131,9 +134,10 @@ const page = (props:any) => {
   const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // if (debug) console.log('177 Modelling', EditFocusModalDiv);
+  if (!debug) console.log('134 Table', props, curmod);
   
-  if (focusModelview.objectviews)  {
+  // if (focusModelview.objectviews)  {
+  if (curmod?.objects )  {
     return (
     <>
       <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
@@ -153,12 +157,11 @@ const page = (props:any) => {
           </span>
         </div> 
         {/* <div className="modellingContent pt-1" > */}
-        <div className="modellingContent pt-1 pr-2"  >
+        <div className="modellingContent pt-1 pr-2"  >aaa
           {/* {modellingtabs} */}
           {refresh ? <> {tabletabs} </> : <>{tabletabs}</>}
         </div>
         <style jsx>{`
-
         `}</style>
       </div>
     </>

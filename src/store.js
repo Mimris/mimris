@@ -1,6 +1,7 @@
 // not in use have to fix combinereducers
 import { applyMiddleware, createStore } from 'redux'
 import createSagaMiddleware from 'redux-saga'
+import { createWrapper } from 'next-redux-wrapper'
 
 import reducer, { InitialState } from './reducers/reducer'
 
@@ -16,17 +17,33 @@ const bindMiddleware = middleware => {
   return applyMiddleware(...middleware)
 }
 
-function configureStore(initialState=InitialState) {
-  const sagaMiddleware = createSagaMiddleware()
-  const store = createStore(
-    reducer,
-    initialState,
-    bindMiddleware([sagaMiddleware])
-  )
-  store.sagaTask = sagaMiddleware.run(rootSaga)
-  // console.log('27', store.sagaTask);
-  
-  return store
-}
+// const makeStore = () => configureStore()
 
-export default configureStore
+// function configureStore(initialState=InitialState) {
+
+  const sagaMiddleware = createSagaMiddleware()
+  const makeStore = () => {
+    const store = createStore(reducer, InitialState, bindMiddleware([sagaMiddleware]))
+    store.sagaTask = sagaMiddleware.run(rootSaga)
+    return store
+  }
+  // const createAppStore = () => {
+  //     createStore(
+  //       reducer, 
+  //       initialState, 
+  //       bindMiddleware([sagaMiddleware])
+  //     )
+  //   // const store = createStore(
+  //   //   reducer,
+  //   //   initialState,
+  //   //   bindMiddleware([sagaMiddleware])
+  //   // )
+
+  //   sagaMiddleware.run(rootSaga)
+  //   // console.log('27', store.sagaTask);
+    
+  //   return makeStore
+  // }
+
+export const  wrapper = createWrapper(makeStore)
+// export default configureStore

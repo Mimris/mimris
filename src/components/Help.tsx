@@ -32,7 +32,7 @@ const Help = () => {
         <div className="task-item bg-light" >
           <div className="btn btn-link btn-sm" >
             {/* <Link href="/diagram"><a className="nav-link">Modelling</a></Link> */}
-            <Link href="/modelling"><a className="task-link">OPEN MODEL</a></Link>
+            <Link href="/modelling" className="task-link">OPEN MODEL</Link>
           </div>
           <a className="btn btn-sm btn-link float-right" data-toggle="collapse" href="#model"><span >? </span> </a>
           <div className="collapse bg-light p-1 b-1" id="model" style={{ backgroundColor: "#fefefe", }}>

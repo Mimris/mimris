@@ -4,15 +4,9 @@ export function HomePage() {
   return (
     <div>
       <h1>Hello</h1>
-
-      <Link href="/people">
-        <a>People</a>
-      </Link>
-
+      <Link href="/people">People </Link>
       <hr />
-      <Link href="/vehicles">
-        <a>Vehicles</a>
-      </Link>
+      <Link href="/vehicles">Vehicles </Link>
     </div>
   );
 }

@@ -14,11 +14,11 @@ import TasksHelp from '../components/TasksHelp'
 const page = (props: any) => {
 
   // console.log(props)
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
 
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
 
   // const state = useSelector(state => state)
   // const metis = (state.phData) && state.phData.metis
@@ -50,17 +50,16 @@ const page = (props: any) => {
               <div className="contextarea">
                 {setContextDiv}
               </div>
-              <div className="tasksarea">
+              {/* <div className="tasksarea">
                 <TasksHelp />
-              </div>
+              </div> */}
               <div className="workarea m-2 p-2 bg-light">
-                <Table ph={props} />
+                <Table props={props} />
               </div>
             </div>
             <div className="footer">
               <Footer />
-            </div>
-            
+            </div>           
           </div>
         </div>
       </Layout>

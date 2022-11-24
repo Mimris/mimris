@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+'use client';
+
+=======
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
 //@ts-check
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
@@ -12,7 +17,14 @@ import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
+<<<<<<< HEAD
 import useLocalStorage  from '../hooks/use-local-storage'
+=======
+<<<<<<< HEAD
+import useLocalStorage  from '../hooks/use-local-storage'
+=======
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
+>>>>>>> main
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
 // import useLocalStorage from '../hooks/use-local-storage'
@@ -26,8 +38,17 @@ const page = (props:any) => {
   
   const dispatch = useDispatch()
   if (debug) console.log('57 modelling', (props.phList) && props.phList);
+<<<<<<< HEAD
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
+=======
+<<<<<<< HEAD
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+
+=======
+  
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
+>>>>>>> main
   const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
   const [visibleTasks, setVisibleTasks] = useState(true)
@@ -44,6 +65,10 @@ const page = (props:any) => {
   // setUrlParams(query);
 
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
   // useEffect(() => { // load the github model defined in the query
   //   if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
   //   dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
@@ -60,6 +85,14 @@ const page = (props:any) => {
 
   // }
 
+=======
+  useEffect(() => { // load the github model defined in the query
+    if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
+    dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
+  }, [(query.repo)])
+
+  if (query.repo)
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
 
   if (false) {
   // const curStore = async (state) => {
@@ -71,15 +104,22 @@ const page = (props:any) => {
   //       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: curStore.phUser })
   //       let source = (curStore.phSource === "") ? curStore.phData.metis.name : curStore.phSource
   //       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: curStore.source })
+<<<<<<< HEAD
+=======
 
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
   //     }
   //   )
   //   .catch((err) => console.log('error:', err));
   // }
+<<<<<<< HEAD
+  // console.log('32 curStore',curStore)
+=======
 
   // console.log('32 curStore',curStore)
 
   
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
 
   // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   // DispatchFromLocalStore(memoryLocState)
@@ -123,7 +163,9 @@ const page = (props:any) => {
                 <div className="help d-flex">
                   <SetContext className='setContext flex' ph={props} />
                   <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-                  <Link href="/videos"><a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a></Link>
+                  <Link href="/videos" className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}}>Video
+                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a> */}
+                    </Link>
                   {/* <SelectVideo className='VideoModal' buttonLabel='!' phFocus={props.phFocus} />  */}
                   {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>i</button> */}
                 </div>

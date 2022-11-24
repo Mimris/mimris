@@ -5,10 +5,10 @@ import IndeterminateCheckbox from "./IndeterminateCheckbox";
 // import Selector from '../utils/Selector'
 // import { columns, data } from './table/dataSource';
 
+const debug = false
 
 function ObjectTable(props) {  // props = ph = all phData 
-  const debug = false
-  // console.log('6', props);
+  if (!debug) console.log('6', props);
   const dispatch = useDispatch();
   const [idSelected, setIdSelected] = useState(true);
   const [hiddenColumns, setHiddenColumns] = useState(['id']);
@@ -25,18 +25,18 @@ function ObjectTable(props) {  // props = ph = all phData
   const focusModelId = props.phFocus?.focusModel.id
   const modelindex = models?.findIndex((m: any) => m?.id === focusModelId)
   // const focusModelviewId = props.phFocus?.focusModelview.id
-  const curmod = models?.find(m => m.i === focusModelId)
-  const modelviews = curmod.modelviews
+  const curmod = models?.find(m => m.id === focusModelId)
+  const modelviews = curmod?.modelviews
   // const curmodview = curmod.modelviews?.find(mv => mv.id === focusModelviewId)
   
   
   const objects = curmod?.objects || models[0].objects
-  console.log('34',objects);
+  if (!debug) console.log('34', curmod, models[0], objects);
 
     const metamodels = props.ph.phData?.metis.metamodels
     const curmmod = metamodels.find(mm => mm.id === curmod?.metamodelRef)
     
-    // console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
+    if (!debug) console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
     const edititem = objects[0]
 
     function listAllProperties(o) { // list all obj properties incl prototype properties
@@ -153,8 +153,8 @@ function ObjectTable(props) {  // props = ph = all phData
           id: o.id,
           name: o.name,
           description: o.description,
-          type: curmmod.objecttypes.find(ot => (ot.id === o.typeRef)).name,
-          modViews: modelviews.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name+', ').filter(Boolean), 
+          type: curmmod?.objecttypes.find(ot => (ot.id === o.typeRef)).name,
+          modViews: modelviews?.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name+', ').filter(Boolean), 
           // countObjViews: modelviews.filter(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
           deleted: (o.markedAsDeleted) && 'deleted',
           modified: (o.modified) && 'modified'

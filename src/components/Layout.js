@@ -3,7 +3,7 @@
 import Head from 'next/head';
 import TopMenu from './Navbar';
 // import useDarkMode from '../hooks/use-dark-mode';
-// import Toggle from './utils/Toggle';
+// import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
   // console.log('6 layout', props.user);

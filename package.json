@@ -44,10 +44,17 @@
     "cheerio": "^1.0.0-rc.12",
     "color-convert": "^2.0.1",
     "colornames": "^1.1.1",
+<<<<<<< HEAD
     "cookie": "0.5.0",
     "cors": "^2.8.5",
     "dataloader": "^2.1.0",
     "es6-promise": "^4.2.8",
+=======
+    "cookie": "0.4.0",
+    "cors": "^2.8.5",
+    "dataloader": "^2.0.0",
+    "es6-promise": "^4.1.1",
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
     "fs": "0.0.1-security",
     "go": "^3.0.1",
     "gojs": "^2.2.18",
@@ -100,6 +107,7 @@
     "yarn": "^1.22.19"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@types/bcrypt": "5.0.0",
     "@types/cookie": "0.5.1",
     "@types/jest": "^29.2.3",
@@ -117,6 +125,24 @@
     "pretty-quick": "^3.1.3",
     "promise": "^8.3.0",
     "react-scripts": "^5.0.1",
+=======
+    "@types/bcrypt": "3.0.0",
+    "@types/cookie": "0.3.3",
+    "@types/jest": "^24.0.13",
+    "@types/jsonwebtoken": "8.3.8",
+    "@types/node": "^7.10.14",
+    "@types/react": "^16.9.44",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.9",
+    "@vercel/node": "^2.6.3",
+    "cross-env": "^5.2.0",
+    "css-loader": "^1.0.1",
+    "husky": "^2.4.0",
+    "prettier": "1.18.2",
+    "pretty-quick": "^1.11.0",
+    "promise": "^8.1.0",
+    "react-scripts": "^3.4.4",
+>>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
     "redux-devtools-extension": "^2.13.2",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",

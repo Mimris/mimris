@@ -1,8 +1,6 @@
 {
   "name": "akmm",
   "version": "1.0.0",
-  "engines": {
-  },
   "main": "dist/index.js",
   "license": "BY-ND",
   "scripts": {

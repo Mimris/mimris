@@ -7,7 +7,7 @@ AKM Modeller is the tool for building Active Knowledge Models, a modeling tool w
 
 Its build on the same concept implemented I Metis (1985-2007) which was written in  C++. AKM modeller is written in JavaScrip and using libraries like:  Next.js, React, Redux, Gojs ....
 
-The Main branch is deployed as alfa release (test new things)
+The Main branch is deployed as alfa release (test new things)!
 
 <!-- ![vv](https://akmclient-beta.herokuapp.com/videos/AKMM-Getting-Started-1.mp4)
 

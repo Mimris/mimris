@@ -2,7 +2,6 @@
   "name": "akmm",
   "version": "1.0.0",
   "engines": {
-    "node": "16.15.0"
   },
   "main": "dist/index.js",
   "license": "UNLICENSED",

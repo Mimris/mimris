@@ -515,7 +515,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('501 data', data);
             const myModelview = context.myModelview;
             const myObjectviews = [];
-            for (let i=0; i<myModelview.objectviews.length; i++) {
+            for (let i=0; i<myModelview.objectviews?.length; i++) {
               const objview = myModelview.objectviews[i];
               const myObjview = new akm.cxObjectView(objview.id, objview.name, objview.object, "");
               for (let prop in objview) {

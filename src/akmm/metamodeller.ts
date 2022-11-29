@@ -284,7 +284,7 @@ export class cxMetis {
         let reltypeview = null;
         const rtype = this.findRelationshipTypeByName(constants.types.AKM_ANNOTATES) ;
         if (rtype) {
-            const rtview = this.findRelationshipTypeView(rtype.typeview.id);
+            const rtview = this.findRelationshipTypeView(rtype.typeview?.id);
             if (rtview)
                 reltypeview = rtview;
         }
@@ -6009,7 +6009,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     fromArrowColor: string;
     toArrowColor:   string;
     constructor(id: string, name: string, type: cxRelationshipType | null, description: string) {
-        if (name === "") {
+        if (name === "" || name === id) {
             name = type?.name + '_' + type?.relshipkind;
         }
         super(id, name, description);

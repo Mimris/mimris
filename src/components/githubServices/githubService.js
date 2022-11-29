@@ -2,19 +2,11 @@
 
 import axios from 'axios';
 import { axiosGetCancellable } from './axios.helper';
-<<<<<<< HEAD:src/components/githubServices/githubService.js
-// import Cors from 'cors'
-
-// const cors = Cors({
-//   methods: ['POST', 'GET', 'HEAD'],
-// })
-=======
 import Cors from 'cors'
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
->>>>>>> main:src/components/services/githubService.js
 
 const debug = false
 const axiosConfig = {

@@ -1,49 +1,39 @@
-// not in use have to fix combinereducers
-import { applyMiddleware, createStore } from 'redux'
+import { createStore, applyMiddleware, compose } from "redux";
 import createSagaMiddleware from 'redux-saga'
-import { createWrapper } from 'next-redux-wrapper'
-
-import reducer, { InitialState } from './reducers/reducer'
-
+import { composeWithDevTools } from "redux-devtools-extension";
+import { createWrapper } from "next-redux-wrapper";
+import thunk from "redux-thunk";
+import rootReducer from "./reducers";
 import rootSaga from './saga'
-// import { InitialState } from './reducers/focusReducer';
+
+// initial states here
+const initalState = {};
+
+// middleware
+const middleware = [thunk];
+// const sagaMiddleware = createSagaMiddleware()
+
+// const middleware = [sagaMiddleware]
+
+// const makeStore = () => createStore(rootReducer, initalState, compose(applyMiddleware(...middleware)));
+// const makeStore = () => createStore( rootReducer, initalState, composeWithDevTools(applyMiddleware(...middleware)));
+
+// const bindMiddleware = middleware => {
+//   if (process.env.NODE_ENV !== 'production') {
+//     const { composeWithDevTools } = require('redux-devtools-extension')
+//     return composeWithDevTools(applyMiddleware(...sagaMiddleware))
+//   }
+//   return applyMiddleware(...sagaMiddleware)
+// }
 
 
-const bindMiddleware = middleware => {
-  if (process.env.NODE_ENV !== 'production') {
-    const { composeWithDevTools } = require('redux-devtools-extension')
-    return composeWithDevTools(applyMiddleware(...middleware))
-  }
-  return applyMiddleware(...middleware)
-}
 
-// const makeStore = () => configureStore()
+const makeStore = () =>  createStore(rootReducer, compose(applyMiddleware(...middleware)));
 
-// function configureStore(initialState=InitialState) {
 
-  const sagaMiddleware = createSagaMiddleware()
-  const makeStore = () => {
-    const store = createStore(reducer, InitialState, bindMiddleware([sagaMiddleware]))
-    store.sagaTask = sagaMiddleware.run(rootSaga)
-    return store
-  }
-  // const createAppStore = () => {
-  //     createStore(
-  //       reducer, 
-  //       initialState, 
-  //       bindMiddleware([sagaMiddleware])
-  //     )
-  //   // const store = createStore(
-  //   //   reducer,
-  //   //   initialState,
-  //   //   bindMiddleware([sagaMiddleware])
-  //   // )
+console.log('32 Store', makeStore())
 
-  //   sagaMiddleware.run(rootSaga)
-  //   // console.log('27', store.sagaTask);
-    
-  //   return makeStore
-  // }
+// assigning store to next wrapper
+// export const wrapper = createWrapper(makeStore, { debug: true });
 
-export const  wrapper = createWrapper(makeStore)
-// export default configureStore
+export const wrapper = createWrapper(makeStore);

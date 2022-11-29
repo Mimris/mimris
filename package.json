@@ -43,54 +43,26 @@
     "cheerio": "^1.0.0-rc.5",
     "color-convert": "^2.0.1",
     "colornames": "^1.1.1",
-<<<<<<< HEAD
-    "cookie": "0.4.0",
-    "dataloader": "^2.0.0",
-    "es6-promise": "^4.1.1",
-    "fs": "0.0.1-security",
-    "go": "^3.0.1",
-    "gojs": "^2.1.21",
-    "gojs-react": "^1.0.5",
-=======
-<<<<<<< HEAD
     "cookie": "0.5.0",
     "cors": "^2.8.5",
     "dataloader": "^2.1.0",
     "es6-promise": "^4.2.8",
-=======
-    "cookie": "0.4.0",
-    "cors": "^2.8.5",
-    "dataloader": "^2.0.0",
-    "es6-promise": "^4.1.1",
->>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
     "fs": "0.0.1-security",
     "go": "^3.0.1",
     "gojs": "^2.2.18",
     "gojs-react": "^1.1.1",
     "graphql": "^16.6.0",
->>>>>>> main
     "gray-matter": "^4.0.3",
-    "html-webpack-plugin": "^3.2.0",
-    "immer": "^6.0.8",
+    "html-webpack-plugin": "^5.5.0",
+    "immer": "^9.0.16",
     "install": "^0.12.2",
     "isomorphic-git": "^1.0.0-beta.36",
     "isomorphic-unfetch": "^3.0.0",
     "js-base64": "^3.7.2",
     "jsonwebtoken": "8.5.1",
-    "marked": "^3.0.7",
+    "marked": "^4.2.3",
     "matter": "^0.2.0",
     "micro-cors": "^0.1.1",
-<<<<<<< HEAD
-    "next": "^10.0.6",
-    "next-redux-saga": "4.0.0",
-    "next-redux-wrapper": "2.0.0",
-    "phoenix": "^1.5.7",
-    "postcss": "^8.4.14",
-    "printf": "^0.6.0",
-    "promise-polyfill": "8.1.3",
-    "react": "^16.13.1",
-    "react-dom": "^16.14.0",
-=======
     "next": "^13.0.4",
     "next-redux-saga": "4.1.2",
     "next-redux-wrapper": "8.0.0",
@@ -100,7 +72,6 @@
     "promise-polyfill": "8.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
->>>>>>> main
     "react-draggable": "^4.4.4",
     "react-dropdown-select": "^4.7.3",
     "react-hook-form": "^4.6.3-beta.2",
@@ -117,6 +88,7 @@
     "redux-logger": "^3.0.6",
     "redux-saga": "1.0.1",
     "redux-saga-restart": "^1.0.0",
+    "redux-thunk": "^2.4.2",
     "regex": "^0.1.1",
     "regex-parser": "^2.2.11",
     "rgb-hex": "^3.0.0",
@@ -127,9 +99,6 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
     "@types/bcrypt": "5.0.0",
     "@types/cookie": "0.5.1",
     "@types/jest": "^29.2.3",
@@ -147,34 +116,6 @@
     "pretty-quick": "^3.1.3",
     "promise": "^8.3.0",
     "react-scripts": "^5.0.1",
-=======
->>>>>>> main
-    "@types/bcrypt": "3.0.0",
-    "@types/cookie": "0.3.3",
-    "@types/jest": "^24.0.13",
-    "@types/jsonwebtoken": "8.3.8",
-    "@types/node": "^7.10.14",
-<<<<<<< HEAD
-    "@types/react": "^16.14.34",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-redux": "^7.1.9",
-=======
-    "@types/react": "^16.9.44",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-redux": "^7.1.9",
-    "@vercel/node": "^2.6.3",
->>>>>>> main
-    "cross-env": "^5.2.0",
-    "css-loader": "^1.0.1",
-    "husky": "^2.4.0",
-    "prettier": "1.18.2",
-    "pretty-quick": "^1.11.0",
-    "promise": "^8.1.0",
-    "react-scripts": "^3.4.4",
-<<<<<<< HEAD
-=======
->>>>>>> f13a2688d4f937a1fbaf573735281edde1b808e3
->>>>>>> main
     "redux-devtools-extension": "^2.13.2",
     "tslint": "^5.17.0",
     "tslint-config-prettier": "^1.18.0",

@@ -345,11 +345,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       // Filter some system attributes
       {
         if (k === 'abstract') {
-          if (what !== 'editObject' && what !== 'editObjectType')
+          if (what !== 'editObjectType')
             continue;
-          if (item?.type?.name !== 'EntityType')
-            continue;
-        }      
+          if (item.category === constants.gojs.C_OBJECTTYPE) {
+            switch (item.name) {
+              case 'Property':
+              case 'Datatype':
+              case 'Method':
+              case 'MethodType':
+              case 'Value':
+              case 'FieldType':
+              case 'ViewFormat':
+              case 'InputPattern':
+              case 'undefined':
+                continue;
+            }   
+            if (debug) console.log('362 k in item', k, item.name);
+          }   
+        }
         if (k === 'viewkind') {
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editObjectType')
             continue;

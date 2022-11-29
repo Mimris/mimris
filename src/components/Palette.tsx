@@ -142,7 +142,7 @@ const Palette = (props: any) => {
   if (debug) clog('103 Palette', props , seltasks);
   
 
-  let filteredOtNodeDataArray = taskNodeDataArray// (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
+  let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
   if (debug) console.log('111 filteredOtNodeDataArray', filteredOtNodeDataArray)
   
   // ------------------   ------------------

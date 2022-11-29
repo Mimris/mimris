@@ -2071,6 +2071,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return true;
             }),
+          makeButton("Edit Metamodel",
+            function (e: any, obj: any) {
+              const currentMetamodel = myMetis.currentMetamodel; 
+              const currentName = currentMetamodel.name;
+              const modelName = prompt("Enter Metamodel name:", currentName);
+              if (modelName?.length > 0) {
+                currentMetamodel.name = modelName;
+              }
+              const currentDescr = currentMetamodel.description; 
+              const modelDescr = prompt("Enter Metamodel description:", currentDescr);
+              if (modelDescr?.length > 0) {
+                currentMetamodel.description = modelDescr;
+              }
+              if (currentName !== modelName)
+                currentMetamodel.id = utils.createGuid();
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: dispatch only name
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling') {
+                return true;
+              }
+            }),
           makeButton("Edit Model",
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel; 
@@ -2792,6 +2817,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
+            }),
+          makeButton("Clear RelationshipTypeViews",
+            function (e: any, obj: any) {
+              if (debug) console.log('2767 myMetis', myMetis);
+              const myMetamodel = myMetis.currentMetamodel;
+              uic.clearRelationshipTypeViews(myMetamodel, myDiagram, myMetis);
+              if (debug) console.log('2777 myMetis', myMetis);
+              alert("The relshiptypeviews has been cleared");
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return true;
+              return false; 
             }),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 

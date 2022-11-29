@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false; 
 
 import * as utils from './utilities';
@@ -941,7 +941,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
         let node = goModel?.findNode(data.key);
         if (!node) node = data;
         if (node) {
-            if (debug) console.log('1018 data, node, tonode', data, node, toloc);
+            if (debug) console.log('944 data, node, tonode', data, node, toloc);
             node.loc = toloc;
             node.size = data.size;
             const scale = data.scale1;
@@ -957,14 +957,18 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc);
                     if (grp) {
-                        if (debug) console.log('1034 grp, nod', grp, nod);
+                        if (debug) console.log('960 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;
                         const loc = scaleNodeLocation(grp, nod);
                         const n = myDiagram.findNodeForKey(nod.key);
                         if (n?.data) {
-                            myDiagram.model.setDataProperty(n.data, "group", nod.group);
-                            if (debug) console.log('1041 n.data', n.data);
+                            try {
+                                myDiagram.model.setDataProperty(n.data, "group", nod.group);
+                                if (debug) console.log('968 n.data', n.data);
+                            } catch (e) {
+                                if (debug) console.log('970 e', e);
+                            }
                         }
                     } else {
                         nod.group = "";
@@ -983,7 +987,6 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
             }
             const modNode = new jsn.jsnObjectView(objview);
             modifiedNodes.push(modNode);
-
         }
         return node;
     }
@@ -1221,7 +1224,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myMetamodel = myMetis.currentMetamodel;
     const myModel  = args.context.myModel;
     const myModelview = myGoModel.modelView;
-    const data     = args.data;
+    let data       = args.data;
     const typename = args.typename;
     const fromType = args.fromType;
     const toType   = args.toType;
@@ -1246,6 +1249,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     }
     let relshipview: akm.cxRelationshipView;
     data.relshiptype = reltype;
+    data.type = "";
     const reltypeview = reltype.typeview;
     if (debug) console.log('1198 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
@@ -1256,7 +1260,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relship.relshipkind = reltype.relshipkind;
         relshipview.setFromArrow2(rel?.relshipkind);
         relshipview.setToArrow2(rel?.relshipkind);
-        // relshipview = updateRelationshipView(relshipview);
         relship.addRelationshipView(relshipview);
         if (debug) console.log('1337 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
@@ -1265,17 +1268,16 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         let name = data.name;  
         if (context.myModelview.askForRelshipName){
             name = prompt('Enter relationship name', name);
-            if (!name) name = data.name;
             if (name.length == 0) name = " ";
         }   
-        // relshipview = updateRelationshipView(relshipview);
+        relshipview = updateRelationshipView(relshipview);
         relshipview.id = id;
         relshipview.name = name;
         relship.name = name;
         data.name = name;
         if (debug) console.log('1351 data, relshipview', data, relshipview);
         if (debug) console.log('1352 myModelview, relshipview', myModelview, relshipview);
-        // updateLink(data, relshipview.typeview, myDiagram, myGoModel);
+        updateLink(data, relshipview.typeview, myDiagram, myGoModel);
 
         let link = myGoModel.findLink(data.key);
         uid.resetToTypeview(link, myMetis, myDiagram); 
@@ -1313,10 +1315,14 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         link = myDiagram.findLinkForKey(data.key);
-        if (debug) console.log('1388 link, relshipview', link, relshipview);
-        myDiagram.model.setDataProperty(link, "name", name);
-        myDiagram.model.setDataProperty(link.data, "name", name);
-        myDiagram.model.setDataProperty(link.data, "category", "Relationship");
+        data = link.data;
+        if (debug) console.log('1388 data, relshipview', data, relshipview);
+        if (name === " ") {
+            myDiagram.model.setDataProperty(data, "name", ".");  // Hack
+        } else {
+            myDiagram.model.setDataProperty(data, "name", name);
+        }
+        myDiagram.model.setDataProperty(data, "category", "Relationship");
         if (debug) console.log('1389 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
     }        
     if (debug) console.log('1393 data, relshipview, modelview', data, relshipview, myModelview);
@@ -2159,18 +2165,22 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
         case 'typeDescription':
             break;
         default:
-            // const metamodel = model?.metamodel;
-            const properties = type?.getProperties(true);
-            if (properties?.length > 0) {
-            const prop = properties.find(p => p.name === k);
-            if (!prop) {
+            try {
+                const properties = type?.getProperties(true);
+                if (properties?.length > 0) {
+                    const prop = properties.find(p => p.name === k);
+                    if (!prop) {
+                        retVal = false;
+                    }
+                }
+            } catch (e) {
                 retVal = false;
             }
             break;
-        }
     }
     return retVal;
 }
+
 
 function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
     const metamodels = metis.metamodels;
@@ -2846,7 +2856,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
         }
     }    
 
-    repairRelationshipTypes(myMetis);
+    // repairRelationshipTypes(myMetis);
     purgeUnusedRelshiptypes(myMetis);
     repairRelationshipTypeViews(myMetis);
     if (debug) console.log('2852 myMetis', myMetis);
@@ -2931,9 +2941,9 @@ export function repairRelationshipTypes(myMetis: akm.cxMetis) {
                     reltype1.markedAsDeleted = true;
                     metamodel1.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);
-                    // if (debug) console.log('2919 metamodel, metamodel1', metamodel, metamodel1);
                 }
             }
+            if (debug && reltype.name === 'annotates') console.log('2936 metamodel, metamodel1', metamodel, metamodel1);
         }
     }
 }
@@ -3024,6 +3034,35 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
             }
         }
     }
+}
+
+export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
+    const reltypes = metamodel.relshiptypes;
+    for (let i=0; i<reltypes?.length; i++) {
+        const reltype = reltypes[i];
+        const reltypeview = reltype.typeview;
+        if (reltypeview) {
+            reltypeview.markedAsDeleted = true;
+        }
+        reltype.typeview = null;        
+    }
+    { // Purge deleted reltypeviews
+        const reltypeviews = myMetis.relshiptypeviews;
+        const len = myMetis.relshiptypeviews?.length;
+        for (let i=len-1; i>=0; i--) {
+            const reltypeview = reltypeviews[i];
+            if (reltypeview.markedAsDeleted) {
+                reltypeviews.splice(i, 1);
+            }
+        }
+    }
+    // Dispatch metis
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    if (debug) console.log('2858 jsnMetis', jsnMetis, myMetis);
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    if (debug) console.log('2860 data', data, myMetis);
 }
 
 function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {

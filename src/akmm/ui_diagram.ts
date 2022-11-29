@@ -488,7 +488,8 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
     if (n) {
         const oview = myMetis.findObjectView(inst.objectview.id);
         const otview = oview.typeview;
-        const otdata = otview.data;
+        const otdata = otview?.data;
+        if (!otdata) return;
         for (let prop in otdata) {
             oview[prop] = otdata[prop];
             myDiagram.model.setDataProperty(n.data, prop, oview[prop]);
@@ -919,7 +920,7 @@ function addMetamodel2(context: any) {
         else 
             currentMetamodel.addRelationshipType0(relshiptype);
     }
-    currentMetamodel.addSubMetamodel(metamodel);
+    // currentMetamodel.addSubMetamodel(metamodel);
     const jsnMetamodel = new jsn.jsnMetaModel(currentMetamodel, true);
     if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
     const modifiedMetamodels = new Array();

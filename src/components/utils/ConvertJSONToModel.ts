@@ -534,7 +534,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
         for (var i in obj) {
             if (!obj.hasOwnProperty(i)) continue;
             if (typeof obj[i] == 'object') continue;
-            const tmpkey = i
+            tmpkey = i
             if (i === 'type') tmpkey = 'osduType' // type is a akmm attribute probably not the same as osdu attribute
 
             newobj = {

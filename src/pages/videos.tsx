@@ -30,7 +30,11 @@ const page = (props: any) => {
               <div className="homepage-video px-2 d-flex flex-column " >
                 <div className="card-body card-video-body w-100">
                 <SelectVideo />
-                <Link href="/modelling"><a className="nav-link text-primary ">Back</a></Link>
+                <Link href="/modelling">
+                  {/* <a className="nav-link text-primary "> */}
+                    Back
+                    {/* </a> */}
+                    </Link>
                 </div>
               </div>
               {/* <div className="tasksarea"></div> */}

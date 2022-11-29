@@ -9,7 +9,7 @@ import * as jsn from './ui_json';
 import * as gen from './ui_generateTypes';
 import { FaBullseye, FaLessThan, FaNode } from 'react-icons/fa';
 import { setMyMetisParameter } from '../actions/actions';
-import { NodeStringDecoder } from 'string_decoder';
+// import { NodeStringDecoder } from 'string_decoder';
 //import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 const printf = require('printf');

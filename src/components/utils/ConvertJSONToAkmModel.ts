@@ -309,7 +309,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         // map through the osduArray and create objects and relationships between the objects
         const osduObjects = osduArray?.map( (osduObj, index) => {
             const [oId, oKey, oVal] = osduObj
-            const oName = oKey?.split('|')?.slice(-1)[0] // objectName ; split and slice it, pick last element
+            oName = oKey?.split('|')?.slice(-1)[0] // objectName ; split and slice it, pick last element
             if (debug) console.log('261 :', oName, oKey, oVal);
             // const cNewVal = filterObject(oVal) // filter away subobjects, we only want attributes in cNewVal (objects are handled in the next iteration)
             const cNewVal = filterObject(oVal) // filter away subobjects, we only want attributes in cNewVal (objects are handled in the next iteration)

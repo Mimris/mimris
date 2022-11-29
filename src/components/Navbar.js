@@ -25,15 +25,27 @@ const Navbar = (props) => {
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
 			<span className="fs-3 text-warning" style={{ fontsize: "50%", minWidth: "26%", marginTop: "5px"}}>
-				<Link href="/modelling"><a className="nav-link2"><strong> AKM Modeller</strong></a></Link>
+				<Link href="/modelling">
+					{/* <a className="nav-link2"> */}
+						<strong> AKM Modeller</strong>
+						{/* </a> */}
+						</Link>
 			</span>
 			<div className="collapse navbar-collapse " id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3 ">
 					<li className="nav-item">
-						<Link href="/"><a className={currentRoute === "/" ? "active" : "non-active"}>Home</a></Link>
+						<Link href="/">
+							{/* <a className={currentRoute === "/" ? "active" : "non-active"}> */}
+								Home
+								{/* </a> */}
+							</Link>
 					</li>			
 					<li className="nav-item ">
-						<Link href="/modelling"><a className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</a></Link>
+						<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"} >
+							{/* <a className={currentRoute === "/modelling" ? "active" : "non-active"}> */}
+								Modelling
+							{/* </a> */}
+						</Link>
 					</li>
 					{/* <li className="nav-item">
 						<Link href="/table"><a className="nav-link">Tables</a></Link>
@@ -58,7 +70,7 @@ const Navbar = (props) => {
 						</div>
 					</li> */}
 
-					<li className="nav-item">
+					{/* <li className="nav-item">
 						<Link href="/videos"><a className={currentRoute === "/videos" ? "active" : "non-active"}>Videos</a></Link>
 					</li>
 					<li className="nav-item">
@@ -66,7 +78,7 @@ const Navbar = (props) => {
 					</li>
 					<li className="nav-item">
 						<Link href="/about" ><a className={currentRoute === "/about" ? "active" : "non-active"}>About</a></Link>
-					</li>
+					</li> */}
 					<li className="nav-item">				
 						<a className={currentRoute === "/Modelling" ? "active" : "non-active"} 
 							href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "

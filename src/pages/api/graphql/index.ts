@@ -1,49 +1,51 @@
-import { ApolloServer } from "apollo-server-micro";
-// import { ApolloServer, gql } from "apollo-server-micro";
-import Cors from "micro-cors";
+// import { ApolloServer } from "@apollo/server";
+// // import { ApolloServer, gql } from "apollo-server-micro";
+// import Cors from "micro-cors";
 
-// import resolvers from '../../../../public/gql/resolvers'
-import typeDefs from '../../../../public/gql/typeDefs'
-import * as models  from '../../../components/gql/models';
+// // import resolvers from '../../../../public/gql/resolvers'
+// import typeDefs from '../../../../public/gql/typeDefs'
+// import * as models  from '../../../components/gql/models';
 
-const resolvers = {
-  Query: {
-    allUsers: (parent: any, args: any, { models }: any) => {
-      const objs = models.type("User")
-      return objs 
-      // return (
-      //   [{
-      //     id: '1',
-      //     name: 'snorre'
-      //   }]
-      //   )
-  }
-      // id: (user, _args, _context) => '1',
-      // name: (user, args, _context) => 'snorre'
-}
-};
+// const resolvers = {
+//   Query: {
+//     allUsers: (parent: any, args: any, { models }: any) => {
+//       const objs = models.type("User")
+//       return objs 
+//       // return (
+//       //   [{
+//       //     id: '1',
+//       //     name: 'snorre'
+//       //   }]
+//       //   )
+//   }
+//       // id: (user, _args, _context) => '1',
+//       // name: (user, args, _context) => 'snorre'
+// }
+// };
 
-const cors = Cors({
-  allowMethods: ["GET", "POST", "OPTIONS"]
-});
+// const cors = Cors({
+//   allowMethods: ["GET", "POST", "OPTIONS"]
+// });
 
-const apolloServer = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: () => {
-    return { models };
-  }
-});
+// const apolloServer = new ApolloServer({
+//   typeDefs,
+//   resolvers,
+//   context: () => {
+//     return { models };
+//   }
+// });
 
-const handler = apolloServer.createHandler({ path: "/api/graphql" });
+// const handler = apolloServer.createHandler({ path: "/api/graphql" });
 
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};
+// export const config = {
+//   api: {
+//     bodyParser: false
+//   }
+// };
 
-export default cors(handler);
+// export default cors(handler);
+
+export {}
 
 
 

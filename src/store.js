@@ -6,7 +6,7 @@ import rootSaga from "./saga";
 
 const bindMiddleware = (middleware) => {
   if (process.env.NODE_ENV !== "production") {
-    const { composeWithDevTools } = require("redux-devtools-extension");
+    const { composeWithDevTools } = require("@redux-devtools/extension");
     return composeWithDevTools(applyMiddleware(...middleware));
   }
   return compose(applyMiddleware(...middleware));
@@ -26,7 +26,7 @@ const configureStore = (initialState = InitialState) => {
 
 const makeStore = () => configureStore()
 
-export const wrapper = createWrapper(makeStore)
+export const wrapper = createWrapper(configureStore)
 
 
 // // not in use have to fix combinereducers

@@ -629,6 +629,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'relshipkind':
               fieldType = 'select';
+              defValue    = 'Association';
               values = ['Association', 'Generalization', 'Composition', 'Aggregation'];
               break;
             case 'abstract':

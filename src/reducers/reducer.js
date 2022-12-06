@@ -134,7 +134,7 @@ let focusCollection
 
 
 
-function reducer(state = InitialStateStr, action) {
+function reducer(state = InitialState, action) {
   
   switch (action.type) {
     

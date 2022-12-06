@@ -44,7 +44,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
-  if (!debug) clog('46 Modelling:', props);
+  if (!debug) clog('40 Modelling:', props);
 
   const [mount, setMount] = useState(false)
   

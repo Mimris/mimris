@@ -20,6 +20,7 @@ const Modeller = (props: any) => {
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
+  if (!debug) console.log('19 Modeller: props', props);
 
   // if (!props.gojsModel)  return <></>
 
@@ -347,6 +348,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
   
+  console.log('347 ', modelviewTabDiv)
   return (
     (props.modelType === 'model') 
     ? // modelling

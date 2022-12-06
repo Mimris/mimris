@@ -1,39 +1,32 @@
-import { createStore, applyMiddleware, compose } from "redux";
+// not in use have to fix combinereducers
+import { applyMiddleware, createStore } from 'redux'
 import createSagaMiddleware from 'redux-saga'
-import { composeWithDevTools } from "redux-devtools-extension";
-import { createWrapper } from "next-redux-wrapper";
-import thunk from "redux-thunk";
-import rootReducer from "./reducers";
+
+import reducer, { InitialState } from './reducers/reducer'
+
 import rootSaga from './saga'
-
-// initial states here
-const initalState = {};
-
-// middleware
-const middleware = [thunk];
-// const sagaMiddleware = createSagaMiddleware()
-
-// const middleware = [sagaMiddleware]
-
-// const makeStore = () => createStore(rootReducer, initalState, compose(applyMiddleware(...middleware)));
-// const makeStore = () => createStore( rootReducer, initalState, composeWithDevTools(applyMiddleware(...middleware)));
-
-// const bindMiddleware = middleware => {
-//   if (process.env.NODE_ENV !== 'production') {
-//     const { composeWithDevTools } = require('redux-devtools-extension')
-//     return composeWithDevTools(applyMiddleware(...sagaMiddleware))
-//   }
-//   return applyMiddleware(...sagaMiddleware)
-// }
+// import { InitialState } from './reducers/focusReducer';
 
 
+const bindMiddleware = middleware => {
+  if (process.env.NODE_ENV !== 'production') {
+    const { composeWithDevTools } = require('redux-devtools-extension')
+    return composeWithDevTools(applyMiddleware(...middleware))
+  }
+  return applyMiddleware(...middleware)
+}
 
-const makeStore = () =>  createStore(rootReducer, compose(applyMiddleware(...middleware)));
+function configureStore(initialState=InitialState) {
+  const sagaMiddleware = createSagaMiddleware()
+  const store = createStore(
+    reducer,
+    initialState,
+    bindMiddleware([sagaMiddleware])
+  )
+  store.sagaTask = sagaMiddleware.run(rootSaga)
+  // console.log('27', store.sagaTask);
+  
+  return store
+}
 
-
-console.log('32 Store', makeStore())
-
-// assigning store to next wrapper
-// export const wrapper = createWrapper(makeStore, { debug: true });
-
-export const wrapper = createWrapper(makeStore);
+export default configureStore

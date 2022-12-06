@@ -1,12 +1,21 @@
-import App, { Container } from 'next/app'
-import React from 'react'
-import { Provider } from 'react-redux'
-import withRedux from 'next-redux-wrapper'
-import withReduxSaga from 'redux-saga'
-import createStore from '../store'
+
+// Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
+// // Bootstrap Bundle JS
+// import "bootstrap/dist/js/bootstrap.bundle.min";
+import { useEffect } from "react";
+import "../styles/styles.css"
+import "../styles/styles-grid.css"
+import "../styles/gojs.css"
+import { wrapper } from "../store";
+import "../styles/globals.css";
+
+// useEffect(()=>{
+//   import("bootstrap/dist/js/bootstrap.bundle.min");
+// },[])
 
 const MyApp = ({ Component, pageProps }) => (
   <Component {...pageProps} />
 )
 
-export default withRedux(createStore)(withReduxSaga(MyApp))
+export default wrapper.withRedux(MyApp);

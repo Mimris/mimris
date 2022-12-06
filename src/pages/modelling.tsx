@@ -127,9 +127,11 @@ const page = (props:any) => {
                 <div className="help d-flex">
                   <SetContext className='setContext flex' ph={props} />
                   <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-                  <Link href="/videos" className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}}>Video
-                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a> */}
-                    </Link>
+                  <Link href="/videos">
+                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} > */}
+                      Video
+                      {/* </a> */}
+                      </Link>
                   {/* <SelectVideo className='VideoModal' buttonLabel='!' phFocus={props.phFocus} />  */}
                   {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>i</button> */}
                 </div>

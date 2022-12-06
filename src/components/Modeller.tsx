@@ -112,7 +112,7 @@ const Modeller = (props: any) => {
   const type='SET_FOCUS_MODEL'
   const  options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
     selmodels.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
-    <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
+    <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name})}>{m.name}</option>)
   )
 
 

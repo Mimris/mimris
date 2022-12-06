@@ -206,6 +206,9 @@ const GradientYellow = $(go.Brush, 'Linear', { 0: 'LightGoldenRodYellow', 1: '#F
 const GradientLightGreen = $(go.Brush, 'Linear', { 0: '#E0FEE0', 1: 'PaleGreen' });
 const GradientLightGray = $(go.Brush, 'Linear', { 0: 'White', 1: '#DADADA' });
 
+const EventNodeSize = 42;
+const DataFill = GradientLightGray;
+
 // Define a function for creating a "port" that is normally transparent.
 // The "name" is used as the GraphObject.portId, the "spot" is used to control how links connect
 // and where the port is positioned on the node, and the boolean "output" and "input" arguments
@@ -1038,7 +1041,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     );
     addNodeTemplateName('textAndGeometry');    
 
-
     nodeTemplateMap.add("textAndFigure", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("layerName", "layer"),
@@ -1450,7 +1452,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             { contextMenu: contextMenu },    
             {
                 selectionObjectName: "SHAPE",
-                resizable: true, resizeObjectName: "SHAPE"
+                resizable: true, 
+                resizeObjectName: "SHAPE"
             },
             {
                 toolTip:
@@ -1468,7 +1471,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 )
             },
             $(go.Panel, 'Spot',
-                $(go.Shape,
+                $(go.Shape, // figure
                     { 
                         figure: "Diamond", 
                         // fill: "lightyellow",
@@ -1503,7 +1506,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     new go.Binding('stroke', 'strokecolor'), 
                     new go.Binding("figure", "figure"), 
                 ),
-                $(go.Shape,
+                $(go.Shape,  // move
                     { 
                         figure: "Diamond", 
                         fill: "transparent",
@@ -1528,6 +1531,128 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         ),
     );    
     addNodeTemplateName('GatewayNode');
+
+    nodeTemplateMap.add("DataObjectNode",
+        $(go.Node, 'Vertical',
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            $(go.Shape, 'File',
+                {
+                name: 'SHAPE', 
+                portId: '', 
+                fromLinkable: true, 
+                toLinkable: true, 
+                cursor: 'alias',
+                fill: DataFill, 
+                desiredSize: new go.Size(EventNodeSize * 0.8, EventNodeSize)
+                }
+            ),
+            { contextMenu: contextMenu },    
+            { locationObjectName: 'SHAPE', locationSpot: go.Spot.Center },
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
+                )
+            },
+            {
+                locationObjectName: 'SHAPE', 
+                locationSpot: go.Spot.Center,
+                resizable: true, 
+                resizeObjectName: 'PANEL',
+                selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
+                //itemTemplate: boundaryEventItemTemplate
+            },
+            $(go.Panel, 'Spot',  // make an area around text for move cursor
+                $(go.Shape, 'Rectangle',  // move
+                    {
+                        fill: 'transparent', 
+                        stroke: null, 
+                        strokeWidth: 0,
+                        cursor: 'move',
+                        desiredSize: new go.Size(75, 5),
+                    },
+                ),
+            ),
+            $(go.TextBlock,  // the center text
+            {
+              alignment: go.Spot.Center, 
+              // background: 'gray',
+              cursor: 'move',
+              textAlign: 'center', 
+              margin: 2,
+              editable: true,
+            },
+            new go.Binding("text", "name").makeTwoWay(),
+          )
+        ),
+    );
+    addNodeTemplateName('DataObjectNode');
+
+    nodeTemplateMap.add("DataStoreNode",
+        $(go.Node, 'Vertical',
+            { locationObjectName: 'SHAPE', locationSpot: go.Spot.Center },
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            $(go.Shape, 'Database',
+                {
+                    name: 'SHAPE', 
+                    portId: '', 
+                    fromLinkable: true, 
+                    toLinkable: true, 
+                    cursor: 'alias',
+                    fill: DataFill, 
+                    desiredSize: new go.Size(EventNodeSize, EventNodeSize)
+                }
+            ),
+            { contextMenu: contextMenu },    
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
+                )
+            },
+            $(go.TextBlock,  // the center text
+                {
+                    alignment: go.Spot.Center, 
+                    // background: 'gray',
+                    cursor: 'move',
+                    textAlign: 'center', 
+                    margin: 2,
+                    editable: true,
+                },
+                new go.Binding("text", "name").makeTwoWay(),
+            ),
+            $(go.Panel, 'Auto',  // make an area around text for move cursor
+            $(go.Shape, 'Rectangle',  // area around the text
+                {
+                    fill: 'transparent', 
+                    stroke: null, 
+                    strokeWidth: 0,
+                    cursor: 'move',
+                    desiredSize: new go.Size(75, 5),
+                },
+            ),
+          ),
+        ),
+    );
+    addNodeTemplateName('DataStoreNode');
 
     if (false) {                    
         let nodeInput =               

@@ -690,6 +690,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             if (debug) console.log('694 reltype, link', reltype, link);
             if (link.loadLinkContent()) {
               link.relshipkind = reltype.relshipkind;
+              link.strokewidth = reltype.strokewidth;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
@@ -980,7 +981,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
  
     if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
-    if (!debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
+    if (debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
     // make metis object containing only current model , curtargetmodel, curmetamodel, curtargetmetamodel
     const strippedMetamodels = metamodels?.map(mm => { 
       return {

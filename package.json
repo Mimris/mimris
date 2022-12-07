@@ -2,7 +2,7 @@
   "name": "akmm",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "license": "UNLICENSED",
+  "license": "",
   "scripts": {
     "tsc": "tsc",
     "heroku-postbuild": "tsc & next build",

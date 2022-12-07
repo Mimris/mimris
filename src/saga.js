@@ -208,7 +208,7 @@ function * loadDataModelSaga(data) {
         }
       )
       const model = yield res.clone().json()
-      if (!debug) console.log('134 Saga', model);
+      if (debug) console.log('134 Saga', model);
       yield put(loadDataModelSuccess({ model }))
     } catch (err) {
       if (debug) console.log('137 saga', failure(err));  

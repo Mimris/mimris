@@ -8,7 +8,7 @@ const GenGqlSchemas = (ph) => {
   const metis = (ph.phData) && ph.phData.metis
   const models = (metis) && metis.models  // selecting the models array
   const metamodels = (metis) && metis.metamodels
-  console.log('11 gengql',  ph);
+  // console.log('11 gengql',  ph);
 
   // const focusModel = useSelector(focusModel => state.phFocus.focusModel)
   // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
@@ -25,7 +25,7 @@ const GenGqlSchemas = (ph) => {
 
   const currentMetamodel = (metamodels) && metamodels?.find((mm: any) => mm.id === currentModel?.metamodelRef)
   const mm = currentMetamodel
-  console.log('mm', mm);
+  // console.log('mm', mm);
 
   // * make the graphql type definition variable as an export default ` type, Query, Mutation ` * //
   const typeDefsWithCommas = mm &&

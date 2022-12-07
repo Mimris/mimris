@@ -9,9 +9,12 @@ import * as utils from '../../akmm/utilities';
 // find objects of type 'property' and with a name that includes the text 'ID' and remove that text and find the EtityType object with the rest name
 // then traverse upwords and find the top object with type "EntityType"  
 // then add a relship between the two objects i.e. the "rest EntityType" and the top EntityType
-export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps: boolean, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; }, dispatch: Dispatch<any>) => {
 
-    if (debug) console.log('13 ', props);
+
+export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps: boolean, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; }, dispatch: Dispatch<any>) => {
+    const debug = false
+
+    // if (debug) console.log('13 ', props);
 
     const curModel = props.phData.metis.models.find((m: { id: any; }) => m.id === props.phFocus.focusModel.id)
     const curObjects = curModel.objects

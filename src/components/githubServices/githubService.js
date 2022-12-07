@@ -76,7 +76,7 @@ export function searchRepos(searchText, path) {  // search/repositories?q=akm-mo
 }
 
 export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-models
-  console.log('34 searchBranches', ownerRepo, path);
+  if (debug) console.log('34 searchBranches', ownerRepo, path);
   // https://api.github.com/repos/kavca/kavca-akm-models/contents/StartupModels 
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches/SnorreFossland-patch-2
   // https://raw.githubusercontent.com/Kavca/kavca-akm-models/21387823876733/StudyDementia/Study-Dementia-Project%20(2).json

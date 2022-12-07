@@ -19,7 +19,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
  
-  if (!debug) console.log('17 Modelling', props);
+  if (debug) console.log('22 Table', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false);
   function toggleRefresh() { setRefresh(!refresh); }
@@ -56,7 +56,7 @@ const page = (props:any) => {
   const focusModelId = props.phFocus?.focusModel.id
   const curmod = models?.find(m => m.id === focusModelId)
 
-  console.log('61 Table', curmod, focusModelId, models, props.phFocus);
+  if (debug)console.log('61 Table', curmod, focusModelId, models, props.phFocus);
 
     // useEffect(() => {
     //   console.log('80 Modelling useEffect 3', props); 

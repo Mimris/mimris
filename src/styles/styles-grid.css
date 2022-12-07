@@ -66,19 +66,27 @@
      "taskarea workarea";
    }
  }
-@media only screen and (max-width: 360px) {
 
+@media only screen and (max-width: 360px) {
 .row {
     height: 50%;
     /* height: 100%; */
+    margin: auto;
+    padding: auto;
      grid-area: row1;
      display: grid ;
      background-color: #aaf;
      grid-template-columns: auto ;
      grid-template-areas:
      "col2 col2"
-     "col1 col3";
+     "col2 col3";
   }
+}
+
+.tab-content {
+  padding-left: 1px;
+  border-right: 1px solid #999;
+  /* border-bottom: 1px solid #999; */
 }
 
  /* .row {

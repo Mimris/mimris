@@ -24,7 +24,7 @@ const Layout = (props) => {
           {/* <div className="navbar">
             <Toggle darkMode={darkMode} setDarkMode={setDarkMode} />
           </div> */}
-      <div className="container-fluid mx-0 px-1" >
+      <div className="container-fluid mx-0 px-0" >
         {/* <div className="container-fluid ml-1 pl-0 pr-2" > */}
         {/* <div className="container-fluid"> */}
           {/* <div className="content"> */}

@@ -3,7 +3,7 @@ const debug = false;
 import {
   FAILURE,
   LOAD_DATA,
-  LOAD_DATA_GITHUB,
+  LOAD_DATAGITHUB,
   LOAD_DATAGITHUB_SUCCESS,
   LOAD_DATA_SUCCESS,
   LOAD_DATAMODELLIST,
@@ -157,7 +157,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
-      // if (debug) console.log('160 LOAD_DATA_SUCCESS', action);
+      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action);
       return {
         ...state,
         phData: action.data,   

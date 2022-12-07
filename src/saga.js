@@ -1,3 +1,13 @@
+import { all, call, delay, put, take, takeLatest } from 'redux-saga/effects';
+
+import es6promise from 'es6-promise'
+import 'isomorphic-unfetch'
+import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSuccess } from './actions/actions';
+import { LOAD_DATA, LOAD_DATAGITHUB, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
+es6promise.polyfill()
+import { searchGithub } from './components/githubServices/githubService'
+
+// import Cors from 'cors'
 // import { all, call, delay, put, take, takeLatest } from 'redux-saga/effects'
 // import { actionTypes, failure, loadDataSuccess, tickClock } from './actions'
 
@@ -28,15 +38,7 @@
 
 // export default rootSaga
 
-import { all, call, delay, put, take, takeLatest } from 'redux-saga/effects';
 
-import es6promise from 'es6-promise'
-import 'isomorphic-unfetch'
-import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSuccess } from './actions/actions';
-import { LOAD_DATA, LOAD_DATA_GITHUB, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
-es6promise.polyfill()
-import { searchGithub } from './components/githubServices/githubService'
-// import Cors from 'cors'
 
 // const cors = Cors({
 //   methods: ['POST', 'GET', 'HEAD'],
@@ -131,7 +133,6 @@ function * loadDataGithubSaga(data) {  // load url-params of data from github
   
   console.log('99 Saga', data, data.query, repo, path, file, focus);
 
-
 if (data.query !== {}) 
   if (repo && file) {
     try {
@@ -219,7 +220,7 @@ function * loadDataModelSaga(data) {
 function* rootSaga() {
   yield all([
     // console.log('175 saga', loadDataSaga, loadDataModelListSaga),
-    takeLatest(LOAD_DATA_GITHUB, loadDataGithubSaga),
+    takeLatest(LOAD_DATAGITHUB, loadDataGithubSaga),
     takeLatest(LOAD_DATA, loadDataSaga),
     // takeLatest(LOAD_DATAMODELLIST, loadDataModelListSaga),
     takeLatest(LOAD_DATAMODEL, loadDataModelSaga)

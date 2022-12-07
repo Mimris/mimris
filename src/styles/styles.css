@@ -793,7 +793,7 @@ imgInProp {
 
 .nav-item {
   display: inline-block;
-  flex: auto;
+  /* flex: auto; */
 }
 
 .nav-link {
@@ -816,6 +816,9 @@ imgInProp {
   background-image: url("data:image/svg+xml;..");
 }
 
+/* .Selector--menu {
+  width: 100rem;
+} */
 
 *, *:before, *:after {
   box-sizing: border-box;

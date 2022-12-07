@@ -13,6 +13,7 @@ import SetContext from '../defs/SetContext'
 import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
 import useLocalStorage  from '../hooks/use-local-storage'
+import { NavbarToggler } from "reactstrap";
 
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
@@ -47,7 +48,7 @@ const page = (props:any) => {
 
   // useEffect(() => { // load the github model defined in the query
   //   if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
-  //   dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
+  //   dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
   // }, [(query.repo)])
 
   // if (!query.repo) {
@@ -63,7 +64,15 @@ const page = (props:any) => {
 
   useEffect(() => { // load the github model defined in the query
     if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
-    dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
+
+    dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+    
+    const timer = setTimeout(() => {
+      // genGojsModel(props, dispatch);
+      setRefresh(!refresh)
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, [(query.repo)])
   
   if (false) {
@@ -122,7 +131,7 @@ const page = (props:any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             {/* {videoDiv}           */}
-            <div className="workplace bg-white" >
+            <div className="workplace" >
               <div className="contextarea" >
                 <div className="help d-flex">
                   <SetContext className='setContext flex' ph={props} />
@@ -140,7 +149,7 @@ const page = (props:any) => {
                 {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
-              <div className="workarea mr-1 pl-1 pt-1 pr-2 pb-2" style={{ backgroundColor: "#ddd" }}>
+              <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                 {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
                 {/* <Modelling /> */}
               </div>

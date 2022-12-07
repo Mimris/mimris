@@ -370,10 +370,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             continue;
           }
         if (k === 'relshipkind') {
-          if (!myModel.includeRelshipkind)
-            continue;
-          if (what !== 'editRelationship' && what !== 'editRelationshipType')
-            continue;
+          if (what !== 'editRelationshipType') {
+            if (!myModel.includeRelshipkind)
+              continue;
+            if (what !== 'editRelationship')
+              continue;
+          }
         }
         if (k === 'text') {
           if (!isLabel)
@@ -615,7 +617,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'fieldType':
             case 'viewkind':
-            case 'relshipkind':
               dtype = myMetamodel.findDatatypeByName(k);
               if (debug) console.log('396 dtype', dtype);
               if (dtype) {
@@ -625,6 +626,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 values    = dtype.allowedValues;
               }
               if (!allowsMetamodeling) disabled = true;
+              break;
+            case 'relshipkind':
+              fieldType = 'select';
+              defValue    = 'Association';
+              values = ['Association', 'Generalization', 'Composition', 'Aggregation'];
               break;
             case 'abstract':
               dtype = myMetis.findDatatypeByName('boolean');

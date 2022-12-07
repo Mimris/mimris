@@ -1169,7 +1169,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_OBJECT) {
         const node = myDiagram.findNodeForKey(selObj.key);
         data = node.data;
-        const objview = data.objectview;
+        let objview = data.objectview;
+        objview = myMetis.findObjectView(objview?.id);
         objtypeview = data.objectview?.typeview;
         if (debug) console.log('950 objtypeview, data, objview', objtypeview, data, objview);
         const typeviews = myMetis.objecttypeviews;

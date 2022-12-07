@@ -7,7 +7,7 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import { setGojsModelObjects } from "../actions/actions";
 import Selector from './utils/Selector'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
-import { setMyMetisParameter } from "../actions/actions";
+// import { setMyMetisParameter } from "../actions/actions";
 
 const debug = false;
 
@@ -117,14 +117,14 @@ const Palette = (props: any) => {
     // }, 5000);
     // return () => clearTimeout(timer);
     return () => { isRendered = false; }
-  }, [props.phFocus.focusModel?.id])
+  }, [props.phFocus?.focusModel?.id])
 
   if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
   useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
     if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
   
-    if (props.phFocus.focusTask.workOnTypes) {
+    if (props.phFocus?.focusTask.workOnTypes) {
       taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
@@ -133,7 +133,7 @@ const Palette = (props: any) => {
     if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
     if (debug) console.log('94 seltasks', props.phFocus.focusTask)
     }
-  }, [props.phFocus.focusTask?.id])
+  }, [props.phFocus?.focusTask?.id])
 
   // break if no model or metamodel
   if (!props.gojsModel) return null;

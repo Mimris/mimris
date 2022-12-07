@@ -2,13 +2,16 @@ import {
   FAILURE, 
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
+  LOAD_DATAGITHUB,
+  LOAD_DATAGITHUB_SUCCESS, 
   LOAD_DATAMODELLIST, 
   LOAD_DATAMODELLIST_SUCCESS, 
   LOAD_DATAMODEL, 
   LOAD_DATAMODEL_SUCCESS, 
   LOAD_TOSTORE_PHDATA, 
+  LOAD_TOSTORE_PHFOCUS,
+  LOAD_TOSTORE_PHUSER, 
   LOAD_TOSTORE_PHSOURCE,
-  LOAD_TOSTORE_PHFOCUS, 
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER, 
@@ -91,6 +94,9 @@ export const failure = (error) => {
 export const loadData = () => {
   return { type: LOAD_DATA }
 }
+export const loadDataGithub = () => {
+  return { type: LOAD_DATAGITHUB }
+}
 
 export const loadDataSuccess = (data) => {
   // console.log('37 --loadDataSuccess ', data);
@@ -113,6 +119,14 @@ export const loadDataModelListSuccess = (data) => {
   }
 }
 
+export const loadDataGithubSuccess = (data) => {
+  if (!debug) console.log('37 loadDataGithubSuccess ', data);
+  return {
+    type: LOAD_DATAGITHUB_SUCCESS,
+    data
+  }
+}
+
 export const loadDataModel = (data) => {
   return { type: LOAD_DATAMODEL },
   data
@@ -126,13 +140,6 @@ export const loadDataModelSuccess = (data) => {
   }
 }
 
-export const loadToStorePhsource = (data) => {
-  // console.log('46---actions |setFocusPhsource ', data);
-  return {
-    type: LOAD_TOSTORE_PHSOURCE,
-    data: JSON.parse(data.value)
-  }
-}
 
 export const loadToStorePhdata = (data) => {
   // console.log('21---actions | setFocusPhdata ', data);
@@ -149,6 +156,21 @@ export const loadToStorePhfocus = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const loadToStorePhuser = (data) => {
+  // console.log('21---actions | setFocusPhfocus ', data);
+  return {
+    type: LOAD_TOSTORE_PHUSER,
+    data: JSON.parse(data.value)
+  }
+}
+export const loadToStorePhsource = (data) => {
+  // console.log('46---actions |setFocusPhsource ', data);
+  return {
+    type: LOAD_TOSTORE_PHSOURCE,
+    data: JSON.parse(data.value)
+  }
+}
+
 export const loadToStoreNewModel = (data) => {
   // console.log('21---actions | loadToStoreNewModel ', data);
   return {

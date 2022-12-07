@@ -1,6 +1,7 @@
-{
-    "extends": ["next", "next/core-web-vitals"],
-    "rules": {
-      "@next/next/no-img-element": "off",
-    }
-  }
+// {
+//   // "extends": "next/core-web-vitals",
+//   "extends": ["next", "next/core-web-vitals", "prettier"],
+//   "rules": {
+//     "@next/next/no-img-element": "off",
+//   }
+// }

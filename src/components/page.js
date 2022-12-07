@@ -5,7 +5,7 @@ const page = (Page) => {
     class PageWrapper extends React.Component {
       render(props) {
         return (
-          <Page />
+          <Page props= {props}/>
         )
       }
     }

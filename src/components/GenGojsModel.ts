@@ -32,8 +32,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
-  const focusModel = props.phFocus.focusModel
-  const focusModelview = props.phFocus.focusModelview
+  const focusModel = props.phFocus?.focusModel
+  const focusModelview = props.phFocus?.focusModelview
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   // const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels

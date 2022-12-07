@@ -32,8 +32,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
-  const focusModel = props.phFocus.focusModel
-  const focusModelview = props.phFocus.focusModelview
+  const focusModel = props.phFocus?.focusModel
+  const focusModelview = props.phFocus?.focusModelview
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   // const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
@@ -690,6 +690,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             if (debug) console.log('694 reltype, link', reltype, link);
             if (link.loadLinkContent()) {
               link.relshipkind = reltype.relshipkind;
+              link.strokewidth = reltype.strokewidth;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
@@ -980,7 +981,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
  
     if (debug) console.log('56 GenGojsModel: curmod++', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
-    if (!debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
+    if (debug) console.log('60 GenGojsModel: metis', curmod, curmetamodel, curtargetmodel, curtargetmetamodel);
     // make metis object containing only current model , curtargetmodel, curmetamodel, curtargetmetamodel
     const strippedMetamodels = metamodels?.map(mm => { 
       return {

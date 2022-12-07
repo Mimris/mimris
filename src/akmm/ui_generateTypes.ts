@@ -1417,7 +1417,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     return metamodel;
 }
 
-function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxModel) {
+function getAllPropertytypes(obj: akm.cxObject, proptypes: any[], myModel: akm.cxModel): any[] {
     // Check if obj inherits another obj
     const genrels = obj?.findOutputRelships(myModel, constants.relkinds.GEN);
     if (genrels) {
@@ -1433,7 +1433,7 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxM
     getPropertyTypes(obj, proptypes, myModel);
 }
 
-function getPropertyTypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxModel) {
+function getPropertyTypes(obj: akm.cxObject, proptypes: any[], myModel: akm.cxModel): any[] {
     const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
@@ -1474,9 +1474,10 @@ function getPropertyTypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxMode
             }
         }
     }    
+    return proptypes;
 }
 
-function getInheritedProperties(obj: akm.cxObject, properties: any, myModel: akm.cxModel) {
+function getInheritedProperties(obj: akm.cxObject, properties: any[], myModel: akm.cxModel): any[] {
     // Check if obj inherits another obj
     const genrels = obj?.findOutputRelships(myModel, constants.relkinds.GEN);
     if (genrels) {
@@ -1492,9 +1493,10 @@ function getInheritedProperties(obj: akm.cxObject, properties: any, myModel: akm
             getInheritedProperties(toObj, properties, myModel);
         }
     }
+    return properties;
 }
 
-function getPropertiesInGroup(groupId: string, proptypes: any, myModel: akm.cxModel) {
+function getPropertiesInGroup(groupId: string, proptypes: any[], myModel: akm.cxModel): any[] {
     const objects = myModel.getObjects();
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
@@ -1508,9 +1510,10 @@ function getPropertiesInGroup(groupId: string, proptypes: any, myModel: akm.cxMo
             }
         }
     }
+    return proptypes;
 }
 
-function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, context: any) {
+function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any[], context: any) {
     const myMetis = context.myMetis;
     const myModel = context.myModel;
     const myTargetMetamodel = context.myTargetMetamodel;

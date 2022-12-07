@@ -789,6 +789,13 @@ imgInProp {
 .focusSource {
   width: 140px;
 } */
+
+
+.nav-item {
+  display: inline-block;
+  /* flex: auto; */
+}
+
 .nav-link {
   color: rgb(9, 0, 139);
 }
@@ -809,6 +816,9 @@ imgInProp {
   background-image: url("data:image/svg+xml;..");
 }
 
+/* .Selector--menu {
+  width: 100rem;
+} */
 
 *, *:before, *:after {
   box-sizing: border-box;

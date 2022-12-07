@@ -12,6 +12,9 @@ import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
+import useLocalStorage  from '../hooks/use-local-storage'
+import { NavbarToggler } from "reactstrap";
+
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
 // import useLocalStorage from '../hooks/use-local-storage'
@@ -25,7 +28,9 @@ const page = (props:any) => {
   
   const dispatch = useDispatch()
   if (debug) console.log('57 modelling', (props.phList) && props.phList);
-  
+
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+
   const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
   const [visibleTasks, setVisibleTasks] = useState(true)
@@ -41,14 +46,35 @@ const page = (props:any) => {
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   // setUrlParams(query);
 
+  // useEffect(() => { // load the github model defined in the query
+  //   if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
+  //   dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+  // }, [(query.repo)])
+
+  // if (!query.repo) {
+  //   if ((memoryLocState != null) && memoryLocState.length > 0) {
+  //     if ((window.confirm("Do you want to recover your last model project?"))) {
+  //       if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+  //         store = (memoryLocState[0]) 
+  //       } 
+  //     }
+  //   }
+
+  // }
 
   useEffect(() => { // load the github model defined in the query
     if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
-    dispatch({type: 'LOAD_DATA_GITHUB', query}) // load list of models in repository
+
+    dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+    
+    const timer = setTimeout(() => {
+      // genGojsModel(props, dispatch);
+      setRefresh(!refresh)
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, [(query.repo)])
-
-  if (query.repo)
-
+  
   if (false) {
   // const curStore = async (state) => {
   //   await LoadInitial(state) 
@@ -105,14 +131,16 @@ const page = (props:any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             {/* {videoDiv}           */}
-            <div className="workplace bg-white" >
+            <div className="workplace" >
               <div className="contextarea" >
                 <div className="help d-flex">
                   <SetContext className='setContext flex' ph={props} />
                   <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-                  <Link href="/videos" className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}}>Video
-                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a> */}
-                    </Link>
+                  <Link href="/videos">
+                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} > */}
+                      Video
+                      {/* </a> */}
+                      </Link>
                   {/* <SelectVideo className='VideoModal' buttonLabel='!' phFocus={props.phFocus} />  */}
                   {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>i</button> */}
                 </div>
@@ -121,7 +149,7 @@ const page = (props:any) => {
                 {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
-              <div className="workarea mr-1 pl-1 pt-1 pr-2 pb-2" style={{ backgroundColor: "#ddd" }}>
+              <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                 {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
                 {/* <Modelling /> */}
               </div>

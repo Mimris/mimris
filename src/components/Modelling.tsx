@@ -44,7 +44,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
-  if (!debug) clog('46 Modelling:', props);
+  if (!debug) clog('40 Modelling:', props);
 
   const [mount, setMount] = useState(false)
   
@@ -220,7 +220,7 @@ const page = (props:any) => {
  
 
   const modellingtabs =  (<>
-      <Nav tabs style={{ borderBottom: "0px", minWidth: "170px" }}>
+      <Nav tabs >
         {/* <NavItem className="text-danger" >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '0' })}
@@ -229,13 +229,13 @@ const page = (props:any) => {
             {(activeTab === "0") ? 'Template' : 'T'}
           </NavLink>
         </NavItem> */}
-        <NavItem>
+        <NavItem >
         {/* <NavItem className="text-danger" > */}
           <NavLink style={{  paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee" , color: "black"}}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Metamodelling' : 'MM'}
+            {(activeTab === "1") ? 'Metamodelling' : 'Metamodelling'}
           </NavLink>
         </NavItem>
         <NavItem >
@@ -317,8 +317,8 @@ const page = (props:any) => {
         </TabPane>
 
         <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
-          <div className="workpad p-1 pt-2 bg-white">
-            <Row className="row d-flex flex-nowrap h-100">
+          <div className="workpad d-flex justify-content-center p-1 pt-2 bg-white">
+            <Row className="row1 d-flex ml-2 w-100 h-100">
               <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Palette */}
                 <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                  <Palette
@@ -451,9 +451,9 @@ const page = (props:any) => {
   return  mount && (
   // return  (
     <>
-      <div className="header-buttons mt-1 p-0 pt-1 d-inline-flex float-right" style={{ transform: "scale(0.6)", transformOrigin: "right", backgroundColor: "#ddd" }}>
+      <div className="header-buttons float-end" style={{  transform: "scale(0.7)", transformOrigin: "center",  backgroundColor: "#ddd" }}>
         {/* <span className="spacer m-0 p-0 w-50"></span> */}
-        <span className="buttonrow m-0 d-inline-flex" style={{ maxHeight: "9px" }}> 
+        <span className="buttonrow mr-4 d-flex justify-content-around" style={{ width: "60rem", maxHeight: "9px", minHeight: "30px" }}> 
           {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
           {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
           <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
@@ -482,10 +482,10 @@ const page = (props:any) => {
           <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
           <span className="btn btn-link float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
         </span> 
-  
       </div>
-      <div className="diagramtabs pl-1 pb-0" >
-        <div className="modellingContent mt-1 " >
+      
+      <div className="diagramtabs pb-0" >
+        <div className="modellingContent mt-1">
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>
       </div>

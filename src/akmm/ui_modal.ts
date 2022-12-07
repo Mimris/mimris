@@ -584,11 +584,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const modifiedReltypes     = new Array();    
   const modifiedObjTypeviews = new Array();    
   const modifiedRelTypeviews = new Array();    
-  const modifiedObjviews     = new Array();    
+  // const modifiedObjviews     = new Array();    
   const modifiedRelviews     = new Array();    
   const modifiedObjects      = new Array();    
-  const modifiedRelships     = new Array();    
-  const modifiedModels       = new Array();    
+  // const modifiedRelships     = new Array();    
+  // const modifiedModels       = new Array();    
   const modifiedModelviews   = new Array();    
   switch(what) {
     case "editObjectType": {
@@ -1071,7 +1071,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('977 link', link, sel.data);
         if (link) {         
           const data = link.data;
-          if (debug) console.log('979 relview', relview);
+          if (debug) console.log('979 data, relview', data, relview);
           for (let prop in reltypeview?.data) {
             if (prop === 'template' && relview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, relview[prop]);
@@ -1097,8 +1097,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
                 if (relview[prop] === "") toArrow = reltypeview.data[prop];
                 if (relview[prop] === 'None') toArrow = "";
                 myDiagram.model.setDataProperty(data, prop, toArrow);           
-              }          
-              if (prop === 'toArrowColor' && relview[prop] !== "") 
+            }          
+            if (prop === 'toArrowColor' && relview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, relview[prop]);
           }
         }
@@ -1154,8 +1154,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (selObj[prop] === 'None') selObj[prop] = "";
           typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
-          objtypeview[prop] = selObj[prop];
-          objtypeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
         if (debug) console.log('1051 typeview, objtypeview', typeview, objtypeview);        
@@ -1171,7 +1169,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_OBJECT) {
         const node = myDiagram.findNodeForKey(selObj.key);
         data = node.data;
-        const objview = data.objectview;
+        let objview = data.objectview;
+        objview = myMetis.findObjectView(objview?.id);
         objtypeview = data.objectview?.typeview;
         if (debug) console.log('950 objtypeview, data, objview', objtypeview, data, objview);
         const typeviews = myMetis.objecttypeviews;
@@ -1216,18 +1215,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.model.setDataProperty(data, prop, selObj[prop]);
           }
           if (debug) console.log('1047 typeview', typeview, data);
-          const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
-          if (debug) console.log('1049 jsnReltypeview', jsnReltypeview);
-          modifiedRelTypeviews.push(jsnReltypeview);
-          modifiedRelTypeviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1059 data', data);
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-          })
         }
         myDiagram.clearSelection();
-        return;
       }
       if (selObj.category === constants.gojs.C_RELATIONSHIP) {
         const link = myDiagram.findLinkForKey(selObj.key);

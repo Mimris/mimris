@@ -20,6 +20,7 @@ const Modeller = (props: any) => {
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
+  if (!debug) console.log('19 Modeller: props', props);
 
   // if (!props.gojsModel)  return <></>
 
@@ -112,13 +113,13 @@ const Modeller = (props: any) => {
   const type='SET_FOCUS_MODEL'
   const  options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
     selmodels.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
-    <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
+    <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name})}>{m.name}</option>)
   )
 
 
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-    <div >
-      <label className="Selector--menu-label "   
+    <div className="Selector--menu" style={{width: "80rem"}}>
+      <label className="Selector--menu-label"   
         data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title =  {
 `Description : ${props.metis.description} 
@@ -130,14 +131,14 @@ or Right-click the background below and select 'Edit Project Name'.
 
 The suffix '.json' will be added to the filename.`
         }> Project :  
-        <input className="ml-2" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
-        <span className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
+        <input className="ml-2 w-50 " type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
+        <span className="model-selection  w-25" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
         title={
 `Description: ${model?.description}
     
 To change Model name, rigth click the background below and select 'Edit Model'.`
         }> Model :
-          <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
+          <select key='select-title' className="list-obj mx-2 " style={{ minWidth: "32%"}}
           onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
           {options}
           </select>
@@ -347,17 +348,18 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
   
+  console.log('347 ', modelviewTabDiv)
   return (
     (props.modelType === 'model') 
     ? // modelling
-      <div className="modeller-workarea mt-2 ml-1 mb-1 " >
-        <div className="modeller--topbar m-0 p-0" >
-          <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "10%"}} >Modeller </span>
-          <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
+      <div className="modeller-workarea  ml-1 mb-1 " >
+        <div className="modeller--topbar d-flex justify-content-between  m-0 p-0 w-100 " >
+          <span className="--heading text-dark m-0 p-1 ml-4 mr-2 fs-6 fw-bold ph-2 " >Modeller </span>
+          <div className="modeller--heading-selector d-flex justify-content-right ">{selector}</div>
         </div>
-        <div className="modeller--workarea m-0 p-0" style={{ minWidth: "90%" }}>
+        <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
-            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto " style={{ margin: "-14px", maxWidth: "166px"}}>
+            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto ">
               <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
                 <button className="btn-sm px-1 m-0 text-left w-100" style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
                   onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 

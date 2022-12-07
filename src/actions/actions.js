@@ -2,7 +2,7 @@ import {
   FAILURE, 
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
-  LOAD_DATA_GITHUB,
+  LOAD_DATAGITHUB,
   LOAD_DATAGITHUB_SUCCESS, 
   LOAD_DATAMODELLIST, 
   LOAD_DATAMODELLIST_SUCCESS, 
@@ -95,7 +95,7 @@ export const loadData = () => {
   return { type: LOAD_DATA }
 }
 export const loadDataGithub = () => {
-  return { type: LOAD_DATA_GITHUB }
+  return { type: LOAD_DATAGITHUB }
 }
 
 export const loadDataSuccess = (data) => {

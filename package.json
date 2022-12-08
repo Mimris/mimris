@@ -2,7 +2,7 @@
   "name": "akmm",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "license": "BY-ND",
+  "license": "",
   "scripts": {
     "tsc": "tsc",
     "heroku-postbuild": "tsc & next build",
@@ -18,13 +18,11 @@
     "dev2": "react-scripts start  & next -p 3000",
     "start2": "next start -p 3000",
     "start3": "next start -p ${PORT}",
-    "watch": "tsc --watch --noEmit --project ./tsconfig.json",
-    "lint": "next lint"
+    "watch": "tsc --watch --noEmit --project ./tsconfig.json"
   },
   "dependencies": {
     "@apollo/server": "^4.2.2",
     "@babel/core": "^7.20.5",
-    "@babel/eslint-parser": "^7.19.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@heroku/buildpack-registry": "^1.0.1",
@@ -50,8 +48,6 @@
     "cookie": "0.4.0",
     "dataloader": "^2.0.0",
     "es6-promise": "^4.1.1",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-flowtype": "^8.0.3",
     "fs": "0.0.1-security",
     "fsevents": "^2.3.2",
     "go": "^3.0.1",
@@ -112,15 +108,10 @@
     "@types/react-redux": "^7.1.9",
     "cross-env": "^5.2.0",
     "css-loader": "^6.7.2",
-    "eslint": "^8.29.0",
     "husky": "^2.4.0",
     "pretty-quick": "^1.11.0",
     "promise": "^8.1.0",
     "react-scripts": "^5.0.1",
-    "tslint": "^5.17.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "tslint-react": "^4.1.0",
     "typescript": "^4.9.3",
     "typescript-fsa": "^3.0.0-beta-2",
     "typescript-fsa-reducers": "^1.2.1"

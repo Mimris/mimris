@@ -617,6 +617,7 @@ export class cxMetis {
         if (!metamodel) 
             return;
         metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
+        metamodel.includeSystemtypes = item.includeSystemtypes;
         let submetamodelRefs = item.metamodelRefs;
         if (submetamodelRefs && submetamodelRefs.length) {
             submetamodelRefs.forEach(submetamodelRef => {
@@ -765,6 +766,19 @@ export class cxMetis {
                 item1.markedAsDeleted = true;
             }
         }
+        // Fix reltypeviews in metamodels (patch)
+        for (let i=0; i<this.metamodels?.length; i++) {
+            const metamodel = this.metamodels[i];
+            const rts = metamodel.relshiptypes;
+            for (let j = 0; j < rts?.length; j++) {
+                const rt = rts[j];
+                const rt2 = this.findRelationshipType(rt.id);
+                if (rt2 && rt2.typeview) {
+                    rt.typeview = rt2.typeview;
+                }
+            }
+        }
+
         { // Purge deleted reltypeviews
             const reltypeviews = metamodel.relshiptypeviews;
             const len = metamodel.relshiptypeviews?.length;
@@ -2473,6 +2487,24 @@ export class cxMetis {
         }
         return null;
     }
+    findRelationshipTypeByNames(reltypeName: string, fromtypeName: string, totypeName: string) {
+        let types = this.getRelshipTypes();
+        if (!types) return null;
+        let i = 0;
+        let reltype = null;
+        for (i = 0; i < types.length; i++) {
+            reltype = types[i];
+            if (reltype.isDeleted()) continue;
+            if (reltype.getName() === reltypeName) {
+                let fromObjtype = reltype.getFromObjType();
+                let toObjtype = reltype.getToObjType();
+                if (fromObjtype && toObjtype &&
+                    (fromObjtype.getName() === fromtypeName && toObjtype.getName() === totypeName))
+                    return reltype;
+            }
+        }
+        return null;
+    }
     findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
         if (!fromType || !toType)
             return null;
@@ -2671,7 +2703,7 @@ export class cxMetis {
     }
     setCurrentMetamodel(metamodel: cxMetaModel) {
         this.currentMetamodel = metamodel;
-        this.currentMetamodelRef = metamodel.id;
+        this.currentMetamodelRef = metamodel?.id;
     }
     getCurrentMetamodel(): cxMetaModel | null {
         return this.currentMetamodel;
@@ -3161,6 +3193,7 @@ export class cxMetaModel extends cxMetaObject {
     categories:    cxUnitCategory[] | null;
     generatedFromModelRef: string;
     includeInheritedReltypes: boolean;
+    includeSystemtypes: boolean;
     layout:     string;
     routing:    string;
     linkcurve:  string;
@@ -3190,6 +3223,7 @@ export class cxMetaModel extends cxMetaObject {
             this.routing = "Normal";
             this.linkcurve = "None";  
             this.includeInheritedReltypes = false;
+            this.includeSystemtypes = false;
             this.objecttypes  = null;
             this.objecttypes0 = null;
             this.objtypegeos  = null;

@@ -182,7 +182,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     let model = metis.findModel(modelRef);
     if (metamodel) {
       const mmtypenames = [];
-      const objtypes = metamodel?.objecttypes0;
+      const objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
       if (objtypes) {
         for (let i=0; i<objtypes.length; i++) {
           const objtype = objtypes[i];
@@ -690,7 +690,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             if (debug) console.log('694 reltype, link', reltype, link);
             if (link.loadLinkContent()) {
               link.relshipkind = reltype.relshipkind;
-              link.strokewidth = reltype.strokewidth;
+              link.strokewidth = reltype.typeview.strokewidth;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;

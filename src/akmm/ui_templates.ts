@@ -782,6 +782,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            { contextMenu: contextMenu },    
             {
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -790,18 +791,21 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     new go.Binding("text", "", uid.nodeInfo))
                 )
             },
-
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                cursor: "alias",        // cursor: "pointer",
+                cursor: "alias", 
                 name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
                 margin: new go.Margin(1, 1, 1, 1),
                 shadowVisible: true,
                 desiredSize: new go.Size(198, 68), // outer Shape size with icon
                 // set the port properties
                 portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+                fromLinkable: true, 
+                fromLinkableSelfNode: true, 
+                fromLinkableDuplicates: true,
+                toLinkable: true, 
+                toLinkableSelfNode: true, 
+                toLinkableDuplicates: true},
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('stroke', 'strokecolor'), 
@@ -810,7 +814,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
                     }).ofObject(),
                 // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-                { contextMenu: contextMenu },    
             ),
             $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
                 {
@@ -1289,7 +1292,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
 
     nodeTemplateMap.add("ActivityNode",
     $(go.Node, 'Spot',
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -1309,40 +1311,43 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             )
         },
         {
-            locationObjectName: 'SHAPE', locationSpot: go.Spot.Center,
-            resizable: true, resizeObjectName: 'PANEL',
+            locationObjectName: 'SHAPE', 
+            locationSpot: go.Spot.Center,
+            resizable: true, 
+            resizeObjectName: 'PANEL',
             selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
             //itemTemplate: boundaryEventItemTemplate
         },
         // new go.Binding('itemArray', 'boundaryEventArray'),
         $(go.Panel, 'Auto',
-        {
-          name: 'PANEL',
-          minSize: new go.Size(120, 80),
-          desiredSize: new go.Size(120, 80)
-        },
-        new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
-        $(go.Panel, 'Spot',
-          $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
             {
-              cursor: 'alias',
-              name: 'SHAPE',
-              fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
-              stroke: '#CDAA7D',
-              parameter1: 10, // corner size
-              portId: '', 
-              fromLinkable: true, 
-              toLinkable: true, 
-              fromSpot: go.Spot.RightSide, 
-              toSpot: go.Spot.LeftSide,
-              toLinkableSelfNode: true,
-            //   toLinkableDuplicates: true,
+            name: 'PANEL',
+            minSize: new go.Size(160, 100),
+            desiredSize: new go.Size(160, 100)
             },
-            new go.Binding('fill', 'color'),
-            // new go.Binding('strokeWidth', 'isCall',
-            //   function (s) { return s ? ActivityNodeStrokeWidthIsCall : ActivityNodeStrokeWidth; })
-          ),
-          ), // end Task Icon
+            new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
+            $(go.Panel, 'Spot',
+                $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
+                    {
+                        cursor: 'alias',
+                        name: 'SHAPE',
+                        fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
+                        stroke: '#CDAA7D',
+                        parameter1: 10, // corner size
+                        portId: '', 
+                        fromLinkable: true, 
+                        fromLinkableSelfNode: true, 
+                        fromLinkableDuplicates: true,
+                        toLinkable: true, 
+                        toLinkableSelfNode: true,
+                        toLinkableDuplicates: true,
+                        //   fromSpot: go.Spot.RightSide, 
+                        //   toSpot: go.Spot.LeftSide,
+                    },
+                    new go.Binding('fill', 'fillcolor'),
+                    new go.Binding("stroke", "strokecolor"),
+                ),
+            ), 
         ),  // end main body rectangles spot panel
         
         $(go.Panel, 'Auto',  // make an area around text for move cursor
@@ -1402,8 +1407,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         stroke: "blue",
                         strokeWidth: 4,
                         cursor: "alias",                    // cursor: "pointer",
-                        minSize: new go.Size(50, 50), 
-                        desiredSize: new go.Size(50, 50),   // outer Shape size 
+                        minSize: new go.Size(60, 60), 
+                        desiredSize: new go.Size(60, 60),   // outer Shape size 
                         // set the port properties
                         portId: "", 
                         fromLinkable: true,
@@ -1902,11 +1907,11 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             new go.Binding("deletable"),
             { selectable: true },
             { 
-            toShortLength: 3, 
-            relinkableFrom: true, 
-            relinkableTo: true, 
-            reshapable: true,
-            resegmentable: true  
+                toShortLength: 3, 
+                relinkableFrom: true, 
+                relinkableTo: true, 
+                reshapable: true,
+                resegmentable: true  
             },
             // link route 
             { routing: go.Link.Normal,  corner: 10},  // link route should avoid nodes
@@ -1970,7 +1975,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             new go.Binding("stroke", "textcolor").makeTwoWay(),
             new go.Binding("scale", "textscale").makeTwoWay(),
             ),
-            {
+            { // Tooltip
             toolTip:
                 $(go.Adornment, "Auto",
                     { background: "transparent" },  // avoid hiding tooltip when mouse moves

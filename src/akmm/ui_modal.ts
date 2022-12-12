@@ -1215,6 +1215,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.model.setDataProperty(data, prop, selObj[prop]);
           }
           if (debug) console.log('1047 typeview', typeview, data);
+          myMetamodel.addRelationshipTypeView(typeview);
         }
         myDiagram.clearSelection();
       }
@@ -1313,12 +1314,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     break;
   }
-  if (debug) console.log('1046 myMetis', myMetis);
 
   // Dispatch metis
   const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
   let data = {metis: jsnMetis}
   data = JSON.parse(JSON.stringify(data));
+  if (debug) console.log('1321 myMetis, data', myMetis, data);
   myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   myDiagram.clearSelection();
 }

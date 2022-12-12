@@ -32,7 +32,7 @@ const TargetMeta = (props) => {
   
   useEffect(() => { 
     if (debug) console.log('35 TargetMeta useEffect', model?.targetMetamodelRef, 'targetmm', targetmetamodel?.id, targetmetamodel?.name);
-    // genGojsModel(props, dispatch);
+    // GenGojsModel(props, dispatch);
     // targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
     // (model?.targetMetamodelRef && targetmetamodel) && 
     if (targetmetamodel?.id === undefined) {

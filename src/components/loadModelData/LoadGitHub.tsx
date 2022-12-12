@@ -122,23 +122,23 @@ const LoadGitHub = (props: any) => {
   const loadModel = async (rep, filename) => {
     setLoading(true);
     const searchtexttmp = `${rep}`;
-    console.log('101 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename)
+    console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-    if (debug) console.log('102 ', searchtext, pathText, filename, branchText, 'file')
+    if (!debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (debug) console.log('105 res', res, res.data, sha)
-    const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
+    if (!debug) console.log('131 res', res, res.data, sha)
+    // const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
+    // const content = res.data.content
+    // if (!debug) console.log('113 res', res2, res2.data)
+    // if (!debug) console.log('139 ', base64.decode(content))
+    // const model = JSON.parse(base64.decode(content));
 
-    const content = res2.data.content
+    const content = res.data
+    if (!debug) console.log('138 ', searchtext, res)
+    const model = content;
 
-    if (debug) console.log('113 res', res2, res2.data)
-
-    if (debug) console.log('115 ', searchtext, res)
-    if (debug) console.log('116 ', base64.decode(content))
-    const model = JSON.parse(base64.decode(content));
-
-    if (debug) console.log('119 ', model)
+    if (!debug) console.log('142 ', content, model)
     setModel(model);
     setLoading(false);
     if (debug) console.log('90 onModelChange', model, props) 
@@ -298,10 +298,10 @@ const LoadGitHub = (props: any) => {
             <Button className="btn-primary modal--footer mr-4 py-0 px-1 float-right" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
             </Button>
-            {/* -------------------------------------------------------- */}
             <label className="w-70 d-inline-flex justify-content-left"> 
               <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
             </label>
+            {/* -------------------------------------------------------- */}
   
             {/* <hr /> */}
             {/* {loading ? 'Loading...' : (models?.length > 0) 

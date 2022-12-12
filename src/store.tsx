@@ -1,28 +1,57 @@
-import { applyMiddleware, createStore } from 'redux'
-import createSagaMiddleware from 'redux-saga'
-import { createWrapper } from 'next-redux-wrapper'
 
-import rootReducer from './reducers/reducer'
-import rootSaga from './saga'
+import {createStore, applyMiddleware, Store} from 'redux';
+import logger from 'redux-logger';
+import createSagaMiddleware, {Task} from 'redux-saga';
+import {Context, createWrapper} from 'next-redux-wrapper';
+import reducer from './reducers/reducer'
+import rootSaga from './saga';
 
-const bindMiddleware = (middleware) => {
-  if (process.env.NODE_ENV !== 'production') {
-    const { composeWithDevTools } = require('redux-devtools-extension')
-    return composeWithDevTools(applyMiddleware(...middleware))
-  }
-  return applyMiddleware(...middleware)
+export interface SagaStore extends Store {
+    sagaTask: Task;
 }
 
-export const makeStore = (context) => {
-  const sagaMiddleware = createSagaMiddleware()
-  const store = createStore(rootReducer, bindMiddleware([sagaMiddleware]))
+export const makeStore = (context: Context) => {
+    // 1: Create the middleware
+    const sagaMiddleware = createSagaMiddleware();
 
-  store.sagaTask = sagaMiddleware.run(rootSaga)
+    // 2: Add an extra parameter for applying middleware:
+    const store = createStore(reducer, applyMiddleware(sagaMiddleware));
+    // const store = createStore(reducer, applyMiddleware(sagaMiddleware, logger));
 
-  return store
-}
+    // 3: Run your sagas on server
+    (store as SagaStore).sagaTask = sagaMiddleware.run(rootSaga);
 
-export const wrapper = createWrapper(makeStore, { debug: true })
+    // 4: now return the store:
+    return store;
+};
+
+export const wrapper = createWrapper<SagaStore>(makeStore as any);
+
+// import { applyMiddleware, createStore } from 'redux'
+// import createSagaMiddleware from 'redux-saga'
+// import { createWrapper } from 'next-redux-wrapper'
+
+// import rootReducer from './reducers/reducer'
+// import rootSaga from './saga'
+
+// const bindMiddleware = (middleware) => {
+//   if (process.env.NODE_ENV !== 'production') {
+//     const { composeWithDevTools } = require('redux-devtools-extension')
+//     return composeWithDevTools(applyMiddleware(...middleware))
+//   }
+//   return applyMiddleware(...middleware)
+// }
+
+// export const makeStore = () => {
+//   const sagaMiddleware = createSagaMiddleware()
+//   const store = createStore(rootReducer, bindMiddleware([sagaMiddleware]))
+
+//   store.sagaTask = sagaMiddleware.run(rootSaga)
+
+//   return store
+// }
+
+// export const wrapper = createWrapper(makeStore, { debug: true })
 
 
 

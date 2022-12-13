@@ -3194,6 +3194,9 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 } else if (prop === 'fromArrow') {
                     if (viewdata[prop] === 'None')
                         viewdata[prop] = "";
+                } else if (prop === 'strokewidth') {
+                    if (relview[prop] === "")
+                    relview[prop] === "1";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
                 if (debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);

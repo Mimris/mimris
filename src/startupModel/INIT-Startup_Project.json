@@ -1,5 +1,8 @@
 {
   "phData": {
+    "repository": null,
+    "organisation": null,
+    "path": null,
     "metis": {
       "name": "AKM-INIT-Startup",
       "description": "New startup project",

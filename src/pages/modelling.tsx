@@ -45,7 +45,7 @@ const page = (props:any) => {
   // ............ First check if there is
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   // setUrlParams(query);
-  if (!debug) console.log('modelling 48', query, query.repo, query.path, query.file)
+  if (debug) console.log('modelling 48', query, query.repo, query.path, query.file)
 
   // useEffect(() => { // load the github model defined in the query
   //   if (debug) console.log('modelling 38', query.repo, query.path, query.file)
@@ -59,7 +59,7 @@ const page = (props:any) => {
     if (!debug) console.log('modelling 59', query, query.repo, query.path, query.file)
     if (query.repo && query.file) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
     // const timer = setTimeout(() => {
-    //   // GenGojsModel(props, dispatch);
+    //   GenGojsModel(props, dispatch);
     //   setRefresh(!refresh)
     // }, 5000);
     // return () => clearTimeout(timer);
@@ -82,7 +82,7 @@ const page = (props:any) => {
 
 
  
-  const modellingDiv = (props) ? <Modelling /> : <div>loading</div>
+  const modellingDiv = (props) ? <Modelling query={query} /> : <div>loading</div>
 
   // const [videoURL, setVideoURL] = useState(null)
   // const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />

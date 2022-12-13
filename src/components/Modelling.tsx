@@ -76,7 +76,7 @@ const page = (props:any) => {
 
 
   function toggleRefresh() {
-    if (!debug) console.log('124 Modelling', props, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('124 Modelling', props, memoryLocState, (Array.isArray(memoryLocState)));
     // put currentdata in the first position of the array data
     let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [props, ...memoryLocState] : [props];
     if (debug) console.log('161 Modelling refresh', mdata);
@@ -94,12 +94,21 @@ const page = (props:any) => {
   } 
 
   useEffect(() => {
-    if (props)  GenGojsModel(props, dispatch);
+    if (!debug) console.log('97 Modelling useEffect 1', props);
+    if (props.query?.repo)  {
+      const timer = setTimeout(() => {
+        GenGojsModel(props, dispatch);
+        setRefresh(!refresh)
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else {
+        GenGojsModel(props, dispatch);
+    } 
     setMount(true)
   }, [])
 
     // useEffect(() => {
-    //   if (!debug) console.log('111 Modelling useEffect', props);
+    //   if (debug) console.log('111 Modelling useEffect', props);
     //   const timer = setTimeout(() => {
     //     toggleRefresh();
     //   }, 2000);  
@@ -457,7 +466,7 @@ const page = (props:any) => {
     const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
       // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    if (!debug) console.log('488 Modelling', gojsmodelobjects);
+    if (debug) console.log('460 Modelling', gojsmodelobjects);
 
   
     return  (

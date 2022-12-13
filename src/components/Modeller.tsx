@@ -22,7 +22,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (!debug) console.log('19 Modeller: props', props);
+  if (debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -40,7 +40,7 @@ const Modeller = (props: any) => {
 
   // ---------------------  useEffects --------------------------------
   // useEffect(() =>  { // when focusModel changes
-  //   if (!debug) clog('39 Modeller useEffect 1', activeTab, props.phFocus.focusModel); 
+  //   if (debug) clog('39 Modeller useEffect 1', activeTab, props.phFocus.focusModel); 
   //   if (selmodviews?.length>0)
   //     if (activeTab != undefined || 0) {
   //       const data = {id: selmodviews[0].id, name: selmodviews[0].name}
@@ -50,17 +50,27 @@ const Modeller = (props: any) => {
   //       const timer = setTimeout(() => {
   //         setRefresh(!refresh)
   //       }, 5000);
-  //       if (!debug) clog('50 after refresh: data', data);
+  //       if (debug) clog('50 after refresh: data', data);
   //       return () => clearTimeout(timer);
   //   }
   // }, [focusModel.id])
+
+  useEffect(() => { // when phdata changes
+    const data = {id: props.metis.models[0].id, name: props.metis.models[0].name}
+    dispatch({  type: 'SET_FOCUS_MODEL', data: data })
+    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: props.metis.name, name: 'refresh'} })
+    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
+    const mv = props.metis.models[0].modelviews[0]
+    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
+    // GenGojsModel(props, dispatch)
+  }, [])
 
   useEffect(() => { // when activeTab changes
     setActiveTab(activetabindex)
   }, [activeTab])
 
   // useEffect(() => { // when focusTask changes and gojsModel is ready
-  //   if (!debug) clog('85 Modeller useEffect 3', props.phFocus.focusTask, props);
+  //   if (debug) clog('85 Modeller useEffect 3', props.phFocus.focusTask, props);
   //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
   //     ndarr?.find((i: { typename: any; }) => {
   //       return (i?.typename === wot) && i 
@@ -75,7 +85,7 @@ const Modeller = (props: any) => {
   // }, [props.phFocus.focusTask?.id && (props.gojsModel?.length > 0)])
 
   // useEffect(() => { // when refresh changes
-  //   if (!debug) clog('100 Modeller useEffect 4', refresh); 
+  //   if (debug) clog('100 Modeller useEffect 4', refresh); 
   //   // GenGojsModel(props, dispatch)
   //   // const timer = setTimeout(() => {
   //   //   console.log('104 Modeller useEffect 4 timer', refresh);
@@ -86,7 +96,7 @@ const Modeller = (props: any) => {
   // ------------------------------
 
   const gojsmodel = props.gojsModel;
-  if (!debug) console.log('107 Modeller: gojsmodel', gojsmodel?.nodeDataArray);
+  if (debug) console.log('107 Modeller: gojsmodel', gojsmodel?.nodeDataArray);
   
   let myMetis = props.myMetis;
  
@@ -99,7 +109,7 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
-  if (!debug) console.log('121 Modeller: props, refresh', props, refresh);
+  if (debug) console.log('121 Modeller: props, refresh', props, refresh);
 
 
   const models = props.metis?.models
@@ -130,7 +140,7 @@ const Modeller = (props: any) => {
   
 
   const handleProjectChange = (e) => { // Editing project name
-    if (!debug) console.log('69 Modeller: handleProjectChange', e);
+    if (debug) console.log('69 Modeller: handleProjectChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJECT', data: { id: e.value, name: e.value } }); // set focus project
   }
@@ -369,7 +379,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     </>
   
 
-  console.log('352 Modeller modelviewTabDiv', modelviewTabDiv)
+  console.log('372 Modeller ', props.modelType)
+
   return (
     (props.modelType === 'model') 
     ? // modelling

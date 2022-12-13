@@ -5,7 +5,7 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'r
 import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from '../utils/Selector'
-import genGojsModel from './GenGojsModel'
+import GenGojsModel from './GenGojsModel'
 import { createHook } from "async_hooks";
 
 
@@ -107,7 +107,7 @@ const TargetModeller = (props: any) => {
       if (mv) { 
           const strindex = index.toString()
           const data = {id: mv.id, name: mv.name}
-          genGojsModel(props, dispatch);
+          GenGojsModel(props, dispatch);
           // console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
          
           return (
@@ -144,7 +144,7 @@ const TargetModeller = (props: any) => {
     // console.log('130 Modeller', focusModelview, props);
     useEffect(() => {
       focusTargetModelview = props.phFocus?.focusTargetModelview
-      genGojsModel(props, dispatch);
+      GenGojsModel(props, dispatch);
       setRefresh(!refresh)
       // console.log('135 Modeller', focusModelview, props);
     }, [focusTargetModelview?.id])

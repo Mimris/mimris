@@ -19,7 +19,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
  
-  if (!debug) console.log('17 Modelling', props);
+  if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false);
   function toggleRefresh() { setRefresh(!refresh); }
@@ -60,7 +60,7 @@ const page = (props:any) => {
 
     // useEffect(() => {
     //   console.log('80 Modelling useEffect 3', props); 
-    //   genGojsModel(props, dispatch)
+    //   GenGojsModel(props, dispatch)
     //   setRefresh(!refresh)
     // }, [props.phSource])
 
@@ -134,7 +134,7 @@ const page = (props:any) => {
   const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-  if (!debug) console.log('134 Table', props, curmod);
+  if (debug) console.log('134 Table', props, curmod);
   
   // if (focusModelview.objectviews)  {
   if (curmod?.objects )  {

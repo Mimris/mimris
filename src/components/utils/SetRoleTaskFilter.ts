@@ -9,7 +9,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
 
     if (debug) console.log("7 genRoleTasks",  mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
-    if (mmodel?.objecttypes0) {
+    if (mmodel?.objecttypes0.length > 0) {
         const  oTypes0 = mmodel?.objecttypes0?.map((ot: { id: any; name: any; description: any; icon: any; color: any; type: any; }) => {
         return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
         })
@@ -23,7 +23,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
         // sort oTypes
         const oTypesSorted = oTypes.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)
 
-        const datarole = (oTypes0) && {
+        const datarole = (oTypes0.length > 0) && {
             focusRole: {
             id: "Modeller1",
             name: "Modeller 1",
@@ -114,7 +114,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
         }
         }
         if (debug) console.log("114 datarole", oTypes0, datarole);
-        if (oTypes0) dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
+        if (oTypes0.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
 
         let datatask = {
             focusTask: {
@@ -185,7 +185,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
          
         
         if (debug) console.log("187 focusTasks", datatask);
-        dispatch({ type: 'SET_FOCUS_TASK', data: datatask.focusTask })
+        if (datatask) dispatch({ type: 'SET_FOCUS_TASK', data: datatask.focusTask })
         
         if (debug) console.log("190 focusTasks", datatask.focusTask.workOnTypes);
         return datatask.focusTask.workOnTypes

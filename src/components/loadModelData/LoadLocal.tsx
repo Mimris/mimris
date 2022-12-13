@@ -8,7 +8,7 @@ import Select from "react-select"
 import useLocalStorage  from '../../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
-// import genGojsModel from '../GenGojsModel'
+// import GenGojsModel from '../GenGojsModel'
 // import { SaveModelToFile, SaveAllToFile, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
 
 const LoadLocal = (props: any) => {
@@ -138,7 +138,7 @@ const LoadLocal = (props: any) => {
 
   // useEffect(() => {
   //   // console.log('59 LoadLocal', props);
-  //   genGojsModel(props, dispatch);
+  //   GenGojsModel(props, dispatch);
   //   // setRefresh(!refresh)
   // }, [locStatus])
 

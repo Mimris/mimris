@@ -8,7 +8,7 @@ import IndeterminateCheckbox from "./IndeterminateCheckbox";
 const debug = false
 
 function ObjectTable(props) {  // props = ph = all phData 
-  if (!debug) console.log('6', props);
+  if (debug) console.log('6', props);
   const dispatch = useDispatch();
   const [idSelected, setIdSelected] = useState(true);
   const [hiddenColumns, setHiddenColumns] = useState(['id']);
@@ -31,12 +31,12 @@ function ObjectTable(props) {  // props = ph = all phData
   
   
   const objects = curmod?.objects || models[0].objects
-  if (!debug) console.log('34', curmod, models[0], objects);
+  if (debug) console.log('34', curmod, models[0], objects);
 
     const metamodels = props.ph.phData?.metis.metamodels
     const curmmod = metamodels.find(mm => mm.id === curmod?.metamodelRef)
     
-    if (!debug) console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
+    if (debug) console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
     const edititem = objects[0]
 
     function listAllProperties(o) { // list all obj properties incl prototype properties

@@ -127,6 +127,9 @@ function * loadDataGithubSaga(data) {  // load url-params of data from github
   // url example:  http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=startmodels&file=AKM-IRTV-Startup.json
 
   const repo = data.query.repo;
+  // get owner and repo from repo
+  const organisation = repo.split('/')[0]
+  const repository = repo.split('/')[1] 
   const path = data.query.path;
   const file = data.query.file;
   const focus = data.query.focus; // should be set as phFocus
@@ -208,7 +211,7 @@ function * loadDataModelSaga(data) {
         }
       )
       const model = yield res.clone().json()
-      if (!debug) console.log('134 Saga', model);
+      if (debug) console.log('134 Saga', model);
       yield put(loadDataModelSuccess({ model }))
     } catch (err) {
       if (debug) console.log('137 saga', failure(err));  

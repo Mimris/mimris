@@ -39,7 +39,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    if (!debug) clog('42 GenGojsModel: props', props);
+    if (debug) clog('42 GenGojsModel: props', props);
 
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
@@ -55,7 +55,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('55 GenGojsModel: tempMetis', tempMetis);
     myMetis.importData(metis, true);
     // const metis2 = buildMinimisedMetis(metis, curmod) //Todo: change modelview not load from redux store
-    // if (!debug) console.log('51 GenGojsModel: metis2', metis2);
+    // if (debug) console.log('51 GenGojsModel: metis2', metis2);
     // myMetis.importData(metis2, true);
     adminModel = buildAdminModel(myMetis);
     clog('61 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
@@ -1010,7 +1010,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         modelviews: m.modelviews?.map(mv => { return {id: mv.id, name: mv.name, objectviews: [], relshipviews:[]} } )
       }
     })
-    if (!debug) console.log('1005 GenGojsModel: strippedModels', models, strippedModels, strippedMetamodels);
+    if (debug) console.log('1005 GenGojsModel: strippedModels', models, strippedModels, strippedMetamodels);
 
     const curModelWithStrippedModels =  [
       ...strippedModels?.slice(0,curmodIndex), 
@@ -1036,11 +1036,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       ...curMetamodelWithStrippedMetamodels.slice(curtargetmetamodelIndex+1, curMetamodelWithStrippedMetamodels.length)
     ]
 
-    if (!debug) console.log('1033 GenGojsModel:', curModelWithStrippedModels, curTargetMetamodelWithStrippedMetamodels);
+    if (debug) console.log('1033 GenGojsModel:', curModelWithStrippedModels, curTargetMetamodelWithStrippedMetamodels);
 
     const curmodels = (curtargetmodel) ? curTargetModelWithStrippedModels : curModelWithStrippedModels
     const curmetamodels = (curtargetmetamodel) ? curTargetMetamodelWithStrippedMetamodels : curMetamodelWithStrippedMetamodels
-    if (!debug) console.log('1033 GenGojsModel: curmodels',  curmodels, curmetamodels);
+    if (debug) console.log('1033 GenGojsModel: curmodels',  curmodels, curmetamodels);
 
     const metis2 = {
       name: metis.name,

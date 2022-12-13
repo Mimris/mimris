@@ -4,7 +4,7 @@ module.exports = {
 
     //   return config
     // }
-
+    reactStrictMode: false,
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
       config.node = {
         // fs: 'empty'

@@ -1357,7 +1357,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundSingleClicked": {
-        if (!debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
+        if (debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
       }
       break;
       case "BackgroundDoubleClicked": {

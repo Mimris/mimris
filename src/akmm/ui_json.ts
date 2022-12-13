@@ -155,6 +155,7 @@ export class jsnMetaModel {
     relshiptypeviews:   jsnRelshipTypeView[];
     generatedFromModelRef: string;
     includeInheritedReltypes: boolean;
+    includeSystemtypes: boolean;
     layout:             string;
     routing:            string;
     linkcurve:          string;
@@ -181,6 +182,7 @@ export class jsnMetaModel {
         this.relshiptypeviews = []; 
         this.generatedFromModelRef = metamodel.generatedFromModelRef;
         this.includeInheritedReltypes = metamodel.includeInheritedReltypes;
+        this.includeSystemtypes = metamodel.includeSystemtypes;
         this.layout           = metamodel.layout;
         this.routing          = metamodel.routing;
         this.linkcurve        = metamodel.linkcurve;
@@ -1783,8 +1785,7 @@ export class jsnImportMetis {
         if (!type) return;
         if (debug) console.log('1783 item', item);
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
-        if (utils.objExists(type))
-            reltypeview.setType(type);
+        reltypeview.setType(type);
         reltypeview.setTemplate(item.template);
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);

@@ -112,7 +112,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
             // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
 
-        if (!debug) console.log('100 Create relship', fromobjectId, fromobjectName, importedRel.name, toobjectId, toobjectName );
+        if (debug) console.log('100 Create relship', fromobjectId, fromobjectName, importedRel.name, toobjectId, toobjectName );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 
@@ -155,7 +155,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         // if (debug) console.log('121 osduMod', osduMod)
 
         const osduMod = JSON.parse(jsonFile.toString()) // importert JSON file
-        if (!debug) console.log('121 osduMod', osduMod)
+        if (debug) console.log('121 osduMod', osduMod)
     
         let parentId = null //topModel.id || osduMod["$id"]
         let mainArray = []
@@ -199,7 +199,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
     
             osduMod['allOf'] = [...allOf, aspObj]
-            if (!debug) console.log('150 ', osduMod, aspObj)
+            if (debug) console.log('150 ', osduMod, aspObj)
                 
 
         }
@@ -357,7 +357,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         } else {
                             cNewVal.linkID = oName
                         }
-                        if (!debug) console.log('324 relationship', oId, oName, objecttypeRef, oKey, rel.type, jsonType, cNewVal);
+                        if (debug) console.log('324 relationship', oId, oName, objecttypeRef, oKey, rel.type, jsonType, cNewVal);
                         const propLinkName = 'has'+oName
                         // hardcoded transformation of the name
                         // i.e. if o.linkID is = 'Company' then transform to 'Organisation'   

@@ -510,7 +510,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   modifiedTypeGeos.push(jsnObjtypeGeo);
               }
           }
-          else // Object
+          else // Object (data)
           {
             if (debug) console.log('501 data', data);
             const myModelview = context.myModelview;
@@ -549,7 +549,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('527 selcnt, data', selcnt, data);
             let node;
             node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
-            node = goModel?.findNode(data.key);
+            // node = goModel?.findNode(data.key);
             if (node) {
               node.scale1 = node.getMyScale(myGoModel).toString();
               if (debug) console.log('532 node, node.scale1', node, node.scale1);
@@ -1357,7 +1357,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundSingleClicked": {
-        if (!debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
+        if (debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
       }
       break;
       case "BackgroundDoubleClicked": {

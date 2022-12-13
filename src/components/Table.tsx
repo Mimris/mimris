@@ -19,7 +19,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
  
-  if (debug) console.log('22 Table', props);
+  if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false);
   function toggleRefresh() { setRefresh(!refresh); }
@@ -60,7 +60,7 @@ const page = (props:any) => {
 
     // useEffect(() => {
     //   console.log('80 Modelling useEffect 3', props); 
-    //   genGojsModel(props, dispatch)
+    //   GenGojsModel(props, dispatch)
     //   setRefresh(!refresh)
     // }, [props.phSource])
 

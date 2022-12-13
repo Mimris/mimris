@@ -14,7 +14,7 @@ import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
 import TargetMeta from "./TargetMeta";
-import genGojsModel from './GenGojsModel'
+import GenGojsModel from './GenGojsModel'
 import LoadServer from '../components/loadModelData/LoadServer'
 import LoginServer from './loadModelData/LoginServer'
 // import LoadLocal from '../components/loadModelData/LoadLocal'
@@ -44,83 +44,39 @@ const ctrace = console.trace.bind(console, '%c %s',
 const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
-  if (!debug) clog('40 Modelling:', props);
-
-  const [mount, setMount] = useState(false)
   
+
+  // if (!props) return <></>
+  
+  if (debug) clog('40 Modelling:', props);
+
+        
   const dispatch = useDispatch();
   
   const [refresh, setRefresh] = useState(true);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
+  const [activeTab, setActiveTab] = useState('2');
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [visibleTasks, setVisibleTasks] = useState(true)
 
-  
-  /**  * Get the state from the store  */
-  // const state = useSelector((state: any) => state) // Selecting the whole redux store
-  let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
-  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
-  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
-  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
-  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
-  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
-  const phSource = useSelector(phSource => props.phSource) 
-  // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
-  let metis = props.phData?.metis
-  let myMetis = props.phMymetis?.myMetis
-  let myGoModel = props.phMyGoModel?.myGoModel
-  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+    /**  * Get the state from the store  */
+    // const state = useSelector((state: any) => state) // Selecting the whole redux store
+    let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
+    let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
+    const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
+    const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
+    const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
+    const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+    const phSource = useSelector(phSource => props.phSource) 
+    // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
-  let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
-  let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
-  let gojsmodelobjects = props.phGojs?.gojsModelObjects // || []
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
-  let gojsmodel =  props.phGojs?.gojsModel 
-  let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+  const [mount, setMount] = useState(false)
 
-  let gojstargetmodel =  props.phGojs?.gojsTargetModel 
-
-  if (debug) console.log('93 Modelling: gojsmodel', gojsmodel, props.phGojs?.gojsModel);
-  
-  const curmod = metis?.models?.find(m => m.i === focusModel?.id)
-  const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
-  const curobjviews = curmodview?.objectviews
-
-  //let myGoMetamodel = props.phGojs?.gojsMetamodel
-  let phFocus = props.phFocus;
-  let phData = props.phData
-  let phUser = props.phUser
-
-  if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
-
-  useEffect(() => {
-    setMount(true)
-  }, [])
-  
-  useEffect(() => {
-    if (debug) console.log('111 Modelling useEffect', props);
-    genGojsModel(props, dispatch);
-    
-    const timer = setTimeout(() => {
-      // genGojsModel(props, dispatch);
-      setRefresh(!refresh)
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id])
-  // }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id, curmod])
-
-  useEffect(() => { // refresch the model when the focusRefresch changes
-    if (debug) console.log('123 Modelling useEffect', memoryLocState, props);
-    genGojsModel(props, dispatch);
-    function refres() {
-      setRefresh(!refresh)
-    }
-    setTimeout(refres, 1);
-  }, [props.phFocus?.focusRefresh?.id])
 
   function toggleRefresh() {
-    if (debug) console.log('152 Modelling', props, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('124 Modelling', props, memoryLocState, (Array.isArray(memoryLocState)));
     // put currentdata in the first position of the array data
     let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [props, ...memoryLocState] : [props];
     if (debug) console.log('161 Modelling refresh', mdata);
@@ -129,158 +85,265 @@ const page = (props:any) => {
     if (mdata.length > 2) { mdata.pop() }
     if (debug) console.log('164 Modelling refresh', mdata);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-    genGojsModel(props, dispatch)
+    GenGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
     }
     setTimeout(refres, 100);
     setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-  }
+  } 
 
-  if (debug) console.log('174 Modelling', curmod, curmodview);
+  useEffect(() => {
+    if (!debug) console.log('97 Modelling useEffect 1', props);
+    if (props.query?.repo)  {
+      const timer = setTimeout(() => {
+        GenGojsModel(props, dispatch);
+        setRefresh(!refresh)
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else {
+        GenGojsModel(props, dispatch);
+    } 
+    setMount(true)
+  }, [])
 
-    function handleSaveAllToFileDate() {
-      const projectname = props.phData.metis.name
-      SaveAllToFileDate(props, projectname, 'Project')
-    }
-    function handleSaveAllToFile() {
-      const projectname = props.phData.metis.name
-      SaveAllToFile(props, projectname, 'Project')
-    }
+    // useEffect(() => {
+    //   if (debug) console.log('111 Modelling useEffect', props);
+    //   const timer = setTimeout(() => {
+    //     toggleRefresh();
+    //   }, 2000);  
+    //   return () => clearTimeout(timer);
+    // }, [focusModel?.id])
+    // // }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id])
+    // // // }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id, curmod])
+
+    useEffect(() => { // refresch the model when the focusRefresch changes
+        GenGojsModel(props, dispatch);
+        function refres() {
+          setRefresh(!refresh)
+        }
+        setTimeout(refres, 1);
+    }, [props.phFocus?.focusRefresh?.id, props.phSource])
+
+  if (!mount) {
+    return <></>
+  } else {
+
+    let metis = props.phData?.metis
+    let myMetis = props.phMymetis?.myMetis
+    let myGoModel = props.phMyGoModel?.myGoModel
+    let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+
+    let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
+    let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
+    let gojsmodelobjects = props.phGojs?.gojsModelObjects // || []
+    let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+    let gojsmodel =  props.phGojs?.gojsModel 
+    let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+
+    let gojstargetmodel =  props.phGojs?.gojsTargetModel 
+
+    if (debug) console.log('93 Modelling: gojsmodel', gojsmodel, props.phGojs?.gojsModel);
     
-    const [activeTab, setActiveTab] = useState('2');
-    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
-      const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
-      // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
-      dispatch({ type: 'SET_FOCUS_TAB', data })
-    }
+    const curmod = metis?.models?.find(m => m.i === focusModel?.id)
+    const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
+    const curobjviews = curmodview?.objectviews
 
-    const [tooltipOpen, setTooltipOpen] = useState(false);
-    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    //let myGoMetamodel = props.phGojs?.gojsMetamodel
+    let phFocus = props.phFocus;
+    let phData = props.phData
+    let phUser = props.phUser
+
+    if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
+
+
     
-    const [visibleTasks, setVisibleTasks] = useState(true)
-    
-    function toggleTasks() {
-      setVisibleTasks(!visibleTasks);
-    }
 
 
 
-  // ===================================================================
-  // Divs
-  if (debug) console.log('Modelling: gojsmodel', gojsmodelobjects);
-  const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
-    ?
-      <Palette
-        gojsModel={gojsmetamodelmodel}
-        gojsMetamodel={gojsmetamodelpalette}
-        myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
-        metis={metis}
-        phFocus={phFocus}
-        dispatch={dispatch}
-        // modelType='metamodel'
-      /> 
-    : <></>;
+    if (debug) console.log('174 Modelling', curmod, curmodview);
 
-    const paletteMetamodelDiv = (gojsmetamodelmodel) 
+      function handleSaveAllToFileDate() {
+        const projectname = props.phData.metis.name
+        SaveAllToFileDate(props, projectname, 'Project')
+      }
+      function handleSaveAllToFile() {
+        const projectname = props.phData.metis.name
+        SaveAllToFile(props, projectname, 'Project')
+      }
+      
+  
+      const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
+        const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
+        // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
+        dispatch({ type: 'SET_FOCUS_TAB', data })
+      }
+
+   
+      const toggleTip = () => setTooltipOpen(!tooltipOpen);
+      
+      
+      function toggleTasks() {
+        setVisibleTasks(!visibleTasks);
+      }
+      
+    // ===================================================================
+    // Divs
+    if (debug) console.log('Modelling: gojsmodel', gojsmodelobjects);
+    const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
       ?
-        <Modeller
-        gojsModel={gojsmetamodelmodel}
-        gojsMetamodel={gojsmetamodelpalette}
-        myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
-        metis={metis}
-        phFocus={phFocus}
-        dispatch={dispatch}
-        modelType='metamodel'
-        phUser={phUser}
-      />
+        <Palette
+          gojsModel={gojsmetamodelmodel}
+          gojsMetamodel={gojsmetamodelpalette}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          myGoMetamodel={myGoMetamodel}
+          metis={metis}
+          phFocus={phFocus}
+          dispatch={dispatch}
+          // modelType='metamodel'
+        /> 
       : <></>;
 
-  const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
-    ?
-      <TargetMeta
-        gojsModel={gojsmodel}
-        gojsMetamodel={gojsmetamodel}
-        gojsTargetMetamodel={gojstargetmetamodel}
-        myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
-        phFocus={phFocus}
-        metis={metis}
-        dispatch={dispatch}
-        modelType='model'
-      />
-    : <></>;
+      const paletteMetamodelDiv = (gojsmetamodelmodel) 
+        ?
+          <Modeller
+          gojsModel={gojsmetamodelmodel}
+          gojsMetamodel={gojsmetamodelpalette}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          myGoMetamodel={myGoMetamodel}
+          metis={metis}
+          phFocus={phFocus}
+          dispatch={dispatch}
+          modelType='metamodel'
+          phUser={phUser}
+        />
+        : <></>;
+
+    const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
+      ?
+        <TargetMeta
+          gojsModel={gojsmodel}
+          gojsMetamodel={gojsmetamodel}
+          gojsTargetMetamodel={gojstargetmetamodel}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          myGoMetamodel={myGoMetamodel}
+          phFocus={phFocus}
+          metis={metis}
+          dispatch={dispatch}
+          modelType='model'
+        />
+      : <></>;
 
 
- 
+  
 
-  const modellingtabs =  (<>
-      <Nav tabs >
-        {/* <NavItem className="text-danger" >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-            className={classnames({ active: activeTab === '0' })}
-            onClick={() => { toggleTab('0'); toggleRefresh() }}
-          >
-            {(activeTab === "0") ? 'Template' : 'T'}
-          </NavLink>
-        </NavItem> */}
-        <NavItem >
-        {/* <NavItem className="text-danger" > */}
-          <NavLink style={{  paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee" , color: "black"}}
-            className={classnames({ active: activeTab === '1' })}
-            onClick={() => { toggleTab('1'); toggleRefresh() }}
-          >
-            {(activeTab === "1") ? 'Metamodelling' : 'Metamodelling'}
-          </NavLink>
-        </NavItem>
-        <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , borderColor: "#eee gray white #eee", color: "black"}}
-            className={classnames({ active: activeTab === '2' })}
-            onClick={() => { toggleTab('2'); toggleRefresh() }}
-          >
-            {(activeTab === "2") ? 'Modelling' : 'Modelling'}
-          </NavLink>
-        </NavItem>
-        {/* <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-            className={classnames({ active: activeTab === '3' })}
-            onClick={() => { toggleTab('3'); toggleRefresh() }}
-          >
-            {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
-          </NavLink>
-        </NavItem> */}
-      </Nav>
-      <TabContent  activeTab={activeTab} >  
-        <>
-        {/* Template ------------------------------------------*/}
-        {/* <TabPane tabId="0">
-          <Tab /> */}
-            {/* <div className="workpad p-1 pt-2 bg-white">
-              <Row >
-              <Col xs="auto m-0 p-0 pl-3">
-                <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
-                  <Palette
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
-                    gojsModelObjects={gojsmodelobjects}
-                    myMetis={myMetis}
-                    myGoModel={myGoModel}
-                    myGoMetamodel={myGoMetamodel}
-                    metis={metis}
-                    phFocus={phFocus}
-                    dispatch={dispatch}
-                    modelType='model'
-                  />
-                </div>
+    const modellingtabs =  (<>
+        <Nav tabs >
+          {/* <NavItem className="text-danger" >
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+              className={classnames({ active: activeTab === '0' })}
+              onClick={() => { toggleTab('0'); toggleRefresh() }}
+            >
+              {(activeTab === "0") ? 'Template' : 'T'}
+            </NavLink>
+          </NavItem> */}
+          <NavItem >
+          {/* <NavItem className="text-danger" > */}
+            <NavLink style={{  paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee" , color: "black"}}
+              className={classnames({ active: activeTab === '1' })}
+              onClick={() => { toggleTab('1'); toggleRefresh() }}
+            >
+              {(activeTab === "1") ? 'Metamodelling' : 'Metamodelling'}
+            </NavLink>
+          </NavItem>
+          <NavItem >
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , borderColor: "#eee gray white #eee", color: "black"}}
+              className={classnames({ active: activeTab === '2' })}
+              onClick={() => { toggleTab('2'); toggleRefresh() }}
+            >
+              {(activeTab === "2") ? 'Modelling' : 'Modelling'}
+            </NavLink>
+          </NavItem>
+          {/* <NavItem >
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+              className={classnames({ active: activeTab === '3' })}
+              onClick={() => { toggleTab('3'); toggleRefresh() }}
+            >
+              {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
+            </NavLink>
+          </NavItem> */}
+        </Nav>
+        <TabContent  activeTab={activeTab} >  
+          <>
+          {/* Template ------------------------------------------*/}
+          {/* <TabPane tabId="0">
+            <Tab /> */}
+              {/* <div className="workpad p-1 pt-2 bg-white">
+                <Row >
+                <Col xs="auto m-0 p-0 pl-3">
+                  <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                    <Palette
+                      gojsModel={gojsmodel}
+                      gojsMetamodel={gojsmetamodel}
+                      gojsModelObjects={gojsmodelobjects}
+                      myMetis={myMetis}
+                      myGoModel={myGoModel}
+                      myGoMetamodel={myGoMetamodel}
+                      metis={metis}
+                      phFocus={phFocus}
+                      dispatch={dispatch}
+                      modelType='model'
+                    />
+                  </div>
+                  </Col>
+                <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                    <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                      <Modeller
+                        gojsModel={gojsmodel}
+                        gojsMetamodel={gojsmetamodel}
+                        myMetis={myMetis}
+                        myGoModel={myGoModel}
+                        myGoMetamodel={myGoMetamodel}
+                        metis={metis}
+                        phFocus={phFocus}
+                        dispatch={dispatch}
+                        modelType='model'
+                        />
+                    </div>
+                  </Col>
+                </Row>
+              </div>          */}
+          {/* </TabPane>  */}
+
+          </>
+
+          <TabPane  tabId="1">   {/* Metamodelling --------------------------------*/}
+            <div className="workpad p-1 pt-2 bg-white" >
+              <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                <Col className="col1 m-0 p-0 pl-3" xs="auto">
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                    {/* {paletteDiv} */}
+                  </div>
                 </Col>
-              <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                  <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
-                    <Modeller
+                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                    {/* {paletteMetamodelDiv} */}
+                  </div>
+                </Col>
+              </Row>
+            </div>         
+          </TabPane>
+
+          <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
+            <div className="workpad d-flex justify-content-center p-1 pt-2 bg-white">
+              <Row className="row1 d-flex ml-2 w-100 h-100">
+                <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Palette */}
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                  <Palette
+                      gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
@@ -290,207 +353,166 @@ const page = (props:any) => {
                       phFocus={phFocus}
                       dispatch={dispatch}
                       modelType='model'
+                    />
+                    {/* <div className="instances"> area for all instance or result of query 
+                    {instances}
+                    </div> */}
+                  </div>
+                  <div>
+                  
+                  </div>
+                </Col>
+                  {/* <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                    <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div>
+                    <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                      <GoJSPaletteApp // this is the Objects list
+                      nodeDataArray={gojsobjects.nodeDataArray}
+                      linkDataArray={[]}
+                      metis={props.metis}
+                      myMetis={props.myMetis}
+                      myGoModel={props.myGoModel}
+                      phFocus={props.phFocus}
+                      dispatch={props.dispatch}
                       />
+                    </div>
+                </Col> */}
+
+                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}> {/* Modelling area */}
+                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                  {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div> */}
+                  {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
+                    <Modeller // this is the Modeller ara
+                      gojsModelObjects={gojsmodelobjects}
+                      gojsModel={gojsmodel}
+                      gojsMetamodel={gojsmetamodel}
+                      myMetis={myMetis}
+                      myGoModel={myGoModel}
+                      myGoMetamodel={myGoMetamodel}
+                      phFocus={phFocus}
+                      phUser={phUser}
+                      phSource={phSource}
+                      metis={metis}
+                      dispatch={dispatch}
+                      modelType='model'
+                    />
+                  </div>
+                </Col>
+                <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
+                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
+                    {/* {targetmetamodelDiv} */}
                   </div>
                 </Col>
               </Row>
-            </div>          */}
-        {/* </TabPane>  */}
-
-        </>
-
-        <TabPane  tabId="1">   {/* Metamodelling --------------------------------*/}
-          <div className="workpad p-1 pt-2 bg-white" >
-            <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-              <Col className="col1 m-0 p-0 pl-3" xs="auto">
-                <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                  {paletteDiv}
-                </div>
-              </Col>
-              <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                  {paletteMetamodelDiv}
-                </div>
-              </Col>
-            </Row>
-          </div>         
-        </TabPane>
-
-        <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
-          <div className="workpad d-flex justify-content-center p-1 pt-2 bg-white">
-            <Row className="row1 d-flex ml-2 w-100 h-100">
-              <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Palette */}
-                <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                 <Palette
-                    gojsModelObjects={gojsmodelobjects}
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
-                    myMetis={myMetis}
-                    myGoModel={myGoModel}
-                    myGoMetamodel={myGoMetamodel}
-                    metis={metis}
-                    phFocus={phFocus}
-                    dispatch={dispatch}
-                    modelType='model'
-                  />
-                  {/* <div className="instances"> area for all instance or result of query 
-                  {instances}
-                  </div> */}
-                </div>
-                <div>
-                
-                </div>
-              </Col>
-                {/* <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                  <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div>
-                  <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
-                    <GoJSPaletteApp // this is the Objects list
-                     nodeDataArray={gojsobjects.nodeDataArray}
-                     linkDataArray={[]}
-                     metis={props.metis}
-                     myMetis={props.myMetis}
-                     myGoModel={props.myGoModel}
-                     phFocus={props.phFocus}
-                     dispatch={props.dispatch}
+            </div>         
+          </TabPane>
+          
+          {/* Solution Modelling ------------------------------------*/}
+          {/* <TabPane tabId="3">
+            <div className="workpad p-1 pt-2 bg-white">
+              <Row >
+                <Col xs="auto m-0 p-0 pr-0">
+                  <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                    <TargetMeta
+                      gojsModel={gojsmodel}
+                      gojsMetamodel={gojsmetamodel}
+                      gojsTargetMetamodel={gojstargetmetamodel}
+                      myMetis={myMetis}
+                      myGoModel={myGoModel}
+                      myGoMetamodel={myGoMetamodel}
+                      metis={metis}
+                      phFocus={phFocus}
+                      dispatch={dispatch}
+                      modelType='model'
                     />
                   </div>
-              </Col> */}
+                </Col>
+                <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                  <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
 
-              <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}> {/* Modelling area */}
-                <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div> */}
-                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
-                  <Modeller // this is the Modeller ara
-                    gojsModelObjects={gojsmodelobjects}
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
-                    myMetis={myMetis}
-                    myGoModel={myGoModel}
-                    myGoMetamodel={myGoMetamodel}
-                    phFocus={phFocus}
-                    phUser={phUser}
-                    phSource={phSource}
-                    metis={metis}
-                    dispatch={dispatch}
-                    modelType='model'
-                  />
-                </div>
-              </Col>
-              <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
-                <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
-                  {targetmetamodelDiv}
-                </div>
-              </Col>
-            </Row>
-          </div>         
-        </TabPane>
-        
-        {/* Solution Modelling ------------------------------------*/}
-        {/* <TabPane tabId="3">
-          <div className="workpad p-1 pt-2 bg-white">
-            <Row >
-              <Col xs="auto m-0 p-0 pr-0">
-                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
-                  <TargetMeta
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
-                    gojsTargetMetamodel={gojstargetmetamodel}
-                    myMetis={myMetis}
-                    myGoModel={myGoModel}
-                    myGoMetamodel={myGoMetamodel}
-                    metis={metis}
-                    phFocus={phFocus}
-                    dispatch={dispatch}
-                    modelType='model'
-                  />
-                </div>
-              </Col>
-              <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                    <TargetModeller
+                      gojsModel={gojsmodel}
+                      gojsTargetModel={gojstargetmodel}
+                      gojsMetamodel={gojsmetamodel}
+                      myMetis={myMetis}
+                      myGoModel={myGoModel}
+                      myGoMetamodel={myGoMetamodel}
+                      metis={metis}
+                      phFocus={phFocus}
+                      dispatch={dispatch}
+                      modelType='model'
+                    />
+                  </div>
+                </Col>
+              </Row>
+            </div>         
+          </TabPane> */}
+        </TabContent>
+      </>
+      )      
 
-                  <TargetModeller
-                    gojsModel={gojsmodel}
-                    gojsTargetModel={gojstargetmodel}
-                    gojsMetamodel={gojsmetamodel}
-                    myMetis={myMetis}
-                    myGoModel={myGoModel}
-                    myGoMetamodel={myGoMetamodel}
-                    metis={metis}
-                    phFocus={phFocus}
-                    dispatch={dispatch}
-                    modelType='model'
-                  />
-                </div>
-              </Col>
-            </Row>
-          </div>         
-        </TabPane> */}
-      </TabContent>
-    </>
-    )      
+    if (debug) console.log('383 Modelling', activeTab);
+    const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
+    const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
+    // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    const loadfile =  (typeof window !== 'undefined') && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    const loadjsonfile =  (typeof window !== 'undefined') && <LoadJsonFile  buttonLabel='OSDU'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    const loadgithub =  (typeof window !== 'undefined') && <LoadGitHub  buttonLabel='GitHub'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    const loadrecovery =  (typeof window !== 'undefined') && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    
+    const modelType = (activeTab === '1') ? 'metamodel' : 'model'
+    const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+      // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    if (debug) console.log('460 Modelling', gojsmodelobjects);
 
-  if (debug) console.log('383 Modelling', activeTab);
-  const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
-  const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
-  // const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  // const loadgitlocal =  (process.browser) && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadfile =  (process.browser) && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadjsonfile =  (process.browser) && <LoadJsonFile  buttonLabel='OSDU'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadgithub =  (process.browser) && <LoadGitHub  buttonLabel='GitHub'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadrecovery =  (process.browser) && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   
-  const modelType = (activeTab === '1') ? 'metamodel' : 'model'
-  const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // if (debug) console.log('177 Modelling', EditFocusModalDiv);
-
- 
-  return  mount && (
-  // return  (
-    <>
-      <div className="header-buttons float-end" style={{  transform: "scale(0.7)", transformOrigin: "center",  backgroundColor: "#ddd" }}>
-        {/* <span className="spacer m-0 p-0 w-50"></span> */}
-        <span className="buttonrow mr-4 d-flex justify-content-around" style={{ width: "60rem", maxHeight: "9px", minHeight: "30px" }}> 
-          {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-          {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
-          {/* <span className="pt-1 pr-1" > </span> */}
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" style={{ minWidth: "108px"}}> {loadfile} </span>
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
-          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
-          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
-          <span className="m-0 p-0" style={{transform: "scale(0.9)",minWidth: "96px"}} >Project files:</span>
-          <span className="  " style={{ minWidth: "220px", maxHeight: "22px", backgroundColor: "#fff"}}>
-            <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
-          </span>
-          <span >
-            <button 
-              className="btn-secondary ml-2 mr-2 mb-3 " 
-              data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
-            </button >
+    return  (
+    // return  (mount && (gojsmodelobjects?.length > 0)) ? (
+      <>
+        <div className="header-buttons float-end" style={{  transform: "scale(0.7)", transformOrigin: "center",  backgroundColor: "#ddd" }}>
+          {/* <span className="spacer m-0 p-0 w-50"></span> */}
+          <span className="buttonrow mr-4 d-flex justify-content-around" style={{ width: "60rem", maxHeight: "9px", minHeight: "30px" }}> 
+            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
+            {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
+            {/* <span className="pt-1 pr-1" > </span> */}
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" style={{ minWidth: "108px"}}> {loadfile} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
+            <span className="m-0 p-0" style={{transform: "scale(0.9)",minWidth: "96px"}} >Project files:</span>
+            <span className="  " style={{ minWidth: "220px", maxHeight: "22px", backgroundColor: "#fff"}}>
+              <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
+            </span>
+            <span >
+              <button 
+                className="btn-secondary ml-2 mr-2 mb-3 " 
+                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button >
+            </span> 
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
+            <span className="btn btn-link float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
           </span> 
-          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-          <span className="btn btn-link float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
-        </span> 
-      </div>
-      
-      <div className="diagramtabs pb-0" >
-        <div className="modellingContent mt-1">
-          {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>
-      </div>
-    </>
-  )
+        
+        <div className="diagramtabs pb-0" >
+          <div className="modellingContent mt-1">
+            {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+          </div>
+        </div>
+      </>
+    )
+ }
 } 
 
 export default Page(connect(state => state)(page));

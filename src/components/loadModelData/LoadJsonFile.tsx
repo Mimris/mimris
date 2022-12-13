@@ -9,7 +9,7 @@ import Select from "react-select"
 import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
-import genGojsModel from './GenGojsModel'
+import GenGojsModel from './GenGojsModel'
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
 import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';

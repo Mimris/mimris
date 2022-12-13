@@ -31,7 +31,7 @@ const page = (props) => {
 
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
-  //   genGojsModel(state, dispatch)
+  //   GenGojsModel(state, dispatch)
   //   gojsmodel = state.phFocus.gojsModel
   // }, [focusModelview])
 

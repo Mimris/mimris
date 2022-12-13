@@ -1322,6 +1322,8 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         } else {
             myDiagram.model.setDataProperty(data, "name", name);
         }
+        if (link.strokeWidth == 0) link.strokeWidth = 1;
+        myDiagram.model.setDataProperty(data, "category", "Relationship");
         myDiagram.model.setDataProperty(data, "category", "Relationship");
         if (debug) console.log('1389 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
     }        
@@ -2314,6 +2316,8 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     purgeUnusedProperties(metis);
     // handle modelview contents
     const models = metis.models;
+    const objectviews = new Array();
+    const relshipviews = new Array();
     for (let k=0; k<models?.length; k++) {
         const model = models[k];
         const modelviews = model?.modelviews;
@@ -2321,15 +2325,16 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
             const mview = modelviews[i];
             // Handle objectviews
             const oviews = mview.objectviews;
-            if (debug) console.log('2314', oviews);
+            if (debug) console.log('2324', oviews);
             const objviews = new Array();
             for (let j=0; j<oviews?.length; j++) {
                 const oview = oviews[j];
                 if (oview.markedAsDeleted) 
                     continue;
                 objviews.push(oview);
-            }
-            if (debug) console.log('2322', objviews);
+                objectviews.push(oview);
+                }
+            if (debug) console.log('2332', objviews);
             
             mview.objectviews = objviews;
             // Handle relshipviews
@@ -2340,8 +2345,10 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
                 if (rview.markedAsDeleted) 
                     continue;
                 relviews.push(rview);
+                relshipviews.push(rview);
             }
             mview.relshipviews = relviews;
+            if (debug) console.log('2345 mview', mview);
         }
         // Handle objects
         const objs = model.objects;
@@ -2353,7 +2360,7 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
                 continue;
             objects.push(obj);
         }
-        if (debug) console.log('2347', objects);        
+        if (debug) console.log('2361', objects);        
         model.objects = objects;
         // Handle relships
         const rels = model.relships;
@@ -2365,10 +2372,9 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
                 relships.push(rel);
         }
         model.relships = relships;
-        if (debug) console.log('2361', model);
+        if (debug) console.log('2373', model);
     }
 
-    const objectviews = new Array();
     const objviews = metis.objectviews;
     for (let k=0; k<objviews?.length; k++) {
         const oview = objviews[k];
@@ -2388,7 +2394,6 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     }        
     metis.objects = objects;
 
-    const relshipviews = new Array();
     const relviews = metis.relshipviews;
     for (let k=0; k<relviews?.length; k++) {
         const rview = relviews[k];
@@ -2412,8 +2417,8 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     const jsnMetis = new jsn.jsnExportMetis(metis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2408 jsnMetis', jsnMetis, metis);
-    // diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    if (debug) console.log('2418 jsnMetis', jsnMetis, metis);
+    diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {
@@ -2996,34 +3001,39 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
         }
     }
     if (debug) console.log('2896 myMetis', myMetis);
-    myArray = [];
-    const metamodels = myMetis.metamodels;
-    for (let i=0; i<myMetis.relshiptypes?.length; i++) {
-        const reltype = myMetis.relshiptypes[i];
-        const fromobjtypeRef = reltype.fromobjtypeRef;
-        const toobjtypeRef = reltype.toobjtypeRef;
-        const fromObjtype = myMetis.findObjectType(fromobjtypeRef);
-        const toObjtype = myMetis.findObjectType(toobjtypeRef);
-        let metamodel = null;
-        for (let j=0; j<metamodels?.length; j++) {
-            const mmodel = metamodels[j];
-            const rtype = mmodel.findRelationshipType(reltype.id);
-            if (rtype) {
-                metamodel = mmodel;
-                break;
+    // Create a list of all reltypes
+    // Go through all metamodels and check each reltype
+    // Reltypes not in use is marked as deleted
+    {
+        myArray = [];
+        const metamodels = myMetis.metamodels;
+        for (let i=0; i<myMetis.relshiptypes?.length; i++) {
+            const reltype = myMetis.relshiptypes[i];
+            const fromobjtypeRef = reltype.fromobjtypeRef;
+            const toobjtypeRef = reltype.toobjtypeRef;
+            const fromObjtype = myMetis.findObjectType(fromobjtypeRef);
+            const toObjtype = myMetis.findObjectType(toobjtypeRef);
+            let metamodel = null;
+            for (let j=0; j<metamodels?.length; j++) {
+                const mmodel = metamodels[j];
+                const rtype = mmodel.findRelationshipType(reltype.id);
+                if (rtype) {
+                    metamodel = mmodel;
+                    break;
+                }
             }
+            if (!metamodel) {
+                reltype.markedAsDeleted = true;
+                continue;
+            }
+            myArray.push({
+                name: fromObjtype?.name, relName: reltype?.name, toName: toObjtype?.name,              
+                metamodel: metamodel? metamodel.name : null,
+                fromObjtype: fromObjtype, reltype: reltype, toObjtype: toObjtype}); 
         }
-        if (!metamodel) {
-            reltype.markedAsDeleted = true;
-            continue;
-        }
-        myArray.push({
-            name: fromObjtype?.name, relName: reltype?.name, toName: toObjtype?.name,              
-            metamodel: metamodel? metamodel.name : null,
-            fromObjtype: fromObjtype, reltype: reltype, toObjtype: toObjtype}); 
+        myArray.sort(utils.compare);
+        if (debug) console.log('2904 myArray', myArray);
     }
-    myArray.sort(utils.compare);
-    if (debug) console.log('2904 myArray', myArray);
     { // Purge deleted reltypes
         const reltypes = myMetis.relshiptypes;
         const len = myMetis.relshiptypes?.length;

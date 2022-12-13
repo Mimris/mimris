@@ -157,7 +157,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
-      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action);
+      if (debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action);
       return {
         ...state,
         phData: action.data,   
@@ -191,25 +191,25 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      if (!debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
       }
     case LOAD_TOSTORE_PHFOCUS:
-      if (!debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
+      if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
       return {
         ...state,
         phFocus: action.data
       }
     case LOAD_TOSTORE_PHUSER:
-      if (!debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
+      if (debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
       return {
         ...state,
         phUser: action.data
       }
     case LOAD_TOSTORE_PHSOURCE:
-      if (!debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
+      if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
       return {
         ...state,
         phSource: action.data
@@ -621,10 +621,10 @@ function reducer(state = InitialState, action) {
         }
     case UPDATE_MODEL_PROPERTIES:
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
-      const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      // const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       // if (debug) console.log('431 reducer', curmindex1)
-      // if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
+      if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
       // if (debug) console.log('433 reducer', curmindex1)
       return {
         ...state,

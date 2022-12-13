@@ -43,7 +43,7 @@ const axiosConfigRaw2 = {
 }
 
 export function searchGithub(searchText, path, filename, branch='main', searchtype='paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
-  if (debug) console.log('36 searchGithub', searchText, path, filename, searchtype);
+  if (debug) console.log('46 searchGithub', searchText, path, filename, searchtype);
   // search/repositories?q=akm-models
   let query = ''
   if (searchtype == 'repos') {

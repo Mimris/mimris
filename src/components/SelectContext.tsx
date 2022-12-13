@@ -283,7 +283,7 @@ export default SelectContext
 
 
 
-// // const genGojsModel =  async () => {
+// // const GenGojsModel =  async () => {
 // if (debug) console.log('44', focusModel);
 
 // const curmod = models.find((m: any) => m.id === focusModel.id)

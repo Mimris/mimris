@@ -27,9 +27,9 @@ const debug = false
 const page = (props:any) => {
   
   const dispatch = useDispatch()
-  if (debug) console.log('57 modelling', (props.phList) && props.phList);
+  if (debug) console.log('30 modelling', (props.phList) && props.phList);
 
-  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
 
   const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
@@ -38,86 +38,51 @@ const page = (props:any) => {
     setVisibleTasks(!visibleTasks);
   }
   // const state = useSelector(state => state)
-  if (debug) console.log('23 modelling',props)
+  if (debug) console.log('41 modelling',props)
   const [refresh, setRefresh] = useState(true);
   // const [urlParams, setUrlParams] = useState(null);
 
   // ............ First check if there is
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   // setUrlParams(query);
+  if (debug) console.log('modelling 48', query, query.repo, query.path, query.file)
 
   // useEffect(() => { // load the github model defined in the query
-  //   if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
+  //   if (debug) console.log('modelling 38', query.repo, query.path, query.file)
   //   dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
   // }, [(query.repo)])
 
-  // if (!query.repo) {
-  //   if ((memoryLocState != null) && memoryLocState.length > 0) {
-  //     if ((window.confirm("Do you want to recover your last model project?"))) {
-  //       if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-  //         store = (memoryLocState[0]) 
-  //       } 
-  //     }
-  //   }
 
   // }
 
   useEffect(() => { // load the github model defined in the query
-    if (!debug) console.log('modelling 38', query.repo, query.path, query.file)
+    if (!debug) console.log('modelling 59', query, query.repo, query.path, query.file)
+    if (query.repo && query.file) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+    // const timer = setTimeout(() => {
+    //   GenGojsModel(props, dispatch);
+    //   setRefresh(!refresh)
+    // }, 5000);
+    // return () => clearTimeout(timer);
+  }, [(query.file)])
 
-    dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
-    
-    const timer = setTimeout(() => {
-      // genGojsModel(props, dispatch);
-      setRefresh(!refresh)
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [(query.repo)])
-  
-  if (false) {
-  // const curStore = async (state) => {
-  //   await LoadInitial(state) 
-  //   .then((data) => 
-  //     {
-  //       dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: curStore.phData })
-  //       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: curStore.phFocus })
-  //       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: curStore.phUser })
-  //       let source = (curStore.phSource === "") ? curStore.phData.metis.name : curStore.phSource
-  //       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: curStore.source })
-  //     }
-  //   )
-  //   .catch((err) => console.log('error:', err));
-  // }
 
-  // console.log('32 curStore',curStore)
+  useEffect(() => { // ask to load the model from memoryLocState
+    if (!query.repo) {
+      if (!debug) console.log('modelling 74', memoryLocState)
+      if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+        if ((window.confirm("Do you want to recover your last model project?"))) {
+          if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+            const locStore = (memoryLocState[0]) 
+            if (locStore) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+          } 
+        }
+      } 
+    }
+  }, [])
 
-  
 
-  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
-  // DispatchFromLocalStore(memoryLocState)
-  // console.log('23 modelling', memoryLocState);
-  // if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
-  //   if (typeof window !== "undefined") {
-    //   const loadMemory = confirm("Open saved memory model?");
-      // if (loadMemory) {
-        // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
-        // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
-        // if (memoryLocState ) {
-        //   // Save it!
-        //   const memoryState = {
-        //     ...memoryLocState,
-        //     phSource: 'savedMemory'
-        //   }
-        //   // console.log('35 modelling', memoryState);
-        //   DispatchFromLocalStore(memoryState)
-        // }
-      // }
-  //   }
-  // }
-  }
  
-  const modellingDiv = <Modelling /> 
+  const modellingDiv = (props) ? <Modelling query={query} /> : <div>loading</div>
 
   // const [videoURL, setVideoURL] = useState(null)
   // const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />
@@ -274,3 +239,50 @@ const page = (props:any) => {
   )
 }
 export default Page(connect(state => state)(page));
+
+
+
+
+
+if (false) {
+  
+  // const curStore = async (state) => {
+    //   await LoadInitial(state) 
+    //   .then((data) => 
+    //     {
+      //       dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: curStore.phData })
+      //       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: curStore.phFocus })
+      //       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: curStore.phUser })
+      //       let source = (curStore.phSource === "") ? curStore.phData.metis.name : curStore.phSource
+      //       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: curStore.source })
+      //     }
+      //   )
+      //   .catch((err) => console.log('error:', err));
+      // }
+      
+      // console.log('32 curStore',curStore)
+      
+
+
+// const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
+// DispatchFromLocalStore(memoryLocState)
+// console.log('23 modelling', memoryLocState);
+// if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
+//   if (typeof window !== "undefined") {
+  //   const loadMemory = confirm("Open saved memory model?");
+    // if (loadMemory) {
+      // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
+      // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
+      // if (memoryLocState ) {
+      //   // Save it!
+      //   const memoryState = {
+      //     ...memoryLocState,
+      //     phSource: 'savedMemory'
+      //   }
+      //   // console.log('35 modelling', memoryState);
+      //   DispatchFromLocalStore(memoryState)
+      // }
+    // }
+//   }
+// }
+}

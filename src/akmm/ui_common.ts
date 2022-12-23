@@ -3195,7 +3195,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                     if (viewdata[prop] === 'None')
                         viewdata[prop] = "";
                 } else if (prop === 'strokewidth') {
-                    if (relview[prop] === "")
+                    if (relview[prop] === "" || !relview[prop])
                     relview[prop] === "1";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);

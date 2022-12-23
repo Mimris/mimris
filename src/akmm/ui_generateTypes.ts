@@ -749,7 +749,6 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
     } else {
         myMetis.currentModel.includeSystemtypes = true;
     }
-
     const args = {
         "metamodel":    myMetis.currentTargetMetamodel, 
         "modelview":    myMetis.currentModelview, 
@@ -954,7 +953,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
       
     model.targetMetamodelRef = metamodel.id;
     metamodel.generatedFromModelRef = model.id;
-    metamodel.includeSystemtypes = model.includeSystemtypes
+    metamodel.includeSystemtypes = true; // model.includeSystemtypes
     const mmname = metamodel.name;
 
     // Handle viewstyle
@@ -1200,7 +1199,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             objtype = generateObjectType(obj, objview, context);
                             if (debug) console.log('958 objtype', objtype);   
                             if (objtype) metamodel.addObjectType(objtype);
-                            if (objtype) metamodel.addObjectType0(objtype);
+                            if (objtype && objtype.name !== constants.types.AKM_ENTITY_TYPE) metamodel.addObjectType0(objtype);
                             const typeview = objtype?.typeview;
                             if (typeview) {
                                 metamodel.addObjectTypeView(typeview); 

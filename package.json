@@ -14,7 +14,7 @@
     "startlocal": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p 3000",
     "start1": "next -p ${PORT}",
     "start0": "next build & next -p ${PORT}",
-    "start": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p ${PORT}",
+    "start": "tsc --downlevelIteration & node ./database-test.js & next build & NODE_ENV=production server.js -p ${PORT}",
     "dev2": "react-scripts start  & next -p 3000",
     "start2": "next start -p 3000",
     "start3": "next start -p ${PORT}",

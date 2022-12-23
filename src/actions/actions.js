@@ -8,12 +8,14 @@ import {
   LOAD_DATAMODELLIST_SUCCESS, 
   LOAD_DATAMODEL, 
   LOAD_DATAMODEL_SUCCESS, 
+  LOAD_TOSTORE_DATA,
   LOAD_TOSTORE_PHDATA, 
   LOAD_TOSTORE_PHFOCUS,
   LOAD_TOSTORE_PHUSER, 
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
+  SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER, 
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL, 
@@ -140,6 +142,13 @@ export const loadDataModelSuccess = (data) => {
   }
 }
 
+export const loadToStoreData = (data) => {
+  // console.log('21---actions | setFocusPhdata ', data);
+  return {
+    type: LOAD_TOSTORE_DATA,
+    data: JSON.parse(data.value)
+  }
+}
 
 export const loadToStorePhdata = (data) => {
   // console.log('21---actions | setFocusPhdata ', data);

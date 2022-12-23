@@ -17,6 +17,8 @@ const debug = false;
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: blue; color: white');
+    const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
 
@@ -40,63 +42,47 @@ const Modeller = (props: any) => {
 
   // ---------------------  useEffects --------------------------------
   // useEffect(() =>  { // when focusModel changes
-  //   if (debug) clog('39 Modeller useEffect 1', activeTab, props.phFocus.focusModel); 
-  //   if (selmodviews?.length>0)
-  //     if (activeTab != undefined || 0) {
-  //       const data = {id: selmodviews[0].id, name: selmodviews[0].name}
-  //       dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-  //       // setActiveTab(0)
-  //       GenGojsModel(props, dispatch);
-  //       const timer = setTimeout(() => {
-  //         setRefresh(!refresh)
-  //       }, 5000);
-  //       if (debug) clog('50 after refresh: data', data);
-  //       return () => clearTimeout(timer);
-  //   }
+  //   if (debug) useEfflog('39 Modeller useEffect 1', activeTab, props.phFocus.focusModel); 
+  //   const timer = setTimeout(() => {
+  //     setRefresh(!refresh)
+  //   }, 5000);
+  //   return () => clearTimeout(timer);
   // }, [focusModel.id])
 
-  useEffect(() => { // when phdata changes
-    const data = {id: props.metis.models[0].id, name: props.metis.models[0].name}
-    dispatch({  type: 'SET_FOCUS_MODEL', data: data })
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: props.metis.name, name: 'refresh'} })
-    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
-    const mv = props.metis.models[0].modelviews[0]
-    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
+  useEffect(() => { // set focusModelview when focusModelview.id changes
+    if (debug) useEfflog('100 Modeller useEffect 2', refresh); 
     // GenGojsModel(props, dispatch)
-  }, [])
-
-  useEffect(() => { // when activeTab changes
     setActiveTab(activetabindex)
-  }, [activeTab])
+    const timer = setTimeout(() => {
+      // toggleRefreshObjects()
+      setRefresh(!refresh)
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [props.phFocus.focusModelview?.id])
+  
+  useEffect(() => { // when project changes
+    if (debug) useEfflog('100 Modeller useEffect 3', props.phData?.metis.name);
+    // GenGojsModel(props, dispatch)
+    dispatch({ type: 'SET_FOCUS_MODEL', data: {id: props.metis?.models[0]?.id, name: props.metis?.models[0]?.name} })
+    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: props.metis?.models[0]?.modelviews[0]?.id, name: props.metis?.models[0]?.modelviews[0]?.name} })
+    const timer = setTimeout(() => {
+      // toggleRefreshObjects()
+      GenGojsModel(props, dispatch)
+      // setRefresh(!refresh)
+    }, 100);
+    const timer2 = setTimeout(() => {
+      // toggleRefreshObjects()
+      // GenGojsModel(props, dispatch)
+      setRefresh(!refresh)
+    }, 1000);
 
-  // useEffect(() => { // when focusTask changes and gojsModel is ready
-  //   if (debug) clog('85 Modeller useEffect 3', props.phFocus.focusTask, props);
-  //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
-  //     ndarr?.find((i: { typename: any; }) => {
-  //       return (i?.typename === wot) && i 
-  //     })
-  //   )
-  //   seltasks = props.phFocus.focusRole?.tasks
-  //   if (debug) clog('92 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
-  //   const timer = setTimeout(() => {
-  //     toggleRefreshObjects() 
-  //   }, 1000);
-  //   return () => clearTimeout(timer);
-  // }, [props.phFocus.focusTask?.id && (props.gojsModel?.length > 0)])
-
-  // useEffect(() => { // when refresh changes
-  //   if (debug) clog('100 Modeller useEffect 4', refresh); 
-  //   // GenGojsModel(props, dispatch)
-  //   // const timer = setTimeout(() => {
-  //   //   console.log('104 Modeller useEffect 4 timer', refresh);
-  //   //   toggleRefreshObjects()
-  //   // }, 1000);
-  //   // return () => clearTimeout(timer);
-  // }, [refresh])
+    return () => clearTimeout(timer,timer2); 
+  }, [props.phData?.metis.name])
+  
   // ------------------------------
 
   const gojsmodel = props.gojsModel;
-  if (debug) console.log('107 Modeller: gojsmodel', gojsmodel?.nodeDataArray);
+  if (debug) console.log('78 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
   
   let myMetis = props.myMetis;
  
@@ -107,10 +93,10 @@ const Modeller = (props: any) => {
 
 
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
-  function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
+  function toggleRefreshObjects() { dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
+  // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
   if (debug) console.log('121 Modeller: props, refresh', props, refresh);
-
 
   const models = props.metis?.models
   const model = models?.find((m: any) => m?.id === focusModel?.id)
@@ -160,8 +146,6 @@ const Modeller = (props: any) => {
     dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
     const mv = selObj.modelviews[0]
     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
-
-  
     // setRefresh(!refresh)
   }
   // const handleMVDoubleClick = (e) => {
@@ -201,7 +185,10 @@ The suffix '.json' will be added to the filename.`
 To change Model name, rigth click the background below and select 'Edit Model'.`
         }> Model :
           <select key='select-title' className="list-obj mx-2 " style={{ minWidth: "32%"}}
-          onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+            value={JSON.stringify({id: focusModel.id, name: focusModel.name})}
+            onChange={(event) => handleSelectModelChange({ value: event.target.value })} 
+          >
+          {/* onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}> */}
           {options}
           </select>
         </span> 
@@ -238,7 +225,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' ))
   if (debug) console.log('185 Palette noPropertyObj', noPropertyObj);
 
-   const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
+  const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
     if (debug) console.log('Palette handleSetOfilter', filter);
     setOfilter(filter)
     // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
@@ -287,7 +274,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   if (debug) console.log('274 objArr', objArr)
 
 
-  const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
+  const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {  // map over the modelviews and create a tab for each
     if (mv && !mv.markedAsDeleted) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
@@ -303,7 +290,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               }>
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
-              onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
+              onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefreshObjects() }}
+              // onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
             > 
               {mv.name}
@@ -312,8 +300,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         )
     }
   })
-
-
 
   const gojsapp = (gojsmodel) && // this is used both for the metamodelview and the modelview
     <GoJSApp
@@ -328,18 +314,15 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       modelType={props.phFocus.focusTab}
     />
 
-
-
-  const modelviewTabDiv = // this is the modelview content
+  const modelviewTabDiv = // this is the modelview tabs
     <>
       <Nav tabs >
         {navitemDiv}  
         <NavItem >
-        <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-          title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
-                  Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">i
-        </button>
-         
+          <button className="btn bg-warning text-white float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
+                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
+          </button>
         </NavItem>
       </Nav>
       <TabContent > 
@@ -377,11 +360,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         />
       </div>
     </>
-  
 
-  console.log('372 Modeller ', props.modelType)
+  if (debug) console.log('372 Modeller ', props.modelType)
 
-  return (
+  const modellerDiv = 
     (props.modelType === 'model') 
     ? // modelling
       <div className="modeller-workarea  ml-1 mb-1 " >
@@ -409,7 +391,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <Col className="modeller--workarea-modelling px-1 ">
             {/* <Col className="modelller--workarea-modelling w-100"> */}
               <div className="mt-2">
-                {modelviewTabDiv} 
+                {modelviewTabDiv}
               </div>
               <div className="modeller--footer-buttons">
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
@@ -441,6 +423,12 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         // }
         `}</style>
       </div>
+  
+
+  return (
+    <div>
+      {refresh ? modellerDiv : modellerDiv}
+    </div>
   )
 }
 

@@ -10,12 +10,14 @@ import {
   LOAD_DATAMODELLIST_SUCCESS,
   LOAD_DATAMODEL,
   LOAD_DATAMODEL_SUCCESS,
+  LOAD_TOSTORE_DATA,
   LOAD_TOSTORE_PHDATA,
   LOAD_TOSTORE_PHFOCUS,
   LOAD_TOSTORE_PHUSER,
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
+  SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL,
@@ -110,6 +112,31 @@ const InitState =  JSON.parse(JSON.stringify(InitStateJson))
 
 // if (debug) console.log('38 InitialState', InitState);
 
+// export const InitialState = {
+//   phData: null, //InitState.phData,
+//   // phData: {
+//   //   metis: {
+//   //     name: 'Empty AKMM model',
+//   //     description: 'AKMM Model',
+//   //     metamodels: [],
+//   //     models: [], 
+//   //     currentMetamodelRef: '',
+//   //     currentModelRef: '',
+//   //     currentModelviewRef: '',
+//   //     currentTemplateRef: '',
+//   //     currentTargetMetamodelRef: '',
+//   //     currentTargetModelRef: '',
+//   //     currentTargetModelviewRef: '',
+//   //     currentTaskModelRef: '',
+//   //   },
+//   // }, //InitState.phData,
+//   // phList: null, // list of models from AMMServer (firebase)
+//   phFocus: null, //InitState.phFocus,
+//   phUser: null, //InitState.phUser,
+//   phSource: null, //InitState.phSource,
+//   lastUpdate: new Date().toISOString()
+// }
+
 export const InitialState = {
   phData: InitState.phData,
   // phList: null, // list of models from AMMServer (firebase)
@@ -190,44 +217,50 @@ function reducer(state = InitialState, action) {
           }, 
         phSource: 'Model server'
       }
-    case LOAD_TOSTORE_PHDATA:
-      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
-      return {
-        ...state,
-        phData: action.data
-      }
-    case LOAD_TOSTORE_PHFOCUS:
-      if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
-      return {
-        ...state,
-        phFocus: action.data
-      }
-    case LOAD_TOSTORE_PHUSER:
-      if (debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
-      return {
-        ...state,
-        phUser: action.data
-      }
-    case LOAD_TOSTORE_PHSOURCE:
-      if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
-      return {
-        ...state,
-        phSource: action.data
-      }
-    case LOAD_TOSTORE_NEWMODEL:
-      if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
-      return {
-        ...state,
-        phData: {
-          ...state.phData,
-            metis: {
-              ...state.phData.metis,
-              models: [
-                ...state.phData.metis.models, action.data         
-              ]
-            }
-         }
-      }
+      case LOAD_TOSTORE_DATA:
+        if (debug) console.log('169 LOAD_TOSTORE_DATA', action);   
+        return {
+          ...state,
+          ...action.data
+        }
+      case LOAD_TOSTORE_PHDATA:
+        if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+        return {
+          ...state,
+          phData: action.data
+        }
+      case LOAD_TOSTORE_PHFOCUS:
+        if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
+        return {
+          ...state,
+          phFocus: action.data
+        }
+      case LOAD_TOSTORE_PHUSER:
+        if (debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
+        return {
+          ...state,
+          phUser: action.data
+        }
+      case LOAD_TOSTORE_PHSOURCE:
+        if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
+        return {
+          ...state,
+          phSource: action.data
+        }
+      case LOAD_TOSTORE_NEWMODEL:
+        if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
+        return {
+          ...state,
+          phData: {
+            ...state.phData,
+              metis: {
+                ...state.phData.metis,
+                models: [
+                  ...state.phData.metis.models, action.data         
+                ]
+              }
+          }
+        }
     case LOAD_TOSTORE_NEWMODELVIEW:
       if (debug) console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);   
       const curmnew = state.phData?.metis?.models?.find(m => m.id === action.data.id) //current model
@@ -249,6 +282,12 @@ function reducer(state = InitialState, action) {
             }
          }
       }
+    case SET_FOCUS_PHFOCUS:
+      if (debug) console.log('190 SET_FOCUS_PHFOCUS', action.data);   
+      return {
+        ...state,
+        phFocus: action.data
+      } 
     case SET_FOCUS_USER:
       if (debug) console.log('190 SET_FOCUS_USER', action.data);   
       return {

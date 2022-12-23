@@ -37,6 +37,8 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: blue; color: white');
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
     'background: blue; color: white');
 
@@ -45,10 +47,9 @@ const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
   
-
   // if (!props) return <></>
   
-  if (debug) clog('40 Modelling:', props);
+  if (debug) clog('52 Modelling:', props);
 
         
   const dispatch = useDispatch();
@@ -76,59 +77,53 @@ const page = (props:any) => {
 
 
   function toggleRefresh() {
-    if (debug) console.log('124 Modelling', props, memoryLocState, (Array.isArray(memoryLocState)));
-    // put currentdata in the first position of the array data
-    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [props, ...memoryLocState] : [props];
-    if (debug) console.log('161 Modelling refresh', mdata);
-    // if mdata is longer than 10, remove the last 2 elements
-    if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
-    if (mdata.length > 2) { mdata.pop() }
-    if (debug) console.log('164 Modelling refresh', mdata);
-    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-    GenGojsModel(props, dispatch)
-    function refres() {
-      setRefresh(!refresh)
+    if (debug) console.log('124 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
+      // put currentdata in the first position of the array data
+      let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [props, ...memoryLocState] : [props];
+      if (debug) console.log('161 Modelling refresh', mdata);
+      // if mdata is longer than 10, remove the last 2 elements
+      if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
+      if (mdata.length > 2) { mdata.pop() }
+      if (debug) console.log('164 Modelling refresh', mdata);
+      (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     }
-    setTimeout(refres, 100);
-    setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
+    const timer = setTimeout(() => {
+        if (debug) console.log('90 Modelling toggleRefresH', props);
+        // GenGojsModel(props, dispatch)
+        setRefresh(!refresh)
+      }, 1);
+      return () => clearTimeout(timer);
+    // setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
   } 
 
   useEffect(() => {
-    if (!debug) console.log('97 Modelling useEffect 1', props);
-    if (props.query?.repo)  {
-      const timer = setTimeout(() => {
-        GenGojsModel(props, dispatch);
-        setRefresh(!refresh)
-      }, 5000);
-      return () => clearTimeout(timer);
-    } else {
-        GenGojsModel(props, dispatch);
-    } 
-    setMount(true)
+    if (debug) useEfflog('101 Modelling useEffect 1', props);
+    // if (props.query?.repo)  {
+    //   console.log('99 Modelling useEffect 1', props);
+      GenGojsModel(props, dispatch);
+      // const timer = setTimeout(() => {
+      //   setRefresh(!refresh)
+      // }, 5000);
+      setMount(true)
+      // return () => clearTimeout(timer);
+    // } else {
+      // GenGojsModel(props, dispatch);  // first generated
+    // } 
   }, [])
 
-    // useEffect(() => {
-    //   if (debug) console.log('111 Modelling useEffect', props);
-    //   const timer = setTimeout(() => {
-    //     toggleRefresh();
-    //   }, 2000);  
-    //   return () => clearTimeout(timer);
-    // }, [focusModel?.id])
-    // // }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id])
-    // // // }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id, curmod])
-
-    useEffect(() => { // refresch the model when the focusRefresch changes
-        GenGojsModel(props, dispatch);
-        function refres() {
-          setRefresh(!refresh)
-        }
-        setTimeout(refres, 1);
-    }, [props.phFocus?.focusRefresh?.id, props.phSource])
+    useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
+      if (debug) useEfflog('116 Modelling useEffect 2', props);
+      GenGojsModel(props, dispatch);
+      // const timer = setTimeout(() => {
+      //   setRefresh(!refresh)
+      // }, 1000);
+      // return () => clearTimeout(timer);
+    }, [props.phFocus?.focusRefresh?.id])
 
   if (!mount) {
     return <></>
   } else {
-
     let metis = props.phData?.metis
     let myMetis = props.phMymetis?.myMetis
     let myGoModel = props.phMyGoModel?.myGoModel
@@ -143,7 +138,7 @@ const page = (props:any) => {
 
     let gojstargetmodel =  props.phGojs?.gojsTargetModel 
 
-    if (debug) console.log('93 Modelling: gojsmodel', gojsmodel, props.phGojs?.gojsModel);
+    if (debug) console.log('93 Modelling: gojsmodel', props, gojsmodel, props.phGojs?.gojsModel);
     
     const curmod = metis?.models?.find(m => m.i === focusModel?.id)
     const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
@@ -155,37 +150,28 @@ const page = (props:any) => {
     let phUser = props.phUser
 
     if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
-
-
-    
-
-
-
     if (debug) console.log('174 Modelling', curmod, curmodview);
 
-      function handleSaveAllToFileDate() {
-        const projectname = props.phData.metis.name
-        SaveAllToFileDate(props, projectname, 'Project')
-      }
-      function handleSaveAllToFile() {
-        const projectname = props.phData.metis.name
-        SaveAllToFile(props, projectname, 'Project')
-      }
-      
+    function handleSaveAllToFileDate() {
+      const projectname = props.phData.metis.name
+      SaveAllToFileDate(props, projectname, 'Project')
+    }
+    function handleSaveAllToFile() {
+      const projectname = props.phData.metis.name
+      SaveAllToFile(props, projectname, 'Project')
+    }
+    
+    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
+      const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
+      // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
+      dispatch({ type: 'SET_FOCUS_TAB', data })
+    }
   
-      const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
-        const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
-        // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
-        dispatch({ type: 'SET_FOCUS_TAB', data })
-      }
-
-   
-      const toggleTip = () => setTooltipOpen(!tooltipOpen);
-      
-      
-      function toggleTasks() {
-        setVisibleTasks(!visibleTasks);
-      }
+    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    
+    function toggleTasks() {
+      setVisibleTasks(!visibleTasks);
+    }
       
     // ===================================================================
     // Divs
@@ -240,9 +226,10 @@ const page = (props:any) => {
 
   
 
-    const modellingtabs =  (<>
+    const modellingtabs =  (
+      <>
         <Nav tabs >
-          {/* <NavItem className="text-danger" >
+          {/* <NavItem className="text-danger" >  // this is the tab for the template
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
               className={classnames({ active: activeTab === '0' })}
               onClick={() => { toggleTab('0'); toggleRefresh() }}
@@ -250,7 +237,7 @@ const page = (props:any) => {
               {(activeTab === "0") ? 'Template' : 'T'}
             </NavLink>
           </NavItem> */}
-          <NavItem >
+          <NavItem > {/*this is the tab for the metamodel */}
           {/* <NavItem className="text-danger" > */}
             <NavLink style={{  paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee" , color: "black"}}
               className={classnames({ active: activeTab === '1' })}
@@ -259,7 +246,7 @@ const page = (props:any) => {
               {(activeTab === "1") ? 'Metamodelling' : 'Metamodelling'}
             </NavLink>
           </NavItem>
-          <NavItem >
+          <NavItem > {/* this is the tab for the model */}
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , borderColor: "#eee gray white #eee", color: "black"}}
               className={classnames({ active: activeTab === '2' })}
               onClick={() => { toggleTab('2'); toggleRefresh() }}
@@ -267,7 +254,7 @@ const page = (props:any) => {
               {(activeTab === "2") ? 'Modelling' : 'Modelling'}
             </NavLink>
           </NavItem>
-          {/* <NavItem >
+          {/* <NavItem > // this is the tab for the solution modelling 
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
               className={classnames({ active: activeTab === '3' })}
               onClick={() => { toggleTab('3'); toggleRefresh() }}
@@ -469,8 +456,8 @@ const page = (props:any) => {
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
   
-    return  (
     // return  (mount && (gojsmodelobjects?.length > 0)) ? (
+    return  (
       <>
         <div className="header-buttons float-end" style={{  transform: "scale(0.7)", transformOrigin: "center",  backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}

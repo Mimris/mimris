@@ -14,6 +14,8 @@ import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
 import useLocalStorage  from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
+import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
+import GenGojsModel from "../components/GenGojsModel";
 
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
@@ -24,68 +26,62 @@ import { NavbarToggler } from "reactstrap";
 
 const debug = false
 
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
+
 const page = (props:any) => {
   
   const dispatch = useDispatch()
-  if (debug) console.log('30 modelling', (props.phList) && props.phList);
-
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
+  const [mount, setMount] = useState(false)
+  // ............ First check if there is
+  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
+  // setUrlParams(query);
+  if (debug) console.log('modelling 37', query, query.repo, query.path, query.file)
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [render, setRender] = useState(false);
 
   const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
   const [visibleTasks, setVisibleTasks] = useState(true)
-  function toggleTasks() {
-    setVisibleTasks(!visibleTasks);
-  }
+  // function toggleTasks() {
+  //   setVisibleTasks(!visibleTasks);
+  // }
   // const state = useSelector(state => state)
-  if (debug) console.log('41 modelling',props)
+  if (debug) console.log('49 modelling',props)
   const [refresh, setRefresh] = useState(true);
   // const [urlParams, setUrlParams] = useState(null);
-
-  // ............ First check if there is
-  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
-  // setUrlParams(query);
-  if (debug) console.log('modelling 48', query, query.repo, query.path, query.file)
-
-  // useEffect(() => { // load the github model defined in the query
-  //   if (debug) console.log('modelling 38', query.repo, query.path, query.file)
-  //   dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
-  // }, [(query.repo)])
-
-
-  // }
+  const [refreshContext, setRefreshContext] = useState(true);
 
   useEffect(() => { // load the github model defined in the query
-    if (!debug) console.log('modelling 59', query, query.repo, query.path, query.file)
-    if (query.repo && query.file) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
-    // const timer = setTimeout(() => {
-    //   GenGojsModel(props, dispatch);
-    //   setRefresh(!refresh)
-    // }, 5000);
-    // return () => clearTimeout(timer);
-  }, [(query.file)])
+    if (debug) useEfflog('57 modelling useEffect 1', query, query.repo, query.path, query.file)
+    // if (query.repo !== undefined) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+  }, [(query.repo !== undefined)])
 
+  // useEffect(() => { // load the default github model
+  //   if (debug) useEfflog('62 modelling useEffect 2', props)
+  //   dispatch({type: 'SET_FOCUS_REFRESH', data: {id: 'initial', name: 'initial'}})
+  // }, [])
 
-  useEffect(() => { // ask to load the model from memoryLocState
-    if (!query.repo) {
-      if (!debug) console.log('modelling 74', memoryLocState)
-      if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-        if ((window.confirm("Do you want to recover your last model project?"))) {
-          if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-            const locStore = (memoryLocState[0]) 
-            if (locStore) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
-          } 
-        }
-      } 
-    }
-  }, [])
-
-
- 
-  const modellingDiv = (props) ? <Modelling query={query} /> : <div>loading</div>
-
-  // const [videoURL, setVideoURL] = useState(null)
-  // const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />
+  // const contextDiv = (refresh) ? (
+  const contextDiv = (
+    <div className="contextarea" > {props.phFocus?.focusRefresh?.id}
+      <div className="help d-flex">
+        <SetContext className='setContext flex' ph={props} />
+        <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
+        <Link href="/videos">Video </Link>
+      </div>
+    </div>
+  ) 
+  // : (
+  //   <div className="contextarea" >{props.phFocus?.focusRefresh?.id}
+  //     <div className="help d-flex">
+  //       <SetContext className='setContext flex' ph={props} />
+  //       <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
+  //       <Link href="/videos">Video </Link>
+  //     </div>
+  //   </div>
+  // )
 
   return (
     <div>
@@ -97,26 +93,15 @@ const page = (props:any) => {
             </div> */}
             {/* {videoDiv}           */}
             <div className="workplace" >
-              <div className="contextarea" >
-                <div className="help d-flex">
-                  <SetContext className='setContext flex' ph={props} />
-                  <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-                  <Link href="/videos">
-                    {/* <a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} > */}
-                      Video
-                      {/* </a> */}
-                      </Link>
-                  {/* <SelectVideo className='VideoModal' buttonLabel='!' phFocus={props.phFocus} />  */}
-                  {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>i</button> */}
-                </div>
-              </div>
-              <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
-                {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
+              
+              {render ? <>{contextDiv}</> : <>{contextDiv}</>}
+              
+              {/* <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
                 <TasksHelp />
-              </div>
+              </div> */}
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
-                {/* <Modelling /> */}
+                {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
+                <Modelling />
               </div>
             </div>
             <div className="footer">

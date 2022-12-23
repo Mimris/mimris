@@ -4,19 +4,11 @@
 
 // const GenGqlSchemas = (ph) => {
 
-<<<<<<< HEAD
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const metis = (ph.phData) && ph.phData.metis
-  const models = (metis) && metis.models  // selecting the models array
-  const metamodels = (metis) && metis.metamodels
+  // const metis = (ph.phData) && ph.phData.metis
+  // const models = (metis) && metis.models  // selecting the models array
+  // const metamodels = (metis) && metis.metamodels
   // console.log('11 gengql',  ph);
-=======
-//   // const state = useSelector((state: any) => state) // Selecting the whole redux store
-//   const metis = (ph.phData) && ph.phData.metis
-//   const models = (metis) && metis.models  // selecting the models array
-//   const metamodels = (metis) && metis.metamodels
-//   console.log('11 gengql',  ph);
->>>>>>> main22
 
 //   // const focusModel = useSelector(focusModel => state.phFocus.focusModel)
 //   // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
@@ -31,15 +23,9 @@
 //   const currentModel = (models) && models?.find((m: any) => (m) && m.id === selectedModelId)// sf test solution model
 //   // console.log('22 currentModel', currentModel?.name, currentModel?.metamodelRef);
 
-<<<<<<< HEAD
-  const currentMetamodel = (metamodels) && metamodels?.find((mm: any) => mm.id === currentModel?.metamodelRef)
-  const mm = currentMetamodel
-  // console.log('mm', mm);
-=======
 //   const currentMetamodel = (metamodels) && metamodels?.find((mm: any) => mm.id === currentModel?.metamodelRef)
 //   const mm = currentMetamodel
 //   console.log('mm', mm);
->>>>>>> main22
 
 //   // * make the graphql type definition variable as an export default ` type, Query, Mutation ` * //
 //   const typeDefsWithCommas = mm &&

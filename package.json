@@ -42,7 +42,6 @@
     "dataloader": "^2.0.0",
     "es6-promise": "^4.1.1",
     "fs": "0.0.1-security",
-    "fsevents": "^2.3.2",
     "go": "^2.0.2",
     "gojs": "^2.1.21",
     "gojs-react": "^1.0.5",

@@ -109,7 +109,7 @@
     "typescript-fsa-reducers": "^1.2.1"
   },
   "engines": {
-    "node": "14.20",
+    "node": "14.21",
     "npm": "7.24.2"
   },
   "description": "",

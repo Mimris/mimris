@@ -953,11 +953,78 @@ function deleteMetamodel2(context: any) {
     if (!doDelete) {
             return;
     } else {
+        // First delete the models based on the metamodel
         for (let i=0; i<models.length; i++) {
             const model = models[i];
             deleteModel2(model, myMetis, myDiagram);
         }
+        // Then delete the metamodel
         metamodel.markedAsDeleted = true;
+        const metamodels = myMetis.getMetamodels();
+        // First check relationship types
+        const reltypes = metamodel.relshiptypes;
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            let found = false;
+            for (let j=0; j<metamodels.length; j++) {
+                const mm = metamodels[j];
+                if (mm.markedAsDeleted) continue;
+                if (mm.findRelationshipType(reltype.id)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                reltype.markedAsDeleted = true;
+        }
+        // Then check relationship type views
+        const reltypeviews = metamodel.relshiptypeviews;
+        for (let i=0; i<reltypeviews?.length; i++) {
+            const reltypeview = reltypeviews[i];
+            let found = false;
+            for (let j=0; j<metamodels.length; j++) {
+                const mm = metamodels[j];
+                if (mm.markedAsDeleted) continue;
+                if (mm.findRelationshipTypeView(reltypeview.id)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                reltypeview.markedAsDeleted = true;
+        }
+        // Then check object types
+        const objtypes = metamodel.objecttypes;
+        for (let i=0; i<objtypes?.length; i++) {
+            const objtype = objtypes[i];
+            let found = false;
+            for (let j=0; j<metamodels.length; j++) {
+                const mm = metamodels[j];
+                if (mm.markedAsDeleted) continue;
+                if (mm.findObjectType(objtype.id)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                objtype.markedAsDeleted = true;
+        }
+        // Then check object type views
+        const objtypeviews = metamodel.objecttypeviews;
+        for (let i=0; i<objtypeviews?.length; i++) {
+            const objtypeview = objtypeviews[i];
+            let found = false;
+            for (let j=0; j<metamodels.length; j++) {
+                const mm = metamodels[j];
+                if (mm.markedAsDeleted) continue;
+                if (mm.findObjectTypeView(objtypeview.id)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                objtypeview.markedAsDeleted = true;
+        }
         // If the metamodel was generated from a model, remove references in the model
         const generatedFromModel = myMetis.findModel(metamodel.generatedFromModelRef);
         if (generatedFromModel) {

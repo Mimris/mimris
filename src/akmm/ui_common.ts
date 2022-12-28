@@ -48,7 +48,11 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         if (debug) console.log('44 context, name', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
-            if (!pastedobj) {
+            if (objtype.name === constants.types.AKM_CONTAINER) {
+                const guid = utils.createGuid();
+                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+            }
+            else if (!pastedobj) {
                 // This is not a pasted object, create a new one
                 let guid = obj.id;
                 obj = new akm.cxObject(guid, data.name, objtype, data.description);

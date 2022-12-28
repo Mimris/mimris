@@ -65,7 +65,7 @@ const page = (props:any) => {
 
   // const contextDiv = (refresh) ? (
   const contextDiv = (
-    <div className="contextarea d-flex" > 
+    <div className="contextarea d-flex bg-light" style={{maxHeight: "24px"}}> 
       <SetContext className='setContext' ph={props} />
       <div className="contextarea--context d-flex justify-content-around align-items-center " style={{width: "6%", backgroundColor: "#cdd"}}>
         <SelectContext className='ContextModal' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 

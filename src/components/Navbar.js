@@ -19,7 +19,7 @@ const Navbar = (props) => {
 			// variant="pils" defaultactiveKey="/"
 		>
 		<div className="container  mx-0 ">
-			<div className="d-flex justify-content-around" style={{width: "692px"}}>
+			<div className="d-flex justify-content-between" style={{width: "692px"}}>
 				<a className="navbar-brand navbar-left mr-4" href="#">
 					<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
 					{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
@@ -30,8 +30,8 @@ const Navbar = (props) => {
 					<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}><strong> AKM Modeller</strong></Link>
 				</span>
 			</div>
-			<div className="collapse navbar-collapse d-flex justify-content-between w-100" id="nav-toggler-metis">
-				<ul className="navbar-nav ml-auto mr-3 ">
+			<div className="collapse navbar-collapse d-flex justify-content-around" id="nav-toggler-metis">
+				<ul className="navbar-nav d-flex justify-content-around">
 					<li className="nav-item">
 						<Link href="/"className={currentRoute === "/" ? "active" : "non-active"}>Home</Link>
 					</li>			
@@ -60,7 +60,6 @@ const Navbar = (props) => {
 							</form>
 						</div>
 					</li> */}
-
 					{/* <li className="nav-item">
 						<Link href="/videos"className={currentRoute === "/videos" ? "active" : "non-active"}>Videos
 						</Link>

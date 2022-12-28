@@ -8,7 +8,7 @@ const SetContext = (props: any) =>  {
   const phData = props.ph?.phData;
   const repopath = (phData?.repository) ? (phData?.path) ? phData?.repository+'/'+phData?.path : phData?.repository : '';
 
-  const [toggle, setToggle] = useState(false);
+  const [toggle, setToggle] = useState(true);
 
   const toggleContext = () => {
     setToggle(!toggle);
@@ -39,7 +39,7 @@ const SetContext = (props: any) =>  {
   return (
     <>
       {toggle ? contextRepoDiv : contextModelDiv}
-      <button className="btn  bg-light text-dark" onClick={toggleContext}>
+      <button className="btn btn-sm my-0 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "10px", backgroundColor: "#cdd"}}>
         {(toggle) ? <span>&lt;</span> : <span >&gt;</span> }
         {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}
       </button> 

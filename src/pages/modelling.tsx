@@ -65,10 +65,10 @@ const page = (props:any) => {
 
   // const contextDiv = (refresh) ? (
   const contextDiv = (
-    <div className="contextarea" > {props.phFocus?.focusRefresh?.id}
-      <div className="help d-flex">
-        <SetContext className='setContext flex' ph={props} />
-        <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
+    <div className="contextarea d-flex" > 
+      <SetContext className='setContext' ph={props} />
+      <div className="contextarea--context d-flex justify-content-around align-items-center " style={{width: "6%", backgroundColor: "#cdd"}}>
+        <SelectContext className='ContextModal' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
         <Link href="/videos">Video </Link>
       </div>
     </div>
@@ -148,16 +148,16 @@ const page = (props:any) => {
       // }
 
       .contextarea {
-        grid-area: contextarea;
-        display: grid;
-        border-radius: 4px;
-        // outline-offset:-6px;
-        padding: 0px;
-        margin: 0px;
-        font-size: 80%;
+        // grid-area: contextarea;
+        // display: grid;
+        // border-radius: 4px;
+        // // outline-offset:-6px;
+        // padding: 0px;
+        // margin: 0px;
+        // font-size: 80%;
         background-color: #e8e8e8;
-        color: #700;
-        max-height: 20px; 
+        // color: #700;
+        // max-height: 20px; 
       }
       .tasksarea {
         grid-area: tasksarea;

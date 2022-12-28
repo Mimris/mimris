@@ -465,13 +465,13 @@
 .contextarea {
   margin-top: 1px;
 } 
-.context-list {
+/* .context-list { */
   /* overflow: none ; */
   /* display: flex; */
   /* align-items: center;
   justify-content: center ; */
-  max-height: 18px;
-}
+  /* max-height: 18px; */
+/* } */
 .context-all {
   grid-area: context-all;
   display: grid;
@@ -994,4 +994,55 @@ imgInProp {
       "nav nav  nav   nav"
       "footer footer   footer    footer";
   }
+} */
+
+/* .toggle-btn {
+  position: relative;
+  display: block;
+  background: #3890b3;
+  color: white;
+  width: 10px;
+  padding: 10px;
+  text-decoration: none;
+  margin-bottom: 1px;
+}
+
+.arrow {
+  position: absolute;
+  top: 20px;
+  right: 4px;
+}
+
+.arrow::before,
+.arrow::after {
+  position: relative;
+  content: '';
+  display: block;
+  width: 10px;
+  height: 1px;
+  background: white;
+  transition: 0.3s ease-in-out;
+}
+
+.arrow::before {
+  transform: rotate(45deg);
+}
+
+.arrow::after {
+  left: 6px;
+  top: -1px;
+  transform: rotate(-45deg);
+}
+
+
+.toggle-btn {
+  background: #13749a;
+}
+
+.toggle-btn.active .arrow::before {
+  transform: rotate(-45deg);
+}
+
+.toggle-btn.active .arrow::after {
+  transform: rotate(45deg);
 } */

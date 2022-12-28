@@ -273,7 +273,7 @@ const LoadGitHub = (props: any) => {
         <ModalBody className="pl-1 pt-1 ">
         <div className="bg-light" >
             
-          <div className="bg-secondary square border border-2 border-success p-1" ><strong>Download from a list of Models:</strong>
+          <div className="bg-light square border border-2 border-success p-1" ><strong>Download from a list of Models:</strong>
 
             {/* ----Repository user name input------------------------------- */}
             <TextInput label="RepoOwner:" value={usernameText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
@@ -298,18 +298,20 @@ const LoadGitHub = (props: any) => {
             <hr className="bg-light my-1 mx-4" />
 
             {/* -------- Select model ------------------------------------ */}
-            <Button className="btn-primary text-black border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
+            <Button className="btn-primary text-white border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
             {(models?.length > 0) 
               ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
               : <div className='text-warning'> 'No models found!'</div>
             } 
             <hr className="bg-primary px-10 my-1 mx-4" />
-            <Button className="btn-primary modal--footer mr-4 py-0 px-1 float-right" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
-            </Button>
             <label className="w-70 d-inline-flex justify-content-left"> 
               <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
             </label>
+              <span className="p-5">
+                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-right " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+              </Button>
+            </span>
             {/* -------------------------------------------------------- */}
   
             {/* <hr /> */}
@@ -329,16 +331,16 @@ const LoadGitHub = (props: any) => {
               <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
              </div> */}
           <hr className="bg-secondary py-1 my-1 mx-4" />
-          <div className="bg-secondary square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
-          <div className="bg-secondary square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
-            <button 
-              className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
-              data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
-            </button >
-            <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
-          </div>
+          <div className="bg-light square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
+            <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
+              <button 
+                className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
+                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button >
+              <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
+            </div>
               <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
               <div className=" text-secondary">{githubLink} </div>
             </div>

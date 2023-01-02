@@ -1664,6 +1664,25 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
     return relview;
 }
 
+export function clearRelationshipPoints(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
+    const modifiedRelshipViews = new Array();
+    if (modelview) {
+        const relviews = modelview.relshipviews;
+        if (relviews) {
+            relviews.map(relview => {
+                relview.points = null;
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                modifiedRelshipViews.push(jsnRelview);
+            })
+        }
+        modifiedRelshipViews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        })
+    }
+}
+
 export function createLink(data: any, context: any): any {
     // Creates both relship and relship view
     if (debug) console.log('1431 createLink', data, context);

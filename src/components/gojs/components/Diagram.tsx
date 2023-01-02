@@ -2358,6 +2358,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
             }),
+          makeButton("Clear Relationship View Points",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              uic.clearRelationshipPoints(modelview, myMetis);
+            },
+            function (o: any) { 
+              return false; 
+              if (myMetis.modelType === 'Modelling')
+                return true;
+              return false; 
+            }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) { 
               uid.deleteInvisibleObjects(myMetis, myDiagram);

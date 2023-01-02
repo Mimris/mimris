@@ -2358,7 +2358,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
             }),
-          makeButton("Clear Relationship View Points",
+          makeButton("Clear Relationship Views Points",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               uic.clearRelationshipPoints(modelview, myMetis);

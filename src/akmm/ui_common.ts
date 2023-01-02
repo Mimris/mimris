@@ -2206,7 +2206,6 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     return retVal;
 }
 
-
 function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
     const metamodels = metis.metamodels;
     for (let i=0; i<metamodels?.length; i++) {

@@ -1215,7 +1215,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         if (debug) console.log('1170 metamodel ', metamodel);
     }
     // Add or generate relationship types
-    if (true) { // First handle relationships of type "relationshipType"
+    { // First handle relationships of type "relationshipType"
         if (relshipviews) {
             if (debug) console.log('1205 relshipviews', relshipviews);
             for (let i=0; i<relshipviews.length; i++) {
@@ -1280,7 +1280,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
     }
     if (debug) console.log('1299 metamodel ', metamodel);
-    if (true ) { // Then handle objects of type "RelshipType"
+    { // Then handle objects of type "RelshipType"
         for (let i=0; i<objectviews?.length; i++) {
             const objview = objectviews[i];
             const obj = objview.object;
@@ -1394,7 +1394,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     myMetis.currentTargetMetamodel = metamodel;
     myMetis.currentTargetModel = model;
     if (debug) console.log('1419 metamodel ', metamodel);
-    if (true) { // Remove duplicate relationship types
+    { // Remove duplicate relationship types
         const rels = metamodel.relshiptypes;
         for (let j=0; j<rels?.length; j++) {
             const rel = rels[j];

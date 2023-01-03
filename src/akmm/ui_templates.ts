@@ -104,7 +104,6 @@ export function getFigureNames() {
     return figureNames;
 }
                 
-
 export function getFigure(f: string): any {
     switch(f) {
     case 'Rectangle':
@@ -184,7 +183,6 @@ function updateCrossLaneLinks(group: go.Group) {
 
 // let dotted = [3, 3];
 // let dashed = [5, 5];
-
 
 let nodeTemplateNames = []; 
 let linkTemplateNames = []; 

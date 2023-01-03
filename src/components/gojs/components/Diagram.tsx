@@ -2364,7 +2364,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uic.clearRelationshipPoints(modelview, myMetis);
             },
             function (o: any) { 
-              return false; 
+              // return false; 
               if (myMetis.modelType === 'Modelling')
                 return true;
               return false; 

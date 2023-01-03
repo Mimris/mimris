@@ -1801,6 +1801,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function(e, obj) { 
               const link = obj.part.data;
               link.points = [];
+              e.diagram.model.setDataProperty(link, "points", []);
               const relview = link.relshipview;
               relview.points = [];
               const jsnRelView = new jsn.jsnRelshipView(relview);
@@ -2358,7 +2359,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
             }),
-          makeButton("Clear Relationship Views Points",
+          makeButton("Clear Relationship Breakpoints",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               uic.clearRelationshipPoints(modelview, myMetis);

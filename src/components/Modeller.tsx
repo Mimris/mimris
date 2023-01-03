@@ -366,16 +366,16 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   const modellerDiv = 
     (props.modelType === 'model') 
     ? // modelling
-      <div className="modeller-workarea  ml-1 mb-1 " >
-        <div className="modeller--topbar d-flex justify-content-between  m-0 p-0 w-100 " >
-          <span className="--heading text-dark m-0 p-1 ml-4 mr-2 fs-6 fw-bold ph-2 " >Modeller </span>
-          <div className="modeller--heading-selector d-flex justify-content-right ">{selector}</div>
+      <div className="modeller-workarea" >
+        <div className="modeller--topbar d-flex justify-content-between m-0 p-0 " >
+          <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
+          <div className="modeller--heading-selector d-flex ">{selector}</div>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto ">
               <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
-                <button className="btn-sm px-1 m-0 text-left w-100" style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
+                <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
                   onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
                 </button>
                 {/* <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", height: "100%", border: "solid 1px black" }}> */}

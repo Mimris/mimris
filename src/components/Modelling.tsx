@@ -325,28 +325,26 @@ const page = (props:any) => {
           </TabPane>
 
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
-            <div className="workpad d-flex justify-content-center p-1 pt-2 bg-white">
-              <Row className="row1 d-flex ml-2 w-100 h-100">
-                <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Palette */}
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                  <Palette
-                      gojsModelObjects={gojsmodelobjects}
-                      gojsModel={gojsmodel}
-                      gojsMetamodel={gojsmetamodel}
-                      myMetis={myMetis}
-                      myGoModel={myGoModel}
-                      myGoMetamodel={myGoMetamodel}
-                      metis={metis}
-                      phFocus={phFocus}
-                      dispatch={dispatch}
-                      modelType='model'
-                    />
+            <div className="workpad p-1 pt-2 bg-white">
+              <Row className="row1
+            ' ">
+                <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Object Intances */}
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{  marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                    <Palette
+                        gojsModelObjects={gojsmodelobjects}
+                        gojsModel={gojsmodel}
+                        gojsMetamodel={gojsmetamodel}
+                        myMetis={myMetis}
+                        myGoModel={myGoModel}
+                        myGoMetamodel={myGoMetamodel}
+                        metis={metis}
+                        phFocus={phFocus}
+                        dispatch={dispatch}
+                        modelType='model'
+                      />
                     {/* <div className="instances"> area for all instance or result of query 
                     {instances}
                     </div> */}
-                  </div>
-                  <div>
-                  
                   </div>
                 </Col>
                   {/* <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>

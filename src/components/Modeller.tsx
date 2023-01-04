@@ -346,7 +346,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   const objectsTabDiv = 
     <>
       {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{selectedObjDiv}</div> */}
-      <div className="workpad p-1 pt-2 bg-warning">
+      <div className="workpad p-1 pt-2 bg-white">
         {/* {selectTaskDiv} */}
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"

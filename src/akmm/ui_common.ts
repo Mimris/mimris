@@ -1673,6 +1673,10 @@ export function clearRelationshipPoints(modelview: akm.cxModelView, myMetis: akm
                 relview.points = null;
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 modifiedRelshipViews.push(jsnRelview);
+                const myGoModel = myMetis.gojsModel;
+                const myLink = myGoModel.findLinkByViewId(relview.id);
+                const link = myMetis.myDiagram.findLinkForKey(myLink.key);
+                myMetis.myDiagram.model.setDataProperty(link.data, 'points', []);
             })
         }
         modifiedRelshipViews.map(mn => {

@@ -1798,22 +1798,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true;
             }),
           makeButton("Clear Breakpoints",
-            function(e, obj) { 
-              const link = obj.part.data;
-              link.points = [];
-              e.diagram.model.setDataProperty(link, "points", []);
-              const relview = link.relshipview;
-              relview.points = [];
-              const jsnRelView = new jsn.jsnRelshipView(relview);
+            function(e: any, obj: any) { 
+              const myGoModel = myMetis.gojsModel;
               const modifiedRelshipViews = new Array();
-              modifiedRelshipViews.push(jsnRelView);
+              myDiagram.selection.each(function(sel) {
+                const inst = sel.data;
+                if (inst.category === constants.gojs.C_RELATIONSHIP) {
+                  let myLink = myGoModel.findLink(inst.key);
+                  const link = myMetis.myDiagram.findLinkForKey(myLink.key);
+                  link.points = [];
+                  myDiagram.model.setDataProperty(link, "points", []);
+                  const relview = myLink.relshipview;
+                  relview.points = [];
+                  const jsnRelView = new jsn.jsnRelshipView(relview);
+                  modifiedRelshipViews.push(jsnRelView);
+                } 
+              }),
               modifiedRelshipViews.map(mn => {
                 let data = mn;
                 data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              }); 
+              })
             },
-            function(obj) { 
+            function(obj: any) { 
               const link = obj.part.data;
               if (link.points)
                 return true; 

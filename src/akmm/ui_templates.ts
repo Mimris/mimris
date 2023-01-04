@@ -2366,7 +2366,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         groupTemplateMap.add("Container2", groupTemplate2);
         addGroupTemplateName('Container2');
     }
-    if (true) {
+    if (false) {
         const groupTemplate3 =
             $(go.Group, "Auto",
             {

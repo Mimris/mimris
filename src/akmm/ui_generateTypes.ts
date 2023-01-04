@@ -1121,7 +1121,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
-    if (true) { // Add system relship types
+    { // Add system relship types
         if (debug) console.log('1125 reltypes', reltypes);
         for (let i=0; i<reltypes.length;i++) {
             const reltype = reltypes[i];

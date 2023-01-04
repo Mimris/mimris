@@ -1295,7 +1295,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("scale", "scale1").makeTwoWay(),
         { contextMenu: contextMenu },
-        {
+        { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "lightyellow" }),
@@ -2267,7 +2267,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         new go.Binding("visible"),
         { contextMenu: contextMenu },
         {
-            // selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
             locationObjectName:  "SHAPE",
             resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             subGraphExpandedChanged: function (grp) {
@@ -2366,51 +2365,100 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         groupTemplateMap.add("Container2", groupTemplate2);
         addGroupTemplateName('Container2');
     }
-    if (false) {
+    if (true) {
         const groupTemplate3 =
-            $(go.Group, "Auto",
-            {
-                selectionAdorned: false,
-                locationSpot: go.Spot.Center, locationObjectName: "ICON"
-            },
+        $(go.Group, "Auto",
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("visible"),
             { contextMenu: contextMenu },
             {
-                selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
                 locationObjectName:  "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+                subGraphExpandedChanged: function (grp) {
+                    var shp = grp.resizeObject;
+                    if (grp.diagram.undoManager.isUndoingRedoing) return;
+                    if (grp.isSubGraphExpanded) {
+                        shp.fill = "lightyellow";
+                    } else {
+                        shp.fill = "white";
+                    }
+                },
             },
             {
-                mouseDrop: function(e, g) {
-                // when the selection is entirely ports and is dropped onto a Group, transfer membership
-                // if (myDiagram.selection.all(selectionIncludesPorts)) {
-                //     myDiagram.selection.each(function(p) { p.containingGroup = g; });
-                // } else {
-                //     myDiagram.currentTool.doCancel();
-                // }
-                },
-                // layout: new InputOutputGroupLayout()
+                background: "transparent",
+                ungroupable: true,
+                // highlight when dragging into the Group
+                mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
+                mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
+                computesBoundsAfterDrag: true,
+                // when the selection is dropped into a Group, add the selected Parts into that Group;
+                // if it fails, cancel the tool, rolling back any changes
+                // mouseDrop: finishDrop,
+                handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
             },
-            $(go.Shape, "RoundedRectangle",
-                { stroke: "gray", strokeWidth: 2, fill: "white" },
-                {minSize: new go.Size(100, 50)},
-                new go.Binding("stroke", "isSelected", function(b) { return b ? SelectedBrush : UnselectedBrush; }).ofObject()),
-            $(go.Panel, "Vertical",
-                { margin: 6 },
-                $(go.TextBlock,
-                new go.Binding("text", "name"),
-                { alignment: go.Spot.Left }),
-                // $(go.Panel, "Spot",
-                //   { name: "ICON", height: 60 },  // an initial height; size will be set by InputOutputGroupLayout
-                //   $(go.Shape,
-                //     { fill: null, stroke: null, stretch: go.GraphObject.Fill }),
-                //   $(go.Picture, "images/60x90.png",
-                //     { width: 30, height: 45 })
-                // )
-            )
-            );
-        groupTemplateMap.add("Process", groupTemplate3);
-        addGroupTemplateName('Process');
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted", 
+                function(h) { 
+                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+                }).ofObject(),
+            { // Tooltip
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+            $(go.Panel, "Vertical",  // position header above the subgraph
+            { 
+                name: "HEADER", 
+                defaultAlignment: go.Spot.TopLeft 
+              },
+                $(go.Panel, "Horizontal",  // the header
+                    { defaultAlignment: go.Spot.Top },
+                    $("SubGraphExpanderButton",
+                        {
+                            margin: new go.Margin(1, 2, 1, 4),
+                            scale: 1.5
+                        },
+                        // {margin: new go.Margin(4, 0, 0, 4)},
+                    ),  // this Panel acts as a Button
+
+                    $(go.TextBlock,     // group title near top, next to button
+                        { 
+                            font: "Bold 16pt Sans-Serif",
+                            margin: new go.Margin(4, 0, 0, 2),
+                            editable: true, isMultiline: false,
+                            name: "name",
+                            cursor: "move",
+                        },
+                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("text", "name").makeTwoWay(),
+                        new go.Binding("stroke", "textcolor").makeTwoWay()
+                    ),
+                ),
+                $(go.Shape, "RoundedRectangle",//                $(go.Shape,  // using a Shape instead of a Placeholder
+                    { 
+                        name: "SHAPE", 
+                        fill: "lightyellow", 
+                        opacity: 0.95,
+                        minSize: new go.Size(150, 75),
+                        margin: new go.Margin(0, 1, 1, 4),
+                        cursor: "move",
+                        parameter1: 10,
+                    },
+                    new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+                    new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+                ),
+            ),
+        )
+        groupTemplateMap.add("Container3", groupTemplate3);
+        addGroupTemplateName('Container3');
     }
     if (false) {
         const groupTemplate4 = 

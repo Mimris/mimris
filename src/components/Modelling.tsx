@@ -326,10 +326,9 @@ const page = (props:any) => {
 
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
-              <Row className="row1
-            ' ">
+              <Row className="row1">
                 <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Object Intances */}
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{  marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{  marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette
                         gojsModelObjects={gojsmodelobjects}
                         gojsModel={gojsmodel}

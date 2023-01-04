@@ -164,7 +164,7 @@ const Modeller = (props: any) => {
 
 
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-    <div className="Selector--menu" style={{width: "80rem"}}>
+    <div className="Selector--menu w-100 " >
       <label className="Selector--menu-label"   
         data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title =  {
@@ -346,7 +346,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   const objectsTabDiv = 
     <>
       {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{selectedObjDiv}</div> */}
-      <div className="workpad p-1 pt-2 bg-white">
+      <div className="workpad p-1 pt-2 bg-warning">
         {/* {selectTaskDiv} */}
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"
@@ -361,7 +361,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
 
-  if (debug) console.log('372 Modeller ', props.modelType)
+  if (debug) console.log('372 Modeller ', props.modelType) 
+
+  
 
   const modellerDiv = 
     (props.modelType === 'model') 
@@ -369,7 +371,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <div className="modeller-workarea" >
         <div className="modeller--topbar d-flex justify-content-between m-0 p-0 " >
           <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
-          <div className="modeller--heading-selector d-flex ">{selector}</div>
+          <div className="modeller--heading-selector w-100">{selector}</div>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
@@ -393,27 +395,27 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               <div className="mt-2">
                 {modelviewTabDiv}
               </div>
-              <div className="modeller--footer-buttons">
-                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
+              <div className="modeller--footer-buttons flex justify-content-between ">
+                {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
-                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button>
-                <button className="btn-sm  py-0" 
+                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
+                <button className="btn-sm  py-0 px-1" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
                   onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
                   {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
                 </button>
                 {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-              <span className="sourceName pl-1 pr-1 ml-1 mt-1 mr-1 float-right" style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee", fontSize: "small"}}>
-                  Current source:  {props.phSource} 
+                <span className="sourceName m-2 px-1" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee"}}>
+                    Current source:  {props.phSource} 
                 </span> 
               </div>
             </Col>
           </Row>
         </div>
       </div>
-    : // palette
-      <div className="mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
+    : // metamodelling
+      <div className="metamodeller-workarea mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
         <span className="modeller--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
         <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         {metamodelTabDiv} 

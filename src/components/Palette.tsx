@@ -191,7 +191,7 @@ const Palette = (props: any) => {
             ? (refreshPalette) 
               ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</> 
               : <div><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</div>
-            : <div className="btn-vertical px-1 text-center" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
+            : <div className="btn-vertical px-1 text-center" style={{ height: "84vh", maxWidth: "4px", padding: "1px" }}><span> P a l e t t e </span> </div>
           } 
         </div>
       </>  

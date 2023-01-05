@@ -224,7 +224,7 @@ function reducer(state = InitialState, action) {
           ...action.data
         }
       case LOAD_TOSTORE_PHDATA:
-        if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+        if (debug) console.log('227 LOAD_TOSTORE_PHDATA', action);   
         return {
           ...state,
           phData: action.data
@@ -614,7 +614,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_MODEL:
-        if (debug) console.log('560 SET_GOJS_MODEL', action);
+        if (debug) console.log('560 SET_GOJS_MODEL', action, state);
         return {
           ...state,
           phGojs: {

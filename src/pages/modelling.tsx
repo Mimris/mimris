@@ -38,7 +38,7 @@ const page = (props:any) => {
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   // setUrlParams(query);
   if (debug) console.log('modelling 37', query, query.repo, query.path, query.file)
-  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
   const [render, setRender] = useState(false);
 
   const [visible, setVisible] = useState(false)
@@ -56,32 +56,50 @@ const page = (props:any) => {
   useEffect(() => { // load the github model defined in the query
     if (debug) useEfflog('57 modelling useEffect 1', query, query.repo, query.path, query.file)
     // if (query.repo !== undefined) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+  // }, [(query.file)])
   }, [(query.repo !== undefined)])
 
-  // useEffect(() => { // load the default github model
-  //   if (debug) useEfflog('62 modelling useEffect 2', props)
-  //   dispatch({type: 'SET_FOCUS_REFRESH', data: {id: 'initial', name: 'initial'}})
-  // }, [])
 
-  // const contextDiv = (refresh) ? (
+  useEffect(() => { // ask to load the model from memoryLocState
+    if (!debug) useEfflog('63 modelling useEffect 2', query)
+    if (!query.repo) {
+      if (!debug) console.log('70 modelling useEffect 2', memoryLocState[0], props.phData, props.phSource)
+      if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+        if ((window.confirm("Do you want to recover your last model project?"))) {
+          if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+            const locStore = (memoryLocState[0]) 
+            if (locStore) {
+              dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+              dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+              dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
+              dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+            }
+          } 
+        }
+      } 
+    } 
+  }, [])
+
+  // useEffect(() => { // refresh the model when localstorage is loaded
+  //   if (debug) useEfflog('modelling 87', props, props.phFocus.focusModelview.name)
+  //   const timer = setTimeout(() => {
+  //     // dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
+  //     GenGojsModel(props, dispatch)
+  //     dispatch({type: 'SET_FOCUS_REFRESH', data: {id: 'initial', name: 'initial'}})
+  //     if (debug) useEfflog('modelling 90', props.phData, props.phFocus.focusModelview.name)
+  //   }, 5000)
+  //   clearTimeout(timer)
+  // }, [props.phFocus.focusModelview.id])
+
   const contextDiv = (
     <div className="contextarea d-flex bg-light" style={{maxHeight: "24px"}}> 
       <SetContext className='setContext' ph={props} />
-      <div className="contextarea--context d-flex justify-content-around align-items-center " style={{width: "6%", backgroundColor: "#cdd"}}>
-        <SelectContext className='ContextModal' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-        <Link href="/videos">Video </Link>
+      <div className="contextarea--context d-flex justify-content-start align-items-center " style={{width: "6%", backgroundColor: "#cdd"}}>
+        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
+        <Link className="video m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
   ) 
-  // : (
-  //   <div className="contextarea" >{props.phFocus?.focusRefresh?.id}
-  //     <div className="help d-flex">
-  //       <SetContext className='setContext flex' ph={props} />
-  //       <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
-  //       <Link href="/videos">Video </Link>
-  //     </div>
-  //   </div>
-  // )
 
   return (
     <div>
@@ -92,10 +110,8 @@ const page = (props:any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             {/* {videoDiv}           */}
-            <div className="workplace" >
-              
-              {render ? <>{contextDiv}</> : <>{contextDiv}</>}
-              
+            <div className="workplace" >     
+              {render ? <>{contextDiv}</> : <>{contextDiv}</>}             
               {/* <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
                 <TasksHelp />
               </div> */}

@@ -35,7 +35,7 @@ const LoadRecovery = (props: any) => {
   
   // if memorytState is an object
   let memoryTmp = memoryLocState
-  if (typeof memoryLocState === 'object') return <> </>;
+  if (typeof memoryLocState === 'object') return <> </>;  // Recovery disabled
   if (memoryLocState.length === 0) return <> </>;
   if (!Array.isArray(memoryLocState) ) { memoryTmp = [memoryLocState] } else { memoryTmp = memoryLocState }
   if (debug) console.log('31 memoryTmp', memoryTmp ) //memoryTmp.map((item: any) => {return { value: item.phSource, label: item.lastUpdate }}))
@@ -127,7 +127,7 @@ const LoadRecovery = (props: any) => {
 
   return (
     <>
-      <button className="btn-transparent text-warning float-right ml-2 mr-2 mb-0 pr-2" onClick={toggle}>{buttonLabel}</button>
+      <span> <button className="btn" onClick={toggle}>{buttonLabel}</button></span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader className="bg-warning pl-2" toggle={() => { toggle(); toggleRefresh() }}> Recover from last refresh: </ModalHeader>
         <ModalBody className="pt-0 bg-warning">

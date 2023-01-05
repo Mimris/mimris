@@ -266,8 +266,7 @@ const LoadGitHub = (props: any) => {
 
   return  (
     <>
-      <span><button className="btn-context btn-outline-primary font-weight-bold text-primary ml-1" onClick={toggle}>{buttonLabel}</button>
-      </span>
+      <span><button className="btn " onClick={toggle}>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 ">
@@ -341,7 +340,7 @@ const LoadGitHub = (props: any) => {
               </button >
               <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
             </div>
-              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
+              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
               <div className=" text-secondary">{githubLink} </div>
             </div>
           <hr className="bg-primary my-1 mx-0" />

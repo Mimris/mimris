@@ -1,4 +1,3 @@
-
 // modeller
 // @ts-nocheck
 
@@ -10,7 +9,6 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
 import GenGojsModel from './GenGojsModel'
-
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
@@ -38,46 +36,42 @@ const Modeller = (props: any) => {
   let focusModelview = props.phFocus?.focusModelview
   let activetabindex = 0
 
-  // if (!props.gojsModel)  return <></>
-
   // ---------------------  useEffects --------------------------------
-  // useEffect(() =>  { // when focusModel changes
-  //   if (debug) useEfflog('39 Modeller useEffect 1', activeTab, props.phFocus.focusModel); 
+  useEffect(() =>  { // when focusModel changes
+    if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
   //   const timer = setTimeout(() => {
   //     setRefresh(!refresh)
   //   }, 5000);
   //   return () => clearTimeout(timer);
-  // }, [focusModel.id])
+  }, [focusModel.id])
 
   useEffect(() => { // set focusModelview when focusModelview.id changes
     if (debug) useEfflog('100 Modeller useEffect 2', refresh); 
-    // GenGojsModel(props, dispatch)
     setActiveTab(activetabindex)
     const timer = setTimeout(() => {
-      // toggleRefreshObjects()
       setRefresh(!refresh)
-    }, 100);
+    }, 10);
     return () => clearTimeout(timer);
   }, [props.phFocus.focusModelview?.id])
   
-  useEffect(() => { // when project changes
-    if (debug) useEfflog('100 Modeller useEffect 3', props.phData?.metis.name);
-    // GenGojsModel(props, dispatch)
-    dispatch({ type: 'SET_FOCUS_MODEL', data: {id: props.metis?.models[0]?.id, name: props.metis?.models[0]?.name} })
-    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: props.metis?.models[0]?.modelviews[0]?.id, name: props.metis?.models[0]?.modelviews[0]?.name} })
-    const timer = setTimeout(() => {
-      // toggleRefreshObjects()
-      GenGojsModel(props, dispatch)
-      // setRefresh(!refresh)
-    }, 100);
-    const timer2 = setTimeout(() => {
-      // toggleRefreshObjects()
-      // GenGojsModel(props, dispatch)
-      setRefresh(!refresh)
-    }, 1000);
+  // useEffect(() => { // when project changes
+  //   if (debug) useEfflog('100 Modeller useEffect 3', props, props.metis.name);
+  //   // // GenGojsModel(props, dispatch)
+  //   // // dispatch({ type: 'SET_FOCUS_MODEL', data: {id: props.metis?.models[0]?.id, name: props.metis?.models[0]?.name} })
+  //   // // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: props.metis?.models[0]?.modelviews[0]?.id, name: props.metis?.models[0]?.modelviews[0]?.name} })
+  //   // const timer = setTimeout(() => {
+  //   //   // toggleRefreshObjects()
+  //   //   GenGojsModel(props, dispatch)
+  //   //   // setRefresh(!refresh)
+  //   // }, 100);
+  //   // const timer2 = setTimeout(() => {
+  //   //   // toggleRefreshObjects()
+  //   //   // GenGojsModel(props, dispatch)
+  //   //   // setRefresh(!refresh)
+  //   // }, 1000);
 
-    return () => clearTimeout(timer,timer2); 
-  }, [props.phData?.metis.name])
+  //   // return () => clearTimeout(timer,timer2); 
+  // }, [props.phData?.metis.name])
   
   // ------------------------------
 
@@ -90,8 +84,6 @@ const Modeller = (props: any) => {
   let focusTask = props.phFocus?.focusTask
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   
-
-
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   function toggleRefreshObjects() { dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
   // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
@@ -162,7 +154,6 @@ const Modeller = (props: any) => {
     <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name})}>{m.name}</option>)
   )
 
-
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
     <div className="Selector--menu w-100 " >
       <label className="Selector--menu-label"   
@@ -195,7 +186,6 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
       </label>
     </div>
 
-
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
   // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
@@ -205,7 +195,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   let ndarr = props.gojsMetamodel?.nodeDataArray
   let taskNodeDataArray: any[] = ndarr
-    // ================================================================================================
+
+  // ================================================================================================
   // Show all the objects in this model
   // const gojsmodelObjects = props.gojsModelObjects
 
@@ -257,11 +248,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
   
-  
-
   if (debug) console.log('253  Modeller', gojsobjects.nodeDataArray);
-  
-
 
   const objArr = taskNodeDataArray
   // Hack: if viewkind === 'Container' then set isGroup to true
@@ -272,7 +259,6 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     }
   }
   if (debug) console.log('274 objArr', objArr)
-
 
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {  // map over the modelviews and create a tab for each
     if (mv && !mv.markedAsDeleted) { 
@@ -363,8 +349,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   if (debug) console.log('372 Modeller ', props.modelType) 
 
-  
-
   const modellerDiv = 
     (props.modelType === 'model') 
     ? // modelling
@@ -375,7 +359,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
-            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto ">
+            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> 
               <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
                 <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
                   onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
@@ -426,7 +410,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         `}</style>
       </div>
   
-
   return (
     <div>
       {refresh ? modellerDiv : modellerDiv}

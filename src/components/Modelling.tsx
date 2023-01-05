@@ -77,46 +77,39 @@ const page = (props:any) => {
 
 
   function toggleRefresh() {
-    if (debug) console.log('124 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('80 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
       // put currentdata in the first position of the array data
-      let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [props, ...memoryLocState] : [props];
-      if (debug) console.log('161 Modelling refresh', mdata);
+      let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
+      if (debug) console.log('84 Modelling refresh', mdata);
       // if mdata is longer than 10, remove the last 2 elements
       if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
       if (mdata.length > 2) { mdata.pop() }
-      if (debug) console.log('164 Modelling refresh', mdata);
+      if (debug) console.log('88 Modelling refresh', mdata);
       (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
+    } else {
+      if (debug) console.log('91 Modelling refresh', props);
+      setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
     }
     const timer = setTimeout(() => {
         if (debug) console.log('90 Modelling toggleRefresH', props);
-        // GenGojsModel(props, dispatch)
+        GenGojsModel(props, dispatch)
         setRefresh(!refresh)
       }, 1);
       return () => clearTimeout(timer);
-    // setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
   } 
 
   useEffect(() => {
     if (debug) useEfflog('101 Modelling useEffect 1', props);
-    // if (props.query?.repo)  {
-    //   console.log('99 Modelling useEffect 1', props);
       GenGojsModel(props, dispatch);
-      // const timer = setTimeout(() => {
-      //   setRefresh(!refresh)
-      // }, 5000);
       setMount(true)
-      // return () => clearTimeout(timer);
-    // } else {
-      // GenGojsModel(props, dispatch);  // first generated
-    // } 
   }, [])
 
     useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
       if (debug) useEfflog('116 Modelling useEffect 2', props);
       GenGojsModel(props, dispatch);
       // const timer = setTimeout(() => {
-      //   setRefresh(!refresh)
+      // setRefresh(!refresh)
       // }, 1000);
       // return () => clearTimeout(timer);
     }, [props.phFocus?.focusRefresh?.id])
@@ -154,11 +147,12 @@ const page = (props:any) => {
 
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
-      SaveAllToFileDate(props, projectname, 'Project')
+      SaveAllToFileDate({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, 'Project')
     }
+
     function handleSaveAllToFile() {
       const projectname = props.phData.metis.name
-      SaveAllToFile(props, projectname, 'Project')
+      SaveAllToFile({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, 'Project')
     }
     
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
@@ -439,7 +433,7 @@ const page = (props:any) => {
     const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    const loadfile =  (typeof window !== 'undefined') && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    const loadfile =  (typeof window !== 'undefined') && <LoadFile  buttonLabel='Modelfile'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     const loadjsonfile =  (typeof window !== 'undefined') && <LoadJsonFile  buttonLabel='OSDU'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     const loadgithub =  (typeof window !== 'undefined') && <LoadGitHub  buttonLabel='GitHub'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     const loadrecovery =  (typeof window !== 'undefined') && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
@@ -458,7 +452,7 @@ const page = (props:any) => {
       <>
         <div className="header-buttons float-end" style={{  transform: "scale(0.7)", transformOrigin: "center",  backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
-          <span className="buttonrow mr-4 d-flex justify-content-around" style={{ width: "60rem", maxHeight: "9px", minHeight: "30px" }}> 
+          <span className="buttonrow mr-4 d-flex justify-content-between" style={{ width: "66rem", maxHeight: "9px", minHeight: "30px" }}> 
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
             {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
@@ -471,7 +465,7 @@ const page = (props:any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
-            <span className="m-0 p-0" style={{transform: "scale(0.9)",minWidth: "96px"}} >Project files:</span>
+            <span className="pt" style={{transform: "scale(0.9)",minWidth: "96px"}} >Project files:</span>
             <span className="  " style={{ minWidth: "220px", maxHeight: "22px", backgroundColor: "#fff"}}>
               <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
             </span>
@@ -485,7 +479,7 @@ const page = (props:any) => {
             </span> 
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-            <span className="btn btn-link float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+            <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
           </span> 
         </div>
         

@@ -161,7 +161,7 @@ const LoadFile = (props: any) => {
   
   return (
     <>
-      <button className="btn-context btn-primary float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+      <button className="btn" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0">

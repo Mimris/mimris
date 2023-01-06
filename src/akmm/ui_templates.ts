@@ -2380,28 +2380,28 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     if (grp.isSubGraphExpanded) {
                         shp.fill = "lightyellow";
                     } else {
-                        shp.fill = "white";
+                        shp.fill = "transparent";
                     }
                 },
             },
             {
-                background: "transparent",
-                ungroupable: true,
-                // highlight when dragging into the Group
-                mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
-                mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
-                computesBoundsAfterDrag: true,
-                // when the selection is dropped into a Group, add the selected Parts into that Group;
-                // if it fails, cancel the tool, rolling back any changes
-                // mouseDrop: finishDrop,
-                handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+            background: "transparent",
+            ungroupable: true,
+            // highlight when dragging into the Group
+            mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
+            mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
+            computesBoundsAfterDrag: true,
+            // when the selection is dropped into a Group, add the selected Parts into that Group;
+            // if it fails, cancel the tool, rolling back any changes
+            // mouseDrop: finishDrop,
+            handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
             },
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("background", "isHighlighted", 
                 function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),
-            { // Tooltip
+            {
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
@@ -2414,35 +2414,47 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     )
                 )
             },
+            $(go.Shape, "RoundedRectangle", // surrounds everything
+                {
+                    cursor: "alias",
+                    fill: "transparent", 
+                    shadowVisible: true,
+                    minSize: new go.Size(150, 75),
+                    portId: "", 
+                    fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                },
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("stroke", "strokecolor"),
+                // new go.Binding("strokeWidth", "strokewidth"),
+            ),
             $(go.Panel, "Vertical",  // position header above the subgraph
-            { 
+                { 
                 name: "HEADER", 
                 defaultAlignment: go.Spot.TopLeft 
-              },
+                },
                 $(go.Panel, "Horizontal",  // the header
                     { defaultAlignment: go.Spot.Top },
-                    $("SubGraphExpanderButton",
-                        {
-                            margin: new go.Margin(1, 2, 1, 4),
-                            scale: 1.5
-                        },
-                        // {margin: new go.Margin(4, 0, 0, 4)},
-                    ),  // this Panel acts as a Button
-
+                    // $("SubGraphExpanderButton",
+                    //     {
+                    //         margin: new go.Margin(1, 2, 1, 4),
+                    //         scale: 1.5
+                    //     },
+                    // ),  // this Panel acts as a Button
                     $(go.TextBlock,     // group title near top, next to button
                         { 
                             font: "Bold 16pt Sans-Serif",
                             margin: new go.Margin(4, 0, 0, 2),
                             editable: true, isMultiline: false,
-                            name: "name",
-                            cursor: "move",
+                            name: "name"
                         },
                         new go.Binding("fill", "fillcolor"),
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "textcolor").makeTwoWay()
                     ),
-                ),
-                $(go.Shape, "RoundedRectangle",//                $(go.Shape,  // using a Shape instead of a Placeholder
+                ), // End Horizontal Panel
+                
+                $(go.Shape,  // using a Shape instead of a Placeholder
                     { 
                         name: "SHAPE", 
                         fill: "lightyellow", 
@@ -2450,12 +2462,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                         minSize: new go.Size(150, 75),
                         margin: new go.Margin(0, 1, 1, 4),
                         cursor: "move",
-                        parameter1: 10,
+                        stroke: "transparent",
                     },
+                    new go.Binding("fill", "fillcolor"),
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
                     new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-                ),
-            ),
+                )
+            )
         )
         groupTemplateMap.add("Container3", groupTemplate3);
         addGroupTemplateName('Container3');

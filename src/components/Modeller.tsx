@@ -9,6 +9,7 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
 import GenGojsModel from './GenGojsModel'
+import { handleInputChange } from "../akmm/ui_modal";
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
@@ -155,8 +156,8 @@ const Modeller = (props: any) => {
   )
 
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-    <div className="Selector--menu w-100 " >
-      <label className="Selector--menu-label"   
+    <div className="Selector--menu  " >
+      <label className="Selector--menu-label d-flex pt-2 justify-content-end gap-2"   
         data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title =  {
 `Description : ${props.metis.description} 
@@ -168,7 +169,7 @@ or Right-click the background below and select 'Edit Project Name'.
 
 The suffix '.json' will be added to the filename.`
         }> Project :  
-        <input className="ml-2 w-50 " type="text" defaultValue={props.metis.name} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
+        <input className="ml-2 w-50 px-1 " type="text" value={props.metis.name} onChange={(event) => handleInputChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
         <span className="model-selection  w-25" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
         title={
 `Description: ${model?.description}
@@ -379,18 +380,18 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               <div className="mt-2">
                 {modelviewTabDiv}
               </div>
-              <div className="modeller--footer-buttons flex justify-content-between ">
+              <div className="modeller--footer-buttons d-flex justify-content-end">
                 {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
-                <button className="btn-sm  py-0 px-1" 
+                <button className="btn bg-secondary mt-1 py-0 px-1" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
                   onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
                   {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
                 </button>
                 {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-                <span className="sourceName m-2 px-1" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee"}}>
+                <span className="sourceName m-2 px-2" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee"}}>
                     Current source:  {props.phSource} 
                 </span> 
               </div>

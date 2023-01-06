@@ -81,14 +81,14 @@ const page = (props:any) => {
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
       // put currentdata in the first position of the array data
       let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-      if (debug) console.log('84 Modelling refresh', mdata);
+      if (!debug) console.log('84 Modelling refresh', mdata);
       // if mdata is longer than 10, remove the last 2 elements
       if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
       if (mdata.length > 2) { mdata.pop() }
       if (debug) console.log('88 Modelling refresh', mdata);
       (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     } else {
-      if (debug) console.log('91 Modelling refresh', props);
+      if (!debug) console.log('91 Modelling refresh', props);
       setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
     }
     const timer = setTimeout(() => {
@@ -100,18 +100,24 @@ const page = (props:any) => {
   } 
 
   useEffect(() => {
-    if (debug) useEfflog('101 Modelling useEffect 1', props);
+    useEfflog('101 Modelling useEffect 1', props);
       GenGojsModel(props, dispatch);
       setMount(true)
   }, [])
 
+  useEffect(() => {
+    useEfflog('109 Modelling useEffect 1', props);
+    GenGojsModel(props, dispatch);
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+      }, 5000);
+      return () => clearTimeout(timer);
+  }, [props.metis?.name])
+
     useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-      if (debug) useEfflog('116 Modelling useEffect 2', props);
+      useEfflog('116 Modelling useEffect 2', props);
       GenGojsModel(props, dispatch);
-      // const timer = setTimeout(() => {
-      // setRefresh(!refresh)
-      // }, 1000);
-      // return () => clearTimeout(timer);
+
     }, [props.phFocus?.focusRefresh?.id])
 
   if (!mount) {

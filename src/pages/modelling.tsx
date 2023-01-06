@@ -53,31 +53,45 @@ const page = (props:any) => {
   // const [urlParams, setUrlParams] = useState(null);
   const [refreshContext, setRefreshContext] = useState(true);
 
-  useEffect(() => { // load the github model defined in the query
-    if (debug) useEfflog('57 modelling useEffect 1', query, query.repo, query.path, query.file)
-    // if (query.repo !== undefined) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
-  // }, [(query.file)])
-  }, [(query.repo !== undefined)])
+
+  // useEffect(() => { 
+  //   if (!debug) useEfflog('58 modelling useEffect 1', query, query.repo, query.path, query.file)
+    
+  // }, []) 
+
+  // useEffect(() => { // load the github model defined in the query
+  //   if (debug) useEfflog('57 modelling useEffect 2', query, query.repo, query.path, query.file)
+  //   if (query.repo !== undefined) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+  // // }, [(query.file)])
+  // }, [(query.repo !== undefined)])
 
 
   useEffect(() => { // ask to load the model from memoryLocState
-    if (!debug) useEfflog('63 modelling useEffect 2', query)
-    if (!query.repo) {
-      if (!debug) console.log('70 modelling useEffect 2', memoryLocState[0], props.phData, props.phSource)
-      if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-        if ((window.confirm("Do you want to recover your last model project?"))) {
-          if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-            const locStore = (memoryLocState[0]) 
-            if (locStore) {
-              dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
-              dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
-              dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-              dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
-            }
-          } 
-        }
-      } 
-    } 
+    if (!debug) useEfflog('63 modelling useEffect 3', query, query.repo )
+    const timer = setTimeout(() => { // wait for the query to be set
+      if (!debug) useEfflog('71 modelling useEffect 3', query, (query.repo) )
+      if (query.repo == undefined) {
+        if (!debug) console.log('73 modelling useEffect 3', memoryLocState[0], props.phData, props.phSource)
+        if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+          if ((window.confirm("Do you want to recover your last model project?"))) {
+            if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+              const locStore = (memoryLocState[0]) 
+              if (locStore) {
+                dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+                dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+                dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
+                dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+              }
+            } 
+          }
+        } 
+      } else {
+        if (!debug) useEfflog('88 modelling useEffect 3', query, (query.repo) )
+        if (query.repo !== undefined) dispatch({type: 'LOAD_DATAGITHUB', query}) // load list of models in repository
+      }
+    }, 3000)
+    if (!debug) useEfflog('92 modelling useEffect 3', query, (query.repo) )
+    // clearTimeout(timer)
   }, [])
 
   // useEffect(() => { // refresh the model when localstorage is loaded
@@ -92,11 +106,11 @@ const page = (props:any) => {
   // }, [props.phFocus.focusModelview.id])
 
   const contextDiv = (
-    <div className="contextarea d-flex bg-light" style={{maxHeight: "24px"}}> 
+    <div className="contextarea d-flex bg-light" style={{width: "99%", maxHeight: "24px"}}> 
       <SetContext className='setContext' ph={props} />
-      <div className="contextarea--context d-flex justify-content-start align-items-center " style={{width: "6%", backgroundColor: "#cdd"}}>
+      <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
         <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-        <Link className="video m-2 text-primary" href="/videos"> Video </Link>
+        <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
   ) 

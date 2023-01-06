@@ -39,7 +39,7 @@ const colornames = ['black', 'white',
                     'green', 'lightgreen', 'darkgreen', 'seagreen',
                     'blue', 'lightblue', 'darkblue', 'skyblue', 
                     'grey', 'lightgrey', 'darkgrey',
-                    'yellow', 'yellowgreen', 'orange', 
+                    'yellow', 'lightyellow', 'yellowgreen', 'orange', 
                     'brown', 'purple', 
                     'violet', 'turquoise'
                    ];

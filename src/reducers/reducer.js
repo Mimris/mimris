@@ -184,11 +184,15 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
-      if (debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action);
+      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action);
       return {
         ...state,
-        phData: action.data,   
-        phSource: 'GitHub'
+        phData: action.data.phData,   
+        phSource: action.data.phSource, //'GitHub'
+        phFocus: action.data.phFocus,
+        phUser: action.data.phUser,
+        lastUpdate: action.data.lastUpdate
+
       }
     case LOAD_DATAMODELLIST_SUCCESS:
       if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
@@ -514,7 +518,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_REFRESH:
-      if (debug) console.log('483 SET_FOCUS_REFRESH', action);
+      if (!debug) console.log('483 SET_FOCUS_REFRESH', action);
       return {
         ...state,
         phFocus: {

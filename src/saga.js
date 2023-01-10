@@ -2,7 +2,7 @@ import { all, call, delay, put, take, takeLatest } from 'redux-saga/effects';
 
 import es6promise from 'es6-promise'
 import 'isomorphic-unfetch'
-import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSuccess } from './actions/actions';
+import { failure, loadDataSuccess,loadDataGithubSuccess, loadDataModelSuccess, loadDataModelListSuccess } from './actions/actions';
 import { LOAD_DATA, LOAD_DATAGITHUB, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
 es6promise.polyfill()
 import { searchGithub } from './components/githubServices/githubService'
@@ -125,35 +125,62 @@ function * loadDataSaga() {
 
 function * loadDataGithubSaga(data) {  // load url-params of data from github
   // url example:  http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=startmodels&file=AKM-IRTV-Startup.json
-
-  if (data.query) {
+  console.log('128 Saga', data);
+  const query = data.data.query
+  console.log('129 Saga', query);
+  const { repo, path, file, focus } = query
+  console.log('132 Saga', repo, path, file, focus);
+  if (query) {
     // if (data.query !== {}) 
-    const repo = data.query.repo;
+    const repo = query.repo;
     // get owner and repo from repo
     // const organisation = repo.split('/')[0]
     // const repository = repo.split('/')[1] 
-    const path = data.query.path;
-    const file = data.query.file;
-    const focus = data.query.focus; // should be set as phFocus   
-    console.log('138 Saga', data, data.query, repo, path, file, focus);
+    const path = query.path;
+    const file = query.file;
+    const focus = query.focus; // should be set as phFocus   
+    console.log('138 Saga', data, query, repo, path, file, focus);
 
     if (repo && file) {
       try {
         let res = ''  
         res = yield searchGithub(repo, path, file, 'main', 'paramfile')
-        console.log('109 Saga', res.data);
+        console.log('148 Saga', res.data);
         // const metis = yield res.clone().json()
-        const metis = yield res.data.phData.metis
-        console.log('113 Saga', metis);
+        const metis = yield res.data
+        // const metis = yield res.data.phData.metis
+        console.log('153 Saga', metis);
 
-        yield put(loadDataSuccess({ metis })) 
+        yield put(loadDataGithubSuccess({ metis })) 
       } catch (err) {
-        console.log('116 saga', failure(err));  
+        console.log('156 saga', failure(err));  
         yield put(failure(err))
       }
     }
   }
 }
+// function * loadDataLocalSaga(localdata) {  // load url-params of data from github
+//   // url example:  http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=startmodels&file=AKM-IRTV-Startup.json
+//   console.log('128 Saga', data);
+
+//     if (localdata) {
+//       try {
+//         let res = ''  
+//         res = yield localdata
+//         console.log('148 Saga', res.data);
+//         // const metis = yield res.clone().json()
+//         const metis = yield res.data
+//         // const metis = yield res.data.phData.metis
+//         console.log('153 Saga', metis);
+
+//         yield put(loadDataSuccess({ metis })) 
+//       } catch (err) {
+//         console.log('156 saga', failure(err));  
+//         yield put(failure(err))
+//       }
+//     }
+//   }
+// }
 
 if (false) {  // comment in for  server login  
   function * loadDataModelListSaga() {
@@ -225,6 +252,7 @@ function* rootSaga() {
   yield all([
     // console.log('175 saga', loadDataSaga, loadDataModelListSaga),
     takeLatest(LOAD_DATAGITHUB, loadDataGithubSaga),
+    // takeLatest(LOAD_DATALOCAL, loadDataLocalSaga),
     takeLatest(LOAD_DATA, loadDataSaga),
     // takeLatest(LOAD_DATAMODELLIST, loadDataModelListSaga),
     takeLatest(LOAD_DATAMODEL, loadDataModelSaga)

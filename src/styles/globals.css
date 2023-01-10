@@ -54,7 +54,7 @@ header a {
 }
 
 .container {
-  max-width: 768px;
+  /* max-width: 768px; */
   max-height: 100%;
   margin: auto;
   overflow: auto;

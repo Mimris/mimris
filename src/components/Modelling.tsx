@@ -106,18 +106,18 @@ const page = (props:any) => {
   }, [])
 
   useEffect(() => {
-    useEfflog('109 Modelling useEffect 1', props);
+    useEfflog('109 Modelling useEffect 1', props, props.phData?.metis?.name);
     GenGojsModel(props, dispatch);
+    dispatch({type: 'SET_FOCUS_PHFOCUS', data: props.phFocus })
     const timer = setTimeout(() => {
       setRefresh(!refresh)
-      }, 5000);
+      }, 1000);
       return () => clearTimeout(timer);
   }, [props.metis?.name])
 
     useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
       useEfflog('116 Modelling useEffect 2', props);
       GenGojsModel(props, dispatch);
-
     }, [props.phFocus?.focusRefresh?.id])
 
   if (!mount) {

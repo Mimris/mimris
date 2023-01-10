@@ -122,7 +122,7 @@ export const loadDataModelListSuccess = (data) => {
 }
 
 export const loadDataGithubSuccess = (data) => {
-  if (debug) console.log('37 loadDataGithubSuccess ', data);
+  if (!debug) console.log('125 loadDataGithubSuccess ', data);
   return {
     type: LOAD_DATAGITHUB_SUCCESS,
     data

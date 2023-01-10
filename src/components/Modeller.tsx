@@ -104,11 +104,12 @@ const Modeller = (props: any) => {
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
   
   // put current modell on top 
-  const selmods = [
+  const selmods = (models) ? [
     models[modelindex],
     ...models.slice(0, modelindex),
     ...models.slice(modelindex+1, models.length)
   ]
+  : []
   const selmodviews = modelviews
   
   if (debug) console.log('126 Modeller', mmodel, focusModelview, selmods, selmodviews);
@@ -315,8 +316,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <TabContent > 
         <TabPane  >
           <div className="workpad bg-white mt-0 p-1 pt-2"> 
-            {/* {gojsapp} */}
-            {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+            {gojsapp}
+            {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
           </div>         
         </TabPane>
       </TabContent>
@@ -325,8 +326,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   const metamodelTabDiv = 
     <>
       <div className="workpad p-1 pt-2"> 
-        {/* {gojsapp} */}
-        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+        {gojsapp}
+        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>         
     </>
 

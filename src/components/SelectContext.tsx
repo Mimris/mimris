@@ -9,25 +9,48 @@ import Selector from './utils/Selector'
 const debug = false;
 
 const SelectContext = (props: any) => {
-  if (debug) console.log('12 ', props);
-  const dispatch = useDispatch()
+  // if (!debug) console.log('12 ', props);
   let state = useSelector((state:any) => state) // Selecting the whole redux store
+  if (!state.phData?.metis?.models) return <></>
+  const dispatch = useDispatch()
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
   // set timeout to allow for redux store to be updated
   // setTimeout(() => {
   //   if (debug) console.log('17 SelectContext', state);
   // }, 1000);
   
-  if (debug) console.log('15 state', state);
+  // if (debug) console.log('15 state', state);
+
+  const handlePhDataChange = (event:any) => {
+    // const id = JSON.parse(event.value).id
+    // const name = JSON.parse(event.value).name
+    // if (debug) console.log('25 selcon', id, name);
+    const phData = JSON.parse(event.value)
+    const data = phData
+    // if (debug) console.log('38 sel', data);
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+  }
+  const handleSessionChange = (event:any) => {
+    const id = JSON.parse(event.value).id
+    const name = JSON.parse(event.value).name
+    // if (debug) console.log('25 selcon', id, name);
+    
+    const focusSession = {id: id, name: name}
+    const data = focusSession
+    // if (debug) console.log('38 sel', data);
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+  }
+
   // if no state then exit
-  if (!state.phData?.metis?.models) return null
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
-  const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusUser = useSelector(focusUser => state.phUser?.focusUser)
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
-  
+  const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array
+
   // const [model, setModel] = useState(focusModel)
-  if (debug) console.log('23 focusModel', focusModel, models);
+  // if (!debug) console.log('23 focusModel', focusModel, models);
   
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
@@ -75,34 +98,16 @@ const SelectContext = (props: any) => {
   const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Role')
   const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')
   const selorgs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Organisation')
-  const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
+  // const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
   const selobjviews = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) != null)
   const selPers = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Person')
   const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
   const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
 
-  if (debug) console.log('76', uniqueovs, selobjviews);
+  // if (debug) console.log('76', uniqueovs, selobjviews);
   
   // let optionModel
-  const handlePhDataChange = (event:any) => {
-    // const id = JSON.parse(event.value).id
-    // const name = JSON.parse(event.value).name
-    // if (debug) console.log('25 selcon', id, name);
-    const phData = JSON.parse(event.value)
-    const data = phData
-    // if (debug) console.log('38 sel', data);
-    (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-  }
-  const handleSessionChange = (event:any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    // if (debug) console.log('25 selcon', id, name);
-    
-    const focusSession = {id: id, name: name}
-    const data = focusSession
-    // if (debug) console.log('38 sel', data);
-    (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-  }
+
 
   // useEffect(() => {
   //   const fU = async () => await focusUser;
@@ -139,10 +144,9 @@ const SelectContext = (props: any) => {
   // const optionModelviews = modelviews && [<option key={991012} value='Select Modelview ...'  > Select Modelview ...</option>, ...modelviews.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
 
   const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+
   
-  return (
+  return (models) && (
     <>
       <button className="btn-sm mt-0 pb-0 pt-0 mr-2" style={{height: "24px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>

@@ -36,6 +36,9 @@ const Navbar = (props) => {
 						<Link href="/"className={currentRoute === "/" ? "active" : "non-active"}>Home</Link>
 					</li>			
 					<li className="nav-item ">
+						<Link href="/project" className={currentRoute === "/project" ? "active" : "non-active"}>Project</Link>
+					</li>
+					<li className="nav-item ">
 						<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</Link>
 					</li>
 					{/* <li className="nav-item">

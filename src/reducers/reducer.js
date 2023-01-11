@@ -184,16 +184,19 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
-      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action);
-      return {
+      if (debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action, action.data.data.phData);
+      const retval_LOAD_DATAGITHUB_SUCCESS = 
+      {
         ...state,
-        phData: action.data.phData,   
-        phSource: action.data.phSource, //'GitHub'
-        phFocus: action.data.phFocus,
-        phUser: action.data.phUser,
-        lastUpdate: action.data.lastUpdate
-
+        phData: action.data.data.phData,   
+        phSource: action.data.data.phSource, //'GitHub'
+        phFocus: action.data.data.phFocus,
+        phUser: action.data.data.phUser,
+        lastUpdate: action.data.data.lastUpdate
       }
+      if (debug) console.log('170 LOAD_DATAGITHUB_SUCCESS', retval_LOAD_DATAGITHUB_SUCCESS);
+      return retval_LOAD_DATAGITHUB_SUCCESS
+
     case LOAD_DATAMODELLIST_SUCCESS:
       if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
       return {

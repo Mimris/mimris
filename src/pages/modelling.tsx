@@ -34,95 +34,46 @@ const page = (props:any) => {
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) { 
-    const { phData, phFocus, phSource, phUser } = locStore
-    // dispatch({type: 'LOAD_DATALOCAL', locStore })
-
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
-}
-
-
+  }
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
   if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
+  const [visible, setVisible] = useState(false)
   const [refresh, setRefresh] = useState(true);
   const [params, setParams] = useState(null);
   const [data, setData] = useState(null);
-
   const [refreshContext, setRefreshContext] = useState(true);
+  const [render, setRender] = useState(false);
+  const [visibleTasks, setVisibleTasks] = useState(true)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
-  const [render, setRender] = useState(false);
 
-
-  const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
-  const [visibleTasks, setVisibleTasks] = useState(true)
-  // function toggleTasks() {
-  //   setVisibleTasks(!visibleTasks);
-  // }
-  // const state = useSelector(state => state)
+
   if (debug) console.log('49 modelling',props)
 
   useEffect(() => { 
     if (!debug) console.log('73 modelling useEffect 2', memoryLocState[0], props.phData, props.phSource)
-    if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-    if ((window.confirm("Do you want to recover your last model project?"))) {
-      if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-          const locStore = (memoryLocState[0]) 
-          if (locStore) {
-            dispatchLocalStore(locStore)
-          }
-        } 
-      }
-    }   
+    if (props.phData.metis.name === 'INIT-Startup_Project') {
+      if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+      if ((window.confirm("Do you want to recover your last model project?"))) {
+        if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+            const locStore = (memoryLocState[0]) 
+            if (locStore) {
+              dispatchLocalStore(locStore)
+            }
+          } 
+        }
+      }   
+    }
     setMount(true)
   }, []) 
-
-
-
-  // useEffect(() => {
-  //   async function fetchGithub() {
-  //     const data = await query;
-  //     // const data = await response.json();
-  //     setData(data);
-  //   }
-  //   fetchGithub();
-  // }, [(Object.keys(query).length !== 0)]);
-
-
-
-
-
-  // useEffect(() => {
-  //   console.log('118 modelling useEffect 2', (Object.keys(query).length !== 0), props.phData?.metis?.name)
-  //   dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
-  // }, [Object.keys(query).length !== 0])
-
-  // }, [dispatchGithub, dispatch, props.phData?.metis?.name])
-  // }, [Object.keys(query).length !== 0])
-
-  // useEffect(() => { // ask to load the model from memoryLocState
-  //   setMount(true)
-  //   if (!debug) useEfflog('69 modelling useEffect 2', query, query?.repo )
-  //   // setRefresh(!refresh)
-  //   if (!debug) useEfflog('71 modelling useEffect 2', query, query?.repo )
-  //   // const { repo, path, file } = params.repo ? params : query
-  //   if (params) {
-  //   // if (Object.keys(query).length !== 0) {
-  //     if (!debug) useEfflog('88 modelling useEffect 2', params )
-  //     if ((window.confirm("Do you want to load the GitHub model?"))) {
-  //       dispatchGithub(query)       
-  //     } 
-  // }
-
-  // }, [params])
-
-
 
   useEffect(() => { // refresh the model when localstorage is loaded
     if (debug) useEfflog('modelling 87', props, props.phFocus.focusModelview.name)
@@ -135,24 +86,6 @@ const page = (props:any) => {
     clearTimeout(timer)
   }, [props.phFocus.focusModelview.id])
 
-
-  
-  
-  // if (query.repo !== undefined) dispatch({type: 'LOAD_DATAGITHUB', query})
- 
-
-  // create anb useEffect to load the model from the query parameters
-  // useEffect(() => { // load the github model defined in the query
-  //   if (!debug) useEfflog('64 modelling useEffect 2', query)
-  //   setMount(true)
-  //   if (query.repo !== undefined) {
-  //     if (!debug) useEfflog('66 modelling useEffect 2', query)
-  //   }
-  // }, [])
-
-
-
-
   const contextDiv = (
     <div className="contextarea d-flex bg-light" style={{width: "99%", maxHeight: "24px"}}> 
       <SetContext className='setContext' ph={props} />
@@ -162,7 +95,6 @@ const page = (props:any) => {
       </div>
     </div>
   ) 
-
 
   const modellingDiv = (mount)
     ?  <div>

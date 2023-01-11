@@ -123,35 +123,21 @@ function * loadDataSaga() {
     }
   }
 
-function * loadDataGithubSaga(data) {  // load url-params of data from github
+function * loadDataGithubSaga(params) {  // load url-params of data from github
   // url example:  http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=startmodels&file=AKM-IRTV-Startup.json
-  console.log('128 Saga', data);
-  const query = data.data.query
-  console.log('129 Saga', query);
-  const { repo, path, file, focus } = query
-  console.log('132 Saga', repo, path, file, focus);
-  if (query) {
-    // if (data.query !== {}) 
-    const repo = query.repo;
-    // get owner and repo from repo
-    // const organisation = repo.split('/')[0]
-    // const repository = repo.split('/')[1] 
-    const path = query.path;
-    const file = query.file;
-    const focus = query.focus; // should be set as phFocus   
-    console.log('138 Saga', data, query, repo, path, file, focus);
-
+  console.log('128 Saga', params, params.data);
+  const { repo, path, file, focus } = params.data
+  if (params.data) {
+    console.log('138 Saga',  repo, path, file, focus);
     if (repo && file) {
       try {
         let res = ''  
         res = yield searchGithub(repo, path, file, 'main', 'paramfile')
         console.log('148 Saga', res.data);
-        // const metis = yield res.clone().json()
-        const metis = yield res.data
-        // const metis = yield res.data.phData.metis
-        console.log('153 Saga', metis);
+        const data = yield res.data
+        console.log('153 Saga', data);
 
-        yield put(loadDataGithubSuccess({ metis })) 
+        yield put(loadDataGithubSuccess({ data })) 
       } catch (err) {
         console.log('156 saga', failure(err));  
         yield put(failure(err))

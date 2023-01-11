@@ -1,5 +1,6 @@
 // make a page for project
 import { connect, useDispatch } from 'react-redux';
+import React, { useState, useEffect } from "react";
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
@@ -8,60 +9,76 @@ import Footer from "../components/Footer"
 import SetContext from '../defs/SetContext'
 import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
+import GithubParams from '../components/GithubParams';
+import { useRouter } from "next/router";
+import Q from 'q';
 
 const page = (props: any) => {
     
-      console.log(props)
-      const dispatch = useDispatch()
-    
-      // if (!props.phData) {
-      //   dispatch(loadData())
-      // }
-    
-      // const state = useSelector(state => state)
-    
-      // const metis = (state.phData) && state.phData.metis
-    
-      // const [visibleTasks, setVisibleTasks] = useState(true)
-      // function toggleTasks() {
-      //   setVisibleTasks(!visibleTasks);
-      // }
-    
-      // /**
-      // * Set up the Context items and link to select Context modal,
-      // */
-      const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-    
-      return (
-     <div>
-        <Layout user={props.phUser?.focusUser} >
-          <div id="index" >
-             <div className="wrapper">
-                {/* <div className="header">
-                  <Header title='eaderTitle' />
-                </div> */}
-                <div className="workplace">
-                  <div className="workarea bg-secondary">
-                      <div className="m-5">
-                          <LoadGithubParams phFocus={props.phFocus} repo='https://github.com/Kavca/kavca-akm-models' branch= 'main' file='PROD-STRUCT.json' />
-                    </div>
-                    </div>
-                </div>
-                <div className="context">
-                  <div className="context-area bg-secondary">
-                      <div className="m-5">
-                          <ProjectForm phFocus={props.phFocus} />
-                    </div>
-                    </div>
-                </div>
-                {/* <div className="footer">
-                  <Footer />
-                </div> */}
-             </div>
-          </div>
-        </Layout>
-     </div>
-      )
-    }
+  const dispatch = useDispatch()  
+  
+  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
+  
+  console.log('19 project',props, query)
 
-    export default connect((state: any) => state)(page)
+// if query object is not empty object
+// useEffect(() => {
+//   LoadGithubParams(props)
+// }, [query])
+
+
+  const projectDiv =  (Object.keys(query).length !== 0) 
+    ? 
+      <>
+        <div>
+          <div className="m-5">
+            {(query.repo) && <h4>Paremeters: {query.repo} / {query.path} / {query.file}</h4>}
+           <GithubParams ph={props} query={query} />
+          </div>
+        </div>
+        <div className="context">
+          <div className="context-area bg-secondary">
+              <div className="m-5">
+                  <ProjectForm phFocus={props.phFocus} />
+            </div>
+          </div>
+        </div>
+      </>
+    :
+      <>
+        <div className="m-5">
+          <h1>No Project parameters found yet</h1>
+        </div>
+        <div className="m-5">
+            <ProjectForm phFocus={props.phFocus} />
+        </div>
+      </>
+
+  
+  return (
+    <>
+      <Layout user={props.phUser?.focusUser} >
+        <div id="index" >
+          <div className="wrapper">
+              {/* <div className="header">
+                <Header title='eaderTitle' />
+              </div> */}
+              <div className="">
+              <div className="contextarea d-flex bg-light" style={{width: "99%", maxHeight: "24px"}}> 
+                <SetContext className='setContext' ph={props} />
+              </div> 
+                <div className="workarea bg-secondary">
+                  {projectDiv}
+                </div>
+              </div>
+              {/* <div className="footer">
+                <Footer />
+              </div> */}
+          </div>
+        </div>
+      </Layout>
+    </>
+  )
+}
+
+export default connect((state: any) => state)(page)

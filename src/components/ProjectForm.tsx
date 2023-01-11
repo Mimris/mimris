@@ -2,11 +2,14 @@ import { compareSync } from 'bcrypt'
 import React from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
+const debug = false
+
 export default function ProjectForm(props) {
 
-  console.log(props.phFocus)
+  if (debug) console.log(props.phFocus)
+  if (!props.phFocus) return <div>no props.phFocus</div>
 
-  const projectFocusNames = Object.keys(props.phFocus).map(item => {
+  const projectFocusNames =  Object.keys(props.phFocus).map(item => {
     if (item === 'focusRepo') { return item 
     } else if (item === 'focusOrg')  { return item
     } else if (item === 'focusProj') { return item
@@ -15,12 +18,12 @@ export default function ProjectForm(props) {
     } else if (item === 'focusProj') { return item
     } else if (item === 'focusProj') { return item
     }
-  }).filter(item => item !== undefined)
+  }).filter(item => item !== undefined) 
 
   const projectFocus = projectFocusNames.map((item, index) => {
     return {[item]: props.phFocus[item]}
-  }
-  ).filter(item => item !== undefined)
+  } 
+  ).filter(item => item !== undefined) || []
 
   const modelFocusNames = Object.keys(props.phFocus).map(item => {
     if (item === 'focusRepo') { return item 
@@ -31,21 +34,21 @@ export default function ProjectForm(props) {
     } else if (item === 'focusRelship') { return item
     } else if (item === 'focusRelshipview') { return item
     }
-  }).filter(item => item !== undefined)
+  }).filter(item => item !== undefined) 
 
   const modelFocus = modelFocusNames.map((item, index) => {
     return {[item]: props.phFocus[item]}
   }
-  ).filter(item => item !== undefined)
+  ).filter(item => item !== undefined) || []
 
   console.log('41 ',projectFocus, modelFocus)
 
-  console.log('43 ', Object.keys(projectFocus[0]))
+  if (debug) console.log('43 ', Object.keys(projectFocus[0]))
   // list objects in props.phFocus and display divem in a form
   // for each object, display a form field
   
   const focusProjectItems =      
-    <Container className='project bg-light my-2'>
+    <> 
       <h4>Project:</h4>
       <div className="border" style={{background: "#eee"}}>
       <Row className="bg-secondary my-1 p-2 text-light" >
@@ -64,10 +67,10 @@ export default function ProjectForm(props) {
           )
         })}
       </div>
-      </Container>
+      </>
 
-  const focusModelItems =      
-    <Container className='project bg-light my-2'>
+  const focusModelItems =    
+  <>
       <h4>Model:</h4>
       <Row className="bg-secondary my-1 p-2 text-light" >
       <Col>focusItem</Col>
@@ -82,11 +85,10 @@ export default function ProjectForm(props) {
               <Col key={obj.name}className='bg-white m-1'>{Object.values(obj)[0].name} </Col>
               <Col key={obj.id}className='bg-white m-1' >{Object.values(obj)[0].id || ''} </Col>
             </Row>
-
-          )
+        )
         })}
       </div>
-      </Container>
+  </>  
 
   return (
     <Container className='bg-light'>

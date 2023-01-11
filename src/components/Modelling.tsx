@@ -117,6 +117,7 @@ const page = (props:any) => {
 
     useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
       useEfflog('116 Modelling useEffect 2', props);
+      dispatch({type: 'SET_FOCUS_PHFOCUS', data: props.phFocus })
       GenGojsModel(props, dispatch);
     }, [props.phFocus?.focusRefresh?.id])
 

@@ -62,9 +62,6 @@ export default function GithubParams(props) {
         </div>
         <div className="d-flex justify-content-center ">
           <button className='bg-primary rounded mt-2 w-25 b-2 '>
-              <Link className='text-white' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank">Click here to go to GitHub repository</Link>
-          </button>
-          <button className='bg-primary rounded mt-2 w-25 b-2 '>
               <Link className='text-white' href="/modelling">Click here to Start Modelling View</Link>
           </button>
         </div>

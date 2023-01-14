@@ -6,7 +6,7 @@
   "scripts": {
     "tsc": "tsc",
     "heroku-postbuild": "tsc & next build",
-    "build": "tsc --downlevelIteration & next build & next export",
+    "build": "tsc --downlevelIteration & next build",
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "dev": "tsc --downlevelIteration & node --trace-warnings & next -p 3000",
     "dev1": "tsc --downlevelIteration & node --trace-warnings ./database-test.js & next -p 3000",

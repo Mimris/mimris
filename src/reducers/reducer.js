@@ -452,13 +452,16 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_PROJ:
-      return {
+      if (!debug) console.log('455 SET_FOCUS_PROJ', action.data)
+      const retval_SET_FOCUS_PROJ = {
         ...state,
         phFocus: {
           ...state.phFocus,
           focusProj: action.data
         }
       }
+      if (!debug) console.log('463 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
+      return retval_SET_FOCUS_PROJ
     case SET_FOCUS_ORG:
       return {
         ...state,

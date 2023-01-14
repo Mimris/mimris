@@ -16,45 +16,59 @@ export default function GithubParams(props) {
     if (debug) console.log('5 GithubParams', props)
         // list query params
         const query = props.query
+        const org = query.org
         const repo = query.repo
         const path = query.path
         const file = query.file
+        const branch = query.branch
 
-    function genGojsArrays(props) {
-        if (debug) console.log('27 modelling genGojsArrays', props.ph)
-        dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
-
-    }
-
-    useEffect(() => {
+    // function setFocusProject(props) {
+    //     if (debug) console.log('27 modelling genGojsArrays', props.ph)
+    //     dispatch({ type: 'SET_FOCUS_PROJ', data: {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} })
+    //   }
+      
+      useEffect(() => {
         if (!debug) console.log('16 modelling dispatchGithub', query)  
         dispatch({type: 'LOAD_DATAGITHUB', data: query })
+        const timer = setTimeout(() => {
+          const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
+          dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+          const org1 = {id: org, name: org}
+          dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+
+        }, 1000);
+        return () => clearTimeout(timer);
     }, [])
 
   return (
-    <>
-    <Container className='project bg-light my-2'>
-      <h4>Click here to open the model from GitHub :</h4>
-      <Row className="bg-secondary my-1 p-2 text-light" >
-        <Col>Repository</Col>
-        <Col>path</Col>
-        <Col>model</Col>s
-      </Row>
-      <div className="border" style={{background: "#ef"}}>
-          return (
-            <Row key={1}>
-              <Col key={1} className='bg-white m-1' >{repo} </Col>
-              <Col key={2}className='bg-white m-1'>{path} </Col>
-              <Col key={3}className='bg-white m-1' >{file} </Col>
-              <Col key={4}className='bg-white m-1' > 
-          	    <button>
-                <Link href="/modelling">Start Modelling</Link>
-                </button>
-            </Col>
-            </Row>
-          )
-      </div>
+    <Container className='container p-4' style={{backgroundColor: "#cdd"}}>
+        <h4 className='text-primary'>You have started AKM Modeller with Url prameters that has automatically loaded the following model from GitHub :</h4>
+      <Container className='project my-3 py-2 ' style={{background: "#dee"}}>
+        <Row className="bg-secondary my-1 p-2 text-light flex justify-content-between" >
+          <Col>Org</Col>
+          <Col>Repository</Col>
+          <Col>Path</Col>
+          <Col>Modelfile</Col>
+          <Col>Branch</Col>
+        </Row>
+        <div className="border " style={{background: "#ef"}}><strong>
+          <Row key={1} className='flex justify-content-between'>
+            <Col key={1} className='bg-white m-1' >{org} </Col>
+            <Col key={2} className='bg-white m-1' >{repo} </Col>
+            <Col key={3} className='bg-white m-1' >{path} </Col>
+            <Col key={4} className='bg-white m-1' >{file} </Col>
+            <Col key={5} className='bg-white m-1' >{branch} </Col>
+          </Row></strong>
+        </div>
+        <div className="d-flex justify-content-center ">
+          <button className='bg-primary rounded mt-2 w-25 b-2 '>
+              <Link className='text-white' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank">Click here to go to GitHub repository</Link>
+          </button>
+          <button className='bg-primary rounded mt-2 w-25 b-2 '>
+              <Link className='text-white' href="/modelling">Click here to Start Modelling View</Link>
+          </button>
+        </div>
       </Container>
-    </>
+    </Container>
   );
 }

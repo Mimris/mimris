@@ -37,6 +37,15 @@ const Modeller = (props: any) => {
   let focusModelview = props.phFocus?.focusModelview
   let activetabindex = 0
 
+  const models = props.metis?.models
+  const model = models?.find((m: any) => m?.id === focusModel?.id)
+  const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
+  const modelviews = model?.modelviews
+  const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
+  const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
+  const metamodels = props.metis?.metamodels
+  const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
+
   // ---------------------  useEffects --------------------------------
   useEffect(() =>  { // when focusModel changes
     if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
@@ -46,13 +55,17 @@ const Modeller = (props: any) => {
   //   return () => clearTimeout(timer);
   }, [focusModel.id])
 
-  useEffect(() => { // set focusModelview when focusModelview.id changes
-    if (debug) useEfflog('100 Modeller useEffect 2', refresh); 
+  useEffect(() => { // set activTab when focusModelview.id changes
+    // GenGojsModel(props, dispatch)
     setActiveTab(activetabindex)
-    const timer = setTimeout(() => {
-      setRefresh(!refresh)
-    }, 10);
-    return () => clearTimeout(timer);
+  //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
+      if (!debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview.id); 
+  //     const timer = setTimeout(() => {
+  //       setRefresh(!refresh)
+  //       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+  //     }, 2000);
+  //     return () => clearTimeout(timer);
+  //   } 
   }, [props.phFocus.focusModelview?.id])
   
   // useEffect(() => { // when project changes
@@ -86,19 +99,14 @@ const Modeller = (props: any) => {
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
-  function toggleRefreshObjects() { dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
+  function toggleRefreshObjects() { 
+    setTimeout(() => {
+    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
+    , 1000);
+  }
   // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
   if (debug) console.log('121 Modeller: props, refresh', props, refresh);
-
-  const models = props.metis?.models
-  const model = models?.find((m: any) => m?.id === focusModel?.id)
-  const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
-  const modelviews = model?.modelviews
-  const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
-  const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
-  const metamodels = props.metis?.metamodels
-  const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }

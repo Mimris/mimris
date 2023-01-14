@@ -1,6 +1,7 @@
 // make a page for project
 import { connect, useDispatch } from 'react-redux';
 import React, { useState, useEffect } from "react";
+import Link from 'next/link';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
@@ -21,6 +22,13 @@ const page = (props: any) => {
   
   console.log('19 project',props, query)
 
+          // list query params
+          const org = props.phFocus.focusProj.org
+          const repo = props.phFocus.focusProj.repo
+          const path = props.phFocus.focusProj.path
+          const file = props.phFocus.focusProj.file
+          const branch = props.phFocus.focusProj.branch
+
 // if query object is not empty object
 // useEffect(() => {
 //   LoadGithubParams(props)
@@ -30,30 +38,25 @@ const page = (props: any) => {
   const projectDiv =  (Object.keys(query).length !== 0) 
     ? 
       <>
-        <div>
-          <div className="m-5">
-            {(query.repo) && <h4>Paremeters: {query.repo} / {query.path} / {query.file}</h4>}
+        <div className='container'>
+          {/* <div className="m-5"> */}
+            {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
            <GithubParams ph={props} query={query} />
-          </div>
+          {/* </div> */}
         </div>
-        <div className="context">
-          <div className="context-area bg-secondary">
-              <div className="m-5">
-                  <ProjectForm phFocus={props.phFocus} />
-            </div>
+        <div className="container bg-light">
+          <div className="m-2">
+            <ProjectForm phFocus={props.phFocus} />
           </div>
-        </div>
+        </div>        
       </>
     :
       <>
-        <div className="m-5">
-          <h1>No Project parameters found yet</h1>
-        </div>
-        <div className="m-5">
-            <ProjectForm phFocus={props.phFocus} />
+        <div className="m-2">
+          {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
+          <ProjectForm phFocus={props.phFocus} />
         </div>
       </>
-
   
   return (
     <>
@@ -63,17 +66,29 @@ const page = (props: any) => {
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-              <div className="">
-              <div className="contextarea d-flex bg-light" style={{width: "99%", maxHeight: "24px"}}> 
-                <SetContext className='setContext' ph={props} />
-              </div> 
-                <div className="workarea bg-secondary">
+              <div className="workplace" >
+                <div className="contextarea d-flex " style={{backgroundColor: "#cdd", width: "99%", maxHeight: "24px"}}> 
+                  <SetContext className='setContext' ph={props} />
+                </div> 
+                <div className="tasksarea m-1 p-3 " style={{ minHeight: "70vh", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+                  <h1 className='text-muted'>GitHub links </h1>
+                  <div className='bg-light px-2 m-1 w-100'>
+                   <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
+                  </div>
+                  <div className='bg-light px-2 m-1 w-100'>
+                   <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>
+                  </div>
+                  <div className='bg-light px-2 m-1 w-100'>
+                   <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/1`} target="_blank"> {org}/{repo} project</Link>
+                  </div>
+                </div>
+                <div className="container m-1" style={{ minHeight: "70vh", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                   {projectDiv}
                 </div>
               </div>
-              {/* <div className="footer">
+              <div className="footer">
                 <Footer />
-              </div> */}
+              </div>
           </div>
         </div>
       </Layout>

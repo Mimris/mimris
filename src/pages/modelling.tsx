@@ -59,8 +59,8 @@ const page = (props:any) => {
   if (debug) console.log('49 modelling',props)
 
   useEffect(() => { 
-    if (!debug) console.log('73 modelling useEffect 2', memoryLocState[0], props.phData, props.phSource)
-    if (props.phData.metis.name === 'INIT-Startup_Project') {
+    if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phData, props.phSource)
+    if (props.phData.metis.name === 'AKM-INIT-Startup') {
       if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
       if ((window.confirm("Do you want to recover your last model project?"))) {
         if (Array.isArray(memoryLocState) && memoryLocState[0]) {
@@ -72,22 +72,31 @@ const page = (props:any) => {
         }
       }   
     }
+    toggle()
     setMount(true)
   }, []) 
 
-  useEffect(() => { // refresh the model when localstorage is loaded
-    if (debug) useEfflog('modelling 87', props, props.phFocus.focusModelview.name)
+  useEffect(() => {
     const timer = setTimeout(() => {
-      // dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
-      GenGojsModel(props, dispatch)
-      dispatch({type: 'SET_FOCUS_REFRESH', data: {id: 'initial', name: 'initial'}})
-      if (debug) useEfflog('modelling 90', props.phData, props.phFocus.focusModelview.name)
-    }, 5000)
-    clearTimeout(timer)
+      if (!debug) useEfflog('81 modelling useEff 2', props)
+      toggle()
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [props.phFocus.focusModelview.id])
+  
+  // useEffect(() => { // refresh the model when localstorage is loaded
+  //   if (!debug) useEfflog('79 modelling useEff 3', props, props.phFocus.focusModelview.name)
+  //   GenGojsModel(props, dispatch)
+  //   const timer = setTimeout(() => {
+  //     // dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
+  //     dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+  //     if (!ebug) useEfflog('modelling 90', props.phData, props.phFocus.focusModelview.name)
+  //   }, 1000)
+  //   clearTimeout(timer)
+  // }, [props.phFocus.focusModelview.id])
 
   const contextDiv = (
-    <div className="contextarea d-flex bg-light" style={{width: "99%", maxHeight: "24px"}}> 
+    <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
       <SetContext className='setContext' ph={props} />
       <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
         <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 

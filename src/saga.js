@@ -126,13 +126,14 @@ function * loadDataSaga() {
 function * loadDataGithubSaga(params) {  // load url-params of data from github
   // url example:  http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=startmodels&file=AKM-IRTV-Startup.json
   console.log('128 Saga', params, params.data);
-  const { repo, path, file, focus } = params.data
+  const { org, repo, path, file, branch, focus } = params.data
   if (params.data) {
-    console.log('138 Saga',  repo, path, file, focus);
+    const orgrepo = org + '/' + repo
+    console.log('131 Saga', orgrepo,org, repo, path, file, branch, focus);
     if (repo && file) {
       try {
         let res = ''  
-        res = yield searchGithub(repo, path, file, 'main', 'paramfile')
+        res = yield searchGithub(orgrepo, path, file, 'main', 'paramfile')
         console.log('148 Saga', res.data);
         const data = yield res.data
         console.log('153 Saga', data);

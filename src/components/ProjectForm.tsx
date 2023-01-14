@@ -54,16 +54,15 @@ export default function ProjectForm(props) {
       <Row className="bg-secondary my-1 p-2 text-light" >
         <Col>focusItem</Col>
         <Col>name</Col>
-        <Col>id</Col>s
+        <Col>id</Col>
       </Row>
         {projectFocus.map((obj, index) => {
           return (
             <Row key={Object.keys(obj)[0]}>
-              <Col key={obj.name+1} className='bg-white m-1' >{Object.keys(obj)[0]} </Col>
-              <Col key={obj.name}className='bg-white m-1'>{Object.values(obj)[0].name} </Col>
+              <Col key={obj.name+1} className='bg-white m-1 font-weight-bold' ><strong> {Object.keys(obj)[0]} </strong></Col>
+              <Col key={obj.name}className='bg-white m-1'><strong> {Object.values(obj)[0].name} </strong></Col>
               <Col key={obj.id}className='bg-white m-1' >{Object.values(obj)[0].id || ''} </Col>
             </Row>
-
           )
         })}
       </div>
@@ -75,14 +74,14 @@ export default function ProjectForm(props) {
       <Row className="bg-secondary my-1 p-2 text-light" >
       <Col>focusItem</Col>
         <Col>name</Col>
-        <Col>id</Col>s
+        <Col>id</Col>
       </Row>
       <div className="border" style={{background: "#eee"}}>
         {modelFocus.map((obj, index) => {
           return (
             <Row key={Object.keys(obj)[0]}>
-              <Col key={obj.name+1} className='bg-white m-1' >{Object.keys(obj)[0]} </Col>
-              <Col key={obj.name}className='bg-white m-1'>{Object.values(obj)[0].name} </Col>
+              <Col key={obj.name+1} className='bg-white m-1' ><strong> {Object.keys(obj)[0]} </strong> </Col>
+              <Col key={obj.name}className='bg-white m-1'><strong>{Object.values(obj)[0].name} </strong></Col>
               <Col key={obj.id}className='bg-white m-1' >{Object.values(obj)[0].id || ''} </Col>
             </Row>
         )
@@ -91,11 +90,10 @@ export default function ProjectForm(props) {
   </>  
 
   return (
-    <Container className='bg-light'>
-    <h3>Current Context and Focus :</h3>
-    <div>{focusProjectItems}</div>
-    <div>{focusModelItems}</div>
-
+    <Container className='p-4' style={{backgroundColor: "#cdd"}}>
+      <h3>Current Context and Focus :</h3>
+      <div className="">{focusProjectItems}</div>
+      <div>{focusModelItems}</div>
     </Container>
 
   )

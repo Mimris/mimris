@@ -182,7 +182,7 @@ const Palette = (props: any) => {
    const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
         <button className="btn-sm px-1 m-0 text-left w-100" style={{ backgroundColor: "#69a", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette </span> : <span> -&gt;</span>} 
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette Source Metam.</span> : <span> -&gt;</span>} 
         </button>
         {/* <span>{props.focusMetamodel?.name}</span> */}
         <div>
@@ -191,7 +191,7 @@ const Palette = (props: any) => {
             ? (refreshPalette) 
               ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</> 
               : <div><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</div>
-            : <div className="btn-vertical px-1 text-center" style={{ height: "84vh", maxWidth: "4px", padding: "1px" }}><span> P a l e t t e </span> </div>
+            : <div className="btn-vertical px-1 text-center" style={{ height: "84vh", maxWidth: "4px", padding: "1px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
           } 
         </div>
       </>  

@@ -6,7 +6,7 @@ const SetContext = (props: any) =>  {
  
   const phFocus = props.ph?.phFocus;
   const phData = props.ph?.phData;
-  const repopath = (phData?.repository) ? (phData?.path) ? phData?.repository+'/'+phData?.path : phData?.repository : '';
+  const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
 
   const [toggle, setToggle] = useState(true);
 
@@ -15,17 +15,17 @@ const SetContext = (props: any) =>  {
   }
 
   const contextRepoDiv = 
-    <div className="context-list  d-flex justify-content-between flex-grow-1">.Context :
-      <span className="context-item"> Repo: <strong>{repopath}</strong> </span> |
+    <div className="context-list d-flex justify-content-between flex-grow-1">.Context :
+      <span className="context-item"> Org: <strong>{phFocus?.focusProj.org}</strong> </span> | 
+      <span className="context-item"> Repo: <strong>{repo}</strong> </span> |
       <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> |
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Org: <strong>{phData?.organisation}</strong> </span> | 
       <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
       <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span> |
     </div>
 
   const contextModelDiv = 
-    <div className="context-list  d-flex justify-content-between align-items-center flex-grow-1">Context :
+    <div className="context-list d-flex justify-content-between align-items-center flex-grow-1">Context :
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
       <span className="context-item"> Modelview: <strong>{ phFocus?.focusModelview?.name }</strong> </span> |
       <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
@@ -37,7 +37,7 @@ const SetContext = (props: any) =>  {
   return (
     <>
       {toggle ? contextRepoDiv : contextModelDiv}
-      <button className="btn btn-sm my-0 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "10px", backgroundColor: "#cdd"}}>
+      <button className="btn btn-sm my-0 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "24px", backgroundColor: "#cdd"}}>
         {(toggle) ? <span>&lt;</span> : <span >&gt;</span> }
         {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}
       </button> 

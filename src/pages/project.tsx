@@ -71,18 +71,29 @@ const page = (props: any) => {
                   <SetContext className='setContext' ph={props} />
                 </div> 
                 <div className="tasksarea m-1 p-3 " style={{ minHeight: "70vh", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                  <h1 className='text-muted'>GitHub links </h1>
+                  <h2 className='text-muted'>GitHub links :</h2>
                   <div className='bg-light px-2 m-1 w-100'>
-                   <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
+                  {(org) ?
+                     <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
+                      :
+                      <Link className='text-primary ' href={`https:/github.com/kavca`} target="_blank">Kavca</Link>}
                   </div>
                   <div className='bg-light px-2 m-1 w-100'>
-                   <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>
+                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
                   <div className='bg-light px-2 m-1 w-100'>
-                   <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/1`} target="_blank"> {org}/{repo} project</Link>
+                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank"> {org}/{repo} issues</Link>}
+                  </div>
+                  <div className='bg-light px-2 m-1 w-100'>
+                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/1`} target="_blank"> {org}/{repo} project</Link>}
                   </div>
                 </div>
                 <div className="container m-1" style={{ minHeight: "70vh", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                  <div className="d-flex justify-content-end ">
+                    <button className='rounded mt-2 px-2 m-2  '>
+                        <Link className='text-primary' href="/modelling">Start Modelling</Link>
+                    </button>
+                  </div>
                   {projectDiv}
                 </div>
               </div>

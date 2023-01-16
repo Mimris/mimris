@@ -1,5 +1,6 @@
 import { compareSync } from 'bcrypt'
 import React from 'react'
+import Link from 'next/link'
 import { Container, Row, Col } from 'react-bootstrap'
 
 const debug = false

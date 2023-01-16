@@ -60,11 +60,11 @@ export default function GithubParams(props) {
             <Col key={5} className='bg-white m-1' >{branch} </Col>
           </Row></strong>
         </div>
-        <div className="d-flex justify-content-center ">
-          <button className='bg-primary rounded mt-2 w-25 b-2 '>
-              <Link className='text-white' href="/modelling">Click here to Start Modelling View</Link>
+        {/* <div className="d-flex justify-content-center ">
+          <button className='bg-primary rounded mt-2 w-50 b-2 '>
+              <Link className='text-white' href="/modelling">Click here to open the model in AKM Modeller</Link>
           </button>
-        </div>
+        </div> */}
       </Container>
     </Container>
   );

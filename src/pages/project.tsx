@@ -14,13 +14,15 @@ import GithubParams from '../components/GithubParams';
 import { useRouter } from "next/router";
 import Q from 'q';
 
+const debug = false
+
 const page = (props: any) => {
     
   const dispatch = useDispatch()  
   
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   
-  console.log('19 project',props, query)
+  if (debug) console.log('19 project',props, query)
 
           // list query params
           const org = props.phFocus.focusProj.org

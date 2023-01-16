@@ -41,7 +41,7 @@ export default function ProjectForm(props) {
   }
   ).filter(item => item !== undefined) || []
 
-  console.log('41 ',projectFocus, modelFocus)
+  
 
   if (debug) console.log('43 ', Object.keys(projectFocus[0]))
   // list objects in props.phFocus and display divem in a form

@@ -20,7 +20,7 @@ const page = (props: any) => {
   
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   
-  console.log('19 project',props, query)
+// console.log('19 project',props, query)
 
           // list query params
           const org = props.phFocus.focusProj.org

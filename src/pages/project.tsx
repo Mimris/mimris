@@ -58,7 +58,7 @@ const page = (props: any) => {
     fetchData(); 
   }, []);
 
-  const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}?branch=${branch}`
+  const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
 
   const projectDiv =  (Object.keys(query).length !== 0) 

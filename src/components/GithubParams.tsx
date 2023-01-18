@@ -9,36 +9,37 @@ const debug = false
 
 export default function GithubParams(props) {
 
-    const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
-    const [refresh, setRefresh] = useState(true);
+  const [refresh, setRefresh] = useState(true);
 
-    if (debug) console.log('5 GithubParams', props)
-        // list query params
-        const query = props.query
-        const org = query.org
-        const repo = query.repo
-        const path = query.path
-        const file = query.file
-        const branch = query.branch
+  if (debug) console.log('5 GithubParams', props)
+      // list query params
+      const query = props.query
+      const org = query.org
+      const repo = query.repo
+      const path = query.path
+      const file = query.file
+      const branch = query.branch
+      const focus = query.focus
+      const ghtype = query.ghtype
 
-    // function setFocusProject(props) {
-    //     if (debug) console.log('27 modelling genGojsArrays', props.ph)
-    //     dispatch({ type: 'SET_FOCUS_PROJ', data: {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} })
-    //   }
-      
-      useEffect(() => {
-        if (!debug) console.log('16 modelling dispatchGithub', query)  
-        dispatch({type: 'LOAD_DATAGITHUB', data: query })
-        const timer = setTimeout(() => {
-          const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
-          dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-          const org1 = {id: org, name: org}
-          dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, [])
+  // function setFocusProject(props) {
+  //     if (debug) console.log('27 modelling genGojsArrays', props.ph)
+  //     dispatch({ type: 'SET_FOCUS_PROJ', data: {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} })
+  //   }
+    
+    useEffect(() => {
+      if (!debug) console.log('16 modelling dispatchGithub', query)  
+      dispatch({type: 'LOAD_DATAGITHUB', data: query })
+      const timer = setTimeout(() => {
+        const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
+        dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+        const org1 = {id: org, name: org}
+        dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+      }, 1000);
+      return () => clearTimeout(timer);
+  }, [])
 
   return (
     <Container className='container p-4' style={{backgroundColor: "#cdd"}}>

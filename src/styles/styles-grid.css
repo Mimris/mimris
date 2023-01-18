@@ -49,10 +49,10 @@
   grid-area: workplace;
   display: grid ;
   /* background-color: #; */
-  grid-template-columns: auto 2fr;
+  grid-template-columns: auto 1fr auto;
   grid-template-areas:
-  "contextarea contextarea"
-  "tasksarea workarea";
+  "contextarea contextarea contextarea "
+  "tasksarea workarea right-aside";
 }
 @media only screen and (max-width: 360px) {
  .workplace {

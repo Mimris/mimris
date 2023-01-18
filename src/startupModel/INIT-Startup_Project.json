@@ -7272,8 +7272,13 @@
       "name": ""
     },
     "focusProj": {
-      "id": null,
-      "name": ""
+      "branch":  "main",
+      "file": "AKM-Init-Startup.json",
+      "id": "Kavcakavca-akm-modelsstartmodelsAKM-Init-Startup.json",
+      "name": "AKM-Init-Startup",
+      "org": "Kavca",
+      "path": "startmodels",
+      "repo": "kavca-akm-models"
     },
     "focusSource": {
       "id": null,

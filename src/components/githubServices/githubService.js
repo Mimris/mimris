@@ -60,6 +60,9 @@ export function searchGithub(searchText, path, filename, branch='main', searchty
     query = `repos/${searchText}/git/blobs/${filename}`
   } else if (searchtype == 'modelfile') {
     query = `${searchText}${filename}`
+  } else if (searchtype == 'issues') {
+    console.log('50 searcGithub issues', searchText);
+    query = `${searchText}/issues`
   }
   console.log('50 searcGithub ', query);
   return axios.get(

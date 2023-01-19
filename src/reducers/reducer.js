@@ -184,7 +184,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
-      if (debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action, action.data.data.phData);
+      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action, action.data.data.phData);
       const retval_LOAD_DATAGITHUB_SUCCESS = 
       {
         ...state,
@@ -194,7 +194,7 @@ function reducer(state = InitialState, action) {
         phUser: action.data.data.phUser,
         lastUpdate: action.data.data.lastUpdate
       }
-      if (debug) console.log('170 LOAD_DATAGITHUB_SUCCESS', retval_LOAD_DATAGITHUB_SUCCESS);
+      if (!debug) console.log('170 LOAD_DATAGITHUB_SUCCESS', retval_LOAD_DATAGITHUB_SUCCESS);
       return retval_LOAD_DATAGITHUB_SUCCESS
 
     case LOAD_DATAMODELLIST_SUCCESS:

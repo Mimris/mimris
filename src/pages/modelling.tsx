@@ -60,7 +60,7 @@ const page = (props:any) => {
 
   useEffect(() => { 
     if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phData, props.phSource)
-    if (props.phData.metis.name === 'AKM-INIT-Startup') {
+    if (props.phFocus.focusProj.file === 'AKM-INIT-Startup') {
       if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
       if ((window.confirm("Do you want to recover your last model project?"))) {
         if (Array.isArray(memoryLocState) && memoryLocState[0]) {

@@ -37,7 +37,9 @@ export default function GithubParams(props) {
         dispatch({ type: 'SET_FOCUS_PROJ', data: data })
         const org1 = {id: org, name: org}
         dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-      }, 1000);
+        const repo1 = {id: 'role', name: ''}
+        dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
+      }, 2000);
       return () => clearTimeout(timer);
   }, [])
 

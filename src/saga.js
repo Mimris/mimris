@@ -133,7 +133,7 @@ function * loadDataGithubSaga(params) {  // load url-params of data from github
     if (repo && file) {
       try {
         let res = ''  
-        res = yield searchGithub(orgrepo, path, file, 'main', searchtype = 'paramfile')
+        res = yield searchGithub(orgrepo, path, file, 'main', 'paramfile')
         console.log('148 Saga', res.data);
         const data = yield res.data
         console.log('153 Saga', data);

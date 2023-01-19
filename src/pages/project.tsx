@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 // import client from '@sanity/client'
 import axios from 'axios';
 import Link from 'next/link';
-import { loadData } from '../actions/actions'
+import { useRouter } from "next/router";
+import { loadData, setfocusRefresh } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -13,7 +14,7 @@ import SetContext from '../defs/SetContext'
 import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';
-import { useRouter } from "next/router";
+import SelectContext from '../components/SelectContext';
 import Q from 'q';
 
 const debug = false
@@ -56,7 +57,8 @@ const page = (props: any) => {
       }
     }
     fetchData(); 
-  }, []);
+    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
+  }, [props.phFocus.focusProj.org]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
@@ -115,26 +117,31 @@ const page = (props: any) => {
                   </div>
                   <div className='bg-light px-2 m-1 w-100'>
                   <div className='text-muted'>Project Canban for this repo:</div>
-                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/1`} target="_blank"> {org}/{repo} project</Link>}
+                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
                   </div>
                 </div>
                 <div className="main container m-1" style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     <div className=" d-flex justify-content-around ">
-                      <div className="bg-white m-2 p-2">
+                      <div className="rounded bg-light m-2 p-2">
                         <button className='rounded mt-2 px-2 m-2 '>
                             <Link className='text-primary ' href={generatedUrl}>Reload from GitHub </Link>
                         </button>
                       <span className='text-muted pr-2'>NB! This will overwrite any changes made in current model </span>  
                       </div>   
-                      <div className="bg-white m-2 p-2">
+                      {/* <div className="rounded bg-light m-2 p-2">
+                        <button className='rounded mt-2 px-2 m-2  '>
+                           <SelectContext className='ContextModal mr-2' buttonLabel='Set Context' phData={props.phData} phFocus={props.phFocus} />  
+                        </button>
+                      </div>    */}
+                      <div className="rounded bg-light m-2 p-2">
                         <button className='rounded mt-2 px-2 m-2  '>
                             <Link className='text-primary ' href="/modelling">Start Modelling</Link>
                         </button>
                       </div>   
                     </div>   
-                    <div className="bg-light m-2 p-2">
-                      <div className='px-2'>Copy the text below to send the project-link to others: </div>  
-                      <span className='fs-6 m-2 p-2' style={{backgroundColor: '#dde'}}>{generatedUrl} </span>  
+                    <div className="rounded bg-light m-2 p-2">
+                      <div className='ronded px-2'>Copy the text below to send the project-link to others: </div>  
+                      <span className='rounded fs-6 m-2 p-2' style={{backgroundColor: '#dde'}}>{generatedUrl} </span>  
                     </div>
                     {projectDiv}
                     
@@ -142,18 +149,16 @@ const page = (props: any) => {
 
                 <div className="right-aside container fs-4  m-3 ">
                   <h2 className='text-muted fs-4 p-2'>GitHub Issues :</h2>
-                  {issues.map((issue) => (
+                  {(issues.length > 0) && issues.map((issue) => (
                     <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
                       <div className='d-flex justify-content-between'>
-                        <Link className='text-primary ' href={issue.html_url} target="_blank"># {issue.number}</Link>
+                        <Link className='text-primary ' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
                         <div className='text-muted'>{issue.user.name}</div>
                       </div>
                       <h6>{issue.title}</h6>
-                      <p className='text-secondary '>{issue.body}</p>
-                      <div className='text-muted'>Assignee: {issue.assignees[0].login}</div>
-                      <div className='text-muted'>Created by: {issue.user.login} </div>
-                      <div className='text-muted'>Date: {issue.created_at}</div>
-                      <div className='text-muted'>{issue.state}</div>
+                      {/* <p className='text-secondary m-2'>{issue.body}</p> */}
+                      <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+
                     </div>
                   ))}
                 </div>

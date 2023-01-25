@@ -109,7 +109,7 @@ const page = (props: any) => {
                   </div>
                   <div className='bg-light px-2 m-1 w-100'>
                   <div className='text-muted'>Repository :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+                  {(repo) && <Link className='text-primary ' href={`https:/github.io/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
                   <div className='bg-light px-2 m-1 w-100'>
                   <div className='text-muted'>Issues for this repo:</div>

@@ -46,6 +46,10 @@ const colornames = ['black', 'white',
 
 const strokewidths = ['1', '2', '3', '4', '5'];
 
+const routings = ['Normal', 'Orthogonal', 'AvoidsNodes', 'OrthogonalAvoidsNodes'];
+
+const curves = ['None', 'Bezier', 'JumpOver', 'JumpGap'];
+
 const useTabs = true;
 
 const booleanAsCheckbox = true;
@@ -308,9 +312,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (!item) item = inst;
         hideNameAndDescr = true;
         if (debug) console.log('308 inst, item', inst, item);
-        if (what === "editObjectview")
-          useFillColor = true;
-        else if (what === "editRelshipview")
+        if (what === "editObjectview") {
+          if (type.name !== constants.types.AKM_PORT) 
+            useFillColor = true;
+        } else if (what === "editRelshipview")
           useStrokeColor = true;
         break;
       default:
@@ -692,6 +697,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   fieldType = 'radio';
                 }
                 break;                
+            case 'routing':
+              values = ['Normal', 'Orthogonal', 'AvoidsNodes'];
+              defValue = 'None';
+              fieldType = 'radio';
+              break;
+            case 'curve':
+              values = ['None', 'Bezier', 'JumpOver', 'JumpGap'];
+              defValue = 'None';
+              fieldType = 'radio';
+              break;
             case 'fromArrow':
               values = arrowheads;
               defValue = 'None';

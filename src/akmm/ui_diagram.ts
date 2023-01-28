@@ -429,6 +429,41 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }
 
+export function addPort(node: any, myMetis: akm.cxMetis) {
+    const myDiagram = myMetis.myDiagram;
+    // Get current object from node
+    const object = node.object;
+    // Create a new Port object
+    const port = new akm.cxPort(utils.createGuid(), "", "");
+    // Open Edit Object dialog
+    const icon = "";
+    const modalContext = {
+        what:       "editPort",
+        title:      "Edit Port",
+        icon:       icon,
+        myDiagram:  myDiagram
+      }
+      myMetis.currentNode = node;
+      myMetis.myDiagram = myDiagram;
+      if (debug) console.log('447 node, modalContext', node, modalContext);
+      if (debug) console.log('448 myMetis', myMetis);
+      myDiagram.handleOpenModal(node, modalContext);
+        
+    // When saved, 
+    // Port object is included in the current model
+    // In the current object, add reference to the port object ('ports' property)
+
+    // Test code: 
+    // let side = prompt("Specify side (one of: 'left', 'right', 'top', 'bottom'");
+    // if (side === null) return;
+    // let portname = prompt("Specify port name");
+    // if (portname === null) return;
+    // node.side = side;
+    // node.portname = portname;
+    // console.log('addPort: node', node);
+}
+
+
 export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(node?.icon);
     const modalContext = {
@@ -526,7 +561,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
                 case 'relshipkind':      
                     continue;              
             }
-            rview[prop] = "";
+            rview[prop] = rtview[prop];
             if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
             myDiagram.model.setDataProperty(l.data, prop, rtview[prop]);
         }

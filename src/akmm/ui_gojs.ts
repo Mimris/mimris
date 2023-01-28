@@ -400,6 +400,10 @@ export class goObjectNode extends goNode {
     typename: string;
     typedescription: string;
     typeview: akm.cxObjectTypeView | null;
+    leftPorts: akm.cxPort[] | null;
+    rightPorts: akm.cxPort[] | null;
+    topPorts: akm.cxPort[] | null;
+    bottomPorts: akm.cxPort[] | null;
     template: string;
     figure: string;
     geometry: string;
@@ -418,6 +422,10 @@ export class goObjectNode extends goNode {
         this.objectview     = objview;
         this.object         = null;
         this.objecttype     = null;
+        this.leftPorts      = null;
+        this.rightPorts     = null;
+        this.topPorts       = null;
+        this.bottomPorts    = null;
         this.typename       = "";
         this.typedescription = "";
         this.template       = objview.template;
@@ -454,6 +462,10 @@ export class goObjectNode extends goNode {
                     this.typedescription = "";
                     //this.type = "";
                 }
+                this.leftPorts = object.getLeftPorts();
+                this.rightPorts = object.getRightPorts();
+                this.topPorts = object.getTopPorts();
+                this.bottomPorts = object.getBottomPorts();
             }
             this.typeview = objview.getTypeView();
             if (!this.template)
@@ -741,6 +753,8 @@ export class goRelshipLink extends goLink {
     toNode:             goNode | null;
     from:               string;
     to:                 string;
+    fromPort:           string;
+    toPort:             string;
     arrowscale:         string;
     strokecolor:        string;
     strokewidth:        string;
@@ -752,6 +766,7 @@ export class goRelshipLink extends goLink {
     toArrowColor:       string;
     routing:            string;
     curve:              string;
+    corner:             string;
     points:             any;
     relshipkind:        string;
     cardinality:        string;
@@ -771,6 +786,8 @@ export class goRelshipLink extends goLink {
         this.toNode          = null;
         this.from            = "";
         this.to              = "";
+        this.fromPort        = relview?.fromPortid;
+        this.toPort          = relview?.toPortid;
         this.template        = relview?.template;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
@@ -781,8 +798,9 @@ export class goRelshipLink extends goLink {
         this.fromArrowColor  = relview?.fromArrowColor;
         this.toArrow         = relview?.toArrow;
         this.toArrowColor    = relview?.toArrowColor;
-        this.routing         = "";
-        this.curve           = "";
+        this.routing         = relview?.routing ? relview.routing : "";
+        this.curve           = relview?.curve ? relview.curve : "";
+        this.corner          = relview?.corner ? relview.corner : "";
         this.points          = null;
         this.relshipkind     = "";
         this.cardinality     = "";
@@ -844,6 +862,18 @@ export class goRelshipLink extends goLink {
     }
     getToNode(): goNode | null {
         return this.toNode;
+    }
+    setFromPort(pid: string) {
+        this.fromPort = pid;
+    }
+    getFromPort(): string {
+        return this.fromPort;
+    }
+    setToPort(pid: string) {
+        this.toPort = pid;
+    }
+    getToPort(): string {
+        return this.toPort;
     }
     setToNode(to: string) {
         this.to = to;
@@ -916,8 +946,7 @@ export class goRelshipLink extends goLink {
         if (this.toArrow && this.toArrow === 'None')
             this.toArrow = '';
         if (debug) console.log('764 goRelshipLink, this: ', this);
-    }
-    
+    }   
     updateLink(data: any, diagram: any) {
         if (this.typeview) {
             const viewdata = this.typeview.getData();

@@ -513,8 +513,10 @@ export function handleSelectDropdownChange(selected, context) {
       modalContext.selected = selected;
       if (debug) console.log('358 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
+      const fromPortId = modalContext.data.fromPort;
       // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
       const toNode = myGoModel.findNode(modalContext.data.to);
+      const toPortId = modalContext.data.toPort;
       // const nodeTo   = myDiagram.findNodeForKey(toNode?.key)
       let fromType = fromNode?.objecttype;
       let toType   = toNode?.objecttype;
@@ -779,21 +781,22 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const link = myDiagram.findLinkForKey(rel.key);
       if (!link)
         break;
-      if (debug) console.log('705 rel, link', rel, link);
+      if (debug) console.log('782 rel, link', rel, link);
       const data = link.data;
-      if (debug) console.log('707 data', data);
+      if (debug) console.log('784 data', data);
       let relship = data.relship;
       relship = myMetis.findRelationship(relship.id);
       relship['cardinalityFrom'] = relship.getCardinalityFrom();
       relship['cardinalityTo'] = relship.getCardinalityTo();
       if (relship.name === "") relship.name = " ";
-      // relship.cardinalityTo = relship.cardinality;
-      if (debug) console.log('713 relship, rel', relship, rel);
+      if (debug) console.log('790 relship, rel', relship, rel);
       for (let k in rel) {
         if (typeof(rel[k]) === 'object')    continue;
         if (typeof(rel[k]) === 'function')  continue;
+        if (debug) console.log('794 prop', k);
         if (!uic.isPropIncluded(k, type))  continue;
         myDiagram.model.setDataProperty(data, k, relship[k]);
+        if (debug) console.log('797 data, k, relship[k]', data, k, relship[k]);
       }
       let relview = link.data.relshipview;
       relview = myMetis.findRelationshipView(relview.id);
@@ -809,11 +812,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
       }
-      if (debug) console.log('742 relship, relview', relship, relview);
+      if (debug) console.log('813 relship, relview', relship, relview);
       if (myModelview.showCardinality) {
         myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship.getCardinalityFrom());
         myDiagram.model.setDataProperty(data, 'cardinalityTo', relship.getCardinalityTo());
-        if (debug) console.log('746 myModelview', myModelview);
+        if (debug) console.log('817 myModelview', myModelview);
       } else {
         myDiagram.model.setDataProperty(data, 'cardinalityFrom', '');
         myDiagram.model.setDataProperty(data, 'cardinalityTo', '');
@@ -833,7 +836,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // End fix
       const objtypeview = oview.typeview;
       myDiagram.selection.each(function(sel) {
-        if (debug) console.log('789 sel, sel.data', sel, sel.data);
+        if (debug) console.log('839 sel, sel.data', sel, sel.data);
           let objview = sel.data.objectview;
           if (objview) {
             objview = myMetis.findObjectView(objview.id);
@@ -853,7 +856,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const node = myDiagram.findNodeForKey(sel.data.key);
           if (node) {
             const data = node.data;
-            if (debug) console.log('789 objview, data, node', objview, data, node);
+            if (!debug) console.log('859 objview, data, node', objview, data, node);
+            if (!debug) console.log('861 model', myDiagram.model);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'template' && objview[prop] !== "") 
@@ -1085,6 +1089,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'dash' && relview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'routing' && relview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'curve' && relview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'fromArrow') {
               let fromArrow = relview[prop];
               if (relview[prop] === 'None') fromArrow = "";
@@ -1210,9 +1218,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (prop === 'abstract') continue;
             if (prop === 'class') continue;
             if (prop === 'relshipkind') continue;
-            typeview[prop] = selObj[prop];
-            typeview.data[prop] = selObj[prop];
-            myDiagram.model.setDataProperty(data, prop, selObj[prop]);
+
+            if (prop === 'fromArrow') {
+              let fromArrow = typeview[prop];
+              if (typeview[prop] === 'None') fromArrow = "";
+              myDiagram.model.setDataProperty(data, prop, fromArrow);           
+            }          
+            if (prop === 'toArrow') {
+              let toArrow = typeview[prop];
+              if (typeview[prop] === 'None') toArrow = "";
+              myDiagram.model.setDataProperty(data, prop, toArrow);           
+            } else {          
+              typeview[prop] = selObj[prop];
+              typeview.data[prop] = selObj[prop];
+              myDiagram.model.setDataProperty(data, prop, selObj[prop]);
+            }
           }
           if (debug) console.log('1047 typeview', typeview, data);
           myMetamodel.addRelationshipTypeView(typeview);
@@ -1319,7 +1339,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
   let data = {metis: jsnMetis}
   data = JSON.parse(JSON.stringify(data));
-  if (debug) console.log('1321 myMetis, data', myMetis, data);
+  if (debug) console.log('1323 myMetis, data', myMetis, data);
   myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   myDiagram.clearSelection();
 }

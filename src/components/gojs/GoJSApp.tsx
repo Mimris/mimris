@@ -136,6 +136,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       toType: modalContext.toType,
       nodeFrom: modalContext.nodeFrom,
       nodeTo: modalContext.nodeTo,
+      portFrom: modalContext.portFrom,
+      portTo: modalContext.portTo,
       context: modalContext.context
     }
     if (debug) console.log('128 args', args);
@@ -1238,8 +1240,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
-        if (debug) console.log('1171 link', link.data, link.fromNode, link.toNode);
-
+        if (debug) console.log('1241 link, data, fromNode, toNode', link, data, link.fromNode, link.toNode);
+        if (debug) console.log('1242 model', myDiagram.model);
         if (false) { // Prepare for linkToLink
           if (linkToLink) {
             let labels = link.labelNodes;
@@ -1255,27 +1257,26 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('1188 data', data);
+        if (debug) console.log('1258 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
-
-        if (debug) console.log('1192 LinkDrawn', fromNode, toNode, data);
+        if (debug) console.log('1262 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
         if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
           data.category = constants.gojs.C_RELSHIPTYPE;
-          if (debug) console.log('1196 link', fromNode, toNode);
+          if (debug) console.log('1265 link', fromNode, toNode);
           // link.category = constants.gojs.C_RELSHIPTYPE;
           const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
-            if (debug) console.log('1200 reltype', reltype);
+            if (debug) console.log('1269 reltype', reltype);
             const jsnType = new jsn.jsnRelationshipType(reltype, true);
             modifiedTypeLinks.push(jsnType);
-            if (debug) console.log('1203 jsnType', jsnType);
+            if (debug) console.log('1272 jsnType', jsnType);
             const reltypeview = reltype.typeview;
             if (reltypeview) {
               const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
               modifiedLinkTypeViews.push(jsnTypeView);
-              if (debug) console.log('1208 jsnTypeView', jsnTypeView);
+              if (debug) console.log('1277 jsnTypeView', jsnTypeView);
               const myGoModel = myMetis.gojsModel;
               let gjsLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
               gjsLink.fromNode = fromNode.data;
@@ -1283,10 +1284,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               gjsLink.loadLinkContent(myGoModel);
               myGoModel.addLink(gjsLink);
               gjsLink.name = reltype.name;
-              if (debug) console.log('1261 link, myGoModel, reltype', gjsLink, myGoModel, reltype);
+              if (debug) console.log('1285 link, myGoModel, reltype', gjsLink, myGoModel, reltype);
               myDiagram.model.addLinkData(gjsLink);
               const lnk = myDiagram.findLinkForKey(gjsLink.key);
-              if (debug) console.log('1264 lnk, reltype', lnk, reltype);
+              if (debug) console.log('1288 lnk, reltype', lnk, reltype);
               myDiagram.model.setDataProperty(lnk.data, 'name', reltype.name);
             }
           }
@@ -1304,7 +1305,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          if (debug) console.log('1225 data, context', data, context);
+          if (debug) console.log('1306 data, context', data, context);
           uic.createRelationship(data, context);
         }
         myDiagram.requestUpdate(); 
@@ -1357,7 +1358,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundSingleClicked": {
-        if (!debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
+        if (debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
       }
       break;
       case "BackgroundDoubleClicked": {

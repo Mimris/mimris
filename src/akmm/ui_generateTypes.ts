@@ -67,9 +67,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (debug) console.log('67 typid', typid, typid.length);
     if (debug) console.log('68 myTargetMetamodel', myTargetMetamodel);
     const myMetamodel = myMetis.currentMetamodel;
-    const myModel     = context.myModel;
-    const modifiedObjects = new Array();
-    const modifiedTypeViews = new Array();
+    const myModel             = context.myModel;
+    const myModelView         = context.myCurrentModelview;
+    const modifiedObjects     = new Array();
+    const modifiedObjectTypes = new Array();
+    const modifiedTypeViews   = new Array();
     // 'object' is the object defining the object type to be generated
     const currentObj = myMetis.findObject(object.id) as akm.cxObject;
     let parentRelType: akm.cxRelationshipType | null = null;
@@ -270,6 +272,48 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         });
         if (debug) console.log('268 modifiedTypeNodes', modifiedTypeNodes, myMetis);
     }
+    { // Handle ports
+        const leftports = new Array();
+        const rightports = new Array();
+        const topports = new Array();
+        const bottomports = new Array();
+        const rels = object.outputrels;
+        if (!debug) console.log('278 rels', rels);
+        for (let i=0; i<rels?.length; i++) {
+            const rel = rels[i];
+            if (rel?.type?.name === constants.types.AKM_HAS_PORT) {
+                const port = rel.toObject as akm.cxObject;
+                if (port) {
+                    const portviews = myModelView.findObjectViewsByObj(port);
+                    if (portviews?.length > 0) {
+                        const portview = portviews[0];
+                        if (portview)
+                            port.color = portview.fillcolor;
+                    }
+                    if (debug) console.log('286 port', port);
+                    switch(port.side) {
+                        case constants.gojs.C_LEFT:
+                            leftports.push(port);
+                            continue;
+                        case constants.gojs.C_RIGHT:
+                            rightports.push(port);
+                            continue;
+                        case constants.gojs.C_TOP:
+                            topports.push(port);
+                            continue;
+                        case constants.gojs.C_BOTTOM:
+                            bottomports.push(port);
+                            continue;
+                    }
+                }
+            }
+        }
+        if (leftports) objtype.leftPorts = leftports;
+        if (rightports) objtype.rightPorts = rightports;
+        if (topports) objtype.topPorts = topports;
+        if (bottomports) objtype.bottomPorts = bottomports;
+        if (!debug) console.log('306 objtype', objtype);
+    }
     { // Handle typeviews
         const typeview = objtype.typeview as akm.cxObjectTypeView;
         if (typeview) {
@@ -299,14 +343,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             if (debug) console.log('296 myMetis', modifiedGeos, myMetis);
         }
     }
-
     modifiedObjects?.map(mn => {
         let data = (mn) && mn 
-        if (debug) console.log('266 data', data);
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
         })
-    if (debug) console.log('270 objtype', objtype);
+    if (!debug) console.log('343 objtype', objtype);
     return objtype;
 }
 
@@ -1060,6 +1102,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (utils.nameExistsInNames(dsystemtypes, typename))
                 continue;
             if (otype.isOfType('Property'))
+                continue;
+            if (otype.isOfType('Port'))
                 continue;
             if (otype.isOfType('Method'))
                 continue;

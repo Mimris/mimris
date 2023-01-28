@@ -543,13 +543,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           if (debug) console.log('538 modelview, link:', modelview, link);
           link.loadLinkContent(myGoModel);
+          // link.corner = relview.corner ? relview.corner : "0";
+          link.curve = relview.curve ? relview.curve : "None";
+          link.routing = relview.routing ? relview.routing : "Normal";
           if (!showRelshipNames)
             link.name = " ";
           if (includeDeleted || includeNoObject || includeNoType) {
             link.strokecolor = relcolor;
             link.strokewidth = "1";
           }
-
           if (debug) console.log('542 link, relview:', link, relview);
           if (debug) console.log('543 GenGojsModel: props', props);
           myGoModel.addLink(link);

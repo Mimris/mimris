@@ -1,5 +1,8 @@
 {
   "phData": {
+    "repository": null,
+    "organisation": null,
+    "path": null,
     "metis": {
       "name": "AKM-INIT-Startup",
       "description": "New startup project",
@@ -6197,7 +6200,7 @@
       ],
       "models": [
         {
-          "id": "05d5b929-b985-49ac-cf92-cc095a03889z",
+          "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
           "name": "INIT_CM",
           "description": "",
           "metamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
@@ -6208,7 +6211,67 @@
           "isTemplate": false,
           "includeSystemtypes": true,
           "templates": [],
-          "objects": [],
+          "objects": [
+            {
+              "id": "7e259ca1-835a-4a64-1e5a-f8898a68a4b4",
+              "name": "Generic",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
+              "typeName": "Generic",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "Generic",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "44f724b3-60f2-48b5-ca8b-2dbd28cabbaf",
+              "name": "Test Container",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
+              "typeName": "Container",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "nameId": "Container",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": "",
+              "text": ""
+            },
+            {
+              "id": "a836b9f1-026b-4c29-958e-a268e2b21cbc",
+              "name": "Test2",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
+              "typeName": "Generic",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "nameId": "Generic",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": "",
+              "text": ""
+            }
+          ],
           "relships": [],
           "modelviews": [
             {
@@ -6219,10 +6282,113 @@
               "routing": "Normal",
               "linkcurve": "None",
               "showCardinality": false,
-              "UseUMLrelshipkinds": false,
-              "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889z",
+              "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
               "viewstyleRef": "d4974fe5-4e2f-4977-d2d2-deee46c57dff",
-              "objectviews": [],
+              "objectviews": [
+                {
+                  "id": "dbce5eb5-9059-4b7d-899a-abc2694951c1",
+                  "name": "Generic",
+                  "description": "",
+                  "objectRef": "7e259ca1-835a-4a64-1e5a-f8898a68a4b4",
+                  "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
+                  "group": "",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "isCollapsed": false,
+                  "loc": "-180 -170",
+                  "size": "",
+                  "scale": 1,
+                  "memberscale": 1,
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "textAndIcon",
+                  "figure": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "fillcolor2": "",
+                  "strokecolor": "",
+                  "strokecolor2": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "textscale": "1",
+                  "icon": ""
+                }
+              ],
+              "relshipviews": [],
+              "objecttypeviews": [],
+              "relshiptypeviews": [],
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
+              "id": "54430ff5-64f1-465d-110b-3fcd7f95e2c2",
+              "name": "View2",
+              "description": "",
+              "layout": "Tree",
+              "routing": "Normal",
+              "linkcurve": "None",
+              "showCardinality": false,
+              "askForRelshipName": false,
+              "includeInheritedReltypes": null,
+              "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
+              "objectviews": [
+                {
+                  "id": "5ccbb32f-3d9c-4909-e020-6e1e01142325",
+                  "name": "Test Container",
+                  "description": "",
+                  "objectRef": "44f724b3-60f2-48b5-ca8b-2dbd28cabbaf",
+                  "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
+                  "group": "",
+                  "viewkind": "Container",
+                  "isGroup": true,
+                  "isCollapsed": false,
+                  "loc": "-360 -190",
+                  "size": "400 220",
+                  "scale": 1,
+                  "memberscale": 1,
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "Container1",
+                  "figure": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "fillcolor2": "",
+                  "strokecolor": "",
+                  "strokecolor2": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "textscale": "1",
+                  "icon": ""
+                },
+                {
+                  "id": "b6956050-3e50-4364-d18a-43770084739f",
+                  "name": "Test2",
+                  "description": "",
+                  "objectRef": "a836b9f1-026b-4c29-958e-a268e2b21cbc",
+                  "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
+                  "group": "5ccbb32f-3d9c-4909-e020-6e1e01142325",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "isCollapsed": false,
+                  "loc": "-270 -130",
+                  "size": "",
+                  "scale": 1,
+                  "memberscale": 1,
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "textAndIcon",
+                  "figure": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "fillcolor2": "",
+                  "strokecolor": "",
+                  "strokecolor2": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "textscale": "1",
+                  "icon": ""
+                }
+              ],
               "relshipviews": [],
               "objecttypeviews": [],
               "relshiptypeviews": [],
@@ -6306,7 +6472,7 @@
               "valueset": null,
               "copiedFromId": "",
               "UseUMLrelshipkinds": "",
-              "modelId": "05d5b929-b985-49ac-cf92-cc095a03889z"
+              "modelId": "05d5b929-b985-49ac-cf92-cc095a03889d"
             },
             {
               "id": "4aa765df-5d54-459d-6eba-03c3359e3001",
@@ -7046,7 +7212,7 @@
         }
       ],
       "currentMetamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
-      "currentModelRef": "05d5b929-b985-49ac-cf92-cc095a03889z",
+      "currentModelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
       "currentModelviewRef": "1237125b-2f1c-46d3-eb4e-520614917262",
       "currentTemplateModelRef": "",
       "currentTargetMetamodelRef": "",
@@ -7062,12 +7228,12 @@
     "focusTargetModel": null,
     "focusTargetModelview": null,
     "focusModel": {
-      "id": "05d5b929-b985-49ac-cf92-cc095a03889z",
+      "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
       "name": "INIT_CM"
     },
     "focusModelview": {
-      "id": "1237125b-2f1c-46d3-eb4e-520614917262",
-      "name": "Main"
+      "id": "54430ff5-64f1-465d-110b-3fcd7f95e2c2",
+      "name": "View2"
     },
     "focusObject": {
       "id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",
@@ -7106,15 +7272,20 @@
       "name": ""
     },
     "focusProj": {
-      "id": null,
-      "name": ""
+      "branch":  "main",
+      "file": "AKM-Init-Startup.json",
+      "id": "Kavcakavca-akm-modelsstartmodelsAKM-Init-Startup.json",
+      "name": "AKM-Init-Startup",
+      "org": "Kavca",
+      "path": "startmodels",
+      "repo": "kavca-akm-models"
     },
     "focusSource": {
       "id": null,
       "name": ""
     },
     "focusRefresh": {
-      "id": "kb842x",
+      "id": "9csso",
       "name": "1name"
     },
     "focusRole": {
@@ -7252,6 +7423,6 @@
       }
     }
   },
-  "phSource": "GitHub: kavca-akm-models/startmodels/AKM-INIT-Startup.json",
-  "lastUpdate": "2022-10-05T19:44:11.398Z"
+  "phSource": "AKM-INIT-Startup.json",
+  "lastUpdate": "2022-12-12T16:55:03.168Z"
 }

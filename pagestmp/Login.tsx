@@ -1,15 +1,17 @@
+// @ts-nocheck
+
 // import { useRef, useState, useEffect } from 'react';
-// import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 // import { loadData } from '../actions/actions'
-// import Page from '../components/page';
+import Page from '../components/page';
 // import Layout from '../components/Layout';
 // import Link from 'next/link';
 // import fetch from 'isomorphic-unfetch'
 
-// const page = (props: any) => {
-//   // export default function Login() {
+const page = (props: any) => {}
 
-//   if (false) {
+export default Page(connect(state => state)(page));
+//   // export default function Login() {
 //   console.log('10 Login',
 //     props.phUser.focusUser
 //   );
@@ -107,12 +109,8 @@
 //     ? <><Layout user={props.phUser.focusUser} > {loginDiv}</Layout></>
 //     : <><Layout user={props.phUser.focusUser} > {signupDiv}</Layout></>);
 // }
-// }
-const page = (props: any) => {
-  return <div>login</div>
-}
-export default page 
-// // export default Page(connect(state => state)(page));
+
+// export default Page(connect(state => state)(page));
 
 
 

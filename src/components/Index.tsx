@@ -32,7 +32,7 @@ const page = (props) => {
   let gojsmodel = state.phFocus?.gojsModel
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
-  //   genGojsModel(state, dispatch)
+  //   GenGojsModel(state, dispatch)
   //   gojsmodel = state.phFocus.gojsModel
   // }, [focusModelview])
 
@@ -195,6 +195,16 @@ const page = (props) => {
                         &bull; GraphQL shema reporting from Solution models!<br />
                     </CardText>
                   </CardBody> */}
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2023.01.16</CardTitle>
+                    <CardText >
+                          &bull; New features:<br />
+                            - New Project page "/project" with info about Organisation, GitHub Repository and Model Project files.<br />
+                            - The Page also includes info about current "Context and Focus".<br />
+                            - Links back to GitHub repositories are also provided".<br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
                   <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.10.06</CardTitle>
                     <CardText >

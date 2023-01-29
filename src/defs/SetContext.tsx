@@ -1,37 +1,64 @@
 
 // import SelectContext from '../components/SelectContext'
 // Todo:  change name to ViewContext
+import { useState } from 'react'
 const SetContext = (props: any) =>  {
  
   const phFocus = props.ph?.phFocus;
+  const phData = props.ph?.phData;
+  const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
+
+  const [toggle, setToggle] = useState(true);
+
+  const toggleContext = () => {
+    setToggle(!toggle);
+  }
+
+  const contextRepoDiv = 
+    <div className="context-list d-flex justify-content-between flex-grow-1">.Context :
+      <span className="context-item"> Org: <strong>{phFocus?.focusProj.org}</strong> </span> | 
+      <span className="context-item"> Repo: <strong>{repo}</strong> </span> |
+      <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> |
+      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
+      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
+      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span> |
+    </div>
+
+  const contextModelDiv = 
+    <div className="context-list d-flex justify-content-between align-items-center flex-grow-1">Context :
+      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
+      <span className="context-item"> Modelview: <strong>{ phFocus?.focusModelview?.name }</strong> </span> |
+      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
+      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span> |
+  </div>
+
+  const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}
+  
   return (
     <>
-    <span className="context-list  display-flex align-self-center flex-grow-1 ">Context : 
-      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span>|
-      <span className="context-item"> Modelview: <strong>{phFocus?.focusModelview?.name}</strong> </span>|
-      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span>|
-      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span>|
-      {/* <span className="context-item">Objecttype: <strong>{phFocus?.focusObjecttype?.name}</strong> </span>| */}
-      {/* <span className="context-item">Objecttypeview: <strong>{phFocus?.focusObjecttypeview?.name}</strong> </span>| */}
-      {/* <span className="context-item">Relshipview: <strong>{phFocus?.focusRelshipview?.name}</strong> </span>| */}
-      {/* <span className="context-item">Relship: <strong>{phFocus?.focusRelship?.name}</strong> </span>| */}
-      {/* <span className="context-item">Relshiptype: <strong>{phFocus?.focusRelshiptype?.name}</strong> </span>| */}
-      <span className="context-item"> Org: <strong>{phFocus?.focusOrg?.name}</strong> </span>|
-      <span className="context-item"> Proj: <strong>{phFocus?.focusProj?.name}</strong> </span>|
-      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span>|
-      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>|
-      {/* <span className="context-item"><SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> </span>| */}
-      {/* <span className="context-item">FocusModel: <strong>{phFocus?.focusModel?.name}</strong> </span>|
-      <span className="context-item">FocusModelview: <strong>{phFocus?.focusModelview?.name}</strong> </span>| */}
-      <span className="context-item">Tab: <strong>{phFocus?.focusTab}</strong> </span>|
-      {/* <span className="context-item">Template: <strong>{phFocus?.focusTemplateModel?.name}</strong> </span>|
-      <span className="context-item">TemplateModelview: <strong>{phFocus?.focusTemplateModelview?.name}</strong> </span>|
-      <span className="context-item">TargetModel: <strong>{phFocus?.focusTargetModel?.name}</strong> </span>|
-      <span className="context-item">TargetModelview: <strong>{phFocus?.focusTargetModelview?.name}</strong> </span>| */}
-
-    </span>
+      {toggle ? contextRepoDiv : contextModelDiv}
+      <button className="btn btn-sm my-0 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "24px", backgroundColor: "#cdd"}}>
+        {(toggle) ? <span>&lt;</span> : <span >&gt;</span> }
+        {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}
+      </button> 
     </>
-    )
+  )
 }
           
 export default SetContext
+
+
+
+      // {/* <span className="context-item">Objecttype: <strong>{phFocus?.focusObjecttype?.name}</strong> </span>| */}
+      // {/* <span className="context-item">Objecttypeview: <strong>{phFocus?.focusObjecttypeview?.name}</strong> </span>| */}
+      // {/* <span className="context-item">Relshipview: <strong>{phFocus?.focusRelshipview?.name}</strong> </span>| */}
+      // {/* <span className="context-item">Relship: <strong>{phFocus?.focusRelship?.name}</strong> </span>| */}
+      // {/* <span className="context-item">Relshiptype: <strong>{phFocus?.focusRelshiptype?.name}</strong> </span>| */}
+      // {/* <span className="context-item"><SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> </span>| */}
+      // {/* <span className="context-item">FocusModel: <strong>{phFocus?.focusModel?.name}</strong> </span>|
+      // <span className="context-item">FocusModelview: <strong>{phFocus?.focusModelview?.name}</strong> </span>| */}
+      // {/* <span className="context-item">Tab: <strong>{phFocus?.focusTab}</strong> </span>  */}
+      // {/* <span className="context-item">Template: <strong>{phFocus?.focusTemplateModel?.name}</strong> </span>|
+      // <span className="context-item">TemplateModelview: <strong>{phFocus?.focusTemplateModelview?.name}</strong> </span>|
+      // <span className="context-item">TargetModel: <strong>{phFocus?.focusTargetModel?.name}</strong> </span>|
+      // <span className="context-item">TargetModelview: <strong>{phFocus?.focusTargetModelview?.name}</strong> </span>| */}

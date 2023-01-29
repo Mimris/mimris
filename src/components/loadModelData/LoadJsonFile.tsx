@@ -5,19 +5,20 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'rea
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
-// import { loadState, saveState } from './utils/LocalStorage'
+// import { loadState, saveState } from '../utils/LocalStorage'
 import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
-// import DispatchLocal  from './utils/SetStoreFromLocalStorage'
-import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
-import { ReadConvertJSONFromFileToAkm } from './utils/ConvertJSONToAkmModel';
-import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
-import { ConnectImportedTopEntityTypes } from './utils/ConnectImportedTopEntityTypes';
-import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
+// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
+import GenGojsModel from './GenGojsModel'
+import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
+import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
+import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
+import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopEntityTypes';
+import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
     
+  if (!props.ph.phData?.metis.models) return null
       const debug = false
       const dispatch = useDispatch()  
       const refresh = props.refresh
@@ -147,7 +148,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
 
       return (
         <>
-          <button className="btn-context btn-secondary float-right mr-1 mb-0 pr-2" onClick={toggle}>{buttonLabel}</button>
+          <button className="btn bg-light text-dark" onClick={toggle}>{buttonLabel}</button>
         {/* <Draggable handle=".handle"> */}
           <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
             <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>

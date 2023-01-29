@@ -40,8 +40,6 @@ const Selector = ( props: any ) => {
     <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
   )]
 
-
-
   const selectDiv = 
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 

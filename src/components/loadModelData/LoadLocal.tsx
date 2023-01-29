@@ -4,12 +4,12 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'rea
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
-// import { loadState, saveState } from './utils/LocalStorage'
-import useLocalStorage  from '../hooks/use-local-storage'
+// import { loadState, saveState } from '../utils/LocalStorage'
+import useLocalStorage  from '../../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
-// import DispatchLocal  from './utils/SetStoreFromLocalStorage'
-import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveAllToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
+// import GenGojsModel from '../GenGojsModel'
+// import { SaveModelToFile, SaveAllToFile, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
 
 const LoadLocal = (props: any) => {
   
@@ -138,7 +138,7 @@ const LoadLocal = (props: any) => {
 
   // useEffect(() => {
   //   // console.log('59 LoadLocal', props);
-  //   genGojsModel(props, dispatch);
+  //   GenGojsModel(props, dispatch);
   //   // setRefresh(!refresh)
   // }, [locStatus])
 

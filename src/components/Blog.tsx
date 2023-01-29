@@ -2,8 +2,10 @@
 import imageUrlBuilder from '@sanity/image-url';
 import { useState, useEffect } from 'react';
 
+const debug = false;
+
 export default function Blog({ posts }) {
-  console.log('6 Blog posts', posts);
+  // if (debug) console.log('6 Blog posts', posts);
     
   const [mappedPosts, setMappedPosts] = useState([]);
   useEffect(() => {

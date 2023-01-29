@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
-import Selector from './utils/Selector'
-import { loadState, saveState } from './utils/LocalStorage'
+import Selector from '../utils/Selector'
+import { loadState, saveState } from '../utils/LocalStorage'
 import { FaJoint } from 'react-icons/fa';
 import Select from "react-select"
 import { StartVideo } from '../defs/StartVideo'

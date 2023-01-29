@@ -671,13 +671,13 @@ export class jsnObjectType {
         }
     }
     addPort(port: jsnPort, side: string) {
-        let ports = null;
+        let ports, len;
         switch (side) {
             case constants.gojs.C_LEFT:
                 if (!this.leftPorts)
                     this.leftPorts = new Array();
                 ports = this.leftPorts;
-                let len = ports.length;
+                len = ports?.length;
                 for (let i=0; i<len; i++) {
                     const p = ports[i];
                     if (p.id === port.id) {
@@ -691,7 +691,7 @@ export class jsnObjectType {
                 if (!this.rightPorts)
                     this.rightPorts = new Array();
                 ports = this.rightPorts;
-                len = ports.length;
+                len = ports?.length;
                 for (let i=0; i<len; i++) {
                     const p = ports[i];
                     if (p.id === port.id) {
@@ -705,7 +705,7 @@ export class jsnObjectType {
                 if (!this.topPorts)
                     this.topPorts = new Array();
                 ports = this.topPorts;
-                len = ports.length;
+                len = ports?.length;
                 for (let i=0; i<len; i++) {
                     const p = ports[i];
                     if (p.id === port.id) {
@@ -719,7 +719,7 @@ export class jsnObjectType {
                 if (!this.bottomPorts)
                     this.bottomPorts = new Array();
                 ports = this.bottomPorts;
-                len = ports.length;
+                len = ports?.length;
                 for (let i=0; i<len; i++) {
                     const p = ports[i];
                     if (p.id === port.id) {

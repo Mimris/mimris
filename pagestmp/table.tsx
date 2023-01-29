@@ -11,7 +11,8 @@ import Table from '../components/Table';
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 
-const page = (props: any) => {
+const page = (props: any) => {}
+export default Page(connect(state => state)(page));
 
 //   // console.log(props)
 //   // const dispatch = useDispatch()
@@ -37,8 +38,6 @@ const page = (props: any) => {
 //     };
 //   }, [props.phFocus.focusModel.id])
 
-      return (<>  </>)
-
 //   return (
 //     <div>
 //       <Layout user={ props.phUser?.focusUser } >
@@ -56,7 +55,7 @@ const page = (props: any) => {
 //                 <TasksHelp />
 //               </div> */}
 //               <div className="workarea m-2 p-2 bg-light">
-//                 <Table props={props} />
+//                 {/* <Table props={props} /> */}
 //               </div>
 //             </div>
 //             <div className="footer">
@@ -139,11 +138,9 @@ const page = (props: any) => {
 //             `}</style>
 //     </div>
 //   )
-}
+// }
 
-export default Page;
+// // export default Page;
 // export default Page(connect(state => state)(page));
 // // export default authenticated(Page(connect(state => state)(page)));
-
-
 

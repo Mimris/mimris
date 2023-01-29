@@ -4,12 +4,12 @@ import { useDispatch } from 'react-redux'
 import base64 from 'base-64';
 
 // import  Search  from './Search';
-import TextInput from './utils/TextInput';
-import Select from './utils/Select';
-import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from './services/githubService';
-import { loadDataModel } from '../actions/actions';
+import TextInput from '../utils/TextInput';
+import Select from '../utils/Select';
+import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from '../githubServices/githubService';
+// import { loadDataModel } from '../../actions/actions';
 
-import { SaveAllToFile } from './utils/SaveModelToFile';
+import { SaveAllToFile } from '../utils/SaveModelToFile';
 
 const debug = false
 
@@ -122,23 +122,32 @@ const LoadGitHub = (props: any) => {
   const loadModel = async (rep, filename) => {
     setLoading(true);
     const searchtexttmp = `${rep}`;
-    console.log('101 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename)
+    console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-    if (debug) console.log('102 ', searchtext, pathText, filename, branchText, 'file')
+    if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (debug) console.log('105 res', res, res.data, sha)
-    const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
+    if (debug) console.log('131 res', res, res.data, sha)
+    // const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
+    // const content = res.data.content
+    // if (debug) console.log('113 res', res2, res2.data)
+    // if (debug) console.log('139 ', base64.decode(content))
+    // const model = JSON.parse(base64.decode(content));
 
-    const content = res2.data.content
+    const content = res.data
+    if (debug) console.log('138 ', searchtext, res)
+    const model = {
+      ...content,
+      phData: {
+        ...content.phData,
+        organisation: rep.split('/')[0],
+        repository: rep.split('/')[1],
+        path: pathText,
+      }
+    }
+  
 
-    if (debug) console.log('113 res', res2, res2.data)
-
-    if (debug) console.log('115 ', searchtext, res)
-    if (debug) console.log('116 ', base64.decode(content))
-    const model = JSON.parse(base64.decode(content));
-
-    if (debug) console.log('119 ', model)
+    if (debug) console.log('142 ', content, model)
     setModel(model);
     setLoading(false);
     if (debug) console.log('90 onModelChange', model, props) 
@@ -257,14 +266,13 @@ const LoadGitHub = (props: any) => {
 
   return  (
     <>
-      <span><button className="btn-context btn-outline-primary font-weight-bold text-primary ml-1" onClick={toggle}>{buttonLabel}</button>
-      </span>
+      <span><button className="btn " onClick={toggle}>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 ">
         <div className="bg-light" >
             
-          <div className="bg-secondary square border border-2 border-success p-1" ><strong>Download from a list of Models:</strong>
+          <div className="bg-light square border border-2 border-success p-1" ><strong>Download from a list of Models:</strong>
 
             {/* ----Repository user name input------------------------------- */}
             <TextInput label="RepoOwner:" value={usernameText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
@@ -289,19 +297,21 @@ const LoadGitHub = (props: any) => {
             <hr className="bg-light my-1 mx-4" />
 
             {/* -------- Select model ------------------------------------ */}
-            <Button className="btn-primary text-black border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
+            <Button className="btn-primary text-white border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
             {(models?.length > 0) 
               ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
               : <div className='text-warning'> 'No models found!'</div>
             } 
             <hr className="bg-primary px-10 my-1 mx-4" />
-            <Button className="btn-primary modal--footer mr-4 py-0 px-1 float-right" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
-            </Button>
-            {/* -------------------------------------------------------- */}
             <label className="w-70 d-inline-flex justify-content-left"> 
               <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
             </label>
+              <span className="p-5">
+                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-right " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+              </Button>
+            </span>
+            {/* -------------------------------------------------------- */}
   
             {/* <hr /> */}
             {/* {loading ? 'Loading...' : (models?.length > 0) 
@@ -320,17 +330,17 @@ const LoadGitHub = (props: any) => {
               <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
              </div> */}
           <hr className="bg-secondary py-1 my-1 mx-4" />
-          <div className="bg-secondary square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
-          <div className="bg-secondary square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
-            <button 
-              className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
-              data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
-            </button >
-            <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
-          </div>
-              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
+          <div className="bg-light square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
+            <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
+              <button 
+                className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
+                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button >
+              <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
+            </div>
+              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
               <div className=" text-secondary">{githubLink} </div>
             </div>
           <hr className="bg-primary my-1 mx-0" />
@@ -343,97 +353,3 @@ const LoadGitHub = (props: any) => {
 
 export default LoadGitHub;
 
-// onChange={(value) => onModelChange(value)}
-
-// onClick = {() => loadModels(usernameText, pathText)}
-
-
-
-// const loadBranch = async (repoText, branchText) => {
-//   if (usernameText?.length > 0)  { 
-//     const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
-//     const commits = `repos/${usernameText}/${repoText}/commits/`;
-//     const ownerRepo = `${usernameText}/${repoText}`;
-//     setLoading(true);
-//     if (debug) console.log('133 loadRepos', repoText, 'branchtext', branchText)
-//     const res = await searchBranches(ownerRepo, branchText);
-//     setLoading(false);
-//     const branches = await res.data;
-//     const branch = await res.data?.find(branch => branch.name === branchText);
-//     if (debug) console.log('138 res.data: ', await res.data, branches)
-//     const sha = branch?.commit?.sha;
-//     const commitbranch = await searchCommit(ownerRepo, sha)
-//     const rawfileUrl = await commitbranch.data.files[0].raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
-
-//     console.log('138', commitbranch, rawfileUrl)
-//     if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
-//     const content = await fetch(rawfileUrl).then(res => res.text());
-
-//     const model = JSON.parse(content) // JSON.parse(base64.decode(content));
-
-//     console.log('151', model)
-//     const data = {
-//       phData:   model.phData,
-//       phFocus:  model.phFocus,
-//       phUser:   model.phUser,
-//       phSource: model.phData.metis.name || model.phSource 
-//       // phSource: model.phSource,
-//     }
-//     if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-//     if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-//     if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-//     if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-    
-//     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
-
-//   }
-// };
-
-// const loadModel2 = async (repoText, filename) => {
-//   if (usernameText?.length > 0)  { 
-//     // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
-//     // const commits = `repos/${usernameText}/${repoText}/commits/`;
-//     console.log('137 ownerRepo', repoText, filename)
-//     setLoading(true);
-//     if (debug) console.log('133 RepoText', repoText, 'branchText', branchText) // hardcoded branch = main
-//     const searchtexttmp = `${repoText}`;
-//     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-//     if (debug) console.log('142 searchtext', searchtext)
-//     const res = await searchBranches(searchtext, branchText)
-//     setLoading(false);
-//     const branches = await res.data;
-//     const branch = await res.data?.find(branch => branch.name === branchText);
-//     if (debug) console.log('147 res.data: ', await res, branches, branch)
-
-
-//     const sha = branch?.commit?.sha;
-//     if (debug) console.log('150 sha', repoText, sha)
-//     const commitbranch = await searchModelRaw(repoText, sha)
-//     if (debug) console.log('152 commitbranch', commitbranch)
-//     // const selmodel = await commitbranch.data.;
-
-//     const rawfileUrl = await commitbranch?.data?.files(file => file.filename === model).raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
-
-//     console.log('138', commitbranch, rawfileUrl)
-//     if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
-//     const content = await fetch(rawfileUrl).then(res => res.text());
-
-//     const model = JSON.parse(content) // JSON.parse(base64.decode(content));
-
-//     console.log('151', model)
-//     const data = {
-//       phData:   model.phData,
-//       phFocus:  model.phFocus,
-//       phUser:   model.phUser,
-//       phSource: model.phData.metis.name || model.phSource 
-//       // phSource: model.phSource,
-//     }
-//     if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-//     if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-//     if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-//     if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-    
-//     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
-
-//   }
-// };

@@ -273,10 +273,10 @@ function makePort1(name, spot, output, input) {
 }
 
 function makePort(name, side) {
-    const leftside = false;
-    const rightside = false;
-    const topside = false;
-    const bottomside = false;
+    let leftside = false;
+    let rightside = false;
+    let topside = false;
+    let bottomside = false;
     const port = $(go.Shape, "Rectangle",
       {
         fill: "gray", stroke: null,
@@ -633,7 +633,7 @@ if (false) {
     }
 }
 
-    function getLeftPorts()
+function getLeftPorts()
 
 export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
@@ -2603,10 +2603,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     new go.Binding("isSubGraphExpanded").makeTwoWay(),    
                 )        
             ),
-    )    
-    groupTemplateMap.add("", groupTemplate1);
-    groupTemplateMap.add("Container1", groupTemplate1);
-    addGroupTemplateName('Container1');
+        )    
+        groupTemplateMap.add("", groupTemplate1);
+        groupTemplateMap.add("Container1", groupTemplate1);
+        addGroupTemplateName('Container1');
 
     if (true) {
         const groupTemplate2 =

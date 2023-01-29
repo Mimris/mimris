@@ -3,16 +3,21 @@ const debug = false;
 import {
   FAILURE,
   LOAD_DATA,
+  LOAD_DATAGITHUB,
+  LOAD_DATAGITHUB_SUCCESS,
   LOAD_DATA_SUCCESS,
   LOAD_DATAMODELLIST,
   LOAD_DATAMODELLIST_SUCCESS,
   LOAD_DATAMODEL,
   LOAD_DATAMODEL_SUCCESS,
+  LOAD_TOSTORE_DATA,
   LOAD_TOSTORE_PHDATA,
-  LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
+  LOAD_TOSTORE_PHUSER,
+  LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
+  SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL,
@@ -87,10 +92,12 @@ import {
 
 // import StartInitStateJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
 import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
+// import LoadInitmodel from '../components/LoadModelData/LoadInitmodel'
 
-const InitStateJson = /*(StartmodelJson) ? StartmodelJson :*/ StartInitStateJson
+const InitStateJson =  StartInitStateJson
+// const InitStateJson = (LoadInitmodel) ? LoadInitmodel : StartInitStateJson
 
-if (debug) console.log('86', InitStateJson); 
+if (debug) console.log('86 InitStateJson', InitStateJson); 
 const InitState =  JSON.parse(JSON.stringify(InitStateJson)) 
 
 // import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'
@@ -104,6 +111,31 @@ const InitState =  JSON.parse(JSON.stringify(InitStateJson))
 
 
 // if (debug) console.log('38 InitialState', InitState);
+
+// export const InitialState = {
+//   phData: null, //InitState.phData,
+//   // phData: {
+//   //   metis: {
+//   //     name: 'Empty AKMM model',
+//   //     description: 'AKMM Model',
+//   //     metamodels: [],
+//   //     models: [], 
+//   //     currentMetamodelRef: '',
+//   //     currentModelRef: '',
+//   //     currentModelviewRef: '',
+//   //     currentTemplateRef: '',
+//   //     currentTargetMetamodelRef: '',
+//   //     currentTargetModelRef: '',
+//   //     currentTargetModelviewRef: '',
+//   //     currentTaskModelRef: '',
+//   //   },
+//   // }, //InitState.phData,
+//   // phList: null, // list of models from AMMServer (firebase)
+//   phFocus: null, //InitState.phFocus,
+//   phUser: null, //InitState.phUser,
+//   phSource: null, //InitState.phSource,
+//   lastUpdate: new Date().toISOString()
+// }
 
 export const InitialState = {
   phData: InitState.phData,
@@ -134,7 +166,7 @@ let focusCollection
 
 
 
-function reducer(state = InitialStateStr, action) {
+function reducer(state = InitialState, action) {
   
   switch (action.type) {
     
@@ -151,6 +183,20 @@ function reducer(state = InitialStateStr, action) {
         phData: action.data,   
         phSource: 'Model server'
       }
+    case LOAD_DATAGITHUB_SUCCESS:
+      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action, action.data.data.phData);
+      const retval_LOAD_DATAGITHUB_SUCCESS = 
+      {
+        ...state,
+        phData: action.data.data.phData,   
+        phSource: action.data.data.phSource, //'GitHub'
+        phFocus: action.data.data.phFocus,
+        phUser: action.data.data.phUser,
+        lastUpdate: action.data.data.lastUpdate
+      }
+      if (!debug) console.log('170 LOAD_DATAGITHUB_SUCCESS', retval_LOAD_DATAGITHUB_SUCCESS);
+      return retval_LOAD_DATAGITHUB_SUCCESS
+
     case LOAD_DATAMODELLIST_SUCCESS:
       if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
       return {
@@ -178,38 +224,50 @@ function reducer(state = InitialStateStr, action) {
           }, 
         phSource: 'Model server'
       }
-    case LOAD_TOSTORE_PHDATA:
-      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
-      return {
-        ...state,
-        phData: action.data
-      }
-    case LOAD_TOSTORE_PHSOURCE:
-      // if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
-      return {
-        ...state,
-        phSource: action.data
-      }
-    case LOAD_TOSTORE_PHFOCUS:
-      // if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
-      return {
-        ...state,
-        phFocus: action.data
-      }
-    case LOAD_TOSTORE_NEWMODEL:
-      if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
-      return {
-        ...state,
-        phData: {
-          ...state.phData,
-            metis: {
-              ...state.phData.metis,
-              models: [
-                ...state.phData.metis.models, action.data         
-              ]
-            }
-         }
-      }
+      case LOAD_TOSTORE_DATA:
+        if (debug) console.log('169 LOAD_TOSTORE_DATA', action);   
+        return {
+          ...state,
+          ...action.data
+        }
+      case LOAD_TOSTORE_PHDATA:
+        if (debug) console.log('227 LOAD_TOSTORE_PHDATA', action);   
+        return {
+          ...state,
+          phData: action.data
+        }
+      case LOAD_TOSTORE_PHFOCUS:
+        if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
+        return {
+          ...state,
+          phFocus: action.data
+        }
+      case LOAD_TOSTORE_PHUSER:
+        if (debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
+        return {
+          ...state,
+          phUser: action.data
+        }
+      case LOAD_TOSTORE_PHSOURCE:
+        if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
+        return {
+          ...state,
+          phSource: action.data
+        }
+      case LOAD_TOSTORE_NEWMODEL:
+        if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
+        return {
+          ...state,
+          phData: {
+            ...state.phData,
+              metis: {
+                ...state.phData.metis,
+                models: [
+                  ...state.phData.metis.models, action.data         
+                ]
+              }
+          }
+        }
     case LOAD_TOSTORE_NEWMODELVIEW:
       if (debug) console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);   
       const curmnew = state.phData?.metis?.models?.find(m => m.id === action.data.id) //current model
@@ -231,6 +289,12 @@ function reducer(state = InitialStateStr, action) {
             }
          }
       }
+    case SET_FOCUS_PHFOCUS:
+      if (debug) console.log('190 SET_FOCUS_PHFOCUS', action.data);   
+      return {
+        ...state,
+        phFocus: action.data
+      } 
     case SET_FOCUS_USER:
       if (debug) console.log('190 SET_FOCUS_USER', action.data);   
       return {
@@ -388,13 +452,16 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_PROJ:
-      return {
+      if (!debug) console.log('455 SET_FOCUS_PROJ', action.data)
+      const retval_SET_FOCUS_PROJ = {
         ...state,
         phFocus: {
           ...state.phFocus,
           focusProj: action.data
         }
       }
+      if (!debug) console.log('463 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
+      return retval_SET_FOCUS_PROJ
     case SET_FOCUS_ORG:
       return {
         ...state,
@@ -457,7 +524,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_REFRESH:
-      if (debug) console.log('483 SET_FOCUS_REFRESH', action);
+      if (!debug) console.log('483 SET_FOCUS_REFRESH', action);
       return {
         ...state,
         phFocus: {
@@ -557,7 +624,7 @@ function reducer(state = InitialStateStr, action) {
           }
         }
       case SET_GOJS_MODEL:
-        if (debug) console.log('560 SET_GOJS_MODEL', action);
+        if (debug) console.log('560 SET_GOJS_MODEL', action, state);
         return {
           ...state,
           phGojs: {
@@ -603,10 +670,10 @@ function reducer(state = InitialStateStr, action) {
         }
     case UPDATE_MODEL_PROPERTIES:
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
-      const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      // const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       // if (debug) console.log('431 reducer', curmindex1)
-      // if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
+      if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
       // if (debug) console.log('433 reducer', curmindex1)
       return {
         ...state,

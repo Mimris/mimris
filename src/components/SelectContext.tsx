@@ -3,31 +3,54 @@ import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import Selector from './utils/Selector'
-import { loadState, saveState } from './utils/LocalStorage'
-import { FaJoint } from 'react-icons/fa';
+// import { loadState, saveState } from '../utils/LocalStorage'
+// import { FaJoint } from 'react-icons/fa';
 
 const debug = false;
 
 const SelectContext = (props: any) => {
-  if (debug) console.log('12 ', props);
-  const dispatch = useDispatch()
+  // if (!debug) console.log('12 ', props);
   let state = useSelector((state:any) => state) // Selecting the whole redux store
+  if (!state.phData?.metis?.models) return <></>
+  const dispatch = useDispatch()
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
   // set timeout to allow for redux store to be updated
   // setTimeout(() => {
   //   if (debug) console.log('17 SelectContext', state);
   // }, 1000);
   
-  if (debug) console.log('15 state', state);
+  // if (debug) console.log('15 state', state);
+
+  const handlePhDataChange = (event:any) => {
+    // const id = JSON.parse(event.value).id
+    // const name = JSON.parse(event.value).name
+    // if (debug) console.log('25 selcon', id, name);
+    const phData = JSON.parse(event.value)
+    const data = phData
+    // if (debug) console.log('38 sel', data);
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+  }
+  const handleSessionChange = (event:any) => {
+    const id = JSON.parse(event.value).id
+    const name = JSON.parse(event.value).name
+    // if (debug) console.log('25 selcon', id, name);
+    
+    const focusSession = {id: id, name: name}
+    const data = focusSession
+    // if (debug) console.log('38 sel', data);
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+  }
+
   // if no state then exit
-  if (!state.phData?.metis?.models) return null
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
-  const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusUser = useSelector(focusUser => state.phUser?.focusUser)
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
-  
+  const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array
+
   // const [model, setModel] = useState(focusModel)
-  if (debug) console.log('23 focusModel', focusModel, models);
+  // if (!debug) console.log('23 focusModel', focusModel, models);
   
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
@@ -75,59 +98,41 @@ const SelectContext = (props: any) => {
   const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Role')
   const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')
   const selorgs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Organisation')
-  const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
+  // const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
   const selobjviews = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) != null)
   const selPers = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Person')
   const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
   const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
 
-  if (debug) console.log('76', uniqueovs, selobjviews);
+  // if (debug) console.log('76', uniqueovs, selobjviews);
   
   // let optionModel
-  const handlePhDataChange = (event:any) => {
-    // const id = JSON.parse(event.value).id
-    // const name = JSON.parse(event.value).name
-    // if (debug) console.log('25 selcon', id, name);
-    const phData = JSON.parse(event.value)
-    const data = phData
-    // if (debug) console.log('38 sel', data);
-    (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-  }
-  const handleSessionChange = (event:any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    // if (debug) console.log('25 selcon', id, name);
-    
-    const focusSession = {id: id, name: name}
-    const data = focusSession
-    // if (debug) console.log('38 sel', data);
-    (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-  }
 
-  useEffect(() => {
-    const fU = async () => await focusUser;
-    testsession = fU().session;
-    // if (debug) console.log('69', focusUser, testsession);
-    try {
-      usession =  (testsession) && JSON.parse(testsession);
-      // if (debug) console.log('71', usession);
-    } catch (error) {
-      {console.error('parserror');}
-    }
-  }, [focusUser])
 
-  let usession, testsession
-    const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
-    const focuser = defaultSession
-    const session0 = JSON.parse(focuser) 
-    const session = session0.session.focus
-    const phFocus = {phFocus: session}
-    function handleSetSession() {
-      const data = phFocus.phFocus
-      // if (debug) console.log('87', data);
-      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', sourceFlag })  
-    }
+  // useEffect(() => {
+  //   const fU = async () => await focusUser;
+  //   testsession = fU().session;
+  //   // if (debug) console.log('69', focusUser, testsession);
+  //   try {
+  //     usession =  (testsession) && JSON.parse(testsession);
+  //     // if (debug) console.log('71', usession);
+  //   } catch (error) {
+  //     {console.error('parserror');}
+  //   }
+  // }, [focusUser])
+
+  // let usession, testsession
+  //   const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
+  //   const focuser = defaultSession
+  //   const session0 = JSON.parse(focuser) 
+  //   const session = session0.session.focus
+  //   const phFocus = {phFocus: session}
+  //   function handleSetSession() {
+  //     const data = phFocus.phFocus
+  //     // if (debug) console.log('87', data);
+  //     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+  //     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', sourceFlag })  
+  //   }
     // /**
     // * Build the selection options for all context (focus) objects,
   // */
@@ -139,12 +144,11 @@ const SelectContext = (props: any) => {
   // const optionModelviews = modelviews && [<option key={991012} value='Select Modelview ...'  > Select Modelview ...</option>, ...modelviews.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
 
   const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+
   
-  return (
+  return (models) && (
     <>
-      <button className="btn-context btn-link btn-sm float-right mb-0 py-0 pr-2" style={{height: "22px"}} color="link" onClick={toggle}>{buttonLabel}
+      <button className="btn-sm mt-0 pb-0 pt-0 mr-2" style={{height: "24px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>
       <Modal isOpen={modal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
@@ -283,7 +287,7 @@ export default SelectContext
 
 
 
-// // const genGojsModel =  async () => {
+// // const GenGojsModel =  async () => {
 // if (debug) console.log('44', focusModel);
 
 // const curmod = models.find((m: any) => m.id === focusModel.id)

@@ -54,9 +54,7 @@ const page = (props: any) => {
               <div className="tasksarea"  >
   
               </div>
-              <Link href="/settings">
-                <a>Back</a>
-              </Link>
+              <Link href="/settings">Back</Link>
               <h3>Current Context:</h3>
               {/* {contextDiv}  */}
               <div> {JSON.stringify(focus, null, 2)}</div>
@@ -111,7 +109,7 @@ export default Page(connect(state => state)(page));
 // export default Page(connect(state => state)(page));
 
 
-export default {}
+// export default {}
 
 
 // // import { NextPageContext } from "next";

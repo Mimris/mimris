@@ -100,6 +100,38 @@ export class jsnExportMetaModel {
         }
     }
 }
+export class jsnDatatype {
+    id:                 string;
+    name:               string;
+    description:        string;
+    datatypeRef:        string;
+    allowedValues:      string[];
+    defaultValue:       string;
+    value:              string;
+    inputPattern:       string;
+    viewFormat:         string;
+    fieldType:          string;
+    markedAsDeleted:    boolean;
+    modified:           boolean;
+    constructor(dtype: akm.cxDatatype) {
+        this.id              = dtype.id;
+        this.name            = dtype.name;
+        this.description     = "";
+        this.datatypeRef     = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
+        this.allowedValues   = dtype.allowedValues;
+        this.defaultValue    = dtype.defaultValue;
+        this.value           = dtype.value;
+        // this.isOfDatatype    = dtype.isOfDatatype;
+        this.inputPattern    = dtype.inputPattern;
+        this.viewFormat      = dtype.viewFormat;
+        this.fieldType       = dtype.fieldType;
+        this.markedAsDeleted = dtype.markedAsDeleted;
+        this.modified        = dtype.modified;
+        // Code
+        if (utils.objExists(dtype.description))
+            this.description = dtype.description;
+    }
+}
 export class jsnViewStyle {
     id:              string;
     name:            string;
@@ -353,16 +385,16 @@ export class jsnMetaModel {
         if (utils.objExists(objtype) &&
             !objtype.isDeleted()
         ) {
-            const gObjtype = new jsnObjectType(objtype, includeViews);
-            this.objecttypes.push(gObjtype);
+            const jsnObjtype = new jsnObjectType(objtype, includeViews);
+            this.objecttypes.push(jsnObjtype);
         }
     }
     addObjectType0(objtype: akm.cxObjectType, includeViews: boolean) {
         if (utils.objExists(objtype) &&
             !objtype.isDeleted()
         ) {
-            const gObjtype = new jsnObjectType(objtype, includeViews);
-            this.objecttypes0.push(gObjtype);
+            const jsnObjtype = new jsnObjectType(objtype, includeViews);
+            this.objecttypes0.push(jsnObjtype);
         }
     }
     addRelationshipType(reltype: akm.cxRelationshipType, includeViews: boolean) {
@@ -372,8 +404,8 @@ export class jsnMetaModel {
             utils.objExists(reltype.fromObjtype) &&
             utils.objExists(reltype.toObjtype)
         ) {
-            const gReltype = new jsnRelationshipType(reltype, includeViews);
-            this.relshiptypes.push(gReltype);
+            const jsnReltype = new jsnRelationshipType(reltype, includeViews);
+            this.relshiptypes.push(jsnReltype);
         }
     }
     addRelationshipType0(reltype: akm.cxRelationshipType, includeViews: boolean) {
@@ -383,80 +415,79 @@ export class jsnMetaModel {
             utils.objExists(reltype.fromObjtype) &&
             utils.objExists(reltype.toObjtype)
         ) {
-            const gReltype = new jsnRelationshipType(reltype, includeViews);
-            this.relshiptypes0.push(gReltype);
+            const jsnReltype = new jsnRelationshipType(reltype, includeViews);
+            this.relshiptypes0.push(jsnReltype);
         }
     }
     addDataType(datatype: akm.cxDatatype) {
         if (utils.objExists(datatype) &&
             !datatype.isDeleted()
         ) {
-            const gDatatype = new jsnDatatype(datatype);
-            this.datatypes.push(gDatatype);
+            const jDatatype = new jsnDatatype(datatype);
+            this.datatypes.push(jDatatype);
         }
     }
     addProperty(prop: akm.cxProperty) {
         if (utils.objExists(prop) &&
             !prop.isDeleted()
         ) {
-            const gProp = new jsnProperty(prop);
-            this.properties.push(gProp);
+            const jsnProp = new jsnProperty(prop);
+            this.properties.push(jsnProp);
         }
     }
     addMethodType(mtd: akm.cxMethodType) {
         if (mtd && !mtd.isDeleted()
         ) {
-            const gMtd = new jsnMethodType(mtd);
-            this.methodtypes.push(gMtd);
+            const jsnMtd = new jsnMethodType(mtd);
+            this.methodtypes.push(jsnMtd);
         }
     }
     addMethod(mtd: akm.cxMethod) {
         if (utils.objExists(mtd) &&
             !mtd.isDeleted()
         ) {
-            const jMtd = new jsnMethod(mtd);
-            this.methods.push(jMtd);
+            const jsnMtd = new jsnMethod(mtd);
+            this.methods.push(jsnMtd);
         }
     }
     addUnit(unit: akm.cxUnit) {
         if (utils.objExists(unit)) {
-            let gUnit = new jsnUnit(unit);
-            this.units.push(gUnit);
-        }
+            let jUnit = new jsnUnit(unit);
+            this.units.push(jUnit);        }
     }
     addViewStyle(vstyle: akm.cxViewStyle) {
         if (vstyle && !vstyle.isDeleted()) {
-            const gViewStyle = new jsnViewStyle(vstyle);
-            this.viewstyles.push(gViewStyle);
+            const jViewStyle = new jsnViewStyle(vstyle);
+            this.viewstyles.push(jViewStyle);
         }
     }
     addGeometry(geo: akm.cxGeometry) {
         if (geo && !geo.isDeleted()) {
-            const gGeometry = new jsnGeometry(geo);
-            this.geometries.push(gGeometry);
+            const jGeometry = new jsnGeometry(geo);
+            this.geometries.push(jGeometry);
         }
     }
     addObjectTypeView(objtypeview: akm.cxObjectTypeView) {
         if (objtypeview && !objtypeview.isDeleted()
         ) {
             if (objtypeview.typeRef) {
-                const gObjtypeview = new jsnObjectTypeView(objtypeview);
-                this.objecttypeviews.push(gObjtypeview);
+                const jsnObjtypeview = new jsnObjectTypeView(objtypeview);
+                this.objecttypeviews.push(jsnObjtypeview);
             }
         }
     }
     addObjtypeGeo(objtypegeo: akm.cxObjtypeGeo) {
         if (objtypegeo) {
-            let gObjtypegeo = new jsnObjectTypegeo(objtypegeo);
-            this.objtypegeos.push(gObjtypegeo);
+            let jsnObjtypegeo = new jsnObjectTypegeo(objtypegeo);
+            this.objtypegeos.push(jsnObjtypegeo);
         }
     }
     addRelshipTypeView(reltypeview: akm.cxRelationshipTypeView) {
         if (reltypeview &&
             !reltypeview.isDeleted()) {
             if (reltypeview.typeRef) {
-                const gReltypeview = new jsnRelshipTypeView(reltypeview);
-                this.relshiptypeviews.push(gReltypeview);
+                const jsnReltypeview = new jsnRelshipTypeView(reltypeview);
+                this.relshiptypeviews.push(jsnReltypeview);
             }
         }
     }
@@ -535,6 +566,10 @@ export class jsnObjectType {
     properties:     jsnProperty[];
     attributes:     jsnAttribute[];
     methods:        jsnMethod[];
+    leftPorts:      jsnPort[] | null;
+    rightPorts:     jsnPort[] | null;
+    topPorts:       jsnPort[] | null;
+    bottomPorts:    jsnPort[] | null;
     markedAsDeleted: boolean;
     modified:       boolean;
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
@@ -549,6 +584,10 @@ export class jsnObjectType {
         this.properties     = [];
         this.attributes     = [];
         this.methods        = [];
+        this.leftPorts      = [];
+        this.rightPorts     = [];
+        this.topPorts       = [];
+        this.bottomPorts    = [];
         this.markedAsDeleted = objtype.markedAsDeleted;
         this.modified       = objtype.modified;
         // Code
@@ -557,23 +596,56 @@ export class jsnObjectType {
         for (let i = 0; i < cnt; i++) {
             const prop = props[i];
             this.addProperty(prop);
-
         }
         const attrs = objtype.getAttributes();
         cnt = attrs?.length;
         for (let i = 0; i < cnt; i++) {
             const attr = attrs[i];
-            this.addAttribute(attr);
-            
+            this.addAttribute(attr);            
         }
-        if (debug) console.log('345 objtype, props, this', objtype, props, this);
+        let side = constants.gojs.C_LEFT;
+        let ports = objtype.getPortsBySide(side);
+        if (debug) console.log('608 side ports', side, ports);
+        cnt = ports?.length;
+        for (let i = 0; i < cnt; i++) {
+            const port = ports[i];
+            const jPort = new jsnPort(port);
+            this.addPort(jPort, side);            
+            if (debug) console.log('613 side port, jPort, this', side, port, jPort, this);
+        }
+        side = constants.gojs.C_RIGHT;
+        ports = objtype.getPortsBySide(side);
+        cnt = ports?.length;
+        for (let i = 0; i < cnt; i++) {
+            const port = ports[i];
+            const jPort = new jsnPort(port);
+            this.addPort(jPort, side);            
+        }
+        side = constants.gojs.C_TOP;
+        ports = objtype.getPortsBySide(side);
+        cnt = ports?.length;
+        for (let i = 0; i < cnt; i++) {
+            const port = ports[i];
+            const jPort = new jsnPort(port);
+            this.addPort(jPort, side);            
+        }
+        side = constants.gojs.C_BOTTOM;
+        ports = objtype.getPortsBySide(side);
+        cnt = ports?.length;
+        for (let i = 0; i < cnt; i++) {
+            const port = ports[i];
+            if (debug) console.log('636 port, this', port, this);
+            const jPort = new jsnPort(port);
+            if (debug) console.log('638 objtype, this', objtype, this);
+            this.addPort(jPort, side);            
+        }
         const mtds = objtype.getMethods();
         cnt = mtds?.length;
         for (let i = 0; i < cnt; i++) {
             const mtd = mtds[i];
             this.addMethod(mtd);
         }
-        if (debug) console.log('345 objtype, props, this', objtype, props, this);
+        if (debug) console.log('610 objtype, props, this', objtype, props, this);
         //this.loc  = (includeViews) ? objtype.loc : "";
         //this.size = (includeViews) ? objtype.size : "";
     }
@@ -597,6 +669,80 @@ export class jsnObjectType {
             if (debug) console.log('479 jAttr, jAttr', attr, jAttr);
             this.attributes.push(jAttr);
         }
+    }
+    addPort(port: jsnPort, side: string) {
+        let ports, len;
+        switch (side) {
+            case constants.gojs.C_LEFT:
+                if (!this.leftPorts)
+                    this.leftPorts = new Array();
+                ports = this.leftPorts;
+                len = ports?.length;
+                for (let i=0; i<len; i++) {
+                    const p = ports[i];
+                    if (p.id === port.id) {
+                        // Port is already in list
+                        return;
+                    }
+                }
+                this.leftPorts.push(port);
+                break;
+            case constants.gojs.C_RIGHT:
+                if (!this.rightPorts)
+                    this.rightPorts = new Array();
+                ports = this.rightPorts;
+                len = ports?.length;
+                for (let i=0; i<len; i++) {
+                    const p = ports[i];
+                    if (p.id === port.id) {
+                        // Port is already in list
+                        return;
+                    }
+                }
+                this.rightPorts.push(port);
+                break;
+            case constants.gojs.C_TOP:
+                if (!this.topPorts)
+                    this.topPorts = new Array();
+                ports = this.topPorts;
+                len = ports?.length;
+                for (let i=0; i<len; i++) {
+                    const p = ports[i];
+                    if (p.id === port.id) {
+                        // Port is already in list
+                        return;
+                    }
+                }
+                this.topPorts.push(port);
+                break;
+            case constants.gojs.C_BOTTOM:
+                if (!this.bottomPorts)
+                    this.bottomPorts = new Array();
+                ports = this.bottomPorts;
+                len = ports?.length;
+                for (let i=0; i<len; i++) {
+                    const p = ports[i];
+                    if (p.id === port.id) {
+                        // Port is already in list
+                        return;
+                    }
+                }
+                this.bottomPorts.push(port);
+                break;
+        }
+    }
+    getPortsBySide(side: string): jsnPort[] | null {   
+        switch (side) {
+            case constants.gojs.C_LEFT:
+                return this.leftPorts;
+            case constants.gojs.C_RIGHT:
+                return this.rightPorts;
+            case constants.gojs.C_TOP:
+                return this.topPorts;
+            case constants.gojs.C_BOTTOM:
+                return this.bottomPorts;
+        }
+        return null;
     }
 }
 export class jsnRelationshipType {
@@ -659,41 +805,9 @@ export class jsnExportDatatypes {
 
     addDatatype(datatype: akm.cxDatatype) {
         if (utils.objExists(datatype)) {
-            const gDatatype = new jsnDatatype(datatype);
-            this.datatypes.push(gDatatype);
+            const jDatatype = new jsnDatatype(datatype);
+            this.datatypes.push(jDatatype);
         }
-    }
-}
-export class jsnDatatype {
-    id:                 string;
-    name:               string;
-    description:        string;
-    datatypeRef:        string;
-    allowedValues:      string[];
-    defaultValue:       string;
-    value:              string;
-    inputPattern:       string;
-    viewFormat:         string;
-    fieldType:          string;
-    markedAsDeleted:    boolean;
-    modified:           boolean;
-    constructor(dtype: akm.cxDatatype) {
-        this.id              = dtype.id;
-        this.name            = dtype.name;
-        this.description     = "";
-        this.datatypeRef     = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
-        this.allowedValues   = dtype.allowedValues;
-        this.defaultValue    = dtype.defaultValue;
-        this.value           = dtype.value;
-        // this.isOfDatatype    = dtype.isOfDatatype;
-        this.inputPattern    = dtype.inputPattern;
-        this.viewFormat      = dtype.viewFormat;
-        this.fieldType       = dtype.fieldType;
-        this.markedAsDeleted = dtype.markedAsDeleted;
-        this.modified        = dtype.modified;
-        // Code
-        if (utils.objExists(dtype.description))
-            this.description = dtype.description;
     }
 }
 export class jsnUnitCategory {
@@ -814,6 +928,9 @@ export class jsnRelshipTypeView {
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
+    routing:         string;
+    corner:          string;
+    curve:           string;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(reltypeview: akm.cxRelationshipTypeView) {
@@ -832,6 +949,9 @@ export class jsnRelshipTypeView {
         this.toArrow         = reltypeview.getToArrow();
         this.fromArrowColor  = reltypeview.getFromArrowColor();
         this.toArrowColor    = reltypeview.getToArrowColor();
+        this.routing         = reltypeview.getRouting();
+        this.corner          = reltypeview.getCorner();
+        this.curve           = reltypeview.getCurve();
         this.markedAsDeleted = reltypeview.markedAsDeleted;
         this.modified        = reltypeview.modified;
     }
@@ -1100,6 +1220,10 @@ export class jsnObject {
     typeName:        string;
     typeDescription: string;
     propertyValues:  any[];
+    leftPorts:       jsnPort[] | null;
+    rightPorts:      jsnPort[] | null;
+    topPorts:        jsnPort[] | null;
+    bottomPorts:     jsnPort[] | null;
     markedAsDeleted: boolean;
     generatedTypeId: string;
     modified:        boolean;
@@ -1113,6 +1237,10 @@ export class jsnObject {
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";
         this.propertyValues  = [];
+        this.leftPorts       = null;
+        this.rightPorts      = null;
+        this.topPorts        = null;
+        this.bottomPorts     = null;
         this.markedAsDeleted = object.markedAsDeleted;
         this.generatedTypeId = object.generatedTypeId;
         this.modified        = object.modified;
@@ -1143,6 +1271,10 @@ export class jsnObject {
                 case 'inputrels':
                 case 'outputrels':
                 case 'objectviews':
+                case 'leftPorts':
+                case 'rightPorts':
+                case 'topPorts':
+                case 'bottomPorts':
                     continue;
                 break;
             }
@@ -1160,6 +1292,44 @@ export class jsnObject {
           this[propname] = value;                      
         }
         if (debug) console.log('888 this', this);
+
+        // Handle ports
+        const leftPorts = object.leftPorts;
+        if (leftPorts) {
+            this.leftPorts = [];
+            for (let i=0; i<leftPorts.length; i++) {
+                const port = leftPorts[i];
+                const gPort = new jsnPort(port);
+                this.leftPorts.push(gPort);
+            }
+        }
+        const rightPorts = object.rightPorts;
+        if (rightPorts) {
+            this.rightPorts = [];
+            for (let i=0; i<rightPorts.length; i++) {
+                const port = rightPorts[i];
+                const gPort = new jsnPort(port);
+                this.rightPorts.push(gPort);
+            }
+        }
+        const topPorts = object.topPorts;
+        if (topPorts) {
+            this.topPorts = [];
+            for (let i=0; i<topPorts.length; i++) {
+                const port = topPorts[i];
+                const gPort = new jsnPort(port);
+                this.topPorts.push(gPort);
+            }
+        }
+        const bottomPorts = object.bottomPorts;
+        if (bottomPorts) {
+            this.bottomPorts = [];
+            for (let i=0; i<bottomPorts.length; i++) {
+                const port = bottomPorts[i];
+                const gPort = new jsnPort(port);
+                this.bottomPorts.push(gPort);
+            }
+        }
     }
     // addPropertyValue(val: akm.cxPropertyValue) {
     //     if (!val)
@@ -1275,6 +1445,8 @@ export class jsnRelationship {
     cardinalityTo:   string;
     nameFrom:        string;
     nameTo:          string;
+    fromPortid:      string;
+    toPortid:        string;
     markedAsDeleted: boolean;
     generatedTypeId: string;
     modified:        boolean;
@@ -1292,6 +1464,8 @@ export class jsnRelationship {
         this.cardinalityTo   = relship.cardinalityTo;
         this.nameFrom        = relship.nameFrom;
         this.nameTo          = relship.nameTo;
+        this.fromPortid      = relship.fromPortid;
+        this.toPortid        = relship.toPortid;
         this.markedAsDeleted = relship.markedAsDeleted;
         this.generatedTypeId = relship.generatedTypeId;
         this.modified        = relship.modified;
@@ -1321,6 +1495,22 @@ export class jsnRelationship {
         }
     }
 }
+
+export class jsnPort {
+    id:          string;
+    name:        string;
+    description: string;
+    side:        string;
+    color:       string;
+    constructor(port: akm.cxPort) {
+        this.id      = port.id;
+        this.name    = port.name;
+        this.side    = port.side;
+        this.color   = port.color;
+        this.description = port.description;
+    }
+}
+
 export class jsnPropertyValue {
     property:   akm.cxProperty;
     value:      string;
@@ -1497,6 +1687,8 @@ export class jsnRelshipView {
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
+    fromPortid:      string;
+    toPortid:        string;
     template:        string;
     arrowscale:      string;
     strokecolor:     string;
@@ -1508,6 +1700,9 @@ export class jsnRelshipView {
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
+    routing:         string;
+    corner:          string;
+    curve:           string;
     points:          any;
     markedAsDeleted: boolean;
     modified:        boolean;
@@ -1530,7 +1725,12 @@ export class jsnRelshipView {
         this.toArrowColor    = relview?.toArrowColor;
         this.fromobjviewRef  = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef    = relview && relview.toObjview ? relview.toObjview.id : "";
+        this.fromPortid      = relview?.fromPortid;
+        this.toPortid        = relview?.toPortid;
         this.points          = relview?.points;
+        this.routing         = relview?.routing;
+        this.curve           = relview?.curve;
+        this.corner          = relview?.corner;
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
         // Code

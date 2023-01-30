@@ -1139,8 +1139,10 @@ export function createRelationship(data: any, context: any) {
     if (debug) console.log('980 myMetis', myMetis);
     if (debug) console.log('981 fromNode, data.from', fromNode, data.from);
     let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
+    const fromPort = data.fromPort;
     const toNode = myGoModel.findNode(data.to);
     let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
+    const toPort = data.toPort;
     if (debug) console.log('985 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode?.object;
     const toObj = toNode?.object;
@@ -1195,6 +1197,8 @@ export function createRelationship(data: any, context: any) {
                     toType: toType,
                     nodeFrom: nodeFrom,
                     nodeTo: nodeTo,
+                    fromPort: fromPort,
+                    toPort: toPort,
                     diagramModel: myDiagram.diagramModel,
                     context: context
                 }
@@ -1209,12 +1213,14 @@ export function createRelationship(data: any, context: any) {
                     fromType: fromType,
                     toType: toType,
                     nodeFrom: nodeFrom,
+                    portFrom: fromPort,
                     nodeTo: nodeTo,
+                    portTo: toPort,
                 } 
-                if (debug) console.log('1050 myDiagram, args', myDiagram, args);
+                if (debug) console.log('1218 args', args);
                 // myDiagram.model.setDataProperty(data, "name", typename);
                 context.handleOpenModal(choices, modalContext);
-                if (debug) console.log('1053 modalContext', modalContext);                
+                if (debug) console.log('1221 modalContext', modalContext);                
             }
         }
     }
@@ -1234,18 +1240,20 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const toType   = args.toType;
     const nodeFrom = args.nodeFrom;
     const objFrom  = nodeFrom.data.object;
+    const portFrom = args.fromPort;
     const nodeTo   = args.nodeTo;
     const objTo    = nodeTo.data.object;
+    const portTo   = args.toPort;
     const context  = args.context;
     const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1075 reltype', reltype);
+    if (debug) console.log('1241 data, reltype', data, reltype);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('1081 typename, data, reltype', typename, data, reltype);
-    const rel = myModel.findRelationship2(objFrom, objTo, reltype, typename);
+    if (debug) console.log('1247 typename, data, reltype', typename, data, reltype);
+    const rel = myModel.findRelationship2(objFrom, objTo, reltype, typename, portFrom, portTo);
     if (rel) {
         alert("Relationship already exists!\nOperation is cancelled.")
         myDiagram.model.removeLinkData(data);
@@ -1255,9 +1263,9 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     data.relshiptype = reltype;
     data.type = "";
     const reltypeview = reltype.typeview;
-    if (debug) console.log('1198 args, data, reltypeview', args, data, reltypeview);
+    if (debug) console.log('1258 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
-    if (debug) console.log('1200 data, relshipview', data, relshipview);
+    if (debug) console.log('1260 data, relshipview', data, relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
@@ -1265,9 +1273,13 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.setFromArrow2(rel?.relshipkind);
         relshipview.setToArrow2(rel?.relshipkind);
         relship.addRelationshipView(relshipview);
-        if (debug) console.log('1337 data', data);
+        relship.fromPortid = data.fromPort;
+        relship.toPortid = data.toPort;
+        relshipview.fromPortid = data.fromPort;
+        relshipview.toPortid = data.toPort;
+        if (debug) console.log('1272 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
-        if (debug) console.log('1340 relshipview', relshipview);
+        if (debug) console.log('1274 relshipview', relshipview);
         const id = relshipview.id;
         let name = data.name;  
         if (context.myModelview.askForRelshipName){
@@ -1279,8 +1291,8 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.name = name;
         relship.name = name;
         data.name = name;
-        if (debug) console.log('1351 data, relshipview', data, relshipview);
-        if (debug) console.log('1352 myModelview, relshipview', myModelview, relshipview);
+        if (debug) console.log('1286 data, relshipview', data, relshipview);
+        if (debug) console.log('1287 myModelview, relshipview', myModelview, relshipview);
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
 
         let link = myGoModel.findLink(data.key);
@@ -1293,7 +1305,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         // Dispatch
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
-        if (debug) console.log('1360 jsnRelship', jsnRelship);
+        if (debug) console.log('1300 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1302,12 +1314,12 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1369 jsnRelview', jsnRelview);
+        if (debug) console.log('1309 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1374 data', data, myModelview);
+            if (debug) console.log('1314 data', data, myModelview);
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })              
         const modifiedModelviews = new Array();
@@ -1319,19 +1331,19 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         link = myDiagram.findLinkForKey(data.key);
-        data = link.data;
-        if (debug) console.log('1388 data, relshipview', data, relshipview);
+        const lnk = link.data;
+        if (debug) console.log('1327 lnk, relshipview', lnk, relshipview);
         if (name === " ") {
-            myDiagram.model.setDataProperty(data, "name", ".");  // Hack
+            myDiagram.model.setDataProperty(lnk, "name", ".");  // Hack
         } else {
-            myDiagram.model.setDataProperty(data, "name", name);
+            myDiagram.model.setDataProperty(lnk, "name", name);
         }
         if (link.strokeWidth == 0) link.strokeWidth = 1;
-        myDiagram.model.setDataProperty(data, "category", "Relationship");
-        myDiagram.model.setDataProperty(data, "category", "Relationship");
-        if (debug) console.log('1389 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
+        myDiagram.model.setDataProperty(lnk, "category", "Relationship");
+        myDiagram.model.setDataProperty(lnk, "category", "Relationship");
+        if (debug) console.log('1336 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
     }        
-    if (debug) console.log('1393 data, relshipview, modelview', data, relshipview, myModelview);
+    if (debug) console.log('1338 data, relshipview, modelview', data, relshipview, myModelview);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1712,6 +1724,8 @@ export function createLink(data: any, context: any): any {
             if (scale > toNode.scale1)
                 scale = toNode.scale1;
         }
+        const fromPort = data.fromPort;
+        const toPort = data.toPort;
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
         if (debug) console.log('1450 createLink', data.relshiptype.name, fromType, toType);
@@ -1736,7 +1750,7 @@ export function createLink(data: any, context: any): any {
             if (fromObj && toObj) {
                 // Find relationship if it already exists
                 const myModel = context.myModel;
-                let relship = myModel.findRelationship2(fromObj, toObj, reltype.name, reltype);
+                let relship = myModel.findRelationship2(fromObj, toObj, reltype.name, reltype, fromPort, toPort);
                 if (debug) console.log('1471 relship', relship);
                 if (!relship) {
                     relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
@@ -1744,6 +1758,8 @@ export function createLink(data: any, context: any): any {
                         relship.setModified();
                         data.relship = relship;
                         relship.setName(reltype.name);
+                        relship.fromPort = fromPort;
+                        relship.toPort = toPort;
                         myModel.addRelationship(relship);
                         myMetis.addRelationship(relship);
                     }
@@ -1767,6 +1783,8 @@ export function createLink(data: any, context: any): any {
                         relshipview.setTextScale(scale);
                         relshipview.strokewidth = "";
                         relshipview.textscale = "";
+                        relshipview.fromport = fromPort;
+                        relshipview.toport = toPort;
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
@@ -1787,7 +1805,7 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;
             const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
-            if (debug) console.log('1746 link', link);
+            if (debug) console.log('1746 lnk, link', lnk, link);
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView
                 relview = myMetis.findRelationshipView(relview.id);
@@ -1807,8 +1825,16 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     link.category = lnk.category;
                     link.name = name;        
                     link.setFromNode(lnk.from);
+                    rel.fromPortid = lnk.fromPort;
+                    rel.toPortid = lnk.toPort;
+                    relview.fromPortid = lnk.fromPort;
+                    relview.toPortid = lnk.toPort;
+                    link.fromPort = lnk.fromPort;
+                    link.toPort = lnk.toPort;
                     const fromObjView = fromNode.objectview;
                     relview.fromObjview = fromObjView;
+                    relview.fromPortid = lnk.fromPort;
+                    relview.toPortid = lnk.toPort;
                     rel.fromObject = myMetis.findObject(fromObjView.object.id);  
                     link.setToNode(lnk.to);
                     const toObjView = toNode.objectview;
@@ -2175,14 +2201,14 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (type?.name !== 'ViewFormat' && 
         type?.name !== 'Datatype' && 
         type?.name !== 'Property') {
-      if (k === 'viewFormat') retVal = false;
-    }
+            if (k === 'viewFormat') retVal = false;
+        }
     if (type?.name !== 'InputPattern' && 
         type?.name !== 'Datatype' &&
         type?.name !== 'Property') {
-      if (k === 'inputPattern') retVal = false;
-      if (k === 'inputExample') retVal = false;
-    }
+            if (k === 'inputPattern') retVal = false;
+            if (k === 'inputExample') retVal = false;
+        }
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
       if (k === 'fieldType') retVal = false;
     }
@@ -3234,6 +3260,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
         if (link) {
             if (debug) console.log('2854 data, link, relview', data, link, relview);
             relview.arrowscale = relview.textscale * 1.3;
+            diagram.model.setDataProperty(link.data, 'relship', relview.relship);
             diagram.model.setDataProperty(link.data, 'name', relview.name);
             diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
             diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);

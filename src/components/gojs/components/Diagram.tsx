@@ -182,11 +182,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: true,
       currentActiveTab: '0'
     });
-    if (debug) console.log('181 this.state', this.state);
+    if (debug) console.log('185 this.state', this.state);
   } 
 
   public handleSelectDropdownChange = (selected) => {
-    if (debug) console.log('185 this.state', this);
+    if (debug) console.log('189 this.state', this);
     const myMetis = this.myMetis;
     const context = {
       "myMetis":      myMetis,
@@ -197,11 +197,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "myDiagram":    myMetis.myDiagram,
       "modalContext": this.state.modalContext
     }
-    if (debug) console.log('196 selected, context', selected, context);
+    if (debug) console.log('200 selected, context', selected, context);
     // Handle the links
     uim.handleSelectDropdownChange(selected, context);
     // Handle the relationships
-    if (debug) console.log('203 selected', selected);
+    if (debug) console.log('204 selected', selected);
   }
 
   public handleCloseModal(e) {
@@ -415,6 +415,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true; 
     myMetis.myDiagram = myDiagram;
+    myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
+    myDiagram.model.linkToPortIdProperty = "toPort";
+
     if (myMetis.currentModelview?.name === constants.admin.AKM_ADMIN_MODELVIEW) {
       setLayout(myDiagram, myMetis.currentModelview?.layout);
     }
@@ -795,11 +798,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }),  
           makeButton("----------"),
+          makeButton("Add Port",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (debug) console.log('529 node', node);
+              uid.addPort(node, myMetis);
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT)
+                return true;
+            }),
+          makeButton("----------"),
           makeButton("Export Task Model",
           function (e: any, obj: any) {
-            const node = e.diagram.selection.first().data;
+            const node = myDiagram.selection.first().data;
             uid.exportTaskModel(node, myMetis, myDiagram);
-
           },
           function (o: any) { 
             if (debug) console.log('1991 myMetis', myMetis);
@@ -813,7 +827,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else 
                 return false;
             }
-          }),
+            }),
           makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
@@ -959,7 +973,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Reset to Typeview",
             function (e: any, obj: any) { 
-
               const myGoModel = myMetis.gojsModel;
               myDiagram.selection.each(function(sel) {
                 const inst = sel.data;
@@ -1251,6 +1264,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship",
             function (e: any, obj: any) { 
               const link = obj.part.data;
+              if (debug) console.log('1267 link', link);
               const modalContext = {
                 what: "editRelationship",
                 title: "Edit Relationship",
@@ -3043,10 +3057,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public render() {
+    // Handle property dialogs
     let useTabs = true;
     if (debug) console.log('2863 Diagram: ', this.props.nodeDataArray);
     if (debug) console.log('2864 Diagram: ', this.props.linkDataArray);
-    const selObj = this.state.selectedData;
+    let selObj = this.state.selectedData;
     if (debug) console.log('2866 selObj: ', selObj);
     const myMetis = this.myMetis;
     const myModel = myMetis.currentModel;
@@ -3097,6 +3112,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       if (debug) console.log('2913 modalContext, selpropgroup, namelist', modalContext, selpropgroup, namelist);
       // selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ];
+    }
+    if (modalContext?.what === 'addPort') {
+      selpropgroup = [  {tabName: 'Default'} ];
+
     }
     switch (modalContext?.what) {      
       case 'selectDropdown': 
@@ -3192,38 +3211,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         header = modalContext.title;
         category = this.state.selectedData.category;
         if (this.state.selectedData !== null && this.myMetis != null) {
-          // // code for extracting the g element from the svg
+          if (false) {
+          // code for extracting the g element from the svg
           // https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/tiger.html
-          // if (this.state.selectedData.icon?.includes('<svg')) {
-          //   const svgString = this.state.selectedData.icon;
-          //   console.log('3012 svgString', svgString);
-          //   // const xmldoc = new DOMParser().parseFromString(svgString, 'text/xml');
-          //   const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
-          //   // get g element
-          //   const g = svg?.getElementsByTagName('g')[0];
-          //   // get path elements
-          //   const paths = g?.getElementsByTagName('path');
+          if (this.state.selectedData.icon?.includes('<svg')) {
+            const svgString = this.state.selectedData.icon;
+            console.log('3012 svgString', svgString);
+            // const xmldoc = new DOMParser().parseFromString(svgString, 'text/xml');
+            const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+            // get g element
+            const g = svg?.getElementsByTagName('g')[0];
+            // get path elements
+            const paths = g?.getElementsByTagName('path');
 
-          //   console.log('3018 g', g, 'paths ', paths);
-          //   // get all paths path data
-          //   const pathData = [];
-          //   for (let i = 0; i < paths?.length; i++) {
-          //     pathData.push(paths[i].getAttribute('d'));
-          //   }
-          //   console.log('3025 pathData', pathData);
-          //   // concatinating of the paths in array
-          //   const pathD =  
-          //     pathData.reduce((acc, val) => {
-          //       return acc + val;
-          //     }, '');
-          //   console.log('3028 pathD', pathD);
-          //   // selectedData = { ...this.state.selectedData, geometry: pathD };
-          //   // this.setState({ selectedData });
-          //   // if (this.state.selectedData.geometry === '') {
-          //   selectedData = { selectedData:{...this.state.selectedData, objectview: { ...this.state.selectedData.objectview, geometry: pathD} }};
-          //   // }
-          //   if (debug) console.log('3038 selectedData, modalContext: ', this.state.selectedData, modalContext);
-          // }
+            console.log('3018 g', g, 'paths ', paths);
+            // get all paths path data
+            const pathData = [];
+            for (let i = 0; i < paths?.length; i++) {
+              pathData.push(paths[i].getAttribute('d'));
+            }
+            console.log('3025 pathData', pathData);
+            // concatinating of the paths in array
+            const pathD =  
+              pathData.reduce((acc, val) => {
+                return acc + val;
+              }, '');
+            console.log('3028 pathD', pathD);
+            // selectedData = { ...this.state.selectedData, geometry: pathD };
+            // this.setState({ selectedData });
+            // if (this.state.selectedData.geometry === '') {
+            selectedData = { selectedData:{...this.state.selectedData, objectview: { ...this.state.selectedData.objectview, geometry: pathD} }};
+            // }
+            if (debug) console.log('3038 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          }
+          }
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -3262,6 +3283,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       }
       break;
+      case 'addPort': {
+        header = modalContext.title;
+        category = this.state.selectedData.category;
+        if (this.state.selectedData !== null && this.myMetis != null) {
+
+        }
+      }
       default:
         break;
     }

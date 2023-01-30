@@ -9,7 +9,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
 
     if (debug) console.log("7 genRoleTasks",  mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
-    if (mmodel?.objecttypes0.length > 0) {
+    if (mmodel?.objecttypes0?.length > 0) {
         const  oTypes0 = mmodel?.objecttypes0?.map((ot: { id: any; name: any; description: any; icon: any; color: any; type: any; }) => {
         return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
         })

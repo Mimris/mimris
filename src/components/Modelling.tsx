@@ -76,9 +76,27 @@ const page = (props:any) => {
   const [mount, setMount] = useState(false)
 
 
-  function toggleRefresh() {
+  function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('80 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
+      // set focusOrg and focusProj to focusProj.org and focusProj.proj
+      if (props.phFocus.focusOrg.name !== props.phFocus.focusProj.org ) {
+        props.phFocus.focusOrg = props.phFocus.focusProj.org || props.phFocus.focusOrg
+      }
+      if (props.phFocus.focusProj.name !== props.phFocus.focusProj.proj) {
+        props.phFocus.focusProj = props.phFocus.focusProj.proj || props.phFocus.focusProj
+      }
+      // check if focusModel exists in one of the current models. If not, set it to the first model
+      let found = false;
+      for (let i = 0; i < props.phData?.metis.models.length; i++) {
+        if (props.phFocus.focusModel.id === props.phData?.metis.models[i]) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        props.phFocus.focusModel = props.phData.metis.models[0]
+      }
       // put currentdata in the first position of the array data
       let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
       if (!debug) console.log('84 Modelling refresh', mdata);
@@ -91,11 +109,11 @@ const page = (props:any) => {
       if (!debug) console.log('91 Modelling refresh', props);
       setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
     }
+    GenGojsModel(props, dispatch)
     const timer = setTimeout(() => {
       if (debug) console.log('90 Modelling toggleRefresH', props);
-      GenGojsModel(props, dispatch)
       setRefresh(!refresh)
-    }, 1);
+    }, 10);
     return () => clearTimeout(timer);
   } 
 
@@ -107,12 +125,12 @@ const page = (props:any) => {
 
   useEffect(() => {
     useEfflog('109 Modelling useEffect 2', props);
+    GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
-      GenGojsModel(props, dispatch);
       setRefresh(!refresh)
     }, 1000);
     return () => clearTimeout(timer);
-  }, [props.phFocus.focusModelview.id && (props.phFocus.focusModelview.id !== props.phData?.metis?.models[0].id)])
+  }, [props.phFocus.focusModelview.id && (props.phFocus.focusModel.id !== props.phData?.metis?.models[0].id)])
 
   // useEffect(() => {
   //   useEfflog('115 Modelling useEffect 3', props, props.phData?.metis?.name);

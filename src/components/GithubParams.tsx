@@ -30,7 +30,7 @@ export default function GithubParams(props) {
   //   }
     
     useEffect(() => {
-      if (!debug) console.log('16 modelling dispatchGithub', query)  
+      if (!debug) console.log('33 modelling dispatchGithub', query, props)  
       dispatch({type: 'LOAD_DATAGITHUB', data: query })
       const timer = setTimeout(() => {
         const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 

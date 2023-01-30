@@ -242,7 +242,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.setState(
       produce((draft: AppState) => {
         let data = draft.selectedData as any;  // only reached if selectedData isn't null
-        if (debug) console.log('227 data', data, this);
+        if (!debug) console.log('227 data', data, this);
         // if (data[propname] = 'icon' && value.includes("fakepath")) {
         //   data[propname] = context.files[0];
         // } else {

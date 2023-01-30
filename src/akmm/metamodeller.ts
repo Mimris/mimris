@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false;
 
 // this Kernel code
@@ -4963,9 +4963,9 @@ export class cxObjectType extends cxType {
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
         this.leftPorts = null;
-        this.rightPorts = null;
-        this.topPorts = null;
-        this.bottomPorts = null;
+        this.rightPorts = [];
+        this.topPorts = [];
+        this.bottomPorts = [];
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -5045,7 +5045,7 @@ export class cxObjectType extends cxType {
         return reltypes;
     }
     addPort(port: cxPort, side: string) {
-        let ports = null;
+        let ports;
         switch (side) {
             case constants.gojs.C_LEFT:
                 if (!this.leftPorts)
@@ -5079,7 +5079,7 @@ export class cxObjectType extends cxType {
         }
     }
     getPort(portid: string, side: string): cxPort | null {
-        let ports = null;
+        let ports;
         switch (side) {
             case constants.gojs.C_LEFT:
                 ports = this.leftPorts;

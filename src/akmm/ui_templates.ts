@@ -2447,7 +2447,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         groupTemplateMap.add("Container3", groupTemplate3);
         addGroupTemplateName('Container3');
     }
-    if (false) {
+    if (true) {
         const groupTemplate4 = 
             $(go.Group, "Vertical",
             { layout: $(go.TreeLayout, { setsPortSpot: false, setsChildPortSpot: false }) },
@@ -2485,7 +2485,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             groupTemplateMap.add("Test", groupTemplate4);
             addGroupTemplateName('Test');
     }
-    if (false) {
+    if (true) {
         const groupTemplate5 =
         $(go.Group, go.Panel.Auto,
           { contextMenu: contextMenu },
@@ -2537,7 +2537,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         groupTemplateMap.add("Container5", groupTemplate5);
         addGroupTemplateName('Container5'); 
     }
-    if (false) {
+    if (true) {
         const groupTemplate6 =
         $(go.Group, "Auto",
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),

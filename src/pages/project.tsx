@@ -63,23 +63,18 @@ const page = (props: any) => {
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
 
-  const projectDiv =  (Object.keys(query).length !== 0) 
-    ? 
+  const projectParamsDiv = 
       <>
-        <div className='container'>
+        <div className='container' style={{  fontSize: '0.9rem'}}>
           {/* <div className="m-5"> */}
             {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
            <GithubParams ph={props} query={query} />
           {/* </div> */}
         </div>
-        <hr  className='mx-5 p-2 bg-success' />
-        <div className="container ">
-          <div className="">
-            <ProjectForm phFocus={props.phFocus} />
-          </div>
-        </div>        
+        {/* <hr  className='mx-5 p-2 bg-success' /> */}
       </>
-    :
+  
+  const projectFormDiv =
       <>
         <div className="">
           {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
@@ -101,50 +96,52 @@ const page = (props: any) => {
               <div className="workplace-focus gap" >
                 <div className="left-aside m-1 p-3 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
                   <h2 className='text-muted'>GitHub links :</h2>
-                  <div className='bg-light px-2 m-1 w-100'>
-                    <div className='text-muted'>Top GitHub org:</div>
-                    {(org && repo && path) 
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
+                    <div className='text-muted'>GitHub :</div>
+                    {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
+                    {/* {(org && repo && path) 
                       ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
-                      : <Link className='text-primary ' href={`https:/github.com/kavca/.github/`} target="_blank">Kavca</Link>}
+                      : <Link className='text-primary ' href={`https:/github.com/kavca/.github/`} target="_blank">Kavca</Link>} */}
                   </div>
-                  <div className='bg-light px-2 m-1 w-100'>
-                  <div className='text-muted'>Repository :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.io/${repo}`} target="_blank"> {org}/{repo}</Link>}
+                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                    <div className='text-muted'>Repository :</div>
+                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
-                  <div className='bg-light px-2 m-1 w-100'>
-                  <div className='text-muted'>Issues for this repo:</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}</Link>}
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
+                    <div className='text-muted'>Issues for this repo:</div>
+                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}</Link>}
                   </div>
-                  <div className='bg-light px-2 m-1 w-100'>
-                  <div className='text-muted'>Project Canban for this repo:</div>
-                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
+                    <div className='text-muted'>Project Canban for this repo:</div>
+                    {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
                   </div>
                 </div>
                 <div className="main container m-1" style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
-                    <div className=" d-flex justify-content-around ">
-                      <div className="rounded bg-light m-2 p-2">
+                    {(query.repo) && projectParamsDiv }
+                    {/* <div className=" d-flex justify-content-around "> */}
+                      {/* <div className="rounded bg-light m-2 p-2">
                         <button className='rounded mt-2 px-2 m-2 '>
                             <Link className='text-primary ' href={generatedUrl}>Reload from GitHub </Link>
                         </button>
                       <span className='text-muted pr-2'>NB! This will overwrite any changes made in current model </span>  
-                      </div>   
+                      </div>    */}
                       {/* <div className="rounded bg-light m-2 p-2">
                         <button className='rounded mt-2 px-2 m-2  '>
                            <SelectContext className='ContextModal mr-2' buttonLabel='Set Context' phData={props.phData} phFocus={props.phFocus} />  
                         </button>
                       </div>    */}
+                    {/* </div>    */}
+                    <div className="rounded bg-light m-2 p-2">
+                      <div className='ronded px-2'>Copy the text below to send the project-link to others:</div>  
+                      <span className='rounded fs-6 m-2 p-2' style={{backgroundColor: '#dde'}}>{generatedUrl} </span>  
+                    </div>
                       <div className="rounded bg-light m-2 p-2">
                         <button className='rounded mt-2 px-2 m-2  '>
                             <Link className='text-primary ' href="/modelling">Start Modelling</Link>
                         </button>
                       </div>   
-                    </div>   
-                    <div className="rounded bg-light m-2 p-2">
-                      <div className='ronded px-2'>Copy the text below to send the project-link to others: </div>  
-                      <span className='rounded fs-6 m-2 p-2' style={{backgroundColor: '#dde'}}>{generatedUrl} </span>  
-                    </div>
-                    {projectDiv}
-                    
+                    {projectFormDiv}
+                  
                 </div>
 
                 <div className="right-aside container fs-4  m-3 ">

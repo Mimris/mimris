@@ -44,10 +44,10 @@ export default function GithubParams(props) {
   }, [])
 
   return (
-    <Container className='container p-4' style={{backgroundColor: "#cdd"}}>
+    <Container className=' p-1' style={{backgroundColor: "#cdd"}}>
         <h4 className='text-primary fs-6'>You have loaded a model from the following repo on GitHub :</h4>
-      <Container className='project my-3 py-2 ' style={{background: "#dee"}}>
-        <Row className="bg-secondary my-1 p-2 text-light flex justify-content-between" >
+      <Container className='project my-1 py-2 ' style={{background: "#dee"}}>
+        <Row className="bg-secondary my-1 p-1 text-light flex justify-content-between" >
           <Col>Org</Col>
           <Col>Repository</Col>
           <Col>Path</Col>

@@ -36,7 +36,9 @@ const page = (props: any) => {
   const focus = props.phFocus
   const ghtype = 'file'
 
+  // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
+  // const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
 
   // if query object is not empty object
   // useEffect(() => {
@@ -44,20 +46,38 @@ const page = (props: any) => {
   // }, [query])
 
   const [issues, setIssues] = useState([]);
+  const [collabs, setCollabs] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+
     async function fetchData() {
       try {
         const { data } = await axios.get(issueUrl);
         setIssues(data);
-        console.log('issues', data)
+        console.log('55 issues', data)
       } catch (err) {
         setError(err);
       }
     }
     fetchData(); 
-    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
+
+    async function fetchCollab() {
+      try {
+        const { data } = await axios.get(collabUrl);
+        setCollabs(data);
+        console.log('68 issues', data)
+      } catch (err) {
+        setError(err);
+      }
+    }
+    fetchCollab(); 
+
+    // show error message popup
+    if (error) {
+      // console.log('78 error', error.response.data.message)
+      alert(error.response.data.message)
+    }
   }, [props.phFocus.focusProj.org]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
@@ -68,7 +88,7 @@ const page = (props: any) => {
         <div className='container' style={{  fontSize: '0.9rem'}}>
           {/* <div className="m-5"> */}
             {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-           {(query.repo) ? <GithubParams ph={props} query={query} /> : <h5>Init Starup model loaded !</h5> }
+           {(query.repo) ? <GithubParams ph={props} query={query} /> : <h5>Initial Startup model loaded !</h5> }
           {/* </div> */}
         </div>
         {/* <hr  className='mx-5 p-2 bg-success' /> */}
@@ -86,16 +106,16 @@ const page = (props: any) => {
     <>
       <Layout user={props.phUser?.focusUser} >
         <div id="index" >
-          <div className="wrapper m-1 pr-2">
+          <div className="wrapper m-1 pr-2 ">
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
                 <div className="focusarea d-flex " style={{backgroundColor: "#cdd", maxHeight: "24px"}}> 
                   <SetContext className='setContext' ph={props} />
                 </div> 
-              <div className="workplace-focus gap" >
-                <div className="left-aside m-1 p-3 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                  <h2 className='text-muted'>GitHub links :</h2>
+              <div className="workplace-focus gap " >
+                <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+                  <h5 className='text-muted'>GitHub links :</h5>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
                     <div className='text-muted'>GitHub :</div>
                     {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
@@ -115,47 +135,57 @@ const page = (props: any) => {
                     <div className='text-muted'>Project Canban for this repo:</div>
                     {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
                   </div>
+                  <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
+                    <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>
+                    {(issues.length > 0) && issues.map((issue) => (
+                      <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                        <div className='d-flex justify-content-between'>
+                          <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
+                          <div className='text-muted'>{issue.user.name}</div>
+                        </div>
+                        <h6>{issue.title}</h6>
+                        <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="main container m-1" style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                <div className=" main m-1 fs-6 " style={{ maxWidth: "40rem", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv }
-                    {/* <div className=" d-flex justify-content-around "> */}
-                      {/* <div className="rounded bg-light m-2 p-2">
-                        <button className='rounded mt-2 px-2 m-2 '>
-                            <Link className='text-primary ' href={generatedUrl}>Reload from GitHub </Link>
-                        </button>
-                      <span className='text-muted pr-2'>NB! This will overwrite any changes made in current model </span>  
-                      </div>    */}
-                      {/* <div className="rounded bg-light m-2 p-2">
-                        <button className='rounded mt-2 px-2 m-2  '>
-                           <SelectContext className='ContextModal mr-2' buttonLabel='Set Context' phData={props.phData} phFocus={props.phFocus} />  
-                        </button>
-                      </div>    */}
-                    {/* </div>    */}
+                      {/* <div className=" d-flex justify-content-around "> */}
+                        {/* <div className="rounded bg-light m-2 p-2">
+                          <button className='rounded mt-2 px-2 m-2 '>
+                              <Link className='text-primary ' href={generatedUrl}>Reload from GitHub </Link>
+                          </button>
+                        <span className='text-muted pr-2'>NB! This will overwrite any changes made in current model </span>  
+                        </div>    */}
+                        {/* <div className="rounded bg-light m-2 p-2">
+                          <button className='rounded mt-2 px-2 m-2  '>
+                            <SelectContext className='ContextModal mr-2' buttonLabel='Set Context' phData={props.phData} phFocus={props.phFocus} />  
+                          </button>
+                        </div>    */}
+                      {/* </div>    */}
+                    <div className="rounded bg-light m-2 p-2 ">
+                      <button className='rounded mt-2 px-2 '>
+                          <Link className='text-primary ' href="/modelling">Start Modelling</Link>
+                      </button>
+                    </div>   
                     <div className="rounded bg-light m-2 p-2">
-                      <div className='ronded px-2'>Copy the text below to send the project-link to others:</div>  
-                      <span className='rounded fs-6 m-2 p-2' style={{backgroundColor: '#dde'}}>{generatedUrl} </span>  
+                      <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>  
+                      <span className='rounded  p-2' style={{fontSize: '0.4rem', backgroundColor: '#dde'}}>{generatedUrl} </span>  
                     </div>
-                      <div className="rounded bg-light m-2 p-2">
-                        <button className='rounded mt-2 px-2 m-2  '>
-                            <Link className='text-primary ' href="/modelling">Start Modelling</Link>
-                        </button>
-                      </div>   
-                    {projectFormDiv}
-                  
+                    {projectFormDiv}     
                 </div>
-
-                <div className="right-aside container fs-4  m-3 ">
-                  <h2 className='text-muted fs-4 p-2'>GitHub Issues :</h2>
+                <div className="aside-right fs-4 " style={{minWidth: "20rem"}}>
+                  <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
                   {(issues.length > 0) && issues.map((issue) => (
                     <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
                       <div className='d-flex justify-content-between'>
-                        <Link className='text-primary ' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
+                        <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
                         <div className='text-muted'>{issue.user.name}</div>
                       </div>
                       <h6>{issue.title}</h6>
                       {/* <p className='text-secondary m-2'>{issue.body}</p> */}
                       <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
-
                     </div>
                   ))}
                 </div>
@@ -168,25 +198,24 @@ const page = (props: any) => {
         <style jsx>{ `
           .main { grid-area: main;}
           .focusarea { grid-area: focusarea;}
-          .left-aside { grid-area: left-aside;}
           .workplace-focus { grid-area: workplace-focus;}
-          .left-aside { grid-area: left-aside;}
-          .right-aside { grid-area: right-aside;}
+          .aside-left { grid-area: aside-left;}
+          .aside-right { grid-area: aside-right;}
           .workplace-focus {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             grid-template-areas:
               "focusarea focusarea focusarea"
-              "left-aside main right-aside"
-              "left-aside main right-aside"
+              "aside-left main aside-right"
+              "aside-left main aside-right"
           }
           .workplace-focus > div {
-            padding: 10px;
+            padding: 1px;
             font-size: 20px;
           }
-          .right-aside {
+          .aside-right {
             background-color: #abb;
-            margin: 10px;
+            margin: 4px;
             border-radius: 5px 5px 5px 5px;
           }
         ` }

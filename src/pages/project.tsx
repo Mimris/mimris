@@ -68,7 +68,7 @@ const page = (props: any) => {
         <div className='container' style={{  fontSize: '0.9rem'}}>
           {/* <div className="m-5"> */}
             {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-           <GithubParams ph={props} query={query} />
+           {(query.repo) ? <GithubParams ph={props} query={query} /> : <h5>Init Starup model loaded !</h5> }
           {/* </div> */}
         </div>
         {/* <hr  className='mx-5 p-2 bg-success' /> */}
@@ -117,7 +117,7 @@ const page = (props: any) => {
                   </div>
                 </div>
                 <div className="main container m-1" style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
-                    {(query.repo) && projectParamsDiv }
+                    {projectParamsDiv }
                     {/* <div className=" d-flex justify-content-around "> */}
                       {/* <div className="rounded bg-light m-2 p-2">
                         <button className='rounded mt-2 px-2 m-2 '>

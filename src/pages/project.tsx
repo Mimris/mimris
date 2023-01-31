@@ -38,7 +38,7 @@ const page = (props: any) => {
 
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
-  // const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
+  const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
 
   // if query object is not empty object
   // useEffect(() => {

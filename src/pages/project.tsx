@@ -25,7 +25,7 @@ const page = (props: any) => {
   
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   
-  // console.log('19 project',props, query)
+  if (!debug) console.log('28 project',props, query)
 
   // list query params
   const org = props.phFocus.focusProj.org
@@ -62,16 +62,16 @@ const page = (props: any) => {
     }
     fetchData(); 
 
-    async function fetchCollab() {
-      try {
-        const { data } = await axios.get(collabUrl);
-        setCollabs(data);
-        console.log('68 issues', data)
-      } catch (err) {
-        setError(err);
-      }
-    }
-    fetchCollab(); 
+    // async function fetchCollab() {
+    //   try {
+    //     const { data } = await axios.get(collabUrl);
+    //     setCollabs(data);
+    //     console.log('68 collabs', data)
+    //   } catch (err) {
+    //     setError(err);
+    //   }
+    // }
+    // fetchCollab(); 
 
     // show error message popup
     if (error) {
@@ -115,17 +115,10 @@ const page = (props: any) => {
                 </div> 
               <div className="workplace-focus gap " >
                 <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                  <h5 className='text-muted'>GitHub links :</h5>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
-                    <div className='text-muted'>GitHub :</div>
-                    {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
-                    {/* {(org && repo && path) 
-                      ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
-                      : <Link className='text-primary ' href={`https:/github.com/kavca/.github/`} target="_blank">Kavca</Link>} */}
-                  </div>
-                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                    <div className='text-muted'>Repository :</div>
-                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+                <h6 className='text-muted pt-2'>Links to Github :</h6>
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                    <div className='text-muted'>GitHub Docs :</div>
+                    {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
                   </div>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
                     <div className='text-muted'>Issues for this repo:</div>
@@ -135,8 +128,21 @@ const page = (props: any) => {
                     <div className='text-muted'>Project Canban for this repo:</div>
                     {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
                   </div>
+                  <h6 className='text-muted pt-2'>Other GitHub links :</h6>
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
+                    <div className='text-muted'>GitHub :</div>
+                    {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
+                    {/* {(org && repo && path) 
+                      ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
+                      : <Link className='text-primary ' href={`https:/github.com/kavca/.github/`} target="_blank">Kavca</Link>} */}
+                  </div>
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                    <div className='text-muted'>Repository :</div>
+                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+                  </div>
+{/* 
                   <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
-                    <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>
+                    <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>git 
                     {(issues.length > 0) && issues.map((issue) => (
                       <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
                         <div className='d-flex justify-content-between'>
@@ -147,7 +153,7 @@ const page = (props: any) => {
                         <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
                       </div>
                     ))}
-                  </div>
+                  </div> */}
                 </div>
                 <div className=" main m-1 fs-6 " style={{ maxWidth: "40rem", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv }

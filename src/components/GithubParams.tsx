@@ -29,18 +29,18 @@ export default function GithubParams(props) {
   //     dispatch({ type: 'SET_FOCUS_PROJ', data: {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} })
   //   }
     
-    useEffect(() => {
-      if (!debug) console.log('33 modelling dispatchGithub', query, props)  
-      dispatch({type: 'LOAD_DATAGITHUB', data: query })
-      const timer = setTimeout(() => {
-        const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
-        dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-        const org1 = {id: org, name: org}
-        dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-        const repo1 = {id: 'role', name: ''}
-        dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-      }, 2000);
-      return () => clearTimeout(timer);
+  useEffect(() => {
+    if (!debug) console.log('33 modelling dispatchGithub', query, props)  
+    dispatch({type: 'LOAD_DATAGITHUB', data: query })
+    const timer = setTimeout(() => {
+      const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
+      dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+      const org1 = {id: org, name: org}
+      dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+      const repo1 = {id: 'role', name: ''}
+      dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [])
 
   return (

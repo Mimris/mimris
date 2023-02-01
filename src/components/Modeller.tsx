@@ -47,13 +47,13 @@ const Modeller = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   // ---------------------  useEffects --------------------------------
-  useEffect(() =>  { // when focusModel changes
-    if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
-  //   const timer = setTimeout(() => {
-  //     setRefresh(!refresh)
-  //   }, 5000);
-  //   return () => clearTimeout(timer);
-  }, [focusModel.id])
+  // useEffect(() =>  { // when focusModel changes
+  //   if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
+  // //   const timer = setTimeout(() => {
+  // //     setRefresh(!refresh)
+  // //   }, 5000);
+  // //   return () => clearTimeout(timer);
+  // }, [focusModel.id])
 
   useEffect(() => { // set activTab when focusModelview.id changes
     // GenGojsModel(props, dispatch)
@@ -379,7 +379,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     ? (objectsTabDiv) 
                       ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{  fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</> 
                       : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{  fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</>
-                    : <div className="btn-vertical px-1 text-center" style={{ height: "78vh", maxWidth: "20px", padding: "0px" }}><span> O b j e c t s </span> </div>
+                    : <div className="btn-vertical px-1 text-center " style={{ height: "78vh", maxWidth: "20px", padding: "0px", fontSize: "12px"}}><span> O b j e c t s </span> </div>
                   }
                 {/* </div> */}
               </div>

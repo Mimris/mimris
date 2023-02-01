@@ -110,12 +110,12 @@ const page = (props: any) => {
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-                <div className="focusarea d-flex " style={{backgroundColor: "#cdd", maxHeight: "24px"}}> 
-                  <SetContext className='setContext' ph={props} />
-                </div> 
+              <div className="focusarea d-flex " style={{backgroundColor: "#cdd", maxHeight: "24px"}}> 
+                <SetContext className='setContext' ph={props} />
+              </div> 
               <div className="workplace-focus gap " >
-                <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                <h6 className='text-muted pt-2'>Links to Github :</h6>
+                <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+                  <h6 className='text-muted pt-2'>Links to Github :</h6>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
                     <div className='text-muted'>GitHub Docs :</div>
                     {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
@@ -140,7 +140,7 @@ const page = (props: any) => {
                     <div className='text-muted'>Repository :</div>
                     {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
-{/* 
+                  {/* 
                   <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
                     <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>git 
                     {(issues.length > 0) && issues.map((issue) => (
@@ -155,7 +155,7 @@ const page = (props: any) => {
                     ))}
                   </div> */}
                 </div>
-                <div className=" main m-1 fs-6 " style={{ maxWidth: "40rem", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv }
                       {/* <div className=" d-flex justify-content-around "> */}
                         {/* <div className="rounded bg-light m-2 p-2">
@@ -209,7 +209,7 @@ const page = (props: any) => {
           .aside-right { grid-area: aside-right;}
           .workplace-focus {
             display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            grid-template-columns: auto 2fr 1fr;
             grid-template-areas:
               "focusarea focusarea focusarea"
               "aside-left main aside-right"

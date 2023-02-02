@@ -140,17 +140,17 @@ const page = (props: any) => {
                     <div className='text-muted'>Repository :</div>
                     {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
-                  {/* 
-                  <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
+                  
+                  {/* <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
                     <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>git 
-                    {(issues.length > 0) && issues.map((issue) => (
-                      <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                    {(collabs.length > 0) && collabs.map((col) => (
+                      <div className='bg-light fs-6  m-2 p-2' key={col.id}>
                         <div className='d-flex justify-content-between'>
-                          <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
-                          <div className='text-muted'>{issue.user.name}</div>
+                          <Link className='text-primary' href={col.html_url} target="_blank"># {col.number} - {col.state} - {col.created_at.slice(0, 10)}</Link>
+                          <div className='text-muted'>{col.user.name}</div>
                         </div>
-                        <h6>{issue.title}</h6>
-                        <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                        <h6>{col.title}</h6>
+                        <div className='text-muted'>Created by: {col.user.login} - Assignee: {col.assignees[0]?.login} </div>
                       </div>
                     ))}
                   </div> */}

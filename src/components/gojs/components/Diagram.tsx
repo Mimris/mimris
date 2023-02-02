@@ -230,7 +230,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
-    if (debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
+    if (!debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
     const propname = props.id;
     const fieldType = props.type;
     const obj = props.obj;
@@ -239,15 +239,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (!debug) console.log('222 this.state', this.state);
     if (!debug) console.log('223 obj', obj);
+    if (value === undefined) return; 
+    if (value === null) return;
+    if (value === " ") return; 
+    console.log('245 value', value);
     this.setState(
       produce((draft: AppState) => {
+        console.log('248 value', value, draft.selectedData, isBlur, props);
         let data = draft.selectedData as any;  // only reached if selectedData isn't null
         if (!debug) console.log('227 data', data, this);
         // if (data[propname] = 'icon' && value.includes("fakepath")) {
         //   data[propname] = context.files[0];
         // } else {
-          data[propname] = value;
+        if (value !== "") data[propname] = value;
         // }
+        if (debug) console.log('232 data, value, isBlur: ', value, isBlur);
         if (debug) console.log('233 data, value, isBlur: ', data[propname], value, isBlur);
         if (isBlur) {
           const key = data.key;
@@ -283,10 +289,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
+
     if (!debug) console.log('268 obj, context', obj, context);
     if (!debug) console.log('269 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
-    // uim.handleInputChange(this.myMetis, props, value);
+    uim.handleInputChange(this.myMetis, props, value);
   }
 
   /**

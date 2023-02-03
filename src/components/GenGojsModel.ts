@@ -47,7 +47,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
     const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)) 
+        ? curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+        : curmod.modelviews[0] // if focusmodview does not exist set the first
+
+    console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod.modelviews)
 
     
     const myMetis = new akm.cxMetis();
@@ -86,19 +90,20 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel, myMetis);
         if (debug) console.log('87 myPalette', myPalette);
       let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
-        if (debug) console.log('89 myModelview', myModelview);
-        if (debug) console.log('90 GenGojsModel  myModel', myMetis, myModel, myModelview);
+        if (!debug) console.log('89 myModelview', myModelview, curmodview);
+        if (!debug) console.log('90 GenGojsModel  myModel', myMetis, myModel, myModelview);
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
-        if (debug) console.log('92 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
+        if (!debug) console.log('92 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
-        if (debug) console.log('94 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
+        if (!debug) console.log('94 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelview);
       (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
       (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
-        if (debug) console.log('101 GenGojsModel  myMetis', myMetis);
+      if (!debug) console.log('101 GenGojsModel  myGoModel', myGoModel);
+      if (debug) console.log('102 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>
@@ -155,7 +160,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      if (debug) console.log('155 GenGojsModel gojsModel', gojsModel);
+      if (!debug) console.log('155 GenGojsModel gojsModel', gojsModel);
 
       // /** metamodel */
       // const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);
@@ -558,18 +563,20 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         if (debug) console.log('546 myGoModel', myGoModel);
       }
-      modifiedRelviews.map(mn => {
-        let data = mn;
-        props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      })
-      if (debug) console.log('552 modifiedRelviews', modifiedRelviews);
+      // ################## removed  by Sf 2023-02-03  Should not be updated here
+      // modifiedRelviews.map(mn => {
+      //   let data = mn;
+      //   props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      // })
+      // if (debug) console.log('552 modifiedRelviews', modifiedRelviews);
+      // ##################
     }
     modelview.relshipviews = relshipviews;
     if (debug) console.log('539 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
     if (debug) console.log('558 myGoModel.links', myGoModel.links);
-    if (debug) console.log('569 myGoModel', myGoModel);
+    if (!debug) console.log('569 myGoModel', myGoModel);
     return myGoModel;
   }
 

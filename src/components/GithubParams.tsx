@@ -13,7 +13,7 @@ export default function GithubParams(props) {
 
   const [refresh, setRefresh] = useState(true);
 
-  if (debug) console.log('5 GithubParams', props)
+  if (!debug) console.log('5 GithubParams', props)
       // list query params
       const query = props.query
       const org = query.org
@@ -39,7 +39,7 @@ export default function GithubParams(props) {
       dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
       const repo1 = {id: 'role', name: ''}
       dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [])
 

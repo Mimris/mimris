@@ -236,28 +236,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const obj = props.obj;
     const context = props.context;
     const pattern = props.pattern;
-    if (debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
-    if (!debug) console.log('222 this.state', this.state);
-    if (!debug) console.log('223 obj', obj);
-    if (value === undefined) return; 
-    if (value === null) return;
-    if (value === " ") return; 
-    console.log('245 value', value);
+    if (!debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
+    if (debug) console.log('222 this.state', this.state);
+    if (debug) console.log('223 obj', obj);
+    let run = false;
+    
     this.setState(
       produce((draft: AppState) => {
-        console.log('248 value', value, draft.selectedData, isBlur, props);
-        let data = draft.selectedData as any;  // only reached if selectedData isn't null
-        if (!debug) console.log('227 data', data, this);
+        if (run === false) {
+          run = true;
+        console.log('248 value', value, draft, draft.selectedData);
+        let data = draft.selectedData as any || null;  // only reached if selectedData isn't null
+        if (!debug) console.log('250 data', data, this);
         // if (data[propname] = 'icon' && value.includes("fakepath")) {
         //   data[propname] = context.files[0];
         // } else {
-        if (value !== "") data[propname] = value;
+        
+        data[propname] = value;
         // }
-        if (debug) console.log('232 data, value, isBlur: ', value, isBlur);
-        if (debug) console.log('233 data, value, isBlur: ', data[propname], value, isBlur);
+        if (!debug) console.log('256 data, value, isBlur: ', value, isBlur, data[propname]);
+        if (debug) console.log('258 data, value, isBlur: ', data[propname], value, isBlur);
         if (isBlur) {
           const key = data.key;
-          if (debug) console.log('236 key', key);
+          if (!debug) console.log('261 key', key, data);
           if (obj.category === constants.gojs.C_OBJECT) {
             const idx = this.mapNodeKeyIdx.get(key);
             if (idx !== undefined) {
@@ -287,6 +288,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           } 
         }
+      }
       })
     );
 

@@ -31,6 +31,7 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 
 const page = (props:any) => {
   
+  console.log('34 modelling ', props)
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) { 
@@ -44,7 +45,7 @@ const page = (props:any) => {
 
   if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
-  const [visible, setVisible] = useState(false)
+  // const [visible, setVisible] = useState(false)
   const [refresh, setRefresh] = useState(true);
   const [params, setParams] = useState(null);
   const [data, setData] = useState(null);
@@ -54,12 +55,13 @@ const page = (props:any) => {
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
 
-  function toggle() { setVisible(!visible); }
+  // function toggle() { setVisible(!visible); }
 
   if (debug) console.log('49 modelling',props)
 
   useEffect(() => { 
-    if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phData, props.phSource, props.phFocus.focusProj.file)
+    if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
+    // let data = {}
     if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
       if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
       if ((window.confirm("Do you want to recover your last model project?"))) {
@@ -67,22 +69,29 @@ const page = (props:any) => {
             const locStore = (memoryLocState[0]) 
             if (locStore) {
               dispatchLocalStore(locStore)
+              // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+              // console.log('modelling 73 ', data)
             }
           } 
         }
       }   
     }
-    toggle()
+    // toggle()
+
+    // const timer = setTimeout(() => {
+    //   dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
+    // }, 1000)
+    // return () => clearTimeout(timer)
     setMount(true)
   }, []) 
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!debug) useEfflog('81 modelling useEff 2', props)
-      toggle()
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [props.phFocus.focusModelview.id])
+  // useEffect(() => { // toggle
+  //   const timer = setTimeout(() => {
+  //     if (!debug) useEfflog('81 modelling useEff 2', props)
+  //     toggle()
+  //   }, 1000)
+  //   return () => clearTimeout(timer)
+  // }, [props.phFocus.focusModelview.id])
   
   // useEffect(() => { // refresh the model when localstorage is loaded
   //   if (!debug) useEfflog('79 modelling useEff 3', props, props.phFocus.focusModelview.name)
@@ -137,7 +146,8 @@ const page = (props:any) => {
 
 return (
    <>
-   {modellingDiv}
+   {/* {modellingDiv} */}
+   {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
    <style jsx>{`
    .wrapper {
      display: grid;

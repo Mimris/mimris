@@ -141,7 +141,7 @@ const page = (props:any) => {
     const timer = setTimeout(() => {
       setRefresh(!refresh)
     }
-    , 10);
+    , 100);
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
 

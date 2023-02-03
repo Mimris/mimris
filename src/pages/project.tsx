@@ -84,23 +84,23 @@ const page = (props: any) => {
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
 
   const projectParamsDiv = 
-      <>
-        <div className='container' style={{  fontSize: '0.9rem'}}>
-          {/* <div className="m-5"> */}
-            {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-           {(query.repo) ? <GithubParams ph={props} query={query} /> : <h5>Initial Startup model loaded !</h5> }
-          {/* </div> */}
-        </div>
-        {/* <hr  className='mx-5 p-2 bg-success' /> */}
-      </>
+    <>
+      <div className='container' style={{  fontSize: '0.9rem'}}>
+        {/* <div className="m-5"> */}
+          {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
+          {(query.repo) ? <GithubParams ph={props} query={query} /> : <h5>Initial Startup model loaded !</h5> }
+        {/* </div> */}
+      </div>
+      {/* <hr  className='mx-5 p-2 bg-success' /> */}
+    </>
   
   const projectFormDiv =
-      <>
-        <div className="">
-          {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
-          <ProjectForm phFocus={props.phFocus} />
-        </div>
-      </>
+    <>
+      <div className="">
+        {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
+        <ProjectForm phFocus={props.phFocus} />
+      </div>
+    </>
   
   return (
     <>

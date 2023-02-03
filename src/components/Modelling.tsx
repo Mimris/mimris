@@ -88,6 +88,16 @@ const page = (props:any) => {
       }
       if (!found) {
         props.phFocus.focusModel = props.phData.metis.models[0]
+        // check if focusModelview exists in one of the current modelviews. If not, set it to the first modelview
+        found = false;
+        props.phData?.metis.models[0].modelviews.map ((modelview:any) => { 
+          if (props.phFocus.focusModelview.id === modelview.id) {
+            found = true;
+          }
+        })
+        if (!found) {
+          props.phFocus.focusModelview = props.phData.metis.models[0].modelviews[0]
+        }
       }
       // put currentdata in the first position of the array data
       let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];

@@ -34,7 +34,6 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import Tab from '../components/loadModelData/Tab'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
-
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: blue; color: white');
 const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
@@ -42,16 +41,11 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
     'background: blue; color: white');
 
-
 const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
-  
   // if (!props) return <></>
-  
-  if (debug) clog('52 Modelling:', props);
-
-        
+  if (debug) clog('52 Modelling:', props);        
   const dispatch = useDispatch();
   
   const [refresh, setRefresh] = useState(true);
@@ -61,20 +55,18 @@ const page = (props:any) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
 
-
-    /**  * Get the state from the store  */
-    // const state = useSelector((state: any) => state) // Selecting the whole redux store
-    let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
-    let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
-    const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
-    const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
-    const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
-    const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
-    const phSource = useSelector(phSource => props.phSource) 
-    // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
+  /**  * Get the state from the store  */
+  // const state = useSelector((state: any) => state) // Selecting the whole redux store
+  let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
+  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
+  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
+  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
+  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
+  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  const phSource = useSelector(phSource => props.phSource) 
+  // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
   const [mount, setMount] = useState(false)
-
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('80 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
@@ -142,16 +134,16 @@ const page = (props:any) => {
   //     return () => clearTimeout(timer);
   // }, [props.metis?.name])
 
-    useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-      useEfflog('125 Modelling useEffect 4', props);
-      // dispatch({type: 'SET_FOCUS_PHFOCUS', data: props.phFocus })
-      GenGojsModel(props, dispatch);
-      const timer = setTimeout(() => {
-        setRefresh(!refresh)
-      }
-      , 10);
-      return () => clearTimeout(timer);
-    }, [props.phFocus?.focusRefresh?.id])
+  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
+    useEfflog('125 Modelling useEffect 4', props);
+    // dispatch({type: 'SET_FOCUS_PHFOCUS', data: props.phFocus })
+    GenGojsModel(props, dispatch);
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+    }
+    , 10);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusRefresh?.id])
 
   if (!mount) {
     return <></>
@@ -167,7 +159,6 @@ const page = (props:any) => {
     let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
     let gojsmodel =  props.phGojs?.gojsModel 
     let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-
     let gojstargetmodel =  props.phGojs?.gojsTargetModel 
 
     if (debug) console.log('93 Modelling: gojsmodel', props, gojsmodel, props.phGojs?.gojsModel);
@@ -256,9 +247,6 @@ const page = (props:any) => {
         />
       : <></>;
 
-
-  
-
     const modellingtabs =  (
       <>
         <Nav tabs >
@@ -298,32 +286,17 @@ const page = (props:any) => {
         </Nav>
         <TabContent  activeTab={activeTab} >  
           <>
-          {/* Template ------------------------------------------*/}
-          {/* <TabPane tabId="0">
-            <Tab /> */}
-              {/* <div className="workpad p-1 pt-2 bg-white">
-                <Row >
-                <Col xs="auto m-0 p-0 pl-3">
-                  <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
-                    <Palette
-                      gojsModel={gojsmodel}
-                      gojsMetamodel={gojsmetamodel}
-                      gojsModelObjects={gojsmodelobjects}
-                      myMetis={myMetis}
-                      myGoModel={myGoModel}
-                      myGoMetamodel={myGoMetamodel}
-                      metis={metis}
-                      phFocus={phFocus}
-                      dispatch={dispatch}
-                      modelType='model'
-                    />
-                  </div>
-                  </Col>
-                <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                    <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
-                      <Modeller
+            {/* Template ------------------------------------------*/}
+            {/* <TabPane tabId="0">
+              <Tab /> */}
+                {/* <div className="workpad p-1 pt-2 bg-white">
+                  <Row >
+                  <Col xs="auto m-0 p-0 pl-3">
+                    <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                      <Palette
                         gojsModel={gojsmodel}
                         gojsMetamodel={gojsmetamodel}
+                        gojsModelObjects={gojsmodelobjects}
                         myMetis={myMetis}
                         myGoModel={myGoModel}
                         myGoMetamodel={myGoMetamodel}
@@ -331,15 +304,28 @@ const page = (props:any) => {
                         phFocus={phFocus}
                         dispatch={dispatch}
                         modelType='model'
-                        />
+                      />
                     </div>
-                  </Col>
-                </Row>
-              </div>          */}
-          {/* </TabPane>  */}
-
+                    </Col>
+                  <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                      <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                        <Modeller
+                          gojsModel={gojsmodel}
+                          gojsMetamodel={gojsmetamodel}
+                          myMetis={myMetis}
+                          myGoModel={myGoModel}
+                          myGoMetamodel={myGoMetamodel}
+                          metis={metis}
+                          phFocus={phFocus}
+                          dispatch={dispatch}
+                          modelType='model'
+                          />
+                      </div>
+                    </Col>
+                  </Row>
+                </div>          */}
+            {/* </TabPane>  */}
           </>
-
           <TabPane  tabId="1">   {/* Metamodelling --------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white" >
               <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
@@ -356,11 +342,10 @@ const page = (props:any) => {
               </Row>
             </div>         
           </TabPane>
-
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Object Intances */}
+                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{  marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette
                         gojsModelObjects={gojsmodelobjects}

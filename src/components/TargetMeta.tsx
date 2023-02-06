@@ -96,7 +96,7 @@ const TargetMeta = (props) => {
             <div className="m-1"> {gojsapp} </div>
             <div className="mmname bg-light mb-4 mx-1 px-1" style={{fontSize: "10px"}}>{targetmnamediv}</div>
           </>
-        : <div className="btn-vertical m-0 pl-2 p-0 " style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t </span></div>
+        : <div className="btn-vertical m-0  pl-2 " style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", paddingLeft: "4px", fontSize: "12px" }}><span> T a r g e t </span></div>
       }
     </>
 

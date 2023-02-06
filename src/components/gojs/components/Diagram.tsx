@@ -286,7 +286,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('287 obj, context', obj, context);
     if (debug) console.log('288 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
-    uim.handleInputChange(this.myMetis, props, value);
+    // uim.handleInputChange(this.myMetis, props, value);
   }
 
   /**

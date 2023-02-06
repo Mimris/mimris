@@ -993,6 +993,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function(n) {
           const node = myDiagram.findNodeForKey(n.data.key);
+          if (!debug) console.log('956 n, node', n, node);
           let part = node.data;
           part.scale = node.scale;
           const isLabel = (part.typename === 'Label');

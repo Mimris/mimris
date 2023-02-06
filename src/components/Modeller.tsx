@@ -133,7 +133,7 @@ const Modeller = (props: any) => {
   const handleProjectChange = (e) => { // Editing project name
     if (debug) console.log('69 Modeller: handleProjectChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
-    dispatch({ type: 'SET_FOCUS_PROJECT', data: { id: e.value, name: e.value } }); // set focus project
+    dispatch({ type: 'SET_FOCUS_PROJ', data: { id: e.value, name: e.value } }); // set focus project
   }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model

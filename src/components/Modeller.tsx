@@ -47,15 +47,6 @@ const Modeller = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   // ---------------------  useEffects --------------------------------
-<<<<<<< HEAD
-  useEffect(() =>  { // when focusModel changes
-    if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
-  //   const timer = setTimeout(() => {
-  //     setRefresh(!refresh)
-  //   }, 5000);
-  //   return () => clearTimeout(timer);
-  }, [focusModel?.id])
-=======
   // useEffect(() =>  { // when focusModel changes
   //   if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
   // //   const timer = setTimeout(() => {
@@ -63,7 +54,6 @@ const Modeller = (props: any) => {
   // //   }, 5000);
   // //   return () => clearTimeout(timer);
   // }, [focusModel.id])
->>>>>>> 1f121efb92ec18b8dd97dea939edc1f016189853
 
   useEffect(() => { // set activTab when focusModelview.id changes
     // GenGojsModel(props, dispatch)

@@ -239,52 +239,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
+    let run = false;
     this.setState(
       produce((draft: AppState) => {
-        let data = draft.selectedData as any;  // only reached if selectedData isn't null
-        if (!debug) console.log('227 data', data, this);
-        // if (data[propname] = 'icon' && value.includes("fakepath")) {
-        //   data[propname] = context.files[0];
-        // } else {
+        if (run === false) {
+          run = true;
+          let data = draft.selectedData as any;  // only reached if selectedData isn't null
+          if (debug) console.log('248 data, value, this', data, value, this);
           data[propname] = value;
-        // }
-        if (debug) console.log('233 data, value, isBlur: ', data[propname], value, isBlur);
-        if (isBlur) {
-          const key = data.key;
-          if (debug) console.log('236 key', key);
-          if (obj.category === constants.gojs.C_OBJECT) {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
+          if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur, data[propname], data);
+          if (false) {
+            const key = data.key;
+            if (debug) console.log('253 key', key);
+            if (obj.category === constants.gojs.C_OBJECT) {
+              const idx = this.mapNodeKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.nodeDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
             }
+            if (obj.category === constants.gojs.C_RELATIONSHIP) {  
+              const idx = this.mapLinkKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.linkDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
+            } 
+            if (obj.category === constants.gojs.C_OBJECTTYPE) {
+              const idx = this.mapNodeKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.nodeDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
+            }
+            if (obj.category === constants.gojs.C_RELSHIPTYPE) {  
+              const idx = this.mapLinkKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.linkDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
+            } 
           }
-          if (obj.category === constants.gojs.C_RELATIONSHIP) {  
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          } 
-          if (obj.category === constants.gojs.C_OBJECTTYPE) {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
-          if (obj.category === constants.gojs.C_RELSHIPTYPE) {  
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          } 
         }
-      })
+      })    
     );
-    if (debug) console.log('268 obj, context', obj, context);
-    if (debug) console.log('269 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
+    if (debug) console.log('287 obj, context', obj, context);
+    if (debug) console.log('288 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }

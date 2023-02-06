@@ -89,7 +89,7 @@ const page = (props:any) => {
       // check if focusModel exists in one of the current models. If not, set it to the first model
       let found = false;
       for (let i = 0; i < props.phData?.metis.models.length; i++) {
-        if (props.phFocus.focusModel.id === props.phData?.metis.models[i]) {
+        if (props.phFocus.focusModel?.id === props.phData?.metis.models[i]) {
           found = true;
           break;
         }
@@ -130,7 +130,7 @@ const page = (props:any) => {
       setRefresh(!refresh)
     }, 1000);
     return () => clearTimeout(timer);
-  }, [props.phFocus.focusModelview.id && (props.phFocus.focusModel.id !== props.phData?.metis?.models[0].id)])
+  }, [props.phFocus.focusModelview?.id && (props.phFocus.focusModel?.id !== props.phData?.metis?.models[0]?.id)])
 
   // useEffect(() => {
   //   useEfflog('115 Modelling useEffect 3', props, props.phData?.metis?.name);

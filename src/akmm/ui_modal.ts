@@ -767,7 +767,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (k === 'abstract') obj[k] = selObj[k];
         if (k === 'viewkind') obj[k] = selObj[k];
         if (debug) console.log('635 prop', k);
-        if (debug) console.log('636 node', node, data, obj);
+        if (debug) console.log('636 node', node, data, obj, k);
         myDiagram.model.setDataProperty(data, k, obj[k]);
       }
       if (jsnObject)
@@ -856,8 +856,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const node = myDiagram.findNodeForKey(sel.data.key);
           if (node) {
             const data = node.data;
-            if (!debug) console.log('859 objview, data, node', objview, data, node);
-            if (!debug) console.log('861 model', myDiagram.model);
+            if (debug) console.log('859 objview, data, node', objview, data, node);
+            if (debug) console.log('861 model', myDiagram.model);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'template' && objview[prop] !== "") 

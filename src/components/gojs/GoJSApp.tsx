@@ -739,12 +739,12 @@ class GoJSApp extends React.Component<{}, AppState> {
 
             // Update objectviews
             for (let i=0; i<myGoModel.nodes.length; i++) {
-              let tnode;
+              let tonode;
               const node = myGoModel.nodes[i] as gjs.goObjectNode;
               for (let j=0; j<myToNodes.length; j++) {
-                tnode = myToNodes[j];
-                if (node.key === tnode.key) {
-                  node.loc = tnode.loc.valueOf();
+                tonode = myToNodes[j];
+                if (node.key === tonode.key) {
+                  node.loc = tonode.loc.valueOf();
                   break;
                 }
               }
@@ -765,6 +765,42 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         myDiagram.requestUpdate();
+        // Loop through all nodes and update the corresponding objectviews
+        const nodes = myDiagram.nodes;
+        if (debug) console.log('769 nodes', nodes);
+        for (let it = nodes.iterator; it?.next();) {
+          const part = it.value;
+          if (!debug) console.log('772 part', part);
+          const node = myDiagram.findNodeForKey(part.key);
+          if (node) {
+            const data = node.data;
+            const objview = data.objectview;
+            const loc = node.location.x + " " + node.location.y;
+            const isGroup = data.isGroup;
+            const group = data.group;
+            const scale = data.scale;
+            // if (objview.loc !== loc) {
+            //   objview.loc = loc;
+            //   const jsnObjview = new jsn.jsnObjectView(objview);
+            //   uic.addItemToList(modifiedNodes, jsnObjview);
+            // }
+            // if (objview.group !== group) {
+            //   objview.group = group;
+            //   const jsnObjview = new jsn.jsnObjectView(objview);
+            //   uic.addItemToList(modifiedNodes, jsnObjview);
+            // }
+            // if (objview.isGroup !== isGroup) {
+            //   objview.isGroup = isGroup;
+            //   const jsnObjview = new jsn.jsnObjectView(objview);
+            //   uic.addItemToList(modifiedNodes, jsnObjview);
+            // }
+            // if (objview.scale1 !== scale) {
+            //   objview.scale1 = scale;
+            //   const jsnObjview = new jsn.jsnObjectView(objview);
+            //   uic.addItemToList(modifiedNodes, jsnObjview);
+            // }
+          }
+        }
       }
       break;
       case "SelectionDeleting": {

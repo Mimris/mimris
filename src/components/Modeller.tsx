@@ -59,7 +59,7 @@ const Modeller = (props: any) => {
     // GenGojsModel(props, dispatch)
     setActiveTab(activetabindex)
   //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
-      if (!debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview.id); 
+      if (debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview?.id); 
   //     const timer = setTimeout(() => {
   //       setRefresh(!refresh)
   //       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
@@ -123,7 +123,7 @@ const Modeller = (props: any) => {
   if (debug) console.log('126 Modeller', mmodel, focusModelview, selmods, selmodviews);
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
-  // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
+  // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
   
 
@@ -186,7 +186,7 @@ The suffix '.json' will be added to the filename.`
 To change Model name, rigth click the background below and select 'Edit Model'.`
         }> Model :
           <select key='select-title' className="list-obj mx-2 " style={{ minWidth: "32%"}}
-            value={JSON.stringify({id: focusModel.id, name: focusModel.name})}
+            value={JSON.stringify({id: focusModel?.id, name: focusModel?.name})}
             onChange={(event) => handleSelectModelChange({ value: event.target.value })} 
           >
           {/* onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}> */}
@@ -199,7 +199,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
   // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
-  if (debug) console.log('78 Modeller', focusModel.name, focusModelview.name, activetabindex);
+  if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
 
 

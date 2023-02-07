@@ -278,7 +278,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const topports = new Array();
         const bottomports = new Array();
         const rels = object.outputrels;
-        if (!debug) console.log('278 rels', rels);
+        if (debug) console.log('278 rels', rels);
         for (let i=0; i<rels?.length; i++) {
             const rel = rels[i];
             if (rel?.type?.name === constants.types.AKM_HAS_PORT) {
@@ -312,7 +312,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (rightports) objtype.rightPorts = rightports;
         if (topports) objtype.topPorts = topports;
         if (bottomports) objtype.bottomPorts = bottomports;
-        if (!debug) console.log('306 objtype', objtype);
+        if (debug) console.log('306 objtype', objtype);
     }
     { // Handle typeviews
         const typeview = objtype.typeview as akm.cxObjectTypeView;
@@ -348,7 +348,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
         })
-    if (!debug) console.log('343 objtype', objtype);
+    if (debug) console.log('343 objtype', objtype);
     return objtype;
 }
 

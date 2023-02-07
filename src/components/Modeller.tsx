@@ -134,7 +134,7 @@ const Modeller = (props: any) => {
     if (debug) console.log('69 Modeller: handleProjectChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: e.value, name: e.value } }); // set focus project
-  }
+    }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
     if (debug) console.log('19 Selector', JSON.parse(event.value).name);
@@ -183,7 +183,7 @@ or Right-click the background below and select 'Edit Project Name'.
 
 The suffix '.json' will be added to the filename.`
         }> Project :  
-        <input className="ml-2 w-50 px-1 " type="text" value={props.metis.name} onChange={(event) => handleInputChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
+        <input className="ml-2 w-50 px-1 " type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "26%"}} />
         <span className="model-selection  w-25" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
         title={
 `Description: ${model?.description}

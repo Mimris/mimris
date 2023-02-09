@@ -196,6 +196,14 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2023.02.03</CardTitle>
+                    <CardText >
+                          &bull; New features:<br />
+                            - Linking from Github modelrepositories to AKM Modeller!<br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2023.01.16</CardTitle>
                     <CardText >
                           &bull; New features:<br />

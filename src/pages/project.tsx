@@ -36,6 +36,7 @@ const page = (props: any) => {
   const focus = props.phFocus
   const ghtype = 'file'
 
+  console.log('39 ', )
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -84,23 +85,24 @@ const page = (props: any) => {
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
 
   const projectParamsDiv = 
-      <>
-        <div className='container' style={{  fontSize: '0.9rem'}}>
-          {/* <div className="m-5"> */}
-            {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-           {(query.repo) ? <GithubParams ph={props} query={query} /> : <h5>Initial Startup model loaded !</h5> }
-          {/* </div> */}
-        </div>
-        {/* <hr  className='mx-5 p-2 bg-success' /> */}
-      </>
+    <>
+      <div className='container' style={{  fontSize: '0.9rem'}}>
+        {/* <div className="m-5"> */}
+          {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
+          <GithubParams ph={props} query={query} />  
+          <h5>Initial Startup model loaded !</h5> 
+        {/* </div> */}
+      </div>
+      {/* <hr  className='mx-5 p-2 bg-success' /> */}
+    </>
   
   const projectFormDiv =
-      <>
-        <div className="">
-          {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
-          <ProjectForm phFocus={props.phFocus} />
-        </div>
-      </>
+    <>
+      <div className="">
+        {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
+        <ProjectForm phFocus={props.phFocus} />
+      </div>
+    </>
   
   return (
     <>
@@ -110,12 +112,12 @@ const page = (props: any) => {
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-                <div className="focusarea d-flex " style={{backgroundColor: "#cdd", maxHeight: "24px"}}> 
-                  <SetContext className='setContext' ph={props} />
-                </div> 
+              <div className="focusarea d-flex " style={{backgroundColor: "#cdd", maxHeight: "24px"}}> 
+                <SetContext className='setContext' ph={props} />
+              </div> 
               <div className="workplace-focus gap " >
-                <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                <h6 className='text-muted pt-2'>Links to Github :</h6>
+                <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+                  <h6 className='text-muted pt-2'>Links to Github :</h6>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
                     <div className='text-muted'>GitHub Docs :</div>
                     {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
@@ -140,22 +142,26 @@ const page = (props: any) => {
                     <div className='text-muted'>Repository :</div>
                     {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
-{/* 
-                  <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
+                  <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                    <div className='text-muted'>Folder :</div>
+                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>}
+                  </div>
+                  
+                  {/* <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
                     <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>git 
-                    {(issues.length > 0) && issues.map((issue) => (
-                      <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                    {(collabs.length > 0) && collabs.map((col) => (
+                      <div className='bg-light fs-6  m-2 p-2' key={col.id}>
                         <div className='d-flex justify-content-between'>
-                          <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
-                          <div className='text-muted'>{issue.user.name}</div>
+                          <Link className='text-primary' href={col.html_url} target="_blank"># {col.number} - {col.state} - {col.created_at.slice(0, 10)}</Link>
+                          <div className='text-muted'>{col.user.name}</div>
                         </div>
-                        <h6>{issue.title}</h6>
-                        <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                        <h6>{col.title}</h6>
+                        <div className='text-muted'>Created by: {col.user.login} - Assignee: {col.assignees[0]?.login} </div>
                       </div>
                     ))}
                   </div> */}
                 </div>
-                <div className=" main m-1 fs-6 " style={{ maxWidth: "40rem", backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv }
                       {/* <div className=" d-flex justify-content-around "> */}
                         {/* <div className="rounded bg-light m-2 p-2">
@@ -177,7 +183,7 @@ const page = (props: any) => {
                     </div>   
                     <div className="rounded bg-light m-2 p-2">
                       <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>  
-                      <span className='rounded  p-2' style={{fontSize: '0.4rem', backgroundColor: '#dde'}}>{generatedUrl} </span>  
+                      <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{generatedUrl} </span>  
                     </div>
                     {projectFormDiv}     
                 </div>
@@ -209,7 +215,7 @@ const page = (props: any) => {
           .aside-right { grid-area: aside-right;}
           .workplace-focus {
             display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            grid-template-columns: auto 2fr 1fr;
             grid-template-areas:
               "focusarea focusarea focusarea"
               "aside-left main aside-right"

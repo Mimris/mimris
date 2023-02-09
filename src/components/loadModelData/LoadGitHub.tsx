@@ -127,7 +127,7 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (debug) console.log('131 res', res, res.data, sha)
+    if (!debug) console.log('131 res', res, res.data, sha)
     // const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
     // const content = res.data.content
     // if (debug) console.log('113 res', res2, res2.data)
@@ -135,7 +135,7 @@ const LoadGitHub = (props: any) => {
     // const model = JSON.parse(base64.decode(content));
 
     const content = res.data
-    if (debug) console.log('138 ', searchtext, res)
+    if (!debug) console.log('138 ', searchtext, res, content)
     const model = {
       ...content,
       phData: {

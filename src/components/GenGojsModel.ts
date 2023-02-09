@@ -47,7 +47,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
     const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)) 
+        ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+        : curmod?.modelviews[0] // if focusmodview does not exist set the first
+
+    console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod?.modelviews)
 
     
     const myMetis = new akm.cxMetis();
@@ -98,7 +102,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentModelview(myModelview);
       (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
       (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
-        if (debug) console.log('101 GenGojsModel  myMetis', myMetis);
+      if (!debug) console.log('101 GenGojsModel  myGoModel', myGoModel);
+      if (debug) console.log('102 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>
@@ -155,7 +160,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      if (debug) console.log('155 GenGojsModel gojsModel', gojsModel);
+      if (!debug) console.log('155 GenGojsModel gojsModel', gojsModel);
 
       // /** metamodel */
       // const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);

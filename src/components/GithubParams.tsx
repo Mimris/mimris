@@ -13,15 +13,16 @@ export default function GithubParams(props) {
 
   const [refresh, setRefresh] = useState(true);
 
-  if (debug) console.log('5 GithubParams', props)
+  if (!debug) console.log('5 GithubParams', props)
       // list query params
       const query = props.query
-      const org = query.org
-      const repo = query.repo
-      const path = query.path
-      const file = query.file
-      const branch = query.branch
-      const focus = query.focus
+      const ph = props.ph
+      const org = query.org || ph.phFocus?.focusProj.org
+      const repo = query.repo || ph.phFocus?.focusProj.repo
+      const path = query.path || ph.phFocus?.focusProj.path
+      const file = query.file || ph.phFocus?.focusProj.file
+      const branch = query.branch || ph.phFocus?.focusProj.branch
+      const focus = query.focus || ph.phFocus?.focusProj.focus
       const ghtype = query.ghtype
 
   // function setFocusProject(props) {
@@ -30,17 +31,19 @@ export default function GithubParams(props) {
   //   }
     
   useEffect(() => {
-    if (!debug) console.log('33 modelling dispatchGithub', query, props)  
-    dispatch({type: 'LOAD_DATAGITHUB', data: query })
-    const timer = setTimeout(() => {
-      const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
-      dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-      const org1 = {id: org, name: org}
-      dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-      const repo1 = {id: 'role', name: ''}
-      dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-    }, 2000);
-    return () => clearTimeout(timer);
+    if (query.repo) {
+      if (!debug) console.log('33 modelling dispatchGithub', query, props)  
+      dispatch({type: 'LOAD_DATAGITHUB', data: query })
+      const timer = setTimeout(() => {
+        const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 
+        dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+        const org1 = {id: org, name: org}
+        dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+        const repo1 = {id: 'role', name: ''}
+        dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, [])
 
   return (

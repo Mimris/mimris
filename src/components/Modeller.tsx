@@ -10,6 +10,7 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
 import GenGojsModel from './GenGojsModel'
 import { handleInputChange } from "../akmm/ui_modal";
+import { disconnect } from "process";
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
@@ -75,7 +76,7 @@ const Modeller = (props: any) => {
   //   // // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: props.metis?.models[0]?.modelviews[0]?.id, name: props.metis?.models[0]?.modelviews[0]?.name} })
   //   // const timer = setTimeout(() => {
   //   //   // toggleRefreshObjects()
-  //   //   GenGojsModel(props, dispatch)
+  //     GenGojsModel(props, dispatch)
   //   //   // setRefresh(!refresh)
   //   // }, 100);
   //   // const timer2 = setTimeout(() => {
@@ -99,7 +100,9 @@ const Modeller = (props: any) => {
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
+  
   function toggleRefreshObjects() { 
+    GenGojsModel(props, dispatch)
     setTimeout(() => {
     dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
     , 1000);
@@ -150,6 +153,7 @@ const Modeller = (props: any) => {
     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
     // setRefresh(!refresh)
   }
+
   // const handleMVDoubleClick = (e) => {
   //   <input type="text" value={e.value} onChange={handleMVChange} />
   // }
@@ -164,6 +168,7 @@ const Modeller = (props: any) => {
     <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name})}>{m.name}</option>)
   )
 
+  // Selector for selecting models
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
     <div className="Selector--menu  " >
       <label className="Selector--menu-label d-flex pt-2 justify-content-end gap-2"   

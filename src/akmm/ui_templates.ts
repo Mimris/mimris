@@ -369,8 +369,8 @@ function showSmallPorts(node, show) {
 function getPortColor() {
     const portColors = ["#fae3d7", "#d6effc", "#ebe3fc", "#eaeef8", "#fadfe5", "#6cafdb", "#66d6d1"]
     return portColors[Math.floor(Math.random() * portColors.length)];
-    }
-  
+}
+
 // Add a port to the specified side of the selected nodes.
 export function addPort(side, myDiagram) {
     myDiagram.startTransaction("addPort");

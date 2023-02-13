@@ -96,7 +96,7 @@ const LoadGitHub = (props: any) => {
 
     loadModel(rep, filename);
 
-    if (debug) console.log('52', rep, filename, )
+    if (debug) console.log('52', rep, filename, )˝
     const  refres = () => {
       setRefresh(!refresh)
     }

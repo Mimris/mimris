@@ -86,7 +86,7 @@ const page = (props:any) => {
           break;
         }
       }
-      console.log('89 Modelling found', found, props.phFocus.focusModel, props.phData?.metis.models)
+      if (debug) console.log('89 Modelling found', found, props.phFocus.focusModel, props.phData?.metis.models)
       if (!found) {
         props.phFocus.focusModel = props.phData.metis.models[0]
         // check if focusModelview exists in one of the current modelviews. If not, set it to the first modelview

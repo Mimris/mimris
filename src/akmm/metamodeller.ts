@@ -2961,6 +2961,70 @@ export class cxDatatype extends cxMetaObject {
         this.pointerCriteria = "";
 
         if (debug) console.log('1915 datatype: ', this);
+        // Initialize inputPatterns of common datatypes
+        if (name === constants.gojs.C_DATATYPE_STRING) {
+            this.inputPattern = constants.gojs.C_DATATYPE_STRING_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_TEXT;
+        } else if (name === constants.gojs.C_DATATYPE_INTEGER) {
+            this.inputPattern = constants.gojs.C_DATATYPE_INTEGER_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_INTEGER;
+        } else if (name === constants.gojs.C_DATATYPE_FLOAT) {
+            this.inputPattern = constants.gojs.C_DATATYPE_FLOAT_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_FLOAT;
+        } else if (name === constants.gojs.C_DATATYPE_DATE) {
+            this.inputPattern = constants.gojs.C_DATATYPE_DATE_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_DATE;
+        } else if (name === constants.gojs.C_DATATYPE_TIME) {
+            this.inputPattern = constants.gojs.C_DATATYPE_TIME_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_TIME;
+        } else if (name === constants.gojs.C_DATATYPE_DATETIME) {
+            this.inputPattern = constants.gojs.C_DATATYPE_DATETIME_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_DATETIME;
+        } else if (name === constants.gojs.C_DATATYPE_BOOLEAN) {
+            this.inputPattern = constants.gojs.C_DATATYPE_BOOLEAN_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_BOOLEAN;
+        /*
+        } else if (name === constants.gojs.C_DATATYPE_EMAIL) {
+            this.inputPattern = constants.gojs.C_DATATYPE_EMAIL_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_EMAIL;
+        } else if (name === constants.gojs.C_DATATYPE_URL) {
+            this.inputPattern = constants.gojs.C_DATATYPE_URL_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_URL_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_PHONE) {
+            this.inputPattern = constants.gojs.C_DATATYPE_PHONE_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_PHONE_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_CURRENCY) {
+            this.inputPattern = constants.gojs.C_DATATYPE_CURRENCY_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_CURRENCY_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_PERCENTAGE) {
+            this.inputPattern = constants.gojs.C_DATATYPE_PERCENTAGE_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_PERCENTAGE_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_COLOR) {
+            this.inputPattern = constants.gojs.C_DATATYPE_COLOR_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_COLOR_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_IMAGE) {
+            this.inputPattern = constants.gojs.C_DATATYPE_IMAGE_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_IMAGE_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_FILE) {
+            this.inputPattern = constants.gojs.C_DATATYPE_FILE_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_FILE_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_HTML) {
+            this.inputPattern = constants.gojs.C_DATATYPE_HTML_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_HTML_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_JSON) {
+            this.inputPattern = constants.gojs.C_DATATYPE_JSON_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_JSON_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_XML) {
+            this.inputPattern = constants.gojs.C_DATATYPE_XML_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_XML_FORMAT;
+        } else if (name === constants.gojs.C_DATATYPE_PASSWORD) {
+            this.inputPattern = constants.gojs.C_DATATYPE_PASSWORD_PATTERN;
+            this.viewFormat   = constants.gojs.C_DATATYPE_PASSWORD_FORMAT;
+        */
+        } else {
+            this.inputPattern = constants.gojs.C_DATATYPE_STRING_PATTERN;
+            this.viewFormat   = constants.gojs.C_VIEWFORMAT_TEXT;
+        }
     }
     // Methods
     addAllowedValue(value: string) {
@@ -5665,12 +5729,16 @@ export class cxProperty extends cxMetaObject {
     // Methods
     setDatatype(datatype: cxDatatype) {
         this.datatype = datatype;
+        this.datatypeRef = datatype.id;
     }
     getDatatype(): cxDatatype | null {
         if (this.datatype)
             return this.datatype;
         else
             return null;
+    }
+    getDatatypeRef(): string {
+        return this.datatypeRef;
     }
     setMethod(method: cxMethod) {
         this.method = method;
@@ -5680,6 +5748,9 @@ export class cxProperty extends cxMetaObject {
             return this.method;
         else
             return null;
+    }
+    getMethodRef(): string {
+        return this.methodRef;
     }
     setUnitCategory(cat: cxUnitCategory) {
         this.unitCategory = cat;

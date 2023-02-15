@@ -56,7 +56,7 @@ export const SaveAllToFile = (data, name, type) => {
     if (!debug) console.log('56 LoadLocal', data, fileName);
     // const json = JSON.stringify(data);
     const json = JSON.safeStringify(data);
-    if (!debug) console.log('59 LoadLocal', json);
+    if (debug) console.log('59 LoadLocal', json);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);

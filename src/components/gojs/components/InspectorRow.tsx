@@ -45,7 +45,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       const pattern = this.props.pattern;
       if ((pattern?.length > 0) && (value?.length > 0)) {
         const regex = new RegexParser(pattern);
-        if (debug) console.log('50 regex:', regex);
+        if (debug) console.log('50 pattern, value, regex:', pattern, value, regex);
         if (!regex.test(value)) {
           alert("Value: '" + value + "' IS NOT valid");
         }

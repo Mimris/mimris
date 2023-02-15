@@ -350,7 +350,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       // Filter some system attributes
       {
         if (k === 'abstract') {
-          if (what !== 'editObjectType')
+          if (what === "editObject") {
+            if (type?.name !== constants.types.AKM_ENTITY_TYPE)
+              continue;
+          }
+          else if (what !== 'editObjectType')
             continue;
           if (item.category === constants.gojs.C_OBJECTTYPE) {
             switch (item.name) {
@@ -366,7 +370,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 continue;
             }   
             if (debug) console.log('362 k in item', k, item.name);
-          }   
+          } 
+          if (debug) console.log('374 k in item', k, item.name);  
         }
         if (k === 'viewkind') {
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editObjectType')
@@ -511,13 +516,27 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (debug) console.log('457 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
           // Get property values
           if (properties?.length > 0) {
-            if (debug) console.log('460 properties: ', properties);
+            if (debug) console.log('514 properties: ', properties);
             for (let i=0; i<properties.length; i++) {
-              const prop = properties[i];
+              let prop = properties[i];
+              prop = myMetis.findProperty(prop.id);
               if (prop && prop.name === k) {
-                let dtype = prop.datatype;
-                const dtypeRef = prop.datatypeRef;
-                if (!dtype) dtype = myMetis.findDatatype(dtypeRef);
+                if (debug) console.log('519 prop: ', prop);
+                let dtype = prop.getDatatype();
+                if (!dtype) {
+                  const dtypeRef = prop.getDatatypeRef();
+                  if (dtypeRef) {
+                    dtype = myMetis.findDatatype(dtypeRef);
+                  }
+                }
+                if (dtype) {
+                  const dtype1 = dtype.getIsOfDatatype();
+                  if (debug) console.log('520 dtype, dtype1: ', dtype, dtype1);
+                  if (dtype1) {
+                    dtype = dtype1;
+                  }
+                }
+                if (debug) console.log('525 prop, dtype: ', prop, dtype);
                 if (dtype) {
                   fieldType   = dtype.fieldType;
                   viewFormat  = dtype.viewFormat
@@ -537,17 +556,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                     const rel = myMetis.findRelationship(inst.id);
                     if (rel) inst = rel;
                   }
-                  if (debug) console.log('486 item, prop', item, prop);
+                  if (debug) console.log('541 item, prop', item, prop);
                   try {
                     val = item.getPropertyValue(prop, myMetis);
                   } catch {
                     // Do nothing
                   }
-                  if (debug) console.log('492 item, prop, val', item, prop, val);
+                  if (debug) console.log('547 item, prop, val', item, prop, val);
                 }
                 // Handle connected objects
                 const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-                if (debug) console.log('496 prop, chosenInst, objs', prop, chosenInst, objs);
+                if (debug) console.log('551 prop, chosenInst, objs', prop, chosenInst, objs);
                 if (objs?.length > 1)
                   val = '';
                 for (let i=0; i<objs?.length; i++) {
@@ -563,10 +582,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 //   val += ', ...';
                 // }
               }
-              if (debug) console.log('495 prop, fieldType: ', prop, fieldType);
+              if (debug) console.log('567 prop, fieldType: ', prop, fieldType);
             }
           }
-          if (debug) console.log('498 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
+          if (debug) console.log('570 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
         }
         // Handle color values
         {

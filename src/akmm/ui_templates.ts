@@ -619,24 +619,20 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("scale", "scale1").makeTwoWay(),
-        {
-            selectionObjectName: "SHAPE",
-            resizable: false, resizeObjectName: "SHAPE"
-        },
         $(go.Shape, 'RoundedRectangle', 
-            {
-            cursor: "alias",        // cursor: "pointer",
-            name: 'SHAPE', fill: 'yellow', stroke: "#fff",  strokeWidth: 2, 
+        {
+            cursor: "alias",
+            fill: 'yellow', 
+            stroke: "#fff",  
+            strokeWidth: 2, 
             margin: new go.Margin(1, 1, 1, 1),
             shadowVisible: true,
-            minSize: new go.Size(160, 70),
-            // desiredSize: new go.Size(158, 68), 
+            desiredSize: new go.Size(160, 70), 
             // set the port properties
             portId: "", 
             fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
             },
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),    
             // Shape bindings
             new go.Binding('fill', 'fillcolor'),
             new go.Binding('stroke', 'strokecolor'), 
@@ -645,7 +641,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
                 }).ofObject(),
             // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-            { contextMenu: contextMenu },  
             ),
         $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
             {
@@ -667,7 +662,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             },
             // define the panel where the text will appear
             $(go.Panel, "Table", // separator ---------------------------------
-                { contextMenu: contextMenu , cursor: "move" },
+                { 
+                    contextMenu: contextMenu , 
+                    cursor: "move" 
+                },
                 {
                 defaultRowSeparatorStroke: "black",
                 desiredSize: new go.Size(136, 60),
@@ -675,7 +673,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 // margin: new go.Margin(2),
                 defaultAlignment: go.Spot.Center,
                 },
-                {
+                { // Tooltips
                     toolTip:
                     $(go.Adornment, "Auto",
                         $(go.Shape, { fill: "lightyellow" }),
@@ -946,19 +944,28 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            { contextMenu: contextMenu },    
-            {
+            { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                    new go.Binding("text", "", uid.nodeInfo))
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
                 )
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
                 cursor: "alias", 
-                name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
+                name: 'SHAPE', 
+                fill: 'red', 
+                stroke: "#fff",  
+                strokeWidth: 2, 
                 margin: new go.Margin(1, 1, 1, 1),
                 shadowVisible: true,
                 desiredSize: new go.Size(198, 68), // outer Shape size with icon
@@ -1087,12 +1094,19 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            {
+            { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                    new go.Binding("text", "", uid.nodeInfo))
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
                 )
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
@@ -1213,12 +1227,19 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            { // Tooltip
+            { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                    new go.Binding("text", "", uid.nodeInfo))
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
                 )
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
@@ -1341,12 +1362,27 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             },
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-                // the body
-                {
-                    selectionObjectName: "BODY",
-                    resizable: true, resizeObjectName: "BODY"
-                },
-                $(go.Panel, "Auto",
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
+                )
+            },
+            // the body
+            {
+                selectionObjectName: "BODY",
+                resizable: true, resizeObjectName: "BODY"
+            },
+            $(go.Panel, "Auto",
                 {
                     row: 1, 
                     column: 1, 
@@ -2447,13 +2483,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 subGraphExpandedChanged: function (grp) {
                     var shp = grp.resizeObject;
                     if (grp.diagram.undoManager.isUndoingRedoing) return;
-                    if (!debug) console.log('2486 isSubGraphExpanded', grp.isSubGraphExpanded);
                     if (grp.isSubGraphExpanded) {
-                        grp.category = "EXPANDED";
                         shp.fill = "white";
                     } else {
-                        grp.category = "COLLAPSED";
-                        // shp.fill = "pink";
+                        shp.fill = "white";
                     }
                 },
             },
@@ -2503,33 +2536,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 new go.Binding("stroke", "strokecolor"),
                 // new go.Binding("strokeWidth", "strokewidth"),
             ),
-            $(go.Panel,  // the header
-            // $(go.TextBlock,     // group title in the background
-            //   {
-            //     alignment: new go.Spot(0,0),
-            //     // defaultAlignment: go.Spot.Top,
-            //     font: "Bold 24pt Sans-Serif",
-            //     // margin: new go.Margin(0, 0, 0, 0),
-            //     editable: true, isMultiline: true,
-            //     name: "name"
-            //   },
-            //   new go.Binding("text", "name").makeTwoWay()
-            // ),
-                // $(go.Picture, //"actualBounds",                  // the image
-                //     {
-                //         name: "Picture",
-                //         stretch:  go.GraphObject.Fill,
-                //         imageStretch:  go.GraphObject.Fill,
-                        // minSize: new go.Size(120, 80),
-                        // desiredSize: new go.Size(600, 400),
-                        // minSize: new go.Binding("minSize", "size"),
-                        // margin: new go.Margin(0, 0, 0, 0),
-                    // },
-                    // new go.Binding("minSize", "size"),
-                    // new go.Binding("desiredSize", "size"),
-                    new go.Binding("source", "icon", findImage)
-                // ),
-            ), 
             $(go.Panel, "Vertical",  // position header above the subgraph
                 {
                     name: "HEADER",
@@ -2569,7 +2575,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                         name: "SHAPE", 
                         fill: "white",
                         opacity: 0.95,
-                        minSize: new go.Size(150, 75), 
+                        minSize: new go.Size(200, 100), 
                         // desiredSize: new go.Size(300, 200),
                         margin: new go.Margin(0, 1, 1, 4),
                         cursor: "move",
@@ -2578,10 +2584,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     new go.Binding("isSubGraphExpanded").makeTwoWay(),    
                 )        
             ),
-    )    
-    groupTemplateMap.add("", groupTemplate1);
-    groupTemplateMap.add("Container1", groupTemplate1);
-    addGroupTemplateName('Container1');
+        )    
+        groupTemplateMap.add("", groupTemplate1);
+        groupTemplateMap.add("Container1", groupTemplate1);
+        addGroupTemplateName('Container1');
 
     if (true) {
         const groupTemplate2 =
@@ -2691,21 +2697,29 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     if (true) {
         const groupWithPorts =
         $(go.Group, "Auto",
-            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("visible"),
-            { contextMenu: contextMenu },
             {
                 locationObjectName:  "SHAPE",
-                resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                subGraphExpandedChanged: function (grp) {
-                    var shp = grp.resizeObject;
-                    if (grp.diagram.undoManager.isUndoingRedoing) return;
-                    if (grp.isSubGraphExpanded) {
-                        // shp.fill = "lightyellow";
-                    } else {
-                        // shp.fill = "transparent";
-                    }
-                },
+                resizable: true, 
+                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+                contextMenu: contextMenu,
+            },
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted", function(h) { 
+                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+                }).ofObject(),
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
             },
             {
                 background: "transparent",
@@ -2718,24 +2732,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 // if it fails, cancel the tool, rolling back any changes
                 // mouseDrop: finishDrop,
                 handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-            },
-            new go.Binding("scale", "scale1").makeTwoWay(),
-            new go.Binding("background", "isHighlighted", 
-                function(h) { 
-                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
-                }).ofObject(),
-            { // Tooltip
-                toolTip:
-                $(go.Adornment, "Auto",
-                    $(go.Shape, { fill: "lightyellow" }),
-                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                        new go.Binding("text", "", 
-                            function (d) { 
-                                return uid.nodeInfo(d, myMetis);                
-                            }
-                        )
-                    )
-                )
             },
             $(go.Shape, "RoundedRectangle", // surrounds everything
                 {
@@ -2782,7 +2778,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                         name: "SHAPE", 
                         fill: "lightyellow", 
                         opacity: 0.95,
-                        minSize: new go.Size(150, 75),
+                        minSize: new go.Size(200, 100),
                         margin: new go.Margin(0, 1, 1, 4),
                         cursor: "move",
                         stroke: "transparent",
@@ -2869,7 +2865,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                         $(go.Panel,
                             $(go.Shape,
                                 {
-                                    name: "SHAPE",
+                                    // name: "SHAPE",
                                     geometryString: "F1 m 0,0 l 6,0 0,-8 2,0 -5,-4 -5,4 2,0 0,8 z",
                                     spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
                                     spot2: new go.Spot(1, 1, -5, 0),

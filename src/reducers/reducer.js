@@ -167,7 +167,6 @@ let focusCollection
 
 
 function reducer(state = InitialState, action) {
-  
   switch (action.type) {
     
     case FAILURE:
@@ -1352,10 +1351,10 @@ function reducer(state = InitialState, action) {
       }
     case UPDATE_TARGETMETHOD_PROPERTIES:
       if (debug) console.log('1287 UPDATE_TARGETMETHOD_PROPERTIES', action);
-      curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) // current model
-      if (debug) console.log('1627', curmoddtot)
-      let targetcurmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef) // current model's target metamodel
-      let targetcurmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) // current model's target metamodel's index
+      let curmoddtot1     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) // current model
+      if (debug) console.log('1627', curmoddtot1)
+      let targetcurmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot1.targetMetamodelRef) // current model's target metamodel
+      let targetcurmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot1.targetMetamodelRef) // current model's target metamodel's index
       let targetcurddot = targetcurmmddot?.methods?.find(ot => ot.id === action?.data?.id) // current model's target metamodel's target method
       let targetlengthotdd = targetcurmmddot?.methods?.length
       let targetindexddot = targetcurmmddot?.methods?.findIndex(ot => ot.id === targetcurddot?.id)
@@ -1495,10 +1494,10 @@ function reducer(state = InitialState, action) {
       }
     case UPDATE_DATATYPE_PROPERTIES:
       if (debug) console.log('1621 UPDATE_DATATYPE_PROPERTIES', action);
-      let curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-      if (debug) console.log('1627', curmoddtot)
-      let curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef)
-      let curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) 
+      let curmoddtot2     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      if (debug) console.log('1627', curmoddtot2)
+      let curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot2.targetMetamodelRef)
+      let curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot2.targetMetamodelRef) 
       let curddot = curmmddot?.datatypes?.find(ot => ot.id === action?.data?.id)
       let lengthotdd = curmmddot?.datatypes?.length
       let indexddot = curmmddot?.datatypes?.findIndex(ot => ot.id === curddot?.id)
@@ -1533,10 +1532,10 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_METHODTYPE_PROPERTIES:
         if (debug) console.log('1621 UPDATE_METHODTYPE_PROPERTIES', action);
-        curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-        if (debug) console.log('1623', curmoddtot)
-        curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef)
-        curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) 
+        let curmoddtot3    = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+        if (debug) console.log('1623', curmoddtot3)
+        curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot3.targetMetamodelRef)
+        curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot3.targetMetamodelRef) 
         curddot = curmmddot?.methodtypes?.find(ot => ot.id === action?.data?.id)
         lengthotdd = curmmddot?.methodtypes?.length
         indexddot = curmmddot?.methodtypes?.findIndex(ot => ot.id === curddot?.id)
@@ -1605,7 +1604,7 @@ function reducer(state = InitialState, action) {
       }
     case UPDATE_METHOD_PROPERTIES:
       if (debug) console.log('1541 UPDATE_METHOD_PROPERTIES', action);
-      curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      let curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       if (debug) console.log('1543', curmoddtot)
       let metamodelRef = curmoddtot.metamodelRef;
       curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === metamodelRef)

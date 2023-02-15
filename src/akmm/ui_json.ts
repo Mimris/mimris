@@ -104,7 +104,7 @@ export class jsnDatatype {
     id:                 string;
     name:               string;
     description:        string;
-    datatypeRef:        string;
+    datatypeRef:        string | undefined;
     allowedValues:      string[];
     defaultValue:       string;
     value:              string;
@@ -117,11 +117,10 @@ export class jsnDatatype {
         this.id              = dtype.id;
         this.name            = dtype.name;
         this.description     = "";
-        this.datatypeRef     = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
+        this.datatypeRef     = dtype.isOfDatatype?.id;
         this.allowedValues   = dtype.allowedValues;
         this.defaultValue    = dtype.defaultValue;
         this.value           = dtype.value;
-        // this.isOfDatatype    = dtype.isOfDatatype;
         this.inputPattern    = dtype.inputPattern;
         this.viewFormat      = dtype.viewFormat;
         this.fieldType       = dtype.fieldType;
@@ -130,6 +129,10 @@ export class jsnDatatype {
         // Code
         if (utils.objExists(dtype.description))
             this.description = dtype.description;
+        if (dtype.getIsOfDatatype()) {
+            const dtypeOf = dtype.getIsOfDatatype();
+            this.datatypeRef = dtypeOf?.id;
+        }
     }
 }
 export class jsnViewStyle {

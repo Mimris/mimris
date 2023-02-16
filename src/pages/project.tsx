@@ -144,8 +144,13 @@ const page = (props: any) => {
                   </div>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
                     <div className='text-muted'>Folder :</div>
-                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>}
-                  </div>
+                      {(repo) 
+                        ? (path) 
+                          ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
+                          : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
+                        : <></>
+                      }
+                    </div>
                   
                   {/* <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
                     <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>git 

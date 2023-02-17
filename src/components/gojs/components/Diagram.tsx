@@ -805,9 +805,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
-                return true;
+                return false;
             }),
-          makeButton("----------"),
+          // makeButton("----------"),
           makeButton("Export Task Model",
           function (e: any, obj: any) {
             const node = myDiagram.selection.first().data;

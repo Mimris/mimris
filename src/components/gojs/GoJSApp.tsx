@@ -626,28 +626,27 @@ class GoJSApp extends React.Component<{}, AppState> {
                           const n = nodes[i];
                           if (n) {
                               n.scale1 = n.getMyScale(myGoModel);
-                              let fromnode;
+                              let fromLoc;
                               for (let j=0; j<myFromNodes?.length; j++) {
                                   const fromNode = myFromNodes[j];
                                   if (fromNode.key === n.key) {
-                                      fromnode = fromNode.loc;
+                                      fromLoc = fromNode.loc;
                                       fromScale = fromNode.scale;
-                                      if (debug) console.log('604 fromNode, fromnode, fromScale', fromNode, fromnode, fromScale);
+                                      if (debug) console.log('604 fromNode, fromLoc, fromScale', fromNode, fromLoc, fromScale);
                                       break;
                                   }
                               }
-                              let toNode, toloc;
+                              let toNode, toLoc;
                               for (let j=0; j<myToNodes?.length; j++) {
                                   toNode = myToNodes[j];
                                   if (toNode.key === n.key) {
-                                    toloc = toNode.loc;
-                                    if (debug) console.log('613 toNode, toloc, toScale', toNode, toloc, toScale);
+                                    toLoc = toNode.loc;
+                                    if (debug) console.log('613 toNode, toLoc, toScale', toNode, toLoc, toScale);
                                     break;
                                   }
                               }
-                              if (debug) console.log('617 n, refloc, toloc, scaleFactor', n, refloc, toloc, scaleFactor);
-                              let nodeloc;
-                              nodeloc = uic.scaleNodeLocation2(n, refloc, toloc, scaleFactor);
+                              if (debug) console.log('617 n, refloc, toloc, scaleFactor', n, refloc, toLoc, scaleFactor);
+                              let nodeloc = uic.scaleNodeLocation2(n, refloc, toLoc, scaleFactor);
                               if (debug) console.log('620 n, nodeloc', n, nodeloc);
                               if (nodeloc) {
                                   let loc = nodeloc.x + " " + nodeloc.y;
@@ -734,6 +733,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
 
             // Update objectviews
+            if (debug) console.log('700 myFromNodes, myToNodes', myFromNodes, myToNodes);
             for (let i=0; i<myGoModel.nodes.length; i++) {
               let tnode;
               const node = myGoModel.nodes[i] as gjs.goObjectNode;
@@ -747,6 +747,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const objview = node.objectview;
               objview.scale1 = node.scale1;
               objview.loc = node.loc;
+              if (debug) console.log('706 node, objview', node, objview);
               if (node.group) {
                 const grp = myGoModel.findNode(node.group);
                 objview.group = grp?.objectview.id;
@@ -1158,6 +1159,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myNode = myFromNodes[i];
             if (myNode.key.substr(0,36) === node.key.substr(0,36)) {
               fromNode = myNode;
+              const fromObjview = myMetis.findObjectView(fromNode.objviewid);
+              fromObjview.loc = myNode.loc.valueOf();
+              if (debug) console.log('1101 fromNode, fromObjview', fromNode, fromObjview);
+              const jsnObjview = new jsn.jsnObjectView(fromObjview);
+              modifiedNodes.push(jsnObjview);
               break;
             }
           }
@@ -1243,8 +1249,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         if (debug) console.log('1256 ClipboardPasted', modifiedLinks, modifiedRelships, myMetis);       
-        myDiagram.requestUpdate();
-      
+        myDiagram.requestUpdate();      
       }
       break;
       case 'LinkDrawn': {

@@ -102,7 +102,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentModelview(myModelview);
       (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
       (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
-      if (!debug) console.log('101 GenGojsModel  myGoModel', myGoModel);
+      if (debug) console.log('101 GenGojsModel  myGoModel', myGoModel);
       if (debug) console.log('102 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
@@ -160,7 +160,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      if (!debug) console.log('155 GenGojsModel gojsModel', gojsModel);
+      if (debug) console.log('155 GenGojsModel gojsModel', gojsModel);
 
       // /** metamodel */
       // const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);

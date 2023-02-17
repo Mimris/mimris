@@ -123,14 +123,33 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             || currentObj.isOfSystemType(metaObjectName)
             ) {
             let name = objname;
-            // Handle local inheritance
-            const inheritanceObjects = currentObj.getInheritanceObjects(myModel);
-            if (debug) console.log('124 inheritanceObjects', inheritanceObjects);
 
             objtype = new akm.cxObjectType(utils.createGuid(), name, currentObj.description);
             { // Handle special attributes
                 objtype.abstract = currentObj.abstract;
                 objtype.viewkind = currentObj.viewkind;
+            }
+            { // Handle local inheritance
+                const inheritanceObjects = currentObj.getInheritanceObjects(myModel);
+                if (debug) console.log('124 inheritanceObjects', inheritanceObjects);
+                for (let i=0; i<inheritanceObjects.length; i++) {
+                    const inhObj = inheritanceObjects[i];
+                    const inhObjType = myMetis.findObjectType(inhObj.generatedTypeId);
+                    if (inhObjType) {
+                        let parentRelType = myTargetMetamodel.findRelationshipTypeByName2(constants.types.AKM_IS, objtype, inhObjType);
+                        if (debug) console.log('140 objtype, parentType, inhObjType', objtype, inhObjType, inhObjType);
+                        if (!parentRelType) {
+                            parentRelType  = new akm.cxRelationshipType(utils.createGuid(), constants.types.AKM_IS, objtype, inhObjType, "");
+                            objtype.addOutputreltype(parentRelType);
+                            inhObjType.addInputreltype(parentRelType);
+                            parentRelType.setModified();
+                            parentRelType.setRelshipKind('Generalization');
+                            myTargetMetamodel.addRelationshipType(parentRelType);
+                            myMetis.addRelationshipType(parentRelType);
+                            if (debug) console.log('149 objtype, inhObjType, parentRelType', objtype, inhObjType, parentRelType);
+                        }
+                    }
+                }   
             }
             { // Handle the properties
                 let properties = currentObj.type?.getProperties(true);
@@ -559,7 +578,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             for (let i=0; i < rels.length; i++) {
                     const rel = rels[i];
                     const parentObj = rel.toObject;
-                    if (debug) console.log('485 parentObj', parentObj);
+                    if (debug) console.log('485 object, parentObj', object, parentObj);
                     const parentType = parentObj.type;
                     if (debug) console.log('487 parentType', parentType);
                     if (parentType.name === constants.types.AKM_DATATYPE) {
@@ -604,49 +623,64 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             }
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
+                // Handle datatype reference
+                if (rel.getName() === constants.types.AKM_IS_OF_DATATYPE) {
+                    if (debug) console.log('609 rel', rel);
+                    const toObj = rel.getToObject();
+                    if (debug) console.log('611 toObj', toObj);
+                    if (toObj.type.name === constants.types.AKM_DATATYPE) {
+                        let dtypeObj = toObj;
+                        let dtype = myMetis.findDatatypeByName(dtypeObj.name);
+                        if (debug) console.log('613 dtype', dtype);
+                        if (dtype) {
+                            datatype.setIsOfDatatype(dtype);
+                        }
+                    }
+                    if (debug) console.log('616 datatype', datatype);
+                }
             // Handle input pattern
             if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
+                const toObj = rel.getToObject();
+                if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
+                    let valueObj = toObj;
+                    if (valueObj.pattern)
+                        datatype.setInputPattern(valueObj.pattern);
+                }
+            }
+            // Handle view format
+                if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
                     const toObj = rel.getToObject();
-                    if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
+                    if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
                         let valueObj = toObj;
-                        if (valueObj.pattern)
-                            datatype.setInputPattern(valueObj.pattern);
+                        if (valueObj.viewFormat)
+                            datatype.setViewFormat(valueObj.viewFormat);
                     }
                 }
-            // Handle view format
-            if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
-                const toObj = rel.getToObject();
-                if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
-                    let valueObj = toObj;
-                    if (valueObj.viewFormat)
-                        datatype.setViewFormat(valueObj.viewFormat);
+                // Handle field type
+                if (rel.getName() === constants.types.AKM_HAS_FIELDTYPE) {
+                    const toObj = rel.getToObject();
+                    if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
+                        let valueObj = toObj;
+                        if (valueObj.fieldType)
+                            datatype.setFieldType(valueObj.fieldType);
+                    }
                 }
-            }
-            // Handle field type
-            if (rel.getName() === constants.types.AKM_HAS_FIELDTYPE) {
-                const toObj = rel.getToObject();
-                if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
-                    let valueObj = toObj;
-                    if (valueObj.fieldType)
-                        datatype.setFieldType(valueObj.fieldType);
-                }
-            }
-            // Add the datatype
-            if (debug) console.log('551 datatype', datatype);
-            myTargetMetamodel.addDatatype(datatype);
-            // Update phData
-            const jsnDatatype = new jsn.jsnDatatype(datatype);
-            const modifiedDatatypes = new Array();
-            modifiedDatatypes.push(jsnDatatype);
-            if (debug) console.log('557 ui_generateTypes', jsnDatatype, modifiedDatatypes);
-            modifiedDatatypes.map(mn => {
-                let data = (mn) && mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
-            });
+                // Add the datatype
+                if (debug) console.log('551 datatype', datatype);
+                myTargetMetamodel.addDatatype(datatype);
+                // Update phData
+                const jsnDatatype = new jsn.jsnDatatype(datatype);
+                const modifiedDatatypes = new Array();
+                modifiedDatatypes.push(jsnDatatype);
+                if (debug) console.log('557 ui_generateTypes', jsnDatatype, modifiedDatatypes);
+                modifiedDatatypes.map(mn => {
+                    let data = (mn) && mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
+                });
 
-            if (debug) console.log('564 generateDatatype', datatype, myMetis);
-            return datatype;
+                if (debug) console.log('564 generateDatatype', datatype, myMetis);
+                return datatype;
             }
         }
     }
@@ -1629,7 +1663,9 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any[], co
                 for (let i=0; i < rels.length; i++) {
                     let rel = rels[i];
                     if (!rel.markedAsDeleted) {
-                        if (rel.name === constants.types.AKM_HAS_METHOD) {
+                        const reltype = rel.type;
+                        if (reltype.name === constants.types.AKM_HAS_METHOD &&
+                            rel.name === constants.types.AKM_HAS_METHOD) {
                             if (debug) console.log('1270 rel', rel);
                             const toObj = rel.toObject;
                             if (debug) console.log('1272 toObj', toObj);

@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -16,20 +16,22 @@ import exp from 'constants';
 const RegexParser = require("regex-parser");
 
 export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, objtype: akm.cxObjectType, 
-    goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels) {
+                                    goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number) {
     if (noLevels < 1)
         return;
     const objectviews = [];
     const myDiagram = myMetis.myDiagram;
     const modifiedObjectViews = new Array();
     const modifiedRelshipViews = new Array();
-    if (objview) {
+    let object = objview.object;
+    if (object)
+        object = myMetis.findObject(object.id);
+    if (objview && object) {
         const nodeLoc = objview.loc.split(" ");
         const nx = parseInt(nodeLoc[0]);
         const ny = parseInt(nodeLoc[1]);
-        let object = objview.object;
-        object = myMetis.findObject(object.id);
-        if (object.type.isContainer()) {
+        const objtype = object.type;
+        if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
         for (let useinp = 0; useinp < 2; useinp++) {
@@ -38,9 +40,11 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                 let cnt = 0;
                 for (let i=0; i<rels.length; i++) {
                     let rel = rels[i];
+                    if (!rel)
+                        continue;
                     if (rel.markedAsDeleted)
                         continue;
-                    rel = myMetis.findRelationship(rel.id);
+                    rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
                     let toObj;
                     if (useinp) 
                         toObj = rel.fromObject as akm.cxObject;
@@ -62,7 +66,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     // Find toObj in modelview
                     const objviews = modelview.findObjectViewsByObj(toObj);
                     let toObjview;
-                    if (objviews?.length >0) {
+                    if (objviews && objviews.length >0) {
                         for (let j=0; j<objviews.length; j++) {   
                             const oview = objviews[j];
                             if (oview.markedAsDeleted)
@@ -376,28 +380,32 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
     if (debug) console.log('375 object, rels', object, rels);
     if (!rels) 
         rels = object.inputrels;
-    if (rels) 
-        rels.concat(object.outputrels);
-    else
+    if (rels) {
+        const outrels = object.outputrels;
+        if (outrels)
+            rels.concat(outrels);
+    } else
         rels = object.outputrels;
     if (debug) console.log('382 object, rels', object, rels);
-    for (let i=0; i<rels?.length; i++) {
-        const rel = rels[i];
-        let child;
-        if (reltype) {
-            if (rel?.type?.id !== reltype?.id)
-                continue;
+    if (rels) {
+        for (let i=0; i<rels?.length; i++) {
+            const rel = rels[i];
+            let child;
+            if (reltype) {
+                if (rel?.type?.id !== reltype?.id)
+                    continue;
+            }
+            if (useinp) 
+                child = rel.fromObject as akm.cxObject;
+            else
+                child = rel.toObject as akm.cxObject;            
+            if (debug) console.log('395 child', child);
+            if (child) {
+                if (child.type.id === objtype?.id)
+                    objects.push(child);  
+            }  
+            if (debug) console.log('400 child', child);
         }
-        if (useinp) 
-            child = rel.fromObject as akm.cxObject;
-        else
-            child = rel.toObject as akm.cxObject;            
-        if (debug) console.log('395 child', child);
-        if (child) {
-            if (child.type.id === objtype?.id)
-                objects.push(child);  
-        }  
-        if (debug) console.log('400 child', child);
     }
     return objects;
 }
@@ -595,4 +603,3 @@ function execMethod(object: akm.cxObject, context: any) {
             break;
     }
 }
-

@@ -69,7 +69,7 @@ const page = (props:any) => {
   const [mount, setMount] = useState(false)
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (debug) console.log('80 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (!debug) console.log('71 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
       // set focusOrg and focusProj to focusProj.org and focusProj.proj
       if (props.phFocus.focusOrg.name !== props.phFocus.focusProj.org ) {
@@ -514,7 +514,7 @@ const page = (props:any) => {
             </span> 
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-            <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+            <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-warning float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
           </span> 
         </div>
         

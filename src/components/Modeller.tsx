@@ -371,6 +371,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--topbar d-flex justify-content-between m-0 p-0 " >
           <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
           <div className="modeller--heading-selector w-100">{selector}</div>
+          <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
@@ -415,14 +416,15 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     : // metamodelling
       <div className="metamodeller-workarea mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
+        <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
         <span className="modeller--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
         <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         {metamodelTabDiv} 
         <style jsx>{`
         // .diagram-component {
-        //   height: 80%;
-        // }
-        `}</style>
+          //   height: 80%;
+          // }
+          `}</style>
       </div>
   
   return (

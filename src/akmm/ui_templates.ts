@@ -1,16 +1,8 @@
 // @ts-nocheck
 const debug = false; 
 import * as go from 'gojs';
-// import * as figures from 'gojs/extensions/Figures';
-import * as utils from './utilities';
-import * as uic from './ui_common';
 import * as uid from './ui_diagram';
-import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
-import * as gjs from './ui_gojs';
-import * as jsn from './ui_json';
-const constants = require('./constants');
-const printf = require('printf');
 
 const $ = go.GraphObject.make;
 
@@ -71,7 +63,6 @@ export function getGatewayType(t: string): any {
         }
 }
 
-//  "Border", "BarH", "BarV", 
 let figureNames = [ 
                     'Circle',
                     'Diamond',

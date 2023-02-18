@@ -6,9 +6,7 @@ import * as uic from './ui_common';
 import * as uit from './ui_templates';
 import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
-import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
-import { setMyGoModel } from '../actions/actions';
 const constants = require('./constants');
 const printf = require('printf');
 

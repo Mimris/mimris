@@ -8,11 +8,11 @@ const debug = false;
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
 import * as jsn from './ui_json';
-import * as uic from '../akmm/ui_common';
+// import * as uic from '../akmm/ui_common';
 // import * as gen from '../akmm/ui_generateTypes';
 import * as utils from '../akmm/utilities';
 import * as constants from '../akmm/constants';
-import exp from 'constants';
+// import exp from 'constants';
 const RegexParser = require("regex-parser");
 
 export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, objtype: akm.cxObjectType, 

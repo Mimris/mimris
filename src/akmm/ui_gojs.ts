@@ -2,9 +2,7 @@
 // Application code
 const debug = false;
 
-//const glb 	= require('./akm_globals');
 const constants = require('./constants');
-//const goc = require('./gojs_constants');
 const vkc = require('./viewkinds');
 
 import * as utils from './utilities';

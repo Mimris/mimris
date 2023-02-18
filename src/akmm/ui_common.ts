@@ -6,17 +6,8 @@ import * as akm from './metamodeller';
 import * as uid from './ui_diagram';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
-import * as gen from './ui_generateTypes';
-import { FaBullseye, FaLessThan, FaNode } from 'react-icons/fa';
-import { setMyMetisParameter } from '../actions/actions';
-// import { NodeStringDecoder } from 'string_decoder';
-//import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 const printf = require('printf');
-
-//import { render } from 'react-dom';
-
-//import * as go from 'gojs';
 
 // functions to handle nodes
 export function createObject(data: any, context: any): akm.cxObjectView | null {

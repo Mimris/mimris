@@ -8,8 +8,6 @@ import * as akm from '../akmm/metamodeller';
 import * as jsn from './ui_json';
 import * as uic from './ui_common';
 import * as gjs from './ui_gojs';
-import * as uid from './ui_diagram';
-import * as ui_mtd from './ui_methods';
 const utils = require('./utilities');
 import * as constants from './constants';
 const RegexParser = require("regex-parser");

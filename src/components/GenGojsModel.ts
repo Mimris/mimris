@@ -9,12 +9,12 @@ const ctrace = console.trace.bind(console, '%c %s',
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
 // */
-import * as utils from '../akmm/utilities';
+// import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
-import * as gjs from '../akmm/ui_gojs';
-import * as jsn from '../akmm/ui_json';
+// import * as gjs from '../akmm/ui_gojs';
+// import * as jsn from '../akmm/ui_json';
 import * as uib from '../akmm/ui_buildmodels';
-import * as uic from '../akmm/ui_common';
+// import * as uic from '../akmm/ui_common';
 
 const constants = require('../akmm/constants');
 

@@ -6,25 +6,17 @@ const debug = false;
 const linkToLink= false;
 
 import * as go from 'gojs';
-import { produce } from 'immer';
 import * as React from 'react';
-// import * as ReactModal from 'react-modal';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
-// import EditProperties  from '../forms/EditProperties'
-
-// import './GoJSApp.css';
-// import glb from '../../akmm/akm_globals';
-// import * as utils from '../../akmm/utilities';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as jsn from '../../akmm/ui_json';
 import * as uic from '../../akmm/ui_common';
 import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
-import * as uit from '../../akmm/ui_templates';
 
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');

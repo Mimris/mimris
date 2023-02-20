@@ -371,7 +371,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--topbar d-flex justify-content-between m-0 p-0 " >
           <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
           <div className="modeller--heading-selector w-100">{selector}</div>
-          <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+          <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary fs-7"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">

@@ -23,7 +23,8 @@ import LoadFile from './loadModelData/LoadFile'
 import LoadGitHub from '../components/loadModelData/LoadGitHub'
 // import LoadSaveGit from '../components/loadModelData/LoadSaveGit'
 import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
-import { ReadModelFromFile, SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
+import { ReadModelFromFile} from './utils/ReadModelFromFile';
+import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 
 // import ImpExpJSONFile from '../components/loadModelData/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
@@ -514,7 +515,7 @@ const page = (props:any) => {
             </span> 
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-            <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-warning float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+            <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
           </span> 
         </div>
         

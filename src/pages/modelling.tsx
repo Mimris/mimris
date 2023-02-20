@@ -76,12 +76,6 @@ const page = (props:any) => {
         }
       }   
     }
-    // toggle()
-
-    // const timer = setTimeout(() => {
-    //   dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
-    // }, 1000)
-    // return () => clearTimeout(timer)
     setMount(true)
   }, []) 
 

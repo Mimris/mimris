@@ -1,12 +1,6 @@
 // @ts-nocheck
 const debug = false;
 
-// this Kernel code
-
-//import akm_globals from "./akm_globals";
-
-// import AkmModelsController from "../posts/akmmodels.controller";
-
 /*
 Module:         The kernel classes
 File name:      metamodeller.js
@@ -17,12 +11,9 @@ Functions:      None
 */
 import * as ui_mtd from './ui_methods';
 const utils = require('./utilities');
-//const glb 	    = require('./akm_globals');
 const constants = require('./constants');
 
 import * as gjs from './ui_gojs';
-import akmmGraphql from '../pages/akmm-graphql';
-import { setMyMetisParameter } from '../actions/actions';
 
 // cxMetis
 

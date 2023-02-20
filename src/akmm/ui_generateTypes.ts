@@ -3,11 +3,7 @@ const debug = false;
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
-import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
-import { setMyGoModel } from '../actions/actions';
-import { FaObjectUngroup } from 'react-icons/fa';
-import { createRelationshipType } from './ui_common';
 const constants = require('./constants');
 
 export function askForMetamodel(context: any, create: boolean) {

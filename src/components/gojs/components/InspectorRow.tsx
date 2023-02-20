@@ -4,7 +4,6 @@
 */
 
 import * as React from 'react';
-// import './Inspector.css';
 const RegexParser = require("regex-parser");
 
 const debug = false;

@@ -31,7 +31,7 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 
 const page = (props:any) => {
   
-  console.log('34 modelling ', props)
+  if (debug) console.log('34 modelling ', props)
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) { 

@@ -4,7 +4,6 @@ const debug = false;
 const utils = require('./utilities');
 import * as akm from './metamodeller';
 const constants = require('./constants');
-// import { goRelshipTypeLink } from './ui_gojs';
 
 let jsnMetis = null;
 

@@ -6,16 +6,12 @@
 import * as React from 'react';
 import { InspectorRow } from './InspectorRow';
 const toHex = require('colornames');
-const convert = require('color-convert');
 const printf = require('printf');
-// import './Inspector.css';
 import * as akm from '../../../akmm/metamodeller';
 import * as uic from '../../../akmm/ui_common';
-import * as ui_mtd from '../../../akmm/ui_methods';
 import * as uit from '../../../akmm/ui_templates';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-import { editObjectview } from '../../../akmm/ui_diagram';
 
 const debug = false;
 interface SelectionInspectorProps {

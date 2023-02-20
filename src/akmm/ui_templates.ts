@@ -905,13 +905,13 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             // content
             $(go.TextBlock, textStyle(),  // the name -----------------------
             {
-                isMultiline: false,  // don't allow newlines in text
+                isMultiline: true,  // don't allow newlines in text
                 editable: true,  // allow in-place editing by user
                 row: 0, column: 0, columnSpan: 6,
                 // stretch: go.GraphObject.Fill,
                 font: "bold 10pt Segoe UI,sans-serif",
                 minSize: new go.Size(120, 36), 
-                desiredSize: new go.Size(800, 60),
+                desiredSize: new go.Size(300, 60),
                 textAlign: "center",
                 height: 46,
                 verticalAlignment: go.Spot.Center,

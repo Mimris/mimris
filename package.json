@@ -48,7 +48,7 @@
     "graphql": "^16.6.0",
     "gray-matter": "^4.0.3",
     "help": "^3.0.2",
-    "immer": "^9.0.16",
+    "immer": "^6.0.9",
     "install": "^0.12.2",
     "isomorphic-git": "^1.0.0-beta.36",
     "isomorphic-unfetch": "^3.0.0",

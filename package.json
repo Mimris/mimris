@@ -111,5 +111,5 @@
     "bufferutil": "^4.0.1",
     "utf-8-validate": "^5.0.2"
   },
-  "proxy": "https://cat-fact.herokuapp.com/"
+  "proxy": "https://catt-fact.herokuapp.com/"
 }

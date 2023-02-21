@@ -371,14 +371,15 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--topbar d-flex justify-content-between m-0 p-0 " >
           <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
           <div className="modeller--heading-selector w-100">{selector}</div>
-          <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary fs-7"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+          <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary fs-7"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> 
               <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
                 <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
-                  onClick={toggleObjects}> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
+                  onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
+                  Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
                 </button>
                 {/* <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", height: "100%", border: "solid 1px black" }}> */}
                   {visibleObjects 

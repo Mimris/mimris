@@ -24,10 +24,18 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         console.log('104 ReadModelFromFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
 
         // ---------------------  load Project ---------------------
-        console.log('142 ReadModelFromFile',  props.phData?.metis, modelff.phData?.metis)
+        console.log('142 ReadModelFromFile',  props, modelff)
         let data
         if (modelff.phData) { // if modelff has phData, then it is a project file
             console.log('145 ReadModelFromFile',  props.phData?.metis, modelff.phData?.metis)
+            
+            if (!modelff.phFocus.focusModel) { // if modelff has no focusModel, then set it to the first model
+                modelff.phFocus.focusModel= {id: modelff.phData.metis.models[0].id, name: modelff.phData.metis.models[0].name}
+            }
+            if (modelff.phFocus.focusModelView) { // if modelff has no focusModelView, then set it to the first modelview
+                modelff.phFocus.focusModelView= {id: modelff.phData.metis.models[0].modelviews[0].id, name: modelff.phData.metis.models[0].modelviews[0].name}
+            }
+
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,

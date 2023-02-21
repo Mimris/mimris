@@ -1,6 +1,8 @@
 
 // @ts-nocheck
 
+import { loadToStorePhdata } from "../../actions/actions"
+
 const debug = false
 
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
@@ -49,6 +51,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
             mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
             if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
+
+            // find objects in model with objectRefs
+            const mvobjects = modelff.objects || []
+            if (debug) console.log('55 ReadModelFromFile', modelff, mvobjects);
+
             data = {
                 phData: {
                     ...props.phData,
@@ -59,6 +66,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                             ...props.phData.metis.models?.slice(0, fmindex),  
                             {  
                                 ...props.phData.metis.models[fmindex],
+                                // add objects wich exist in modelview
+                                objects: [
+                                    ...props.phData.metis.models.objects,
+                                    ...mvobjects
+                                ],
                                 modelviews: [ 
                                     ...props.phData.metis.models[fmindex]?.modelviews?.slice(0, mvindex),  
                                     {  

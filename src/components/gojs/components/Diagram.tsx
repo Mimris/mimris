@@ -230,7 +230,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
-    if (!debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
+    if (debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
     const propname = props.id;
     const fieldType = props.type;
     const obj = props.obj;
@@ -482,7 +482,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste",
             function (e: any, obj: any) {
               if (debug) console.log('473 myMetis', myMetis);
-              const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = false;
               const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
               e.diagram.commandHandler.pasteSelection(point);
@@ -1860,14 +1859,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Paste",
             function (e: any, obj: any) {
-              if (debug) console.log('1811 myMetis', myMetis);
+              if (debug) console.log('1862 myMetis', myMetis);
               myMetis.pasteViewsOnly = false;
               const mySelection = [];
               e.diagram.selection.each(function(sel) {
                 mySelection.push(sel.data);
               });
               myMetis.currentSelection = mySelection;
-              if (debug) console.log('1685 mySelection', mySelection);
+              if (debug) console.log('1869 mySelection', mySelection);
               const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
               e.diagram.commandHandler.pasteSelection(point);
             },
@@ -1876,7 +1875,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Paste View",
             function (e: any, obj: any) {
-              if (debug) console.log('1827 myMetis', myMetis);
+              if (debug) console.log('1878 myMetis', myMetis);
               myMetis.pasteViewsOnly = true;
               const selection = [];
               e.diagram.selection.each(function(sel) {
@@ -2986,7 +2985,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         "toGroup":    "",
         "loc":        new String(n.data.loc),
         "scale":      new String(n.scale),
-        "size":       new String(n.data.size)
+        "size":       new String(n.data.size),
+        "template":   n.data.template,
+        "figure":     n.data.figure,
+        "geometry":   n.data.geometry,
+        "fillcolor":  n.data.fillcolor,
+        "fillcolor2": n.data.fillcolor2,
+        "strokecolor":n.data.strokecolor,
+        "strokecolor2": n.data.strokecolor2,
+        "textcolor":  n.data.textcolor,
+        "strokewidth": n.data.strokewidth,
+        "textscale":  n.data.textscale,
+        "icon":       n.data.icon,
       }
       myFromNodes.push(myFromNode);
       if (n.data.isGroup) {

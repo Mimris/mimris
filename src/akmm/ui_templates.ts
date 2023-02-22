@@ -19,9 +19,10 @@ go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
            .add(new go.PathSegment(go.PathSegment.Line, 0, h))
            .add(new go.PathSegment(go.PathSegment.Line, len, h))
            .add(new go.PathSegment(go.PathSegment.Move, maxlen-len, 0))
-           .add(new go.PathSegment(go.PathSegment.Line, maxlen, 0))
-           .add(new go.PathSegment(go.PathSegment.Line, maxlen, h))
-           .add(new go.PathSegment(go.PathSegment.Line, maxlen-len, h)));
+        //    .add(new go.PathSegment(go.PathSegment.Line, maxlen, 0))
+        //    .add(new go.PathSegment(go.PathSegment.Line, maxlen, h))
+        //    .add(new go.PathSegment(go.PathSegment.Line, maxlen-len, h))
+        );
   });
 
 export function getRouting(r: string): any {
@@ -1610,8 +1611,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     toLinkableSelfNode: false, 
                     toLinkableDuplicates: false,
                     cursor: 'alias', 
-                    fromSpot: go.Spot.AllSides,
-                    // fromSpot: go.Spot.Left,
+                    // fromSpot: go.Spot.AllSides,
+                    fromSpot: go.Spot.Left,
                     strokeWidth: 2, 
                     // stroke: 'gray', 
                 },

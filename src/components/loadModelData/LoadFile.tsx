@@ -10,7 +10,7 @@ import useLocalStorage  from '../../hooks/use-local-storage'
 // import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
-import { SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
+import { SaveToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
@@ -58,27 +58,47 @@ const LoadFile = (props: any) => {
   }
   
 
-  // Save current modelview (without instances) to a file in downloads foler 
-  function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
-    const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
-    const modelview = model.modelviews[focusModelviewIndex]
-    console.log('43', focusModelviewIndex, modelview);
-    
-    SaveModelToFile({modelview: modelview}, modelview.name, 'Modelview')
-    // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  }
-
-  // Save current model to a file with date and time in the name to the downloads folder
+  // Save current model, metamodel, modelview, container to a file to the downloads folder
+  // Attatch the metamodel to the model or modelview
   function handleSaveModelToFile() {
     const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    SaveModelToFile(model, model.name, 'Model')
-    // SaveModelToFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+    const curmodel = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+    const curmmodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
+    const model = {metamodels: curmmodel, models: curmodel }
+    SaveToFile(model, curmodel.name, "MO")
   }
+  function handleSaveModelviewToFile() {
+    const projectname = props.ph.phData.metis.name
+    const curmodel = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+    const focusModelviewIndex = curmodel.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
+    const curmodelview = curmodel.modelviews[focusModelviewIndex]
+    const curmodelviewobjs = curmodel.objects.filter(obj => curmodelview.objectviews?.find(ov => ov.objectRef === obj.id))
+    const curmmodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
+    const modelview = {metamodels: curmmodel, modelviews: curmodelview, objects: curmodelviewobjs }
+    SaveToFile(modelview, curmodel.name, "MV")
+  }
+
+  // // Save current modelview (without instances) to a file in downloads foler 
+  // function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
+  //   const projectname = props.ph.phData.metis.name
+  //   const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+  //   const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
+  //   const modelview = model.modelviews[focusModelviewIndex]
+  //   console.log('43', focusModelviewIndex, modelview);
+    
+  //   SaveModelToFile({modelview: modelview}, modelview.name, 'MV')
+  //   // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
+  //   // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+  // }
+
+  // Save current model to a file with date and time in the name to the downloads folder
+  // function handleSaveModelToFile() {
+  //   const projectname = props.ph.phData.metis.name
+  //   const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+  //   SaveModelToFile(model, model.name, 'MO')
+  //   // SaveModelToFile(model, model.name, 'AKMM-Model')
+  //   // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+  // }
   
   // Save current metamodel to a file with date and time in the name to the downloads folder
   function handleSaveMetamodelToFile() {
@@ -139,14 +159,14 @@ const LoadFile = (props: any) => {
       title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
       onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File
     </button >
-  const buttonSaveJSONToFileDiv = 
+
+  const buttonSaveModelWMMToFileDiv = // SAVE MODEL WITH METAMODEL TO FILE
     <button className="btn-success text-secondary btn-sm mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
-      onClick={handleSaveJSONToFile}>Save Current Model to File 
+      title="Click here to save current model with Metamodel to file &#013; (in Downloads folder)."
+      onClick={handleSaveModelToFile}>Save Current Model w/Metamodel to File 
     </button >
   
-
   // const projectname = props.ph.phData.metis.name
   // const today = new Date().toISOString().slice(0, 19)
   // const emailAddress = 'snorres@gmail.com'
@@ -157,7 +177,6 @@ const LoadFile = (props: any) => {
   // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
   // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
   
-
   if (debug) console.log('172', buttonLabel);
   
   return (
@@ -186,6 +205,7 @@ const LoadFile = (props: any) => {
                   {buttonSaveAllToFileDateDiv}
                   {buttonSaveModelToFileDiv}
                   {buttonSaveModelviewToFileDiv}
+                  {buttonSaveModelWMMToFileDiv}
                 </div>
                   {/* <h6>Send Project by mail </h6>
                   <div className="selectbox bg-white mb-2 border">

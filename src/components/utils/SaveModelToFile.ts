@@ -19,9 +19,10 @@ JSON.safeStringify = (obj, indent = 2) => {
     return retVal;
 };
 
-export const SaveModelToFile = (model, name, type) => {
+export const SaveToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = name+"_"+type //+'_'+today;
+    // const fileName = name+"_"+type //+'_'+today;
   
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
@@ -34,6 +35,24 @@ export const SaveModelToFile = (model, name, type) => {
     link.click();
     document.body.removeChild(link);
 }
+
+export const SaveModelToFile = (model, name, type) => {
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = name+"_"+type //+'_'+today;
+    // const fileName = name+"_"+type //+'_'+today;
+  
+    const json = JSON.safeStringify(model);
+    const blob = new Blob([json], {type:'application/json'});
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 
 export const SaveMetamodelToFile = (metamodel, name, type) => {
     const today = new Date().toISOString().slice(0, 19)

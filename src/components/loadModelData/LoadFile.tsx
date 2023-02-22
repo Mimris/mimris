@@ -121,13 +121,13 @@ const LoadFile = (props: any) => {
       onClick={handleSaveAllToFileDate}>Save Project (all) to File
     </button >
   const buttonSaveModelToFileDiv = 
-    <button className="btn-primary text-white-50 btn-sm mr-2 w-100  " 
+    <button className="btn-primary text-secondary btn-sm mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model to file&#013;(in Downloads folder)"
       onClick={handleSaveModelToFile}>Save Current Model to File 
     </button >
   const buttonSaveModelviewToFileDiv = 
-    <button className="btn-primary text-white-50 btn-sm mr-2  w-100  " 
+    <button className="btn-primary text-secondary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current modelview to file&#013;(in Downloads folder)"
       onClick={handleSaveModelviewToFile}>Save Current Modelview to File 
@@ -140,7 +140,7 @@ const LoadFile = (props: any) => {
       onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File
     </button >
   const buttonSaveJSONToFileDiv = 
-    <button className="btn-success text-white-50 btn-sm mr-2 w-100  " 
+    <button className="btn-success text-secondary btn-sm mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
       onClick={handleSaveJSONToFile}>Save Current Model to File 
@@ -162,7 +162,7 @@ const LoadFile = (props: any) => {
   
   return (
     <>
-      <button className="btn" onClick={toggle}>{buttonLabel}</button>
+      <button className="btn px-2 bg-light text-secondary" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0">
@@ -212,7 +212,8 @@ const LoadFile = (props: any) => {
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
+            title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+          </Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`
@@ -275,6 +276,7 @@ const LoadFile = (props: any) => {
             .modal-header {
               border-bottom-color: #eeeeee;
               background-color: #fafafa;
+              flex-direction: column;
             }
             .modal-body {
               // width: 400px;

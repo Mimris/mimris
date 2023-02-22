@@ -116,13 +116,12 @@
 .modal-header {
   background: rgba(253, 252, 252, 0.7);
   font-family: Arial;
-  
   color:  #333;
   margin-top: 3px;
-  padding: 1px;
+  padding: 4px;
   border-radius: 4px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
 
   /* justify-content: center; */

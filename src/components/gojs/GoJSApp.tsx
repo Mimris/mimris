@@ -900,7 +900,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (data.category === constants.gojs.C_OBJECT) {
               if (debug) console.log('866 sel, data', sel, data);
               const key  = data.key;
-              const myNode = this.getNode(context.myGoModel, key);
+              const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
                 if (debug) console.log('870 delete node', data, myNode);
                 uic.deleteNode(myNode, deletedFlag, context);
@@ -1269,7 +1269,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
-        if (debug) console.log('1171 link', link.data, link.fromNode, link.toNode);
+        if (debug) console.log('1272 link', link.data, link.fromNode, link.toNode);
 
         if (false) { // Prepare for linkToLink
           if (linkToLink) {
@@ -1286,27 +1286,27 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('1188 data', data);
+        if (debug) console.log('1289 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
 
-        if (debug) console.log('1192 LinkDrawn', fromNode, toNode, data);
+        if (debug) console.log('1293 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
         if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
           data.category = constants.gojs.C_RELSHIPTYPE;
-          if (debug) console.log('1196 link', fromNode, toNode);
+          if (debug) console.log('1297 link', fromNode, toNode);
           // link.category = constants.gojs.C_RELSHIPTYPE;
           const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
-            if (debug) console.log('1200 reltype', reltype);
+            if (debug) console.log('1301 reltype', reltype);
             const jsnType = new jsn.jsnRelationshipType(reltype, true);
             modifiedTypeLinks.push(jsnType);
-            if (debug) console.log('1203 jsnType', jsnType);
+            if (debug) console.log('1304 jsnType', jsnType);
             const reltypeview = reltype.typeview;
             if (reltypeview) {
               const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
               modifiedLinkTypeViews.push(jsnTypeView);
-              if (debug) console.log('1208 jsnTypeView', jsnTypeView);
+              if (debug) console.log('1309 jsnTypeView', jsnTypeView);
               const myGoModel = myMetis.gojsModel;
               let gjsLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
               gjsLink.fromNode = fromNode.data;
@@ -1314,10 +1314,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               gjsLink.loadLinkContent(myGoModel);
               myGoModel.addLink(gjsLink);
               gjsLink.name = reltype.name;
-              if (debug) console.log('1261 link, myGoModel, reltype', gjsLink, myGoModel, reltype);
+              if (debug) console.log('1317 link, myGoModel, reltype', gjsLink, myGoModel, reltype);
               myDiagram.model.addLinkData(gjsLink);
               const lnk = myDiagram.findLinkForKey(gjsLink.key);
-              if (debug) console.log('1264 lnk, reltype', lnk, reltype);
+              if (debug) console.log('1320 lnk, reltype', lnk, reltype);
               myDiagram.model.setDataProperty(lnk.data, 'name', reltype.name);
             }
           }
@@ -1326,7 +1326,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             data.category = 'Relationship';
             context.handleOpenModal = this.handleOpenModal;
             // Creation is done in a callback function (uic.createRelshipCallback)
-            if (debug) console.log('1215 data, context', data, context);
+            if (debug) console.log('1329 data, context', data, context);
             uic.createRelationship(data, context);
         }
         myDiagram.requestUpdate();
@@ -1335,7 +1335,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          if (debug) console.log('1225 data, context', data, context);
+          if (debug) console.log('1338 data, context', data, context);
           uic.createRelationship(data, context);
         }
         myDiagram.requestUpdate(); 
@@ -1345,21 +1345,21 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        if (debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
+        if (debug) console.log('1348 link, fromNode, toNode', link, fromNode, toNode);
         const newLink = e.subject.data;
         newLink.category = constants.gojs.C_RELATIONSHIP;
         if (fromNode.category === constants.gojs.C_OBJECTTYPE)
           newLink.category = constants.gojs.C_RELSHIPTYPE;
         myDiagram.model.setDataProperty(newLink, "name", newLink.name);
-        if (debug) console.log('729 newLink', newLink);
+        if (debug) console.log('1354 newLink', newLink);
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;
         context.modifiedTypeLinks     = modifiedTypeLinks;
         context.modifiedLinkTypeViews = modifiedLinkTypeViews;
         uic.onLinkRelinked(newLink, fromNode, toNode, context);
-        if (debug) console.log('722 LinkRelinked', modifiedLinks);
-        if (debug) console.log('723 LinkRelinked', modifiedRelships);
-        if (debug) console.log('724 LinkRelinked', modifiedTypeLinks);
+        if (debug) console.log('1360 LinkRelinked', modifiedLinks);
+        if (debug) console.log('1361 LinkRelinked', modifiedRelships);
+        if (debug) console.log('1362 LinkRelinked', modifiedTypeLinks);
         myDiagram.requestUpdate();
       }
       break;
@@ -1367,7 +1367,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let link = e.subject; 
         link = myDiagram.findLinkForKey(link.key);
         const data = link.data;
-        if (debug) console.log('996 data', data);
+        if (debug) console.log('1370 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
@@ -1382,87 +1382,87 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           relview.points = link.data.points;;
           const jsnRelview = new jsn.jsnRelshipView(relview);
-          if (debug) console.log('1011 relview, jsnRelview', relview, jsnRelview);
+          if (debug) console.log('1385 relview, jsnRelview', relview, jsnRelview);
           modifiedLinks.push(jsnRelview);
         }
       }
       break;
       case "BackgroundSingleClicked": {
-        if (debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
+        if (debug) console.log('1391 BackgroundSingleClicked', e, e.diagram);
       }
       break;
       case "BackgroundDoubleClicked": {
-         if (debug) console.log('728 BackgroundDoubleClicked', e, e.diagram);
+         if (debug) console.log('1395 BackgroundDoubleClicked', e, e.diagram);
       }
       break;
       default:
-        if (debug) console.log('802 GoJSApp event name: ', name);
+        if (debug) console.log('1399 GoJSApp event name: ', name);
         break;
     }
     // Dispatches
     if (true) {
-      if (debug) console.log('1393 modifiedNodes', modifiedNodes);
+      if (debug) console.log('1404 modifiedNodes', modifiedNodes);
       modifiedNodes.map(mn => {
         let data = mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1397 UPDATE_OBJECTVIEW_PROPERTIES', data)
+        if (debug) console.log('1408 UPDATE_OBJECTVIEW_PROPERTIES', data)
         context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
 
-      if (debug) console.log('1401 modifiedTypeNodes', modifiedTypeNodes);
+      if (debug) console.log('1412 modifiedTypeNodes', modifiedTypeNodes);
       modifiedTypeNodes?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1405 UPDATE_OBJECTTYPE_PROPERTIES', data)
+        if (debug) console.log('1416 UPDATE_OBJECTTYPE_PROPERTIES', data)
         context.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
 
-      if (debug) console.log('1409 modifiedTypeViews', modifiedTypeViews);
+      if (debug) console.log('1420 modifiedTypeViews', modifiedTypeViews);
       modifiedTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        if (debug) console.log('1414 data', data);
+        if (debug) console.log('1425 data', data);
       })
 
-      if (debug) console.log('1417 modifiedTypeGeos', modifiedTypeGeos);
+      if (debug) console.log('1428 modifiedTypeGeos', modifiedTypeGeos);
       modifiedTypeGeos?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
       })
 
-      if (debug) console.log('1424 modifiedLinks', modifiedLinks);
+      if (debug) console.log('1435 modifiedLinks', modifiedLinks);
       modifiedLinks.map(mn => {
         let data = mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
 
-      if (debug) console.log('1431 modifiedTypeLinks', modifiedTypeLinks);
+      if (debug) console.log('1442 modifiedTypeLinks', modifiedTypeLinks);
       modifiedTypeLinks?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1435 data', data);
+        if (debug) console.log('1446 data', data);
         context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
 
-      // if (debug) console.log('1439 modifiedLinkTypeViews', modifiedLinkTypeViews);
+      // if (debug) console.log('1450 modifiedLinkTypeViews', modifiedLinkTypeViews);
       modifiedLinkTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
       })
 
-      if (debug) console.log('1446 modifiedObjects', modifiedObjects);
+      if (debug) console.log('1457 modifiedObjects', modifiedObjects);
       modifiedObjects?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1450 UPDATE_OBJECT_PROPERTIES', data)
+        if (debug) console.log('1461 UPDATE_OBJECT_PROPERTIES', data)
         context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       })
 
-      if (debug) console.log('1454 modifiedRelships', modifiedRelships);
+      if (debug) console.log('1465 modifiedRelships', modifiedRelships);
       modifiedRelships?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
@@ -1475,15 +1475,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       data = JSON.parse(JSON.stringify(data));
       myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })       
     }
-    if (debug) console.log('1467 myMetis', myMetis);
+    if (debug) console.log('1478 myMetis', myMetis);
   }
 
   public render() {   
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1111 selectedData', selectedData, this.props);
+    if (debug) console.log('1483 selectedData', selectedData, this.props);
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('1115 modalContext ', modalContext);
+    if (debug) console.log('1486 modalContext ', modalContext);
     if (modalContext?.what === 'selectDropdown') {      
       let options =  '' 
       let comps = ''
@@ -1504,13 +1504,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       )
       options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
       comps = null
-      if (debug) console.log('1138 options', options, this.state);
+      if (debug) console.log('1507 options', options, this.state);
       const { selectedOption } = this.state;
-      if (debug) console.log('1139 selectedOption', selectedOption, this.state);
+      if (debug) console.log('1509 selectedOption', selectedOption, this.state);
 
       const value = (selectedOption)  ? selectedOption.value : options[0];
       const label = (selectedOption)  ? selectedOption.label : options[0];
-      if (debug) console.log('1143 selectedOption, value, label ', selectedOption, value, label);
+      if (debug) console.log('1513 selectedOption, value, label ', selectedOption, value, label);
       header = modalContext.title;
       modalContent = 
         <div className="modal-selection d-flex justify-content-center">
@@ -1524,7 +1524,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         */}            
     } else {
         if (selectedData !== null) {
-          if (debug) console.log('1151 selectedData', selectedData);
+          if (debug) console.log('1527 selectedData', selectedData);
           inspector = 
             <div className="p-2" style={{backgroundColor: "#ddd"}}>
               <p>Selected Object Properties:</p>
@@ -1539,8 +1539,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
-    if (debug) console.log('1089 dispatch', this.state.myMetis.dispatch);
-    if (debug) console.log('1090 linkdataarray:', this.state.linkDataArray);
+    if (debug) console.log('1542 dispatch', this.state.myMetis.dispatch);
+    if (debug) console.log('1543 linkdataarray:', this.state.linkDataArray);
     return ( (this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

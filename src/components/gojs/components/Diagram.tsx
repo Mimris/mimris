@@ -741,8 +741,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram.selection.each(function(sel) {
                   const inst = sel.data;
                   if (inst.category === constants.gojs.C_OBJECT) {
+                    if (debug) console.log('744 inst', inst);
+                    const object = inst.object;
+                    const objviews = object.objectviews;
+                    if (objviews) {
+                      objviews.forEach(ov => {  
+                        let ovnode = myGoModel.findNodeByViewId(ov.id);
+                        if (ovnode) {
+                          const n = myDiagram.findNodeForKey(ovnode.key);
+                          if (n) n.isSelected = true;
+                        }
+                      })
+                    }
                     let node = myGoModel.findNode(inst.key);
-                    if (debug) console.log('1375 node', node);
+                    if (debug) console.log('749 node', node);
                     if (node?.isGroup) {
                       const groupMembers = node.getGroupMembers(myGoModel);
                       for (let i=0; i<groupMembers?.length; i++) {

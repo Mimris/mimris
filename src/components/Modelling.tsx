@@ -145,6 +145,7 @@ const page = (props:any) => {
       }, 1000);
       return () => clearTimeout(timer);
   }, [props.phSource])
+  
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     useEfflog('150 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props);

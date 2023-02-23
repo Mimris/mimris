@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useDispatch } from 'react-redux';
+import useLocalStorage  from '../hooks/use-local-storage'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
@@ -33,6 +34,8 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const [ofilter, setOfilter] = useState('All')
   const [visibleObjects, setVisiblePalette] = useState(false)
+
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -103,6 +106,17 @@ const Modeller = (props: any) => {
   
   function toggleRefreshObjects() { 
     GenGojsModel(props, dispatch)
+
+    // save current state to memory
+    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
+    if (!debug) console.log('84 Modelling save memoryState', mdata);
+    // if mdata is longer than 10, remove the last 2 elements
+    if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
+    if (mdata.length > 2) { mdata.pop() }
+    if (debug) console.log('88 Modelling refresh', mdata);
+    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
+
+
     setTimeout(() => {
     dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
     , 1000);

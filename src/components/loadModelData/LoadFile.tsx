@@ -10,7 +10,7 @@ import useLocalStorage  from '../../hooks/use-local-storage'
 // import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
-import { SaveToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
+import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
@@ -45,7 +45,7 @@ const LoadFile = (props: any) => {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
     
-    SaveAllToFile(data, projectname, 'Project')
+    SaveAllToFile(data, projectname, '_ALL')
     // SaveAllToFile(data, projectname, 'AKMM-Project')
   } 
   // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
@@ -54,7 +54,7 @@ const LoadFile = (props: any) => {
     console.log('37 LoadFile', data);
     
     // SaveAllToFileDate(data, projectname, 'Project')
-    SaveAllToFileDate(data, projectname, 'Project')
+    SaveAllToFileDate(data, projectname, '_ALL')
   }
   
 
@@ -65,7 +65,7 @@ const LoadFile = (props: any) => {
     const curmodel = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const curmmodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const model = {metamodels: curmmodel, models: curmodel }
-    SaveToFile(model, curmodel.name, "MO")
+    SaveModelToFile(model, curmodel.name, "_MO")
   }
   function handleSaveModelviewToFile() {
     const projectname = props.ph.phData.metis.name
@@ -75,7 +75,7 @@ const LoadFile = (props: any) => {
     const curmodelviewobjs = curmodel.objects.filter(obj => curmodelview.objectviews?.find(ov => ov.objectRef === obj.id))
     const curmmodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const modelview = {metamodels: curmmodel, modelviews: curmodelview, objects: curmodelviewobjs }
-    SaveToFile(modelview, curmodel.name, "MV")
+    SaveModelviewToFile(modelview, curmodel.name, "_MV")
   }
 
   // // Save current modelview (without instances) to a file in downloads foler 
@@ -104,7 +104,7 @@ const LoadFile = (props: any) => {
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
-    SaveMetamodelToFile(metamodel, metamodel.name, 'MM')
+    SaveMetamodelToFile(metamodel, metamodel.name, '_MM')
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
   
@@ -130,42 +130,45 @@ const LoadFile = (props: any) => {
     <button 
       className="btn-primary  mr-2 mb-3 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Save Project (all) to File without date
+      title="Click here to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+      onClick={handleSaveAllToFile}>Save Project to File (..._ALL.json)
     </button >
   const buttonSaveAllToFileDateDiv = 
     <button 
-      className="btn-primary  mr-2 mb-3 w-100  " 
+      className="btn-primary mr-2 mb-3 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFileDate}>Save Project (all) to File
-    </button >
-  const buttonSaveModelToFileDiv = 
-    <button className="btn-primary text-secondary btn-sm mr-2 w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download current model to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelToFile}>Save Current Model to File 
-    </button >
-  const buttonSaveModelviewToFileDiv = 
-    <button className="btn-primary text-secondary btn-sm mr-2  w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download current modelview to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelviewToFile}>Save Current Modelview to File 
-    </button >
-  const buttonSaveMetamodelToFileDiv = 
-    <button 
-      className="btn-primary btn-sm mr-2  w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File
+      title="Click here to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+      onClick={handleSaveAllToFileDate}>Save Project to File (date incl. in filename) (..._date_ALL.json)
     </button >
 
-  const buttonSaveModelWMMToFileDiv = // SAVE MODEL WITH METAMODEL TO FILE
-    <button className="btn-success text-secondary btn-sm mr-2 w-100  " 
+  const buttonSaveModelToFileDiv = 
+    <button className="btn-primary mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to save current model with Metamodel to file &#013; (in Downloads folder)."
-      onClick={handleSaveModelToFile}>Save Current Model w/Metamodel to File 
+      title="Click here to save current model to file&#013;(in Downloads folder)"
+      onClick={handleSaveModelToFile}>Save Current Model (Metamodel included) to File (..._MO.json)
     </button >
+
+  const buttonSaveModelviewToFileDiv = 
+    <button className="btn-primary mr-2  w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to save current modelview to file&#013;(in Downloads folder)"
+      onClick={handleSaveModelviewToFile}>Save Current Modelview (Metamodel & Objects included) to File (..._MV.json)
+    </button >
+
+  const buttonSaveMetamodelToFileDiv = 
+    <button 
+      className="btn-primary mr-2  w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
+      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (..._MM.json)
+    </button >
+
+  // const buttonSaveModelWMMToFileDiv = // SAVE MODEL WITH METAMODEL TO FILE
+  //   <button className="btn-success text-secondary btn-sm mr-2 w-100  " 
+  //     data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+  //     title="Click here to save current model with Metamodel to file &#013; (in Downloads folder)."
+  //     onClick={handleSaveModelToFile}>Save Current Model w/Metamodel to File 
+  //   </button >
   
   // const projectname = props.ph.phData.metis.name
   // const today = new Date().toISOString().slice(0, 19)
@@ -200,12 +203,12 @@ const LoadFile = (props: any) => {
              
                 </div>
                 <div className="selectbox mb-2 border">
-                  <h6>Export to file </h6>
-                  {/* {buttonSaveAllToFileDiv} */}
+                  <h6>Export Models to file </h6>
+                  {buttonSaveAllToFileDiv}
                   {buttonSaveAllToFileDateDiv}
                   {buttonSaveModelToFileDiv}
                   {buttonSaveModelviewToFileDiv}
-                  {buttonSaveModelWMMToFileDiv}
+                  {/* {buttonSaveModelWMMToFileDiv} */}
                 </div>
                   {/* <h6>Send Project by mail </h6>
                   <div className="selectbox bg-white mb-2 border">

@@ -189,12 +189,13 @@ const page = (props:any) => {
 
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
-      SaveAllToFileDate({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, 'Project')
+      SaveAllToFileDate({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, '_ALL')
     }
+
 
     function handleSaveAllToFile() {
       const projectname = props.phData.metis.name
-      SaveAllToFile({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, 'Project')
+      SaveAllToFile({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, '_ALL')
     }
     
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);

@@ -1600,8 +1600,8 @@ export class cxMetis {
         const models = [];
         const mdls = this.models;
         if (mdls) {
-            const l = mdls.length;
-            for (let i = 0; i < l; i++) {
+            const lng = mdls.length;
+            for (let i = 0; i < lng; i++) {
                 const mdl = mdls[i]
                 if (utils.objExists(mdl)) {
                     if (mdl.getIsTemplate()) {
@@ -1620,8 +1620,8 @@ export class cxMetis {
         if (model) {
             const mviews = this.modelviews;
             if (mviews) {
-                const l = mviews.length;
-                for (let i = 0; i < l; i++) {
+                const lng = mviews.length;
+                for (let i = 0; i < lng; i++) {
                     const mview = mviews[i]
                     if (mview) {
                         const m = mview.getModel();
@@ -1640,8 +1640,8 @@ export class cxMetis {
         if (name && (name.length > 0)) {
             const mviews = this.modelviews;
             if (mviews) {
-                const l = mviews.length;
-                for (let i = 0; i < l; i++) {
+                const lng = mviews.length;
+                for (let i = 0; i < lng; i++) {
                     const mview = mviews[i];
                     if (mview) {
                         if (mview.getName() === name) {
@@ -1658,8 +1658,8 @@ export class cxMetis {
         const modelviews = [];
         const mviews = this.modelviews;
         if (mviews) {
-            const l = mviews.length;
-            for (let i = 0; i < l; i++) {
+            const lng = mviews.length;
+            for (let i = 0; i < lng; i++) {
                 const mview = mviews[i]
                 if (mview) {
                     if (mview.getIsTemplate()) {
@@ -3445,7 +3445,7 @@ export class cxMetaModel extends cxMetaObject {
         if (this.objecttypes) {
             let lng = this.objecttypes.length;
             if (lng > 0) result += "Object types:<br>"
-            for (let i = 0; i < l; i++) {
+            for (let i = 0; i < lng; i++) {
                 result += this.sendItem(this.objecttypes[i]);
             }
         }

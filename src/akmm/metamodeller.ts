@@ -3019,10 +3019,10 @@ export class cxDatatype extends cxMetaObject {
     }
     // Methods
     addAllowedValue(value: string) {
-        let l = 0;
+        let lng = 0;
         if (utils.objExists(this.allowedValues))
-            l = this.allowedValues.length;
-        if (l == 0) {
+            lng = this.allowedValues.length;
+        if (lng == 0) {
             this.allowedValues = new Array();
             this.allowedValues.push(value);
         } else {
@@ -3443,8 +3443,8 @@ export class cxMetaModel extends cxMetaObject {
         if (this.description.length > 0)
             result += "description: " + this.description + "<br>";
         if (this.objecttypes) {
-            let l = this.objecttypes.length;
-            if (l > 0) result += "Object types:<br>"
+            let lng = this.objecttypes.length;
+            if (lng > 0) result += "Object types:<br>"
             for (let i = 0; i < l; i++) {
                 result += this.sendItem(this.objecttypes[i]);
             }
@@ -7206,8 +7206,8 @@ export class cxInstance extends cxMetaObject {
         let props = type.getProperties(true);
         let propvalues = new Array();
         // for each property, get value
-        let l = props.length;
-        for (let i=0; i<l; i++) {
+        let lng = props.length;
+        for (let i=0; i<lng; i++) {
             let prop = props[i];
             if (utils.objExists(prop)) {
                 let propname = prop.getName();

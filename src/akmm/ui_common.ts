@@ -613,8 +613,8 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     // Replace myGoModel.nodes with a new array
     const links = new Array();
     for (let i = 0; i < myGoModel?.links.length; i++) {
-        let l = myGoModel.links[i];
-        links.push(l);
+        let lnk = myGoModel.links[i];
+        links.push(lnk);
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;

@@ -715,8 +715,8 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     let links = n.findLinksOutOf();
     if (debug) console.log('596 links', links);
     for (let it = links?.iterator; it?.next();) {
-        let l = it.value;
-        const ltypename = l.data.name;
+        let lv = it.value;
+        const ltypename = lv.data.name;
         linktypeNames.push(ltypename);
     }
     if (debug) console.log('603 linktypeNames', linktypeNames);

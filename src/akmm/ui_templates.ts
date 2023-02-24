@@ -168,8 +168,8 @@ function groupStyle() {  // common settings for both Lane and Pool Groups
 
 // hide links between lanes when either lane is collapsed
 function updateCrossLaneLinks(group: go.Group) {
-    group.findExternalLinksConnected().each((l) => {
-        l.visible = (l.fromNode !== null && l.fromNode.isVisible() && l.toNode !== null && l.toNode.isVisible());
+    group.findExternalLinksConnected().each((ll) => {
+        ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
     });
   }
 
@@ -538,8 +538,8 @@ if (false) {
 
     // hide links between lanes when either lane is collapsed
     function updateCrossLaneLinks(group: go.Group) {
-        group.findExternalLinksConnected().each((l) => {
-            l.visible = (l.fromNode !== null && l.fromNode.isVisible() && l.toNode !== null && l.toNode.isVisible());
+        group.findExternalLinksConnected().each((ll) => {
+            ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
         });
     }
 

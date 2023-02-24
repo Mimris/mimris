@@ -2855,7 +2855,7 @@
         var param1 = shape ? shape.parameter1 : NaN;
         if (isNaN(param1))
             param1 = .1; // Distance between 2 top lines
-        var l = 1 - param1; // Length of the top line
+        // var l = 1 - param1; // Length of the top line
         var fig = new go.PathFigure(0, 0, true);
         geo.add(fig);
         fig.add(new go.PathSegment(go.PathSegment.Line, w, 0));

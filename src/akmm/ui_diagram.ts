@@ -585,7 +585,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
     if (debug) console.log('222 objview', objview);
-    ui_mtd.addConnectedObjects(modelview, objview, null, goModel, myMetis, noLevels);
+    ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     if (debug) console.log('225 gjsNode', gjsNode);
     gjsNode.isSelected = false;

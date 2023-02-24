@@ -19,10 +19,9 @@ JSON.safeStringify = (obj, indent = 2) => {
     return retVal;
 };
 
-export const SaveModelToFile = (model, name, type) => {
+export const SaveModelviewToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = name+"_"+type //+'_'+today;
-  
+    const fileName = (name.includes('_MV')) ? name : name+"_"+type //+'_'+today;
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);
@@ -35,10 +34,23 @@ export const SaveModelToFile = (model, name, type) => {
     document.body.removeChild(link);
 }
 
+export const SaveModelToFile = (model, name, type) => {
+    const fileName = (name.includes('_MO')) ? name : name+"_"+type 
+    const json = JSON.safeStringify(model);
+    const blob = new Blob([json], {type:'application/json'});
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+
 export const SaveMetamodelToFile = (metamodel, name, type) => {
-    const today = new Date().toISOString().slice(0, 19)
-    const fileName = (name.includes('_MM')) ? name : name+"_"+type //+'_'+today;
-  
+    const fileName = (name.includes('_MM')) ? name : name+"_"+type 
     const json = JSON.safeStringify(metamodel);
     const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);
@@ -52,7 +64,7 @@ export const SaveMetamodelToFile = (metamodel, name, type) => {
 }
 
 export const SaveAllToFile = (data, name, type) => {
-    const fileName = name;
+    const fileName = (name.includes('_ALL')) ? name : name+"_"+type 
     if (!debug) console.log('56 LoadLocal', data, fileName);
     // const json = JSON.stringify(data);
     const json = JSON.safeStringify(data);
@@ -69,10 +81,9 @@ export const SaveAllToFile = (data, name, type) => {
 }
 
 export const SaveAllToFileDate = (data, name, type) => {
- 
     const today = new Date().toISOString().slice(0, 10)
     // const today = new Date().toISOString().slice(0, 19)
-    const fileName = name+"_"+type+'_'+today;
+    const fileName = (name.includes('_ALL')) ? name+'_'+today : name+'_'+type+'_'+today;
     if (debug) console.log('22 LoadLocal', data, fileName);
     const json = JSON.safeStringify(data);
     const blob = new Blob([json],{type:'application/json'});

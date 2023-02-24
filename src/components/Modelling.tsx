@@ -145,6 +145,7 @@ const page = (props:any) => {
       }, 1000);
       return () => clearTimeout(timer);
   }, [props.phSource])
+  
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     useEfflog('150 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props);
@@ -189,12 +190,13 @@ const page = (props:any) => {
 
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
-      SaveAllToFileDate({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, 'Project')
+      SaveAllToFileDate({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, '_ALL')
     }
+
 
     function handleSaveAllToFile() {
       const projectname = props.phData.metis.name
-      SaveAllToFile({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, 'Project')
+      SaveAllToFile({phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, projectname, '_ALL')
     }
     
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);

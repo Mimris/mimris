@@ -10,74 +10,89 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader()
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    console.log('92 ReadModelFromFile', reader.fileName)
+    if (debug) console.log('13 ReadModelFromFile', reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
         const modelff = JSON.parse(text)
-        const filename = e.target.fileName 
+        const filename = reader.fileName 
+
+        let data = {}
+        let modelffmetamodels = modelff.metamodels || []
+        let modelffmodelviews = modelff.modelviews || []
+        let modelffmodels = modelff.models || []
+        let modelffobjects = modelff.objects || []
 
         //   alert(text)
-        if (debug) console.log('46 ReadModelFromFile', props.phFocus.focusModel.id);
-        if (debug) console.log('44 ReadModelFromFile', props, modelff);
+        if (debug) console.log('21 ReadModelFromFile', props.phFocus.focusModel.id);
+        if (!debug) console.log('22 ReadModelFromFile', props, modelff);
     
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
-        console.log('104 ReadModelFromFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+        console.log('26 ReadModelFromFile', mindex, mlength, modelff, modelff?.id, props, props.phData?.metis?.models[mindex]?.id)
 
-        // ---------------------  load Project ---------------------
-        console.log('142 ReadModelFromFile',  props, modelff)
-        let data
+        // ---------------------  load Project model files ---------------------
+        console.log('29 ReadModelFromFile',  props, modelff)
+
         if (modelff.phData) { // if modelff has phData, then it is a project file
-            console.log('145 ReadModelFromFile',  props.phData?.metis, modelff.phData?.metis)
-            
+            if (debug) console.log('33 ReadModelFromFile',  props, modelff)    
+            data = {
+                phData:   modelff.phData,
+                phFocus:  modelff.phFocus,
+                phUser:   modelff.phUser,
+                phSource: filename,
+            }
+
             if (!modelff.phFocus.focusModel) { // if modelff has no focusModel, then set it to the first model
                 modelff.phFocus.focusModel= {id: modelff.phData.metis.models[0].id, name: modelff.phData.metis.models[0].name}
             }
             if (modelff.phFocus.focusModelView) { // if modelff has no focusModelView, then set it to the first modelview
                 modelff.phFocus.focusModelView= {id: modelff.phData.metis.models[0].modelviews[0].id, name: modelff.phData.metis.models[0].modelviews[0].name}
             }
-
-            data = {
-                phData:   modelff.phData,
-                phFocus:  modelff.phFocus,
-                phUser:   modelff.phUser,
-                phSource: filename,
-              }
-        } else if (modelff.modelview) { // if modelff has modelview, then it is a modelview file
-
+        } else if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
+            if (!debug) console.log('48 ReadModelFromFile',  filename, modelff, props)
             let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
             let mvindex, mvlength
             mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
             mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
             if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
+            
+            if (!modelff.metamodels || !modelff.modelviews || !modelff.objects) {
+                alert('This is not a valid Modelview file! (it contains no Metamodels, Modelviews and Mbjects)')
+                return null 
+            }
+            
+            const r = window.confirm("This Modelview import will also add the corresponding Metamodel and Objects. Click OK to continue?")
+            if (r === false) { return null } // if user clicks cancel, then do nothing
 
-            // find objects in model with objectRefs
-            const mvobjects = modelff.objects || []
-            if (debug) console.log('55 ReadModelFromFile', modelff, mvobjects);
+            //  if object already exist in props.phData.metis.models[fmindex].objects, then remove it from props.phData.metis.models[fmindex].objects 
+            const oindex = props.phData.metis.models[fmindex].objects.findIndex(o => o.id === modelff.objects[0].id)
+            const tmpobj = props.phData.metis.models[fmindex].objects
+            if (oindex >= 0) { tmpobj.splice(oindex, 1) } // if object exist, then remove it from props.phData.metis.models[fmindex].objects, i.e. the object will be replaced by the new object
+
+            if (debug) console.log('69 ReadModelFromFile', tmpobj, modelffobjects, props.phData.metis.models[fmindex].objects);  
+            if (debug) console.log('80 ReadModelFromFile', modelffmetamodels, modelffmodelviews);
 
             data = {
                 phData: {
                     ...props.phData,
                     metis: {
                         ...props.phData.metis,
-                        metamodels: props.phData.metis.metamodels,   
+                        metamodels: [
+                            ...props.phData.metis.metamodels,   
+                            modelffmetamodels
+                        ],
                         models: [
                             ...props.phData.metis.models?.slice(0, fmindex),  
                             {  
                                 ...props.phData.metis.models[fmindex],
-                                // add objects wich exist in modelview
                                 objects: [
-                                    ...props.phData.metis.models.objects,
-                                    ...mvobjects
+                                    ...tmpobj,
+                                    ...modelffobjects
                                 ],
                                 modelviews: [ 
-                                    ...props.phData.metis.models[fmindex]?.modelviews?.slice(0, mvindex),  
-                                    {  
-                                        ...props.phData.metis.models[fmindex]?.modelviews[mvindex],  
-                                        ...modelff.modelview,
-                                    },
-                                    ...props.phData.metis.models[fmindex]?.modelviews?.slice(mvindex+1, mvlength),  
+                                    ...props.phData.metis.models[fmindex]?.modelviews,  
+                                    modelffmodelviews,
                                 ],
                             },
                             ...props.phData.metis.models?.slice(fmindex + 1, mlength),
@@ -85,12 +100,45 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 }, 
             };
-
+            if (!debug) console.log('101 ReadModelFromFile', data);
+  
+        } else if (filename.includes('_MO')) { // then it is a model file           
+            
+            // if model already exist in props.phData.metis.models, then remove it from props.phData.metis.models
+            const mindex = props.phData.metis.models.findIndex(m => m.id === modelff.id)
+            const tmpmodel = props.phData.metis.models
+            if (mindex >= 0) {   // if model exist, then remove it from props.phData.metis.models, i.e. the model will be replaced by the new model
+                alert("Model already exists! Delete current model and try again!")
+                return null
+            } else { // mindex = -1, i.e.  not fond, which means adding a new model
+                const r = window.confirm("This model import will also add corresponding Metamodel!  Click OK to continue?")
+                if (r === false) { 
+                    return null // if user clicks cancel, then do nothing
+                } 
+            } 
+                
+            data = {
+                phData: {
+                    ...props.phData,
+                    metis: {
+                        ...props.phData.metis,
+                        metamodels: [
+                            ...props.phData.metis.metamodels,   
+                            modelffmetamodels
+                        ],
+                        models: [
+                            ...props.phData.metis.models,     
+                            modelffmodels,
+                        ],
+                    },
+                }, 
+            };
+              
         } else if (filename.includes('_MM')) { // if filename contains _MM, then it is a metamodel file
             let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === modelff?.id) // current model index
             const mmlength = props.phData?.metis?.metamodels.length
             if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-            if (debug) console.log('189 ReadModelFromFile', metamodelff, mmindex, mmlength);
+            if (debug) console.log('108 ReadModelFromFile', metamodelff, mmindex, mmlength);
             data = {
                 phData: {
                     ...props.phData,
@@ -100,40 +148,18 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                             ...props.phData.metis.metamodels?.slice(0, mindex),  
                             {  
                                 ...props.phData.metis.metamodels[mindex],  
-                                ...modelff,
+                                modelff
                             },
                             ...props.phData.metis.metamodels?.slice(mindex + 1, mlength),
                         ],
                     },
                 }, 
-            };    
-        } else { // then it is a model file            console.log('116 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
-
-            const r = window.confirm("Model already exists! Existing: "+props.phData?.metis?.models[mindex]?.name+" New: "+modelff?.name+" Do you want to replace (overwrite it)?")
-            // const r = window.confirm("Model already exists, do you want to replace it?")
-            if (r === false) { //  add model but change model id
-                modelff.id = modelff.id + mlength
-                mindex = mlength
-                console.log('124 ReadModelFromFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
-            }
-
-
-            data = {
-                phData: {
-                    ...props.phData,
-                    metis: {
-                        ...props.phData.metis,
-                        metamodels: props.phData.metis.metamodels,   
-                        models: [
-                            ...props.phData.metis.models.slice(0, mindex),     
-                            modelff,
-                            ...props.phData.metis.models.slice(mindex + 1, mlength),
-                        ],
-                    },
-                }, 
-            };
+            };  
+        } else {
+            console.log('ReadModelFromFile: Unknown file type')
+            alert('ReadModelFromFile: Unknown file type')
         }
-        if (debug) console.log('193 ReadModelFromFile', data);      
+        if (debug) console.log('154 ReadModelFromFile', data);      
         if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -149,11 +175,11 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
         //   alert(text)
-        if (debug) console.log('155 ReadModelFromFile', props);
+        if (debug) console.log('170 ReadModelFromFile', props);
         let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
         const mmlength = props.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        if (debug) console.log('189 ReadModelFromFile', metamodelff, mmindex, mmlength);
+        if (debug) console.log('174 ReadModelFromFile', metamodelff, mmindex, mmlength);
         
         const data = {
             phData: {
@@ -169,7 +195,7 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
                 },
             }, 
         };
-        if (debug) console.log('205 ReadModelFromFile', data);
+        if (debug) console.log('190 ReadModelFromFile', data);
         
         props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };

@@ -1600,8 +1600,8 @@ export class cxMetis {
         const models = [];
         const mdls = this.models;
         if (mdls) {
-            const l = mdls.length;
-            for (let i = 0; i < l; i++) {
+            const lng = mdls.length;
+            for (let i = 0; i < lng; i++) {
                 const mdl = mdls[i]
                 if (utils.objExists(mdl)) {
                     if (mdl.getIsTemplate()) {
@@ -1620,8 +1620,8 @@ export class cxMetis {
         if (model) {
             const mviews = this.modelviews;
             if (mviews) {
-                const l = mviews.length;
-                for (let i = 0; i < l; i++) {
+                const lng = mviews.length;
+                for (let i = 0; i < lng; i++) {
                     const mview = mviews[i]
                     if (mview) {
                         const m = mview.getModel();
@@ -1640,8 +1640,8 @@ export class cxMetis {
         if (name && (name.length > 0)) {
             const mviews = this.modelviews;
             if (mviews) {
-                const l = mviews.length;
-                for (let i = 0; i < l; i++) {
+                const lng = mviews.length;
+                for (let i = 0; i < lng; i++) {
                     const mview = mviews[i];
                     if (mview) {
                         if (mview.getName() === name) {
@@ -1658,8 +1658,8 @@ export class cxMetis {
         const modelviews = [];
         const mviews = this.modelviews;
         if (mviews) {
-            const l = mviews.length;
-            for (let i = 0; i < l; i++) {
+            const lng = mviews.length;
+            for (let i = 0; i < lng; i++) {
                 const mview = mviews[i]
                 if (mview) {
                     if (mview.getIsTemplate()) {
@@ -3019,10 +3019,10 @@ export class cxDatatype extends cxMetaObject {
     }
     // Methods
     addAllowedValue(value: string) {
-        let l = 0;
+        let lng = 0;
         if (utils.objExists(this.allowedValues))
-            l = this.allowedValues.length;
-        if (l == 0) {
+            lng = this.allowedValues.length;
+        if (lng == 0) {
             this.allowedValues = new Array();
             this.allowedValues.push(value);
         } else {
@@ -3443,9 +3443,9 @@ export class cxMetaModel extends cxMetaObject {
         if (this.description.length > 0)
             result += "description: " + this.description + "<br>";
         if (this.objecttypes) {
-            let l = this.objecttypes.length;
-            if (l > 0) result += "Object types:<br>"
-            for (let i = 0; i < l; i++) {
+            let lng = this.objecttypes.length;
+            if (lng > 0) result += "Object types:<br>"
+            for (let i = 0; i < lng; i++) {
                 result += this.sendItem(this.objecttypes[i]);
             }
         }
@@ -7206,8 +7206,8 @@ export class cxInstance extends cxMetaObject {
         let props = type.getProperties(true);
         let propvalues = new Array();
         // for each property, get value
-        let l = props.length;
-        for (let i=0; i<l; i++) {
+        let lng = props.length;
+        for (let i=0; i<lng; i++) {
             let prop = props[i];
             if (utils.objExists(prop)) {
                 let propname = prop.getName();

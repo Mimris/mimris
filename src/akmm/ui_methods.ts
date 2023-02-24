@@ -15,7 +15,7 @@ import * as constants from '../akmm/constants';
 // import exp from 'constants';
 const RegexParser = require("regex-parser");
 
-export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, objtype: akm.cxObjectType, 
+export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, 
                                     goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number) {
     if (noLevels < 1)
         return;

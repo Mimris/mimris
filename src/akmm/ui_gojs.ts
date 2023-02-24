@@ -76,8 +76,8 @@ export class goModel {
     addLink(link: goLink) {
         let oldLinks: goLink[] = new Array();
         for (let i = 0; i < this.links.length; i++) {
-            let l = this.links[i] as goLink;
-            oldLinks.push(l);
+            let lnk = this.links[i] as goLink;
+            oldLinks.push(lnk);
         }
         oldLinks.push(link as goLink);
         this.links = oldLinks;
@@ -176,9 +176,9 @@ export class goModel {
             let i = 0;
             while (i < this.links.length) {
                 const link = this.links[i];
-                const l = link as goRelshipLink;
-                if (l.relshipview && l.relshipview.id === relviewId) {
-                    return (l);
+                const ll = link as goRelshipLink;
+                if (ll.relshipview && ll.relshipview.id === relviewId) {
+                    return (ll);
                 }
                 i++;
             }
@@ -213,8 +213,8 @@ export class goModel {
     updateLink(link: goRelshipLink) {
         const links = this.links;
         for (let i = 0; i < links.length; i++) {
-            const l = links[i];
-            if (l.key === link.key) {
+            const ll = links[i];
+            if (ll.key === link.key) {
                 links[i] = link;
                 break;
             }
@@ -223,8 +223,8 @@ export class goModel {
     updateTypeLink(link: goRelshipTypeLink) {
         const links = this.links;
         for (let i = 0; i < links.length; i++) {
-            const l = links[i];
-            if (l.key === link.key) {
+            const ll = links[i];
+            if (ll.key === link.key) {
                 links[i] = link;
                 break;
             }
@@ -238,8 +238,8 @@ export class goModel {
                 const objecttypes = metamodel.getObjectTypes();
                 if (objecttypes) {
                     let i = 0;
-                    let l = objecttypes.length;
-                    for (i = 0; i < l; i++) {
+                    let lng = objecttypes.length;
+                    for (i = 0; i < lng; i++) {
                         const objtype = objecttypes[i];
                         if (utils.objExists(objtype)) {
                             if (!objtype.getMarkedAsDeleted()) {
@@ -252,8 +252,8 @@ export class goModel {
                     const relshiptypes = metamodel.getRelshipTypes();
                     if (relshiptypes) {
                         i = 0;
-                        l = relshiptypes ? relshiptypes.length : 0;
-                        for (i = 0; i < l; i++) {
+                        lng = relshiptypes ? relshiptypes.length : 0;
+                        for (i = 0; i < lng; i++) {
                             const reltype = relshiptypes[i];
                             if (reltype) {
                                 if (!reltype.getMarkedAsDeleted()) {

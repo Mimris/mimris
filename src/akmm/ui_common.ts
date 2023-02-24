@@ -613,8 +613,8 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     // Replace myGoModel.nodes with a new array
     const links = new Array();
     for (let i = 0; i < myGoModel?.links.length; i++) {
-        let l = myGoModel.links[i];
-        links.push(l);
+        let lnk = myGoModel.links[i];
+        links.push(lnk);
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
@@ -1878,8 +1878,8 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
     const linkArray = parent.linkDataArray;
     const newArray  = new Array();
     for (let i=0; i<linkArray.length; i++) {
-        const l = linkArray[i]; 
-        if (l) newArray.push(l);
+        const ll = linkArray[i]; 
+        if (ll) newArray.push(ll);
     }
     const reltype = relview.relship?.type;
     const typeview = reltype?.typeview as akm.cxRelationshipTypeView;
@@ -2109,8 +2109,8 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
 // Other functions
 export function addItemToList(list: any, item: any) {
     for (let i=0; i<list?.length; i++) {
-        const l = list[i];
-        if (l.id === item.id) {
+        const ll = list[i];
+        if (ll.id === item.id) {
             list[i] = item;
             return;
         }

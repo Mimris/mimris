@@ -11,8 +11,8 @@ require('gojs/extensions/Figures.js');
 let myDiagram: go.Diagram;
 
 go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
-    var len = Math.min(w, 10);
-    var maxlen = Math.max(w, 10);
+    let len = Math.min(w, 10);
+    let maxlen = Math.max(w, 10);
     return new go.Geometry()
       .add(new go.PathFigure(len, 0)
            .add(new go.PathSegment(go.PathSegment.Line, 0, 0))
@@ -168,8 +168,8 @@ function groupStyle() {  // common settings for both Lane and Pool Groups
 
 // hide links between lanes when either lane is collapsed
 function updateCrossLaneLinks(group: go.Group) {
-    group.findExternalLinksConnected().each((l) => {
-        l.visible = (l.fromNode !== null && l.fromNode.isVisible() && l.toNode !== null && l.toNode.isVisible());
+    group.findExternalLinksConnected().each((ll) => {
+        ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
     });
   }
 
@@ -183,43 +183,66 @@ let groupTemplateNames = [];
 function makeItemTemplate(side: string, isGroup: boolean) {
     let rightside = side === 'right';
     let leftside = side === 'left';
-    let fromlinkable = rightside || isGroup;
-    let tolinkable = leftside || isGroup;
-    let geostring = "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z";
-    geostring.normalize();
+    let topside = side === 'top';
+    let bottomside = side === 'bottom';
+     let fromlinkable = rightside || isGroup;
+    let tolinkable = leftside || topside || bottomside || isGroup;
+    let geostring1 = "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z";
+    geostring1.normalize();
+    let geostring2 =   "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z";
+    geostring2.normalize();
+    let geostring3 = "F1 m 0,0 l 6,0 0,-8  2,0  -5,-4  -5,4 2,0 0,8 z";
+    geostring3.normalize();
     let font1 = "bold 10pt serif";
     let font2 = "bold 14pt FontAwesome";
     let font = isGroup ? font2 : font1;
-    if (leftside || rightside) {
-        return $(go.Panel, "Auto",
-            { margin: new go.Margin(1, 1) },  // some space between ports
-            $(go.Shape,
-                {
-                    name: "SHAPE",
-                    fill: UnselectedBrush, 
-                    stroke: "gray",
-                    geometryString: geostring, // "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z",
-                    spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
-                    spot2: new go.Spot(1, 1, -5, 0),
-                    // some port-related properties
-                    toSpot: go.Spot.Left,
-                    toLinkable: tolinkable,
-                    fromSpot: go.Spot.Right,
-                    fromLinkable: fromlinkable,
-                    cursor: "alias"
-                },
-                new go.Binding("portId", "id"),
-                new go.Binding("fill", "color"),
-            ),
-            $(go.TextBlock,
-                {
-                    font: font,
-                },
-                new go.Binding("text", "name"),
-                new go.Binding('scale', 'textscale').makeTwoWay(),
-            ),
-        );
+    let size1 = new go.Size(30, 20);
+    let size2 = new go.Size(50, 30);
+    let size = isGroup ? size2 : size1;
+    let fromSpot, toSpot;
+    if (topside) {
+        toSpot = go.Spot.Top;
+        fromSpot = go.Spot.Bottom;
+    } else if (bottomside) {
+        toSpot = go.Spot.Bottom;
+        fromSpot = go.Spot.Top;
+    } else if (leftside) {
+        toSpot = go.Spot.Left;
+        fromSpot = go.Spot.Right;
+    } else if (rightside) {
+        toSpot = go.Spot.Left;
+        fromSpot = go.Spot.Right;
     }
+    let geostring = geostring1;
+    if (topside) geostring = geostring2;
+    else if (bottomside) geostring = geostring3;
+    return $(go.Panel, "Spot",
+        {  margin: new go.Margin(1, 1)},  // some space between ports
+        $(go.Shape,
+            {
+                name: "SHAPE",
+                fill: "white", 
+                stroke: "gray",
+                strokeWidth: 1,
+                geometryString: geostring, 
+                toSpot: toSpot,
+                toLinkable: tolinkable,
+                fromSpot: fromSpot,
+                fromLinkable: fromlinkable,
+                cursor: "alias",
+                desiredSize: size,
+            },
+            new go.Binding("portId", "id"),
+            new go.Binding("fill", "color"),
+        ),
+        $(go.TextBlock,
+            {
+                font: font,
+            },
+            new go.Binding("text", "name"),
+            new go.Binding('scale', 'textscale').makeTwoWay(),
+        ),
+    );
 }
 
 export function getNodeTemplateNames() {
@@ -307,7 +330,7 @@ function makePort(name, side) {
 }
 
 function makeTemplate(myDiagram, /* typename, inports, outports*/) {
-    var node = $(go.Node, "Spot",
+    let node = $(go.Node, "Spot",
       { selectionAdorned: false },
       $(go.Panel, "Auto",
         { width: 200, height: 90 },
@@ -515,8 +538,8 @@ if (false) {
 
     // hide links between lanes when either lane is collapsed
     function updateCrossLaneLinks(group: go.Group) {
-        group.findExternalLinksConnected().each((l) => {
-            l.visible = (l.fromNode !== null && l.fromNode.isVisible() && l.toNode !== null && l.toNode.isVisible());
+        group.findExternalLinksConnected().each((ll) => {
+            ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
         });
     }
 
@@ -2473,7 +2496,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 locationObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 subGraphExpandedChanged: function (grp) {
-                    var shp = grp.resizeObject;
+                    let shp = grp.resizeObject;
                     if (grp.diagram.undoManager.isUndoingRedoing) return;
                     if (grp.isSubGraphExpanded) {
                         shp.fill = "white";
@@ -2591,7 +2614,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             locationObjectName:  "SHAPE",
             resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             subGraphExpandedChanged: function (grp) {
-                var shp = grp.resizeObject;
+                let shp = grp.resizeObject;
                 if (grp.diagram.undoManager.isUndoingRedoing) return;
                 if (grp.isSubGraphExpanded) {
                     shp.fill = "lightyellow";
@@ -2688,7 +2711,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     }
     if (true) {
         const groupWithPorts =
-        $(go.Group, "Auto",
+        $(go.Group, "Spot",
             {
                 locationObjectName:  "SHAPE",
                 resizable: true, 
@@ -2725,65 +2748,71 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 // mouseDrop: finishDrop,
                 handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
             },
-            $(go.Shape, "RoundedRectangle", // surrounds everything
-                {
-                    cursor: "alias",
-                    fill: "transparent", 
-                    shadowVisible: true,
-                    minSize: new go.Size(150, 75),
-                    portId: "", 
-                    fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
-                    toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
-                },
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("stroke", "strokecolor"),
-                // new go.Binding("strokeWidth", "strokewidth"),
-            ),
-            $(go.Panel, "Vertical",  // position header above the subgraph
-                { 
-                name: "HEADER", 
-                defaultAlignment: go.Spot.TopLeft 
-                },
-                $(go.Panel, "Horizontal",  // the header
-                    { defaultAlignment: go.Spot.Top },
-                    $("SubGraphExpanderButton",
-                        {
-                            margin: new go.Margin(1, 2, 1, 4),
-                            scale: 1.5
-                        },
-                    ),  // this Panel acts as a Button
-                    $(go.TextBlock,     // group title near top, next to button
-                        { 
-                            font: "Bold 16pt Sans-Serif",
-                            margin: new go.Margin(4, 0, 0, 2),
-                            editable: true, isMultiline: false,
-                            name: "name"
-                        },
-                        new go.Binding("fill", "fillcolor"),
-                        new go.Binding("text", "name").makeTwoWay(),
-                        new go.Binding("stroke", "textcolor").makeTwoWay()
-                    ),
-                ), // End Horizontal Panel
-                
-                $(go.Shape,  // using a Shape instead of a Placeholder
-                    { 
-                        name: "SHAPE", 
-                        fill: "lightyellow", 
-                        opacity: 0.95,
-                        minSize: new go.Size(200, 100),
-                        margin: new go.Margin(0, 1, 1, 4),
-                        cursor: "move",
-                        stroke: "transparent",
+            $(go.Panel, "Auto",
+                $(go.Shape, "RoundedRectangle", // surrounds everything
+                    {
+                        cursor: "alias",
+                        fill: "transparent", 
+                        shadowVisible: true,
+                        minSize: new go.Size(150, 75),
+                        portId: "", 
+                        fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
                     },
                     new go.Binding("fill", "fillcolor"),
-                    new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-                    new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-                )
+                    new go.Binding("stroke", "strokecolor"),
+                    // new go.Binding("strokeWidth", "strokewidth"),
+                ),
+                $(go.Panel, "Vertical",  // position header above the subgraph
+                    { 
+                    name: "HEADER", 
+                    defaultAlignment: go.Spot.TopLeft 
+                    },
+                    $(go.Panel, "Horizontal",  // the header
+                        { 
+                            defaultAlignment: go.Spot.Top 
+                        },
+                        $("SubGraphExpanderButton",
+                            {
+                                margin: new go.Margin(1, 2, 1, 4),
+                                scale: 1.5
+                            },
+                        ),  // this Panel acts as a Button
+                        $(go.TextBlock,     // group title near top, next to button
+                            { 
+                                font: "Bold 16pt Sans-Serif",
+                                margin: new go.Margin(4, 0, 0, 2),
+                                editable: true, isMultiline: false,
+                                name: "name"
+                            },
+                            new go.Binding("fill", "fillcolor"),
+                            new go.Binding("text", "name").makeTwoWay(),
+                            new go.Binding("stroke", "textcolor").makeTwoWay()
+                        ),
+                    ), // End Horizontal Panel
+                    
+                    $(go.Shape,  // using a Shape instead of a Placeholder
+                        { 
+                            name: "SHAPE", 
+                            fill: "lightyellow", 
+                            opacity: 0.95,
+                            minSize: new go.Size(200, 100),
+                            margin: new go.Margin(0, 1, 1, 4),
+                            cursor: "move",
+                            stroke: "transparent",
+                        },
+                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+                        new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+                    )
+                ),
             ),
             // the Panel holding the left port elements, which are themselves Panels,
             // created for each item in the itemArray, bound to data.leftArray
             $(go.Panel, "Vertical", 
-                { alignment: new go.Spot(0, 0.5, 0, 7)},
+                { 
+                    alignment: new go.Spot(0, 0.5, 0, 7),
+                },
                 new go.Binding("itemArray", "leftPorts"),
                 {
                     column: 0,
@@ -2791,7 +2820,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     alignment: new go.Spot(0, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('left', true),
                 },
-            ),  // end Vertical Panel
+            ),  // end leftPorts Panel
 
             // the Panel holding the right port elements, which are themselves Panels,
             // created for each item in the itemArray, bound to data.leftArray
@@ -2802,94 +2831,32 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     column: 2,
                     row: 1, 
                     rowSpan: 2,
-                    // alignment: new go.Spot(1, 0.5, 0, 7),
+                    alignment: new go.Spot(1, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('right', true),
                 }
-            ),  // end Vertical Panel
+            ),  // end rightPorts Panel
 
-            $(go.Panel, "Spot",
+            $(go.Panel, "Horizontal",
+                { alignment: new go.Spot(1, 0.5, 0, 7)},
                 new go.Binding("itemArray", "topPorts"),
                 {
                     row: 0, 
                     column: 1,
-                    itemTemplate:
-                        $(go.Panel, "Spot",
-                            $(go.Shape,
-                                {
-                                    name: "SHAPE",
-                                    geometryString:   "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z",
-                                    // some port-related properties
-                                    toSpot: go.Spot.Top,
-                                    toLinkable: true,
-                                    fromSpot: go.Spot.Bottom,
-                                    fromLinkable: true,
-                                    cursor: "alias",
-                                    desiredSize: new go.Size(50, 30),
-                                    margin: new go.Margin(0, 0),
-                                    fill: UnselectedBrush,
-                                    stroke: "black",
-                                    strokeWidth: 1,
-                                },
-                                new go.Binding("portId", "id"),
-                                new go.Binding("fill", "color"),
-                            ),
-                            $(go.TextBlock,  // the name of the port
-                                { 
-                                    margin:     0,
-                                    textAlign:  "right",
-                                    alignment: go.Spot.Center,
-                                    verticalAlignment: go.Spot.Top,
-                                    font: "bold 14pt FontAwesome",
-                                },
-                                new go.Binding("text", "name").makeTwoWay(),
-                            ),
-                        ),
-                        alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom,
-                    }
-            ),  // end Horizontal Panel
+                    itemTemplate: makeItemTemplate('top', true),
+                    alignment: go.Spot.Top, 
+                }
+            ),  // end topPorts Panel
 
             $(go.Panel, "Horizontal",
+                { alignment: new go.Spot(1, 0.5, 0, 7)},
                 new go.Binding("itemArray", "bottomPorts"),
                 {
                     row: 0, 
                     column: 1,
-                    itemTemplate:
-                        $(go.Panel,
-                            $(go.Shape,
-                                {
-                                    // name: "SHAPE",
-                                    geometryString: "F1 m 0,0 l 6,0 0,-8 2,0 -5,-4 -5,4 2,0 0,8 z",
-                                    spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
-                                    spot2: new go.Spot(1, 1, -5, 0),
-                                    // some port-related properties
-                                    toSpot: go.Spot.Bottom,
-                                    toLinkable: true,
-                                    fromSpot: go.Spot.Top,
-                                    fromLinkable: true,
-                                    cursor: "alias",
-                                    desiredSize: new go.Size(50, 30),
-                                    margin: new go.Margin(0, 0),
-                                    fill: UnselectedBrush,
-                                    stroke: "black",
-                                    strokeWidth: 1,
-                                },
-                                new go.Binding("portId", "id"),
-                                new go.Binding("fill", "color"),
-                            ),
-                            $(go.TextBlock,  // the name of the port
-                                { 
-                                    margin:     2,
-                                    textAlign:  "left",
-                                    alignment: go.Spot.Right,
-                                    verticalAlignment: go.Spot.Top,
-                                    font: "bold 14pt FontAwesome",
-                                },
-                                new go.Binding("text", "name").makeTwoWay(),
-                            ),
-                        ),
-                        alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Bottom,
-                    }
-            ),  // end Horizontal Panel
+                    itemTemplate: makeItemTemplate('bottom', true),
+                    alignment: go.Spot.Bottom, 
+                }
+            ),  // end bottomPorts Panel
         )
         groupTemplateMap.add("groupWithPorts", groupWithPorts);
         addGroupTemplateName('groupWithPorts');        
@@ -3277,8 +3244,8 @@ export function highlightGroup(e: any, grp: any, show: boolean) {
     if (show) {
         // cannot depend on the grp.diagram.selection in the case of external drag-and-drops;
         // instead depend on the DraggingTool.draggedParts or .copiedParts
-        var tool = grp.diagram.toolManager.draggingTool;
-        var map = tool.draggedParts || tool.copiedParts;  // this is a Map
+        let tool = grp.diagram.toolManager.draggingTool;
+        let map = tool.draggedParts || tool.copiedParts;  // this is a Map
         // now we can check to see if the Group will accept membership of the dragged Parts
         if (grp.canAddMembers(map.toKeySet())) {
             grp.isHighlighted = true;
@@ -3333,7 +3300,7 @@ return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
 // Upon a drop onto the background, or onto a top-level Node, make selection top-level.
 // If this is OK, we're done; otherwise we cancel the operation to rollback everything.
 function finishDrop(e, grp) {
-    var ok = (grp !== null
+    let ok = (grp !== null
         ? grp.addMembers(grp.diagram.selection, true)
         : e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true));
     if (!ok) e.diagram.currentTool.doCancel();
@@ -3343,7 +3310,7 @@ function finishDrop(e, grp) {
 // if (false) {
 //     function findPortNode(g, name, input) {
 //         for (let it = g.memberParts; it.next();) {
-//             var n = it.value;
+//             let n = it.value;
 //             if (!(n instanceof go.Node)) continue;
 //             if (n.data.name === name && n.data._in === input) return n;
 //         }
@@ -3356,24 +3323,24 @@ function finishDrop(e, grp) {
 //     function randomGroup(group, myDiagram) {
 //         // all modification to the diagram is within this transaction
 //         myDiagram.startTransaction("addGroupContents");
-//         var addedKeys = [];  // this will contain the keys of all nodes created
-//         var groupCount = 0;  // the number of groups in the diagram, to determine the numbers in the keys of new groups
+//         let addedKeys = [];  // this will contain the keys of all nodes created
+//         let groupCount = 0;  // the number of groups in the diagram, to determine the numbers in the keys of new groups
 //         myDiagram.nodes.each(function(node) {
 //             if (node instanceof go.Group) groupCount++;
 //         });
 //         // create a random number of groups
 //         // ensure there are at least 10 groups in the diagram
-//         var groups = Math.floor(Math.random() * 2);
+//         let groups = Math.floor(Math.random() * 2);
 //         if (groupCount < 10) groups += 1;
-//         for (var i = 0; i < groups; i++) {
-//             var name = "group" + (i + groupCount);
+//         for (let i = 0; i < groups; i++) {
+//             let name = "group" + (i + groupCount);
 //             myDiagram.model.addNodeData({ key: name, isGroup: true, group: group });
 //             addedKeys.push(name);
 //         }
-//         var nodes = Math.floor(Math.random() * 3) + 2;
+//         let nodes = Math.floor(Math.random() * 3) + 2;
 //         // create a random number of non-group nodes
-//         for (var i = 0; i < nodes; i++) {
-//             var color = go.Brush.randomColor();
+//         for (let i = 0; i < nodes; i++) {
+//             let color = go.Brush.randomColor();
 //             // make sure the color, which will be the node's key, is unique in the diagram before adding the new node
 //             if (myDiagram.findPartForKey(color) === null) {
 //             myDiagram.model.addNodeData({ key: color, group: group });
@@ -3382,11 +3349,11 @@ function finishDrop(e, grp) {
 //         }
 //         // add at least one link from each node to another
 //         // this could result in clusters of nodes unreachable from each other, but no lone nodes
-//         var arr = [];
-//         for (var x in addedKeys) arr.push(addedKeys[x]);
+//         let arr = [];
+//         for (let x in addedKeys) arr.push(addedKeys[x]);
 //         arr.sort(function(x, y) { return Math.random() - 1; });
-//         for (var i = 0; i < arr.length; i++) {
-//             var from = Math.floor(Math.random() * (arr.length - i)) + i;
+//         for (let i = 0; i < arr.length; i++) {
+//             let from = Math.floor(Math.random() * (arr.length - i)) + i;
 //             if (from !== i) {
 //             myDiagram.model.addLinkData({ from: arr[from], to: arr[i] });
 //             }
@@ -3405,16 +3372,16 @@ function finishDrop(e, grp) {
 //     InputOutputGroupLayout.prototype.doLayout = function(coll) {
 //         coll = this.collectParts(coll);
 
-//         var portSpacing = 2;
-//         var iconAreaWidth = 60;
+//         let portSpacing = 2;
+//         let iconAreaWidth = 60;
 
 //         // compute the counts and areas of the inputs and the outputs
-//         var left = 0;
-//         var leftwidth = 0;  // max
-//         var leftheight = 0; // total
-//         var right = 0;
-//         var rightwidth = 0;  // max
-//         var rightheight = 0; // total
+//         let left = 0;
+//         let leftwidth = 0;  // max
+//         let leftheight = 0; // total
+//         let right = 0;
+//         let rightwidth = 0;  // max
+//         let rightheight = 0; // total
 //         coll.each(function(n) {
 //             if (n instanceof go.Link) return;  // ignore Links
 //             if (n.data._in) {
@@ -3430,11 +3397,11 @@ function finishDrop(e, grp) {
 //         if (left > 0) leftheight += portSpacing * (left - 1);
 //         if (right > 0) rightheight += portSpacing * (right - 1);
 
-//         var loc = new go.Point(0, 0);
+//         let loc = new go.Point(0, 0);
 //         if (this.group !== null && this.group.location.isReal()) loc = this.group.location;
 
 //         // first lay out the left side, the inputs
-//         var y = loc.y - leftheight / 2;
+//         let y = loc.y - leftheight / 2;
 //         coll.each(function(n) {
 //             if (n instanceof go.Link) return;  // ignore Links
 //             if (!n.data._in) return;  // ignore outputs
@@ -3456,7 +3423,7 @@ function finishDrop(e, grp) {
 //             // position the group so that its ICON is in the middle, between the "ports"
 //             this.group.location = loc;
 //             // size the ICON so that it's wide enough to overlap the "ports" and tall enough to hold all of the "ports"
-//             var icon = this.group.findObject("ICON");
+//             let icon = this.group.findObject("ICON");
 //             if (icon !== null) icon.desiredSize = new go.Size(iconAreaWidth + leftwidth / 2 + rightwidth / 2, Math.max(leftheight, rightheight) + 10);
 //         }
 //     };

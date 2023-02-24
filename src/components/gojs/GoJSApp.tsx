@@ -1045,7 +1045,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = sel.data;
           console.log('1019 selected', data, sel);
           for (let it = sel.memberParts; it?.next();) {
-              var n = it.value;
+              let n = it.value;
               if (!(n instanceof go.Node)) continue;
               console.log('1023 n', n.data);
           }

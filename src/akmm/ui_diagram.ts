@@ -537,8 +537,8 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
             myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
     }
-    const l = myDiagram.findLinkForKey(inst.key);
-    if (l) {
+    const ll = myDiagram.findLinkForKey(inst.key);
+    if (ll) {
         if (debug) console.log('463 inst', inst);
         const rview = myMetis.findRelationshipView(inst.relshipview.id);
         const rtview = rview.typeview;
@@ -561,7 +561,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
             }
             rview[prop] = rtview[prop];
             if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
-            myDiagram.model.setDataProperty(l.data, prop, rtview[prop]);
+            myDiagram.model.setDataProperty(ll.data, prop, rtview[prop]);
         }
         // Dispatch
         const jsnRelview = new jsn.jsnRelshipView(rview);
@@ -585,7 +585,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
     if (debug) console.log('222 objview', objview);
-    ui_mtd.addConnectedObjects(modelview, objview, null, goModel, myMetis, noLevels);
+    ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     if (debug) console.log('225 gjsNode', gjsNode);
     gjsNode.isSelected = false;
@@ -715,8 +715,8 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     let links = n.findLinksOutOf();
     if (debug) console.log('596 links', links);
     for (let it = links?.iterator; it?.next();) {
-        let l = it.value;
-        const ltypename = l.data.name;
+        let lv = it.value;
+        const ltypename = lv.data.name;
         linktypeNames.push(ltypename);
     }
     if (debug) console.log('603 linktypeNames', linktypeNames);

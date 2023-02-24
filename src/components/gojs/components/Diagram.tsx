@@ -2898,7 +2898,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Define template maps
     {
       // Define link template map
-      let linkTemplateMap = new go.Map<string, go.Link>();
+      var linkTemplateMap = new go.Map<string, go.Link>();
       uit.addLinkTemplates(linkTemplateMap, linkContextMenu, myMetis);
 
       // This template shows links connecting with label nodes as green and arrow-less.
@@ -2911,11 +2911,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
 
       // Define group template map
-      let groupTemplateMap = new go.Map<string, go.Part>();
+      var groupTemplateMap = new go.Map<string, go.Part>();
       uit.addGroupTemplates(groupTemplateMap, partContextMenu, myMetis);
 
       // Define node template map
-      let nodeTemplateMap = new go.Map<string, go.Part>();
+      var nodeTemplateMap = new go.Map<string, go.Part>();
       uit.addNodeTemplates(nodeTemplateMap, partContextMenu, myMetis);
       nodeTemplateMap.add("LinkLabel",
       $("Node",
@@ -3056,8 +3056,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // this DiagramEvent handler is called during the linking or relinking transactions
     function maybeChangeLinkCategory(e: any) {
-      var link = e.subject;
-      var linktolink = (link.fromNode?.isLinkLabel || link.toNode?.isLinkLabel);
+      let link = e.subject;
+      let linktolink = (link.fromNode?.isLinkLabel || link.toNode?.isLinkLabel);
       e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
     }
     

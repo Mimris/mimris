@@ -317,8 +317,8 @@ let includeNoType = false;
     if (relviews) {
       if (debug) console.log('318 modelview, relviews', modelview, relviews);
       const modifiedRelviews = [];
-      let l = relviews.length;
-      for (let i = 0; i < l; i++) {
+      let lng = relviews.length;
+      for (let i = 0; i < lng; i++) {
         let includeRelview = false;
         let relview = relviews[i];
         let fromObjview = relview.fromObjview;

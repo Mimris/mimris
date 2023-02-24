@@ -537,8 +537,8 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
             myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
     }
-    const l = myDiagram.findLinkForKey(inst.key);
-    if (l) {
+    const ll = myDiagram.findLinkForKey(inst.key);
+    if (ll) {
         if (debug) console.log('463 inst', inst);
         const rview = myMetis.findRelationshipView(inst.relshipview.id);
         const rtview = rview.typeview;
@@ -561,7 +561,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
             }
             rview[prop] = rtview[prop];
             if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
-            myDiagram.model.setDataProperty(l.data, prop, rtview[prop]);
+            myDiagram.model.setDataProperty(ll.data, prop, rtview[prop]);
         }
         // Dispatch
         const jsnRelview = new jsn.jsnRelshipView(rview);

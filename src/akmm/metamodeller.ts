@@ -1115,7 +1115,7 @@ export class cxMetis {
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {
-                    if (objview) {
+                    if (objview && objview.id) {
                         this.importObjectView(objview, modelview);
                         if (debug) console.log('630 model', model);
                     }
@@ -1123,7 +1123,7 @@ export class cxMetis {
                 const relshipviews: any[] = item.relshipviews;
                 if (debug) console.log('978 relshipviews', relshipviews);
                 relshipviews.forEach(relview => {
-                    if (relview)
+                    if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });
             }
@@ -1187,10 +1187,17 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
-                    relview.textscale = item.textscale;
+                    relview.template = item.template;
                     relview.arrowscale = item.arrowscale;
+                    relview.strokecolor = item.strokecolor;
+                    relview.strokewidth = item.strokewidth;
+                    relview.textcolor = item.textcolor;
+                    relview.textscale = item.textscale;
+                    relview.dash = item.dash;
                     relview.fromArrow = item.fromArrow;
                     relview.toArrow = item.toArrow;
+                    relview.fromArrowColor = item.fromArrowColor;
+                    relview.toArrowColor = item.toArrowColor;
                     relview.points = item.points;
                     relview.fromPortid = relship.fromPortid;
                     relview.toPortid = relship.toPortid;

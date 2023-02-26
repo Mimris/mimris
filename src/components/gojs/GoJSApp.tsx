@@ -746,13 +746,34 @@ class GoJSApp extends React.Component<{}, AppState> {
               } else {
                 objview.group = "";
               }
+              
               const jsnObjview = new jsn.jsnObjectView(objview);
-              uic.addItemToList(modifiedNodes, jsnObjview);
-              if (debug) console.log('718 jsnObjview', jsnObjview);
+              if (jsnObjview) {
+                jsnObjview.loc = node.loc;
+                uic.addItemToList(modifiedNodes, jsnObjview);
+                if (debug) console.log('753 jsnObjview', jsnObjview);
+              }
             }
             selcnt++;
           }
+          if (debug) console.log('759 modifiedNodes', modifiedNodes);
         }
+        // Update modelview
+        for (let j=0; j<modifiedNodes.length; j++) {
+          const modnode = modifiedNodes[j];
+          for (let i=0; i<myModelview.objectviews.length; i++) {
+            const objview = myModelview.objectviews[i];
+            if (objview.id === modnode.id) {
+              objview.loc = modnode.loc;
+              objview.scale1 = modnode.scale1;
+              objview.group = modnode.group;
+              break;
+            }
+          }
+        }
+        
+
+        if (debug) console.log('761 modelview', myModelview);
         myDiagram.requestUpdate();
       }
       break;
@@ -1253,6 +1274,17 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const link = myDiagram.findLinkForKey(data.key);
               uic.setLinkProperties(link, relview, myDiagram);
+              relview.template = data.template;
+              relview.arrowscale = data.arrowscale;
+              relview.strokecolor = data.strokecolor;
+              relview.strokewidth = data.strokewidth;
+              relview.textcolor = data.textcolor;
+              relview.textscale = data.textscale;
+              relview.dash = data.dash;
+              relview.fromArrow = data.fromArrow;
+              relview.toArrow = data.toArrow;
+              relview.fromArrowColor = data.fromArrowColor;
+              relview.toArrowColor = data.toArrowColor;
               const jsnRelview = new jsn.jsnRelshipView(relview);
               if (debug) console.log('1246 ClipboardPasted', jsnRelview, relview);
               modifiedLinks.push(jsnRelview);
@@ -1403,10 +1435,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (true) {
       if (debug) console.log('1404 modifiedNodes', modifiedNodes);
       modifiedNodes.map(mn => {
-        let data = mn
-        data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1408 UPDATE_OBJECTVIEW_PROPERTIES', data)
-        context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        let data = (mn) && mn
+        if (mn.id) {
+          data = JSON.parse(JSON.stringify(data));
+          if (debug) console.log('1408 UPDATE_OBJECTVIEW_PROPERTIES', mn, data)
+          context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        }
       })
 
       if (debug) console.log('1412 modifiedTypeNodes', modifiedTypeNodes);
@@ -1434,7 +1468,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
       if (debug) console.log('1435 modifiedLinks', modifiedLinks);
       modifiedLinks.map(mn => {
-        let data = mn
+        let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })

@@ -51,11 +51,24 @@
 .modal {
   /* background-color: red; */
   /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */
-
   background: rgba(255,255,255,0.3);
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+  /* position modal center of vindow */
+  /* position: absolute; */
+  position: calc(50% - 10px);
+  width: 98%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* display: flex; 
+  flex-direction: column;
+  align-items: stretch; 
+  justify-content: left;  */
+  /* position: relative; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); */
+
+
 }
 .modal-dialog {
   background-color: transparent;
@@ -70,7 +83,7 @@
   /* max-width: 50vh; */
 }
 .modal-content {
-  margin-top: 38%;
+  margin-top: 30%;
   /* background-color: yellow; */
   background: rgba(255,255,255,0.6);
   /* border: 10px solid red; */
@@ -78,12 +91,16 @@
   border-left: white; */
   /* padding: 8px; */
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: stretch; */
   justify-content: center;
-  width:min-content;
-  /* width: 42vh; */
+  width: max-content;
+  min-width: 50vh;
+  /* max-width: 80% of the vindow width */
+  /* max-width: 70vw; */
+    /* width: 42vh; */
+    /* width: 100vw; */
 }
 .modal-body {
   /* background-color: blue; */
@@ -92,18 +109,20 @@
   padding: 8px;
   /* border-radius: 10px; */
   /* border: 1px solid rgba(255,255,255,1); */
-  position: relative;
+
+  position: calc(50% - 10px);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   /* display: block; */
   /* margin: 20 auto; */
   /* padding: 20px; */
   width: max-content;
+  /* max-width: 10; */
   display: flex;
   flex-direction: column;
   /* align-items: center; */
   justify-content: center;
-  justify-content: space-evenly;
+  /* justify-content: space-evenly; */
 }
 .modal-head {
   background-color: transparent;

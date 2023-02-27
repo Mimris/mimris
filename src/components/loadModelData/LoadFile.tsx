@@ -129,44 +129,53 @@ const LoadFile = (props: any) => {
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
   const buttonSaveAllToFileDiv = 
-    <button 
-      className="btn-secondary border rounded border-secondary mr-2 mb-3 w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Save Project to File: ..._ALL.json
-    </button >
+    <div>
+      <button 
+        className="btn-secondary border rounded border-secondary mr-2 mb-3  w-100 " 
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Click to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+        onClick={handleSaveAllToFile}>Save Project to File: ..._ALL.json
+      </button >
+    </div>
   const buttonSaveAllToFileDateDiv = 
-    <button 
-      className="btn-secondary border rounded border-secondary mr-2 mb-3 w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click to save current Project &#013;(all models and metamodels) to file &#013;(in Downloads folder. The date is added to the filename)"
-      onClick={handleSaveAllToFileDate}>Save Project to File: ..._date_ALL.json 
-    </button >
+    <div>
+      <button 
+        className="btn-secondary border rounded border-secondary mr-2 mb-3  w-100  " 
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Click to save current Project &#013;(all models and metamodels) to file &#013;(in Downloads folder. The date is added to the filename)"
+        onClick={handleSaveAllToFileDate}>Save Project to File: ..._date_ALL.json 
+      </button >
+    </div>
 
   const buttonSaveModelToFileDiv = 
-    <button className="btn-secondary border rounded border-secondary mr-2 w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click to save current model to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelToFile}>Save Current Model to File: ..._MO.json (Metamodel included)
-    </button >
+    <div>
+      <button className="btn-secondary border rounded border-secondary mr-2  w-100  " 
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Click to save current model to file&#013;(in Downloads folder)"
+        onClick={handleSaveModelToFile}>Save Current Model to File: ..._MO.json (Metamodel included)
+      </button >
+    </div>
 
   const buttonSaveModelviewToFileDiv = 
-    <button className="btn-secondary border rounded border-secondary mr-2 w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click to save current modelview to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelviewToFile}>Save Current Modelview to File: ..._MV.json (Metamodel & Objects included) 
-    </button >
-
+    <div>
+      <button className="btn-secondary border rounded border-secondary mr-2  w-100  " 
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Click to save current modelview to file&#013;(in Downloads folder)"
+        onClick={handleSaveModelviewToFile}>Save Current Modelview to File: ..._MV.json (Metamodel & Objects included) 
+      </button >
+    </div>  
   const buttonSaveMetamodelToFileDiv = 
-    <button 
-      className="btn-secondary border rounded border-secondary mr-2 w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._MM.json
-    </button >
+    <div>
+      <button 
+        className="btn-secondary border rounded border-secondary mr-2  w-100  " 
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
+        onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._MM.json
+      </button >
+    </div>
 
   // const buttonSaveModelWMMToFileDiv = // SAVE MODEL WITH METAMODEL TO FILE
-  //   <button className="btn-success text-secondary btn-sm mr-2 w-100  " 
+  //   <button className="btn-success text-secondary btn-sm mr-2   " 
   //     data-toggle="tooltip" data-placement="top" data-bs-html="true" 
   //     title="Click to save current model with Metamodel to file &#013; (in Downloads folder)."
   //     onClick={handleSaveModelToFile}>Save Current Model w/Metamodel to File 
@@ -201,7 +210,7 @@ const LoadFile = (props: any) => {
                   <h5>Model</h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current) </h6>
-                  <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input " type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
              
                 </div>
                 <div className="selectbox mb-2 border">
@@ -267,7 +276,7 @@ const LoadFile = (props: any) => {
             }
 
             .modal.right .modal-content {
-              height: 100%;
+              height%;
               overflow-y: auto;
             }
 

@@ -427,8 +427,7 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }
 
-export function addPort(node: any, myMetis: akm.cxMetis) {
-    const myDiagram = myMetis.myDiagram;
+export function addPort(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     // Get current object from node
     const object = node.object;
     // Create a new Port object
@@ -436,14 +435,14 @@ export function addPort(node: any, myMetis: akm.cxMetis) {
     // Open Edit Object dialog
     const icon = "";
     const modalContext = {
-        what:       "editPort",
-        title:      "Edit Port",
+        what:       "addPort",
+        title:      "Add Port",
         icon:       icon,
         myDiagram:  myDiagram
       }
-      myMetis.currentNode = node;
+      myMetis.currentNode = port;
       myMetis.myDiagram = myDiagram;
-      if (debug) console.log('447 node, modalContext', node, modalContext);
+      if (!debug) console.log('447 node, port, modalContext', node, port, modalContext);
       if (debug) console.log('448 myMetis', myMetis);
       myDiagram.handleOpenModal(node, modalContext);
         

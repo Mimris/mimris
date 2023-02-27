@@ -51,7 +51,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
         : curmod?.modelviews[0] // if focusmodview does not exist set the first
 
-    console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod?.modelviews)
+    if (debug) console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod?.modelviews)
 
     
     const myMetis = new akm.cxMetis();

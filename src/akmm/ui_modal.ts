@@ -13,7 +13,7 @@ import * as constants from './constants';
 const RegexParser = require("regex-parser");
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
-  if (debug) console.log('16 ui_modal: props, value', props, value);
+  if (!debug) console.log('16 ui_modal: props, value', props, value);
   const propname = props.id;
   const fieldType = props.type;
   const obj = props.obj;
@@ -118,6 +118,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 }
 
 export function handleSelectDropdownChange(selected, context) {
+  if (!debug) console.log('121 selected, context:', selected, context);
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis;
   const myMetamodel = context.myMetamodel;
@@ -128,8 +129,7 @@ export function handleSelectDropdownChange(selected, context) {
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
   const selectedOption = selected.value;
-  if (debug) console.log('133 selected, context:', selected, context);
-  if (debug) console.log('134 modalContext', modalContext);
+  if (debug) console.log('132 modalContext', modalContext);
   switch(modalContext.case) {
     case "Change Object type": {
       if (debug) console.log('133 selection', myDiagram.selection);
@@ -501,7 +501,7 @@ export function handleSelectDropdownChange(selected, context) {
       break;
     }
     case "Create Relationship": {
-      if (debug) console.log('349 context', context);
+      if (debug) console.log('504 context', context);
       const myMetamodel = context.myMetamodel;
       const myGoModel = context.myGoModel;
       const myDiagram = context.myDiagram;
@@ -509,7 +509,7 @@ export function handleSelectDropdownChange(selected, context) {
       const data = modalContext.data;
       const typename = selected.value;
       modalContext.selected = selected;
-      if (debug) console.log('358 typename', typename);
+      if (debug) console.log('512 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
       const fromPortId = modalContext.data.fromPort;
       // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
@@ -519,21 +519,21 @@ export function handleSelectDropdownChange(selected, context) {
       let fromType = fromNode?.objecttype;
       let toType   = toNode?.objecttype;
       fromType = myMetamodel.findObjectType(fromType?.id);
-      if (debug) console.log('366 fromType', fromType);
+      if (debug) console.log('522 fromType', fromType);
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
           fromType.allObjecttypes = myMetamodel.objecttypes;
           fromType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       toType   = myMetamodel.findObjectType(toType?.id);
-      if (debug) console.log('373 toType', toType);
+      if (debug) console.log('529 toType', toType);
       if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
       if (toType) {
           toType.allObjecttypes = myMetamodel.objecttypes;
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (debug) console.log('380 reltype', reltype, fromType, toType);
+      if (debug) console.log('536 reltype', reltype, fromType, toType);
 
       if (!reltype) {
           alert("Relationship type given does not exist!")
@@ -541,13 +541,13 @@ export function handleSelectDropdownChange(selected, context) {
           return;
       }
       if (reltype) {
-        if (debug) console.log('912 reltype', reltype);
+        if (debug) console.log('544 reltype', reltype);
         const reltypeview = reltype.typeview;
         if (reltypeview) {
           const modifiedLinkTypeViews = new Array();
           const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
           modifiedLinkTypeViews.push(jsnTypeView);
-          if (debug) console.log('920 jsnTypeView', jsnTypeView);
+          if (debug) console.log('550 jsnTypeView', jsnTypeView);
           modifiedLinkTypeViews?.map(mn => {
             let data = (mn) && mn
             data = JSON.parse(JSON.stringify(data));
@@ -555,17 +555,18 @@ export function handleSelectDropdownChange(selected, context) {
           })
         }
       }
-      if (debug) console.log('387 data, reltype', data, reltype);
+      if (debug) console.log('558 data, reltype', data, reltype);
       data.relshiptype = reltype;
       break;
     }
     default:
+      if (!debug) console.log('563 selected: ', selected);
       break;
   }
 }
 
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
-  if (debug) console.log('540 selectedData, props, modalContext: ', selectedData, props, modalContext);
+  if (!debug) console.log('540 selectedData, props, modalContext: ', selectedData, props, modalContext);
   if (debug) console.log('541 selectedData.objecttype: ', selectedData.objecttype);
   if (debug) console.log('542 props.nodedataArray[0].objecttype: ', props.nodeDataArray[0].objecttype);
   const what = modalContext.what;
@@ -772,6 +773,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modifiedObjects.push(jsnObject);
       if (debug) console.log('696 selObj', selObj);
     break;
+    }
+    case "addPort": {
+      const selObj = selectedData;
+      if (!debug) console.log('779 selObj', selObj);
+      break;
     }
     case "editRelationship": {
       const rel = selectedData;

@@ -182,7 +182,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: true,
       currentActiveTab: '0'
     });
-    if (debug) console.log('185 this.state', this.state);
+    if (!debug) console.log('185 this.state', this.state);
   } 
 
   public handleSelectDropdownChange = (selected) => {
@@ -811,11 +811,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (debug) console.log('529 node', node);
-              uid.addPort(node, myMetis);
+              uid.addPort(node, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT)
+              if (node.template === 'nodeWithPorts')
+                return true;
+              else if (node.template === 'groupWithPorts')
+                return true;
+              else
                 return false;
             }),
           // makeButton("----------"),

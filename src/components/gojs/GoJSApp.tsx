@@ -87,11 +87,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       selectedOption: null,
       showModal: true
     });
-    if (debug) console.log('92 node', this.state.selectedData);
+    if (!debug) console.log('90 node', this.state.selectedData);
   } 
 
   public handleSelectDropdownChange = (selected: any) => {
-    if (debug) console.log('99 handleSelectDropdownChange');
+    if (!debug) console.log('94 handleSelectDropdownChange');
     const myMetis = this.state.myMetis;
     const context = {
       "myMetis":      myMetis,
@@ -106,7 +106,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleCloseModal(e) {
-    if (debug) console.log('113 handleCloseModal');
+    if (!debug) console.log('109 handleCloseModal');
     const props = this.props;
     const modalContext = this.state.modalContext;
     let typename = modalContext.selected?.value;
@@ -279,7 +279,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
     if (debug) console.log('267 this', this);
-    if (debug) console.log('268 event name', name);
+    if (!debug) console.log('268 event name', name);
 
     switch (name) {
       case 'TextEdited': {
@@ -746,7 +746,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               } else {
                 objview.group = "";
               }
-              
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (jsnObjview) {
                 jsnObjview.loc = node.loc;
@@ -756,7 +755,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             selcnt++;
           }
-          if (debug) console.log('759 modifiedNodes', modifiedNodes);
+          if (debug) console.log('758 modifiedNodes', modifiedNodes);
         }
         // Update modelview
         for (let j=0; j<modifiedNodes.length; j++) {
@@ -771,9 +770,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        
-
-        if (debug) console.log('761 modelview', myModelview);
+        if (debug) console.log('773 modelview', myModelview);
         myDiagram.requestUpdate();
       }
       break;
@@ -1020,6 +1017,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               objview.viewkind = part.viewkind;
               if (!objview.size) {
+                // Hack
                 if (debug) console.log('1009 objview', objview);
                 if (objview.isGroup) {
                   node.size = "200 100";
@@ -1030,6 +1028,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objview.size = node.size;
                   myDiagram.model?.setDataProperty(n.data, "size", node.size);
                 }
+                // End hack
               }
               const jsnObjview = new jsn.jsnObjectView(objview);
               uic.addItemToList(modifiedNodes, jsnObjview);

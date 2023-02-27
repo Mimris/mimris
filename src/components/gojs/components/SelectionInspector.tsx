@@ -58,7 +58,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const myMetis = this.props.myMetis as akm.cxMetis;
     const activeTab = this.props.activeTab;
     if (debug) console.log('60 activeTab, myMetis', activeTab, myMetis);
-    if (debug) console.log('61 this.props', this.props);
+    if (!debug) console.log('61 this.props', this.props);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
@@ -861,7 +861,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   }
   
   public render() {
-    if (debug) console.log('754 SelectionInspector ', this.renderObjectDetails());
+    if (!debug) console.log('864 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

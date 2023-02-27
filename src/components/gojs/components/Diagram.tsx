@@ -3341,7 +3341,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
     })
 
-    const toolTip = <div className="btn-sm bg-light text-black py-0 mt-2 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+    const toolTip = (!selpropgroup)  && <div className="btn-sm bg-light text-black py-0 mt-2 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Select tab to see different group of properties.">i
     </div>
 
@@ -3391,7 +3391,7 @@ return (
                   <span className="modal-objecttype"> {typename} </span> 
                 </ModalHeader>
               </div>
-              <ModalBody  className="modal-body">
+              <ModalBody  className="modal-body w-100">
                 {/* <div className="modal-body1"> */}
                   {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {/* {modalContent} */}

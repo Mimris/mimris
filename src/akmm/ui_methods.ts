@@ -31,6 +31,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         const nx = parseInt(nodeLoc[0]);
         const ny = parseInt(nodeLoc[1]);
         const objtype = object.type;
+        // objtype = object.type;
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }

@@ -824,7 +824,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 // stretch: go.GraphObject.Fill,
                 font: "bold 10pt Segoe UI,sans-serif",
                 minSize: new go.Size(120, 36), 
-                desiredSize: new go.Size(800, 60),
+                desiredSize: new go.Size(120, 60),
                 textAlign: "center",
                 height: 46,
                 verticalAlignment: go.Spot.Center,
@@ -932,18 +932,18 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 isMultiline: true,  // don't allow newlines in text
                 editable: true,  // allow in-place editing by user
                 row: 0, column: 0, columnSpan: 6,
-                // stretch: go.GraphObject.Fill,
                 font: "bold 10pt Segoe UI,sans-serif",
                 minSize: new go.Size(120, 36), 
-                desiredSize: new go.Size(300, 60),
+                desiredSize: new go.Size(400, 100),
                 textAlign: "center",
-                height: 46,
+                width: 400,
+                height: 100,
                 verticalAlignment: go.Spot.Center,
                 margin: new go.Margin(2,2,2,2),
                 name: "name"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor").makeTwoWay(),
             ),
         ),
         ),

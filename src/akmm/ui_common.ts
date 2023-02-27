@@ -1218,13 +1218,14 @@ export function createRelationship(data: any, context: any) {
 }
 
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
-    if (debug) console.log('1216 createRelshipCallback', args);
+    if (!debug) console.log('1216 createRelshipCallback', args);
     const myDiagram = args.context.myDiagram;
     const myGoModel = args.context.myGoModel;
     const myMetis   = args.context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
     const myModel  = args.context.myModel;
-    const myModelview = myGoModel.modelView;
+    // const myModelview = myGoModel.modelView;
+    const myModelview = myMetis.currentModelview;
     let data       = args.data;
     const typename = args.typename;
     const fromType = args.fromType;
@@ -1237,7 +1238,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const portTo   = args.toPort;
     const context  = args.context;
     const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1241 data, reltype', data, reltype);
+    if (!debug) console.log('1241 data, reltype, myModelview', data, reltype, myModelview);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
@@ -1256,7 +1257,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const reltypeview = reltype.typeview;
     if (debug) console.log('1258 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
-    if (debug) console.log('1260 data, relshipview', data, relshipview);
+    if (!debug) console.log('1260 data, relshipview', data, relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
@@ -1282,7 +1283,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.name = name;
         relship.name = name;
         data.name = name;
-        if (debug) console.log('1286 data, relshipview', data, relshipview);
+        if (!debug) console.log('1286 data, relshipview', data, relshipview);
         if (debug) console.log('1287 myModelview, relshipview', myModelview, relshipview);
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
 
@@ -1305,16 +1306,17 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1309 jsnRelview', jsnRelview);
+        if (!debug) console.log('1309 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1314 data', data, myModelview);
+            if (!debug) console.log('1314 data', data);
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })              
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);
+        if (!debug) console.log('1318 myModelview, jsnModelview', myModelview, jsnModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
           let data = mn;

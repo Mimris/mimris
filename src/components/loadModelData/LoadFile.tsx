@@ -130,45 +130,45 @@ const LoadFile = (props: any) => {
 
   const buttonSaveAllToFileDiv = 
     <button 
-      className="btn-primary  mr-2 mb-3 w-100  " 
+      className="btn-secondary border rounded border-secondary mr-2 mb-3 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Save Project to File (..._ALL.json)
+      title="Click to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+      onClick={handleSaveAllToFile}>Save Project to File: ..._ALL.json
     </button >
   const buttonSaveAllToFileDateDiv = 
     <button 
-      className="btn-primary mr-2 mb-3 w-100  " 
+      className="btn-secondary border rounded border-secondary mr-2 mb-3 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to save current Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFileDate}>Save Project to File (date incl. in filename) (..._date_ALL.json)
+      title="Click to save current Project &#013;(all models and metamodels) to file &#013;(in Downloads folder. The date is added to the filename)"
+      onClick={handleSaveAllToFileDate}>Save Project to File: ..._date_ALL.json 
     </button >
 
   const buttonSaveModelToFileDiv = 
-    <button className="btn-primary mr-2 w-100  " 
+    <button className="btn-secondary border rounded border-secondary mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to save current model to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelToFile}>Save Current Model (Metamodel included) to File (..._MO.json)
+      title="Click to save current model to file&#013;(in Downloads folder)"
+      onClick={handleSaveModelToFile}>Save Current Model to File: ..._MO.json (Metamodel included)
     </button >
 
   const buttonSaveModelviewToFileDiv = 
-    <button className="btn-primary mr-2  w-100  " 
+    <button className="btn-secondary border rounded border-secondary mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to save current modelview to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelviewToFile}>Save Current Modelview (Metamodel & Objects included) to File (..._MV.json)
+      title="Click to save current modelview to file&#013;(in Downloads folder)"
+      onClick={handleSaveModelviewToFile}>Save Current Modelview to File: ..._MV.json (Metamodel & Objects included) 
     </button >
 
   const buttonSaveMetamodelToFileDiv = 
     <button 
-      className="btn-primary mr-2  w-100  " 
+      className="btn-secondary border rounded border-secondary mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (..._MM.json)
+      title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
+      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._MM.json
     </button >
 
   // const buttonSaveModelWMMToFileDiv = // SAVE MODEL WITH METAMODEL TO FILE
   //   <button className="btn-success text-secondary btn-sm mr-2 w-100  " 
   //     data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-  //     title="Click here to save current model with Metamodel to file &#013; (in Downloads folder)."
+  //     title="Click to save current model with Metamodel to file &#013; (in Downloads folder)."
   //     onClick={handleSaveModelToFile}>Save Current Model w/Metamodel to File 
   //   </button >
   
@@ -237,7 +237,7 @@ const LoadFile = (props: any) => {
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+            title="Click when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
           </Button>
         </ModalFooter>
       </Modal>
@@ -304,7 +304,7 @@ const LoadFile = (props: any) => {
               flex-direction: column;
             }
             .modal-body {
-              // width: 400px;
+              width: 400px;
             }
             .modal-backdrop .fade .in {
               /* display: none; */

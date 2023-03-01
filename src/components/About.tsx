@@ -48,7 +48,7 @@ const page = (props) => {
               </CardBody>
             </Card> */}
             {/* <CardGroup> */}
-            <CardColumns>
+            <CardColumns className="w-50">
               {/* <Card> */}
               <Card body outline color="warning">
                 <CardHeader>Active Knowledge Models</CardHeader>
@@ -75,7 +75,8 @@ const page = (props) => {
                 {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
                 {/* <Card> */}
               </Card>
-
+              </CardColumns>
+              <CardColumns className="w-50">
               <Card body outline color="danger">
                 <CardHeader>IRTV Modelling</CardHeader>
                 <CardBody style={{ backgroundColor: '#dedede' }} className="homepage3" >
@@ -124,6 +125,7 @@ const page = (props) => {
                 </CardBody>
               </Card>
             </CardColumns>
+            <CardColumns className="w-50">
             <Card body outline color="primary" >
               <CardBody className="homepage1" >
                 <CardTitle style={{ fontWeight: "bolder" }}>Knowledge Management</CardTitle>
@@ -174,7 +176,7 @@ const page = (props) => {
                 <Button color="light"></Button>
               </Link>
             </Card>
-
+            </CardColumns>
 
             {/* </CardGroup> */}
 

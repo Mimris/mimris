@@ -30,6 +30,7 @@ const page = (props) => {
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
 
   let gojsmodel = state.phFocus?.gojsModel
+
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
   //   GenGojsModel(state, dispatch)
@@ -38,435 +39,435 @@ const page = (props) => {
 
 
   return (
-    <>
-      <div className="workpad p-1 bg-light" >
-        <div className="homepage pt-2 pr-2" >
-          <div>
-            <CardColumns >
-              <Card className="card" 
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  position: "relative",
-                  backdropFilter: "blur(5px)",
-                  WebkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  // margin: "0 auto",
-                  padding: "0px"
-                }}
-              >
-                <CardHeader className="card-header ">Getting started with AKM Modeller:</CardHeader>
-                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.6)"}}>
-                  <CardTitle className="card-title-bold">To get started !</CardTitle>
-                  <CardText className="card-text"> 
-                    <strong>Select Modelling in the top menu </strong><br />
-                    (An initial empty model is loaded)
-                  </CardText>
-                  <CardTitle className="card-title-bold">Start modelling:</CardTitle>
-                  <CardText className="card-text"> 
-                    Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
-                    We recommend to start with a container and then drop objects into the container. You can resize the container by draging the corners.
-                  </CardText>
-                  <CardTitle className="card-title-bold">Save your model:</CardTitle>
-                  <CardText className="card-text"> 
-                    You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
-                    <br /> Then click on the blue "Save Project (all) to File" button and the model project is saved to a json modelfile (in the Download folder). 
-                  </CardText>
-                  <CardTitle className="card-title-bold">Share you model on GitHub:</CardTitle>
-                  <CardText className="card-text"> 
-                    You can also push the Project jsonfile to a GitHub repository to share with others.
-                  </CardText>
-                </CardBody>
-              </Card>
-              <Card className="card "
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  position: "relative",
-                  backdropFilter: "blur(5px)",
-                  WebkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  // margin: "0 auto",
-                  padding: "2px"
-                }}
-              >
-                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
-                  <CardHeader className="card-header">Terminologi!</CardHeader>
-                  <CardTitle className="card-title-bold" >IRTV</CardTitle>
-                  <CardText className="card-text "> 
-                    <strong> IRTV stands for: Information, Role, Task, View</strong>
-                    <br />AKM modelling start with a generic IRTV-Metamodel, wich contain the basic building blocks for AKM Models. <br />(shown in the left Palette in the modelling page). 
-                    <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
+    <div className="workpad p-1 bg-light" >
+      <div className="homepage row pt-2 pr-2 " >
+        <div className="col">
+          <Card className="card"
+            style={{
+              background: "rgba(255,255,255,0.4)",
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.2)",
+              position: "relative",
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              display: "block",
+              margin: "0 auto",
+              padding: "0px"
+            }}
+          >
+            <CardHeader className="card-header ">Getting started with AKM Modeller:</CardHeader>
+            <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.6)"}}>
+              <CardTitle className="card-title-bold">To get started !</CardTitle>
+              <CardText className="card-text"> 
+                <strong>Select Modelling in the top menu </strong><br />
+                (An initial empty model is loaded)
+              </CardText>
+              <CardTitle className="card-title-bold">Start modelling:</CardTitle>
+              <CardText className="card-text"> 
+                Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
+                We recommend to start with a container and then drop objects into the container. You can resize the container by draging the corners.
+              </CardText>
+              <CardTitle className="card-title-bold">Save your model:</CardTitle>
+              <CardText className="card-text"> 
+                You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
+                <br /> Then click on the blue "Save Project (all) to File" button and the model project is saved to a json modelfile (in the Download folder). 
+              </CardText>
+              <CardTitle className="card-title-bold">Share you model on GitHub:</CardTitle>
+              <CardText className="card-text"> 
+                You can also push the Project jsonfile to a GitHub repository to share with others.
+              </CardText>
+            </CardBody>
+          </Card>
+          <Card className="card "
+            style={{
+              background: "rgba(255,255,255,0.4)",
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.2)",
+              position: "relative",
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              // display: "block",
+              // margin: "0 auto",
+              padding: "2px"
+            }}
+          >
+            <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
+              <CardHeader className="card-header">Terminologi!</CardHeader>
+              <CardTitle className="card-title-bold" >IRTV</CardTitle>
+              <CardText className="card-text "> 
+                <strong> IRTV stands for: Information, Role, Task, View</strong>
+                <br />AKM modelling start with a generic IRTV-Metamodel, wich contain the basic building blocks for AKM Models. <br />(shown in the left Palette in the modelling page). 
+                <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
 
-                  </CardText>
-                  <CardTitle style={{ fontWeight: "bolder", fontSize: "150%" }}>Metamodel & Model</CardTitle>
-                  <CardText className="card-text "> 
-                     When building a model, we use some predefined objects called "Object Types". <br />   
-                     <i>(Its can be compared to building a Lego model. Depending on which Lego blocks you have, we can build different models)</i>
-                    <br /><br />In AKM modelling we have predefined a Metamodel with the IRTV building blocks. From these we can build any new Metamodels and Models of any kind. 
-                    <br /><strong>(The App that builds the App). </strong>
-                 
-                    <br /><br /><i>(It is possible to build your own Metamodel from a basic Object and Relationship type)</i><strong> </strong>
+              </CardText>
+              <CardTitle style={{ fontWeight: "bolder", fontSize: "150%" }}>Metamodel & Model</CardTitle>
+              <CardText className="card-text "> 
+                  When building a model, we use some predefined objects called "Object Types". <br />   
+                  <i>(Its can be compared to building a Lego model. Depending on which Lego blocks you have, we can build different models)</i>
+                <br /><br />In AKM modelling we have predefined a Metamodel with the IRTV building blocks. From these we can build any new Metamodels and Models of any kind. 
+                <br /><strong>(The App that builds the App). </strong>
+              
+                <br /><br /><i>(It is possible to build your own Metamodel from a basic Object and Relationship type)</i><strong> </strong>
 
-                  </CardText>
-                </CardBody>
-              </Card>
-
-              <Card className="card "
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  position: "relative",
-                  backdropFilter: "blur(5px)",
-                  WebkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  // margin: "0 auto",
-                  padding: "2px"
-                }}
-              >
-                <CardHeader className="card-header">AKM Modeller</CardHeader>
-                <CardBody className="card-body" >
-                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                  <CardText className="card-text">          
-                  AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
-                    <br /><br />
-                  With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
-                  The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
-                  </CardText>
-                </CardBody>
-              </Card>
-
-              <Card className="card" body outline color="warning"
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  // position: "relative",
-                  backdropFilter: "blur(5px)",
-                  WebkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  margin: "0 auto",
-                  padding: "2px"
-                }}              
-              >
-                <CardHeader className="card-header">Active Knowledge Modelling</CardHeader>
-                <CardBody className="card-body" >
-                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
-                  <CardText className="card-text">
-                    Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and innovation and learning. AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
-                    <br /><br />
-                    The AKM novelty comes from how relationships between roles, tasks, properties and knowledge and data are captured and presented in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment. 
-                    <br /><br />
-                    An enterprise development and innovation team can model new Concepts and Capabilities. These Concept models may be used to enhance the meta-models of innovation projects, which again design new POPS components and solutions.
-                    <br /><br />
-                    The effects from deploying AKM based solutions are many. Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. Shared views supporting design parameter balancing are modelled, and task execution can be in line with applicable regulations and policies. Role-specific task execution may create new tasks and services for other roles, and as such AKM makes collaboration and alignment more transparent, effective and precise, with direct impact on design quality, safety and security.
-                    <br /><br />  
-                    <br /><br />
-                    (more in the About page ....)
-                    <br /><br />           
-                  </CardText>
-                </CardBody>
-              </Card>
-
-              <Card className="card" body outline  
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.4)",
-                  // position: "relative",
-                  backdropFilter: "blur(5px)",
-                  WebkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  // margin: "0 auto",
-                  // padding: "2px"
-                }}
-                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
-                // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
-              >
-                  <CardHeader className="card-header " >AKMM release log ... </CardHeader>
-                  {/* <CardBody className="card-body" >  
-                    <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
-                    <CardText >
-                        &bull; Workplace templates for reflective workplace modelling! <br />
-                        &bull; Strokewidth for synbol border and relship line!<br />
-                        &bull; GraphQL shema reporting from Solution models!<br />
-                    </CardText>
-                  </CardBody> */}
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2023.02.03</CardTitle>
-                    <CardText >
-                          &bull; New features:<br />
-                            - Linking from Github modelrepositories to AKM Modeller!<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2023.01.16</CardTitle>
-                    <CardText >
-                          &bull; New features:<br />
-                            - New Project page "/project" with info about Organisation, GitHub Repository and Model Project files.<br />
-                            - The Page also includes info about current "Context and Focus".<br />
-                            - Links back to GitHub repositories are also provided".<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.10.06</CardTitle>
-                    <CardText >
-                          &bull; New features:<br />
-                            - Type descriptions in Object diaglog<br />
-                            - On background menu: Toggle show relationship names.<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.09.24</CardTitle>
-                    <CardText >
-                          &bull; Objects moved from Palette area to Modeller Area<br />
-                          &bull; More models added to https://github.com/Kavca/<br />
-                          &bull; Added dialogbox at startup asking if you want to load the saved - refreshed model project.<br />
-                          &bull; This can be nice if the Browser crash or stop responding.<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.08.22</CardTitle>
-                    <CardText >
-                          &bull; New functionality for metamodelling of activity/task modelling.<br />
-                          &bull; More startup models on GitHub Kavca.<br />
-                          &bull; Procedure for uploading Models to GitHub is published in the README file on <a href="https://github.com/Kavca/akm-models/" target="_blank">https://github.com/Kavca/akm-models/</a><br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.08.06</CardTitle>
-                    <CardText >
-                          &bull; New button in the model top-bar for loading StartupModels from GitHub".<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.07.11</CardTitle>
-                    <CardText >
-                          &bull; New Recovery button in the model top-bar.<br />
-                          &bull; Enhancements! <br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.06.13</CardTitle>
-                    <CardText >
-                          &bull; New "Choose File" and "Save" button in the model top-bar".<br />
-                          &bull; Enhancements! <br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.03.10</CardTitle>
-                    <CardText >
-                          &bull; Save Project with current date in the end of the filename.<br />
-                          &bull; <br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.02.28</CardTitle>
-                    <CardText >
-                          &bull; Generate metamodel is now working.<br />
-                          &bull; OSDU JSON-file import to AKM Objects<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.11.22</CardTitle>
-                    <CardText >
-                          &bull; Update Getting started on the Homepage.<br />
-                          &bull; Tabs in property-dialog<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.11.11</CardTitle>
-                    <CardText >
-                          &bull; Added more Help items in help.<br />
-                          &bull; Edit Project name direct!<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.11.02</CardTitle>
-                    <CardText >
-                          &bull; Added more Help items in help.<br />
-                          - Getting started File open /save <br />
-                          - GitHub sync<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.10.21</CardTitle>
-                    <CardText >
-                          &bull; Added Help in top-menu. Here you will find help and user-guides.<br />
-                          &bull; Adde filter buttons in ObjectType Palette.<br />
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.10.08</CardTitle>
-                    <CardText >
-                          &bull; New Method objects that can be connected to Property objects in the metamodel.<br />
-                          &bull; Improvements on the pop-up menues.<br />
-                          &bull; Replace metamodel on background menu<br />
-                          &bull; Import OSDU Jsonfiles to AKM-Etity types with properties<br />
-                          &bull; Bugfixes!<br /><br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.04.12</CardTitle>
-                    <CardText >
-                          &bull; Added "Delete Objecttypes and Relationshiptypes" in Metamodelling.<br />
-                          &bull; Copies of Objectviews are shown with lightblue bordercolor.<br />
-                          &bull; Bugfixes!<br /><br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.03.28</CardTitle>
-                    <CardText >
-                          &bull; New rightclick menuitem "Change icon" on objectviews.<br />
-                          &bull; New button "Show deleted" under diagram for showing deleted objects.<br />
-                          &bull; Background menu "Undelete Selection" to undelete objects/objectviews.<br />
-                          &bull; Bugfixes!<br /><br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.03.18</CardTitle>
-                    <CardText >
-                          &bull; Added automatic layout!<br />
-                          &bull; Fix typeview chances in metamodel works in model!<br />
-                          &bull; New button "File" to Export/Import to/from file<br />
-                          &bull; "Local &gt; Recovery" button recovers the whole project<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.03.12</CardTitle>
-                    <CardText >
-                          &bull; Kavca logo with link to kavca.no!<br />
-                          &bull; Added button for save/upload local file!<br />
-                          &bull; Input pattern and Field type related to Datatype<br />
-                          &bull; Attributes with inputpattern and value dropdownlist generated to TargetMetamodel<br />
-                    </CardText>
-                  </CardBody>
-       
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.02.24</CardTitle>
-                    <CardText >
-                        &bull; New popup menues for Edit ......!<br />
-                        &bull; Added popup menu for "Change Icon" on Objectviews!<br />
-                        &bull; Added Select all views of this object!<br />
-                         -  (Showing all objectview copies of an object (Instance) )<br />
-                        &bull; Bugfixes!<br /><br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.02.16</CardTitle>
-                    <CardText >
-                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
-                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
-                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
-                        &bull; Added Edit Project - to change Project name and descriptions!<br />
-                        &bull; Added colorpicker on object/relationship views!<br />
-                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
-                        &bull; Bugfixes in Objects tab in Palette!<br />
-                        &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2021.02.11</CardTitle>
-                    <CardText >
-                        &bull; Bugfixes!<br />
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="card-body" >
-                  <CardTitle className="card-title.bold" >Release 2021.02.05</CardTitle>
-                  <CardText >
-                      New features added:<br />
-                        &bull; Projects as collection of Models and Metamodels!<br />
-                        &bull; Popup menues for editing Objects attributes!<br />
-                        &bull; Layout improvements!<br />
-                        &bull; Added Tooltips to many Buttons !<br />
-                        &bull; Bugfixes!<br />
-                  </CardText>
-                </CardBody>
-
-                <CardBody className="card-body" >
-                  <CardTitle className="card-title" >Release 2020.12.18</CardTitle>
-                  <CardText >
-                    akmclient-beta.herokuapp.com
-                      <br /> <br /> - Bugfixes
-                  </CardText>
-                </CardBody>
-                <CardBody className="card-body" >
-                  <CardTitle >Test Release 2020.11.18</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                      <br /> <br /> - Bugfixes in metamodelling
-                  </CardText>
-                </CardBody>
-                <CardBody className="card-body" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                      <br /> <br /> - Bugfixes  
-                  </CardText>
-                </CardBody>
-                <CardBody className="card-body" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
-                  <CardText>
-                  akmclient-beta.herokuapp.com
-                  <br /><br />Bugfix and new features:
-                      <br /> - added Tables in top menu. 
-                      <br /> - faster response when modelling <br />(not neccessary to refresh so often)
-                      
-                  </CardText>
-                </CardBody>
-                <CardBody className="card-body" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                    <br /><br />1st test version of AKMM awailable on Heroku! 
-                  </CardText>
-                </CardBody>
-              </Card>
-              {/* <Card className="card" 
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  position: "relative",
-                  backdropFilter: "blur(5px)",
-                  WebkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  // margin: "0 auto",
-                  padding: "0px"
-                }}
-              >
-              <CardHeader className="card-header " >Kavca Blog:</CardHeader>
-              <CardBody  className="card-body">
-                <CardTitle style={{ fontWeight: "bolder" }} >News: </CardTitle>
-   
-                  <Blog />
-
-              </CardBody>
-            </Card> */}
-            </CardColumns>
-          </div>
+              </CardText>
+            </CardBody>
+          </Card>
+          <Card className="card "
+            style={{
+              background: "rgba(255,255,255,0.4)",
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.2)",
+              position: "relative",
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              // display: "block",
+              // margin: "0 auto",
+              padding: "2px"
+            }}
+          >
+            <CardHeader className="card-header">AKM Modeller</CardHeader>
+            <CardBody className="card-body" >
+              {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
+              <CardText className="card-text">          
+              AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
+                <br /><br />
+              With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+              The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
+              </CardText>
+            </CardBody>
+          </Card>
+          <Card className="card" body outline color="warning"
+            style={{
+              background: "rgba(255,255,255,0.4)",
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.2)",
+              // position: "relative",
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              // display: "block",
+              margin: "0 auto",
+              padding: "2px"
+            }}              
+          >
+            <CardHeader className="card-header">Active Knowledge Modelling</CardHeader>
+            <CardBody className="card-body" >
+              {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
+              <CardText className="card-text">
+                Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and innovation and learning. AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                <br /><br />
+                The AKM novelty comes from how relationships between roles, tasks, properties and knowledge and data are captured and presented in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment. 
+                <br /><br />
+                An enterprise development and innovation team can model new Concepts and Capabilities. These Concept models may be used to enhance the meta-models of innovation projects, which again design new POPS components and solutions.
+                <br /><br />
+                The effects from deploying AKM based solutions are many. Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. Shared views supporting design parameter balancing are modelled, and task execution can be in line with applicable regulations and policies. Role-specific task execution may create new tasks and services for other roles, and as such AKM makes collaboration and alignment more transparent, effective and precise, with direct impact on design quality, safety and security.
+                <br /><br />  
+                <br /><br />
+                (more in the About page ....)
+                <br /><br />           
+              </CardText>
+            </CardBody>
+          </Card>
         </div>
-        <style jsx>{`
-        `}</style>
+        <div className="col-12 col-md-6 col-lg-4"> {/* releasenotes */}
+        <Card className="card" body outline  
+          style={{
+            background: "rgba(255,255,255,0.4)",
+            borderRadius: "10px",
+            border: "1px solid rgba(255,255,255,0.4)",
+            // position: "relative",
+            backdropFilter: "blur(5px)",
+            WebkitBackdropFilter: "blur(5px)",
+            // display: "block",
+            // margin: "0 auto",
+            // padding: "2px"
+          }}
+          // style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
+          // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
+        >
+            <CardHeader className="card-header " >AKMM release log ... </CardHeader>
+            {/* <CardBody className="card-body" >  
+              <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
+              <CardText >
+                  &bull; Workplace templates for reflective workplace modelling! <br />
+                  &bull; Strokewidth for synbol border and relship line!<br />
+                  &bull; GraphQL shema reporting from Solution models!<br />
+              </CardText>
+            </CardBody> */}
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.03.01</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Updated "Modelfile" dialog with save models and modleview incl. metamodels and objects!<br />
+                      - New functionality for ports on Process and Activity objects (IDEF0)!<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.02.03</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Linking from Github modelrepositories to AKM Modeller!<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.01.16</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - New Project page "/project" with info about Organisation, GitHub Repository and Model Project files.<br />
+                      - The Page also includes info about current "Context and Focus".<br />
+                      - Links back to GitHub repositories are also provided".<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.10.06</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Type descriptions in Object diaglog<br />
+                      - On background menu: Toggle show relationship names.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.09.24</CardTitle>
+              <CardText >
+                    &bull; Objects moved from Palette area to Modeller Area<br />
+                    &bull; More models added to https://github.com/Kavca/<br />
+                    &bull; Added dialogbox at startup asking if you want to load the saved - refreshed model project.<br />
+                    &bull; This can be nice if the Browser crash or stop responding.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.08.22</CardTitle>
+              <CardText >
+                    &bull; New functionality for metamodelling of activity/task modelling.<br />
+                    &bull; More startup models on GitHub Kavca.<br />
+                    &bull; Procedure for uploading Models to GitHub is published in the README file on <a href="https://github.com/Kavca/akm-models/" target="_blank">https://github.com/Kavca/akm-models/</a><br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.08.06</CardTitle>
+              <CardText >
+                    &bull; New button in the model top-bar for loading StartupModels from GitHub".<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.07.11</CardTitle>
+              <CardText >
+                    &bull; New Recovery button in the model top-bar.<br />
+                    &bull; Enhancements! <br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.06.13</CardTitle>
+              <CardText >
+                    &bull; New "Choose File" and "Save" button in the model top-bar".<br />
+                    &bull; Enhancements! <br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.03.10</CardTitle>
+              <CardText >
+                    &bull; Save Project with current date in the end of the filename.<br />
+                    &bull; <br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2022.02.28</CardTitle>
+              <CardText >
+                    &bull; Generate metamodel is now working.<br />
+                    &bull; OSDU JSON-file import to AKM Objects<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.11.22</CardTitle>
+              <CardText >
+                    &bull; Update Getting started on the Homepage.<br />
+                    &bull; Tabs in property-dialog<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.11.11</CardTitle>
+              <CardText >
+                    &bull; Added more Help items in help.<br />
+                    &bull; Edit Project name direct!<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.11.02</CardTitle>
+              <CardText >
+                    &bull; Added more Help items in help.<br />
+                    - Getting started File open /save <br />
+                    - GitHub sync<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.10.21</CardTitle>
+              <CardText >
+                    &bull; Added Help in top-menu. Here you will find help and user-guides.<br />
+                    &bull; Adde filter buttons in ObjectType Palette.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.10.08</CardTitle>
+              <CardText >
+                    &bull; New Method objects that can be connected to Property objects in the metamodel.<br />
+                    &bull; Improvements on the pop-up menues.<br />
+                    &bull; Replace metamodel on background menu<br />
+                    &bull; Import OSDU Jsonfiles to AKM-Etity types with properties<br />
+                    &bull; Bugfixes!<br /><br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.04.12</CardTitle>
+              <CardText >
+                    &bull; Added "Delete Objecttypes and Relationshiptypes" in Metamodelling.<br />
+                    &bull; Copies of Objectviews are shown with lightblue bordercolor.<br />
+                    &bull; Bugfixes!<br /><br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.03.28</CardTitle>
+              <CardText >
+                    &bull; New rightclick menuitem "Change icon" on objectviews.<br />
+                    &bull; New button "Show deleted" under diagram for showing deleted objects.<br />
+                    &bull; Background menu "Undelete Selection" to undelete objects/objectviews.<br />
+                    &bull; Bugfixes!<br /><br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.03.18</CardTitle>
+              <CardText >
+                    &bull; Added automatic layout!<br />
+                    &bull; Fix typeview chances in metamodel works in model!<br />
+                    &bull; New button "File" to Export/Import to/from file<br />
+                    &bull; "Local &gt; Recovery" button recovers the whole project<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.03.12</CardTitle>
+              <CardText >
+                    &bull; Kavca logo with link to kavca.no!<br />
+                    &bull; Added button for save/upload local file!<br />
+                    &bull; Input pattern and Field type related to Datatype<br />
+                    &bull; Attributes with inputpattern and value dropdownlist generated to TargetMetamodel<br />
+              </CardText>
+            </CardBody>
+
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.02.24</CardTitle>
+              <CardText >
+                  &bull; New popup menues for Edit ......!<br />
+                  &bull; Added popup menu for "Change Icon" on Objectviews!<br />
+                  &bull; Added Select all views of this object!<br />
+                    -  (Showing all objectview copies of an object (Instance) )<br />
+                  &bull; Bugfixes!<br /><br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.02.16</CardTitle>
+              <CardText >
+                  &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
+                  &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
+                  &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
+                  &bull; Added Edit Project - to change Project name and descriptions!<br />
+                  &bull; Added colorpicker on object/relationship views!<br />
+                  &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
+                  &bull; Bugfixes in Objects tab in Palette!<br />
+                  &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2021.02.11</CardTitle>
+              <CardText >
+                  &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+            <CardTitle className="card-title.bold" >Release 2021.02.05</CardTitle>
+            <CardText >
+                New features added:<br />
+                  &bull; Projects as collection of Models and Metamodels!<br />
+                  &bull; Popup menues for editing Objects attributes!<br />
+                  &bull; Layout improvements!<br />
+                  &bull; Added Tooltips to many Buttons !<br />
+                  &bull; Bugfixes!<br />
+            </CardText>
+          </CardBody>
+
+          <CardBody className="card-body" >
+            <CardTitle className="card-title" >Release 2020.12.18</CardTitle>
+            <CardText >
+              akmclient-beta.herokuapp.com
+                <br /> <br /> - Bugfixes
+            </CardText>
+          </CardBody>
+          <CardBody className="card-body" >
+            <CardTitle >Test Release 2020.11.18</CardTitle>
+            <CardText>
+              akmclient-beta.herokuapp.com
+                <br /> <br /> - Bugfixes in metamodelling
+            </CardText>
+          </CardBody>
+          <CardBody className="card-body" >
+            <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
+            <CardText>
+              akmclient-beta.herokuapp.com
+                <br /> <br /> - Bugfixes  
+            </CardText>
+          </CardBody>
+          <CardBody className="card-body" >
+            <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
+            <CardText>
+            akmclient-beta.herokuapp.com
+            <br /><br />Bugfix and new features:
+                <br /> - added Tables in top menu. 
+                <br /> - faster response when modelling <br />(not neccessary to refresh so often)
+                
+            </CardText>
+          </CardBody>
+          <CardBody className="card-body" >
+            <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+            <CardText>
+              akmclient-beta.herokuapp.com
+              <br /><br />1st test version of AKMM awailable on Heroku! 
+            </CardText>
+          </CardBody>
+        </Card>
+        {/* <Card className="card" 
+            style={{
+              background: "rgba(255,255,255,0.4)",
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.2)",
+              position: "relative",
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              // display: "block",
+              // margin: "0 auto",
+              padding: "0px"
+            }}
+          >
+          <CardHeader className="card-header " >Kavca Blog:</CardHeader>
+          <CardBody  className="card-body">
+            <CardTitle style={{ fontWeight: "bolder" }} >News: </CardTitle>
+              <Blog />
+          </CardBody>
+        </Card> */}
+        </div>
       </div>
-    </>
+    </div>
   )
 
 }

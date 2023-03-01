@@ -246,17 +246,17 @@
 .homepage {
   background: linear-gradient(-60deg,#fc7a64 6%,#fda978 15%,#dacf90 40%, #cae281 45%,#6ae6cb 55%,#10859a 94%);
   /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  justify-content: center;
-  padding: 4px;
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: space-between; */
+  /* justify-content: center; */
+  /* padding: 4px; */
 }
 /* #Card {
   background-color: none;
   background: none;
 } */
-#Card {
+/* #Card {
   background: rgba(255,255,255,0.3);
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.2);
@@ -265,10 +265,24 @@
   -webkit-backdrop-filter: blur(5px);
   display: block;
   margin: 0 auto;
-}
+} */
+/* spread coulums 3 coulums wide */
+/* .card-coulumns {
+  column-count: 3;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: min-content;
+} */
+
 .card {
   margin: 2px;
+  width: auto;
+  min-width: min-content;
+  /* max-width: max-content; */
 }
+
 .card-body {
   background: rgba(255,255,255,0.6);
   border-radius: 10px;
@@ -276,6 +290,7 @@
   margin: 8px;
   padding: 0 auto;
   box-shadow: 6px, 6px, 20px rgba(122,122,122,0.9);
+  /* max-width: fit-content; */
 }
 
 .card-header {

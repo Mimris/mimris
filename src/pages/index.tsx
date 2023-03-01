@@ -6,12 +6,16 @@ import { connect, useDispatch }  from 'react-redux';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
+import Link from 'next/link';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Index from '../components/Index';
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 import styles from '../styles/Home.module.css'
+import useLocalStorage  from '../hooks/use-local-storage'
+
+const debug = false
 
 const page = (props: any) => {
   
@@ -19,10 +23,49 @@ const page = (props: any) => {
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
   
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [mount, setMount] = useState(false)
+
+  function dispatchLocalStore(locStore) { 
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
+    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+  }
  // /**
 // * Set up the Context items and link to select Context modal,
 // */
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+
+useEffect(() => { 
+  if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
+  // let data = {}
+  if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
+    if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+    if ((window.confirm("Do you want to recover your last model project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+      if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+          const locStore = (memoryLocState[0]) 
+          if (locStore) {
+            dispatchLocalStore(locStore)
+            // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+            // console.log('modelling 73 ', data)
+          }
+        } 
+      }
+    }   
+  }
+  setMount(true)
+}, [])  
+
+const contextDiv = (
+  <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
+    <SetContext className='setContext' ph={props} />
+    <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+      <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link>
+      {/* <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />  */}
+      <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
+    </div>
+  </div>
+) 
   
   return (
     <div>
@@ -34,12 +77,10 @@ const page = (props: any) => {
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div>
             <div className="workplace">
-              <div className="contextarea">
-                {setContextDiv}
-              </div>
-              <div className="tasksarea">
+              {contextDiv}
+              {/* <div className="tasksarea">
                 <TasksHelp />
-              </div>
+              </div> */}
               <div className="workarea">
                   <Index />
               </div>
@@ -50,78 +91,7 @@ const page = (props: any) => {
           </div>
         </div>
       </Layout>
-      <style jsx>{`
-      .wrapper {
-        display: grid;
-        // height: 100%;
-        // grid-template-columns: auto auto;
-        grid-gap: 0px;
-        grid-template-areas:
-        "header"
-        "workplace"
-        "footer";
-      }
-      .workplace {
-        grid-area: workplace;
-        display: grid ;
-        height: 100%;
-        // background-color: #;
-        grid-template-columns: auto 1fr;
-        grid-template-areas:
-        "contextarea contextarea"
-        "tasksarea workarea";
-      }
-      // @media only screen and (max-width: 475px) {
-      // .workplace {
-      //     grid-area: workplace;
-      //     display: grid ;
-      //     background-color: #aaa;
-      //     grid-template-columns: auto 2fr;
-      //     grid-template-areas:
-      //     "taskarea"
-      //     "workarea";
-      //   }
-      // }
-
-      .workarea {
-        grid-area: workarea;
-        display: grid ;
-        border-radius: 5px 5px 0px 0px;
-        // max-width: 400px;
-        // min-height: 60vh;
-        // grid-template-columns: auto;
-        grid-template-areas:
-          "workpad workpad";
-      }
-      .contextarea {
-        grid-area: contextarea;
-        display: grid;
-        border-radius: 4px;
-        outline-offset:-6px;
-        padding: 0px;
-        font-size: 70%;
-        background-color: #e8e8e8;
-        color: #000;
-        max-height: 60px; 
-      }
-        .tasksarea {
-        grid-area: tasksarea;
-        padding: 0px;
-        margin-right: 4px;
-        padding-right: 3px;
-        border: 2px;
-        border-radius: 5px 5px 5px 5px;
-        border-width: 2px;
-        // border-color: #000;
-        // background-color: #e00;
-        max-width: 220px;
-        // font-size: 100%;
-      }
-      p {
-        color: white;
-      }
-
-            `}</style>
+      <style jsx>{` `}</style>
     </div>
   )
 }

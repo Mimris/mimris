@@ -1406,7 +1406,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 },
                 $(go.Shape, "RoundedRectangle",
                 {
-                    cursor: "move",
+                    cursor: "alias",
                     fill: "white", 
                     stroke: "black", 
                     strokeWidth: 2,
@@ -1438,9 +1438,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     row: 1, 
                     column: 0,
-                    // alignment: new go.Spot(0, 0.5, 0, 7),
+                    alignment: new go.Spot(0, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('left',false),
-                    alignment: go.Spot.Right, alignmentFocus: go.Spot.Left,
+                    // alignment: go.Spot.Right,
                 }
             ),  // end Vertical Panel
 
@@ -1451,36 +1451,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     row: 0, 
                     column: 1,
-                    itemTemplate:
-                        $(go.Panel,
-                            $(go.Shape, "Rectangle",
-                                {
-                                    _side: "top",
-                                    fromSpot: go.Spot.Top, 
-                                    toSpot: go.Spot.Top,
-                                    fromLinkable: false, 
-                                    toLinkable: true, 
-                                    cursor: "alias",
-                                    contextMenu: contextMenu,
-                                    stroke: null, 
-                                    strokeWidth: 0,
-                                    desiredSize: new go.Size(40, 15),
-                                    margin: new go.Margin(0, 1),
-                                    fill: UnselectedBrush,
-                                    stroke: "black",
-                                    strokeWidth: 1,
-                                },
-                                new go.Binding("portId", "id"),
-                                new go.Binding("fill", "color"),
-                            ),
-                            $(go.TextBlock,  // the name of the port
-                                { 
-                                    margin:     2,
-                                    textAlign:  "right",
-                                },
-                                new go.Binding("text", "name").makeTwoWay(),
-                            ),
-                        )
+                    itemTemplate: makeItemTemplate('top',false),
+                    alignment: go.Spot.Top, 
                 }
             ),  // end Horizontal Panel
 
@@ -1492,7 +1464,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     row: 1, 
                     column: 2,
-                    // alignment: new go.Spot(1, 0.5, 0, 7),
+                    alignment: new go.Spot(1, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('right', false),
                 }
             ),  // end Vertical Panel
@@ -1502,37 +1474,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             $(go.Panel, "Horizontal",
                 new go.Binding("itemArray", "bottomPorts"),
                 {
-                row: 2, 
-                column: 1,
-                itemTemplate:
-                    $(go.Panel,
-                        $(go.Shape, "Rectangle",
-                            {
-                                _side: "bottom",
-                                fromSpot: go.Spot.Bottom, 
-                                toSpot: go.Spot.Bottom,
-                                fromLinkable: false, 
-                                toLinkable: true, 
-                                cursor: "alias",
-                                // contextMenu: contextMenu,
-                                stroke: null, 
-                                strokeWidth: 0,
-                                desiredSize: new go.Size(40, 15),
-                                margin: new go.Margin(0, 1),
-                                stroke: "black",
-                                strokeWidth: 1,
-                            },
-                            new go.Binding("portId", "id"),
-                            new go.Binding("fill", "color"),
-                        ),
-                        $(go.TextBlock,  // the name of the port
-                            { 
-                                margin:     2,
-                                textAlign:  "right",
-                            },
-                            new go.Binding("text", "name").makeTwoWay(),
-                        ),
-                    )  // end itemTemplate
+                    row: 2, 
+                    column: 1,
+                    itemTemplate: makeItemTemplate('bottom', false),
                 }
             )  // end Horizontal Panel
         )    
@@ -2815,8 +2759,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 },
                 new go.Binding("itemArray", "leftPorts"),
                 {
-                    column: 0,
                     row: 1, 
+                    column: 0,
                     alignment: new go.Spot(0, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('left', true),
                 },
@@ -2828,8 +2772,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 { alignment: new go.Spot(1, 0.5, 0, 7)},
                 new go.Binding("itemArray", "rightPorts"),
                 {
-                    column: 2,
                     row: 1, 
+                    column: 2,
                     rowSpan: 2,
                     alignment: new go.Spot(1, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('right', true),

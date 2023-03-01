@@ -12,6 +12,7 @@ import Selector from './utils/Selector'
 import GenGojsModel from './GenGojsModel'
 import { handleInputChange } from "../akmm/ui_modal";
 import { disconnect } from "process";
+import { SaveModelToLocState } from "./utils/SaveModelToLocState";
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
@@ -25,7 +26,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (debug) console.log('19 Modeller: props', props);
+  if (!debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -105,6 +106,11 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
   function toggleRefreshObjects() { 
+
+    if (debug) console.log('89 Modeller: toggleRefreshObjects', props, memoryLocState, setMemoryLocState);
+
+    SaveModelToLocState(props, memoryLocState, setMemoryLocState)
+
     GenGojsModel(props, dispatch)
 
     // save current state to memory

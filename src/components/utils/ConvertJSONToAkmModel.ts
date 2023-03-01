@@ -171,9 +171,9 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         // if  $id contains master-data or work-product-component or work-product then add the file to the model
         // if (osduMod['$id']?.includes('master-data') || osduMod['$id']?.includes('work-product-component') || osduMod['$id']?.includes('work-product')) {  // removed:  we use all files
         // console.log('141 osduMod', ('data' in osduMod) )
-        console.log('142 osduMod', osduMod.data )
+        console.log('142 osduMod', osduMod, osduMod.data, osduMod.properties )
         console.log('140 osduMod', osduMod, osduMod.hasOwnProperty('data'))
-        if (osduMod.properties.data !== undefined) { // if data is defined in the json file its a generated where all props are in data
+        if (osduMod.properties?.data !== undefined) { // if data is defined in the json file its a generated where all props are in data
             if (osduMod.hasOwnProperty('properties')) { // if skip system properties from the gererated json files
                     delete osduMod.properties['id'] 
                     delete osduMod.properties['kind'] 

@@ -142,9 +142,10 @@ const Palette = (props: any) => {
   
   if (debug) clog('103 Palette', props , seltasks);
 
-  const modellingtypes = [
+  const modellingtasks = [
     {
-      Alltypes:[
+      id: "AlltypesModelling",
+      workOnTypes:[
         "Container",
         "EntityType",
         "Information",
@@ -166,20 +167,22 @@ const Palette = (props: any) => {
         "RelshipType",
         "Value",
         "ViewFormat"
-      ]
+      ],
     },
     {
-      IRTVModelling: [
+      id: "IRTVModelling",
+      workOnTypes: [
         "Container",
         "EntityType",
         "Information",
         "Role",
         "Task",
         "View",
-      ]
+      ],
     },
     {
-      PropertyModelling: [
+      id: "PropertyModelling",
+      workOnTypes: [
         "Container",
         "EntityType",
         "Datatype",
@@ -191,10 +194,36 @@ const Palette = (props: any) => {
         "Method",
         "MethodType",
         "RelshipType"
-      ]
+      ],
+    },
+    {
+      id: "AlltypesModelling",
+      workOnTypes:[
+        "Container",
+        "EntityType",
+        "Information",
+        "Role",
+        "Task",
+        "View",
+        "CreateRepo\n",
+        "Datatype",
+        "Element",
+        "FieldType",
+        "Generic",
+        "InputPattern",
+        "Label",
+        "Method",
+        "MethodType",
+        "Port",
+        "Process",
+        "Property",
+        "RelshipType",
+        "Value",
+        "ViewFormat"
+      ],
     },
   ]  
-  console.log('197 modellingtypes', modellingtypes)
+  console.log('197 modellingtypes', modellingtypes[0])
   
   // add a div with a dropdown to select modellingtype (all, IRTV, Property)   
   const otdiv = 

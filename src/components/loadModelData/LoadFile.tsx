@@ -70,7 +70,7 @@ const LoadFile = (props: any) => {
   function handleSaveModelviewToFile() {
     const projectname = props.ph.phData.metis.name
     const curmodel = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    if (!debug) console.log('73 LoadFile', curmodel)
+    if (debug) console.log('73 LoadFile', curmodel)
     const focusModelviewIndex = curmodel.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
     const curmodelview = curmodel.modelviews[focusModelviewIndex]
     const curmodelviewobjs = curmodel.objects.filter(obj => curmodelview.objectviews?.find(ov => ov.objectRef === obj.id))

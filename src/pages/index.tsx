@@ -37,7 +37,7 @@ const page = (props: any) => {
 // */
 
 useEffect(() => { 
-  if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
+  if (debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
   // let data = {}
   if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
     if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {

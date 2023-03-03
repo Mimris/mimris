@@ -87,11 +87,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       selectedOption: null,
       showModal: true
     });
-    if (!debug) console.log('90 node', this.state.selectedData);
+    if (debug) console.log('90 node', this.state.selectedData);
   } 
 
   public handleSelectDropdownChange = (selected: any) => {
-    if (!debug) console.log('94 handleSelectDropdownChange');
+    if (debug) console.log('94 handleSelectDropdownChange');
     const myMetis = this.state.myMetis;
     const context = {
       "myMetis":      myMetis,
@@ -106,7 +106,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleCloseModal(e) {
-    if (!debug) console.log('109 handleCloseModal');
+    if (debug) console.log('109 handleCloseModal');
     const props = this.props;
     const modalContext = this.state.modalContext;
     let typename = modalContext.selected?.value;
@@ -279,7 +279,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
     if (debug) console.log('267 this', this);
-    if (!debug) console.log('268 event name', name);
+    if (debug) console.log('268 event name', name);
 
     switch (name) {
       case 'TextEdited': {

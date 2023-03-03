@@ -18,7 +18,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Palette = (props: any) => {
 
-  if (debug) clog('20 Palette', props);
+  if (!debug) clog('20 Palette', props);
 
   const dispatch = useDispatch();
   let isRendered = useRef(false);
@@ -53,15 +53,16 @@ const Palette = (props: any) => {
     }, 100);
     return () => clearTimeout(timer);
   }
+
   function togglePalette() { setVisiblePalette(!visiblePalette); } 
 
   function toggleRefreshPalette() { 
     setRefreshPalette(!refreshPalette);
   }
   
-  //rearrange sequence
+  // earrange sequence according to definition in focusTask.workOnTypes
   let ndarr = props.gojsMetamodel?.nodeDataArray
-  if (debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
+  if (!debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {
@@ -140,10 +141,82 @@ const Palette = (props: any) => {
   if (!props.gojsMetamodel) return null;
   
   if (debug) clog('103 Palette', props , seltasks);
-  
 
-  let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
-  if (debug) console.log('111 filteredOtNodeDataArray', filteredOtNodeDataArray)
+  const modellingtypes = [
+    {
+      Alltypes:[
+        "Container",
+        "EntityType",
+        "Information",
+        "Role",
+        "Task",
+        "View",
+        "CreateRepo\n",
+        "Datatype",
+        "Element",
+        "FieldType",
+        "Generic",
+        "InputPattern",
+        "Label",
+        "Method",
+        "MethodType",
+        "Port",
+        "Process",
+        "Property",
+        "RelshipType",
+        "Value",
+        "ViewFormat"
+      ]
+    },
+    {
+      IRTVModelling: [
+        "Container",
+        "EntityType",
+        "Information",
+        "Role",
+        "Task",
+        "View",
+      ]
+    },
+    {
+      PropertyModelling: [
+        "Container",
+        "EntityType",
+        "Datatype",
+        "InputPattern",
+        "FieldType",
+        "Unittype",
+        "Value",
+        "ViewFormat",
+        "Method",
+        "MethodType",
+        "RelshipType"
+      ]
+    },
+  ]  
+  console.log('197 modellingtypes', modellingtypes)
+  
+  // add a div with a dropdown to select modellingtype (all, IRTV, Property)   
+  const otdiv = 
+    <div className="modellingtype">
+      <select onChange={(e) => setModellingType(e.target.value)}>
+        { modellingtypes.map((mtype: any, index) =>
+          <option key={mtype+index} value={mtype}>{mtype}</option>
+        )}
+      </select>
+    </div>
+    
+    
+
+
+
+  let filteredOtNodeDataArray = (!taskNodeDataArray) 
+    ? ndarr 
+    : (!taskNodeDataArray[0]) 
+      ? ndarr 
+      : taskNodeDataArray    
+
+  if (!debug) console.log('147 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
   
   // ------------------   ------------------
   
@@ -154,20 +227,21 @@ const Palette = (props: any) => {
   if (debug) console.log('163 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
   
   // let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
-  let selectTaskDiv = 
-    <>
-      <details><summary markdown="span"  >{focusTask?.name}</summary>
-        <div className="seltask w-100">
-          <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
-        </div>
-        </details>
-      {/* <div>{focusTask?.name}</div> */}
-    </>
+  // let selectTaskDiv = 
+  //   <>
+  //     <details><summary markdown="span"  >{focusTask?.name}</summary>
+  //       <div className="seltask w-100">
+  //         <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
+  //       </div>
+  //       </details>
+  //     {/* <div>{focusTask?.name}</div> */}
+  //   </>
  
  const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
   <div className="workpad p-1 pt-2 bg-white" >
-    <div className="mmname mx-0 px-2 my-3" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
+    <div className="mmname bg-light mx-0 px-2 my-0" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
     {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
+    {/* {otdiv} */}
     < GoJSPaletteApp
       nodeDataArray={filteredOtNodeDataArray}
       linkDataArray={[]}

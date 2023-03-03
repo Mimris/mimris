@@ -442,7 +442,7 @@ export function addPort(node: any, myMetis: akm.cxMetis, myDiagram: any) {
       }
       myMetis.currentNode = port;
       myMetis.myDiagram = myDiagram;
-      if (!debug) console.log('447 node, port, modalContext', node, port, modalContext);
+      if (debug) console.log('447 node, port, modalContext', node, port, modalContext);
       if (debug) console.log('448 myMetis', myMetis);
       myDiagram.handleOpenModal(node, modalContext);
         

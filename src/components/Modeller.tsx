@@ -26,7 +26,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (!debug) console.log('19 Modeller: props', props);
+  if (debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -115,7 +115,7 @@ const Modeller = (props: any) => {
 
     // save current state to memory
     let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    if (!debug) console.log('84 Modelling save memoryState', mdata);
+    if (debug) console.log('84 Modelling save memoryState', mdata);
     // if mdata is longer than 10, remove the last 2 elements
     if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
     if (mdata.length > 2) { mdata.pop() }

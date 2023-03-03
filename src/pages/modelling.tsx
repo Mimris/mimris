@@ -60,7 +60,7 @@ const page = (props:any) => {
   if (debug) console.log('49 modelling',props)
 
   useEffect(() => { 
-    if (!debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
     // let data = {}
     if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
       if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
@@ -81,14 +81,14 @@ const page = (props:any) => {
 
   // useEffect(() => { // toggle
   //   const timer = setTimeout(() => {
-  //     if (!debug) useEfflog('81 modelling useEff 2', props)
+  //     if (debug) useEfflog('81 modelling useEff 2', props)
   //     toggle()
   //   }, 1000)
   //   return () => clearTimeout(timer)
   // }, [props.phFocus.focusModelview.id])
   
   // useEffect(() => { // refresh the model when localstorage is loaded
-  //   if (!debug) useEfflog('79 modelling useEff 3', props, props.phFocus.focusModelview.name)
+  //   if (debug) useEfflog('79 modelling useEff 3', props, props.phFocus.focusModelview.name)
   //   GenGojsModel(props, dispatch)
   //   const timer = setTimeout(() => {
   //     // dispatch({ type: 'SET_FOCUS_MODELVIEW', data })

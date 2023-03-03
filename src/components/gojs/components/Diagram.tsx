@@ -182,7 +182,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: true,
       currentActiveTab: '0'
     });
-    if (!debug) console.log('185 this.state', this.state);
+    if (debug) console.log('185 this.state', this.state);
   } 
 
   public handleSelectDropdownChange = (selected) => {

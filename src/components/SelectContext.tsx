@@ -9,7 +9,7 @@ import Selector from './utils/Selector'
 const debug = false;
 
 const SelectContext = (props: any) => {
-  // if (!debug) console.log('12 ', props);
+  // if (debug) console.log('12 ', props);
   let state = useSelector((state:any) => state) // Selecting the whole redux store
   if (!state.phData?.metis?.models) return <></>
   const dispatch = useDispatch()
@@ -50,7 +50,7 @@ const SelectContext = (props: any) => {
   const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array
 
   // const [model, setModel] = useState(focusModel)
-  // if (!debug) console.log('23 focusModel', focusModel, models);
+  // if (debug) console.log('23 focusModel', focusModel, models);
   
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)

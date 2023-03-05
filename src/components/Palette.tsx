@@ -28,6 +28,7 @@ const Palette = (props: any) => {
   const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
+  const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState(props.gojsMetamodel?.nodeDataArray)
 
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
@@ -75,116 +76,42 @@ const Palette = (props: any) => {
     if (debug) console.log('73 taskNodeDataArray',  taskNodeDataArray0)
   } 
 
-  useEffect(() => {
-    isRendered = true;
-    let types =[]
-    if (isRendered) {
-      if (debug) clog('82 Palette useEffect')//, mmodel, genRoleTasks(mmodel, dispatch));
-      types = genRoleTasks(mmodel, dispatch)
-      if (types?.length > 0) {
-        taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
-        ndarr?.find((i: { typename: any; }) => {
-          return (i?.typename === wot) && i 
-        })
-        ).filter(Boolean) // remove undefined
-      }
-    }
-    return () => { isRendered = false; }
-  }, [])
-
-  useEffect(() => {
-    // if (props.phFocus.focusTask.workOnTypes) {  // todo: this is when focusTask is implemented
-    //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
-    //     ndarr?.find((i: { typename: any; }) => {
-    //       return (i?.typename === wot) && i 
-    //     })
-    //   ).filter(Boolean) // remove undefined
-    // }
-    isRendered = true;
-    let types =[]
-    if (isRendered) {
-      if (debug) clog('106 Palette useEffect') //, mmodel, genRoleTasks(mmodel, dispatch));
-      types = genRoleTasks(mmodel, dispatch)
-      if (types?.length > 0) {
-        taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
-        ndarr?.find((i: { typename: any; }) => {
-          return (i?.typename === wot) && i 
-        })
-        ).filter(Boolean) // remove undefined
-      }
-    }
-    // const timer = setTimeout(() => {
-    //   setRefresh(!refresh)
-    // }, 5000);
-    // return () => clearTimeout(timer);
-    return () => { isRendered = false; }
-  }, [props.phFocus?.focusModel?.id])
-
-  if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
-
-  useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
-    if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
-  
-    if (props.phFocus?.focusTask.workOnTypes) {
-      taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
-        ndarr?.find((i: { typename: any; }) => {
-          return (i?.typename === wot) && i 
-        })
-      ).filter(Boolean) // remove undefined
-    if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
-    if (debug) console.log('94 seltasks', props.phFocus.focusTask)
-    }
-  }, [props.phFocus?.focusTask?.id])
-
-  // break if no model or metamodel
-  if (!props.gojsModel) return null;
-  if (!props.gojsMetamodel) return null;
-  
-  if (debug) clog('103 Palette', props , seltasks);
-
   const modellingtasks = [
     {
-      id: "AlltypesModelling",
-      workOnTypes:[
+      id: "IRTV-POPS-Modelling",
+      name: "IRTV+POPS Modelling",
+      workOnTypes: [
         "Container",
-        "EntityType",
         "Information",
         "Role",
         "Task",
         "View",
-        "CreateRepo\n",
-        "Datatype",
-        "Element",
-        "FieldType",
-        "Generic",
-        "InputPattern",
-        "Label",
-        "Method",
-        "MethodType",
-        "Port",
+        "Product",
+        "Organisation",
         "Process",
-        "Property",
-        "RelshipType",
-        "Value",
-        "ViewFormat"
+        "System"
       ],
     },
     {
-      id: "IRTVModelling",
+      id: "Process-Modelling",
+      name: "Process Modelling",
       workOnTypes: [
         "Container",
-        "EntityType",
-        "Information",
-        "Role",
-        "Task",
-        "View",
+        "Process",
+        "Start",
+        "End",
+        "ExclusiveGate",
+        "InclusiveGate",
+        "ParallelGate",
       ],
     },
     {
       id: "PropertyModelling",
+      name: "PropertyModelling",
       workOnTypes: [
         "Container",
         "EntityType",
+        "Property",
         "Datatype",
         "InputPattern",
         "FieldType",
@@ -196,59 +123,143 @@ const Palette = (props: any) => {
         "RelshipType"
       ],
     },
+    // {
+    //   id: "Alltypes",
+    //   name: "Alltypes",
+    //   workOnTypes:[
+    //     "Container",
+    //     "EntityType",
+    //     "Information",
+    //     "Role",
+    //     "Task",
+    //     "View",
+    //     "CreateRepo\n",
+    //     "Datatype",
+    //     "Element",
+    //     "FieldType",
+    //     "Generic",
+    //     "InputPattern",
+    //     "Label",
+    //     "Method",
+    //     "MethodType",
+    //     "Port",
+    //     "Process",
+    //     "Property",
+    //     "RelshipType",
+    //     "Value",
+    //     "ViewFormat"
+    //   ],
+    // },
     {
-      id: "AlltypesModelling",
-      workOnTypes:[
-        "Container",
-        "EntityType",
-        "Information",
-        "Role",
-        "Task",
-        "View",
-        "CreateRepo\n",
-        "Datatype",
-        "Element",
-        "FieldType",
-        "Generic",
-        "InputPattern",
-        "Label",
-        "Method",
-        "MethodType",
-        "Port",
-        "Process",
-        "Property",
-        "RelshipType",
-        "Value",
-        "ViewFormat"
-      ],
+      id: "Alltypes",
+      name: "Alltypes",
+      workOnTypes: [],
     },
   ]  
-  console.log('197 modellingtypes', modellingtypes[0])
+  console.log('229 modellingtypes', modellingtasks[0])
+
+  useEffect(() => {
+    setModellingTask(modellingtasks[0])
+    // setModellingTask(modellingtasks[e.target.value])
+  //   isRendered = true;
+  //   let types =[]
+  //   if (isRendered) {
+  //     if (debug) clog('82 Palette useEffect')//, mmodel, genRoleTasks(mmodel, dispatch));
+  //     types = genRoleTasks(mmodel, dispatch)
+  //     if (types?.length > 0) {
+  //       taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
+  //       ndarr?.find((i: { typename: any; }) => {
+  //         return (i?.typename === wot) && i 
+  //       })
+  //       ).filter(Boolean) // remove undefined
+  //     }
+  //   }
+  //   return () => { isRendered = false; }
+  }, [])
+
+  // useEffect(() => {
+  //   // if (props.phFocus.focusTask.workOnTypes) {  // todo: this is when focusTask is implemented
+  //   //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+  //   //     ndarr?.find((i: { typename: any; }) => {
+  //   //       return (i?.typename === wot) && i 
+  //   //     })
+  //   //   ).filter(Boolean) // remove undefined
+  //   // }
+  //   isRendered = true;
+  //   let types =[]
+  //   if (isRendered) {
+  //     if (debug) clog('106 Palette useEffect') //, mmodel, genRoleTasks(mmodel, dispatch));
+  //     types = genRoleTasks(mmodel, dispatch)
+  //     if (types?.length > 0) {
+  //       taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
+  //       ndarr?.find((i: { typename: any; }) => {
+  //         return (i?.typename === wot) && i 
+  //       })
+  //       ).filter(Boolean) // remove undefined
+  //     }
+  //   }
+  //   // const timer = setTimeout(() => {
+  //   //   setRefresh(!refresh)
+  //   // }, 5000);
+  //   // return () => clearTimeout(timer);
+  //   return () => { isRendered = false; }
+  // }, [props.phFocus?.focusModel?.id])
+
+  if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+
+  // useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
+  //   if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+  
+  //   if (props.phFocus?.focusTask.workOnTypes) {
+  //     taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+  //       ndarr?.find((i: { typename: any; }) => {
+  //         return (i?.typename === wot) && i 
+  //       })
+  //     ).filter(Boolean) // remove undefined
+  //   if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
+  //   if (debug) console.log('94 seltasks', props.phFocus.focusTask)
+  //   }
+  // }, [props.phFocus?.focusTask?.id])
+
+  // break if no model or metamodel
+  if (!props.gojsModel) return null;
+  if (!props.gojsMetamodel) return null;
+  // let filteredOtNodeDataArray = ndarr
+
+  if (debug) clog('103 Palette', props , seltasks);
+
+
   
   // add a div with a dropdown to select modellingtype (all, IRTV, Property)   
-  const otdiv = 
-    <div className="modellingtype">
-      <select onChange={(e) => setModellingType(e.target.value)}>
-        { modellingtypes.map((mtype: any, index) =>
-          <option key={mtype+index} value={mtype}>{mtype}</option>
-        )}
+
+  const otDiv = 
+    <div className="modellingtask">
+      <select className='select-field w-100' onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
+        {modellingtasks.map((t, i) => <option key={i} value={i}>{t.name}</option>)}
       </select>
     </div>
-    
-    
 
+  function setModellingTask(task: any) {
+    console.log('238 setModellingTask', task)
 
+    taskNodeDataArray = task?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+      ndarr?.find((i: { typename: any; }) => {
+        return (i?.typename === wot) && i
+      })
+    ).filter(Boolean) // remove undefined
+    if (task.id === 'Alltypes') {
+      setFilteredOtNodeDataArray(ndarr)
+    } else {
+      setFilteredOtNodeDataArray(taskNodeDataArray)
+    }
+    setRefreshPalette(!refreshPalette)
 
-  let filteredOtNodeDataArray = (!taskNodeDataArray) 
-    ? ndarr 
-    : (!taskNodeDataArray[0]) 
-      ? ndarr 
-      : taskNodeDataArray    
+    console.log('244 taskNodeDataArray', taskNodeDataArray, filteredOtNodeDataArray)
+  }
 
-  if (!debug) console.log('147 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
+  if (!debug) console.log('251 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
   
   // ------------------   ------------------
-  
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
@@ -266,11 +277,10 @@ const Palette = (props: any) => {
   //     {/* <div>{focusTask?.name}</div> */}
   //   </>
  
- const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
-  <div className="workpad p-1 pt-2 bg-white" >
+ const gojsappPalette =   // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
+   <div className="workpad p-1 pt-2 bg-white" >
     <div className="mmname bg-light mx-0 px-2 my-0" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
     {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
-    {/* {otdiv} */}
     < GoJSPaletteApp
       nodeDataArray={filteredOtNodeDataArray}
       linkDataArray={[]}
@@ -290,6 +300,7 @@ const Palette = (props: any) => {
         {/* <span>{props.focusMetamodel?.name}</span> */}
         <div>
         {/* <div style={{ minWidth: "140px" }}> */}
+        {otDiv}
           {visiblePalette 
             ? (refreshPalette) 
               ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</> 

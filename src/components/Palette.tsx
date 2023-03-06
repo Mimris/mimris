@@ -7,6 +7,7 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import { setGojsModelObjects } from "../actions/actions";
 import Selector from './utils/Selector'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
+import { KnownTypeNamesRule } from "graphql";
 // import { setMyMetisParameter } from "../actions/actions";
 
 const debug = false;
@@ -29,6 +30,7 @@ const Palette = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState(props.gojsMetamodel?.nodeDataArray)
+  const [modellingtasks, setModellingtasks] = useState([])
 
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
@@ -76,195 +78,144 @@ const Palette = (props: any) => {
     if (debug) console.log('73 taskNodeDataArray',  taskNodeDataArray0)
   } 
 
-  const modellingtasks = [
-    {
-      id: "IRTV-POPS-Modelling",
-      name: "IRTV+POPS Modelling",
-      workOnTypes: [
-        "Container",
-        "Information",
-        "Role",
-        "Task",
-        "View",
-        "Product",
-        "Organisation",
-        "Process",
-        "System"
-      ],
-    },
-    {
-      id: "Process-Modelling",
-      name: "Process Modelling",
-      workOnTypes: [
-        "Container",
-        "Process",
-        "Start",
-        "End",
-        "ExclusiveGate",
-        "InclusiveGate",
-        "ParallelGate",
-      ],
-    },
-    {
-      id: "PropertyModelling",
-      name: "PropertyModelling",
-      workOnTypes: [
-        "Container",
-        "EntityType",
-        "Property",
-        "Datatype",
-        "InputPattern",
-        "FieldType",
-        "Unittype",
-        "Value",
-        "ViewFormat",
-        "Method",
-        "MethodType",
-        "RelshipType"
-      ],
-    },
-    // {
-    //   id: "Alltypes",
-    //   name: "Alltypes",
-    //   workOnTypes:[
-    //     "Container",
-    //     "EntityType",
-    //     "Information",
-    //     "Role",
-    //     "Task",
-    //     "View",
-    //     "CreateRepo\n",
-    //     "Datatype",
-    //     "Element",
-    //     "FieldType",
-    //     "Generic",
-    //     "InputPattern",
-    //     "Label",
-    //     "Method",
-    //     "MethodType",
-    //     "Port",
-    //     "Process",
-    //     "Property",
-    //     "RelshipType",
-    //     "Value",
-    //     "ViewFormat"
-    //   ],
-    // },
-    {
-      id: "Alltypes",
-      name: "Alltypes",
-      workOnTypes: [],
-    },
-  ]  
-  console.log('229 modellingtypes', modellingtasks[0])
 
+  let role, task, types 
   useEffect(() => {
-    setModellingTask(modellingtasks[0])
-    // setModellingTask(modellingtasks[e.target.value])
-  //   isRendered = true;
-  //   let types =[]
-  //   if (isRendered) {
-  //     if (debug) clog('82 Palette useEffect')//, mmodel, genRoleTasks(mmodel, dispatch));
-  //     types = genRoleTasks(mmodel, dispatch)
-  //     if (types?.length > 0) {
-  //       taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
-  //       ndarr?.find((i: { typename: any; }) => {
-  //         return (i?.typename === wot) && i 
-  //       })
-  //       ).filter(Boolean) // remove undefined
-  //     }
-  //   }
-  //   return () => { isRendered = false; }
+    isRendered = true;
+    const foundRTT = findCurRoleTaskTypes(role='', task='', types=[], mmodel, dispatch)
+    setModellingtasks(foundRTT.tasks)
+    return () => { isRendered = false; }
   }, [])
 
-  // useEffect(() => {
-  //   // if (props.phFocus.focusTask.workOnTypes) {  // todo: this is when focusTask is implemented
-  //   //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
-  //   //     ndarr?.find((i: { typename: any; }) => {
-  //   //       return (i?.typename === wot) && i 
-  //   //     })
-  //   //   ).filter(Boolean) // remove undefined
-  //   // }
-  //   isRendered = true;
-  //   let types =[]
-  //   if (isRendered) {
-  //     if (debug) clog('106 Palette useEffect') //, mmodel, genRoleTasks(mmodel, dispatch));
-  //     types = genRoleTasks(mmodel, dispatch)
-  //     if (types?.length > 0) {
-  //       taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
-  //       ndarr?.find((i: { typename: any; }) => {
-  //         return (i?.typename === wot) && i 
-  //       })
-  //       ).filter(Boolean) // remove undefined
-  //     }
-  //   }
-  //   // const timer = setTimeout(() => {
-  //   //   setRefresh(!refresh)
-  //   // }, 5000);
-  //   // return () => clearTimeout(timer);
-  //   return () => { isRendered = false; }
-  // }, [props.phFocus?.focusModel?.id])
+  const findCurRoleTaskTypes = (role: string, task: string, types:[], mmodel: any, dispatch: any) => {
+    let roleTaskTypes: any 
+    // if (isRendered) {
+      if (!debug) clog('90 Palette useEffect', mmodel, roleTaskTypes);
+      const foundRTTNames = genRoleTasks(role='',task='', types=[], mmodel, dispatch)
+      const typeNames = foundRTTNames.types
+      const taskNames = foundRTTNames.tasks
+      if (typeNames?.length > 0) {
+        types = typeNames?.map((wot: any) => // list of types for this focusTask (string)
+        ndarr?.find((i: { typename: any; }) => {
+          console.log('97 findCurRoleTaskTypes', i, wot)
+          return (i?.typename === wot) && i 
+        })
+        ).filter(Boolean) // remove undefined
+        role = foundRTTNames.role.id
+        task = foundRTTNames.task.id
+        setModellingtasks(foundRTTNames.tasks)
+      }
+      if (!debug) clog('100˝ Palette useEffect', role, task, types, typeNames, foundRTTNames);
+    // }
+    return {
+      role: role,
+      task: task,
+      types: types,
+      tasks: taskNames
+    }
+  }
 
-  if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+  if (false) {
+    // useEffect(() => {
+    //   // if (props.phFocus.focusTask.workOnTypes) {  // todo: this is when focusTask is implemented
+    //   //   taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+    //   //     ndarr?.find((i: { typename: any; }) => {
+    //   //       return (i?.typename === wot) && i 
+    //   //     })
+    //   //   ).filter(Boolean) // remove undefined
+    //   // }
+    //   isRendered = true;
+    //   let types =[]
+    //   if (isRendered) {
+    //     if (debug) clog('106 Palette useEffect') //, mmodel, genRoleTasks(mmodel, dispatch));
+    //     types = genRoleTasks(mmodel, dispatch)
+    //     if (types?.length > 0) {
+    //       taskNodeDataArray = types?.map((wot: any) => // list of types for this focusTask (string)
+    //       ndarr?.find((i: { typename: any; }) => {
+    //         return (i?.typename === wot) && i 
+    //       })
+    //       ).filter(Boolean) // remove undefined
+    //     }
+    //   }
+    //   // const timer = setTimeout(() => {
+    //   //   setRefresh(!refresh)
+    //   // }, 5000);
+    //   // return () => clearTimeout(timer);
+    //   return () => { isRendered = false; }
+    // }, [props.phFocus?.focusModel?.id])
+  }
 
-  // useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
-  //   if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
-  
-  //   if (props.phFocus?.focusTask.workOnTypes) {
-  //     taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
-  //       ndarr?.find((i: { typename: any; }) => {
-  //         return (i?.typename === wot) && i 
-  //       })
-  //     ).filter(Boolean) // remove undefined
-  //   if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
-  //   if (debug) console.log('94 seltasks', props.phFocus.focusTask)
-  //   }
-  // }, [props.phFocus?.focusTask?.id])
+  if (debug) console.log('139 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
+  if (false) {
+    // useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
+    //   if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+    //   if (props.phFocus?.focusTask.workOnTypes) {
+    //     taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+    //       ndarr?.find((i: { typename: any; }) => {
+    //         return (i?.typename === wot) && i 
+    //       })
+    //     ).filter(Boolean) // remove undefined
+    //   if (debug) console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
+    //   if (debug) console.log('94 seltasks', props.phFocus.focusTask)
+    //   }
+    // }, [props.phFocus?.focusTask?.id])
+  }
   // break if no model or metamodel
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
   // let filteredOtNodeDataArray = ndarr
 
-  if (debug) clog('103 Palette', props , seltasks);
+  if (debug) clog('160 Palette', props , seltasks);
 
 
+  
   
   // add a div with a dropdown to select modellingtype (all, IRTV, Property)   
 
   const otDiv = 
     <div className="modellingtask">
-      <select className='select-field w-100' onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
-        {modellingtasks.map((t, i) => <option key={i} value={i}>{t.name}</option>)}
+      <select className='select-field w-100' onChange={(e) => setModellingTask('', '', modellingtasks[e.target.value])}>
+        {modellingtasks?.map((t, i) => <option key={i} value={i}>{t.name}</option>)}
       </select>
     </div>
 
-  function setModellingTask(task: any) {
-    console.log('238 setModellingTask', task)
+  function setModellingTask(role: string, tasks: string, types: []) {
+    console.log('178 setModellingTask', tasks)
 
-    taskNodeDataArray = task?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
+    const foundCRTT = findCurRoleTaskTypes(role, task, types, mmodel, dispatch)
+    const typeNames = foundRTT.types
+    const taskNames = foundCRTT.tasks
+
+    let otsArr: any = []
+    if (typeNames?.length > 0) {
+      otsArr = typeNames?.map((wot: any) => // list of types for this focusTask (string)
       ndarr?.find((i: { typename: any; }) => {
-        return (i?.typename === wot) && i
+        console.log('97 findCurRoleTaskTypes', i, wot)
+        return (i?.typename === wot) && i 
       })
-    ).filter(Boolean) // remove undefined
-    if (task.id === 'Alltypes') {
-      setFilteredOtNodeDataArray(ndarr)
-    } else {
-      setFilteredOtNodeDataArray(taskNodeDataArray)
+      ).filter(Boolean) // remove undefined
     }
-    setRefreshPalette(!refreshPalette)
 
-    console.log('244 taskNodeDataArray', taskNodeDataArray, filteredOtNodeDataArray)
+
+    if (!debug) console.log('190 taskNodeDataArray', taskNodeDataArray, types, role, task)
+    if (task.id === 'Alltypes') {
+      setFilteredOtNodeDataArray(ndarr) //sett current palette to all types
+    } else {
+      setFilteredOtNodeDataArray(otsArr)
+    }
+    setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
+    console.log('197 taskNodeDataArray', taskNodeDataArray, filteredOtNodeDataArray)
+  
   }
-
-  if (!debug) console.log('251 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
+  if (!debug) console.log('200 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
   
   // ------------------   ------------------
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
 
-  if (debug) console.log('163 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  if (debug) console.log('207 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
   
   // let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
   // let selectTaskDiv = 
@@ -277,7 +228,7 @@ const Palette = (props: any) => {
   //     {/* <div>{focusTask?.name}</div> */}
   //   </>
  
- const gojsappPalette =   // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
+  const gojsappPalette =   // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
    <div className="workpad p-1 pt-2 bg-white" >
     <div className="mmname bg-light mx-0 px-2 my-0" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
     {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
@@ -324,7 +275,87 @@ const Palette = (props: any) => {
 export default Palette;
 
 
-
+  // const modellingtasks = [
+  //   {
+  //     id: "IRTV-POPS-Modelling",
+  //     name: "IRTV+POPS Modelling",
+  //     workOnTypes: [
+  //       "Container",
+  //       "Information",
+  //       "Role",
+  //       "Task",
+  //       "View",
+  //       "Product",
+  //       "Organisation",
+  //       "Process",
+  //       "System"
+  //     ],
+  //   },
+  //   {
+  //     id: "Process-Modelling",
+  //     name: "Process Modelling",
+  //     workOnTypes: [
+  //       "Container",
+  //       "Process",
+  //       "Start",
+  //       "End",
+  //       "ExclusiveGate",
+  //       "InclusiveGate",
+  //       "ParallelGate",
+  //     ],
+  //   },
+  //   {
+  //     id: "PropertyModelling",
+  //     name: "PropertyModelling",
+  //     workOnTypes: [
+  //       "Container",
+  //       "EntityType",
+  //       "Property",
+  //       "Datatype",
+  //       "InputPattern",
+  //       "FieldType",
+  //       "Unittype",
+  //       "Value",
+  //       "ViewFormat",
+  //       "Method",
+  //       "MethodType",
+  //       "RelshipType"
+  //     ],
+  //   },
+  //   // {
+  //   //   id: "Alltypes",
+  //   //   name: "Alltypes",
+  //   //   workOnTypes:[
+  //   //     "Container",
+  //   //     "EntityType",
+  //   //     "Information",
+  //   //     "Role",
+  //   //     "Task",
+  //   //     "View",
+  //   //     "CreateRepo\n",
+  //   //     "Datatype",
+  //   //     "Element",
+  //   //     "FieldType",
+  //   //     "Generic",
+  //   //     "InputPattern",
+  //   //     "Label",
+  //   //     "Method",
+  //   //     "MethodType",
+  //   //     "Port",
+  //   //     "Process",
+  //   //     "Property",
+  //   //     "RelshipType",
+  //   //     "Value",
+  //   //     "ViewFormat"
+  //   //   ],
+  //   // },
+  //   {
+  //     id: "Alltypes",
+  //     name: "Alltypes",
+  //     workOnTypes: [],
+  //   },
+  // ]  
+  // console.log('229 modellingtypes', modellingtasks[0])
 
 {/* 
 const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)

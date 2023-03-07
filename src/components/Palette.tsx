@@ -88,6 +88,10 @@ const Palette = (props: any) => {
     return () => { isRendered = false; }
   }, [])
 
+  useEffect(() => {
+    setRefreshPalette(!refreshPalette)
+  }, [modellingtasks])
+
   const findCurRoleTaskTypes = (role: string, task: string, types:[], mmodel: any, dispatch: any) => {
     let roleTaskTypes: any 
     // if (isRendered) {
@@ -95,7 +99,7 @@ const Palette = (props: any) => {
       const foundRTTNames = genRoleTasks(role='',task='', types=[], mmodel, dispatch)
       if (!debug) clog('95 Palette useEffect', foundRTTNames);
       const typeNames = foundRTTNames?.types
-      const taskNames = foundRTTNames?.tasks
+      const taskNames = foundRTTNames.tasks;
       if (typeNames?.length > 0) {
         types = typeNames?.map((wot: any) => // list of types for this focusTask (string)
         ndarr?.find((i: { typename: any; }) => {
@@ -104,8 +108,8 @@ const Palette = (props: any) => {
         ).filter(Boolean) // remove undefined
         role = foundRTTNames.role.id
         task = foundRTTNames.task.id
-        console.log('104˝ Palette useEffect', role, task, types, typeNames, foundRTTNames, foundRTTNames.tasks.map((t: any) => t.id));
-        setModellingtasks(foundRTTNames.tasks.map((t: any) => t.id))
+        console.log('104˝ Palette useEffect', role, task, types, typeNames, foundRTTNames, taskNames);
+        setModellingtasks(taskNames)
       }
       if (!debug) clog('109˝ Palette useEffect', role, task, types, typeNames, foundRTTNames, modellingtasks);
     // }
@@ -193,14 +197,13 @@ const Palette = (props: any) => {
     if (typeNames?.length > 0) {
       otsArr = typeNames?.map((wot: any) => // list of types for this focusTask (string)
       ndarr?.find((i: { typename: any; }) => {
-        console.log('97 findCurRoleTaskTypes', i, wot)
+        console.log('200 findCurRoleTaskTypes', i, wot)
         return (i?.typename === wot) && i 
       })
       ).filter(Boolean) // remove undefined
     }
 
-
-    if (!debug) console.log('190 taskNodeDataArray', taskNodeDataArray, types, role, task)
+    if (!debug) console.log('206 taskNodeDataArray', taskNodeDataArray, types, role, task)
     if (task.id === 'Alltypes') {
       setFilteredOtNodeDataArray(ndarr) //sett current palette to all types
     } else {
@@ -208,16 +211,16 @@ const Palette = (props: any) => {
     }
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
     console.log('197 taskNodeDataArray', taskNodeDataArray, filteredOtNodeDataArray)
-  
   }
-  if (!debug) console.log('200 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
+
+  if (!debug) console.log('216 filteredOtNodeDataArray', filteredOtNodeDataArray, taskNodeDataArray, ndarr)
   
   // ------------------   ------------------
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
 
-  if (debug) console.log('207 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  if (debug) console.log('223 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
   
   // let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
   // let selectTaskDiv = 
@@ -253,11 +256,10 @@ const Palette = (props: any) => {
         {/* <span>{props.focusMetamodel?.name}</span> */}
         <div>
         {/* <div style={{ minWidth: "140px" }}> */}
-        {otDiv}
           {visiblePalette 
             ? (refreshPalette) 
-              ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</> 
-              : <div><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</div>
+              ? <>         {otDiv}<div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</> 
+              : <div>         {otDiv}<div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</div>
             : <div className="btn-vertical px-1 " style={{ height: "92vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
           } 
         </div>

@@ -199,7 +199,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
         return {
             role: foundRole,
             task: foundTask,
-            tasks: datatask.tasks, 
+            tasks: datarole.focusRole.tasks, 
             types: foundTask.workOnTypes
         }
     }

@@ -82,34 +82,36 @@ const Palette = (props: any) => {
   let role, task, types 
   useEffect(() => {
     isRendered = true;
-    const foundRTT = findCurRoleTaskTypes(role='', task='', types=[], mmodel, dispatch)
-    setModellingtasks(foundRTT.tasks)
+    const foundRTTNames = findCurRoleTaskTypes(role='', task='', types=[], mmodel, dispatch)
+    setModellingtasks(foundRTTNames?.tasks?.map((t: any) => t.id))
+    if (!debug) clog('87 Palette useEffect', foundRTTNames);
     return () => { isRendered = false; }
   }, [])
 
   const findCurRoleTaskTypes = (role: string, task: string, types:[], mmodel: any, dispatch: any) => {
     let roleTaskTypes: any 
     // if (isRendered) {
-      if (!debug) clog('90 Palette useEffect', mmodel, roleTaskTypes);
+      if (!debug) clog('93 Palette useEffect', mmodel, roleTaskTypes);
       const foundRTTNames = genRoleTasks(role='',task='', types=[], mmodel, dispatch)
-      const typeNames = foundRTTNames.types
-      const taskNames = foundRTTNames.tasks
+      if (!debug) clog('95 Palette useEffect', foundRTTNames);
+      const typeNames = foundRTTNames?.types
+      const taskNames = foundRTTNames?.tasks
       if (typeNames?.length > 0) {
         types = typeNames?.map((wot: any) => // list of types for this focusTask (string)
         ndarr?.find((i: { typename: any; }) => {
-          console.log('97 findCurRoleTaskTypes', i, wot)
           return (i?.typename === wot) && i 
         })
         ).filter(Boolean) // remove undefined
         role = foundRTTNames.role.id
         task = foundRTTNames.task.id
-        setModellingtasks(foundRTTNames.tasks)
+        console.log('104˝ Palette useEffect', role, task, types, typeNames, foundRTTNames, foundRTTNames.tasks.map((t: any) => t.id));
+        setModellingtasks(foundRTTNames.tasks.map((t: any) => t.id))
       }
-      if (!debug) clog('100˝ Palette useEffect', role, task, types, typeNames, foundRTTNames);
+      if (!debug) clog('109˝ Palette useEffect', role, task, types, typeNames, foundRTTNames, modellingtasks);
     // }
     return {
-      role: role,
-      task: task,
+      role: role, // role object
+      task: task, // task object
       types: types,
       tasks: taskNames
     }

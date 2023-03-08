@@ -7,7 +7,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (!debug) console.log("7 genRoleTasks", role, task, types, mmodel);
+    if (debug) console.log("7 genRoleTasks", role, task, types, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     if (mmodel?.objecttypes0?.length > 0) {
         const  oTypes0 = mmodel?.objecttypes0?.map((ot: { id: any; name: any; description: any; icon: any; color: any; type: any; }) => {
@@ -29,9 +29,27 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
             name: "Modeller 1",
             tasks: [
                 {
-                    id: "task00",
-                    name: "All types",
-                    description: "All types modelling",
+                    id: "IRTV-POPS++",
+                    name: "IRTV-POPS++",
+                    description: "Model IRTV-POPS++ objects",
+                    workOnTypes: [
+                    "Container",   
+                    "EntityType",
+                    "Information",
+                    "Role",
+                    "Task",
+                    "View",
+                    "Label",
+                    "Product",
+                    "Organisation",
+                    "Process",
+                    "System",   
+                    ]
+                },
+                {
+                    id: "All-types",
+                    name: "All Objecttypes",
+                    description: "All Objecttypes modelling",
                     workOnTypes:  [
                         "Container",    
                         "EntityType",
@@ -50,7 +68,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     ]
                 },
                 {
-                    id: "Task0",
+                    id: "IRTV+New-types",
                     name: "Modelling",
                     workOnTypes:  [
                         "Container",    
@@ -70,9 +88,9 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     ]
                 },
                 {
-                    id: "task1",
-                    name: "Entity Modelling",
-                    description: "Create New Entity using objecttype: EntityType",
+                    id: "Property",
+                    name: "Property Modelling",
+                    description: "Create New Entity using objecttype: EntityType and add properties",
                     workOnTypes: [
                         "Container",   
                         "EntityType",
@@ -115,7 +133,8 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
         }
         if (debug) console.log("114 datarole", oTypes0, datarole);
         
-        const foundRole = datarole?.focusRole?.tasks?.find((t: { id: any; }) => t.id === role) || datarole?.focusRole
+        const foundRole = datarole?.focusRole
+        const foundTask = datarole?.focusRole?.tasks?.find((t: { id: any; }) => t.id === task && t) || datarole?.focusRole?.tasks[0]
 
         if (oTypes0.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })
 
@@ -189,18 +208,20 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
         }
     
          
-        const foundTask = datatask.tasks.find((t: { id: any; }) => t.id === task) || datatask.tasks[0]
+        // const foundTask = datatask.tasks.find((t: { id: any; }) => t.id === task) || datatask.tasks[0]
         if (debug) console.log("187 focusTasks", datatask);
         if (datatask) dispatch({ type: 'SET_FOCUS_TASK', data: datatask.tasks })
-        if (types.length < 1) types = datatask.tasks[0].workOnTypes
-        
-        if (!debug) console.log("196 focusTasks",  foundRole, foundTask, foundTask.workOnTypes);
+        if (types?.length < 1) types = datatask.tasks[0].workOnTypes
 
-        return {
-            role: foundRole,
-            task: foundTask,
-            tasks: datarole.focusRole.tasks, 
-            types: foundTask.workOnTypes
+        const tmptasks =datarole.focusRole.tasks.map((t: { id: any; name: any; }) => {return {id: t.id, name: t.name}})
+        
+        if (debug) console.log("196 focusTasks",  foundRole, foundTask, tmptasks, foundTask.workOnTypes);
+
+        return { // return just id and name and arrays of ids and names
+            filterRole: {id: foundRole.id, name: foundRole.name},
+            filterTask: {id: foundTask.id, name: foundTask.name},
+            filterTasks: tmptasks,
+            filterTypes: foundTask.workOnTypes
         }
     }
 }

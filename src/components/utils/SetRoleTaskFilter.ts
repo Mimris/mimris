@@ -32,9 +32,45 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
             name: "Modeller 1",
             tasks: [
                 {
-                    id: "IRTV-POPS++",
-                    name: "IRTV-POPS++",
-                    description: "Model IRTV-POPS++ objects",
+                    id: "AKM-IRTV-POPS++_MM",
+                    name: "AKM-IRTV-POPS++_MM",
+                    description: "Modelling with AKM-IRTV-POPS++ objects",
+                    workOnTypes: [
+                    "Container",   
+                    "EntityType",
+                    "Information",
+                    "Role",
+                    "Task",
+                    "View",
+                    "Label",
+                    "Product",
+                    "Organisation",
+                    "Process",
+                    "System",   
+                    ]
+                },
+                {
+                    id: "AKM-IRTV-POPS+_MM",
+                    name: "AKM-IRTV-POPS+_MM",
+                    description: "Modeling with AKM-IRTV-POPS+ objects",
+                    workOnTypes: [
+                    "Container",   
+                    "EntityType",
+                    "Information",
+                    "Role",
+                    "Task",
+                    "View",
+                    "Label",
+                    "Product",
+                    "Organisation",
+                    "Process",
+                    "System",   
+                    ]
+                },
+                {
+                    id: "AKM-IRTV-POPS_MM",
+                    name: "AKM-IRTV-POPS_MM",
+                    description: "Modeling with AKM-IRTV-POPS objects",
                     workOnTypes: [
                     "Container",   
                     "EntityType",

@@ -46,7 +46,14 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     "Product",
                     "Organisation",
                     "Process",
-                    "System",   
+                    "System",
+                    "Activity",
+                    "ParrallelGate",
+                    "ExclusiveGate",
+                    "InclusiveGate",
+                    "Gateway",
+                    "Start",
+                    "End",
                     ]
                 },
                 {
@@ -64,7 +71,14 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     "Product",
                     "Organisation",
                     "Process",
-                    "System",   
+                    "System",  
+                    "Activity",
+                    "ParrallelGate",
+                    "ExclusiveGate",
+                    "InclusiveGate",
+                    "Gateway",
+                    "Start",
+                    "End", 
                     ]
                 },
                 {
@@ -264,7 +278,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     const mmtask = (foundMMTask) && datarole.focusRole.tasks.find(t => t.id.includes(mmodel.name) && [{id: t.id, name: t.name}])
     const popstask = (foundPOPSTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV+POPS") && [{id: t.id, name: t.name}])
     const irtvtask = (foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV") && [{id: t.id, name: t.name}])
-    const propstask = datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])
+    const propstask = (foundPropertyTask) && datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])
     const alltask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
     if (debug) console.log('247 ', mmtask, popstask, irtvtask, propstask, alltask)
 

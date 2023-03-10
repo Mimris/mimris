@@ -1,7 +1,7 @@
 
 
 import axios from 'axios';
-import { axiosGetCancellable } from './axios.helper';
+// import { axiosGetCancellable } from './axios.helper';
 import Cors from 'cors'
 
 const cors = Cors({

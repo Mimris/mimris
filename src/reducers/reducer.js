@@ -183,7 +183,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
-      if (!debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action, action.data.data.phData);
+      if (debug) console.log('160 LOAD_DATAGITHUB_SUCCESS', action, action.data.data.phData);
       const retval_LOAD_DATAGITHUB_SUCCESS = 
       {
         ...state,
@@ -193,7 +193,7 @@ function reducer(state = InitialState, action) {
         phUser: action.data.data.phUser,
         lastUpdate: action.data.data.lastUpdate
       }
-      if (!debug) console.log('170 LOAD_DATAGITHUB_SUCCESS', retval_LOAD_DATAGITHUB_SUCCESS);
+      if (debug) console.log('170 LOAD_DATAGITHUB_SUCCESS', retval_LOAD_DATAGITHUB_SUCCESS);
       return retval_LOAD_DATAGITHUB_SUCCESS
 
     case LOAD_DATAMODELLIST_SUCCESS:
@@ -451,7 +451,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_PROJ:
-      if (!debug) console.log('455 SET_FOCUS_PROJ', action.data)
+      if (debug) console.log('455 SET_FOCUS_PROJ', action.data)
       const retval_SET_FOCUS_PROJ = {
         ...state,
         phFocus: {
@@ -459,7 +459,7 @@ function reducer(state = InitialState, action) {
           focusProj: action.data
         }
       }
-      if (!debug) console.log('463 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
+      if (debug) console.log('463 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
       return retval_SET_FOCUS_PROJ
     case SET_FOCUS_ORG:
       return {
@@ -523,7 +523,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_REFRESH:
-      if (!debug) console.log('483 SET_FOCUS_REFRESH', action);
+      if (debug) console.log('483 SET_FOCUS_REFRESH', action);
       return {
         ...state,
         phFocus: {

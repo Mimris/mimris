@@ -13,7 +13,7 @@ export default function GithubParams(props) {
 
   const [refresh, setRefresh] = useState(true);
 
-  if (!debug) console.log('5 GithubParams', props)
+  if (debug) console.log('5 GithubParams', props)
       // list query params
       const query = props.query
       const ph = props.ph
@@ -32,7 +32,7 @@ export default function GithubParams(props) {
     
   useEffect(() => {
     if (query.repo) {
-      if (!debug) console.log('33 modelling dispatchGithub', query, props)  
+      if (debug) console.log('33 modelling dispatchGithub', query, props)  
       dispatch({type: 'LOAD_DATAGITHUB', data: query })
       const timer = setTimeout(() => {
         const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} 

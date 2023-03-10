@@ -1,7 +1,7 @@
 
 
 import axios from 'axios';
-import { axiosGetCancellable } from './axios.helper';
+// import { axiosGetCancellable } from './axios.helper';
 import Cors from 'cors'
 
 const cors = Cors({
@@ -43,7 +43,7 @@ const axiosConfigRaw2 = {
 }
 
 export function searchGithub(searchText, path, filename, branch='main', searchtype='paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
-  if (!debug) console.log('46 searchGithub', searchText, path, filename, searchtype);
+  if (debug) console.log('46 searchGithub', searchText, path, filename, searchtype);
   // search/repositories?q=akm-models
   let query = ''
   if (searchtype == 'repos') {
@@ -71,7 +71,7 @@ export function searchGithub(searchText, path, filename, branch='main', searchty
   );
 }
 export function searchRepos(searchText, path) {  // search/repositories?q=akm-models
-  if (!debug)  console.log('74 searchRepos search/repositories', searchText, path);
+  if (debug)  console.log('74 searchRepos search/repositories', searchText, path);
   return axios.get(
     `search/repositories?q=${searchText}`,
     axiosConfig

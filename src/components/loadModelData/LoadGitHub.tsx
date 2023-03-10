@@ -127,16 +127,12 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (!debug) console.log('131 res', res, res.data, sha)
-    // const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
-    // const content = res.data.content
-    // if (debug) console.log('113 res', res2, res2.data)
-    // if (debug) console.log('139 ', base64.decode(content))
-    // const model = JSON.parse(base64.decode(content));
+    if (debug) console.log('131 res', res, res.data, sha)
 
-    const content = res.data
-    if (!debug) console.log('138 ', searchtext, res, content)
-    const model = {
+    const content = res.data // this is the project file from github
+    if (debug) console.log('138 ', searchtext, res, content)
+
+    const model = { // tak model from content and split repository into organisation and repository ad insert into phData
       ...content,
       phData: {
         ...content.phData,
@@ -145,7 +141,6 @@ const LoadGitHub = (props: any) => {
         path: pathText,
       }
     }
-  
 
     if (debug) console.log('142 ', content, model)
     setModel(model);

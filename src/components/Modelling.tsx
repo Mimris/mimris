@@ -71,7 +71,7 @@ const page = (props:any) => {
   const [mount, setMount] = useState(false)
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (!debug) console.log('71 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('71 Modelling', props) //, memoryLocState, (Array.isArray(memoryLocState)));
 
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
 
@@ -107,14 +107,14 @@ const page = (props:any) => {
     //   }
       // put currentdata in the first position of the array data
     //   let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    //   if (!debug) console.log('84 Modelling save memoryState', mdata);
+    //   if (debug) console.log('84 Modelling save memoryState', mdata);
     //   // if mdata is longer than 10, remove the last 2 elements
     //   if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
     //   if (mdata.length > 2) { mdata.pop() }
     //   if (debug) console.log('88 Modelling refresh', mdata);
     //   (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     // } else {
-    //   if (!debug) console.log('91 Modelling refresh', props);
+    //   if (debug) console.log('91 Modelling refresh', props);
     //   setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
     // }
     GenGojsModel(props, dispatch)
@@ -379,30 +379,10 @@ const page = (props:any) => {
                         dispatch={dispatch}
                         modelType='model'
                       />
-                    {/* <div className="instances"> area for all instance or result of query 
-                    {instances}
-                    </div> */}
                   </div>
                 </Col>
-                  {/* <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                    <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div>
-                    <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
-                      <GoJSPaletteApp // this is the Objects list
-                      nodeDataArray={gojsobjects.nodeDataArray}
-                      linkDataArray={[]}
-                      metis={props.metis}
-                      myMetis={props.myMetis}
-                      myGoModel={props.myGoModel}
-                      phFocus={props.phFocus}
-                      dispatch={props.dispatch}
-                      />
-                    </div>
-                </Col> */}
-
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}> {/* Modelling area */}
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                  {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div> */}
-                  {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
                     <Modeller // this is the Modeller ara
                       gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}

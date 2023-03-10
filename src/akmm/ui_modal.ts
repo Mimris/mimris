@@ -13,7 +13,7 @@ import * as constants from './constants';
 const RegexParser = require("regex-parser");
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
-  if (!debug) console.log('16 ui_modal: props, value', props, value);
+  if (debug) console.log('16 ui_modal: props, value', props, value);
   const propname = props.id;
   const fieldType = props.type;
   const obj = props.obj;
@@ -118,7 +118,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 }
 
 export function handleSelectDropdownChange(selected, context) {
-  if (!debug) console.log('121 selected, context:', selected, context);
+  if (debug) console.log('121 selected, context:', selected, context);
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis;
   const myMetamodel = context.myMetamodel;
@@ -560,13 +560,13 @@ export function handleSelectDropdownChange(selected, context) {
       break;
     }
     default:
-      if (!debug) console.log('563 selected: ', selected);
+      if (debug) console.log('563 selected: ', selected);
       break;
   }
 }
 
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
-  if (!debug) console.log('540 selectedData, props, modalContext: ', selectedData, props, modalContext);
+  if (debug) console.log('540 selectedData, props, modalContext: ', selectedData, props, modalContext);
   if (debug) console.log('541 selectedData.objecttype: ', selectedData.objecttype);
   if (debug) console.log('542 props.nodedataArray[0].objecttype: ', props.nodeDataArray[0].objecttype);
   const what = modalContext.what;
@@ -776,7 +776,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     case "addPort": {
       const selObj = selectedData;
-      if (!debug) console.log('779 selObj', selObj);
+      if (debug) console.log('779 selObj', selObj);
       break;
     }
     case "editRelationship": {

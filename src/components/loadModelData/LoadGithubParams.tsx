@@ -13,7 +13,7 @@ export default function LoadGithubParams(props) {
 //     console.log('12 LoadGithubParams', props, query)
 
 //     function dispatchGithub(query) {
-//         if (!debug) console.log('16 modelling dispatchGithub', query)  
+//         if (debug) console.log('16 modelling dispatchGithub', query)  
 //         dispatch({type: 'LOAD_DATAGITHUB', data: query })
 //     }
 

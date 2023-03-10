@@ -249,11 +249,11 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
             ]
         }
     }
-    
+    let curtask
     if (debug) console.log("114 datarole", oTypes, datarole);
-    if (!task) task = datarole?.focusRole?.tasks?.find((t) => t.id === mmodel.name) || null
+    if (!task) curtask = datarole?.focusRole?.tasks?.find((t) => t.id === mmodel.name) || null
     const foundRole = datarole?.focusRole
-    const foundTask = foundRole?.tasks?.find((t) =>  t.id === task.id) || null
+    const foundTask = foundRole?.tasks?.find((t) =>  t.id === task?.id) || null
     const foundMMTask = foundRole?.tasks?.find((t) =>  t.id === mmodel.name) || null
     const foundIRTVTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("IRTV")) && t) || null
     const foundPOPSTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("POPS")) && t) || null
@@ -261,7 +261,6 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     if (debug) console.log("278 found...Types", foundPropertyType)
 
     const mmtask = (foundMMTask) && datarole.focusRole.tasks.find(t => t.id.includes(mmodel.name) && [{id: t.id, name: t.name}])
-    // const currenttask = (!task) ? mmtask : task
     const popstask = (foundPOPSTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV+POPS") && [{id: t.id, name: t.name}])
     const irtvtask = (foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV") && [{id: t.id, name: t.name}])
     const propstask = (foundPropertyType) && datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])

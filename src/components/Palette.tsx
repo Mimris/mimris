@@ -33,7 +33,7 @@ const Palette = (props: any) => {
   const [modellingtasks, setModellingtasks] = useState([{id: 'Modelling', name: 'Modelling'}])
   const [types, setTypes] = useState(['Container','Generic'])
   const [role, setRole] = useState('Modeller1')
-  const [task, setTask] = useState(modellingtasks[0])
+  const [task, setTask] = useState(null)
   const [tasks, setTasks] = useState(modellingtasks)
 
   if (debug) console.log('43 Palette', role, task, types, tasks, modellingtasks)
@@ -82,7 +82,8 @@ const Palette = (props: any) => {
     isRendered = true;
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     if (debug) clog('83 Palette useEffect', role, task, tasks, types, mmodel);
-    if (debug) clog('84 Palette useEffect', foundRTTs, foundRTTs.role, foundRTTs.task, foundRTTs.tasks, foundRTTs.types);
+    if (!debug) clog('84 Palette useEffect', foundRTTs, foundRTTs.role, foundRTTs.task, foundRTTs.tasks, foundRTTs.types);
+    setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
     setRole(foundRTTs?.role)
     setTask(foundRTTs?.task)
     setModellingtasks(foundRTTs?.tasks)
@@ -185,7 +186,7 @@ const Palette = (props: any) => {
    const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
         <button className="btn-sm pt-0 pr-1 b-0 mt-0 mb-0 mr-2" style={{ backgroundColor: "#7ab", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette Src Metamodel</span> : <span> -&gt;</span>} 
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette: Src Metamodel</span> : <span> -&gt;</span>} 
         </button>
         <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
         <div className="modellingtask bg-light w-100" >
@@ -196,8 +197,8 @@ const Palette = (props: any) => {
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
             ? (refreshPalette) 
-              ? <>{ gojsappPalette }</> 
-              : <>{ gojsappPalette }</>
+              ? <>{ gojsappPalette }</> // these two lines needs to be different to refresh the palette
+              : <><div className="btn-horizontal bg-light mx-0 px-1 mb-0" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</>
             : <div className="btn-vertical px-1 " style={{ height: "92vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
           } 
         </div>

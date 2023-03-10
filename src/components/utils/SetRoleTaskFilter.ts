@@ -268,7 +268,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
 
     if (debug) console.log("240 filteredTasks", alltask);
 
-    if (debug) console.log("206 filteredTasks", mmodel.name, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundRole.tasks[0]);
+    if (debug) console.log("206 filteredTasks", mmodel.name, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyType, foundRole.tasks[0]);
     // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
     // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
     const foundTypes = foundTask?.workOnTypes || []

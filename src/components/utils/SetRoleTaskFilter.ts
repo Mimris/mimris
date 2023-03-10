@@ -274,15 +274,16 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     const foundMMTask = foundRole?.tasks?.find((t) =>  t.id === mmodel.name) || null
     const foundIRTVTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("IRTV")) && t) || null
     const foundPOPSTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("POPS")) && t) || null
-    const foundPropertyTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("Property")) && t) || null
+    const foundPropertyType = mmodel.objecttypes.find(ot => (ot.name === "Property") && ot) || null
+    if (debug) console.log("278 found...Types", foundPropertyType)
     const mmtask = (foundMMTask) && datarole.focusRole.tasks.find(t => t.id.includes(mmodel.name) && [{id: t.id, name: t.name}])
     const popstask = (foundPOPSTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV+POPS") && [{id: t.id, name: t.name}])
     const irtvtask = (foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV") && [{id: t.id, name: t.name}])
-    const propstask = (foundPropertyTask) && datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])
+    const propstask = (foundPropertyType) && datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])
     const alltask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
     if (debug) console.log('247 ', mmtask, popstask, irtvtask, propstask, alltask)
 
-    if (!debug) console.log("240 filteredTasks", alltask);
+    if (debug) console.log("240 filteredTasks", alltask);
 
     if (debug) console.log("206 filteredTasks", mmodel.name, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundRole.tasks[0]);
     // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
@@ -299,7 +300,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
 
 
     if (debug) console.log("250 focusTasks",  foundRole.tasks, foundtasks);
-    if (!debug) console.log("251 focusTasks",  foundRole, foundTask, tmptasks, foundtasks,  foundTypes);
+    if (debug) console.log("251 focusTasks",  foundRole, foundTask, tmptasks, foundtasks,  foundTypes);
 
     return { // return just id and name and arrays of ids and names
         filterRole: {id: foundRole.id, name: foundRole.name},

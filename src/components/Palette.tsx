@@ -185,7 +185,7 @@ const Palette = (props: any) => {
    const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
         <button className="btn-sm pt-0 pr-1 b-0 mt-0 mb-0 mr-2" style={{ backgroundColor: "#7ab", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette Source Metam.</span> : <span> -&gt;</span>} 
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette Src Metamodel</span> : <span> -&gt;</span>} 
         </button>
         <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
         <div className="modellingtask bg-light w-100" >
@@ -197,7 +197,7 @@ const Palette = (props: any) => {
           {visiblePalette 
             ? (refreshPalette) 
               ? <>{ gojsappPalette }</> 
-              : <><div className="btn-horizontal bg-light mx-0 px-1 mb-0" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</>
+              : <>{ gojsappPalette }</>
             : <div className="btn-vertical px-1 " style={{ height: "92vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
           } 
         </div>

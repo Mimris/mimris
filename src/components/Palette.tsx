@@ -143,7 +143,7 @@ const Palette = (props: any) => {
   const otDiv = 
     <>
       <label className='label-field px-1'>Modelling tasks:</label>
-      <select className='select-field mx-1 text-secondary' onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
+      <select className='select-field mx-1 text-secondary w-100' onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
         {modellingtasks?.map((t, i) => <option key={i} value={i}>{t.name}</option>)}
       </select>
     </>

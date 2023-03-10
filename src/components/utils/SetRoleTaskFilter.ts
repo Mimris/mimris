@@ -33,7 +33,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
             tasks: [
                 {
                     id: "AKM-IRTV-POPS++_MM",
-                    name: "AKM-IRTV-POPS++_MM",
+                    name: "IRTV-POPS++ Modelling",
                     description: "Modelling with AKM-IRTV-POPS++ objects",
                     workOnTypes: [
                     "Container",   
@@ -58,7 +58,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                 },
                 {
                     id: "AKM-IRTV-POPS+_MM",
-                    name: "AKM-IRTV-POPS+_MM",
+                    name: "RTV-POPS+ Modelling",
                     description: "Modeling with AKM-IRTV-POPS+ objects",
                     workOnTypes: [
                     "Container",   
@@ -83,7 +83,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                 },
                 {
                     id: "AKM-IRTV-POPS_MM",
-                    name: "AKM-IRTV-POPS_MM",
+                    name: "IRTV-POPS Modelling",
                     description: "Modeling with AKM-IRTV-POPS objects",
                     workOnTypes: [
                     "Container",   
@@ -100,25 +100,8 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     ]
                 },
                 {
-                    id: "AKM-IRTV-POPS_MM",
-                    name: "AKM-IRTV-POPS_MM",
-                    description: "Model IRTV-POPS++ objects",
-                    workOnTypes: [
-                    "Container",   
-                    "EntityType",
-                    "Information",
-                    "Role",
-                    "Task",
-                    "View",
-                    "Label",
-                    "Product",
-                    "Organisation",
-                    "System",   
-                    ]
-                },
-                {
                     id: "IRTV",
-                    name: "IRTV",
+                    name: "IRTV Modelling",
                     description: "Model IRTV objects",
                     workOnTypes: [
                     "Container",   

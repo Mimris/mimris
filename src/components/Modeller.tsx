@@ -112,21 +112,13 @@ const Modeller = (props: any) => {
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
 
     GenGojsModel(props, dispatch)
+    setRefresh(!refresh)
 
-    // save current state to memory
-    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    if (debug) console.log('84 Modelling save memoryState', mdata);
-    // if mdata is longer than 10, remove the last 2 elements
-    if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
-    if (mdata.length > 2) { mdata.pop() }
-    if (debug) console.log('88 Modelling refresh', mdata);
-    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-
-
-    setTimeout(() => {
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
-    , 1000);
+    // setTimeout(() => {
+    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
+    // , 1000);
   }
+
   // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
   if (debug) console.log('121 Modeller: props, refresh', props, refresh);
@@ -154,7 +146,7 @@ const Modeller = (props: any) => {
     if (debug) console.log('69 Modeller: handleProjectChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: e.value, name: e.value } }); // set focus project
-    }
+  }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
     if (debug) console.log('19 Selector', JSON.parse(event.value).name);
@@ -168,7 +160,7 @@ const Modeller = (props: any) => {
     // if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
     // dispatch({  type: 'UPDATE_MODEL_PROPERTIES', data: data })
     dispatch({  type: 'SET_FOCUS_MODEL', data: data })
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
+    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
     const mv = selObj.modelviews[0]
     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
     // setRefresh(!refresh)

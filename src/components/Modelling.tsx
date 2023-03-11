@@ -132,13 +132,16 @@ const page = (props:any) => {
   }, [])
 
   useEffect(() => {
-    useEfflog('131 Modelling useEffect 2 [props.phFocus.focusModelview?.id && (props.phFocus.focusModel?.id !== props.phData?.metis?.models[0]?.id)]', props);
+    useEfflog('135 Modelling useEffect 2 [props.phFocus.focusModelview?.id && (props.phFocus.focusModel?.id !== props.phData?.metis?.models[0]?.id)]', props);
     GenGojsModel(props, dispatch);
+    useEfflog('137 Modelling useEffect 2.1 ', props);
     const timer = setTimeout(() => {
+      useEfflog('139 Modelling useEffect 2. ', props);
       setRefresh(!refresh)
-    }, 1000);
+    }, 200);
     return () => clearTimeout(timer);
-  }, [props.phFocus.focusModelview?.id && (props.phFocus.focusModel?.id !== props.phData?.metis?.models[0]?.id)]) //if [0] its already set
+  }, [props.phFocus.focusModelview?.id])//if [0] its already set
+  // }, [props.phFocus.focusModelview?.id && (props.phFocus.focusModel?.id !== props.phData?.metis?.models[0]?.id)]) //if [0] its already set
 
   useEffect(() => {
     useEfflog('140 Modelling useEffect 3 [props.phSource]', props, props.phData?.metis?.name);
@@ -154,11 +157,11 @@ const page = (props:any) => {
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     useEfflog('150 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props);
     // dispatch({type: 'SET_FOCUS_PHFOCUS', data: props.phFocus })
-    GenGojsModel(props, dispatch);
+    // GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       setRefresh(!refresh)
     }
-    , 100);
+    , 1000);
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
 

@@ -7,7 +7,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (!debug) console.log("10 genRoleTasks", role, task, types, mmodel);
+    if (debug) console.log("10 genRoleTasks", role, task, types, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
 
@@ -120,30 +120,12 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     workOnTypes:  []
                 },
                 {
-                    id: "IRTV+POPS+New-types",
-                    name: "IRTV+POPS+New-types",
+                    id: "New-types",
+                    name: "New-types",
                     workOnTypes:  [
                         "Container",    
-                        "Information",
-                        "Role",
-                        "Task",
-                        "View",
-                        "Product",
-                        "Organisation",
-                        "Process",
-                        "System",
-                        "EntityType",
                             ...oTypes?.map((t: { name: any; }) => 
-                                (t.name !== "Container") &&
-                                (t.name !== "EntityType") &&
-                                (t.name !== "Information") &&
-                                (t.name !== "Role") &&
-                                (t.name !== "Task") &&
-                                (t.name !== "View") &&
-                                (t.name !== "Product") &&
-                                (t.name !== "Organisation") &&
-                                (t.name !== "Process") &&
-                                (t.name !== "System")
+                                (t.name !== "Container")
                                 && t.name)
                     ]
                 },
@@ -251,40 +233,43 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     }
     let curtask
     if (debug) console.log("114 datarole", oTypes, datarole);
-    if (!task) curtask = datarole?.focusRole?.tasks?.find((t) => t.id === mmodel.name) || null
+    if (!task || task.length < 1) curtask = datarole?.focusRole?.tasks?.find((t) => (t.id === mmodel.name) && t) || null
     const foundRole = datarole?.focusRole
     const foundTask = foundRole?.tasks?.find((t) =>  t.id === task?.id) || null
     const foundMMTask = foundRole?.tasks?.find((t) =>  t.id === mmodel.name) || null
     const foundIRTVTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("IRTV")) && t) || null
     const foundPOPSTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("POPS")) && t) || null
+    const foundRoleType = mmodel.objecttypes.find(ot => (ot.name === "Role") && ot) || null
     const foundPropertyType = mmodel.objecttypes.find(ot => (ot.name === "Property") && ot) || null
-    if (debug) console.log("278 found...Types", foundPropertyType)
+    if (debug) console.log("244 SetRoleTaskFilter", task, curtask, datarole.focusRole?.tasks,datarole?.focusRole?.tasks?.find((t) => t.id === mmodel.name), mmodel.name)
 
     const mmtask = (foundMMTask) && datarole.focusRole.tasks.find(t => t.id.includes(mmodel.name) && [{id: t.id, name: t.name}])
     const popstask = (foundPOPSTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV+POPS") && [{id: t.id, name: t.name}])
     const irtvtask = (foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV") && [{id: t.id, name: t.name}])
     const propstask = (foundPropertyType) && datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])
+    const roletask = (foundRoleType && !foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("Role") && [{id: t.id, name: t.name}])
     const alltask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
-    if (debug) console.log('247 ', mmtask, popstask, irtvtask, propstask, alltask)
+    const newtask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}])
+    const foundtask = (foundTask) && [{id: foundTask.id, name: foundTask.name}] || mmtask || newtask || roletask || popstask || irtvtask || propstask || alltask || null
+    if (debug) console.log('247 ', newtask, mmtask, popstask, irtvtask, propstask, alltask)
 
-    if (debug) console.log("240 filteredTasks", alltask);
+    if (debug) console.log("240 filteredTasks", foundtask, alltask);
 
     if (debug) console.log("206 filteredTasks", mmodel.name, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyType, foundRole.tasks[0]);
     // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
     // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
-    const foundTypes = foundTask?.workOnTypes || []
-
+    
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })
-    if (foundTask) dispatch({ type: 'SET_FOCUS_TASK', data: foundTask })
+    if (foundtask) dispatch({ type: 'SET_FOCUS_TASK', data: foundTask })
+    
+    const foundtasks = [ foundtask, mmtask,  newtask, roletask, popstask, irtvtask, propstask, alltask].filter(Boolean)
+    
+    const foundTypes = foundtask?.workOnTypes || []
 
-    const tmptasks = datarole.focusRole.tasks.filter((t: { id: any; name: any; }) => {return (t.id === foundMMTask?.id) && {id: t.id, name: t.name}})
-    const foundtasks = [  mmtask, popstask, irtvtask, propstask, alltask].filter(Boolean)
 
 
-
-
-    if (!debug) console.log("250 focusTasks",  foundRole.tasks, foundtasks);
-    if (debug) console.log("251 focusTasks",  foundRole, foundTask, tmptasks, foundtasks,  foundTypes);
+    if (debug) console.log("271 focusTasks",  foundRole.tasks, foundtasks, foundTypes);
+    if (debug) console.log("272 focusTasks",  foundRole, foundTask, foundtasks,  foundTypes);
 
     return { // return just id and name and arrays of ids and names
         filterRole: {id: foundRole.id, name: foundRole.name},

@@ -31,7 +31,7 @@ const Palette = (props: any) => {
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
   const [modellingtasks, setModellingtasks] = useState([{id: 'Modelling', name: 'Modelling'}])
-  const [types, setTypes] = useState(['Container','Generic'])
+  const [types, setTypes] = useState([])
   const [role, setRole] = useState('Modeller1')
   const [task, setTask] = useState(null)
   const [tasks, setTasks] = useState(modellingtasks)
@@ -82,13 +82,13 @@ const Palette = (props: any) => {
     isRendered = true;
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     if (debug) clog('83 Palette useEffect', role, task, tasks, types, mmodel);
-    if (!debug) clog('84 Palette useEffect', foundRTTs, foundRTTs.role, foundRTTs.task, foundRTTs.tasks, foundRTTs.types);
-    setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
+    if (debug) clog('84 Palette useEffect', foundRTTs, foundRTTs.role, foundRTTs.task, foundRTTs.tasks, foundRTTs.types);
     setRole(foundRTTs?.role)
     setTask(foundRTTs?.task)
     setModellingtasks(foundRTTs?.tasks)
     setTypes(foundRTTs?.types)
-    if (debug) console.log('88 Palette useEffect', modellingtasks);
+    setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
+    if (debug) console.log('88 Palette useEffect []', foundRTTs?.types, types, modellingtasks);
     return () => { isRendered = false; }
   }, [])
 
@@ -101,11 +101,11 @@ const Palette = (props: any) => {
       })
       ).filter(Boolean) // remove undefined
 
-      if (!debug) console.log('106 taskNodeDataArray', types, ndarr, otsArr)
       setFilteredOtNodeDataArray(otsArr)
     } else {
       setFilteredOtNodeDataArray(ndarr)
     }
+    if (debug) console.log('106 Palette useEffect [types]', types, ndarr, otsArr)
   }, [types])
 
   useEffect(() => {
@@ -119,9 +119,9 @@ const Palette = (props: any) => {
   }, [filteredOtNodeDataArray])
 
   const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
-    if (!debug) clog('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
+    if (debug) clog('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
     const foundRTTs = genRoleTasks(role, task, types, mmodel, dispatch)
-    if (!debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
+    if (debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
     console.log('131  Palette findCurRoleTaskTypes ', types)  
     return {
@@ -144,20 +144,20 @@ const Palette = (props: any) => {
   const otDiv = 
     <>
       <label className='label-field px-1'>Modelling tasks:</label>
-      <select className='select-field mx-1 text-secondary' onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
+      <select className='select-field mx-1 text-secondary'style={{width: "96%"}} onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
         {modellingtasks?.map((t, i) => <option key={i} value={i}>{t.name}</option>)}
       </select>
     </>
 
   function setModellingTask(task) {
-    if (!debug) clog('156 Palette setModellingTask',task, types);
+    if (debug) clog('156 Palette setModellingTask',task, types);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
-    if (!debug) clog('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
+    if (debug) clog('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
     setRole(foundRTTs?.role)
     setTask(foundRTTs?.task)
     setModellingtasks(foundRTTs?.tasks)
     setTypes(foundRTTs?.types)
-    if (!debug) clog('163 Palette setModellingTask',  task, types);
+    if (debug) clog('163 Palette setModellingTask',  task, types);
   }
 
   if (debug) console.log('165 filteredOtNodeDataArray', filteredOtNodeDataArray, ndarr)

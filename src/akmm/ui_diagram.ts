@@ -1314,7 +1314,7 @@ const breakString = (str, limit) => {
 }
 
 export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a node data object
-    if (!debug) console.log('1035 nodeInfo', d, d.object);
+    if (debug) console.log('1035 nodeInfo', d, d.object);
     if (debug) console.log('1136 nodeInfo', myMetis.gojsModel.findNode(d.group));
 
     const format1 = "%s\n";

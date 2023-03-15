@@ -3086,7 +3086,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('2863 Diagram: ', this.props.nodeDataArray);
     if (debug) console.log('2864 Diagram: ', this.props.linkDataArray);
     let selObj = this.state.selectedData;
-    if (debug) console.log('2866 selObj: ', selObj);
+    if (!debug) console.log('2866 selObj: ', selObj);
     const myMetis = this.myMetis;
     const myModel = myMetis.currentModel;
     const myMetamodel = myModel.metamodel;
@@ -3392,7 +3392,11 @@ return (
                   <span className="text-secondary float-left">{ header }:</span> 
                 <ModalHeader className="modal-header" >
                   <span className="modal-name ml-2" >{this.state.selectedData?.name} </span>
-                  <span className="modal-objecttype"> {typename} </span> 
+                  <span className="modal-objecttype"> {(this.state.selectedData?.objecttype?.name)
+                    ? `(${this.state.selectedData?.objecttype?.name})`
+                    : `(${this.state.selectedData?.relshiptype?.name})`
+                  }
+                    </span> 
                 </ModalHeader>
               </div>
               <ModalBody  className="modal-body w-100">

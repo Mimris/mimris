@@ -3,11 +3,11 @@ const debug = false;
 import { useDispatch } from "react-redux";
 import { Dispatch } from "redux";
 
-const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
+const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (debug) console.log("10 genRoleTasks", role, task, types, mmodel);
+    if (!debug) console.log("10 genRoleTasks", currole, curtask, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
 
@@ -125,8 +125,25 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
                     workOnTypes:  [
                         "Container",    
                             ...oTypes?.map((t: { name: any; }) => 
-                                (t.name !== "Container")
-                                && t.name)
+                                (t.name !== "Container") &&
+                                (t.name !=="Information") &&
+                                (t.name !=="Role") &&
+                                (t.name !=="Task") &&
+                                (t.name !=="View") &&
+                                (t.name !=="Label") &&
+                                (t.name !=="Product") &&
+                                (t.name !=="Organisation") &&
+                                (t.name !=="Process") &&
+                                (t.name !=="System") &&
+                                (t.name !=="Activity") &&
+                                (t.name !=="ParallelGate") &&
+                                (t.name !=="ExclusiveGate") &&
+                                (t.name !=="InclusiveGate") &&
+                                (t.name !=="Gateway") &&
+                                (t.name !=="Start") &&
+                                (t.name !=="End") &&
+                                (t.name !=="EntityType") &&
+                                t.name).filter(Boolean)
                     ]
                 },
                 {
@@ -231,52 +248,67 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
             ]
         }
     }
-    let curtask
-    if (debug) console.log("114 datarole", oTypes, datarole);
-    if (!task || task.length < 1) curtask = datarole?.focusRole?.tasks?.find((t) => (t.id === mmodel.name) && t) || null
-    const foundRole = datarole?.focusRole
-    const foundTask = foundRole?.tasks?.find((t) =>  t.id === task?.id) || null
-    const foundMMTask = foundRole?.tasks?.find((t) =>  t.id === mmodel.name) || null
-    const foundIRTVTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("IRTV")) && t) || null
-    const foundPOPSTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("POPS")) && t) || null
-    const foundRoleType = mmodel.objecttypes.find(ot => (ot.name === "Role") && ot) || null
-    const foundPropertyType = mmodel.objecttypes.find(ot => (ot.name === "Property") && ot) || null
-    if (debug) console.log("244 SetRoleTaskFilter", task, curtask, datarole.focusRole?.tasks,datarole?.focusRole?.tasks?.find((t) => t.id === mmodel.name), mmodel.name)
+    let task = curtask || {id: datarole.focusRole.tasks[0].id, name: datarole.focusRole.tasks[0].name} 
+    if (debug) console.log("235 datarole", oTypes, datarole);
+    if (!debug) console.log("238 datarole", task);
 
-    const mmtask = (foundMMTask) && datarole.focusRole.tasks.find(t => t.id.includes(mmodel.name) && [{id: t.id, name: t.name}])
-    const popstask = (foundPOPSTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV+POPS") && [{id: t.id, name: t.name}])
-    const irtvtask = (foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("IRTV") && [{id: t.id, name: t.name}])
-    const propstask = (foundPropertyType) && datarole.focusRole.tasks.find(t => t.id.includes("Property") && [{id: t.id, name: t.name}])
-    const roletask = (foundRoleType && !foundIRTVTask) && datarole.focusRole.tasks.find(t => t.id.includes("Role") && [{id: t.id, name: t.name}])
-    const alltask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
-    const newtask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}])
-    const foundtask = (foundTask) && [{id: foundTask.id, name: foundTask.name}] || mmtask || newtask || roletask || popstask || irtvtask || propstask || alltask || null
-    if (debug) console.log('247 ', newtask, mmtask, popstask, irtvtask, propstask, alltask)
 
-    if (debug) console.log("240 filteredTasks", foundtask, alltask);
+    const foundRole = datarole?.focusRole // hardcode for now
+    const foundMMTask = foundRole?.tasks?.find(t =>  t.id === mmodel.name && t) || null
+    const foundPOPSTask = (!foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t =>  (mmodel.name.includes("POPS")) && t) || null
+    const foundIRTVTask =  (!foundMMTask?.id.includes("IRTV")) && foundRole?.tasks?.find(t =>  ((mmodel.name.includes("IRTV")) || (mmodel.id.includes("Role"))) && t) || null
+    const foundPropertyObj = mmodel.objecttypes.find(ot => ot.name === "Property") || false
+    const foundPropertyTask = (foundPropertyObj) && foundRole?.tasks?.find(t =>  t.id === "Property" && t) || null
+    console.log("247 property", foundPropertyObj, foundPropertyTask )
+    const foundAllTask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
+    const foundNewTask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}])
 
-    if (debug) console.log("206 filteredTasks", mmodel.name, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyType, foundRole.tasks[0]);
-    // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
-    // const foundTask = (foundMMTask) ? foundMMTask : foundRole.tasks[0]
+    console.log("247 property", foundNewTask, foundNewTask.workOnTypes)
+    const foundTask =  (curtask) 
+        ? curtask
+        : (foundNewTask.workOnTypes.length > 1) 
+            ? foundNewTask 
+            : foundMMTask //|| foundNewTask || foundAllTask ||  foundMMTask || foundIRTVTask || foundPOPSTask || foundPropertyTask ||  datarole.focusRole.tasks[0]
+
+    console.log("247 property", foundTask.id)
+    if (!debug) console.log("247 filteredTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
     
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })
-    if (foundtask) dispatch({ type: 'SET_FOCUS_TASK', data: foundTask })
+    if (foundTask) dispatch({ type: 'SET_FOCUS_TASK', data: {id: foundTask.id, name: foundTask.name} })
     
-    const foundtasks = [ foundtask, mmtask,  newtask, roletask, popstask, irtvtask, propstask, alltask].filter(Boolean)
+    const foundTasks = (foundNewTask.workOnTypes.length > 1) 
+        ? [ foundNewTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
+        : [ foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
+
+     
+    if (!debug) console.log("252 foundTask", foundTask, foundTasks)
     
-    const foundTypes = foundtask?.workOnTypes || []
+    const foundTypes = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes
 
+    if (!debug) console.log("256 foundTypes", foundTypes, foundTask, curtask)
 
+    if (!debug) console.log("258 focusTasks",  foundTask, foundMMTask,  foundNewTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask);
+    if (!debug) console.log("259 focusTasks",  foundTasks,  foundTypes);
 
-    if (debug) console.log("271 focusTasks",  foundRole.tasks, foundtasks, foundTypes);
-    if (debug) console.log("272 focusTasks",  foundRole, foundTask, foundtasks,  foundTypes);
+    const filterRole = {id: foundRole.id, name: foundRole.name}
+    const filterTask = {id: foundTask?.id, name: foundTask?.name}
+    const filterTasks = foundTasks
+    const filterTypes = foundTypes
+
+    console.log("264 filterRole", filterRole)
+    console.log("265 filterTask", filterTask)
+    console.log("265 filterTasks", filterTasks)
+    console.log("266 filterTypes", filterTypes)
+
 
     return { // return just id and name and arrays of ids and names
-        filterRole: {id: foundRole.id, name: foundRole.name},
-        filterTask: {id: foundTask?.id, name: foundTask?.name},
-        filterTasks: foundtasks,
-        filterTypes: foundTypes
-    }
+
+        currole: filterRole,
+        curtask: filterTask,
+        curtasks: filterTasks,
+        curtypes: filterTypes
+        
+    } 
     
 }
 export default genRoleTasks;

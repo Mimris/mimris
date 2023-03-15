@@ -140,7 +140,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
       const gojsMetamodel = {
         nodeDataArray: myPalette?.nodes,
-        linkDataArray: []
+        linkDataArray: myPalette?.links
       }
       let gojsModel = {}
       gojsModel = {
@@ -168,9 +168,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // update the Gojs arrays in the store
         dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
         dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-        dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+        // dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
         dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
-        dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+        // dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
         dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
         dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
         dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })

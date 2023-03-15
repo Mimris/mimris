@@ -94,8 +94,9 @@ const Modeller = (props: any) => {
   
   // ------------------------------
 
-  const gojsmodel = props.gojsModel;
-  if (debug) console.log('78 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
+  const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
+  // const gojsmodel = props.gojsModel;
+  if (!debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
   
   let myMetis = props.myMetis;
  
@@ -107,7 +108,7 @@ const Modeller = (props: any) => {
   
   function toggleRefreshObjects() { 
 
-    if (debug) console.log('89 Modeller: toggleRefreshObjects', props, memoryLocState, setMemoryLocState);
+    if (debug) console.log('110 Modeller: toggleRefreshObjects', props, memoryLocState, setMemoryLocState);
 
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
 
@@ -314,7 +315,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     }
   })
 
-  const gojsapp = (gojsmodel) && // this is used both for the metamodelview and the modelview
+  const gojsapp = (gojsmodel.nodeDataArray) && // this is used both for the metamodelview and the modelview
     <GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}

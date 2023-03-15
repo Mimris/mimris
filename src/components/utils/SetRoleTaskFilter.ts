@@ -7,7 +7,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (!debug) console.log("10 genRoleTasks", currole, curtask, curtypes, mmodel);
+    if (debug) console.log("10 genRoleTasks", currole, curtask, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
 
@@ -143,6 +143,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                                 (t.name !=="Start") &&
                                 (t.name !=="End") &&
                                 (t.name !=="EntityType") &&
+                                (t.name !=="Property") &&
                                 t.name).filter(Boolean)
                     ]
                 },
@@ -250,7 +251,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     }
     let task = curtask || {id: datarole.focusRole.tasks[0].id, name: datarole.focusRole.tasks[0].name} 
     if (debug) console.log("235 datarole", oTypes, datarole);
-    if (!debug) console.log("238 datarole", task);
+    if (debug) console.log("238 datarole", task);
 
 
     const foundRole = datarole?.focusRole // hardcode for now
@@ -259,19 +260,19 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const foundIRTVTask =  (!foundMMTask?.id.includes("IRTV")) && foundRole?.tasks?.find(t =>  ((mmodel.name.includes("IRTV")) || (mmodel.id.includes("Role"))) && t) || null
     const foundPropertyObj = mmodel.objecttypes.find(ot => ot.name === "Property") || false
     const foundPropertyTask = (foundPropertyObj) && foundRole?.tasks?.find(t =>  t.id === "Property" && t) || null
-    console.log("247 property", foundPropertyObj, foundPropertyTask )
+    if (debug) console.log("247 property", foundPropertyObj, foundPropertyTask )
     const foundAllTask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
     const foundNewTask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}])
 
-    console.log("247 property", foundNewTask, foundNewTask.workOnTypes)
+    if (debug) console.log("267 property", foundNewTask, foundNewTask.workOnTypes)
     const foundTask =  (curtask) 
         ? curtask
         : (foundNewTask.workOnTypes.length > 1) 
             ? foundNewTask 
             : foundMMTask //|| foundNewTask || foundAllTask ||  foundMMTask || foundIRTVTask || foundPOPSTask || foundPropertyTask ||  datarole.focusRole.tasks[0]
 
-    console.log("247 property", foundTask.id)
-    if (!debug) console.log("247 filteredTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
+    if (debug) console.log("274 property", foundTask)
+    if (debug) console.log("275 filteredTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
     
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })
     if (foundTask) dispatch({ type: 'SET_FOCUS_TASK', data: {id: foundTask.id, name: foundTask.name} })
@@ -280,29 +281,27 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
         ? [ foundNewTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
         : [ foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
 
-     
-    if (!debug) console.log("252 foundTask", foundTask, foundTasks)
+    if (debug) console.log("284 foundTask", foundTask, foundTasks)
     
     const foundTypes = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes
 
-    if (!debug) console.log("256 foundTypes", foundTypes, foundTask, curtask)
+    if (debug) console.log("288 foundTypes", foundTypes, foundTask, curtask)
 
-    if (!debug) console.log("258 focusTasks",  foundTask, foundMMTask,  foundNewTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask);
-    if (!debug) console.log("259 focusTasks",  foundTasks,  foundTypes);
+    if (debug) console.log("290 focusTasks",  foundTask, foundMMTask,  foundNewTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask);
+    if (debug) console.log("291 focusTasks",  foundTasks,  foundTypes);
 
     const filterRole = {id: foundRole.id, name: foundRole.name}
     const filterTask = {id: foundTask?.id, name: foundTask?.name}
     const filterTasks = foundTasks
     const filterTypes = foundTypes
-
-    console.log("264 filterRole", filterRole)
-    console.log("265 filterTask", filterTask)
-    console.log("265 filterTasks", filterTasks)
-    console.log("266 filterTypes", filterTypes)
-
+    if (debug) {
+        console.log("298 filterRole", filterRole)
+        console.log("299 filterTask", filterTask)
+        console.log("300 filterTasks", filterTasks)
+        console.log("301 filterTypes", filterTypes)
+    }
 
     return { // return just id and name and arrays of ids and names
-
         currole: filterRole,
         curtask: filterTask,
         curtasks: filterTasks,

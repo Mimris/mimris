@@ -61,15 +61,15 @@ const Modeller = (props: any) => {
   // }, [focusModel.id])
 
   useEffect(() => { // set activTab when focusModelview.id changes
-    // GenGojsModel(props, dispatch)
     setActiveTab(activetabindex)
+    GenGojsModel(props, dispatch)
   //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
       if (debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview?.id); 
-  //     const timer = setTimeout(() => {
-  //       setRefresh(!refresh)
+      const timer = setTimeout(() => {
+        setRefresh(!refresh)
   //       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
-  //     }, 2000);
-  //     return () => clearTimeout(timer);
+      }, 20);
+      return () => clearTimeout(timer);
   //   } 
   }, [props.phFocus.focusModelview?.id])
   
@@ -96,7 +96,7 @@ const Modeller = (props: any) => {
 
   const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   // const gojsmodel = props.gojsModel;
-  if (!debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
+  if (debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
   
   let myMetis = props.myMetis;
  
@@ -107,20 +107,11 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
   function toggleRefreshObjects() { 
-
-    if (debug) console.log('110 Modeller: toggleRefreshObjects', props, memoryLocState, setMemoryLocState);
-
-    SaveModelToLocState(props, memoryLocState, setMemoryLocState)
-
-    GenGojsModel(props, dispatch)
+    if (!debug) console.log('110 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
+    // SaveModelToLocState(props, memoryLocState, setMemoryLocState)
+    if (!debug) console.log('112 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     setRefresh(!refresh)
-
-    // setTimeout(() => {
-    // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
-    // , 1000);
   }
-
-  // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
   if (debug) console.log('121 Modeller: props, refresh', props, refresh);
 
@@ -443,7 +434,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   
   return (
     <div>
-      {refresh ? modellerDiv : modellerDiv}
+      {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )
 }

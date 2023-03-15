@@ -47,7 +47,7 @@ const Palette = (props: any) => {
 
   const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel = (props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
-  if (!debug) console.log('50 Palette start', gojsmetamodel, props)
+  if (debug) console.log('50 Palette start', gojsmetamodel, props)
   // const gojsmodel = props.gojsModel;
   
   // hardcoded for now
@@ -73,7 +73,7 @@ const Palette = (props: any) => {
   // let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
 
   let ndarr = gojsmetamodel?.nodeDataArray // error first render???
-  if (!debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
+  if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {
@@ -90,33 +90,33 @@ const Palette = (props: any) => {
     isRendered = true;
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
-    if (!debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
-    if (!debug) console.log('84 Palette useEffect 1', foundRTTs);
+    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
+    if (debug) console.log('84 Palette useEffect 1', foundRTTs);
     // setRefreshPalette(!refreshPalette) 
     const timer = setTimeout(() => {
     buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
     // setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
-    if (!debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
+    if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
     }, 100);
     return () => { isRendered = false;  clearTimeout(timer); }
   }, [])
 
   useEffect(() => {
     buildFilterOtNodeDataArray(types, ndarr)
-    if (!debug) console.log('111 Palette useEffect 2 [types]', types, ndarr)
+    if (debug) console.log('111 Palette useEffect 2 [types]', types, ndarr)
     const timer = setTimeout(() => {
       // buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
       setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
-      if (!debug) console.log('88 Palette useEffect 1 []', types, modellingtasks);
+      if (debug) console.log('88 Palette useEffect 1 []', types, modellingtasks);
       }, 100);
       return () => { clearTimeout(timer); }
-  }, [types.length > 0 && ndarr?.length > 0])
+  }, [types?.length > 0 && ndarr?.length > 0])
 
   // useEffect(() => {
-  //   if (!debug) console.log('115 palette useEffect 3 [filteredOtNodeDataArray]', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
+  //   if (debug) console.log('115 palette useEffect 3 [filteredOtNodeDataArray]', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
   //   //  setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
   //     // const timer = setTimeout(() => {
-  //     if (!debug) console.log('118 palette ', filteredOtNodeDataArray)
+  //     if (debug) console.log('118 palette ', filteredOtNodeDataArray)
   //     setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
   //   // }, 20);
   //   // return () => clearTimeout(timer);
@@ -129,31 +129,31 @@ const Palette = (props: any) => {
     if (types?.length > 0) {
       otsArr = types?.map((wot: any) => // list of types for this focusTask (string)
       ndarr?.find((i: { typename: any; }) => {
-        console.log('105 ', i?.name, wot, i?.name === wot)
+        if (debug) console.log('105 ', i?.name, wot, i?.name === wot)
         return (i?.name === wot) && i 
       })
       ).filter(Boolean) // remove undefined
-      if (!debug) console.log('106 ', types, otsArr, ndarr)
+      if (debug) console.log('106 ', types, otsArr, ndarr)
       setFilteredOtNodeDataArray(otsArr)
     } else {
       setFilteredOtNodeDataArray(ndarr)
     }
     // const timer = setTimeout(() => {
-    // if (!debug) console.log('135 Palette buildFilterOtNodeDataArray', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
+    // if (debug) console.log('135 Palette buildFilterOtNodeDataArray', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
     // }, 2000);
   }
 
   const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
-    if (!debug) clog('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
+    if (debug) clog('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
     const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
     if (debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
-    console.log('131  Palette findCurRoleTaskTypes ', types, modellingtasks, foundRTTs)  
+    if (debug) console.log('131  Palette findCurRoleTaskTypes ', types, modellingtasks, foundRTTs)  
     setRole(foundRTTs?.currole)
     setTask(foundRTTs?.curtask)
     setModellingtasks(foundRTTs?.curtasks)
     setTypes(foundRTTs?.curtypes)
-    if (!debug) console.log('135 Palette findCurRoleTaskTypes ', types, modellingtasks)
+    if (debug) console.log('135 Palette findCurRoleTaskTypes ', types, modellingtasks)
     return {
       role: foundRTTs?.currole,
       task:  foundRTTs?.curtask,
@@ -180,17 +180,17 @@ const Palette = (props: any) => {
     </>
 
   function setModellingTask(task) {
-    if (!debug) console.log('156 Palette setModellingTask',task, types);
+    if (debug) console.log('156 Palette setModellingTask',task, types);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     if (debug) console.log('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
     setRole(foundRTTs?.role)
     setTask(foundRTTs?.task)
     setModellingtasks(foundRTTs?.tasks)
     setTypes(foundRTTs?.types)
-    if (!debug) console.log('163 Palette setModellingTask',  task, types);
+    if (debug) console.log('163 Palette setModellingTask',  task, types);
     buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
     // const timer = setTimeout(() => {
-    //   if (!debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
+    //   if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
     //   setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
     //   }, 10);
     //   return () => { clearTimeout(timer); }  

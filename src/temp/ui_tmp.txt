@@ -2821,7 +2821,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
               $(go.TextBlock,
                 new go.Binding("text", "name"),
                 { alignment: go.Spot.Left }),
-              $(go.Picture, "images/60x90.png",
+              $(go.Picture, "images/parallel.png",
+             //$(go.Picture, "images/60x90.png",
                 { width: 30, height: 45, margin: new go.Margin(10, 10) })
             )
           ),

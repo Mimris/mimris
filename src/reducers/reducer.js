@@ -313,16 +313,18 @@ function reducer(state = InitialState, action) {
         },
       } 
     case SET_FOCUS_MODEL:
-      // if (debug) console.log('121 red', state, action.data); 
-      return {
+      if (!debug) console.log('316 red', action.data); 
+      const retval_SET_FOCUS_MODEL = {
         ...state,
         phFocus: {
           ...state.phFocus,
           focusModel: action.data
         }
       }
+      if (!debug) console.log('324 red', retval_SET_FOCUS_MODEL.phFocus.focusModel);
+      return retval_SET_FOCUS_MODEL
     case SET_FOCUS_MODELVIEW:
-      if (debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
+      if (!debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {

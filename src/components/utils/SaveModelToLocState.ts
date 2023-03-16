@@ -3,15 +3,15 @@ const debug = false;
 
 export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) => {
 
-    if (debug) console.log('72 Modelling refresh', props);
-
+    if (!debug) console.log('72 Modelling refresh', memoryLocState);
+    let focusOrg, focusProj;
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
         // set focusOrg and focusProj to focusProj.org and focusProj.proj
         if (props.phFocus.focusOrg.name !== props.phFocus.focusProj.org ) {
-            props.phFocus.focusOrg = props.phFocus.focusProj.org || props.phFocus.focusOrg
+            focusOrg = props.phFocus.focusProj.org || props.phFocus.focusOrg
         }
         if (props.phFocus.focusProj.name !== props.phFocus.focusProj.proj) {
-            props.phFocus.focusProj = props.phFocus.focusProj.proj || props.phFocus.focusProj
+            focusProj = props.phFocus.focusProj.proj || props.phFocus.focusProj
         }
         // check if focusModel exists in one of the current models. If not, set it to the first model
         let found = false;
@@ -36,6 +36,13 @@ export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) =>
             }
         }
         // put currentdata in the first position of the array data
+        const focusFocus1 = {
+            phFocus: {
+                ...props.phFocus,
+                focusOrg: focusOrg || props.phFocus.focusOrg,
+                focusProj: focusProj || props.phFocus.focusProj
+            }
+        }
         let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
         if (debug) console.log('84 Modelling save memoryState', mdata);
         // if mdata is longer than 10, remove the last 2 elements
@@ -45,6 +52,6 @@ export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) =>
         (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     } else {
         if (debug) console.log('91 Modelling refresh', props);
-        setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
+        setMemoryLocState([{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
     }
 }

@@ -19,7 +19,7 @@ const debug = false;
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: blue; color: white');
-    const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
@@ -51,51 +51,23 @@ const Modeller = (props: any) => {
   const metamodels = props.metis?.metamodels
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
-  // ---------------------  useEffects --------------------------------
-  // useEffect(() =>  { // when focusModel changes
-  //   if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
-  // //   const timer = setTimeout(() => {
-  // //     setRefresh(!refresh)
-  // //   }, 5000);
-  // //   return () => clearTimeout(timer);
-  // }, [focusModel.id])
-
   useEffect(() => { // set activTab when focusModelview.id changes
-    // GenGojsModel(props, dispatch)
+    useEfflog('64 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex,props.phFocus.focusModelview?.id);
     setActiveTab(activetabindex)
-  //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
-      if (debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview?.id); 
-  //     const timer = setTimeout(() => {
-  //       setRefresh(!refresh)
-  //       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
-  //     }, 2000);
-  //     return () => clearTimeout(timer);
+    GenGojsModel(props, dispatch)
+      const timer = setTimeout(() => {
+        // setRefresh(!refresh)
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: props.phFocus.focusModelview?.id, name: 'refresh'} })
+      }, 100);
+      return () => clearTimeout(timer);
   //   } 
   }, [props.phFocus.focusModelview?.id])
   
-  // useEffect(() => { // when project changes
-  //   if (debug) useEfflog('100 Modeller useEffect 3', props, props.metis.name);
-  //   // // GenGojsModel(props, dispatch)
-  //   // // dispatch({ type: 'SET_FOCUS_MODEL', data: {id: props.metis?.models[0]?.id, name: props.metis?.models[0]?.name} })
-  //   // // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: props.metis?.models[0]?.modelviews[0]?.id, name: props.metis?.models[0]?.modelviews[0]?.name} })
-  //   // const timer = setTimeout(() => {
-  //   //   // toggleRefreshObjects()
-  //     GenGojsModel(props, dispatch)
-  //   //   // setRefresh(!refresh)
-  //   // }, 100);
-  //   // const timer2 = setTimeout(() => {
-  //   //   // toggleRefreshObjects()
-  //   //   // GenGojsModel(props, dispatch)
-  //   //   // setRefresh(!refresh)
-  //   // }, 1000);
-
-  //   // return () => clearTimeout(timer,timer2); 
-  // }, [props.phData?.metis.name])
-  
   // ------------------------------
 
-  const gojsmodel = props.gojsModel;
-  if (debug) console.log('78 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
+  const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
+  // const gojsmodel = props.gojsModel;
+  if (debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
   
   let myMetis = props.myMetis;
  
@@ -106,28 +78,11 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
   function toggleRefreshObjects() { 
-
-    if (debug) console.log('89 Modeller: toggleRefreshObjects', props, memoryLocState, setMemoryLocState);
-
+    if (!debug) console.log('110 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
-
-    GenGojsModel(props, dispatch)
-
-    // save current state to memory
-    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    if (debug) console.log('84 Modelling save memoryState', mdata);
-    // if mdata is longer than 10, remove the last 2 elements
-    if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
-    if (mdata.length > 2) { mdata.pop() }
-    if (debug) console.log('88 Modelling refresh', mdata);
-    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-
-
-    setTimeout(() => {
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
-    , 1000);
+    if (debug) console.log('112 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
+    setRefresh(!refresh)
   }
-  // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
   if (debug) console.log('121 Modeller: props, refresh', props, refresh);
 
@@ -147,14 +102,12 @@ const Modeller = (props: any) => {
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
-  // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
-  
 
   const handleProjectChange = (e) => { // Editing project name
     if (debug) console.log('69 Modeller: handleProjectChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: e.value, name: e.value } }); // set focus project
-    }
+  }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
     if (debug) console.log('19 Selector', JSON.parse(event.value).name);
@@ -162,25 +115,14 @@ const Modeller = (props: any) => {
     const name = JSON.parse(event.value).name
     const selObj = models.find( (obj: any) => obj.id === id ) 
     if (debug) console.log('86 Selector', selObj);
-    // const workOnTypes = selObj.workOnTypes
-    // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
     const data = (selObj) ? { id: id, name: name} : { id: id, name: name }
-    // if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
-    // dispatch({  type: 'UPDATE_MODEL_PROPERTIES', data: data })
     dispatch({  type: 'SET_FOCUS_MODEL', data: data })
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
     const mv = selObj.modelviews[0]
     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
-    // setRefresh(!refresh)
   }
 
   // const handleMVDoubleClick = (e) => {
   //   <input type="text" value={e.value} onChange={handleMVChange} />
-  // }
-
-  // const handleMVChange = (e) => {
-  //   if (debug) console.log('69 Modeller: handleMVChange', e);
-  //   dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: e.value } });
   // }
 
   const  options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
@@ -322,7 +264,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     }
   })
 
-  const gojsapp = (gojsmodel) && // this is used both for the metamodelview and the modelview
+  const gojsapp = (gojsmodel.nodeDataArray) && // this is used both for the metamodelview and the modelview
     <GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
@@ -450,7 +392,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   
   return (
     <div>
-      {refresh ? modellerDiv : modellerDiv}
+      {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )
 }

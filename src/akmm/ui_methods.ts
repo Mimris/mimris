@@ -371,14 +371,14 @@ function hasChildren(object: akm.cxObject, context: any): boolean {
 }
 
 function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
-    if (debug) console.log('369 object, context', object, context);
+    if (debug) console.log('374 object, context', object, context);
     const objects: akm.cxObject[] = [];
     const reltype   = context.reltype;
     const reldir    = context.reldir;
     const objtype   = context.objtype;
     const useinp    = reldir ? (reldir === 'in') : false;
     let rels  = useinp ? object.inputrels : object.outputrels;
-    if (debug) console.log('375 object, rels', object, rels);
+    if (debug) console.log('381 object, rels', object, rels);
     if (!rels) 
         rels = object.inputrels;
     if (rels) {
@@ -387,7 +387,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             rels.concat(outrels);
     } else
         rels = object.outputrels;
-    if (debug) console.log('382 object, rels', object, rels);
+    if (debug) console.log('390 object, rels', object, rels);
     if (rels) {
         for (let i=0; i<rels?.length; i++) {
             const rel = rels[i];
@@ -400,14 +400,18 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
                 child = rel.fromObject as akm.cxObject;
             else
                 child = rel.toObject as akm.cxObject;            
-            if (debug) console.log('395 child', child);
+            if (debug) console.log('403 child', child);
             if (child) {
-                if (child.type.id === objtype?.id)
-                    objects.push(child);  
+                if (objtype) {
+                    if (child.type.id === objtype.id)
+                        objects.push(child);
+                } else
+                    objects.push(child);
             }  
-            if (debug) console.log('400 child', child);
+            if (debug) console.log('412 child', child);
         }
     }
+    if (debug) console.log('415 object, objects', object, objects);
     return objects;
 }
 
@@ -426,6 +430,7 @@ export function calculateValue(object: akm.cxObject, context: any) {
 export function aggregateValue(object: akm.cxObject, context: any) {
     let propval = 0;
     const children = getChildren(object, context);
+    if (debug) console.log('429 object, context, children', object, context, children);
     for (let i=0; i<children?.length; i++) {
         const child = children[i];
         let val;
@@ -578,7 +583,7 @@ export function executeMethod(context: any) {
         context.relships = [];
     if (objects?.length > 10)
         return;
-    if (debug) console.log('501 context', context);
+    if (debug) console.log('501 object, context', object, context);
     traverse(object, context);                  
 }
 
@@ -597,6 +602,7 @@ function execMethod(object: akm.cxObject, context: any) {
             break;
         case 'Select':
             if (gjsNode) gjsNode.isSelected = true;
+            if (debug) console.log('605 gjsNode', gjsNode);
             break;
         case 'generateosduId':
             context.myObject = object;

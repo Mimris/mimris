@@ -288,6 +288,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (debug) console.log('268 modifiedTypeNodes', modifiedTypeNodes, myMetis);
     }
     { // Handle ports
+        const porttype = myMetis.findObjectTypeByName(constants.types.AKM_PORT);
         const leftports = new Array();
         const rightports = new Array();
         const topports = new Array();
@@ -304,6 +305,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                         const portview = portviews[0];
                         if (portview)
                             port.color = portview.fillcolor;
+                            port.type = porttype;
                     }
                     if (debug) console.log('286 port', port);
                     switch(port.side) {
@@ -1002,6 +1004,45 @@ export function generateTargetMetamodel2(context: any) {
 
     // Check if there already exists models based on the generated metamodel
     // const models = myMetis.getModelsByMetamodel()
+    return true;
+}
+
+export function verifyPortsModel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[]): boolean {
+    for (let i=0; i<objectviews.length; i++) {
+        const objview = objectviews[i];
+        const obj = objview.object;
+        // Check if object is of type "EntityType"
+        // Get object view
+        // Get the template property
+        // Check if template property has a valid value, i.e. "nodeWithPorts" or "groupWithPorts"
+        // If not, continue to next objectview
+        // Get connected Port objects
+        // For each port object, get the side property
+        // Check if side property has a valid value
+        // If not, alert user and continue to next objectview
+        // When all ports have been checked, continue to next objectview
+        // When done, return true
+
+        if (ports?.length) {
+            for (let j=0; j<ports.length; j++) {
+                const port = ports[j];
+                const portname = port.name;
+                const porttype = port.porttype;
+                const portobj = obj.findPortObject(portname);
+                if (!portobj) {
+                    alert(`Port ${portname} is missing from object ${obj.name}`);
+                    return false;
+                }
+                if (porttype) {
+                    const portobjtype = portobj.objecttype;
+                    if (portobjtype.name !== porttype.name) {
+                        alert(`Port ${portname} has wrong type ${portobjtype.name} in object ${obj.name}`);
+                        return false;
+                    }
+                }
+            }
+        }
+    }
     return true;
 }
 

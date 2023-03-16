@@ -253,7 +253,7 @@ const genRoleTasks = (role, task, types, mmodel, dispatch: Dispatch<any>) => {
     if (debug) console.log("114 datarole", oTypes, datarole);
     if (!task) task = datarole?.focusRole?.tasks?.find((t) => t.id === mmodel.name) || null
     const foundRole = datarole?.focusRole
-    const foundTask = foundRole?.tasks?.find((t) =>  t.id === task.id) || null
+    const foundTask = foundRole?.tasks?.find((t) =>  t.id === task?.id) || null
     const foundMMTask = foundRole?.tasks?.find((t) =>  t.id === mmodel.name) || null
     const foundIRTVTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("IRTV")) && t) || null
     const foundPOPSTask = foundRole?.tasks?.find((t) =>  (mmodel.id.includes("POPS")) && t) || null

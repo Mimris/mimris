@@ -14,6 +14,8 @@ const debug = false;
 
 const clog = console.log.bind(console, '%c %s',
     'background: blue; color: white');
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
     'background: blue; color: white');
 
@@ -97,7 +99,7 @@ const Palette = (props: any) => {
     buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
     // setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
     if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
-    }, 100);
+    }, 1000);
     return () => { isRendered = false;  clearTimeout(timer); }
   }, [])
 
@@ -112,6 +114,13 @@ const Palette = (props: any) => {
       return () => { clearTimeout(timer); }
   }, [types?.length > 0 && ndarr?.length > 0])
 
+  //  useEffect(() => { // set activTab when focusModelview.id changes
+  //   useEfflog('64 Palette useEffect 3 [props.phFocus.focusModelview?.id]', props.phFocus.focusModelview?.id);
+  //   const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
+  //   buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
+  //   setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+  // }, [props.phFocus.focusModelview?.id])
+
   // useEffect(() => {
   //   if (debug) console.log('115 palette useEffect 3 [filteredOtNodeDataArray]', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
   //   //  setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
@@ -122,7 +131,7 @@ const Palette = (props: any) => {
   //   // return () => clearTimeout(timer);
   // }, [filteredOtNodeDataArray])
 
-  // buoldfilteredOtNodeDataArray according to types
+  // buildfilteredOtNodeDataArray according to types
   const buildFilterOtNodeDataArray = (types, ndarr) => {
     let otsArr: any = []
     // if (types?.length > 0 && ndarr?.length > 1) {

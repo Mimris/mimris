@@ -10,7 +10,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader()
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', reader.fileName)
+    if (!debug) console.log('13 ReadModelFromFile', reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
@@ -26,7 +26,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         //   alert(text)
         if (debug) console.log('21 ReadModelFromFile', props.phFocus.focusModel.id);
-        if (debug) console.log('22 ReadModelFromFile', props, modelff);
+        if (debug) console.log('22 ReadModelFromFile', props.phFocus.focusModel.id, modelff);
     
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
@@ -36,7 +36,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         console.log('29 ReadModelFromFile',  props, modelff)
 
         if (modelff.phData) { // if modelff has phData, then it is a project file
-            if (debug) console.log('33 ReadModelFromFile',  props, modelff)    
+            if (!debug) console.log('33 ReadModelFromFile',  props, modelff)    
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
@@ -182,11 +182,14 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             console.log('ReadModelFromFile: Unknown file type')
             alert('ReadModelFromFile: Unknown file type')
         }
-        if (debug) console.log('154 ReadModelFromFile', data);      
+        if (!debug) console.log('154 ReadModelFromFile', data);      
         if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
         if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+
+        // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+  
     };
     reader.readAsText(e.target.files[0])
   }

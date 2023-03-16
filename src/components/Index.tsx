@@ -194,19 +194,19 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.02.10</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Dropdown list in Palette to choose Modelling tasks, i.e. IRTV-POPS modelling, Property modelling!<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2023.03.01</CardTitle>
               <CardText >
                     &bull; New features:<br />
                       - Updated "Modelfile" dialog with save models and modleview incl. metamodels and objects!<br />
                       - New functionality for ports on Process and Activity objects (IDEF0)!<br />
-                    &bull; Bugfixes!<br />
-              </CardText>
-            </CardBody>
-            <CardBody className="card-body" >
-              <CardTitle className="card-title-bold" >Release 2023.02.03</CardTitle>
-              <CardText >
-                    &bull; New features:<br />
-                      - Linking from Github modelrepositories to AKM Modeller!<br />
                     &bull; Bugfixes!<br />
               </CardText>
             </CardBody>

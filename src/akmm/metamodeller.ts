@@ -47,6 +47,7 @@ export class cxMetis {
     relships:           cxRelationship[] | null = null;
     objectviews:        cxObjectView[] | null = null;
     relshipviews:       cxRelationshipView[] | null = null;
+    // ports:              cxPort[] | null = null;
     gojsModel:          gjs.goModel | null = null;
     currentProject:     cxProject | null = null;
     currentMetamodel:   cxMetaModel | null = null;
@@ -88,6 +89,8 @@ export class cxMetis {
         this.geometries = [];
         this.category = 'Metis';
         this.fromNodes = [];
+        const portType = new cxObjectType(utils.createGuid(), 'Port', 'Port type');
+        this.objecttypes = [portType];
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('79 importedData', importedData);
@@ -476,7 +479,7 @@ export class cxMetis {
                             if (!model) continue;
                             this.addModel(model);
                             
-                            // Objects and relationships
+                            // Objects, relationships and ports
                             let objs = item.objects;
                             if (objs && objs.length) {
                                 for (let i = 0; i < objs.length; i++) {
@@ -504,6 +507,21 @@ export class cxMetis {
                                     }
                                 }
                             }
+                            // let ports = item.ports;
+                            // if (ports && ports.length) {
+                            //     for (let i = 0; i < ports.length; i++) {
+                            //         const item = ports[i];
+                            //         if (includeDeleted || !item.markedAsDeleted) { 
+                            //             const port = new cxPort(item.id, item.name, item.description);
+                            //             for (let k in item) {
+                            //                 port[k] = item[k];
+                            //             }
+                            //             if (!port) continue;
+                            //             model.addPort(port);
+                            //             this.addPort(port);
+                            //         }
+                            //     }
+                            // }
                             // Model views
                             let mvs = item.modelviews;
                             if (mvs && mvs.length) {
@@ -1051,7 +1069,13 @@ export class cxMetis {
                 model.targetModelRef = item.targetModelRef;
                 model.args1 = item.args1;
             }
-            if (debug) console.log('863 item, model', item, model);
+            const ports = item.ports;
+            if (ports && ports.length) {
+                ports.forEach(port => {
+                    if (model) this.importPort(port, model);
+                });
+            }
+        if (debug) console.log('863 item, model', item, model);
         }
     }
     importObject(item: any, model: cxModel | null) {
@@ -1100,6 +1124,15 @@ export class cxMetis {
             } else if (rel) {
                 rel.typeName = item.typeName;
             } 
+        }
+    }
+    importPort(item: any, model: cxModel | null) {
+        const port = this.findPort(item.id);
+        if (port) {
+            port.markedAsDeleted = item.markedAsDeleted;
+            if (model) {
+                model.addPort(port);
+            }
         }
     }
     importModelView(item: any, model: cxModel) {
@@ -1561,6 +1594,24 @@ export class cxMetis {
             // }
         }
     }
+    // addPort(obj: cxPort) {
+    //     if (obj.category === constants.gojs.C_PORT) {
+    //         if (this.ports == null)
+    //             this.ports = new Array();
+    //         if (!this.findPort(obj.id))
+    //             this.ports.push(obj);
+    //         else {
+    //             const ports = this.ports;
+    //             for (let i = 0; i < ports.length; i++) {
+    //                 const port = ports[i];
+    //                 if (port.id === obj.id) {
+    //                     ports[i] = obj;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     setGojsModel(model: gjs.goModel) {
         this.gojsModel = model;
     }
@@ -1812,6 +1863,9 @@ export class cxMetis {
         }
         return relviews;
     }
+    // getPorts(): cxPort[] | null {
+    //     return this.ports;
+    // }
     findItem(coll: string, id: string): any | null {
         let retval = null;
         switch (coll) {
@@ -2334,6 +2388,24 @@ export class cxMetis {
         }
         return null;
     }
+    // findPort(id: string): cxPort | null {
+    //     const ports = this.getPorts();
+    //     if (!ports) {
+    //         return null;
+    //     } else {
+    //         let i = 0;
+    //         let port = null;
+    //         while (i < ports.length) {
+    //             port = ports[i];
+    //             if (port) {
+    //                 if (port.id === id)
+    //                     return port;
+    //             }
+    //             i++;
+    //         }
+    //     }
+    //     return null;
+    // }
     findMethodType(id: string): cxMethodType | null {
         let mtypes = this.getMethodTypes(); 
         if (!mtypes)
@@ -3234,29 +3306,6 @@ export class cxMethodType extends cxMetaObject {
             return false;
         else
             return true;
-    }
-}
-
-export class cxPort extends cxMetaObject {
-    side: string;
-    color: string;
-    constructor(id: string, name: string, description: string, side: string) {
-        super(id, name, description);
-        this.side = side;
-        this.color = 'white';
-    }
-    // Methods
-    setSide(side: string) {
-        this.side = side;
-    }
-    getSide(): string {
-        return this.side;
-    }
-    setColor(color: string) {
-        this.color = color;
-    }
-    getColor(): string {
-        return this.color;
     }
 }
 
@@ -6526,6 +6575,7 @@ export class cxModel extends cxMetaObject {
     submodels: cxModel[] | null; 
     objects: cxObject[] | null;
     relships: cxRelationship[] | null;
+    ports: cxPort[] | null;
     modelviews: cxModelView[] | null;
     args1: any[];
     constructor(id: string, name: string, metamodel: cxMetaModel | null, description: string) {
@@ -6550,6 +6600,7 @@ export class cxModel extends cxMetaObject {
         this.submodels = null;
         this.objects = null;
         this.relships = null;
+        this.ports = null;
         this.modelviews = null;
         this.args1 = [];
     }
@@ -6733,6 +6784,24 @@ export class cxModel extends cxMetaObject {
                     const relship = relships[i];
                     if (relship.id === rel.id) {
                         relships[i] = rel;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    addPort(obj: cxPort) {
+        if (obj.category === constants.gojs.C_PORT) {
+            if (this.ports == null)
+                this.ports = new Array();
+            if (!this.findPort(obj.id))
+                this.ports.push(obj);
+            else {
+                const ports = this.ports;
+                for (let i = 0; i < ports.length; i++) {
+                    const port = ports[i];
+                    if (port.id === obj.id) {
+                        ports[i] = obj;
                         break;
                     }
                 }
@@ -7061,7 +7130,7 @@ export class cxInstance extends cxMetaObject {
     setAndGetAllProperties(metis: cxMetis): cxProperty[] | null {
         const typeprops = this.type?.getProperties(true);
         let mtdprops = null;
-        if (debug) console.log('5717 this', this);
+        if (debug) console.log('7133 this', this);
         if (this.type.name === 'Method') {
             const mtdtype = this["methodtype"];
             if (mtdtype) {
@@ -7069,7 +7138,7 @@ export class cxInstance extends cxMetaObject {
               const mtype = metamodel.findMethodTypeByName(mtdtype); 
               if (mtype) {
                 mtdprops = mtype.properties;
-                if (debug) console.log('5725 this', mtdprops);
+                if (debug) console.log('7141 mtype, mtdprops', mtype, mtdprops);
               }
             }
         }
@@ -7078,7 +7147,7 @@ export class cxInstance extends cxMetaObject {
             return p != null;
         });
         this.allProperties = properties;      
-        if (debug) console.log('5739 properties', properties);
+        if (debug) console.log('7150 properties', properties);
         return properties;
     }
     addInputrel(relship: cxRelationship) {
@@ -7305,13 +7374,13 @@ export class cxInstance extends cxMetaObject {
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
         const propname = prop.name;
-        if (debug) console.log('6268 prop, method', prop, method);
+        if (debug) console.log('7377 prop, method', prop, method);
         if (method) {
             const mtdtype = method.methodtype;
             let context;
             switch (mtdtype) {
                 case constants.types.MTD_AGGREGATEVALUE: {
-                    if (debug) console.log('6273 method', method);
+                    if (debug) console.log('7383 method', method);
                     const reltype = metis.findRelationshipTypeByName(method["reltype"]);
                     const otypename = method["objtype"];
                     let objtype = null;
@@ -7325,21 +7394,22 @@ export class cxInstance extends cxMetaObject {
                         "prop":         prop,
                     }
                     value = ui_mtd.aggregateValue(inst, context);
+                    if (debug) console.log('7397 inst, context, value', inst, context, value);
                 }
                 break;
                 case constants.types.MTD_GETCONNECTEDOBJECT: {
-                    if (debug) console.log('6861 method', method);
+                    if (debug) console.log('7401 method', method);
                     const rtypename = method["reltype"];
                     const reldir = method["reldir"];
                     let reltype = null;
                     if (rtypename !== 'any' && rtypename !== 'null')
                         reltype = metis.findRelationshipTypeByName(rtypename);
-                    if (debug) console.log('6866 rtypename, reltype', rtypename, reltype);
+                    if (debug) console.log('7407 rtypename, reltype', rtypename, reltype);
                     const otypename = method["objtype"];
                     let objtype = null;
                     if (otypename !== 'any' && otypename !== 'null')
                         objtype = metis.findObjectTypeByName(otypename);
-                    if (debug) console.log('6871 otypename, objtype', otypename, objtype);
+                    if (debug) console.log('7412 otypename, objtype', otypename, objtype);
                     context = {
                         "myMetis":      metis,
                         "reltype":      reltype,
@@ -7347,21 +7417,22 @@ export class cxInstance extends cxMetaObject {
                         "objtype":      objtype,
                         "prop":         prop,
                     }
-                    if (debug) console.log('6879 inst, context', inst, context);
+                    if (debug) console.log('7420 inst, context', inst, context);
                     const obj = ui_mtd.getConnectedObject(inst, context);
-                    if (debug) console.log('6881 inst, context, obj', inst, context, obj);
+                    if (debug) console.log('7422 inst, context, obj', inst, context, obj);
                     value = obj?.name; 
                 }
                 break;
                 case constants.types.MTD_CALCULATEVALUE:
                 default: {
-                    if (debug) console.log('6290 method', method);
+                    if (debug) console.log('7428 method', method);
                     context = {
                         "myMetis":   metis,
                         "prop":      prop,
                     }
                     value = ui_mtd.calculateValue(inst, context);
                     inst[propname] = value;
+                    if (debug) console.log('7435 inst, context, value', inst, context, value);
                 }
                 break;
             }            
@@ -7631,7 +7702,7 @@ export class cxObject extends cxInstance {
             }
         }
         return obj;
-        }
+    }
     getConnectedObjects(metis: cxMetis): cxObject[] {
         const type = this.type;
         const properties = type?.properties;
@@ -7797,6 +7868,59 @@ export class cxObject extends cxInstance {
         }
         return retval;
     }
+    addPort(side: string, name: string): cxPort {
+        const port = new cxPort(utils.createGuid(), name, "", side);
+        port.color = constants.gojs.C_PORT_COLOR;
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts.push(port);
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts.push(port);
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts.push(port);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts.push(port);
+        }
+        return port;
+    }
+    deletePort(side: string, name: string) {
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts = this.leftPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts = this.rightPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts = this.topPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
+        }
+    }
+    deleteSidePorts(side: string) {
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts = [];
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts = [];
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts = [];
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts = [];
+        }
+    }
+    getPort(side: string, name: string): cxPort {
+        let port = null;
+        if (side === constants.gojs.C_LEFT) {
+            port = this.leftPorts.find(p => p.name === name);
+        } else if (side === constants.gojs.C_RIGHT) {
+            port = this.rightPorts.find(p => p.name === name);
+        } else if (side === constants.gojs.C_TOP) {
+            port = this.topPorts.find(p => p.name === name);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            port = this.bottomPorts.find(p => p.name === name);
+        }
+        return port;
+    }
+    getPorts(): cxPort[] {
+        const ports = this.leftPorts.concat(this.rightPorts).concat(this.topPorts).concat(this.bottomPorts);
+        return ports;
+    }
     getLeftPorts(): cxPort[] {
         const ports = this.leftPorts;
         return ports;
@@ -7812,6 +7936,52 @@ export class cxObject extends cxInstance {
     getBottomPorts(): cxPort[] {
         const ports = this.bottomPorts;
         return ports;
+    }
+    getRelsConnectedToPort(portId: string): cxRelationship[] {
+        const rels = new Array();
+        const inputrels = this.inputrels;
+        for (let i=0; i<inputrels?.length; i++) {
+            const rel = inputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        const outputrels = this.outputrels;
+        for (let i=0; i<outputrels?.length; i++) {
+            const rel = outputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        return rels;
+    }
+}
+
+export class cxPort extends cxMetaObject {
+    side: string;
+    color: string;
+    type: cxObjectType;
+    constructor(id: string, name: string, description: string, side: string, portType: cxObjectType | null = null) {
+        super(id, name, description);
+        this.side = side;
+        this.color = 'white';
+        this.type = portType;
+    }
+    // Methods
+    setSide(side: string) {
+        this.side = side;
+    }
+    getSide(): string {
+        return this.side;
+    }
+    setColor(color: string) {
+        this.color = color;
+    }
+    getColor(): string {
+        return this.color;
+    }
+    getType(): cxObjectType {
+        return this.type;
     }
 }
 

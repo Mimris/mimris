@@ -661,6 +661,29 @@ export class goObjectNode extends goNode {
         }
         return members;
     }
+    addPort(side: string, name: string) {
+        const port = new cxPort(utils.createGuid(), name, "", side);
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts.push(port);
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts.push(port);
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts.push(port);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts.push(port);
+        }
+    }
+    removePort(side: string, name: string) {
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts = this.leftPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts = this.rightPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts = this.topPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
+        }
+    }
 }
 
 export class goObjectTypeNode extends goNode {

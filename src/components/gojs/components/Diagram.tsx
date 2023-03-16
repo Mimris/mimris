@@ -811,7 +811,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (debug) console.log('529 node', node);
-              uid.addPort(node, myMetis, myDiagram);
+              const choices = ['left', 'right', 'top', 'bottom'];
+              let defText = "";
+              if (choices.length > 0) defText = choices[0];
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Side",
+                case: "Add Port",
+                node: node,
+                myDiagram: myDiagram
+              } 
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(choices, modalContext);
+              return;
             },
             function (o: any) {
               const node = o.part.data;
@@ -822,7 +834,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
-          // makeButton("----------"),
           makeButton("Export Task Model",
           function (e: any, obj: any) {
             const node = myDiagram.selection.first().data;
@@ -1866,6 +1877,99 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function(o) { 
               return o.diagram.commandHandler.canRedo(); 
             })
+        );
+    }
+
+    // A CONTEXT MENU for ports
+    {
+      var portContextMenu =  // context menu for each port
+      $("ContextMenu",
+        makeButton("Change port name",
+        function (e: any, obj: any) {
+          const node = e.diagram.selection.first().data;
+          let object = node.object;
+          object = myMetis.findObject(object.id);
+          const port = obj.part.adornedObject;
+          let portname = port.data.name;
+          const side = port.data.side;
+          const p = object.getPort(side, portname);
+          portname = prompt('Enter port name', portname);
+          if (p) p.name = portname;
+          const jsnObj = new jsn.jsnObject(object);
+          if (debug) console.log('1964 p, jsnObj', p, jsnObj);
+          const modifiedObjects = new Array();
+          modifiedObjects.push(jsnObj);
+          modifiedObjects.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+          });
+          if (debug) console.log('1966 myMetis, myDiagram', myMetis, myDiagram);
+          uit.changePortName(port, portname, myDiagram);
+        }),
+        makeButton("Change port color",
+        function (e: any, obj: any) {
+          const node = e.diagram.selection.first().data;
+          let object = node.object;
+          object = myMetis.findObject(object.id);
+          const port = obj.part.adornedObject;
+          let portcolor = port.data.color;
+          const side = port.data.side;
+          const p = object.getPort(side, port.data.name);
+          portcolor = prompt('Enter port color', portcolor);
+          if (p) p.color = portcolor;
+          const jsnObj = new jsn.jsnObject(object);
+          if (debug) console.log('1964 p, jsnObj', p, jsnObj);
+          const modifiedObjects = new Array();
+          modifiedObjects.push(jsnObj);
+          modifiedObjects.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+          });
+          if (debug) console.log('1966 myMetis, myDiagram', myMetis, myDiagram);
+          uit.changePortColor(port, portcolor, myDiagram);
+        }),
+        makeButton("Remove port",
+          // in the click event handler, the obj.part is the Adornment;
+          // its adornedObject is the port
+          function (e: any, obj: any) {
+            const node = e.diagram.selection.first().data;
+            const port = obj.part.adornedObject;
+            let object = node.object;
+            object = myMetis.findObject(object.id);
+            let rels = object.getRelsConnectedToPort(port.data.id);
+            const modifiedRelships = new Array();
+            for (let i=0; i<rels.length; i++) {
+              const rel = rels[i];
+              if (rel) {
+                const relview = rel.relshipview;
+                if (relview) {
+                  relview.markedAsDeleted = true;
+                }
+                rel.markedAsDeleted = true;
+                const jsnRel = new jsn.jsnRelationship(rel);
+                modifiedRelships.push(jsnRel);
+              }
+            }
+            modifiedRelships.map(mn => {
+              let data = mn;
+              data = JSON.parse(JSON.stringify(data));
+              e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+            });
+            object.deletePort(port.data.side, port.data.name);
+            const jsnObj = new jsn.jsnObject(object);
+            if (debug) console.log('1969 jsnObj', jsnObj);
+            const modifiedObjects = new Array();
+            modifiedObjects.push(jsnObj);
+            modifiedObjects.map(mn => {
+              let data = mn;
+              data = JSON.parse(JSON.stringify(data));
+              e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            });
+            uit.removePort(port, myDiagram);
+            myDiagram.requestUpdate();
+        }),
         );
     }
 
@@ -2916,11 +3020,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       // Define group template map
       var groupTemplateMap = new go.Map<string, go.Part>();
-      uit.addGroupTemplates(groupTemplateMap, partContextMenu, myMetis);
+      uit.addGroupTemplates(groupTemplateMap, partContextMenu, portContextMenu, myMetis);
 
       // Define node template map
       var nodeTemplateMap = new go.Map<string, go.Part>();
-      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, myMetis);
+      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, portContextMenu, myMetis);
       nodeTemplateMap.add("LinkLabel",
       $("Node",
         {
@@ -3137,10 +3241,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('2913 modalContext, selpropgroup, namelist', modalContext, selpropgroup, namelist);
       // selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ];
     }
-    if (modalContext?.what === 'addPort') {
-      selpropgroup = [  {tabName: 'Default'} ];
-
-    }
     switch (modalContext?.what) {      
       case 'selectDropdown': 
         let options =  '';
@@ -3233,8 +3333,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObject':
       case 'editObjectview':
         header = modalContext.title;
-        category = this.state.selectedData.category;
-        if (this.state.selectedData !== null && this.myMetis != null) {
+        category = selObj.category;
+        if (selObj !== null && this.myMetis != null) {
           if (false) {
           // code for extracting the g element from the svg
           // https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/tiger.html
@@ -3273,7 +3373,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             <div className="modal-prop">
               <SelectionInspector 
                 myMetis       ={this.myMetis}
-                // selectedData  ={selectedData}
                 selectedData  ={this.state.selectedData}
                 context       ={this.state.modalContext}
                 onInputChange ={this.handleInputChange}
@@ -3305,14 +3404,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               />
             </div>
         }
-      }
-      break;
-      case 'addPort': {
-        header = modalContext.title;
-        category = this.state.selectedData.category;
-        if (this.state.selectedData !== null && this.myMetis != null) {
-
-        }
+        break;      
       }
       default:
         break;
@@ -3408,10 +3500,9 @@ return (
             {/* </div>
           </div> */}
         </Modal>        
-        <style jsx>{`
-        
-        `}
-        </style> 
+        <style jsx>{`        
+      `}
+      </style> 
       </div>
     );
   }

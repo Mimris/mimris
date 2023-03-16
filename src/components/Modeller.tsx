@@ -61,15 +61,15 @@ const Modeller = (props: any) => {
   // }, [focusModel.id])
 
   useEffect(() => { // set activTab when focusModelview.id changes
-    setActiveTab(activetabindex)
     GenGojsModel(props, dispatch)
-  //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
+    setActiveTab(activetabindex)
+    //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
       if (debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview?.id); 
-      const timer = setTimeout(() => {
-        setRefresh(!refresh)
+      // const timer = setTimeout(() => {
+      //   setRefresh(!refresh)
   //       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
-      }, 20);
-      return () => clearTimeout(timer);
+      // }, 20);
+      // return () => clearTimeout(timer);
   //   } 
   }, [props.phFocus.focusModelview?.id])
   

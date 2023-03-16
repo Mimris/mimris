@@ -450,7 +450,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (k !== 'markedAsDeleted') {
               // Check if k is a member of properties
               let found = false;
-              for (let n = 0; n<properties.length; n++) {
+              for (let n = 0; n<properties?.length; n++) {
                 const p = properties[n];
                 if (p.name === k) {
                   found = true;

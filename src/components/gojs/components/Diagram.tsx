@@ -826,13 +826,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              const node = o.part.data;
-              if (node.template === 'nodeWithPorts')
-                return true;
-              else if (node.template === 'groupWithPorts')
-                return true;
-              else
-                return false;
+              if (myMetis.modelType == 'Modelling') {
+                const node = o.part.data;
+                if (node.template === 'nodeWithPorts')
+                  return true;
+                else if (node.template === 'groupWithPorts')
+                  return true;
+              } 
+              return false;
             }),
           makeButton("Export Task Model",
           function (e: any, obj: any) {

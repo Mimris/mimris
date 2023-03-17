@@ -116,7 +116,7 @@ const page = (props:any) => {
     let gojsmetamodel =  props.phGojs?.gojsMetamodel 
     let gojstargetmodel =  props.phGojs?.gojsTargetModel 
 
-    if (debug) console.log('93 Modelling: gojsmodel', props, gojsmodel, props.phGojs?.gojsModel);
+    if (!debug) console.log('93 Modelling: gojsmodel', props, gojsmodel, props.phGojs);
     
     const curmod = metis?.models?.find(m => m.i === focusModel?.id)
     const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)

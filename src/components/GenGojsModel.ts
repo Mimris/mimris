@@ -25,7 +25,7 @@ const constants = require('../akmm/constants');
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
-  if (debug) console.log('28 GenGojsModel started', props);
+  if (!debug) console.log('28 GenGojsModel started', props);
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -160,7 +160,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      if (debug) console.log('155 GenGojsModel gojsModel', gojsModel);
+      if (!debug) console.log('155 GenGojsModel gojsModel', gojsMetamodelModel);
 
       // /** metamodel */
       // const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);
@@ -168,9 +168,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // update the Gojs arrays in the store
         dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
         dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-        // dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+        dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
         dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
-        // dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+        dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
         dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
         dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
         dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })

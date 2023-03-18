@@ -78,13 +78,18 @@ const page = (props:any) => {
   } 
 
   useEffect(() => {
-    useEfflog('81 Modelling useEffect 0 []', props);
+    useEfflog('81 Modelling useEffect 1 []', props);
     GenGojsModel(props, dispatch);
     setMount(true)
   }, [])
 
   useEffect(() => {
-    useEfflog('87 Modelling useEffect 1 props.phData.metis.currentModelRef]', props.phData.metis.currentModelRef);
+    useEfflog('87 Modelling useEffect 2 [toogleTab]', props);
+    GenGojsModel(props, dispatch);
+  }, [activeTab])
+
+  useEffect(() => {
+    useEfflog('87 Modelling useEffect 3 [props.phData.metis.currentModelRef]', props.phData.metis.currentModelRef);
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: props.phData.metis.currentModelRef, name: 'refresh'}})
@@ -93,10 +98,8 @@ const page = (props:any) => {
     return () => clearTimeout(timer);
   }, [props.phData.metis.currentModelRef])
 
-  
-
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    useEfflog('150 Modelling useEffect 2 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
+    useEfflog('150 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
     setRefresh(!refresh)
   }, [props.phFocus?.focusRefresh?.id])
 
@@ -116,7 +119,7 @@ const page = (props:any) => {
     let gojsmetamodel =  props.phGojs?.gojsMetamodel 
     let gojstargetmodel =  props.phGojs?.gojsTargetModel 
 
-    if (debug) console.log('93 Modelling: gojsmodel', props, gojsmodel, props.phGojs?.gojsModel);
+    if (!debug) console.log('119 Modelling: ', gojsmetamodelpalette, gojsmetamodelmodel);
     
     const curmod = metis?.models?.find(m => m.i === focusModel?.id)
     const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
@@ -127,8 +130,8 @@ const page = (props:any) => {
     let phData = props.phData
     let phUser = props.phUser
 
-    if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
-    if (debug) console.log('174 Modelling', curmod, curmodview);
+    if (debug) console.log('130 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
+    if (debug) console.log('131 Modelling', curmod, curmodview);
 
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
@@ -145,6 +148,7 @@ const page = (props:any) => {
       const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
       // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
       dispatch({ type: 'SET_FOCUS_TAB', data })
+      // GenGojsModel(props, dispatch)
     }
   
     const toggleTip = () => setTooltipOpen(!tooltipOpen);
@@ -155,7 +159,8 @@ const page = (props:any) => {
       
     // ===================================================================
     // Divs
-    if (debug) console.log('Modelling: gojsmodel', gojsmodelobjects);
+    if (!debug) console.log('162 Modelling: ', gojsmetamodelpalette);
+    if (!debug) console.log('163 Modelling: ', gojsmetamodelmodel);
     const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
       ?
         <Palette
@@ -171,7 +176,7 @@ const page = (props:any) => {
         /> 
       : <></>;
 
-      const paletteMetamodelDiv = (gojsmetamodelmodel) 
+      const paletteMetamodelDiv = (gojsmetamodelmodel) // this is the metamodel modelling area
         ?
           <Modeller
           gojsModel={gojsmetamodelmodel}

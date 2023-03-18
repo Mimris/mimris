@@ -49,7 +49,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
     const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)) 
         ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-        : curmod?.modelviews[0] // if focusmodview does not exist set the first
+        : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
 
     if (debug) console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod?.modelviews)
 
@@ -71,9 +71,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
       
       let myMetamodel = myModel?.metamodel;
-        if (debug) console.log('70 myMetamodel :', myMetamodel);
+        if (!debug) console.log('70 myMetamodel :', myMetamodel);
       myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
-        if (debug) console.log('72 myMetamodel :', curmod.metamodel, curmetamodel);
+        if (!debug) console.log('72 myMetamodel :', myMetamodel);
         if (debug) console.log('73 myTargetMetamodel :', curmod, curmod.targetMetamodelRef, curtargetmodel);
       let myTargetMetamodel = myMetis.findMetamodel(curmod.targetMetamodelRef) || null;
       // if (myTargetMetamodel !== null)
@@ -81,9 +81,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('77 myTargetMetamodel :', myTargetMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && uib.buildGoMetaPalette();
-        if (debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
+        if (!debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted);
-        if (debug) console.log('82 myGoMetamodel', myGoMetamodel);
+        if (!debug) console.log('82 myGoMetamodel', myGoMetamodel);
       const myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
         if (debug) console.log('84 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
 
@@ -160,7 +160,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      if (!debug) console.log('155 GenGojsModel gojsModel', gojsMetamodelModel);
+      if (!debug) console.log('155 GenGojsModel gojsModel', myGoMetamodel);
+      if (!debug) console.log('155 GenGojsModel gojsModel',  gojsMetamodelModel);
 
       // /** metamodel */
       // const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);

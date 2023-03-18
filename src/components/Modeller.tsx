@@ -26,7 +26,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (debug) console.log('19 Modeller: props', props);
+  if (!debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -65,8 +65,8 @@ const Modeller = (props: any) => {
   
   // ------------------------------
 
-  const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
-  // const gojsmodel = props.gojsModel;
+  // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
+  const gojsmodel = props.gojsModel;
   if (debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
   
   let myMetis = props.myMetis;
@@ -173,6 +173,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   let ndarr = props.gojsMetamodel?.nodeDataArray
   let taskNodeDataArray: any[] = ndarr
 
+  console.log('176 taskNodeDataArray', taskNodeDataArray, ndarr, props.gojsMetamodel);
   // ================================================================================================
   // Show all the objects in this model
   // const gojsmodelObjects = props.gojsModelObjects
@@ -264,7 +265,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     }
   })
 
-  const gojsapp = (gojsmodel.nodeDataArray) && // this is used both for the metamodelview and the modelview
+  const gojsapp = (gojsmodel) && // this is used both for the metamodelview and the modelview
     <GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}

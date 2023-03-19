@@ -1084,19 +1084,24 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         if (debug) console.log('1085 node', node);
         name = prompt('Enter port name', name);
-        const port = object.addPort(side, name);
-        if (debug) console.log('1087 object, port', object, port);
-        const jsnObj = new jsn.jsnObject(object);
-        const modifiedObjects = new Array();
-        modifiedObjects.push(jsnObj);
-        modifiedObjects.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-        });
-        if (!node.isGroup) {
-          uit.addPort(port, myDiagram)
-          myDiagram.requestUpdate();
+        let port = object.getPort(side, name);
+        if (port) {
+          alert('The port ' + name + ' on side ' + side + ' already exists\n Aborted');
+        } else {
+          port = object.addPort(side, name);
+          if (debug) console.log('1087 object, port', object, port);
+          const jsnObj = new jsn.jsnObject(object);
+          const modifiedObjects = new Array();
+          modifiedObjects.push(jsnObj);
+          modifiedObjects.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+          });
+          // if (!node.isGroup) {
+            uit.addPort(port, myDiagram)
+            myDiagram.requestUpdate();
+          // }
         }
       }
     }

@@ -141,10 +141,10 @@ export const InitialState = {
   phData: InitState.phData,
   // phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
-  // phGojs: null,
-  // phMymetis: null,
-  // phMyGoModel: null,
-  // phMyGoMetamodel: null,
+  phGojs: null,
+  phMymetis: null,
+  phMyGoModel: null,
+  phMyGoMetamodel: null,
   phUser: InitState.phUser,
   phSource: InitState.phSource,
   lastUpdate: new Date().toISOString()
@@ -589,7 +589,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_METAMODELPALETTE:
-        // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
+        if (!debug) console.log('592 SET_GOJS_METAMODEL', action);
         return {
           ...state,
           phGojs: {
@@ -598,7 +598,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_METAMODELMODEL:
-        // if (debug) console.log('210 SET_GOJS_MODEL', action);
+        if (!debug) console.log('601 SET_GOJS_METAMODELMODEL', action);
         return {
           ...state,
           phGojs: {

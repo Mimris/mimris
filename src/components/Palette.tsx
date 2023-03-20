@@ -47,10 +47,10 @@ const Palette = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   if (debug) console.log('47', props, mmodel?.name, model?.metamodelRef);
 
-  const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
-  const gojsmetamodel = (props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
-  if (debug) console.log('50 Palette start', gojsmetamodel, props)
-  // const gojsmodel = props.gojsModel;
+  // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
+  const gojsmetamodel =  props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
+  if (!debug) console.log('50 Palette start', gojsmetamodel, props)
+  const gojsmodel = props.gojsModel;
   
   // hardcoded for now
   let tasks = []
@@ -72,10 +72,10 @@ const Palette = (props: any) => {
   function togglePalette() { setVisiblePalette(!visiblePalette); } 
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette);}
   
-  // let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
+  let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
 
-  let ndarr = gojsmetamodel?.nodeDataArray // error first render???
-  if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
+  // let ndarr = gojsmetamodel?.nodeDataArray // error first render???
+  if (!debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {
@@ -214,7 +214,7 @@ const Palette = (props: any) => {
 
   if (debug) console.log('172 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
  
-  const gojsappPalette = (gojsmetamodel.nodeDataArray) &&  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
+  const gojsappPalette = //(gojsmetamodel.nodeDataArray) &&  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
     <div className="workpad p-1 pt-0 bg-white" >
       {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
       < GoJSPaletteApp

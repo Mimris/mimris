@@ -281,10 +281,11 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
         ? [ foundNewTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
         : [ foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
 
-    if (debug) console.log("284 foundTask", foundTask, foundTasks)
+    if (!debug) console.log("284 foundTask", foundTask.workOnTypes, foundTasks, curtask?.workOnTypes, foundTask, curtask)
     
-    const foundTypes = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes
+    const foundTypes1 = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes
 
+    const foundTypes = (!foundTypes1) && foundAllTask?.workOnTypes 
     if (debug) console.log("288 foundTypes", foundTypes, foundTask, curtask)
 
     if (debug) console.log("290 focusTasks",  foundTask, foundMMTask,  foundNewTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask);

@@ -47,7 +47,7 @@ const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (!debug) console.log('52 Modelling:', props);        
+  if (debug) console.log('52 Modelling:', props);        
   const dispatch = useDispatch();
   
   const [refresh, setRefresh] = useState(true);
@@ -66,12 +66,12 @@ const page = (props:any) => {
   const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
   const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
   const phSource = useSelector(phSource => props.phSource) 
-  if (!debug) console.log('69 Modelling', focusModel, focusModelview);
+  if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
   const [mount, setMount] = useState(false)
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (!debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
     // GenGojsModel(props, dispatch)
     setRefresh(!refresh)
@@ -119,7 +119,7 @@ const page = (props:any) => {
     let gojsmetamodel =  props.phGojs?.gojsMetamodel 
     let gojstargetmodel =  props.phGojs?.gojsTargetModel 
 
-    if (!debug) console.log('119 Modelling: ', gojsmetamodelpalette, gojsmetamodelmodel);
+    if (debug) console.log('119 Modelling: ', gojsmetamodelpalette, gojsmetamodelmodel);
     
     const curmod = metis?.models?.find(m => m.i === focusModel?.id)
     const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
@@ -159,8 +159,8 @@ const page = (props:any) => {
       
     // ===================================================================
     // Divs
-    if (!debug) console.log('162 Modelling: ', gojsmetamodelpalette);
-    if (!debug) console.log('163 Modelling: ', gojsmetamodelmodel);
+    if (debug) console.log('162 Modelling: ', gojsmetamodelpalette);
+    if (debug) console.log('163 Modelling: ', gojsmetamodelmodel);
     const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
       ?
         <Palette

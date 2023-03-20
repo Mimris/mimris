@@ -10,7 +10,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader()
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (!debug) console.log('13 ReadModelFromFile', reader.fileName)
+    if (debug) console.log('13 ReadModelFromFile', reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
@@ -36,7 +36,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         console.log('29 ReadModelFromFile',  props, modelff)
 
         if (modelff.phData) { // if modelff has phData, then it is a project file
-            if (!debug) console.log('33 ReadModelFromFile',  props, modelff)    
+            if (debug) console.log('33 ReadModelFromFile',  props, modelff)    
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
@@ -182,7 +182,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             console.log('ReadModelFromFile: Unknown file type')
             alert('ReadModelFromFile: Unknown file type')
         }
-        if (!debug) console.log('154 ReadModelFromFile', data);      
+        if (debug) console.log('154 ReadModelFromFile', data);      
         if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })

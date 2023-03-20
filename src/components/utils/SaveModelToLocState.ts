@@ -3,7 +3,7 @@ const debug = false;
 
 export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) => {
 
-    if (!debug) console.log('72 Modelling refresh', memoryLocState);
+    if (debug) console.log('72 Modelling refresh', memoryLocState);
     let focusOrg, focusProj;
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
         // set focusOrg and focusProj to focusProj.org and focusProj.proj

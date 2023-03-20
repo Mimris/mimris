@@ -49,7 +49,7 @@ const Palette = (props: any) => {
 
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel =  props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
-  if (!debug) console.log('50 Palette start', gojsmetamodel, props)
+  if (debug) console.log('50 Palette start', gojsmetamodel, props)
   const gojsmodel = props.gojsModel;
   
   // hardcoded for now
@@ -75,7 +75,7 @@ const Palette = (props: any) => {
   let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
 
   // let ndarr = gojsmetamodel?.nodeDataArray // error first render???
-  if (!debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
+  if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {

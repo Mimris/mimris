@@ -544,7 +544,7 @@ let includeNoType = false;
           }
         }
       }
-      if (!debug) console.log('547 myGoMetamodel', myGoMetamodel);
+      if (debug) console.log('547 myGoMetamodel', myGoMetamodel);
       return myGoMetamodel;
     }
   }

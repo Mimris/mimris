@@ -26,7 +26,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (!debug) console.log('19 Modeller: props', props);
+  if (debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -78,7 +78,7 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
   function toggleRefreshObjects() { 
-    if (!debug) console.log('110 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
+    if (debug) console.log('110 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
     if (debug) console.log('112 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     setRefresh(!refresh)

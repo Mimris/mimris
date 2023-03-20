@@ -313,7 +313,7 @@ function reducer(state = InitialState, action) {
         },
       } 
     case SET_FOCUS_MODEL:
-      if (!debug) console.log('316 red', action.data); 
+      if (debug) console.log('316 red', action.data); 
       const retval_SET_FOCUS_MODEL = {
         ...state,
         phFocus: {
@@ -321,10 +321,10 @@ function reducer(state = InitialState, action) {
           focusModel: action.data
         }
       }
-      if (!debug) console.log('324 red', retval_SET_FOCUS_MODEL.phFocus.focusModel);
+      if (debug) console.log('324 red', retval_SET_FOCUS_MODEL.phFocus.focusModel);
       return retval_SET_FOCUS_MODEL
     case SET_FOCUS_MODELVIEW:
-      if (!debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
+      if (debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -589,7 +589,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_METAMODELPALETTE:
-        if (!debug) console.log('592 SET_GOJS_METAMODEL', action);
+        if (debug) console.log('592 SET_GOJS_METAMODEL', action);
         return {
           ...state,
           phGojs: {
@@ -598,7 +598,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_METAMODELMODEL:
-        if (!debug) console.log('601 SET_GOJS_METAMODELMODEL', action);
+        if (debug) console.log('601 SET_GOJS_METAMODELMODEL', action);
         return {
           ...state,
           phGojs: {

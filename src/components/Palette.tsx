@@ -89,16 +89,15 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
-    isRendered = true;
+    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
-    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
     if (debug) console.log('84 Palette useEffect 1', foundRTTs);
     // setRefreshPalette(!refreshPalette) 
     const timer = setTimeout(() => {
       buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
       // setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
-      if (!debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
+      if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
     }, 1000);
     return () => { isRendered = false;  clearTimeout(timer); }
   }, [])
@@ -153,7 +152,7 @@ const Palette = (props: any) => {
   }
 
   const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
-    if (!debug) console.log('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
+    if (debug) console.log('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
     const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
     if (debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask

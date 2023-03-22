@@ -7,7 +7,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (!debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
+    if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
@@ -254,7 +254,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
 
     // let task = curtask || {id: datarole.focusRole.tasks[0].id, name: datarole.focusRole.tasks[0].name} 
     if (debug) console.log("235 datarole", oTypes, datarole);
-    if (!debug) console.log("238 datarole", curtask);
+    if (debug) console.log("238 datarole", curtask);
 
     const foundRole = datarole?.focusRole // hardcode for now
     const foundMMTask = foundRole?.tasks?.find(t =>  t.id === mmodel.name && t) || null
@@ -265,35 +265,41 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     if (debug) console.log("247 property", foundPropertyObj, foundPropertyTask )
     const foundAllTask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}])
     const foundNewTask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}]) ||  foundAllTask
-    if (!debug) console.log("267 property",  curtasks, foundNewTask, foundNewTask.workOnTypes)
-    if (!debug) console.log("269 property",  foundNewTask, foundNewTask.workOnTypes)
+    if (debug) console.log("267 property",  curtasks, foundNewTask, foundNewTask.workOnTypes)
+    if (debug) console.log("269 property",  foundNewTask, foundNewTask.workOnTypes)
 
+    // first check if there is new task, if so, use that first and add others thats not null, else use other tasks with the task with the Metamodel name first
     const foundTasks = (foundNewTask.workOnTypes.length > 1) 
         ? [ foundNewTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean) // sf check this 
-        : [ foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask].filter(Boolean)
-    console.log("273 foundTasks",  foundTasks, )
-    console.log("274 foundTasks",  mmodel.objecttypes.length)
+        : [  foundAllTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask].filter(Boolean)
+    if (debug) console.log("273 foundTasks",  foundTasks )
+ 
+    if (!debug) console.log("277 foundTasks",  mmodel, foundAllTask)
     
-    const foundTask =  (foundNewTask.workOnTypes.length > 1)
+    // first check if we are on metamodelling tab, we assume when no objecttypes are present in the metamodel, we are on the metamodelling tab???
+    const foundTask = (foundNewTask.workOnTypes.length > 1)
         ? foundNewTask
         : (curtask) 
             ? foundRole?.tasks.find(t => t.id ===  curtask.id && t)
-            : foundMMTask //|| foundNewTask || foundAllTask ||  foundMMTask || foundIRTVTask || foundPOPSTask || foundPropertyTask ||  datarole.focusRole.tasks[0]
+            // : foundMMTask //|| foundNewTask || foundAllTask ||  foundMMTask || foundIRTVTask || foundPOPSTask || foundPropertyTask ||  datarole.focusRole.tasks[0]
+            : foundAllTask
+            
 
-    if (!debug) console.log("274 property", foundTask)
-    if (debug) console.log("275 filteredTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
+    if (debug) console.log("288 property", foundTask)
+    if (debug) console.log("289 filteredTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
     
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })
     if (foundTask) dispatch({ type: 'SET_FOCUS_TASK', data: {id: foundTask.id, name: foundTask.name} })
     
   
 
-    if (debug) console.log("284 foundTask", foundTask.workOnTypes, foundTasks, curtask?.workOnTypes, foundTask, curtask)
+    if (debug) console.log("296 foundTask", foundTask.workOnTypes, foundTasks, curtask?.workOnTypes, foundTask, curtask)
     
     // const foundTypes1 = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes
 
     const foundTypes = (foundTask) && foundTask?.workOnTypes 
-    if (!debug) console.log("295 foundTypes", foundTypes)
+    
+    if (debug) console.log("295 foundTypes", foundTypes)
 
     if (debug) console.log("297 focusTasks",  foundTask, foundMMTask,  foundNewTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask);
     if (debug) console.log("298 focusTasks",  foundTasks,  foundTypes);
@@ -302,7 +308,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const filterTask = {id: foundTask?.id, name: foundTask?.name}
     const filterTasks = foundTasks
     const filterTypes = foundTypes
-    if (!debug) {
+    if (debug) {
         console.log("298 filterRole", filterRole)
         console.log("299 filterTask", filterTask)
         console.log("300 filterTasks", filterTasks)

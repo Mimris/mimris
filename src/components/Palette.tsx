@@ -54,6 +54,7 @@ const Palette = (props: any) => {
   
   // hardcoded for now
   let tasks = []
+
   let focusTask = props.phFocus?.focusTask
   let seltasks = props.phFocus?.focusRole?.tasks || []
   if (debug) console.log('52 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
@@ -89,6 +90,7 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
+    
     if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
@@ -152,8 +154,12 @@ const Palette = (props: any) => {
   }
 
   const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
-    if (debug) console.log('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
-    const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
+    let task1 = 'Modelling'
+    if (props.modelType === 'metamodel') {
+      task1 = 'Metamodelling'
+    }
+    if (!debug) console.log('121 Palette useEffect',role, task1, types, mmodel, modellingtasks);
+    const foundRTTs = genRoleTasks(role, task1, tasks, types, mmodel, dispatch)
     if (debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
     if (debug) console.log('131  Palette findCurRoleTaskTypes ', types, modellingtasks, foundRTTs)  

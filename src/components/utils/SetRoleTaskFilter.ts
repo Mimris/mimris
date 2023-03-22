@@ -7,7 +7,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
+    if (!debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
@@ -274,18 +274,22 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
         : [  foundAllTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask].filter(Boolean)
     if (debug) console.log("273 foundTasks",  foundTasks )
  
-    if (!debug) console.log("277 foundTasks",  mmodel, foundAllTask)
+    if (!debug) console.log("277 foundTasks", curtask, mmodel, foundAllTask)
     
     // first check if we are on metamodelling tab, we assume when no objecttypes are present in the metamodel, we are on the metamodelling tab???
-    const foundTask = (foundNewTask.workOnTypes.length > 1)
-        ? foundNewTask
-        : (curtask) 
-            ? foundRole?.tasks.find(t => t.id ===  curtask.id && t)
-            // : foundMMTask //|| foundNewTask || foundAllTask ||  foundMMTask || foundIRTVTask || foundPOPSTask || foundPropertyTask ||  datarole.focusRole.tasks[0]
-            : foundAllTask
+    const foundTask = (curtask) 
+        ? (curtask = 'Metamodelling')
+            ? foundAllTask
+            : (foundNewTask.workOnTypes.length > 1)
+                ? foundNewTask
+                : foundRole?.tasks.find(t => t.id ===  curtask.id && t)
+        : (foundNewTask.workOnTypes.length > 1)
+            ? foundNewTask
+            : foundRole?.tasks.find(t => t.id ===  mmodel.name && t)
+
             
 
-    if (debug) console.log("288 property", foundTask)
+    if (!debug) console.log("288 property", foundTask)
     if (debug) console.log("289 filteredTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
     
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })

@@ -179,7 +179,7 @@ const page = (props:any) => {
           metis={metis}
           phFocus={phFocus}
           dispatch={dispatch}
-          // modelType='metamodel'
+          modelType='metamodel'
         /> 
       : <></>;
 

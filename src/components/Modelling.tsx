@@ -97,15 +97,16 @@ const page = (props:any) => {
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       setRefresh(!refresh)
-    }, 100);
+    }, 200);
     return () => clearTimeout(timer); 
   }, [props.phFocus.focusModel.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
+    GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
     setRefresh(!refresh)
-    }, 100);
+    }, 200);
     return () => clearTimeout(timer); 
   }, [props.phFocus?.focusModelview.id])
 

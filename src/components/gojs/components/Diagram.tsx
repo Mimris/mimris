@@ -3310,12 +3310,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
             comps = null
         }
-        if (debug) console.log('2563 options', options);
+        if (!debug) console.log('2563 options', options);
         const { selectedOption } = this.state;
 
         const value = (selectedOption)  ? selectedOption.value : options[0]
 
-        if (debug) console.log('2568 Diagram ', selectedOption, this.state.selectedOption, value);
+        if (!debug) console.log('2568 Diagram ', selectedOption, this.state.selectedOption, value);
         header = modalContext.title;
         modalContent = 
           <div className="modal-selection d-flex justify-content-center">

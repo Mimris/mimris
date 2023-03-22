@@ -8551,7 +8551,6 @@ export class cxObjectView extends cxMetaObject {
     scale1: string;
     memberscale: string;
     arrowscale: string;
-    textscale: string;
     viewkind: string;
     template: string;
     figure: string;
@@ -8562,6 +8561,7 @@ export class cxObjectView extends cxMetaObject {
     strokecolor2: string;
     strokewidth: string;
     textcolor: string;
+    textscale: string;
     icon: string;
     constructor(id: string, name: string, object: cxObject | null, description: string) {
         super(id, name, description);

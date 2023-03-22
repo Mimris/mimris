@@ -1117,6 +1117,7 @@ export class paletteNode {
     figure: string;
     geometry: string;
     fillcolor: string;
+    fillcolor2: string;
     strokecolor: string;
     strokewidth: string;
     icon: string;
@@ -1133,6 +1134,7 @@ export class paletteNode {
         this.figure = "";
         this.geometry = "";
         this.fillcolor = "lightyellow";
+        this.fillcolor2 = "";
         this.strokecolor = "black";
         this.strokewidth = "1";
         this.icon = "";

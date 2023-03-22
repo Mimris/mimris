@@ -858,6 +858,7 @@ export class jsnObjectTypeView {
     figure:          string;
     geometry:        string;
     fillcolor:       string;
+    fillcolor2:      string;
     strokecolor:     string;
     strokecolor1:    string;
     strokecolor2:    string;
@@ -877,7 +878,8 @@ export class jsnObjectTypeView {
         this.template        = objtypeview.getTemplate();
         this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
-        this.fillcolor       = objtypeview.getFillcolor();
+        this.fillcolor       = objtypeview.getFillcolor2();
+        this.fillcolor2      = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
         this.strokecolor2    = objtypeview.getStrokecolor2();
@@ -1632,13 +1634,15 @@ export class jsnObjectView {
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
-    viewkind:        string;
     isGroup:         boolean;
+    groupLayout:     string;
     isCollapsed:     boolean;
     loc:             string;
     size:            string;
     scale:           number;
     memberscale:     number;
+    arrowscale:      string;
+    viewkind:        string;
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
@@ -1672,11 +1676,12 @@ export class jsnObjectView {
         this.strokecolor2    = objview?.strokecolor2;
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
-        this.textscale       = objview?.textscale;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
         this.scale           = Number(objview?.scale1);
         this.memberscale     = Number(objview?.memberscale);
+        this.textscale       = objview?.textscale;
+        this.arrowscale      = objview?.arrowscale;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }

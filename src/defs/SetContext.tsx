@@ -16,7 +16,7 @@ const SetContext = (props: any) =>  {
 
   const contextRepoDiv = 
     <div className="context-list d-flex justify-content-between flex-grow-1 px-1"> Context :
-      <span className="context-item"> Org: <strong>{phFocus?.focusProj.org}</strong> </span> | 
+      <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
       <span className="context-item"> Repo: <strong>{repo}</strong> </span> |
       <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> |
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |

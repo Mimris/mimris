@@ -59,6 +59,10 @@ const page = (props:any) => {
 
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
+  // let phFocus = useSelector(phFocus => props.phFocus)
+  // let phData = useSelector(phData => props.phData)
+  // let phUser = useSelector(phUser => props.phUser)
+
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
   const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
@@ -72,8 +76,8 @@ const page = (props:any) => {
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
-    SaveModelToLocState(props, memoryLocState, setMemoryLocState)
-    // GenGojsModel(props, dispatch)
+    // SaveModelToLocState(props, memoryLocState, setMemoryLocState)
+    GenGojsModel(props, dispatch)
     setRefresh(!refresh)
   } 
 
@@ -84,24 +88,22 @@ const page = (props:any) => {
   }, [])
 
   useEffect(() => {
-    useEfflog('87 Modelling useEffect 2 [toogleTab]', props);
+    useEfflog('87 Modelling useEffect 2 [activTab]', props);
     GenGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
-    useEfflog('87 Modelling useEffect 3 [props.phData.metis.currentModelRef]', props.phData.metis.currentModelRef);
+    useEfflog('87 Modelling useEffect 3 [props.phFocus]', props);
     GenGojsModel(props, dispatch);
-    const timer = setTimeout(() => {
-      dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: props.phData.metis.currentModelRef, name: 'refresh'}})
-      // setRefresh(!refresh)
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [props.phData.metis.currentModelRef])
+  }, [props.phFocus])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    useEfflog('150 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
+    useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
+    const timer = setTimeout(() => {
     setRefresh(!refresh)
-  }, [props.phFocus?.focusRefresh?.id])
+    }, 100);
+    return () => clearTimeout(timer); 
+  }, [props.phFocus?.focusModelview.id])
 
   if (!mount) {
     return <></>

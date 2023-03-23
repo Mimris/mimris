@@ -878,8 +878,8 @@ export class jsnObjectTypeView {
         this.template        = objtypeview.getTemplate();
         this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
-        this.fillcolor       = objtypeview.getFillcolor2();
-        this.fillcolor2      = objtypeview.getFillcolor();
+        this.fillcolor       = objtypeview.getFillcolor();
+        this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
         this.strokecolor2    = objtypeview.getStrokecolor2();

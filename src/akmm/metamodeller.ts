@@ -7523,10 +7523,10 @@ export class cxObject extends cxInstance {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
-        this.leftPorts = null;
-        this.rightPorts = null;
-        this.topPorts = null;
-        this.bottomPorts = null;
+        this.leftPorts = [];
+        this.rightPorts = [];
+        this.topPorts = [];
+        this.bottomPorts = [];
         this.objectviews = null;
 
         // Handle properties
@@ -7907,13 +7907,21 @@ export class cxObject extends cxInstance {
     getPort(side: string, name: string): cxPort {
         let port = null;
         if (side === constants.gojs.C_LEFT) {
-            port = this.leftPorts.find(p => p.name === name);
+            if (this.leftPorts) {
+                port = this.leftPorts?.find(p => p.name === name);
+            }
         } else if (side === constants.gojs.C_RIGHT) {
-            port = this.rightPorts.find(p => p.name === name);
+            if (this.leftPorts) {
+                port = this.rightPorts?.find(p => p.name === name);
+            }
         } else if (side === constants.gojs.C_TOP) {
-            port = this.topPorts.find(p => p.name === name);
+            if (this.topPorts) {
+                port = this.topPorts?.find(p => p.name === name);
+            }
         } else if (side === constants.gojs.C_BOTTOM) {
-            port = this.bottomPorts.find(p => p.name === name);
+            if (this.bottomPorts) {
+                port = this.bottomPorts?.find(p => p.name === name);
+            }
         }
         return port;
     }

@@ -7907,13 +7907,21 @@ export class cxObject extends cxInstance {
     getPort(side: string, name: string): cxPort {
         let port = null;
         if (side === constants.gojs.C_LEFT) {
-            port = this.leftPorts.find(p => p.name === name);
+            if (this.leftPorts) {
+                port = this.leftPorts?.find(p => p.name === name);
+            }
         } else if (side === constants.gojs.C_RIGHT) {
-            port = this.rightPorts.find(p => p.name === name);
+            if (this.leftPorts) {
+                port = this.rightPorts?.find(p => p.name === name);
+            }
         } else if (side === constants.gojs.C_TOP) {
-            port = this.topPorts.find(p => p.name === name);
+            if (this.topPorts) {
+                port = this.topPorts?.find(p => p.name === name);
+            }
         } else if (side === constants.gojs.C_BOTTOM) {
-            port = this.bottomPorts.find(p => p.name === name);
+            if (this.bottomPorts) {
+                port = this.bottomPorts?.find(p => p.name === name);
+            }
         }
         return port;
     }

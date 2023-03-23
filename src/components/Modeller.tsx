@@ -19,7 +19,7 @@ const debug = false;
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: blue; color: white');
-    const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
     'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
@@ -51,53 +51,16 @@ const Modeller = (props: any) => {
   const metamodels = props.metis?.metamodels
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
-  // ---------------------  useEffects --------------------------------
-  // useEffect(() =>  { // when focusModel changes
-  //   if (debug) useEfflog('39 Modeller useEffect 1 doing nothing', activeTab, props.phFocus.focusModel); 
-  // //   const timer = setTimeout(() => {
-  // //     setRefresh(!refresh)
-  // //   }, 5000);
-  // //   return () => clearTimeout(timer);
-  // }, [focusModel.id])
-
   useEffect(() => { // set activTab when focusModelview.id changes
-    // GenGojsModel(props, dispatch)
+    useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex, props.phFocus.focusModel?.name);
     setActiveTab(activetabindex)
-  //   if (props.phFocus.focusModelview.id !== modelviews[0].id) {
-      if (debug) useEfflog('50 Modeller useEffect 2', modelviews[0].id, props.phFocus.focusModelview?.id); 
-  //     const timer = setTimeout(() => {
-  //       setRefresh(!refresh)
-  //       dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
-  //     }, 2000);
-  //     return () => clearTimeout(timer);
-  //   } 
   }, [props.phFocus.focusModelview?.id])
-  
-  // useEffect(() => { // when project changes
-  //   if (debug) useEfflog('100 Modeller useEffect 3', props, props.metis.name);
-  //   // // GenGojsModel(props, dispatch)
-  //   // // dispatch({ type: 'SET_FOCUS_MODEL', data: {id: props.metis?.models[0]?.id, name: props.metis?.models[0]?.name} })
-  //   // // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: props.metis?.models[0]?.modelviews[0]?.id, name: props.metis?.models[0]?.modelviews[0]?.name} })
-  //   // const timer = setTimeout(() => {
-  //   //   // toggleRefreshObjects()
-  //     GenGojsModel(props, dispatch)
-  //   //   // setRefresh(!refresh)
-  //   // }, 100);
-  //   // const timer2 = setTimeout(() => {
-  //   //   // toggleRefreshObjects()
-  //   //   // GenGojsModel(props, dispatch)
-  //   //   // setRefresh(!refresh)
-  //   // }, 1000);
-
-  //   // return () => clearTimeout(timer,timer2); 
-  // }, [props.phData?.metis.name])
+  // }, [props.phFocus.focusModelview?.id])
   
   // ------------------------------
-
+  // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmodel = props.gojsModel;
-  if (debug) console.log('78 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
-  
-  let myMetis = props.myMetis;
+  if (debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
  
   let seltasks = props.phFocus?.focusRole?.tasks || []
   let focusTask = props.phFocus?.focusTask
@@ -106,28 +69,11 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
   function toggleRefreshObjects() { 
-
-    if (debug) console.log('89 Modeller: toggleRefreshObjects', props, memoryLocState, setMemoryLocState);
-
+    if (debug) console.log('110 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
-
-    GenGojsModel(props, dispatch)
-
-    // save current state to memory
-    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    if (debug) console.log('84 Modelling save memoryState', mdata);
-    // if mdata is longer than 10, remove the last 2 elements
-    if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
-    if (mdata.length > 2) { mdata.pop() }
-    if (debug) console.log('88 Modelling refresh', mdata);
-    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-
-
-    setTimeout(() => {
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })}
-    , 1000);
+    if (debug) console.log('112 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
+    setRefresh(!refresh)
   }
-  // function toggleRefreshObjects() { setRefresh(!refresh); if (debug) console.log('25 Modeller toggleRefreshObjects', refresh);}
 
   if (debug) console.log('121 Modeller: props, refresh', props, refresh);
 
@@ -147,14 +93,12 @@ const Modeller = (props: any) => {
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
-  // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
-  
 
   const handleProjectChange = (e) => { // Editing project name
     if (debug) console.log('69 Modeller: handleProjectChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: e.value, name: e.value } }); // set focus project
-    }
+  }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
     if (debug) console.log('19 Selector', JSON.parse(event.value).name);
@@ -162,25 +106,19 @@ const Modeller = (props: any) => {
     const name = JSON.parse(event.value).name
     const selObj = models.find( (obj: any) => obj.id === id ) 
     if (debug) console.log('86 Selector', selObj);
-    // const workOnTypes = selObj.workOnTypes
-    // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
-    const data = (selObj) ? { id: id, name: name} : { id: id, name: name }
-    // if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
-    // dispatch({  type: 'UPDATE_MODEL_PROPERTIES', data: data })
-    dispatch({  type: 'SET_FOCUS_MODEL', data: data })
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'refresh'} })
-    const mv = selObj.modelviews[0]
-    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: mv.id, name: mv.name} })
-    // setRefresh(!refresh)
+    let data
+    if (selObj) {
+      data = { id: id, name: name} 
+      dispatch({  type: 'SET_FOCUS_MODEL', data: data })
+      const mv = selObj.modelviews[0]
+      const data2 = { id: mv.id, name: mv.name}
+      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
+      console.log('124 Selector', data, data2);
+    }
   }
 
   // const handleMVDoubleClick = (e) => {
   //   <input type="text" value={e.value} onChange={handleMVChange} />
-  // }
-
-  // const handleMVChange = (e) => {
-  //   if (debug) console.log('69 Modeller: handleMVChange', e);
-  //   dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: e.value } });
   // }
 
   const  options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
@@ -188,29 +126,34 @@ const Modeller = (props: any) => {
     <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name})}>{m.name}</option>)
   )
 
-  // Selector for selecting models
+  // Selector for selecting models ---------------------------------------------------------
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-    <div className="Selector--menu  " >
-      <label className="Selector--menu-label d-flex pt-2 justify-content-end gap-2"   
-        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-        title =  {
-`Description : ${props.metis.description} 
+    // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
+    <div className="Selector--menu d-flex gap-1">  
+      <div className="d-flex p-0">
+        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title =  {
+            `Description : ${props.metis.description} 
+            
+            To change Project Name : 
+            Edit this field and click on the Save button.
+            
+            or Right-click the background below and select 'Edit Project Name'. 
+            
+            The suffix '.json' will be added to the filename.`
+          }><span className="bg-light"> Project : </span> 
+        </label>
+        <input className="w-100 px-2" label="test" type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "26%"}} />
+      </div>
 
-To change Project Name : 
-Edit this field and click on the Save button.
-
-or Right-click the background below and select 'Edit Project Name'. 
-
-The suffix '.json' will be added to the filename.`
-        }> Project :  
-        <input className="ml-2 w-50 px-1 " type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "26%"}} />
-        <span className="model-selection  w-25" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
+      <span className="model-selection border-top border-bottom border-success bg-light px-2 text-nowrap" data-toggle="tooltip" data-placement="top" data-bs-html="true"  
         title={
 `Description: ${model?.description}
     
 To change Model name, rigth click the background below and select 'Edit Model'.`
-        }> Model :
-          <select key='select-title' className="list-obj mx-2 " style={{ minWidth: "32%"}}
+      }> <span className="bg-light"> Model : </span>
+          <select key='select-title' className="list-obj" style={{ minWidth: "32%"}}
             value={JSON.stringify({id: focusModel?.id, name: focusModel?.name})}
             onChange={(event) => handleSelectModelChange({ value: event.target.value })} 
           >
@@ -218,7 +161,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
           {options}
           </select>
         </span> 
-      </label>
+
     </div>
 
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
@@ -231,6 +174,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   let ndarr = props.gojsMetamodel?.nodeDataArray
   let taskNodeDataArray: any[] = ndarr
 
+  if (debug) console.log('176 taskNodeDataArray', taskNodeDataArray, ndarr, props.gojsMetamodel);
   // ================================================================================================
   // Show all the objects in this model
   // const gojsmodelObjects = props.gojsModelObjects
@@ -311,7 +255,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               }>
             <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
-              onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefreshObjects() }}
+              onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
+              // onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefreshObjects() }}
               // onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
             > 
@@ -340,15 +285,16 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <Nav tabs >
         {navitemDiv}  
         <NavItem >
-          <button className="btn bg-warning text-white float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          <button className="btn px-2 border-white text-white float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
-                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
+                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
+                    style={{background: "#aaccdd"}}> ?
           </button>
         </NavItem>
       </Nav>
       <TabContent > 
         <TabPane  >
-          <div className="workpad bg-white mt-0 p-1 pt-2"> 
+          <div className="workpad bg-white border-light mt-0 p-1 "> 
             {gojsapp}
             {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
           </div>         
@@ -358,7 +304,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const metamodelTabDiv = 
     <>
-      <div className="workpad p-1 pt-2"> 
+      <div className="workpad p-1"> 
         {gojsapp}
         {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>         
@@ -388,15 +334,17 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     (props.modelType === 'model') 
     ? // modelling
       <div className="modeller-workarea" >
-        <div className="modeller--topbar d-flex justify-content-between m-0 p-0 " >
-          <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
-          <div className="modeller--heading-selector w-100">{selector}</div>
-          <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary fs-7"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+        <div className="modeller--topbar d-flex justify-content-between mt-1 p-0 ">
+          <span className="--heading d-flex text-dark fw-bold ph-2 " style={{    width: "25%"}} >Modeller </span>
+          <div className="d-flex">
+            <div className="modeller--heading-selector">{selector}</div>
+            <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" style={{scale: "0.6"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+          </div>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> 
-              <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
+              <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{    height: "82vh"}} >
                 <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
                   onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
                   Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
@@ -437,7 +385,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     : // metamodelling
       <div className="metamodeller-workarea mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
-        <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+        {/* <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span> */}
         <span className="modeller--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
         <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         {metamodelTabDiv} 
@@ -450,7 +398,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   
   return (
     <div>
-      {refresh ? modellerDiv : modellerDiv}
+      {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )
 }

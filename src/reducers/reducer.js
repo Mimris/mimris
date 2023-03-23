@@ -141,10 +141,10 @@ export const InitialState = {
   phData: InitState.phData,
   // phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
-  // phGojs: null,
-  // phMymetis: null,
-  // phMyGoModel: null,
-  // phMyGoMetamodel: null,
+  phGojs: null,
+  phMymetis: null,
+  phMyGoModel: null,
+  phMyGoMetamodel: null,
   phUser: InitState.phUser,
   phSource: InitState.phSource,
   lastUpdate: new Date().toISOString()
@@ -313,14 +313,16 @@ function reducer(state = InitialState, action) {
         },
       } 
     case SET_FOCUS_MODEL:
-      // if (debug) console.log('121 red', state, action.data); 
-      return {
+      if (debug) console.log('316 red', action.data); 
+      const retval_SET_FOCUS_MODEL = {
         ...state,
         phFocus: {
           ...state.phFocus,
           focusModel: action.data
         }
       }
+      if (debug) console.log('324 red', retval_SET_FOCUS_MODEL.phFocus.focusModel);
+      return retval_SET_FOCUS_MODEL
     case SET_FOCUS_MODELVIEW:
       if (debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
@@ -587,7 +589,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_METAMODELPALETTE:
-        // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
+        if (debug) console.log('592 SET_GOJS_METAMODEL', action);
         return {
           ...state,
           phGojs: {
@@ -596,7 +598,7 @@ function reducer(state = InitialState, action) {
           }
         }
       case SET_GOJS_METAMODELMODEL:
-        // if (debug) console.log('210 SET_GOJS_MODEL', action);
+        if (debug) console.log('601 SET_GOJS_METAMODELMODEL', action);
         return {
           ...state,
           phGojs: {
@@ -1532,15 +1534,15 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_METHODTYPE_PROPERTIES:
         if (debug) console.log('1621 UPDATE_METHODTYPE_PROPERTIES', action);
-        let curmoddtot3    = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+        let curmomttot3    = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
         if (debug) console.log('1623', curmoddtot3)
-        curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot3.targetMetamodelRef)
-        curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot3.targetMetamodelRef) 
-        curddot = curmmddot?.methodtypes?.find(ot => ot.id === action?.data?.id)
-        lengthotdd = curmmddot?.methodtypes?.length
-        indexddot = curmmddot?.methodtypes?.findIndex(ot => ot.id === curddot?.id)
+        let curmmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmomttot3.targetMetamodelRef)
+        curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmomttot3.targetMetamodelRef) 
+        curddot = curmmmtot?.methodtypes?.find(ot => ot.id === action?.data?.id)
+        lengthotdd = curmmmtot?.methodtypes?.length
+        indexddot = curmmmtot?.methodtypes?.findIndex(ot => ot.id === curmtot?.id)
         if (indexddot < 0) {indexddot = lengthotdd} 
-        if (debug) console.log('1630 reducer', lengthotdd, curmmddot, indexddot);   
+        if (debug) console.log('1630 reducer', lengthotdd, curmtddot, indexddot);   
         let retval_UPDATE_METHODTYPE_PROPERTIES = {
           ...state,
           phData: {
@@ -1552,12 +1554,12 @@ function reducer(state = InitialState, action) {
                 {
                   ...state.phData.metis.metamodels[curmmddindexot],
                   methods: [
-                    ...curmmddot?.methodtypes.slice(0, indexddot),
+                    ...curmtddot?.methodtypes.slice(0, indexddot),
                     {
-                      ...curmmddot?.methodtypes[indexddot],  
+                      ...curmtddot?.methodtypes[indexddot],  
                       ...action.data, 
                     },
-                    ...curmmddot?.methods.slice(indexddot + 1, curmmddot?.methods.length)
+                    ...curmtddot?.methods.slice(indexddot + 1, curmmtdot?.methods.length)
                   ]
                 },
                 ...state.phData.metis.metamodels.slice(curmmddindexot + 1, state.phData.metis.metamodels.length),

@@ -8,7 +8,7 @@ const Navbar = (props) => {
 	
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	console.log(currentRoute);
+	// console.log(currentRoute);
 	
 // <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
 // <nav className="navbar sticky-top navbar-expand-md bg-white py-1">

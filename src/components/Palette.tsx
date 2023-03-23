@@ -14,6 +14,8 @@ const debug = false;
 
 const clog = console.log.bind(console, '%c %s',
     'background: blue; color: white');
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
     'background: blue; color: white');
 
@@ -30,11 +32,11 @@ const Palette = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
-  const [modellingtasks, setModellingtasks] = useState([{id: 'Modelling', name: 'Modelling'}])
-  const [types, setTypes] = useState(['Container','Generic'])
-  const [role, setRole] = useState('Modeller1')
-  const [task, setTask] = useState(modellingtasks[0])
-  const [tasks, setTasks] = useState(modellingtasks)
+  const [modellingtasks, setModellingtasks] = useState(null)
+  const [types, setTypes] = useState([])
+  const [role, setRole] = useState(null)
+  const [task, setTask] = useState(null)
+
 
   if (debug) console.log('43 Palette', role, task, types, tasks, modellingtasks)
 
@@ -44,8 +46,15 @@ const Palette = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   if (debug) console.log('47', props, mmodel?.name, model?.metamodelRef);
+
+  // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
+  const gojsmetamodel =  props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
+  if (debug) console.log('50 Palette start', gojsmetamodel, props)
+  const gojsmodel = props.gojsModel;
   
   // hardcoded for now
+  let tasks = []
+
   let focusTask = props.phFocus?.focusTask
   let seltasks = props.phFocus?.focusRole?.tasks || []
   if (debug) console.log('52 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
@@ -65,13 +74,15 @@ const Palette = (props: any) => {
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette);}
   
   let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
+
+  // let ndarr = gojsmetamodel?.nodeDataArray // error first render???
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {
     const taskNodeDataArray0 = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
       ndarr?.find((i: { typename: any; }) => {
-        return (i?.typename === wot) && i 
+        return (i?.name === wot) && i 
       })
     ).filter(Boolean)
     taskNodeDataArray = taskNodeDataArray0 || []
@@ -79,91 +90,124 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
-    isRendered = true;
+    
+    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
-    if (debug) clog('83 Palette useEffect', role, task, tasks, types, mmodel);
-    if (debug) clog('84 Palette useEffect', foundRTTs, foundRTTs.role, foundRTTs.task, foundRTTs.tasks, foundRTTs.types);
-    setRole(foundRTTs?.role)
-    setTask(foundRTTs?.task)
-    setModellingtasks(foundRTTs?.tasks)
-    setTypes(foundRTTs?.types)
-    if (debug) console.log('88 Palette useEffect', modellingtasks);
-    return () => { isRendered = false; }
+    // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
+    if (debug) console.log('84 Palette useEffect 1', foundRTTs);
+    // setRefreshPalette(!refreshPalette) 
+    const timer = setTimeout(() => {
+      buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
+      // setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+      if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
+    }, 1000);
+    return () => { isRendered = false;  clearTimeout(timer); }
   }, [])
 
   useEffect(() => {
+    buildFilterOtNodeDataArray(types, ndarr)
+    if (debug) console.log('111 Palette useEffect 2 [types]', types, ndarr)
+    const timer = setTimeout(() => {
+      // buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
+      setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+      if (debug) console.log('88 Palette useEffect 1 []', types, modellingtasks);
+      }, 100);
+      return () => { clearTimeout(timer); }
+  }, [types?.length > 0 && ndarr?.length > 0])
+
+  //  useEffect(() => { // set activTab when focusModelview.id changes
+  //   useEfflog('64 Palette useEffect 3 [props.phFocus.focusModelview?.id]', props.phFocus.focusModelview?.id);
+  //   const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
+  //   buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
+  //   setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+  // }, [props.phFocus.focusModelview?.id])
+
+  // useEffect(() => {
+  //   if (debug) console.log('115 palette useEffect 3 [filteredOtNodeDataArray]', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
+  //   //  setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
+  //     // const timer = setTimeout(() => {
+  //     if (debug) console.log('118 palette ', filteredOtNodeDataArray)
+  //     setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+  //   // }, 20);
+  //   // return () => clearTimeout(timer);
+  // }, [filteredOtNodeDataArray])
+
+  // buildfilteredOtNodeDataArray according to types
+  const buildFilterOtNodeDataArray = (types, ndarr) => {
     let otsArr: any = []
-    if (types?.length > 0 && ndarr?.length > 1) {
+    // if (types?.length > 0 && ndarr?.length > 1) {
+    if (types?.length > 0) {
       otsArr = types?.map((wot: any) => // list of types for this focusTask (string)
       ndarr?.find((i: { typename: any; }) => {
-        return (i?.typename === wot) && i 
+        if (debug) console.log('105 ', i?.name, wot, i?.name === wot)
+        return (i?.name === wot) && i 
       })
       ).filter(Boolean) // remove undefined
-
-      if (!debug) console.log('106 taskNodeDataArray', types, ndarr, otsArr)
+      if (debug) console.log('106 ', types, otsArr, ndarr)
       setFilteredOtNodeDataArray(otsArr)
     } else {
       setFilteredOtNodeDataArray(ndarr)
     }
-    // if (otsArr?.length > 0 && ndarr?.length > 1) {
-    //   console.log('114 palette ', filteredOtNodeDataArray, otsArr)
-    // } 
-  }, [types])
-
-  useEffect(() => {
-    if (debug) console.log('111 palette ', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
-    //  setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
-      const timer = setTimeout(() => {
-      if (debug) console.log('115 palette ', filteredOtNodeDataArray)
-      setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
-    }, 10);
-        return () => clearTimeout(timer);
-  }, [filteredOtNodeDataArray])
-
-  const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
-    if (!debug) clog('121 Palette useEffect',role, task, types, mmodel, modellingtasks);
-    const foundRTTs = genRoleTasks(role, task, types, mmodel, dispatch)
-    if (!debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
-    setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
-    return {
-      role: foundRTTs?.filterRole,
-      task:  foundRTTs?.filterTask,
-      tasks: foundRTTs?.filterTasks,
-      types: foundRTTs?.filterTypes,
-    }
-    console.log('131  Palette findCurRoleTaskTypes ', types)
+    // const timer = setTimeout(() => {
+    // if (debug) console.log('135 Palette buildFilterOtNodeDataArray', filteredOtNodeDataArray, filteredOtNodeDataArray.length)
+    // }, 2000);
   }
 
-  if (false) {
+  const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
+    let task1 = 'Modelling'
+    if (props.modelType === 'metamodel') {
+      task1 = 'Metamodelling'
+    }
+    if (!debug) console.log('121 Palette useEffect',role, task1, types, mmodel, modellingtasks);
+    const foundRTTs = genRoleTasks(role, task1, tasks, types, mmodel, dispatch)
+    if (debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
+    setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
+    if (debug) console.log('131  Palette findCurRoleTaskTypes ', types, modellingtasks, foundRTTs)  
+    setRole(foundRTTs?.currole)
+    setTask(foundRTTs?.curtask)
+    setModellingtasks(foundRTTs?.curtasks)
+    setTypes(foundRTTs?.curtypes)
+    if (debug) console.log('135 Palette findCurRoleTaskTypes ', types, modellingtasks)
+    return {
+      role: foundRTTs?.currole,
+      task:  foundRTTs?.curtask,
+      tasks: foundRTTs?.curtasks,
+      types: foundRTTs?.curtypes,
+    }
   }
 
   if (debug) console.log('139 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
   // break if no model or metamodel
-  if (!props.gojsModel) return null;
-  if (!props.gojsMetamodel) return null;
+  // if (!props.gojsModel) return null;
+  // if (!props.gojsMetamodel) return null;
   // let filteredOtNodeDataArray = ndarr
-
   if (debug) clog('144 Palette', props , seltasks);
   
   // add a div with a dropdown to select modellingtask (all, IRTV, Property) --------------------------------
   const otDiv = 
-    <div className="modellingtask">
-      <label className='label-field'>Modelling Tasks</label>
-      <select className='select-field w-100' onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
-        {modellingtasks?.map((t, i) => <option key={i} value={i}>{t.name}</option>)}
+    <>
+      <label className='label-field px-1'>Modelling tasks:</label>
+      <select className='select-field mx-1 text-secondary'style={{width: "96%"}} onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
+        {modellingtasks?.map((t, i) => <option key={i} value={i}>{t?.name}</option>)}
       </select>
-    </div>
+    </>
 
   function setModellingTask(task) {
-    if (!debug) clog('156 Palette setModellingTask',task, types);
+    if (debug) console.log('156 Palette setModellingTask',task, types);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
-    if (!debug) clog('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
+    if (debug) console.log('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
     setRole(foundRTTs?.role)
     setTask(foundRTTs?.task)
     setModellingtasks(foundRTTs?.tasks)
     setTypes(foundRTTs?.types)
-    if (!debug) clog('163 Palette setModellingTask',  task, types);
+    if (debug) console.log('163 Palette setModellingTask',  task, types);
+    buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
+    // const timer = setTimeout(() => {
+    //   if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
+    //   setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+    //   }, 10);
+    //   return () => { clearTimeout(timer); }  
   }
 
   if (debug) console.log('165 filteredOtNodeDataArray', filteredOtNodeDataArray, ndarr)
@@ -175,35 +219,36 @@ const Palette = (props: any) => {
 
   if (debug) console.log('172 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
  
-  const gojsappPalette =   // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
-   <div className="workpad p-1 pt-2 bg-white" >
-    <div className="mmname bg-light mx-0 px-2 my-0" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
-    {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
-
-    < GoJSPaletteApp
-      nodeDataArray={filteredOtNodeDataArray}
-      linkDataArray={[]}
-      metis={props.metis}
-      myMetis={props.myMetis}
-      myGoModel={props.myGoModel}
-      phFocus={props.phFocus}
-      dispatch={props.dispatch}
-    />
-  </div>
+  const gojsappPalette = //(gojsmetamodel.nodeDataArray) &&  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
+    <div className="workpad p-1 pt-0 bg-white" >
+      {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
+      < GoJSPaletteApp
+        nodeDataArray={filteredOtNodeDataArray}
+        linkDataArray={[]}
+        metis={props.metis}
+        myMetis={props.myMetis}
+        myGoModel={props.myGoModel}
+        phFocus={props.phFocus}
+        dispatch={props.dispatch}
+      />
+    </div>
 
    const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
-        <button className="btn-sm pt-0 pr-1 b-0 mt-0 mb-2 mr-2" style={{ backgroundColor: "#7ab", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette Source Metam.</span> : <span> -&gt;</span>} 
+        <button className="btn-sm pt-0 pr-1 b-0 mt-0 mb-0 mr-2" style={{ backgroundColor: "#7ab", outline: "0", borderStyle: "none"}}
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette: Src Metamodel</span> : <span> -&gt;</span>} 
         </button>
+        <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
+        <div className="modellingtask bg-light w-100" >
+          {otDiv}
+        </div>
         {/* <span>{props.focusMetamodel?.name}</span> */}
         <div>
-        {otDiv}
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
             ? (refreshPalette) 
-              ? <>{ gojsappPalette }</> 
-              : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</>
+              ? <>{ gojsappPalette }</> // these two lines needs to be different to refresh the palette
+              : <><div className="btn-horizontal bg-light mx-0 px-1 mb-0" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</>
             : <div className="btn-vertical px-1 " style={{ height: "92vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
           } 
         </div>

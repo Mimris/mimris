@@ -427,39 +427,37 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }
 
-export function addPort(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    // Get current object from node
-    const object = node.object;
-    // Create a new Port object
-    const port = new akm.cxPort(utils.createGuid(), "", "");
-    // Open Edit Object dialog
+export function editPort(port: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('417 myMetis', myMetis);
     const icon = "";
     const modalContext = {
-        what:       "addPort",
-        title:      "Add Port",
-        icon:       icon,
-        myDiagram:  myDiagram
-      }
-      myMetis.currentNode = port;
-      myMetis.myDiagram = myDiagram;
-      if (debug) console.log('447 node, port, modalContext', node, port, modalContext);
-      if (debug) console.log('448 myMetis', myMetis);
-      myDiagram.handleOpenModal(node, modalContext);
-        
-    // When saved, 
-    // Port object is included in the current model
-    // In the current object, add reference to the port object ('ports' property)
-
-    // Test code: 
-    // let side = prompt("Specify side (one of: 'left', 'right', 'top', 'bottom'");
-    // if (side === null) return;
-    // let portname = prompt("Specify port name");
-    // if (portname === null) return;
-    // node.side = side;
-    // node.portname = portname;
-    // console.log('addPort: node', node);
+      what:       "editPort",
+      title:      "Edit Port",
+      icon:       icon,
+      myDiagram:  myDiagram
+    }
+    myMetis.currentNode = port;
+    myMetis.myDiagram = myDiagram;
+    if (debug) console.log('427 port, modalContext', port, modalContext);
+    if (debug) console.log('428 myMetis', myMetis);
+    myDiagram.handleOpenModal(port, modalContext);
 }
 
+
+// export function editPort(node: any, side: string, portname: string, myMetis: akm.cxMetis, myDiagram: any) {
+//     const modalContext = {
+//         what:       "editPort",
+//         title:      "Edit Port",
+//         icon:       null,
+//         side:       side,
+//         portname:   portname,
+//         myDiagram:  myDiagram
+//       }
+//       myMetis.currentNode = node;
+//       myMetis.myDiagram = myDiagram;
+//       if (debug) console.log('230 editObjectType');
+//       myDiagram.handleOpenModal(node, modalContext);
+//   }
 
 export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(node?.icon);
@@ -540,38 +538,40 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
     if (ll) {
         if (debug) console.log('463 inst', inst);
         const rview = myMetis.findRelationshipView(inst.relshipview.id);
-        const rtview = rview.typeview;
-        const rtdata = rtview.data;
-        if (debug) console.log('467 rview, rtview, rtdata', rview, rtview, rtdata);
-        for (let prop in rtdata) {
-            switch(prop) {
-                case 'name':
-                case 'nameId':
-                case 'description':
-                case 'fs_collection':
-                case 'markedAsDeleted':
-                case 'modified':
-                case 'sourceUri':
-                case 'typeRef':
-                case 'abstract':
-                case 'class':
-                case 'relshipkind':      
-                    continue;              
+        if (rview) {
+            const rtview = rview.typeview;
+            const rtdata = rtview.data;
+            if (debug) console.log('467 rview, rtview, rtdata', rview, rtview, rtdata);
+            for (let prop in rtdata) {
+                switch(prop) {
+                    case 'name':
+                    case 'nameId':
+                    case 'description':
+                    case 'fs_collection':
+                    case 'markedAsDeleted':
+                    case 'modified':
+                    case 'sourceUri':
+                    case 'typeRef':
+                    case 'abstract':
+                    case 'class':
+                    case 'relshipkind':      
+                        continue;              
+                }
+                rview[prop] = rtview[prop];
+                if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
+                myDiagram.model.setDataProperty(ll.data, prop, rtview[prop]);
             }
-            rview[prop] = rtview[prop];
-            if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
-            myDiagram.model.setDataProperty(ll.data, prop, rtview[prop]);
+            // Dispatch
+            const jsnRelview = new jsn.jsnRelshipView(rview);
+            const modifiedRelViews = new Array();
+            modifiedRelViews.push(jsnRelview);
+            modifiedRelViews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('494 data', data);
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+            })
         }
-        // Dispatch
-        const jsnRelview = new jsn.jsnRelshipView(rview);
-        const modifiedRelViews = new Array();
-        modifiedRelViews.push(jsnRelview);
-        modifiedRelViews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('494 data', data);
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        })
     }
 }
 
@@ -1322,20 +1322,28 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     const format3 = "%-10s: (%s)\n";
 
     let msg = "";
+    let propval
+    msg += "- - - - - - - Object - - - - - - - -\n";
     // msg += printf(format2, "-Type", d.object.type.name);
     // msg += printf(format2, "-Title", d.object.type.title);
     // msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
     // // msg += printf(format2, "-Descr", d.object.type.description);
     // msg += "\n";
-    msg += printf(format2, "Name", d.name);
+    msg += printf(format2, "name", d.name);
     // msg += printf(format2, "-Title", d.object.title);
-    msg += printf(format2, "Descr.", breakString(d.object.description, 64));
+    msg += printf(format2, "descr.", breakString(d.object.description, 64));
     // msg += "-------------------\n";
     // msg = "Object \Type props:\n";
-    msg += printf(format2, "Type", d.object.type.name);
-    // msg += ")";
-    // msg += printf(format2, "-Title", d.object.type.title);
-    //   msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
+    d.object.type.properties.map(prop => {  
+        propval = prop.name;
+        console.log('1338 propval', propval);
+        msg += printf(format2, prop.name, d.object[propval]);
+    });
+    msg += "- - - - - - - ObjectType - - - - - - - -\n";
+    msg += printf(format3, "ObjectType", d.object.type.name);
+    // msg += printf(format2, " -Title", d.object.type.title);
+    msg += printf(format2," -Descr", breakString(d.object.type.description, 64));
+
     
     
     // msg += printf(format2, "-ViewFormat", d.object.viewFormat);
@@ -1346,9 +1354,10 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     // if (debug) console.log('1115 msg', msg);
     if (d.group) {
         const group = myMetis.gojsModel.findNode(d.group);
-        msg += "------parent-------\n";
-        msg += printf(format2, "Name", group.name);
-        msg += printf(format2, "Type", group.typename);
+        msg += "\n";
+        msg += "- - - - - - - Parent Object - - - - - - -\n";
+        msg += printf(format2, "name", group.name);
+        msg += printf(format3, "ObjectType", group.typename);
         msg += "\n";
     }
     // if (debug) console.log('1119 msg', msg);

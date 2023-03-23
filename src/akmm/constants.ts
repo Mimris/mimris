@@ -115,7 +115,8 @@ export let gojs = {
           C_VIEWFORMAT_INTEGER  : "%d",
           C_VIEWFORMAT_FLOAT    : "%f",
           C_VIEWFORMAT_BOOLEAN  : "boolean",
-
+//
+          C_PORT_COLOR:          "lightgrey",
           
 };
 

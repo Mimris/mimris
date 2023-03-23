@@ -26,7 +26,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         //   alert(text)
         if (debug) console.log('21 ReadModelFromFile', props.phFocus.focusModel.id);
-        if (debug) console.log('22 ReadModelFromFile', props, modelff);
+        if (debug) console.log('22 ReadModelFromFile', props.phFocus.focusModel.id, modelff);
     
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
@@ -187,6 +187,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
         if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+
+        // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+  
     };
     reader.readAsText(e.target.files[0])
   }

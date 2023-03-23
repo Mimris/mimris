@@ -104,8 +104,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (debug) console.log('104 newName', newName);
     if (!objtype) { // This is a new object type
         let metaObjectName;
-        // const metaObjectNames = ['EntityType'];
-        const metaObjectNames = ['Role', 'Task', 'View', 'Information'];
+        const metaObjectNames = ['EntityType'];
         for (let i=0; i<metaObjectNames.length; i++) {
             const mObjectName = metaObjectNames[i];
             const mType = myMetamodel.findObjectTypeByName(mObjectName);
@@ -1047,6 +1046,45 @@ export function verifyPortsModel(objectviews: akm.cxObjectView[], relshipviews: 
     return true;
 }
 
+export function verifyPortsModel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[]): boolean {
+    for (let i=0; i<objectviews.length; i++) {
+        const objview = objectviews[i];
+        const obj = objview.object;
+        // Check if object is of type "EntityType"
+        // Get object view
+        // Get the template property
+        // Check if template property has a valid value, i.e. "nodeWithPorts" or "groupWithPorts"
+        // If not, continue to next objectview
+        // Get connected Port objects
+        // For each port object, get the side property
+        // Check if side property has a valid value
+        // If not, alert user and continue to next objectview
+        // When all ports have been checked, continue to next objectview
+        // When done, return true
+
+        if (ports?.length) {
+            for (let j=0; j<ports.length; j++) {
+                const port = ports[j];
+                const portname = port.name;
+                const porttype = port.porttype;
+                const portobj = obj.findPortObject(portname);
+                if (!portobj) {
+                    alert(`Port ${portname} is missing from object ${obj.name}`);
+                    return false;
+                }
+                if (porttype) {
+                    const portobjtype = portobj.objecttype;
+                    if (portobjtype.name !== porttype.name) {
+                        alert(`Port ${portname} has wrong type ${portobjtype.name} in object ${obj.name}`);
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
 export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any): akm.cxMetaModel {
     if (debug) console.log('965 objectviews, relshipviews, context', objectviews, relshipviews, context);
     const myMetis     = context.myMetis as akm.cxMetis;
@@ -1204,7 +1242,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             modifiedGeos.push(jsnObjTypegeo);
         }
     }
-    if (debug) console.log('1207 objtypes, metamodel', objtypes, metamodel);
+    if (debug) console.log('1098 objtypes, metamodel', objtypes, metamodel);
     // Add system relationship types
     let reltypes;
     if (model.includeSystemtypes) {

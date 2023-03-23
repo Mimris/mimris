@@ -661,6 +661,29 @@ export class goObjectNode extends goNode {
         }
         return members;
     }
+    addPort(side: string, name: string) {
+        const port = new cxPort(utils.createGuid(), name, "", side);
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts.push(port);
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts.push(port);
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts.push(port);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts.push(port);
+        }
+    }
+    removePort(side: string, name: string) {
+        if (side === constants.gojs.C_LEFT) {
+            this.leftPorts = this.leftPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_RIGHT) {
+            this.rightPorts = this.rightPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_TOP) {
+            this.topPorts = this.topPorts.filter(p => p.name !== name);
+        } else if (side === constants.gojs.C_BOTTOM) {
+            this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
+        }
+    }
 }
 
 export class goObjectTypeNode extends goNode {
@@ -1094,6 +1117,7 @@ export class paletteNode {
     figure: string;
     geometry: string;
     fillcolor: string;
+    fillcolor2: string;
     strokecolor: string;
     strokewidth: string;
     icon: string;
@@ -1110,6 +1134,7 @@ export class paletteNode {
         this.figure = "";
         this.geometry = "";
         this.fillcolor = "lightyellow";
+        this.fillcolor2 = "";
         this.strokecolor = "black";
         this.strokewidth = "1";
         this.icon = "";

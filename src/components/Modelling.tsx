@@ -78,7 +78,10 @@ const page = (props:any) => {
     if (debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
     // SaveModelToLocState(props, memoryLocState, setMemoryLocState)
     GenGojsModel(props, dispatch)
+    const timer = setTimeout(() => {
     setRefresh(!refresh)
+    }, 2000);
+    return () => clearTimeout(timer);
   } 
 
   useEffect(() => {

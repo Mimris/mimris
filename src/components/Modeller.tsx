@@ -128,9 +128,9 @@ const Modeller = (props: any) => {
 
   // Selector for selecting models ---------------------------------------------------------
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-    <div className="Selector--menu d-flex justify-content-end gap-2">
-      <div className="d-flex justify-content-end flex-fill">
-        <label className="Selector--menu-label"
+    <div className="Selector--menu d-flex  gap-1">
+      <div className="d-flex justify-content-end ">
+        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap"
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title =  {
             `Description : ${props.metis.description} 
@@ -141,18 +141,18 @@ const Modeller = (props: any) => {
             or Right-click the background below and select 'Edit Project Name'. 
             
             The suffix '.json' will be added to the filename.`
-          }> Project :
+          }><span className="bg-light"> Project : </span> 
         </label>
-        <input className="w-50 px-2" label="test" type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "26%"}} />
+        <input className="w-100 px-2" label="test" type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "26%"}} />
       </div>
 
-      <span className="model-selection " data-toggle="tooltip" data-placement="top" data-bs-html="true"  
+      <span className="model-selection border-top border-bottom border-success bg-light px-2 text-nowrap" data-toggle="tooltip" data-placement="top" data-bs-html="true"  
         title={
 `Description: ${model?.description}
     
 To change Model name, rigth click the background below and select 'Edit Model'.`
-      }> Model :
-          <select key='select-title' className="list-obj mx-2 " style={{ minWidth: "32%"}}
+      }> <span className="bg-light"> Model : </span>
+          <select key='select-title' className="list-obj" style={{ minWidth: "32%"}}
             value={JSON.stringify({id: focusModel?.id, name: focusModel?.name})}
             onChange={(event) => handleSelectModelChange({ value: event.target.value })} 
           >
@@ -332,10 +332,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     (props.modelType === 'model') 
     ? // modelling
       <div className="modeller-workarea" >
-        <div className="modeller--topbar d-flex  m-0 p-0 " >
-          <span className="--heading text-dark m-0 p-1 ml-4 mr-4 fw-bold ph-2" >Modeller </span>
-          <div className="modeller--heading-selector  w-100">{selector}</div>
-          <span className="btn px-0 py-0 mt-0 pt-1 bg-light text-secondary fs-9" style={{scale: "0.5"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+        <div className="modeller--topbar d-flex mt-1 p-0 justify-content-between">
+          <span className="--heading text-dark fw-bold ph-2" style={{    width: "25%"}} >Modeller </span>
+          <div className="modeller--heading-selector">{selector}</div>
+          <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" style={{scale: "0.6"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">

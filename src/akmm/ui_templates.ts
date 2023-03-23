@@ -180,7 +180,7 @@ let nodeTemplateNames = [];
 let linkTemplateNames = []; 
 let groupTemplateNames = []; 
 
-function makeItemTemplate(side: string, isGroup: boolean) {
+function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) {
     let rightside = side === 'right';
     let leftside = side === 'left';
     let topside = side === 'top';
@@ -193,19 +193,25 @@ function makeItemTemplate(side: string, isGroup: boolean) {
     geostring2.normalize();
     let geostring3 = "F1 m 0,0 l 6,0 0,-8  2,0  -5,-4  -5,4 2,0 0,8 z";
     geostring3.normalize();
-    let font1 = "bold 10pt serif";
-    let font2 = "bold 14pt FontAwesome";
+    let geostring4 = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
+    geostring4.normalize();
+    let font1 = "10pt serif";
+    let font2 = "12pt FontAwesome";
     let font = isGroup ? font2 : font1;
-    let size1 = new go.Size(30, 20);
-    let size2 = new go.Size(50, 30);
+    let size1 = new go.Size(30, 15);
+    let size2 = new go.Size(40, 20);
     let size = isGroup ? size2 : size1;
-    let fromSpot, toSpot;
+    let fromSpot, toSpot, textangle = 0, textalign;
     if (topside) {
         toSpot = go.Spot.Top;
         fromSpot = go.Spot.Bottom;
+        // textangle = 0; //90;
+        // textalign = go.Spot.Right;
     } else if (bottomside) {
         toSpot = go.Spot.Bottom;
         fromSpot = go.Spot.Top;
+        // textangle = 0; //270;
+        // textalign = go.Spot.Left;
     } else if (leftside) {
         toSpot = go.Spot.Left;
         fromSpot = go.Spot.Right;
@@ -217,7 +223,10 @@ function makeItemTemplate(side: string, isGroup: boolean) {
     if (topside) geostring = geostring2;
     else if (bottomside) geostring = geostring3;
     return $(go.Panel, "Spot",
-        {  margin: new go.Margin(1, 1)},  // some space between ports
+        { 
+            margin: new go.Margin(1, 1),
+            contextMenu: portContextMenu, 
+        },  // some space between ports
         $(go.Shape,
             {
                 name: "SHAPE",
@@ -226,6 +235,7 @@ function makeItemTemplate(side: string, isGroup: boolean) {
                 strokeWidth: 1,
                 geometryString: geostring, 
                 toSpot: toSpot,
+                portId: "",
                 toLinkable: tolinkable,
                 fromSpot: fromSpot,
                 fromLinkable: fromlinkable,
@@ -238,6 +248,7 @@ function makeItemTemplate(side: string, isGroup: boolean) {
         $(go.TextBlock,
             {
                 font: font,
+                angle: textangle,
             },
             new go.Binding("text", "name"),
             new go.Binding('scale', 'textscale').makeTwoWay(),
@@ -264,151 +275,46 @@ const GradientLightGray = $(go.Brush, 'Linear', { 0: 'White', 1: '#DADADA' });
 const EventNodeSize = 42;
 const DataFill = GradientLightGray;
 
-const portSize = new go.Size(30, 15);
-
-function makePort(name, side) {
-    let leftside = false;
-    let rightside = false;
-    let topside = false;
-    let bottomside = false;
-    const port = $(go.Shape, "Rectangle",
-      {
-        fill: "gray", stroke: null,
-        desiredSize: new go.Size(8, 8),
-        portId: name,  // declare this object to be a "port"
-        toMaxLinks: 1,  // don't allow more than one link into a port
-        cursor: "pointer"  // show a different cursor to indicate potential link point
-      });
-
-    const label = $(go.TextBlock, name,  // the name of the port
-      { font: "7pt sans-serif" });
-
-    const panel = $(go.Panel, "Horizontal",
-      { margin: new go.Margin(2, 0) });
-    if ( side === "left" ) 
-        leftside = true;
-    else if ( side === "right" )
-        rightside = true;
-    else if ( side === "top" )
-        topside = true;
-    else if ( side === "bottom" )
-        bottomside = true;
-
-    // set up the port/panel based on which side of the node it will be on
-    if (leftside) {
-      port.toSpot = go.Spot.Left;
-      port.toLinkable = true;
-      label.margin = new go.Margin(1, 0, 0, 1);
-      panel.alignment = go.Spot.TopLeft;
-      panel.add(port);
-      panel.add(label);
-    } else if (rightside) {
-      port.fromSpot = go.Spot.Right;
-      port.fromLinkable = true;
-      label.margin = new go.Margin(1, 1, 0, 0);
-      panel.alignment = go.Spot.TopRight;
-      panel.add(label);
-      panel.add(port);
-    } else if (topside) {
-        port.toSpot = go.Spot.Top;
-        port.toLinkable = true;
-        label.margin = new go.Margin(0, 0, 1, 0);
-        label.alignment = go.Spot.Top;
-        panel.alignment = go.Spot.TopCenter;
-        panel.add(port);
-        panel.add(label);
-    } else if (bottomside) {
-        port.fromSpot = go.Spot.Bottom;
-        port.fromLinkable = true;
-        label.margin = new go.Margin(1, 0, 0, 0);
-        label.alignment = go.Spot.Bottom;
-        panel.alignment = go.Spot.BottomCenter;
-        panel.add(port);
-        panel.add(label);
-    }
-    return panel;
+// Change name
+export function changePortName(port, name, myDiagram) {
+    myDiagram.startTransaction("changePortName");
+    const data = port.data;
+    if (debug) console.log('394 port, data', port, data);
+    myDiagram.model.setDataProperty(data, "name", name);
+    myDiagram.commitTransaction("changePortName");
 }
-
-function makeTemplate(myDiagram, /* typename, inports, outports*/) {
-    let node = $(go.Node, "Spot",
-      { selectionAdorned: false },
-      $(go.Panel, "Auto",
-        { width: 200, height: 90 },
-        $(go.Shape, "RoundedRectangle",
-          {
-            fill: "lightyellow", stroke: "gray",
-            spot1: go.Spot.TopLeft, spot2: go.Spot.BottomRight
-          },
-          new go.Binding("fill", "isSelected", s => s ? "dodgerblue" : "lightyellow").ofObject()),
-        $(go.Panel, "Table",
-          $(go.TextBlock,
-            {
-              column: 0,
-              margin: 3,
-              editable: true,
-              maxSize: new go.Size(80, 40),
-              stroke: "black",
-              font: "bold 9pt sans-serif"
-            },
-            new go.Binding("text", "name").makeTwoWay())
-        )
-      ),
-      $(go.Panel, "Horizontal",
-        {
-          alignment: go.Spot.Top,
-          alignmentFocus: new go.Spot(0.5, 0, 0, 4)
-        },
-        // inports
-        ),
-      $(go.Panel, "Horizontal",
-        {
-          alignment: go.Spot.Bottom,
-          alignmentFocus: new go.Spot(0.5, 1, 0, -4)
-        },
-        // outports
-        ),
-    );
-    myDiagram.nodeTemplateMap.set(typename, node);
+  
+// Change the color of the clicked port.
+export function changePortColor(port, color, myDiagram) {
+    myDiagram.startTransaction("colorPort");
+    const data = port.data;
+    if (debug) console.log('403 port, data', port, data);
+    myDiagram.model.setDataProperty(data, "color", color);
+    myDiagram.commitTransaction("colorPort");
 }
-
-
-function showSmallPorts(node, show) {
-    node.ports.each(port => {
-      if (port.portId !== "") {  // don't change the default port, which is the big shape
-        port.fill = show ? "rgba(0,0,0,.3)" : null;
-      }
-    });
-}
-
-// Use some pastel colors for ports
-function getPortColor() {
-    const portColors = ["#fae3d7", "#d6effc", "#ebe3fc", "#eaeef8", "#fadfe5", "#6cafdb", "#66d6d1"]
-    return portColors[Math.floor(Math.random() * portColors.length)];
-}
-
+  
 // Add a port to the specified side of the selected nodes.
-export function addPort(side, myDiagram) {
+export function addPort(port, myDiagram) {
     myDiagram.startTransaction("addPort");
-    myDiagram.selection.each(node => {
-        // skip any selected Links
-        if (!(node instanceof go.Node)) return;
-        // compute the next available index number for the side
-        let i = 0;
-        while (node.findPort(side + i.toString()) !== node) i++;
-        if (debug) console.log('291 node: ', node);
-        // now this new port name is unique within the whole Node because of the side prefix
-        const name = side + i.toString();
-        if (debug) console.log('294 name: ', name);
-        // get the Array of port data to be modified
-        const arr = node.data[side + "Array"];
-        if (debug) console.log('297 arr: ', arr);
+    const portId = port.id;
+    const side = port.side;
+    const name = port.name;
+    const color = port.color;
+    if (debug) console.log('301 side, name', side, name);
+    const sel = myDiagram.selection;
+    if (debug) console.log('304 sel', sel);
+    sel.each(node => {
+        if (debug) console.log('306 node, portId: ', node, portId);
+        const arr = node.data[side + "Ports"];
+        if (debug) console.log('315 arr: ', arr);
         if (arr) {
             // create a new port data object
             const newportdata = {
-                portId: name,
-                portColor: getPortColor()
+                portId: portId,
+                name: name,
+                color: color
             };
-            if (debug) console.log('304 newportdata: ', newportdata);
+            if (debug) console.log('323 newportdata: ', newportdata);
             // and add it to the Array of port data
             myDiagram.model.insertArrayItem(arr, -1, newportdata);
         }
@@ -416,6 +322,61 @@ export function addPort(side, myDiagram) {
     myDiagram.commitTransaction("addPort");
 }
    
+// Remove the clicked port from the node.
+// Links to the port will be redrawn to the node's shape.
+export function removePort(port, myDiagram) {
+    if (debug) console.log('436 port, myDiagram', port, myDiagram);
+    myDiagram.startTransaction("removePort");
+    const pid = port.data.id;
+    const arr = port.panel.itemArray;
+    if (debug) console.log('440 port, pid, arr', port, pid, arr);
+    for (let i = 0; i < arr?.length; i++) {
+        if (arr[i].id === pid) {
+            myDiagram.model.removeArrayItem(arr, i);
+        break;
+        }
+    }
+    myDiagram.commitTransaction("removePort");
+}
+
+// Remove all ports from the same side of the node as the clicked port.
+export function removeAllPorts(port, myDiagram) {
+    myDiagram.startTransaction("removePorts");
+    const nodedata = port.part.data;
+    const arr = port.panel.itemArray;
+    let len = arr?.length;
+    if (len > 0) {
+        for (let i = len-1; i >=0; i--) {
+                myDiagram.model.removeArrayItem(arr, i);
+        }
+    }
+    myDiagram.commitTransaction("removePorts");
+}
+  
+// Exchange the position/order of the given port with the next one.
+// If it's the last one, swap with the previous one.
+export function swapPortOrder(port, myDiagram) {
+    const arr = port.panel.itemArray;
+    if (debug) console.log('461 port, port.panel, arr: ', port, port.panel, arr);
+    if (arr?.length >= 2) {  // only if there are at least two ports!
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i].portId === port.data.id) {
+                myDiagram.startTransaction("swap ports");
+                if (i >= arr.length - 1) i--;  // now can swap I and I+1, even if it's the last port
+                const newarr = arr.slice(0);  // copy Array
+                newarr[i] = arr[i + 1];  // swap items
+                newarr[i + 1] = arr[i];
+                // remember the new Array in the model
+                myDiagram.model.setDataProperty(port.part.data, port._side + "Array", newarr);
+                port.part.findLinksConnected(newarr[i].portId).each(l => l.invalidateRoute());
+                port.part.findLinksConnected(newarr[i+1].portId).each(l => l.invalidateRoute());
+                myDiagram.commitTransaction("swap ports");
+                break;
+            }
+        }
+    }
+}
+
 function addNodeTemplateName(name: string) {
     if (nodeTemplateNames.length == 0) {
         nodeTemplateNames.push(name);
@@ -476,6 +437,7 @@ function addLinkTemplateName(name: string) {
 
 // some shared functions
 if (false) {
+    // Swimpool and swimlane code
     // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
     function relayoutDiagram() {
         myDiagram.layout.invalidateLayout();
@@ -625,7 +587,7 @@ if (false) {
         myDiagram.commitTransaction('addLane');
     }
 }
-export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis) {
+export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
     let nodeTemplate0 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
@@ -859,7 +821,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     new go.Binding("deletable"),
     new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
     new go.Binding("scale", "scale1").makeTwoWay(),
-    {
+    { // Tooltip
         toolTip:
         $(go.Adornment, "Auto",
             $(go.Shape, { fill: "lightyellow" }),
@@ -874,12 +836,16 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     },
     {
         selectionObjectName: "SHAPE",
-        resizable: true, resizeObjectName: "SHAPE"
+        resizable: true, 
+        resizeObjectName: "SHAPE"
     },
     $(go.Shape, 'RoundedRectangle', 
         {
         cursor: "alias",        // cursor: "pointer",
-        name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
+        name: 'SHAPE', 
+        fill: 'red', 
+        stroke: "#fff",  
+        strokeWidth: 2, 
         margin: new go.Margin(1, 1, 1, 1),
         shadowVisible: true,
         minSize: new go.Size(158, 68),
@@ -976,22 +942,19 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                cursor: "alias", 
-                name: 'SHAPE', 
-                fill: 'red', 
-                stroke: "#fff",  
-                strokeWidth: 2, 
-                margin: new go.Margin(1, 1, 1, 1),
-                shadowVisible: true,
-                desiredSize: new go.Size(198, 68), // outer Shape size with icon
-                // set the port properties
-                portId: "", 
-                fromLinkable: true, 
-                fromLinkableSelfNode: true, 
-                fromLinkableDuplicates: true,
-                toLinkable: true, 
-                toLinkableSelfNode: true, 
-                toLinkableDuplicates: true},
+                    cursor: "alias", 
+                    name: 'SHAPE', 
+                    fill: 'red', 
+                    stroke: "#fff",  
+                    strokeWidth: 2, 
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: true,
+                    desiredSize: new go.Size(198, 68), // outer Shape size with icon
+                    // set the port properties
+                    portId: "", 
+                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                },
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('stroke', 'strokecolor'), 
@@ -1053,7 +1016,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     // comment out icon stop
                     // define the panel where the text will appear
                     $(go.Panel, "Table", // separator ---------------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
+                        {   
+                            contextMenu: contextMenu , 
+                            cursor: "move" 
+                        },
                         {
                         defaultRowSeparatorStroke: "black",
                         desiredSize: new go.Size(136, 60),
@@ -1126,15 +1092,16 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                cursor: "alias",        // cursor: "pointer",
-                name: 'SHAPE', fill: 'red', stroke: "#000",  strokeWidth: 2, 
-                margin: new go.Margin(1, 1, 1, 1),
-                shadowVisible: true,
-                desiredSize: new go.Size(198, 68), // outer Shape size with icon
-                // set the port properties
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+                    cursor: "alias",        // cursor: "pointer",
+                    name: 'SHAPE', fill: 'red', stroke: "#000",  strokeWidth: 2, 
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: true,
+                    desiredSize: new go.Size(198, 68), // outer Shape size with icon
+                    // set the port properties
+                    portId: "", 
+                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                },
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('stroke', 'strokecolor'), 
@@ -1169,9 +1136,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                             new go.Binding('stroke', 'strokecolor2'), 
                             new go.Binding("template"),
                             new go.Binding("geometryString", "geometry"),
-                            // "M30 100 C 50 50, 70 20, 100 100, 110, 130, 45, 150, 65, 100"
-                            // "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z"
-                            // "F M312.37 186.08L371.69 193.48L328.77 229.35L338.9 280L285.84 256.08L232.79 280L242.92 229.35L200 193.48L259.32 186.08L285.84 140L312.37 186.08Z"
+                            new go.Binding("fill", "fillcolor2"),
                             { 
                                 name: "SHAPE", 
                                 strokeWidth: 2,
@@ -1259,18 +1224,19 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                cursor: "alias",        // cursor: "alias",
-                name: 'SHAPE', 
-                fill: 'red', 
-                stroke: "#000",  
-                strokeWidth: 2, 
-                margin: new go.Margin(1, 1, 1, 1),
-                shadowVisible: true,
-                desiredSize: new go.Size(198, 68), // outer Shape size with icon
-                // set the port properties
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+                    cursor: "alias",        // cursor: "alias",
+                    name: 'SHAPE', 
+                    fill: 'red', 
+                    stroke: "#000",  
+                    strokeWidth: 2, 
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: true,
+                    desiredSize: new go.Size(198, 68), // outer Shape size with icon
+                    // set the port properties
+                    portId: "", 
+                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                },
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 // new go.Binding('stroke', 'strokecolor'), 
@@ -1395,7 +1361,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             // the body
             {
                 selectionObjectName: "BODY",
-                resizable: true, resizeObjectName: "BODY"
+                resizable: true, 
+                resizeObjectName: "BODY"
             },
             $(go.Panel, "Auto",
                 {
@@ -1405,26 +1372,29 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     stretch: go.GraphObject.Fill
                 },
                 $(go.Shape, "RoundedRectangle",
-                {
-                    cursor: "alias",
-                    fill: "white", 
-                    stroke: "black", 
-                    strokeWidth: 2,
-                    parameter1: 5, 
-                    minSize: new go.Size(160, 70)
-                },
-                new go.Binding('fill', 'fillcolor'),
-                new go.Binding("stroke", "strokecolor"),
+                    {
+                        cursor: "alias",
+                        fill: "white", 
+                        stroke: "black", 
+                        strokeWidth: 2,
+                        parameter1: 5, 
+                        minSize: new go.Size(158, 68),
+                        portId: "",
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                    },
+                    new go.Binding('fill', 'fillcolor'),
+                    new go.Binding("stroke", "strokecolor"),
                 ),
                 $(go.TextBlock,
-                { 
-                    cursor: "move",
-                    margin: 10, 
-                    textAlign: "center", 
-                    font: "bold 14px Segoe UI,sans-serif", 
-                    stroke: "#484848", 
-                    editable: true 
-                },
+                    { 
+                        cursor: "move",
+                        margin: 10, 
+                        textAlign: "center", 
+                        font: "bold 14px Segoe UI,sans-serif", 
+                        stroke: "#484848", 
+                        editable: true 
+                    },
                 new go.Binding("text", "name").makeTwoWay(),
                 )
             ),  // end Auto Panel body
@@ -1432,17 +1402,15 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             // the Panel holding the left port elements, which are themselves Panels,
             // created for each item in the itemArray, bound to data.leftArray
             $(go.Panel, "Vertical", 
-            { name: "LEFTPORTS", alignment: new go.Spot(0, 0.5, 0, 7) },
-            // { alignment: new go.Spot(1, 0.5, 0, 7)},
                 new go.Binding("itemArray", "leftPorts"),
                 {
                     row: 1, 
                     column: 0,
-                    alignment: new go.Spot(0, 0.5, 0, 7),
-                    itemTemplate: makeItemTemplate('left',false),
-                    // alignment: go.Spot.Right,
+                    // alignment: new go.Spot(0, 0.5, 0, 7),
+                    itemTemplate: makeItemTemplate('left',false, portContextMenu),
+                    alignment: go.Spot.Left, 
                 }
-            ),  // end Vertical Panel
+            ),  // end leftPorts Panel
 
             // the Panel holding the top port elements, which are themselves Panels,
             // created for each item in the itemArray, bound to data.topArray
@@ -1451,23 +1419,22 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     row: 0, 
                     column: 1,
-                    itemTemplate: makeItemTemplate('top',false),
+                    itemTemplate: makeItemTemplate('top',false, portContextMenu),
                     alignment: go.Spot.Top, 
                 }
-            ),  // end Horizontal Panel
+            ),  // end topPorts Panel
 
             // the Panel holding the right port elements, which are themselves Panels,
             // created for each item in the itemArray, bound to data.rightArray
             $(go.Panel, "Vertical",
-            { name: "RIGHTPORTS", alignment: new go.Spot(1, 0.5, 0, 7) },
                 new go.Binding("itemArray", "rightPorts"),
                 {
                     row: 1, 
                     column: 2,
-                    alignment: new go.Spot(1, 0.5, 0, 7),
-                    itemTemplate: makeItemTemplate('right', false),
+                    itemTemplate: makeItemTemplate('right', false, portContextMenu),
+                    alignment: go.Spot.Right, 
                 }
-            ),  // end Vertical Panel
+            ),  // end rightPorts Panel
 
             // the Panel holding the bottom port elements, which are themselves Panels,
             // created for each item in the itemArray, bound to data.bottomArray
@@ -1476,9 +1443,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     row: 2, 
                     column: 1,
-                    itemTemplate: makeItemTemplate('bottom', false),
+                    itemTemplate: makeItemTemplate('bottom', false, portContextMenu),
+                    alignment: go.Spot.Bottom, 
                 }
-            )  // end Horizontal Panel
+            ),   // end bottomPorts Panel
         )    
     );  // end Node
     addNodeTemplateName('nodeWithPorts');
@@ -1573,10 +1541,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             $(go.Shape, 'Annotation', // A left bracket shape
                 {
                     portId: '', 
-                    fromLinkable: true, 
-                    toLinkable: true, 
-                    toLinkableSelfNode: false, 
-                    toLinkableDuplicates: false,
+                    fromLinkable: true, toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: false,
                     cursor: 'alias', 
                     // fromSpot: go.Spot.AllSides,
                     fromSpot: go.Spot.Left,
@@ -1636,8 +1601,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         $(go.Panel, 'Auto',
             {
             name: 'PANEL',
-            minSize: new go.Size(160, 100),
-            desiredSize: new go.Size(160, 100)
+            minSize: new go.Size(160, 80),
+            desiredSize: new go.Size(160, 80)
             },
             new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
             $(go.Panel, 'Spot',
@@ -1649,14 +1614,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         stroke: '#CDAA7D',
                         parameter1: 10, // corner size
                         portId: '', 
-                        fromLinkable: true, 
-                        fromLinkableSelfNode: true, 
-                        fromLinkableDuplicates: true,
-                        toLinkable: true, 
-                        toLinkableSelfNode: true,
-                        toLinkableDuplicates: true,
-                        //   fromSpot: go.Spot.RightSide, 
-                        //   toSpot: go.Spot.LeftSide,
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
                     },
                     new go.Binding('fill', 'fillcolor'),
                     new go.Binding("stroke", "strokecolor"),
@@ -1669,7 +1628,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 {
                     fill: 'transparent', stroke: null, strokeWidth: 0,
                     cursor: 'move',
-                    desiredSize: new go.Size(75, 50),
+                    desiredSize: new go.Size(80, 50),
                 },
             ),
         ),
@@ -1802,16 +1761,13 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         // set the port properties
                         portId: '', 
                         fromLinkable: true, 
-                        toLinkable: true, 
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: false,
                         fromSpot: go.Spot.NotLeftSide, 
                         toSpot: go.Spot.NotRightSide,
-                        toLinkableSelfNode: true,
-                        toLinkableDuplicates: false,
                     },
                     new go.Binding('fill', 'fillcolor'),
                     new go.Binding('stroke', 'strokecolor'), 
-                ),
-                      
+                ),                      
                 $(go.Shape,  // Plus line
                     { 
                         cursor: "move",    
@@ -1972,243 +1928,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         ),
     );
     addNodeTemplateName('DataStoreNode');
-
-    if (false) {                    
-        let nodeInput =               
-            $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-                new go.Binding("layerName", "layer"),
-                new go.Binding("deletable"),
-                new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-                {
-                    selectionObjectName: "SHAPE",
-                    resizable: true, resizeObjectName: "SHAPE"
-                },
-
-                $(go.Shape,  
-                    { 
-                        name: "SHAPE", strokeWidth: 2,
-                        geometryString: "M145 260L360 260L400 200L360 148L145 148L145 260Z",
-                        cursor: "alias",        // cursor: "pointer",
-                        margin: new go.Margin(1, 1, 1, 1),
-                        shadowVisible: true,
-                        desiredSize: new go.Size(168, 68), // outer Shape size 
-                        // set the port properties
-                        portId: "",
-                        toSpot: go.Spot.Left,
-                        toLinkable: true,
-                        fromSpot: go.Spot.Right,
-                        fromLinkable: true,
-                    },
-                    // Shape bindings
-                    new go.Binding('fill', 'fillcolor'),
-                    new go.Binding('stroke', 'strokecolor'), 
-                    new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-                    .ofObject(),
-                    { contextMenu: contextMenu },    
-                ),
-                $(go.Panel, "Table", // Panel for text  -----------------------
-                    { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-                    $(go.RowColumnDefinition, { column: 1, width: 10 }),
-                    $(go.Panel, "Horizontal",
-                        // { margin: new go.Margin(10, 10, 10, 10) },
-                        {
-                            defaultAlignment: go.Spot.Left
-                        },
-                        // define the panel where the text will appear
-                        $(go.Panel, "Table", // separator ---------------------------------
-                            { contextMenu: contextMenu , cursor: "move" },
-                            {
-                                defaultRowSeparatorStroke: "black",
-                                defaultAlignment: go.Spot.Left,
-                            },
-                            // content
-                            $(go.TextBlock, textStyle(),  // the text -----------------------
-                                {
-                                    isMultiline: true,  // allow newlines in text
-                                    editable: true,     // allow in-place editing by user
-                                    row: 0, column: 0, columnSpan: 6,
-                                    font: "bold 10pt Segoe UI,sans-serif",
-                                    desiredSize: new go.Size(120, 36), 
-                                    textAlign: "left",
-                                    wrap: go.TextBlock.WrapFit, 
-                                    verticalAlignment: go.Spot.Left,
-                                    overflow: go.TextBlock.OverflowClip,
-                                    margin: 2,
-                                    width: 400,
-                                    // text: "name"
-                                },        
-                                new go.Binding("text", "name").makeTwoWay()
-                            ),
-                        ),
-                    ),
-                ),
-            
-            );
-        nodeTemplateMap.add("Input", nodeInput);
-        addNodeTemplateName('Input');
-        nodeTemplateMap.add("Output", nodeInput);
-        addNodeTemplateName('Output');
-
-        nodeTemplateMap.add('Control',
-            $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-                new go.Binding("layerName", "layer"),
-                new go.Binding("deletable"),
-                new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-                {
-                    toolTip:
-                    $(go.Adornment, "Auto",
-                        $(go.Shape, { fill: "lightyellow" }),
-                        $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                            new go.Binding("text", "", 
-                                function (d) { 
-                                    return uid.nodeInfo(d, myMetis);                
-                                }
-                            )
-                        )
-                    )
-                },
-                $(go.Panel, "Auto",
-                    $(go.Shape,  
-                    { 
-                        name: "SHAPE", strokeWidth: 1, stroke: "gray",
-                        // geometryString: "M400 166.67L440 150L440 225L400 250L360 225L360 150L400 166.67Z",
-                        geometryString: "M150 250L200 300L250 250L250 100L150 100L150 250Z",
-                        fill: "white",
-                        cursor: "alias",        // cursor: "pointer",
-                        scale: 3,
-                        portId: "",
-                        toSpot: go.Spot.Top,
-                        toLinkable: true,
-                        fromSpot: go.Spot.Bottom,
-                        fromLinkable: true,
-                    },
-                    new go.Binding("fill", "fillcolor")),
-                    $(go.TextBlock,
-                        new go.Binding("text", "name").makeTwoWay()),
-                        new go.Binding("stroke", "textcolor").makeTwoWay()
-                ),
-                { contextMenu: contextMenu },    
-            )
-        );
-        //addNodeTemplateName('Control');
-
-        nodeTemplateMap.add('Mechanism',
-            $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-                new go.Binding("layerName", "layer"),
-                new go.Binding("deletable"),
-                new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-                {
-                    toolTip:
-                    $(go.Adornment, "Auto",
-                        $(go.Shape, { fill: "lightyellow" }),
-                        $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                            new go.Binding("text", "", 
-                                function (d) { 
-                                    return uid.nodeInfo(d, myMetis);                
-                                }
-                            )
-                        )
-                    )
-                },
-                $(go.Panel, "Auto",
-                    $(go.Shape,  
-                    { 
-                        name: "SHAPE", strokeWidth: 1, stroke: "gray",
-                        // geometryString: "M400 166.67L440 150L440 225L400 250L360 225L360 150L400 166.67Z",
-                        geometryString: "M150 150L200 100L250 150L250 300L150 300L150 150Z",
-                        fill: "white",
-                        cursor: "alias",        // cursor: "pointer",
-                        scale: 3,
-                        portId: "",
-                        toSpot: go.Spot.Bottom,
-                        toLinkable: true,
-                        fromSpot: go.Spot.Top,
-                        fromLinkable: true,
-                    },
-                    new go.Binding("fill", "fillcolor")),
-                    $(go.TextBlock,
-                        new go.Binding("text", "name").makeTwoWay()),
-                        new go.Binding("stroke", "textcolor").makeTwoWay()
-                ),
-                { contextMenu: contextMenu },    
-            )
-        );
-        //addNodeTemplateName('Mechanism');
-
-        nodeTemplateMap.add('InOut',
-            $(go.Node, "Auto",
-                { selectionAdorned: false },
-                {
-                    mouseDrop: function(e, n: any) {
-                        // when the selection is entirely ports and is dropped onto a Group, transfer membership
-                        if (n.containingGroup !== null && myDiagram.selection.all(selectionIncludesPorts)) {
-                            myDiagram.selection.each(function(p) { p.containingGroup = n.containingGroup; });
-                        } else {
-                            myDiagram.currentTool.doCancel();
-                        }
-                    }
-                },
-                $(go.Shape,
-                    {
-                    name: "SHAPE",
-                    fill: UnselectedBrush, stroke: "gray",
-                    geometryString: "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z",
-                    spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
-                    spot2: new go.Spot(1, 1, -5, 0),
-                    // some port-related properties
-                    portId: "",
-                    toSpot: go.Spot.Left,
-                    toLinkable: false,
-                    fromSpot: go.Spot.Right,
-                    fromLinkable: false,
-                    cursor: "pointer"
-                    },
-                    new go.Binding("fill", "isSelected", function(s) { return s ? SelectedBrush : UnselectedBrush; }).ofObject(),
-                    new go.Binding("toLinkable", "_in"),
-                    new go.Binding("fromLinkable", "_in", function(b) { return !b; })
-                ),
-                $(go.TextBlock,
-                    new go.Binding("text", "name"),
-                    new go.Binding("stroke", "textcolor").makeTwoWay()
-                    )
-            )
-        );
-        //addNodeTemplateName('InOut');
-
-        nodeTemplateMap.add('Test',
-            $(go.Node, "Auto",
-            {
-                locationSpot: go.Spot.Center, locationObjectName: "SHAPE",
-                desiredSize: new go.Size(120, 60), minSize: new go.Size(40, 40),
-                resizable: true, resizeCellSize: new go.Size(20, 20)
-            },
-            // these Bindings are TwoWay because the DraggingTool and ResizingTool modify the target properties
-            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-            $(go.Shape,
-                { // the border
-                name: "SHAPE", fill: "white",
-                portId: "", cursor: "alias",
-                fromLinkable: true, toLinkable: true,
-                fromLinkableDuplicates: true, toLinkableDuplicates: true,
-                fromSpot: go.Spot.AllSides, toSpot: go.Spot.AllSides
-                },
-                new go.Binding("figure"),
-                new go.Binding("fill"),
-                new go.Binding("stroke", "color"),
-                new go.Binding("strokeWidth", "thickness"),
-                new go.Binding("strokeDashArray", "dash")),
-            // this Shape prevents mouse events from reaching the middle of the port
-            $(go.Shape, { width: 100, height: 40, strokeWidth: 0, fill: "transparent" }),
-            $(go.TextBlock,
-                { margin: 1, textAlign: "center", overflow: go.TextBlock.OverflowEllipsis, editable: true },
-                // this Binding is TwoWay due to the user editing the text with the TextEditingTool
-                new go.Binding("text").makeTwoWay(),
-                new go.Binding("stroke", "color"))
-            )
-        );
-        addNodeTemplateName('Test');
-    }
 }
 
 export function getLinkTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
@@ -2428,21 +2147,22 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     if (debug) console.log('1514 linkTemplateMap, linkTemplateNames', linkTemplateMap, linkTemplateNames);
 }
 
-export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis): any {
+export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis): any {
     // const myDiagram = myMetis.myDiagram;
 
     const groupTemplate1 =
         $(go.Group, "Auto",
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("visible"),
-            { contextMenu: contextMenu },
-            {
+            { 
+                contextMenu: contextMenu,
                 locationObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 subGraphExpandedChanged: function (grp) {
                     let shp = grp.resizeObject;
                     if (grp.diagram.undoManager.isUndoingRedoing) return;
                     if (grp.isSubGraphExpanded) {
+                        grp.category = "EXPANDED";
                         shp.fill = "white";
                     } else {
                         shp.fill = "white";
@@ -2658,6 +2378,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         $(go.Group, "Spot",
             {
                 locationObjectName:  "SHAPE",
+                selectionObjectName: "SHAPE",
                 resizable: true, 
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 contextMenu: contextMenu,
@@ -2680,58 +2401,71 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     )
                 )
             },
-            {
-                background: "transparent",
-                ungroupable: true,
-                // highlight when dragging into the Group
-                mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
-                mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
-                computesBoundsAfterDrag: true,
-                // when the selection is dropped into a Group, add the selected Parts into that Group;
-                // if it fails, cancel the tool, rolling back any changes
-                // mouseDrop: finishDrop,
-                handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-            },
             $(go.Panel, "Auto",
+                {
+                    row: 1, 
+                    column: 1, 
+                    name: "BODY",
+                    stretch: go.GraphObject.Fill
+                },
                 $(go.Shape, "RoundedRectangle", // surrounds everything
                     {
                         cursor: "alias",
                         fill: "transparent", 
                         shadowVisible: true,
-                        minSize: new go.Size(150, 75),
+                        minSize: new go.Size(160, 65),
                         portId: "", 
                         fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
                         toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
                     },
                     new go.Binding("fill", "fillcolor"),
                     new go.Binding("stroke", "strokecolor"),
-                    // new go.Binding("strokeWidth", "strokewidth"),
                 ),
                 $(go.Panel, "Vertical",  // position header above the subgraph
                     { 
-                    name: "HEADER", 
-                    defaultAlignment: go.Spot.TopLeft 
+                        name: "HEADER", 
+                        defaultAlignment: go.Spot.TopLeft, 
                     },
-                    $(go.Panel, "Horizontal",  // the header
-                        { 
-                            defaultAlignment: go.Spot.Top 
+                    $(go.Panel, "Table",  // the header
+                        {
+                            contextMenu: contextMenu , 
+                            cursor: "move",
+                            stretch: go.GraphObject.Horizontal,
                         },
                         $("SubGraphExpanderButton",
                             {
-                                margin: new go.Margin(1, 2, 1, 4),
-                                scale: 1.5
+                                row: 0, 
+                                column: 0, 
+                                margin: 5, 
+                                alignment: go.Spot.Left,
+                                scale: 1.2,
                             },
-                        ),  // this Panel acts as a Button
-                        $(go.TextBlock,     // group title near top, next to button
+                        ),  
+                        $(go.TextBlock, // group title located at the center
                             { 
-                                font: "Bold 16pt Sans-Serif",
-                                margin: new go.Margin(4, 0, 0, 2),
-                                editable: true, isMultiline: false,
-                                name: "name"
+                                row: 0, 
+                                column: 1, 
+                                margin: 5, 
+                                alignment: go.Spot.Center,
+                                font: "Bold 14pt Sans-Serif",
+                                editable: true, 
+                                isMultiline: false,
+                                name: "name",
                             },
                             new go.Binding("fill", "fillcolor"),
                             new go.Binding("text", "name").makeTwoWay(),
                             new go.Binding("stroke", "textcolor").makeTwoWay()
+                        ),
+                        $(go.Shape, // a figure (a symbol illustrating what this is all about)
+                            new go.Binding("geometryString", "geometry"),
+                            new go.Binding("fill", "fillcolor2"),
+                            { 
+                                row: 0, 
+                                column: 2, 
+                                margin: 5, 
+                                desiredSize: new go.Size(25, 25),
+                                alignment: go.Spot.Right,
+                            }
                         ),
                     ), // End Horizontal Panel
                     
@@ -2755,49 +2489,58 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             // created for each item in the itemArray, bound to data.leftArray
             $(go.Panel, "Vertical", 
                 { 
-                    alignment: new go.Spot(0, 0.5, 0, 7),
+                    // name: "LEFTPORTS", 
+                    // alignment: new go.Spot(0, 0.5, 0, 7)
                 },
                 new go.Binding("itemArray", "leftPorts"),
                 {
                     row: 1, 
                     column: 0,
-                    alignment: new go.Spot(0, 0.5, 0, 7),
-                    itemTemplate: makeItemTemplate('left', true),
+                    itemTemplate: makeItemTemplate('left', true, portContextMenu),
+                    alignment: go.Spot.Left, 
                 },
             ),  // end leftPorts Panel
 
-            // the Panel holding the right port elements, which are themselves Panels,
-            // created for each item in the itemArray, bound to data.leftArray
-            $(go.Panel, "Vertical", 
-                { alignment: new go.Spot(1, 0.5, 0, 7)},
-                new go.Binding("itemArray", "rightPorts"),
-                {
-                    row: 1, 
-                    column: 2,
-                    rowSpan: 2,
-                    alignment: new go.Spot(1, 0.5, 0, 7),
-                    itemTemplate: makeItemTemplate('right', true),
-                }
-            ),  // end rightPorts Panel
-
             $(go.Panel, "Horizontal",
-                { alignment: new go.Spot(1, 0.5, 0, 7)},
+                { 
+                    // name: "TOPPORTS", 
+                    // alignment: new go.Spot(1, 0.5, 0, 7)
+                },
                 new go.Binding("itemArray", "topPorts"),
                 {
                     row: 0, 
                     column: 1,
-                    itemTemplate: makeItemTemplate('top', true),
+                    itemTemplate: makeItemTemplate('top', true, portContextMenu),
                     alignment: go.Spot.Top, 
                 }
             ),  // end topPorts Panel
 
+            // the Panel holding the right port elements, which are themselves Panels,
+            // created for each item in the itemArray, bound to data.leftArray
+            $(go.Panel, "Vertical", 
+            { 
+                // name: "RIGHTPORTS", 
+                // alignment: new go.Spot(1, 0.5, 0, 7) 
+            },
+            new go.Binding("itemArray", "rightPorts"),
+                {
+                    row: 1, 
+                    column: 2,
+                    itemTemplate: makeItemTemplate('right', true, portContextMenu),
+                    alignment: go.Spot.Right, 
+                }
+            ),  // end rightPorts Panel
+
             $(go.Panel, "Horizontal",
-                { alignment: new go.Spot(1, 0.5, 0, 7)},
+                { 
+                    // name: "BOTTOMPORTS", 
+                    // alignment: new go.Spot(1, 0.5, 0, 7)
+                },
                 new go.Binding("itemArray", "bottomPorts"),
                 {
                     row: 0, 
                     column: 1,
-                    itemTemplate: makeItemTemplate('bottom', true),
+                    itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
                     alignment: go.Spot.Bottom, 
                 }
             ),  // end bottomPorts Panel
@@ -3139,6 +2882,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     }
 }
 
+export function addPortTemplates() {
+    // define the Node template for each attribute in the nodeDataArray
+}
+
 // Function to identify images related to an image id
 export function findImage(image: string) {
     if (debug) console.log("2561 findImage: " + image);
@@ -3215,22 +2962,6 @@ export function setDashed(d: string) {
             return null;
     }
 }
-
-// function makeLayout(horiz) {  // a Binding conversion function
-//     if (horiz) {
-//       return new go.GridLayout(
-//         {
-//           wrappingWidth: Infinity, alignment: go.GridLayout.Position,
-//           cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
-//         });
-//     } else {
-//       return new go.GridLayout(
-//         {
-//           wrappingColumn: 1, alignment: go.GridLayout.Position,
-//           cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
-//         });
-//     }
-// }
 
 function defaultColor(horiz) {  // a Binding conversion function
 return horiz ? "rgba(255, 221, 51, 0.55)" : "rgba(51,211,229, 0.5)";

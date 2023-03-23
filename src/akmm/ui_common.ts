@@ -3177,6 +3177,7 @@ function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {
         }
     }
 }
+
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {

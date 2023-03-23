@@ -7,6 +7,7 @@ const debug = false;
 import * as akm from '../akmm/metamodeller';
 import * as jsn from './ui_json';
 import * as uic from './ui_common';
+import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 const utils = require('./utilities');
 import * as constants from './constants';
@@ -673,6 +674,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('488 selObj', selObj);
       break;
     }
+    case "editPort": {
+      // selObj is a node representing an object with ports
+      const selObj = selectedData;
+      if (debug) console.log('679 selObj', selObj, myMetis);
+
+      break;
+    }
     case "editObject": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
@@ -1049,6 +1057,52 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         context.args.model = model;
         modalContext.context.postOperation(context);
         break;        
+      }
+      else if (modalContext.case === 'Add Port') {
+        const selectedValue = modalContext.selected?.value;
+        if (debug) console.log('1063 selectedValue', selectedValue);
+        // const context = modalContext.context;
+        if (debug) console.log('1065 modalContext', modalContext);
+        const node = modalContext.node;
+        let object = node.object;
+        object = myMetis.findObject(object.id)
+        const side = selectedValue;
+        let name = '';
+        switch(side) {
+          case 'top':
+            name = 'C';
+            break;
+          case 'bottom':
+            name = 'M';
+            break;
+          case 'left':
+            name = 'I';
+            break;
+          case 'right':
+            name = 'O';
+            break;
+        }
+        if (debug) console.log('1085 node', node);
+        name = prompt('Enter port name', name);
+        let port = object.getPort(side, name);
+        if (port) {
+          alert('The port ' + name + ' on side ' + side + ' already exists\n Aborted');
+        } else {
+          port = object.addPort(side, name);
+          if (debug) console.log('1087 object, port', object, port);
+          const jsnObj = new jsn.jsnObject(object);
+          const modifiedObjects = new Array();
+          modifiedObjects.push(jsnObj);
+          modifiedObjects.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+          });
+          // if (!node.isGroup) {
+            uit.addPort(port, myDiagram)
+            myDiagram.requestUpdate();
+          // }
+        }
       }
     }
     case "editRelshipview": {

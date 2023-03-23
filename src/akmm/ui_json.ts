@@ -858,6 +858,7 @@ export class jsnObjectTypeView {
     figure:          string;
     geometry:        string;
     fillcolor:       string;
+    fillcolor2:      string;
     strokecolor:     string;
     strokecolor1:    string;
     strokecolor2:    string;
@@ -878,6 +879,7 @@ export class jsnObjectTypeView {
         this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
+        this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
         this.strokecolor2    = objtypeview.getStrokecolor2();

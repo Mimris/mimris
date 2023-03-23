@@ -285,15 +285,16 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <Nav tabs >
         {navitemDiv}  
         <NavItem >
-          <button className="btn bg-warning text-white float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          <button className="btn px-2 border-white text-white float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
-                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
+                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
+                    style={{background: "#aaccdd"}}> ?
           </button>
         </NavItem>
       </Nav>
       <TabContent > 
         <TabPane  >
-          <div className="workpad bg-white mt-0 p-1 pt-2"> 
+          <div className="workpad bg-white border-light mt-0 p-1 "> 
             {gojsapp}
             {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
           </div>         
@@ -303,7 +304,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const metamodelTabDiv = 
     <>
-      <div className="workpad p-1 pt-2"> 
+      <div className="workpad p-1"> 
         {gojsapp}
         {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>         
@@ -343,7 +344,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> 
-              <div className="modeller--workarea-objects-content mt-2 border border-dark" style={{    height: "81vh"}} >
+              <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{    height: "82vh"}} >
                 <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca",  outline: "0", borderStyle: "none"}}
                   onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
                   Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 

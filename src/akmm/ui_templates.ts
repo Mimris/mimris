@@ -2438,11 +2438,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                                 column: 0, 
                                 margin: 5, 
                                 alignment: go.Spot.Left,
-<<<<<<< HEAD
                                 scale: 1.2,
-=======
-                                scale: 1.5,
->>>>>>> d39579ff828231dd63dcdbb7a6938a7ff55d5c45
                             },
                         ),  
                         $(go.TextBlock, // group title located at the center
@@ -2451,11 +2447,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                                 column: 1, 
                                 margin: 5, 
                                 alignment: go.Spot.Center,
-<<<<<<< HEAD
                                 font: "Bold 14pt Sans-Serif",
-=======
-                                font: "Bold 16pt Sans-Serif",
->>>>>>> d39579ff828231dd63dcdbb7a6938a7ff55d5c45
                                 editable: true, 
                                 isMultiline: false,
                                 name: "name",

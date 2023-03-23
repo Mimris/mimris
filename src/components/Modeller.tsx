@@ -128,8 +128,9 @@ const Modeller = (props: any) => {
 
   // Selector for selecting models ---------------------------------------------------------
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-    <div className="Selector--menu d-flex  gap-1">
-      <div className="d-flex justify-content-end ">
+    // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
+    <div className="Selector--menu d-flex gap-1">  
+      <div className="d-flex p-0">
         <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap"
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title =  {
@@ -332,10 +333,12 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     (props.modelType === 'model') 
     ? // modelling
       <div className="modeller-workarea" >
-        <div className="modeller--topbar d-flex mt-1 p-0 justify-content-between">
-          <span className="--heading text-dark fw-bold ph-2" style={{    width: "25%"}} >Modeller </span>
-          <div className="modeller--heading-selector">{selector}</div>
-          <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" style={{scale: "0.6"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+        <div className="modeller--topbar d-flex justify-content-between mt-1 p-0 ">
+          <span className="--heading d-flex text-dark fw-bold ph-2 " style={{    width: "25%"}} >Modeller </span>
+          <div className="d-flex">
+            <div className="modeller--heading-selector">{selector}</div>
+            <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" style={{scale: "0.6"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+          </div>
         </div>
         <div className="modeller--workarea m-0 p-0">
           <Row className="m-0">

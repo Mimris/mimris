@@ -130,8 +130,8 @@ const Modeller = (props: any) => {
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
     // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
     <div className="Selector--menu d-flex  gap-1">  
-      <div className="d-flex  p-0">
-        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap"
+      <div className="d-flex ">
+        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap "
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title =  {
             `Description : ${props.metis.description} 
@@ -144,7 +144,7 @@ const Modeller = (props: any) => {
             The suffix '.json' will be added to the filename.`
           }><span className="bg-light"> Project : </span> 
         </label>
-        <input className=" px-2 " label="test" type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} style={{ minWidth: "26%"}} />
+        <input className=" px-2"  style={{width: '300px'}} label="test" type="text" value={props.metis.name} onChange={(event) => handleProjectChange({value: event.target.value})} onBlur={(event) => handleProjectChange({ value: event.target.value })} />
       </div>
 
       <span className="model-selection border-top border-bottom border-success bg-light px-2 text-nowrap" data-toggle="tooltip" data-placement="top" data-bs-html="true"  
@@ -161,7 +161,6 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
           {options}
           </select>
         </span> 
-
     </div>
 
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
@@ -335,9 +334,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     ? // modelling
       <div className="modeller-workarea" >
         <div className="modeller--topbar d-flex justify-content-between mt-1 p-0 ">
-          <span className="--heading d-flex text-dark fw-bold px-2" style={{    width: "25%"}} > Modeller </span>
+          <span className="--heading d-flex text-dark fw-bold px-2" style={{ minWidth: "15%"}} > Modeller </span>
           <div className="d-flex">
-            <div className="modeller--heading-selector">{selector}</div>
+            <div className="modeller--heading-selector ">{selector}</div>
             <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" style={{scale: "0.6"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
           </div>
         </div>

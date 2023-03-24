@@ -10,7 +10,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader()
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', reader.fileName)
+    if (!debug) console.log('13 ReadModelFromFile', reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
@@ -30,13 +30,13 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
-        console.log('26 ReadModelFromFile', mindex, mlength, modelff, modelff?.id, props, props.phData?.metis?.models[mindex]?.id)
+        if (debug) console.log('26 ReadModelFromFile', mindex, mlength, modelff, modelff?.id, props, props.phData?.metis?.models[mindex]?.id)
 
         // ---------------------  load Project model files ---------------------
-        console.log('29 ReadModelFromFile',  props, modelff)
+        console.log('29 ReadModelFromFile',filename, props, modelff)
 
         if (modelff.phData) { // if modelff has phData, then it is a project file
-            if (debug) console.log('33 ReadModelFromFile',  props, modelff)    
+            if (!debug) console.log('33 ReadModelFromFile', props, modelff)    
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
@@ -51,19 +51,19 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 modelff.phFocus.focusModelView= {id: modelff.phData.metis.models[0].modelviews[0].id, name: modelff.phData.metis.models[0].modelviews[0].name}
             }
         } else if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
-            if (debug) console.log('48 ReadModelFromFile',  filename, modelff, props)
+            if (!debug) console.log('54 ReadModelFromFile',  filename, modelff, props)
             if (!modelff.metamodels || !modelff.modelviews || !modelff.objects || !modelff.relships) {
                 alert('This is not a valid Modelview file! (it contains no Metamodels, Modelviews and Mbjects)')
                 return null 
             }
             let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
             let mvindex, mvlength
-            mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
+            mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelffmodelviews?.id) // current modelview index
             mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
             if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
-            const tmpmv = props.phData.metis.models[fmindex].modelviews
+            // const tmpmv = props.phData.metis.models[fmindex].modelviews
             if (mvindex >= 0) { // if modelview exist, then add additional objectviews to the existing modelview
-                modelff.modelview.objectviews.forEach(ov => {
+                modelff.modelview?.objectviews.forEach(ov => {
                     const ovindex = tmpmv[mvindex].objectviews.findIndex(ovv => ovv.id === ov.id)
                     if (ovindex < 0) { tmpmv[mvindex].objectviews.push(ov) } // if objectview does not exist, then add it to the existing modelview
                 })
@@ -88,9 +88,15 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             const rindex = props.phData.metis.models[fmindex].relships.findIndex(r => r.id === modelff.relships[0].id)
             const tmprels = props.phData.metis.models[fmindex].relships
             if (rindex >= 0) { tmprels.splice(rindex, 1) } // if relationship exist, then remove it from props.phData.metis.models[fmindex].relships, i.e. the relationship will be replaced by the new relationship
-         
+   
+            //  if metamodel already exist in props.phData.metis.metamodels, then replace it with the new metamodel
+            let mindex = props.phData.metis.metamodels.findIndex(m => m.id === modelffmetamodels.id)
+            const mlength = props.phData.metis.metamodels.length;
+            if (mindex < 0) mindex = mlength// if metamodel exist, then replace it with the new metamodel
+
+
             if (debug) console.log('69 ReadModelFromFile', tmpobj, modelffobjects, modelffrelships, props.phData.metis.models[fmindex].objects);  
-            if (debug) console.log('80 ReadModelFromFile', modelffmetamodels, modelffmodelviews);
+            if (!debug) console.log('80 ReadModelFromFile', modelffmetamodels, modelffmodelviews, modelffobjects, modelffrelships, props.phData.metis.models[fmindex].objects);
 
             data = {
                 phData: {
@@ -98,8 +104,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     metis: {
                         ...props.phData.metis,
                         metamodels: [
-                            ...props.phData.metis.metamodels,   
-                            modelffmetamodels
+                            ...props.phData.metis.metamodels.slice(0, mindex),   
+                            modelffmetamodels,
+                            ...props.phData.metis.metamodels.slice(mindex + 1, mlength),
                         ],
                         models: [
                             ...props.phData.metis.models?.slice(0, fmindex),  
@@ -114,8 +121,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                                     ...modelffrelships
                                 ],
                                 modelviews: [ 
-                                    ...props.phData.metis.models[fmindex]?.modelviews,  
-                                    ...tmpmv
+                                    ...props.phData.metis.models[fmindex]?.modelviews?.slice(0, mvindex),  
+                                    {...modelffmodelviews},
+                                    ...props.phData.metis.models[fmindex]?.modelviews?.slice(mvindex + 1, mvlength),
                                 ],
                             },
                             ...props.phData.metis.models?.slice(fmindex + 1, mlength),
@@ -123,7 +131,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 }, 
             };
-            if (debug) console.log('101 ReadModelFromFile', data);
+            if (!debug) console.log('101 ReadModelFromFile', data);
   
         } else if (filename.includes('_MO')) { // then it is a model file           
             

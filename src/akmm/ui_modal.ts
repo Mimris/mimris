@@ -1187,7 +1187,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     case "editTypeview": {   
       const selObj = selectedData;
-      if (debug) console.log('918 selObj', selObj);
       if (debug) console.log('919 selObj', selObj, myMetis);
       if (selObj.category === constants.gojs.C_OBJECT || 
         selObj.category === constants.gojs.C_OBJECTTYPE) {
@@ -1392,7 +1391,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     break;
   }
-
   // Dispatch metis
   const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
   let data = {metis: jsnMetis}

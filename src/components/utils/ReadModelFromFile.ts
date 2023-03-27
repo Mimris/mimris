@@ -10,7 +10,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader()
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (!debug) console.log('13 ReadModelFromFile', reader.fileName)
+    if (debug) console.log('13 ReadModelFromFile', reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
@@ -36,7 +36,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         console.log('29 ReadModelFromFile',filename, props, modelff)
 
         if (modelff.phData) { // if modelff has phData, then it is a project file
-            if (!debug) console.log('33 ReadModelFromFile', props, modelff)    
+            if (debug) console.log('33 ReadModelFromFile', props, modelff)    
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
@@ -51,7 +51,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 modelff.phFocus.focusModelView= {id: modelff.phData.metis.models[0].modelviews[0].id, name: modelff.phData.metis.models[0].modelviews[0].name}
             }
         } else if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
-            if (!debug) console.log('54 ReadModelFromFile',  filename, modelff, props)
+            if (debug) console.log('54 ReadModelFromFile',  filename, modelff, props)
             if (!modelff.metamodels || !modelff.modelviews || !modelff.objects || !modelff.relships) {
                 alert('This is not a valid Modelview file! (it contains no Metamodels, Modelviews and Mbjects)')
                 return null 
@@ -96,7 +96,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
 
             if (debug) console.log('69 ReadModelFromFile', tmpobj, modelffobjects, modelffrelships, props.phData.metis.models[fmindex].objects);  
-            if (!debug) console.log('80 ReadModelFromFile', modelffmetamodels, modelffmodelviews, modelffobjects, modelffrelships, props.phData.metis.models[fmindex].objects);
+            if (debug) console.log('80 ReadModelFromFile', modelffmetamodels, modelffmodelviews, modelffobjects, modelffrelships, props.phData.metis.models[fmindex].objects);
 
             data = {
                 phData: {
@@ -131,7 +131,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 }, 
             };
-            if (!debug) console.log('101 ReadModelFromFile', data);
+            if (debug) console.log('101 ReadModelFromFile', data);
   
         } else if (filename.includes('_MO')) { // then it is a model file           
             

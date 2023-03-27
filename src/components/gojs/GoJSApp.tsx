@@ -1062,19 +1062,29 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "ObjectSingleClicked": {
           const sel = e.subject.part;
-          const data = sel.data;
-          console.log('1019 selected', data, sel);
+          let data = sel.data;
+          if (debug) console.log('1019 selected', data, sel);
+          if (data.objectview.id) {
+            const payload = data // JSON.parse(JSON.stringify(data));
+            const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
+            const objIdName = {id: payload.objectview.object.id, name: payload.objectview.object.name };
+
+            if (debug) console.log('1072 SET_FOCUS_OBJECTVIEW', payload, objvIdName, objIdName)
+            context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+            context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+          }
           for (let it = sel.memberParts; it?.next();) {
               let n = it.value;
               if (!(n instanceof go.Node)) continue;
-              console.log('1023 n', n.data);
+              if (debug) console.log('1023 n', n.data);
           }
         }
         break;
-      case "ObjectContextClicked": {
+      case "ObjectContextClicked": { // right clicked
           const sel = e.subject.part;
           const data = sel.data;
-          // console.log('1009 selected', data, sel);
+          // dispatch to focusCollection here ???
+          // console.log('1086 selected', data, sel);
         }
         break;
       case "PartResized": {
@@ -1432,12 +1442,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // Dispatches
     if (true) {
-      if (debug) console.log('1404 modifiedNodes', modifiedNodes);
+      if (debug) console.log('1444 modifiedNodes', modifiedNodes);
       modifiedNodes.map(mn => {
         let data = (mn) && mn
         if (mn.id) {
           data = JSON.parse(JSON.stringify(data));
-          if (debug) console.log('1408 UPDATE_OBJECTVIEW_PROPERTIES', mn, data)
+          if (!debug) console.log('1449 UPDATE_OBJECTVIEW_PROPERTIES', mn, data)
           context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         }
       })

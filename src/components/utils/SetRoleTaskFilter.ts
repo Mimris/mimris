@@ -274,7 +274,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
         : [  foundAllTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask].filter(Boolean)
     if (debug) console.log("273 foundTasks",  foundTasks )
  
-    if (!debug) console.log("277 foundTasks", curtask, mmodel, foundAllTask)
+    if (debug) console.log("277 foundTasks", curtask, mmodel, foundAllTask)
     
     // first check if we are on metamodelling tab, we assume when no objecttypes are present in the metamodel, we are on the metamodelling tab???
     const foundTask = (curtask) 
@@ -301,7 +301,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     
     // const foundTypes1 = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes
 
-    const foundTypes = (foundTask) && foundTask?.workOnTypes 
+    const foundTypes = (foundTask) ? foundTask?.workOnTypes : curtask?.workOnTypes 
     
     if (debug) console.log("295 foundTypes", foundTypes)
 

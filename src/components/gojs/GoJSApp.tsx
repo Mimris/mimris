@@ -1064,7 +1064,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel = e.subject.part;
           let data = sel.data;
           if (debug) console.log('1019 selected', data, sel);
-          if (data.objectview.id) {
+          if (data.objectview?.id) {
             const payload = data // JSON.parse(JSON.stringify(data));
             const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
             const objIdName = {id: payload.objectview.object.id, name: payload.objectview.object.name };

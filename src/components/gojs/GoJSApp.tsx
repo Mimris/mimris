@@ -1063,8 +1063,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
           const sel = e.subject.part;
           let data = sel.data;
-          if (debug) console.log('1019 selected', data, sel);
-          if (data.objectview.id) {
+          if (debug) console.log('1066 selected', data, sel);
+          if (data.objectview?.id) {
             const payload = data // JSON.parse(JSON.stringify(data));
             const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
             const objIdName = {id: payload.objectview.object.id, name: payload.objectview.object.name };
@@ -1076,7 +1076,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = sel.memberParts; it?.next();) {
               let n = it.value;
               if (!(n instanceof go.Node)) continue;
-              if (debug) console.log('1023 n', n.data);
+              if (!debug) console.log('1079 n', n.data);
           }
         }
         break;

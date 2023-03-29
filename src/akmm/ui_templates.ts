@@ -1452,6 +1452,71 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );  // end Node
     addNodeTemplateName('nodeWithPorts');
 
+    nodeTemplateMap.add('nodeWithNoPorts',
+        $(go.Node, "Table",
+            {
+                locationObjectName: "BODY",
+                locationSpot: go.Spot.Center,
+                selectionObjectName: "BODY",
+                resizable: true, 
+                contextMenu: contextMenu
+            },
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                const tt = uid.nodeInfo(d, myMetis); 
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;               
+                            }
+                        )
+                    )
+                )
+            },
+            $(go.Panel, "Auto",
+                {
+                    row: 1, 
+                    column: 1, 
+                    name: "BODY",
+                    stretch: go.GraphObject.Fill
+                },
+                $(go.Shape, "RoundedRectangle",
+                    {
+                        cursor: "alias",
+                        fill: "white", 
+                        stroke: "black", 
+                        strokeWidth: 2,
+                        parameter1: 5, 
+                        minSize: new go.Size(158, 68),
+                        portId: "",
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                    },
+                    new go.Binding('fill', 'fillcolor'),
+                    new go.Binding("stroke", "strokecolor"),
+                ),
+                $(go.TextBlock,
+                    { 
+                        cursor: "move",
+                        margin: 10, 
+                        textAlign: "center", 
+                        font: "bold 14px Segoe UI,sans-serif", 
+                        stroke: "#484848", 
+                        editable: true, 
+                        isMultiline: true,  // don't allow newlines in text
+                    },
+                new go.Binding("text", "name").makeTwoWay(),
+                )
+            ),  // end Auto Panel body
+        )    
+    );  // end Node
+    addNodeTemplateName('nodeWithNoPorts');
+
     nodeTemplateMap.add("label", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("layerName", "layer"),

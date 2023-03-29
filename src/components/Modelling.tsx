@@ -76,9 +76,12 @@ const page = (props:any) => {
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
-    // SaveModelToLocState(props, memoryLocState, setMemoryLocState)
     GenGojsModel(props, dispatch)
-    setRefresh(!refresh)
+    // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+    }, 100);
+    return () => clearTimeout(timer);
   } 
 
   useEffect(() => {

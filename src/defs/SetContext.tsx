@@ -8,6 +8,7 @@ const SetContext = (props: any) =>  {
   const phData = props.ph?.phData;
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
 
+  //  dconsole.log('11 SetContext: phFocus', props.ph.phFocus.focusObject?.name, phFocus.focusObject?.name, props);
   const [toggle, setToggle] = useState(true);
 
   const toggleContext = () => {

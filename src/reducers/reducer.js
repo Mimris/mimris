@@ -323,6 +323,7 @@ function reducer(state = InitialState, action) {
       }
       if (debug) console.log('324 red', retval_SET_FOCUS_MODEL.phFocus.focusModel);
       return retval_SET_FOCUS_MODEL
+      
     case SET_FOCUS_MODELVIEW:
       if (debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
@@ -336,36 +337,51 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('121 reducer targetmetamodel', state, action.data); 
       return {
         ...state,
-        phFocus: {
-          ...state.phFocus,
-          focusTargetMetamodel: action.data
-        }
+          phFocus: {
+            ...state.phFocus,
+            focusTargetMetamodel: action.data
+          }
       }
     case SET_FOCUS_TARGETMODEL:
       if (debug) console.log('121 red', state, action.data); 
       return {
         ...state,
-        phFocus: {
-          ...state.phFocus,
-          focusTargetModel: action.data
-        }
+          phFocus: {
+            ...state.phFocus,
+            focusTargetModel: action.data
+          }
       }
     case SET_FOCUS_TARGETMODELVIEW:
       return {
         ...state,
-        phFocus: {
-          ...state.phFocus,
-          focusTargetModelview: action.data
+          phFocus: {
+            ...state.phFocus,
+            focusTargetModelview: action.data
         }
       }
+    case SET_FOCUS_OBJECT:
+      if (debug) console.log('235 SET_FOCUS_OBJECT', state, action.data);
+      const retval_SET_FOCUS_OBJECT = {
+        ...state,
+          phFocus: {
+            ...state.phFocus,
+            focusObject: action.data
+          }
+      }
+      return retval_SET_FOCUS_OBJECT
+
     case SET_FOCUS_OBJECTVIEW: 
-      return {
+      if (debug) console.log('375 SET_FOCUS_OBJECTVIEW', state, action.data);
+      const retval_SET_FOCUS_OBJECTVIEW = {
         ...state,
         phFocus: {
           ...state.phFocus,
           focusObjectview: action.data
         }
       }
+      if (debug) console.log('383 SET_FOCUS_OBJECTVIEW', retval_SET_FOCUS_OBJECTVIEW);
+      return  retval_SET_FOCUS_OBJECTVIEW
+
     case SET_FOCUS_RELSHIP: 
     return {
       ...state,
@@ -409,49 +425,6 @@ function reducer(state = InitialState, action) {
     //     }
     //   }
 
-    case SET_FOCUS_OBJECT:
-      if (debug) console.log('235 SET_FOCUS_OBJECT', state, action.data);
-      // focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
-      //   focusSource: {
-      //     id: action.data.focusSource.id,
-      //     name: action.data.focusSource.name
-      //   }
-      // }
-      //   : state.phFocus.focusSource
-
-      // focusModelview = (action.data.focusObject && action.data.focusObject.focusModelview)
-      //   ? {
-      //     focusModelview: {
-      //       id: action.data.focusSource.id,
-      //       name: action.data.focusSource.name
-      //     }
-      //   }
-      //   : state.phFocus.focusModelview
-      return {
-        ...state,
-        ...{
-          phFocus: {
-            ...state.phFocus,
-            focusObject: action.data
-            // focusObject: {
-            //   ...action.data.focusObject,
-            //   status: {
-            //     ...state.phFocus,
-            //     focusObject: {
-            //       id: state.phFocus.focusObject.id,
-            //       name: state.phFocus.focusObject.name
-            //     },
-            //     focusSource: {
-            //       id: state.phFocus.focusSource.id,
-            //       name: state.phFocus.focusSource.name
-            //     }
-            //   },
-            //   focusSource: focusSource,
-            //   focusModelview: focusModelview
-            // },
-          }
-        }
-      }
     case SET_FOCUS_PROJ:
       if (debug) console.log('455 SET_FOCUS_PROJ', action.data)
       const retval_SET_FOCUS_PROJ = {
@@ -463,6 +436,7 @@ function reducer(state = InitialState, action) {
       }
       if (debug) console.log('463 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
       return retval_SET_FOCUS_PROJ
+
     case SET_FOCUS_ORG:
       return {
         ...state,

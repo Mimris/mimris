@@ -90,8 +90,7 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
-    
-    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types, mmodel);
+    if (!debug) console.log('83 Palette useEffect 1', role, task, tasks, types);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
     if (debug) console.log('84 Palette useEffect 1', foundRTTs);
@@ -154,20 +153,21 @@ const Palette = (props: any) => {
   }
 
   const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
-    let task1 = 'Modelling'
+
     if (props.modelType === 'metamodel') {
-      task1 = 'Metamodelling'
-    }
-    if (!debug) console.log('121 Palette useEffect',role, task1, types, mmodel, modellingtasks);
-    const foundRTTs = genRoleTasks(role, task1, tasks, types, mmodel, dispatch)
-    if (debug) clog('123 Palette useEffect', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
+      setTask({id: 'Metamodelling', name: 'Metamodelling'})
+    } 
+    if (!debug) console.log('162 Palette ', task);
+    if (!debug) console.log('163 Palette ', role, task, types, mmodel, modellingtasks);
+    const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
+    if (debug) clog('123 Palette ', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
-    if (debug) console.log('131  Palette findCurRoleTaskTypes ', types, modellingtasks, foundRTTs)  
+    if (!debug) console.log('131  Palette findCurRoleTaskTypes ', task, types, modellingtasks, foundRTTs)  
     setRole(foundRTTs?.currole)
     setTask(foundRTTs?.curtask)
     setModellingtasks(foundRTTs?.curtasks)
     setTypes(foundRTTs?.curtypes)
-    if (debug) console.log('135 Palette findCurRoleTaskTypes ', types, modellingtasks)
+    if (!debug) console.log('135 Palette findCurRoleTaskTypes ', task, types, modellingtasks)
     return {
       role: foundRTTs?.currole,
       task:  foundRTTs?.curtask,
@@ -193,9 +193,13 @@ const Palette = (props: any) => {
       </select>
     </>
 
-  function setModellingTask(task) {
-    if (debug) console.log('156 Palette setModellingTask',task, types);
-    const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
+  function setModellingTask(taskObj) {
+
+    if (!debug) console.log('199 Palette setModellingTask',taskObj);
+    const task1 = {id: taskObj.id,name: taskObj.name}
+
+    if (!debug) console.log('156 Palette setModellingTask',task1);
+    const foundRTTs = findCurRoleTaskTypes(role, task1, tasks, types, mmodel, dispatch)
     if (debug) console.log('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
     setRole(foundRTTs?.role)
     setTask(foundRTTs?.task)
@@ -217,7 +221,7 @@ const Palette = (props: any) => {
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
 
-  if (debug) console.log('172 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  if (debug) console.log('220 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
  
   const gojsappPalette = //(gojsmetamodel.nodeDataArray) &&  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
     <div className="workpad p-1 pt-0 bg-white" >

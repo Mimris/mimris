@@ -588,7 +588,7 @@ export function executeMethod(context: any) {
 }
 
 function execMethod(object: akm.cxObject, context: any) {
-    if (!debug) console.log("462: Calling execMethod '" + context.action + "': on " + object.name);
+    if (debug) console.log("462: Calling execMethod '" + context.action + "': on " + object.name);
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     if (debug) console.log('465 myMetis', myMetis);
@@ -602,7 +602,7 @@ function execMethod(object: akm.cxObject, context: any) {
             break;
         case 'Select':
             if (gjsNode) gjsNode.isSelected = true;
-            if (!debug) console.log('605 gjsNode', gjsNode, myDiagram);
+            if (debug) console.log('605 gjsNode', gjsNode, myDiagram);
             break;
         case 'generateosduId':
             context.myObject = object;

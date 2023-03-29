@@ -1310,7 +1310,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
-        if (debug) console.log('1272 link', link.data, link.fromNode, link.toNode);
+        if (!debug) console.log('1272 link', link.data, link.fromNode, link.toNode);
 
         if (false) { // Prepare for linkToLink
           if (linkToLink) {
@@ -1408,20 +1408,18 @@ class GoJSApp extends React.Component<{}, AppState> {
         let link = e.subject; 
         link = myDiagram.findLinkForKey(link.key);
         const data = link.data;
-        if (debug) console.log('1370 data', data);
+        if (!debug) console.log('1370 link, data', link, data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
-          if (link.data.points?.j) {
-            const points = [];
-            const array = link.points.j;
-            for (let i=0; i<array.length; i++) {
-              points.push(array[i].x)
-              points.push(array[i].y)
-            }
-            link.data.points = points;
-          }
-          relview.points = link.data.points;;
+          const points = [];
+          for (let it = link.data.points.iterator; it?.next();) {
+            const point = it.value;
+            if (debug) console.log('1379 point', point.x, point.y);
+            points.push(point.x)
+            points.push(point.y)
+        }
+          relview.points = points;
           const jsnRelview = new jsn.jsnRelshipView(relview);
           if (debug) console.log('1385 relview, jsnRelview', relview, jsnRelview);
           modifiedLinks.push(jsnRelview);

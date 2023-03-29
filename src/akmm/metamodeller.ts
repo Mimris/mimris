@@ -1167,10 +1167,10 @@ export class cxMetis {
         if (modelview) {
             const objview = this.findObjectView(item.id);
             if (objview) {
-                if (debug) console.log('648 item, objview', item, objview);
+                if (debug) console.log('1170 item, objview', item, objview);
                 const object = this.findObject(item.objectRef);
                 if (object) {
-                    if (debug) console.log('651 item.markedAsDeleted', item.markedAsDeleted);
+                    if (debug) console.log('1173 item.markedAsDeleted', item.markedAsDeleted);
                     objview.setObject(object);
                     objview.setIcon(item.icon);
                     objview.setLoc(item.loc);
@@ -1181,30 +1181,34 @@ export class cxMetis {
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    objview.viewkind = item.viewkind;
                     objview.isCollapsed = item.isCollapsed;
                     objview.text = item.text;
                     objview.modified = true;
-                    if (debug) console.log('660 objview', objview);
+                    if (debug) console.log('1188 objview', objview);
                     if (item.typeviewRef) {
                         const objtypeview = this.findObjectTypeView(item.typeviewRef);
                         if (objtypeview) {
                             objview.setTypeView(objtypeview);
                             const viewdata = objtypeview.getData();
                             for (let prop in viewdata) {
+                                // Default values are typeview values
                                 if (item[prop] && item[prop] !== "") {
+                                    // Item values are overrides
                                     objview[prop] = item[prop];
                                 }
                             }
                         }
                     }
-                    if (debug) console.log('672 objview.markedAsDeleted', objview.markedAsDeleted, objview);
+                    objview.viewkind = item.viewkind;
+                    if (debug) console.log('1201 objview.markedAsDeleted', objview.markedAsDeleted, objview);
                     object.addObjectView(objview);
-                    if (debug) console.log('675 objview.markedAsDeleted', objview.markedAsDeleted, objview);
+                    if (debug) console.log('1203 item, objview', item, objview);
                 }
                 modelview.removeObjectView(objview);
-                if (debug) console.log('677 modelview', objview.markedAsDeleted, objview, modelview);
+                if (debug) console.log('1206 modelview', objview.markedAsDeleted, objview, modelview);
                 modelview.addObjectView(objview);
-                if (debug) console.log('679 modelview', objview.markedAsDeleted, objview, modelview);
+                if (debug) console.log('1208 modelview', objview.markedAsDeleted, objview, modelview);
             }
         }
     }
@@ -8739,42 +8743,46 @@ export class cxObjectView extends cxMetaObject {
         return this.size;
     }
     setScale(scale: string) {
-        if (scale == undefined)
-        scale = "1";
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.scale1 = scale;
     }
     getScale(): string {
-        if (this.scale1 == undefined)
+        const scale = this.scale1;
+        if (scale == undefined || scale == "" || scale == null)
             return "1";
         return this.scale1;
     }
     setMemberscale(memberscale: string) {
-        if (memberscale == undefined)
+        if (memberscale == undefined || memberscale == "" || memberscale == null)
             this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.memberscale = memberscale;
     }
     getMemberscale(): string {
-        if (this.memberscale == undefined)
+        const memberscale = this.memberscale;
+        if (memberscale == undefined || memberscale == "" || memberscale == null)
             return this.typeview?.memberscale ? this.typeview.memberscale : "1";
         return this.memberscale;
     }
     setArrowscale(arrowscale: string) {
-        if (arrowscale == undefined)
+        if (arrowscale == undefined || arrowscale == "" || arrowscale == null)
             this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         this.arrowscale = arrowscale;
     }
     getArrowscale(): string {
-        if (this.arrowscale == undefined)
+        const arrowscale = this.arrowscale;
+        if (arrowscale == undefined || arrowscale == "" || arrowscale == null)
             return this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         return this.arrowscale;
     }
     setTextscale(scale: string) {
-        if (scale == undefined)
-        scale = "1";
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.textscale = scale;
     }
     getTextscale(): string {
-        if (this.textscale == undefined)
+        const scale = this.textscale;
+        if (scale == undefined || scale == "" || scale == null)
             return "1";
         return this.textscale;
     }

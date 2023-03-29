@@ -40,7 +40,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   let adminModel;
   if (metis != null) {
     if (debug) clog('42 GenGojsModel: props', props);
-
+    if (debug) clog('43 GenGojsModel: metis', props.phData.metis);
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
     const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview

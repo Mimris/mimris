@@ -772,7 +772,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (typeof(obj[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))   continue;
         if (k === 'abstract') obj[k] = selObj[k];
-        if (k === 'viewkind') obj[k] = selObj[k];
+        // if (k === 'viewkind') obj[k] = selObj[k];
         if (debug) console.log('635 prop', k);
         if (debug) console.log('636 node', node, data, obj, k);
         myDiagram.model.setDataProperty(data, k, obj[k]);
@@ -838,7 +838,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      if (debug) console.log('766 selObj', selObj, myMetis);
+      if (debug) console.log('841 selObj', selObj, myMetis);
       // Do a fix
       const oview = myMetis.findObjectView(selObj.objectview.id);
       if (!oview)
@@ -848,18 +848,26 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // End fix
       const objtypeview = oview.typeview;
       myDiagram.selection.each(function(sel) {
-        if (debug) console.log('839 sel, sel.data', sel, sel.data);
+        if (debug) console.log('851 sel, sel.data', sel, sel.data);
           let objview = sel.data.objectview;
           if (objview) {
             objview = myMetis.findObjectView(objview.id);
-            if (debug) console.log('796 objview, objtypeview', objview, objtypeview);
+            if (debug) console.log('855 objview, objtypeview', objview, objtypeview);
             for (let prop in  objtypeview?.data) {
+              if (prop === 'viewkind') {
+                if (objview[prop] === 'Object') {
+                  objview['group'] = "";
+                  objview['isGroup'] = false;
+                } else if (objview[prop] === 'Container') {
+                  objview['isGroup'] = true;
+                }
+              }
               if (prop === 'group') continue;
               if (prop === 'isGroup') continue;
               try {
                 objview[prop] = selObj[prop];
               } catch {}
-              if (debug) console.log('803 prop, objview', prop, objview);
+              if (debug) console.log('870 prop, objview', prop, objview);
               myMetis.addObjectView(objview);
             }
             const obj = objview.object;
@@ -868,35 +876,44 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const node = myDiagram.findNodeForKey(sel.data.key);
           if (node) {
             const data = node.data;
-            if (debug) console.log('859 objview, data, node', objview, data, node);
-            if (debug) console.log('861 model', myDiagram.model);
+            myDiagram.model.setDataProperty(node, "groupable", objview.isGroup);
+            if (debug) console.log('879 objview, data, node', objview, data, node);
+            if (debug) console.log('880 model', myDiagram.model);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'template' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'geometry' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'figure' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'fillcolor' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'fillcolor2' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'strokecolor' && objview[prop] !== "")
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'strokecolor2' && objview[prop] !== "")
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'strokewidth' && objview[prop] !== "")
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-                if (prop === 'textcolor' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
-              if (prop === 'textscale' && objview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'viewkind' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'template' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'geometry' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'figure' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'fillcolor' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'fillcolor2' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'strokecolor' && objview[prop] !== "")
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'strokecolor2' && objview[prop] !== "")
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'strokewidth' && objview[prop] !== "")
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                  if (prop === 'textcolor' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'textscale' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
             }
-            if (debug) console.log('806 data', data);
+            if (debug) console.log('906 node, data', node, data);
           }
           myDiagram.requestUpdate;
-        })
+          // Do dispatch
+          const jsnObjview = new jsn.jsnObjectView(objview);
+          let data = JSON.parse(JSON.stringify(jsnObjview));
+          if (debug) console.log('912 jsnObjview, data', jsnObjview, data);
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+          return;
+      })
       break;
     }
     case "selectDropdown": {

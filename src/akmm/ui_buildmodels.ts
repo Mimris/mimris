@@ -272,9 +272,6 @@ let includeNoType = false;
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
           if (debug) console.log('274 objview:', objview);
-          if (objtype?.viewkind === constants.viewkinds.CONT) {
-            objview.viewkind = constants.viewkinds.CONT;
-          }
           if (!includeDeleted && objview.markedAsDeleted)
             continue;
           if (!includeNoObject && !objview.object)
@@ -282,6 +279,7 @@ let includeNoType = false;
           if (!includeNoType && !objview.object?.type)
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
+          node.scale = objview.scale1;
           if (debug) console.log('285 node', node);
           if (node.template === "")
             node.template = 'textAndIcon';
@@ -309,7 +307,7 @@ let includeNoType = false;
           node.name = objview.name;
           myGoModel.addNode(node);
       }
-      if (debug) console.log('312 myGoModel', myGoModel);
+      if (!debug) console.log('312 myGoModel', myGoModel);
     }
     // load relship views
     const relshipviews = [];
@@ -390,7 +388,7 @@ let includeNoType = false;
             link.strokecolor = relcolor;
             link.strokewidth = "1";
           }
-          if (debug) console.log('393 link, relview:', link, relview);
+          if (!debug) console.log('393 link, relview:', link, relview);
           if (debug) console.log('394 GenGojsModel: props', props);
           myGoModel.addLink(link);
         }

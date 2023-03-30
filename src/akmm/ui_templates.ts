@@ -2238,7 +2238,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 },
             },
             {
-                background: "transparent",
                 ungroupable: true,
                 // highlight when dragging into the Group
                 mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
@@ -2248,15 +2247,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 // if it fails, cancel the tool, rolling back any changes
                 // mouseDrop: finishDrop,
                 handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-                // Groups containing Nodes lay out their members vertically
-                //layout: $(go.TreeLayout)
             },
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("background", "isHighlighted",
             function (h) {
                 return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is the background of all
                 }).ofObject(),
-            {
+            { // Tooltip
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
@@ -2272,7 +2269,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             $(go.Shape, "RoundedRectangle", // surrounds everything
                 {
                     cursor: "alias",
-                    fill: "transparent", 
+                    fill: "white", 
                     shadowVisible: true,
                     minSize: new go.Size(150,75),
                     portId: "", 
@@ -2300,10 +2297,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         {
                             font: "Bold 16pt Sans-Serif",
                             margin: new go.Margin(4, 0, 0, 2),
-                            editable: true, isMultiline: false,
+                            editable: true, 
+                            isMultiline: false,
                             name: "name"
                         },
-                        new go.Binding("fill", "fillcolor"),
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "textcolor").makeTwoWay()
                         ),
@@ -2323,10 +2320,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         fill: "white",
                         opacity: 0.95,
                         minSize: new go.Size(200, 100), 
-                        // desiredSize: new go.Size(300, 200),
                         margin: new go.Margin(0, 1, 1, 4),
                         cursor: "move",
                     },
+                    new go.Binding("fill", "fillcolor2"),
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
                     new go.Binding("isSubGraphExpanded").makeTwoWay(),    
                 )        
@@ -2341,8 +2338,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Auto",
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("visible"),
-        { contextMenu: contextMenu },
         {
+            contextMenu: contextMenu,
             resizable: true, 
             resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             selectionObjectName: "SHAPE",  // selecting a custom part also selects the shape
@@ -2350,30 +2347,30 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 let shp = grp.resizeObject;
                 if (grp.diagram.undoManager.isUndoingRedoing) return;
                 if (grp.isSubGraphExpanded) {
-                    shp.fill = "lightyellow";
+                    grp.category = "EXPANDED";
+                    shp.fill = "white";
                 } else {
-                    shp.fill = "transparent";
+                    shp.fill = "white";
                 }
             },
         },
         {
-        background: "transparent",
-        ungroupable: true,
-        // highlight when dragging into the Group
-        mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
-        mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
-        computesBoundsAfterDrag: true,
-        // when the selection is dropped into a Group, add the selected Parts into that Group;
-        // if it fails, cancel the tool, rolling back any changes
-        // mouseDrop: finishDrop,
-        handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+            ungroupable: true,
+            // highlight when dragging into the Group
+            mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
+            mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
+            computesBoundsAfterDrag: true,
+            // when the selection is dropped into a Group, add the selected Parts into that Group;
+            // if it fails, cancel the tool, rolling back any changes
+            // mouseDrop: finishDrop,
+            handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
         },
         new go.Binding("scale", "scale1").makeTwoWay(),
         new go.Binding("background", "isHighlighted", 
             function(h) { 
                 return h ? "rgba(255,0,0,0.2)" : "transparent"; 
             }).ofObject(),
-        {
+        {  // Tooltip
         toolTip:
             $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "lightyellow" }),
@@ -2389,7 +2386,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
                 cursor: "alias",
-                fill: "transparent", 
+                fill: "white", 
                 shadowVisible: true,
                 minSize: new go.Size(150, 75),
                 portId: "", 
@@ -2408,36 +2405,37 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             $(go.Panel, "Horizontal",  // the header
               { defaultAlignment: go.Spot.Top },
               $("SubGraphExpanderButton",
-              {margin: new go.Margin(1, 2, 1, 4),
-              scale: 1.5},
-              // {margin: new go.Margin(4, 0, 0, 4)},
-            ),  // this Panel acts as a Button
+                {margin: new go.Margin(1, 2, 1, 4),
+                scale: 1.5},
+                // {margin: new go.Margin(4, 0, 0, 4)},
+                ),  // this Panel acts as a Button
 
             $(go.TextBlock,     // group title near top, next to button
                 { 
                     font: "Bold 16pt Sans-Serif",
                     margin: new go.Margin(4, 0, 0, 2),
-                    editable: true, isMultiline: false,
+                    editable: true, 
+                    isMultiline: false,
                     name: "name"
                 },
-                new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
                 new go.Binding("stroke", "textcolor").makeTwoWay()
                 ),
             ), // End Horizontal Panel
             
             $(go.Shape,  // using a Shape instead of a Placeholder
-              { 
-                name: "SHAPE",
-                fill: "lightyellow", 
-                opacity: 0.95,
-                minSize: new go.Size(150, 75),
-                margin: new go.Margin(0, 1, 1, 4),
-                cursor: "move",
-            },
-              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-              new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-              )
+                { 
+                    name: "SHAPE",
+                    fill: "lightyellow", 
+                    opacity: 0.95,
+                    minSize: new go.Size(150, 75),
+                    margin: new go.Margin(0, 1, 1, 4),
+                    cursor: "move",
+                },
+                new go.Binding("fill", "fillcolor2"),
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+                new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+            )
           )
         )
         groupTemplateMap.add("Container2", groupTemplate2);

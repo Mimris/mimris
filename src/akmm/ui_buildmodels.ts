@@ -307,7 +307,7 @@ let includeNoType = false;
           node.name = objview.name;
           myGoModel.addNode(node);
       }
-      if (!debug) console.log('312 myGoModel', myGoModel);
+      if (debug) console.log('312 myGoModel', myGoModel);
     }
     // load relship views
     const relshipviews = [];
@@ -388,7 +388,7 @@ let includeNoType = false;
             link.strokecolor = relcolor;
             link.strokewidth = "1";
           }
-          if (!debug) console.log('393 link, relview:', link, relview);
+          if (debug) console.log('393 link, relview:', link, relview);
           if (debug) console.log('394 GenGojsModel: props', props);
           myGoModel.addLink(link);
         }

@@ -1063,7 +1063,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
           const sel = e.subject.part;
           let data = sel.data;
-          if (debug) console.log('1019 selected', data, sel);
+          if (!debug) console.log('1066 selected', data, sel);
           if (data.objectview?.id) {
             const payload = data // JSON.parse(JSON.stringify(data));
             const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
@@ -1076,7 +1076,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = sel.memberParts; it?.next();) {
               let n = it.value;
               if (!(n instanceof go.Node)) continue;
-              if (debug) console.log('1023 n', n.data);
+              if (!debug) console.log('1079 n', n.data);
           }
         }
         break;
@@ -1310,7 +1310,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
-        if (!debug) console.log('1272 link', link.data, link.fromNode, link.toNode);
+        if (debug) console.log('1272 link', link.data, link.fromNode, link.toNode);
 
         if (false) { // Prepare for linkToLink
           if (linkToLink) {
@@ -1408,7 +1408,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let link = e.subject; 
         link = myDiagram.findLinkForKey(link.key);
         const data = link.data;
-        if (!debug) console.log('1370 link, data', link, data);
+        if (debug) console.log('1370 link, data', link, data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
@@ -1445,7 +1445,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = (mn) && mn
         if (mn.id) {
           data = JSON.parse(JSON.stringify(data));
-          if (!debug) console.log('1449 UPDATE_OBJECTVIEW_PROPERTIES', mn, data)
+          if (debug) console.log('1449 UPDATE_OBJECTVIEW_PROPERTIES', mn, data)
           context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         }
       })

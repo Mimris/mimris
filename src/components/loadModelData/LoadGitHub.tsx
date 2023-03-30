@@ -64,6 +64,7 @@ const LoadGitHub = (props: any) => {
 
   useEffect(() => {
     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
+    loadModels(usernameText, pathText)
   }, [])
 
   const onUsernameChange = (text) => {
@@ -222,17 +223,20 @@ const LoadGitHub = (props: any) => {
     // setBranchText('')
     if (usernameText?.length > 0) {
       loadRepos(repoText, pathText);
+      loadModels(usernameText, pathText)
     }
   }, [(modal)]);
 
   useEffect(() => {
-    setModels([]);
-    setDirs([]);
+    // setModels([]);
+    // setDirs([]);
     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
+    loadModels(usernameText, pathText)
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {
     if (debug) console.log('170 useEffect 3', model)
+    loadModels(usernameText, pathText)
     const  refres = () => {
       setRefresh(!refresh)
     }
@@ -265,81 +269,81 @@ const LoadGitHub = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 ">
-        <div className="bg-light" >
-            
-          <div className="bg-light square border border-2 border-success p-1" ><strong>Download from a list of Models:</strong>
+          <div className="bg-light" >
+              
+            <div className="bg-light square border border-2 border-success p-1 " ><strong>Download from a list of Models:</strong>
 
-            {/* ----Repository user name input------------------------------- */}
-            <TextInput label="RepoOwner:" value={usernameText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
-            {/* {loading ? 'Loading...' : 
-              <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
-            } */}
-            {/* ----- Searching repos -------------------------------- */}
-            {/* <div className="w-100 mt-1 text-secondary"> {githubLink} </div> */}
-            <hr className="bg-primary my-1 mx-4" />
-            {loading ? 'Loading...' :  <div className="text-success m-1" > {repos.map((repo) => ( <span className="px-1" key={repo.id} > {repo.full_name}, </span> ))}  </div>  }
+              {/* ----Repository user name input------------------------------- */}
+              <TextInput label="RepoOwner:" value={usernameText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
+              {/* {loading ? 'Loading...' : 
+                <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
+              } */}
+              {/* ----- Searching repos -------------------------------- */}
+              {/* <div className="w-100 mt-1 text-secondary"> {githubLink} </div> */}
+              <hr className="bg-primary my-1 mx-4" />
+              {loading ? 'Loading...' :  <div className="text-success m-1" > {repos.map((repo) => ( <span className="px-1" key={repo.id} > {repo.full_name}, </span> ))}  </div>  }
 
-            {/* ----- Repository name input ----------------------------------- */}
-            <span className=""><TextInput label="Repository:" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name:" /> </span>
-            <hr className="bg-primary my-2 mx-4" />
+              {/* ----- Repository name input ------------------------------ */}
+              <span ><TextInput  label="Repository:" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name:" /> </span>
+              <hr className="bg-primary my-2 mx-4" />
 
-            {/* ----- Model Path input ------------------------------------ */}
-            {(dirs?.length > 0) 
-              ? <div >Model paths (folders) found: <span className="text-success m-1"> {dirs?.map((dir) => ( <span className="px-1" key={dir.name} >{dir.name}, </span> ))}</span> </div> 
-              : (!pathText) && <div className='text-warning'> 'No model paths (folders) found!'</div>
-            } 
-            <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
-            <hr className="bg-light my-1 mx-4" />
+              {/* ----- Model Path input ---------------------------------- */}
+              {(dirs?.length !== 0) 
+                ? <div >Model paths (folders) found: (blank out the Path content and return, to see alternative paths)<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
+                : (!pathText) && <div className='text-warning'> 'No model paths (folders) found!'</div>
+              } 
+              <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
+              <hr className="bg-light my-1 mx-4" />
 
-            {/* -------- Select model ------------------------------------ */}
-            <Button className="btn-primary text-white border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
-            {(models?.length > 0) 
-              ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
-              : <div className='text-warning'> 'No models found!'</div>
-            } 
-            <hr className="bg-primary px-10 my-1 mx-4" />
-            <label className="w-70 d-inline-flex justify-content-left"> 
-              <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
-            </label>
-              <span className="p-5">
-                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-right " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
-              </Button>
-            </span>
-            {/* -------------------------------------------------------- */}
-  
-            {/* <hr /> */}
-            {/* {loading ? 'Loading...' : (models?.length > 0) 
-              ? <div>Models found:
-                {models?.map((mod) => (
-                  <li key={mod.name} >{mod.name}</li>
-                ))} </div> 
-              : 'No models found!'} */}
+              {/* -------- Select model ----------------------------------- */}
+              <Button className="btn-primary text-white border-success float-right mt-2 mb-2 pb-0 w-100" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
+              {(models?.length > 0) 
+                ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
+                : <div className='text-warning'> 'No models found!'</div>
+              } 
+              <hr className="bg-primary px-10 my-1 mx-4" />
+              <label className=" d-inline-flex justify-content-left"> 
+                <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
+              </label>
+                <span className="p-5">
+                  <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-right " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                  title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+                </Button>
+              </span>
+              {/* -------------------------------------------------------- */}
+    
+              {/* <hr /> */}
+              {/* {loading ? 'Loading...' : (models?.length > 0) 
+                ? <div>Models found:
+                  {models?.map((mod) => (
+                    <li key={mod.name} >{mod.name}</li>
+                  ))} </div> 
+                : 'No models found!'} */}
 
             </div>
 
-             {/* <hr className="bg-primary m-2" />
-             {/* ----- Branch input default main ------------------------------------ */}
-             
-             {/* <div className="square border border-2 border-white p-1"><strong>Download a patch:</strong> (RepoOwner, Repository and Path must be filled in above)<br />
-              <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
-             </div> */}
-          <hr className="bg-secondary py-1 my-1 mx-4" />
-          <div className="bg-light square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
-            <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
-              <button 
-                className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
-                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-                onClick={handleSaveAllToFile}>Save
-              </button >
-              <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
-            </div>
-              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
-              <div className=" text-secondary">{githubLink} </div>
-            </div>
-          <hr className="bg-primary my-1 mx-0" />
-        </div>
+              {/* <hr className="bg-primary m-2" />
+              {/* ----- Branch input default main ------------------------------------ */}
+              
+              {/* <div className="square border border-2 border-white p-1"><strong>Download a patch:</strong> (RepoOwner, Repository and Path must be filled in above)<br />
+                <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
+              </div> */}
+            <hr className="bg-secondary py-1 my-1 mx-4" />
+            <div className="bg-light square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
+              <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
+                <button 
+                  className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                  title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                  onClick={handleSaveAllToFile}>Save
+                </button >
+                <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
+              </div>
+                <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
+                <div className=" text-secondary">{githubLink} </div>
+              </div>
+            <hr className="bg-primary my-1 mx-0" />
+          </div>
         </ModalBody>
       </Modal>
     </>

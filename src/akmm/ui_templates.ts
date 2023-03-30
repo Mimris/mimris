@@ -977,8 +977,17 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             ),
 
             $(go.Panel, "Table", // Panel for text and icon ------------------------
-                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-                $(go.RowColumnDefinition, { column: 1, width: 4 }),
+                { 
+                    defaultAlignment: go.Spot.Left, 
+                    margin: 2, 
+                    cursor: "move" 
+                },
+                $(go.RowColumnDefinition, 
+                    { 
+                        column: 1, 
+                        width: 4 
+                    }
+                ),
                 $(go.Panel, "Horizontal",
                     // { margin: new go.Margin(10, 10, 10, 10) },
                     {
@@ -986,31 +995,40 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     },
                     // comment out icon start
                     $(go.Panel, "Vertical", // Panel for Icon  ------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
-                        $(go.Panel, "Spot", // icon area
-                        { contextMenu: contextMenu , cursor: "move" },    
-                        $(go.Shape, {  // this is the square around the image ---------
-                            fill: "white", stroke: "#ddd", opacity: 0.4,
-                            desiredSize: new go.Size(56, 56), 
-                            margin: new go.Margin(0, 2, 0, 8),
-                            // shadowVisible: true,
+                        { 
+                            contextMenu: contextMenu , 
+                            cursor: "move",
                         },
-                        new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
-                        new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
-                        // new go.Binding("fill", "color"),
-                        new go.Binding("template")),
-                                                            
-                        $(go.Picture,  // the image -------------------------------------
-                            // { contextMenu: partContextMenu },
-                            {
-                                name: "Picture",
-                                desiredSize: new go.Size(48, 48),
-                                // imageStretch: go.GraphObject.Fill,
-                                // margin: new go.Margin(2, 2, 2, 4),
-                                // margin: new go.Margin(4, 4, 4, 4),
-                            },
-                            new go.Binding("source", "icon", findImage)
-                        ),                                
+                        $(go.Panel, "Spot", // icon area
+                            { 
+                                contextMenu: contextMenu , 
+                                cursor: "move",
+                            },    
+                            $(go.Shape, 
+                                {  // this is the square around the image ---------
+                                    fill: "white", 
+                                    stroke: "#ddd", 
+                                    opacity: 0.4,
+                                    desiredSize: new go.Size(56, 56), 
+                                    margin: new go.Margin(0, 2, 0, 8),
+                                    // shadowVisible: true,
+                                },
+                                new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
+                                new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
+                                // new go.Binding("fill", "color"),
+                                new go.Binding("template")
+                            ),                                                                
+                            $(go.Picture,  // the image -------------------------------------
+                                // { contextMenu: partContextMenu },
+                                {
+                                    name: "Picture",
+                                    desiredSize: new go.Size(48, 48),
+                                    // imageStretch: go.GraphObject.Fill,
+                                    // margin: new go.Margin(2, 2, 2, 4),
+                                    // margin: new go.Margin(4, 4, 4, 4),
+                                },
+                                new go.Binding("source", "icon", findImage),
+                            ),                                
                         ),
                     ),
                     // comment out icon stop
@@ -1021,11 +1039,11 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             cursor: "move" 
                         },
                         {
-                        defaultRowSeparatorStroke: "black",
-                        desiredSize: new go.Size(136, 60),
-                        maxSize: new go.Size(136, 66), 
-                        // margin: new go.Margin(2),
-                        defaultAlignment: go.Spot.Center,
+                            defaultRowSeparatorStroke: "black",
+                            desiredSize: new go.Size(136, 60),
+                            maxSize: new go.Size(136, 66), 
+                            // margin: new go.Margin(2),
+                            defaultAlignment: go.Spot.Center,                    
                         },
                         // $(go.RowColumnDefinition, { column: 2, width: 4 }),
                         // content
@@ -1050,7 +1068,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             },        
                             new go.Binding("text", "name").makeTwoWay(),
                             new go.Binding("stroke", "textcolor").makeTwoWay()
-                            ),
+                        ),
                         $(go.TextBlock, textStyle(), // the typename  --------------------
                             {
                                 row: 1, column: 1, columnSpan: 6,
@@ -1058,7 +1076,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 minSize: new go.Size(10, 4),
                                 margin: new go.Margin(0, 0, 0, 2),  
                                 textAlign: "center",
-                                                },
+                            },
                             new go.Binding("text", "typename")
                         ),
                     ),

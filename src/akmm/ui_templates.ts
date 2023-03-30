@@ -2535,7 +2535,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                             {
                                 row: 0, 
                                 column: 0, 
-                                margin: 5, 
+                                margin: new go.Margin(-4, 0, 0, 2),
                                 alignment: go.Spot.Left,
                                 scale: 1.2,
                             },
@@ -2561,7 +2561,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                             { 
                                 row: 0, 
                                 column: 2, 
-                                margin: 5, 
+                                margin: new go.Margin(-4, 4, 0, 2),
                                 desiredSize: new go.Size(25, 25),
                                 alignment: go.Spot.Right,
                             }
@@ -2574,7 +2574,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                             fill: "lightyellow", 
                             opacity: 0.95,
                             minSize: new go.Size(200, 100),
-                            margin: new go.Margin(0, 1, 1, 4),
+                            margin: new go.Margin(0, 10, 10, 10),
                             cursor: "move",
                             stroke: "transparent",
                         },
@@ -2651,11 +2651,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         const groupWithoutPorts =
         $(go.Group, "Spot",
             {
-                contextMenu: contextMenu,
                 resizable: true, 
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "SHAPE",  // selecting a custom part also selects the shape
                 selectionAdorned: false,
+                contextMenu: contextMenu,
             },
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
@@ -2710,7 +2710,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                             {
                                 row: 0, 
                                 column: 0, 
-                                margin: 0, 
+                                margin: new go.Margin(0, 0, 0, 2),
                                 alignment: go.Spot.Left,
                                 scale: 1.2,
                             },
@@ -2736,7 +2736,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         { 
                                 row: 0, 
                                 column: 2, 
-                                margin: 5, 
+                                margin: new go.Margin(0, 4, 0, 2),
                                 desiredSize: new go.Size(25, 25),
                                 alignment: go.Spot.Right,
                             }

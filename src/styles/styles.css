@@ -54,25 +54,23 @@
   background: rgba(255,255,255,0.3);
   /* position modal center of vindow */
   /* position: absolute; */
-  position: calc(50% - 10px);
-  width: 98%;
+  position: calc(50% - 30px);
+  width: 99%;
   top: 50%;
-  left: 50%;
+  left: 40%;
   transform: translate(-50%, -50%);
   /* display: flex; 
   flex-direction: column;
   align-items: stretch; 
   justify-content: left;  */
-  /* position: relative; 
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); */
-
-
 }
 .modal-dialog {
   background-color: transparent;
   margin: auto;
+    /* max-width: var(--bs-modal-width); */
+  margin-right: auto; 
+  margin-left: auto; 
+
   /* margin-top: 45%; */
   /* border: 1px solid rgba(255,255,255,0.7); */
   /* padding: 4px; */
@@ -110,7 +108,7 @@
   /* border-radius: 10px; */
   /* border: 1px solid rgba(255,255,255,1); */
 
-  position: calc(50% - 10px);
+  position: calc(50% - 30px);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   /* display: block; */
@@ -119,7 +117,7 @@
   width: max-content;
   /* max-width: 10; */
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   /* align-items: center; */
   justify-content: center;
   /* justify-content: space-evenly; */

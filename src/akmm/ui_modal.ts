@@ -1115,10 +1115,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
           });
-          // if (!node.isGroup) {
-            uit.addPort(port, myDiagram)
-            myDiagram.requestUpdate();
-          // }
+          uit.addPort(port, myDiagram)
+          myDiagram.requestUpdate();
         }
       }
     }
@@ -1308,8 +1306,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               myDiagram.model.setDataProperty(data, prop, selObj[prop]);
             }
           }
-          if (debug) console.log('1047 typeview', typeview, data);
+          if (debug) console.log('1309 typeview', typeview, data);
           myMetamodel.addRelationshipTypeView(typeview);
+          myMetis.addRelationshipTypeView(typeview);
+          const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
+          if (!debug) console.log('1313 jsnReltypeview', jsnReltypeview);
+          modifiedRelTypeviews.push(jsnReltypeview);
+          modifiedRelTypeviews.map(mn => {
+            let data = mn;
+            myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+          })
         }
         myDiagram.clearSelection();
       }

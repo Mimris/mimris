@@ -1400,6 +1400,14 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     new go.Binding('fill', 'fillcolor'),
                     new go.Binding("stroke", "strokecolor"),
                 ),
+                $(go.Shape, "RoundedRectangle",
+                    {
+                        cursor: "move",
+                        fill: "transparent", 
+                        stroke: "transparent", 
+                        desiredSize: new go.Size(110, 40),
+                    },
+                ),
                 $(go.TextBlock,
                     { 
                         cursor: "move",
@@ -1514,6 +1522,14 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     new go.Binding('fill', 'fillcolor'),
                     new go.Binding("stroke", "strokecolor"),
                 ),
+                $(go.Shape, "RoundedRectangle",
+                    {
+                        cursor: "move",
+                        fill: "transparent", 
+                        stroke: "transparent", 
+                        desiredSize: new go.Size(110, 40),
+                    },
+                ),
                 $(go.TextBlock,
                     { 
                         cursor: "move",
@@ -1524,7 +1540,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         editable: true, 
                         isMultiline: true,  // don't allow newlines in text
                     },
-                new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("text", "name").makeTwoWay(),
                 )
             ),  // end Auto Panel body
         )    

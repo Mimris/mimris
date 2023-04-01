@@ -1000,13 +1000,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               const obj = myMetis.findObject(part.id);
             }
             if (isLabel) part.text = 'label';
-            if (debug) console.log('949 part', part);
+            if (!debug) console.log('949 part', part);
             if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('952 myMetis', myMetis);
             const objview = uic.createObject(part, context);
             if (debug) console.log('954 myMetis', myMetis);
-            if (debug) console.log('955 part, objview', part, objview);
+            if (!debug) console.log('955 part, objview', part, objview);
             if (objview) {
               const object = objview.object;
               object.name = part.name;

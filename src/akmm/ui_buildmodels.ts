@@ -530,11 +530,15 @@ let includeNoType = false;
             if (!strokewidth)
               strokewidth = "1";
           if (link.loadLinkContent()) {
+              let routing = reltype.typeview.routing;
+              if (!routing || routing === "Normal")
+                link.routing = metamodel.routing;
+              let linkcurve = reltype.typeview.linkcurve;
+              if (linkcurve || linkcurve === "None")
+                link.curve = metamodel.linkcurve;
               link.relshipkind = reltype.relshipkind;
               link.strokewidth = strokewidth;
               link.strokecolor = strokecolor;
-              link.routing = metamodel.routing;
-              link.curve = metamodel.linkcurve;
               link.category = constants.gojs.C_RELSHIPTYPE;
               if (debug) console.log('541 link', link.name, link);
               myGoMetamodel.addLink(link);

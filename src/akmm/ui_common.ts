@@ -1124,7 +1124,6 @@ export function createRelationship(data: any, context: any) {
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
-    const myModel = context.myModel;
     const myModelview = context.myModelview;
     const fromNode = myGoModel.findNode(data.from);
     if (debug) console.log('980 myMetis', myMetis);
@@ -1135,9 +1134,6 @@ export function createRelationship(data: any, context: any) {
     let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
     const toPort = data.toPort;
     if (debug) console.log('985 createRelationship', myGoModel, fromNode, toNode);
-    const fromObj = fromNode?.object;
-    const toObj = toNode?.object;
-    let typename = constants.types.AKM_GENERIC_REL;
     let reltype;
     if (!reltype) {
         let fromType = fromNode?.objecttype;
@@ -1209,7 +1205,6 @@ export function createRelationship(data: any, context: any) {
                     portTo: toPort,
                 } 
                 if (debug) console.log('1218 args', args);
-                // myDiagram.model.setDataProperty(data, "name", typename);
                 context.handleOpenModal(choices, modalContext);
                 if (debug) console.log('1221 modalContext', modalContext);                
             }

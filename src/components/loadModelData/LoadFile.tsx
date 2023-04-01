@@ -198,7 +198,7 @@ const LoadFile = (props: any) => {
       <button className="btn px-2 bg-light text-secondary" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
-        <ModalBody className="pt-0">
+        <ModalBody className="pt-0 d-flex flex-column">
           Current Source: <strong> {props.ph.phSource}</strong>
           <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div>

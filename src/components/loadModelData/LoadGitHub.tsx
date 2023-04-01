@@ -268,7 +268,7 @@ const LoadGitHub = (props: any) => {
       <span><button className="btn " onClick={toggle}>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
-        <ModalBody className="pl-1 pt-1 ">
+        <ModalBody className="pl-1 pt-1 d-flex flex-column">
           <div className="bg-light" >
               
             <div className="bg-light square border border-2 border-success p-1 " ><strong>Download from a list of Models:</strong>

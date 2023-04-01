@@ -154,14 +154,14 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
             <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>
               {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
                 {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
-            <ModalBody className="pt-0">
+            <ModalBody className="pt-0 d-flex flex-column">
               Current Source: <strong> {props.ph.phSource}</strong>
               <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
               <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
               <div className="source bg-light p-2 ">
                 <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
        
-                <div className="loadsave--JsonToFile select bg-primary mb-1 p-2  border border-dark">
+                <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
                     {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                     <h5>AKM objecttypes</h5>
                     <div className="selectbox3 mb-2 border">

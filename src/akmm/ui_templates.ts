@@ -256,6 +256,66 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     );
 }
 
+function getGeoFigure(figure: string): string {
+    let geometry = "";
+    switch(figure) {
+        case 'Actor':
+            geometry = "F1 m 0,0 l 6,0 0,-8  2,0  -5,-4  -5,4 2,0 0,8 z";
+            break;
+        case 'Role':
+            geometry = "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z";
+            break;
+        case 'Interface':
+            geometry = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
+            break;
+        case 'Function':
+            geometry = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
+            break;
+        case 'Process':
+            geometry = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
+            break;
+    }
+    console.log('278 geometry: ' + geometry);
+    return geometry;
+}
+
+function getColor(color: string): string {
+    return color;
+}
+
+function makeGeoFigure(name: string, figure: string, color: string) {
+    let geometry = getGeoFigure(figure);
+    return $(go.Shape, // a figure (a symbol illustrating what this is all about)
+         
+        new go.Binding("geometryString", "geometry", 
+            function(g) { return getGeoFigure(figure); }),
+        new go.Binding("fill", "fillcolor2", 
+            function(c) { return getColor(color); }),
+        {     
+            row: 0, 
+            column: 2, 
+            margin: new go.Margin(0, 4, 0, 2),
+            desiredSize: new go.Size(25, 25),
+            alignment: go.Spot.Right,
+        }
+    )
+}
+
+function makeGeoIcon(url: string) {
+    console.log('277 url', url);
+    return $(go.Picture,  // the image -------------------------------------
+        new go.Binding("source", "icon", findImage),
+        {
+            name: "Picture",
+            row: 0, 
+            column: 2, 
+            margin: new go.Margin(0, 4, 0, 2),
+            desiredSize: new go.Size(25, 25),
+            alignment: go.Spot.Right,
+        },
+    )                                
+}
+
 export function getNodeTemplateNames() {
     return nodeTemplateNames;
 }
@@ -1019,7 +1079,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 new go.Binding("template")
                             ),                                                                
                             $(go.Picture,  // the image -------------------------------------
-                                // { contextMenu: partContextMenu },
                                 {
                                     name: "Picture",
                                     desiredSize: new go.Size(48, 48),
@@ -2571,17 +2630,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                             new go.Binding("text", "name").makeTwoWay(),
                             new go.Binding("stroke", "textcolor").makeTwoWay()
                         ),
-                        $(go.Shape, // a figure (a symbol illustrating what this is all about)
-                            new go.Binding("geometryString", "geometry"),
-                            new go.Binding("fill", "fillcolor2"),
-                            { 
-                                row: 0, 
-                                column: 2, 
-                                margin: new go.Margin(-4, 4, 0, 2),
-                                desiredSize: new go.Size(25, 25),
-                                alignment: go.Spot.Right,
-                            }
-                        ),
+                        // new go.Binding("source", "icon", findImage),
+                        // makeGeoIcon("source"),
+
+                        makeGeoFigure("BusinessProcess", "Interface", "lightyellow"),
                     ), // End Horizontal Panel
                     
                     $(go.Shape,  // using a Shape instead of a Placeholder
@@ -2600,8 +2652,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 ),
             ),
-            // the Panel holding the left port elements, which are themselves Panels,
-            // created for each item in the itemArray, bound to data.leftArray
+            // the Panel holding the left port elements
             $(go.Panel, "Vertical", 
                 { 
                     // name: "LEFTPORTS", 
@@ -2616,6 +2667,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 },
             ),  // end leftPorts Panel
 
+            // the Panel holding the top port elements
             $(go.Panel, "Horizontal",
                 { 
                     // name: "TOPPORTS", 
@@ -2630,8 +2682,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 }
             ),  // end topPorts Panel
 
-            // the Panel holding the right port elements, which are themselves Panels,
-            // created for each item in the itemArray, bound to data.leftArray
+            // the Panel holding the right port elements
             $(go.Panel, "Vertical", 
             { 
                 // name: "RIGHTPORTS", 
@@ -2646,6 +2697,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 }
             ),  // end rightPorts Panel
 
+            // the Panel holding the bottom port elements
             $(go.Panel, "Horizontal",
                 { 
                     // name: "BOTTOMPORTS", 
@@ -2746,19 +2798,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                             new go.Binding("text", "name").makeTwoWay(),
                             new go.Binding("stroke", "textcolor").makeTwoWay()
                         ),
-                        $(go.Shape, // a figure (a symbol illustrating what this is all about)
-                        new go.Binding("geometryString", "geometry"),
-                        new go.Binding("fill", "fillcolor2"),
-                        { 
-                                row: 0, 
-                                column: 2, 
-                                margin: new go.Margin(0, 4, 0, 2),
-                                desiredSize: new go.Size(25, 25),
-                                alignment: go.Spot.Right,
-                            }
-                        ),
-                    ), // End Horizontal Panel
-                    
+                        new go.Binding("source", "icon", findImage),
+                        makeGeoIcon("source"),
+                        // End Horizontal Panel
+                    ),
                     $(go.Shape,  // using a Shape instead of a Placeholder
                         { 
                             name: "SHAPE", 

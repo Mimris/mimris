@@ -3211,7 +3211,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
     let relview;
     if (reltypeView) {
         let viewdata: any = reltypeView.getData();
-        if (debug) console.log('3096 data, viewdata', data, viewdata);
+        if (!debug) console.log('3096 data, viewdata', data, viewdata);
         relview = data.relshipview;
         if (relview) {
             for (let prop in viewdata) {
@@ -3233,14 +3233,15 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                     else if (relview[prop] === "None")
                         viewdata[prop] = "";
                 } else if (prop === 'fromArrow') {
-                    if (viewdata[prop] === 'None')
+                    if (viewdata[prop] === 'None') {
                         viewdata[prop] = "";
+                    }
                 } else if (prop === 'strokewidth') {
                     if (relview[prop] === "" || !relview[prop])
                     relview[prop] === "1";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                if (debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
+                if (!debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
             }
         }
     }
@@ -3252,8 +3253,14 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
             diagram.model.setDataProperty(link.data, 'relship', relview.relship);
             diagram.model.setDataProperty(link.data, 'name', relview.name);
             diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
-            diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
+            diagram.model.setDataProperty(link.data, "textcolor", relview.textcolor);
+            diagram.model.setDataProperty(link.data, "strokecolor", relview.strokecolor);
             diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+            diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
+            diagram.model.setDataProperty(link.data, "fromArrow", relview.fromArrow);
+            diagram.model.setDataProperty(link.data, "toArrow", relview.toArrow);
+            diagram.model.setDataProperty(link.data, "fromArrowColor", relview.fromArrowColor);
+            diagram.model.setDataProperty(link.data, "toArrowColor", relview.toArrowColor);
         }
     }
 } 

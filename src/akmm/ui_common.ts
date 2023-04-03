@@ -1618,6 +1618,8 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 currentRelshipView['dash']        = reltypeview['dash'];
                 currentRelshipView['fromArrow']   = reltypeview['fromArrow'];
                 currentRelshipView['toArrow']     = reltypeview['toArrow'];
+                currentRelshipView['fromArrowColor'] = reltypeview['fromArrowColor'];
+                currentRelshipView['toArrowColor']   = reltypeview['toArrowColor'];
                 updateLink(data, reltypeview, myDiagram, myGoMetamodel);
                 myDiagram.model.setDataProperty(data, 'name', name);
                 const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
@@ -3239,6 +3241,12 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 } else if (prop === 'strokewidth') {
                     if (relview[prop] === "" || !relview[prop])
                     relview[prop] === "1";
+                } else if (prop === 'fromArrowColor') {
+                    if (relview[prop] === "" || !relview[prop])
+                    relview[prop] === "white";
+                } else if (prop === 'toArrowColor') {
+                    if (relview[prop] === "" || !relview[prop])
+                    relview[prop] === "white";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
                 if (!debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);

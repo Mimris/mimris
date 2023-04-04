@@ -33,20 +33,14 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
             name: "Modeller 1",
             tasks: [
                 {
-                    id: "AKM-IRTV-POPS++_MM",
-                    name: "IRTV-POPS++ Modelling",
-                    description: "Modelling with AKM-IRTV-POPS++ objects",
+                    id: "Process",
+                    name: "Process Modelling",
+                    description: "Modelling with AKM-IRTV-POPS Process objects",
                     workOnTypes: [
                     "Container",   
                     "Information",
-                    "Role",
-                    "Task",
-                    "View",
                     "Label",
-                    "Product",
-                    "Organisation",
                     "Process",
-                    "System",
                     "Activity",
                     "ParrallelGate",
                     "ExclusiveGate",
@@ -54,7 +48,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     "Gateway",
                     "Start",
                     "End",
-                    "EntityType",
                     ]
                 },
                 {
@@ -231,8 +224,8 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const foundRole = datarole?.focusRole // hardcode for now
 
     const foundMMTask = foundRole?.tasks?.find(t =>  t.id === mmodel.name && t) || null
-    const foundPOPSTask = (!foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t =>  (mmodel.name.includes("POPS")) && t) || null
-    const foundPOPSTask2 = (foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t =>  (t.name === 'AKM-IRTV-POPS_MM') && t) || null
+    const foundPOPSTask = (foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t =>  (t.name === 'AKM-IRTV-POPS_MM') && t) || null
+    const foundProcessTask = (foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t => (t.id === 'Process') && t) || null
     const foundIRTVTask =  (!foundMMTask?.id.includes("IRTV")) && foundRole?.tasks?.find(t =>  ((mmodel.name.includes("IRTV")) || (mmodel.id.includes("Role"))) && t) || null
     const foundPropertyObj = mmodel.objecttypes.find(ot => ot.name === "Property") || null
     const foundPropertyTask = (foundPropertyObj) && foundRole?.tasks?.find(t =>  t.id === "Property" && t) || null
@@ -241,12 +234,12 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const foundNewTask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}]) || null
 
     if (!debug) console.log("267 genRoleTasks",  (mmodel.name.includes("POPS")), foundPOPSTask)
-    if (!debug) console.log("269 genRoleTasks",  foundNewTask?.id, foundMMTask?.id, foundIRTVTask?.id, foundPOPSTask?.id, foundPOPSTask2?.id, foundPropertyTask?.id, foundAllTask?.id)
+    if (!debug) console.log("269 genRoleTasks",  foundNewTask?.id, foundMMTask?.id, foundIRTVTask?.id, foundPOPSTask?.id, foundProcessTask?.id, foundPropertyTask?.id, foundAllTask?.id)
 
     // first check if there is new task, if so, use that first and add others thats not null, else use other tasks with the task with the Metamodel name first
     const foundTasks = (foundNewTask.workOnTypes.length > 1) 
-        ? [ foundNewTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPOPSTask2, foundPropertyTask, foundAllTask].filter(Boolean) // sf check this 
-        : [ foundAllTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPOPSTask2, foundPropertyTask].filter(Boolean)
+        ? [ foundNewTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundProcessTask, foundPropertyTask, foundAllTask].filter(Boolean) // sf check this 
+        : [ foundAllTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundProcessTask, foundPropertyTask].filter(Boolean)
     
         if (debug) console.log("273 genRoleTasks",  foundTasks )
  

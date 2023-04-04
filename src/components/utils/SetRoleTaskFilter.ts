@@ -38,8 +38,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     description: "Modelling with AKM-IRTV-POPS Process objects",
                     workOnTypes: [
                     "Container",   
-                    "Information",
-                    "Label",
                     "Process",
                     "Activity",
                     "ParrallelGate",
@@ -48,6 +46,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     "Gateway",
                     "Start",
                     "End",
+                    "Label",
                     ]
                 },
                 {
@@ -65,6 +64,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     "Organisation",
                     "Process",
                     "System",   
+                    "Actor",
                     "EntityType",
                     ]
                 },

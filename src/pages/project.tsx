@@ -14,7 +14,7 @@ import SetContext from '../defs/SetContext'
 import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';
-import SelectContext from '../components/SelectContext';
+import SelectContext from '../components/utils/SelectContext';
 import Q from 'q';
 
 const debug = false
@@ -84,6 +84,17 @@ const page = (props: any) => {
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
 
+  const contextDiv = (
+    <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
+      <SetContext className='setContext' ph={props} />
+      <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+        {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
+        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
+        <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
+      </div>
+    </div>
+  )
+
   const projectParamsDiv = 
     <>
       <div className='container' style={{  fontSize: '0.9rem'}}>
@@ -103,6 +114,7 @@ const page = (props: any) => {
         <ProjectForm phFocus={props.phFocus} />
       </div>
     </>
+
   
   return (
     <>
@@ -112,9 +124,7 @@ const page = (props: any) => {
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-              <div className="focusarea d-flex " style={{backgroundColor: "#cdd", maxHeight: "24px"}}> 
-                <SetContext className='setContext' ph={props} />
-              </div> 
+              {contextDiv}  
               <div className="workplace-focus gap " >
                 <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
                   <h6 className='text-muted pt-2'>Links to Github :</h6>

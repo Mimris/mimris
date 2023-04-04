@@ -10,7 +10,7 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
-import SelectContext from '../components/SelectContext'
+import SelectContext from '../components/utils/SelectContext'
 import TasksHelp from '../components/TasksHelp'
 import useLocalStorage  from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
@@ -102,7 +102,7 @@ const page = (props:any) => {
     <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
       <SetContext className='setContext' ph={props} />
       <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
-        <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link>
+        <Link className="home p-2 m-2 text-primary" href="/context"> Context </Link>
         {/* <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />  */}
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>

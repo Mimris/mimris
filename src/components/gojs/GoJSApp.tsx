@@ -1000,13 +1000,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               const obj = myMetis.findObject(part.id);
             }
             if (isLabel) part.text = 'label';
-            if (!debug) console.log('949 part', part);
+            if (debug) console.log('949 part', part);
             if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('952 myMetis', myMetis);
             const objview = uic.createObject(part, context);
             if (debug) console.log('954 myMetis', myMetis);
-            if (!debug) console.log('955 part, objview', part, objview);
+            if (debug) console.log('955 part, objview', part, objview);
             if (objview) {
               const object = objview.object;
               object.name = part.name;
@@ -1063,7 +1063,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
           const sel = e.subject.part;
           let data = sel.data;
-          if (!debug) console.log('1066 selected', data, sel);
+          if (debug) console.log('1066 selected', data, sel);
           if (data.objectview?.id) {
             const payload = data // JSON.parse(JSON.stringify(data));
             const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
@@ -1076,7 +1076,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = sel.memberParts; it?.next();) {
               let n = it.value;
               if (!(n instanceof go.Node)) continue;
-              if (!debug) console.log('1079 n', n.data);
+              if (debug) console.log('1079 n', n.data);
           }
         }
         break;
@@ -1192,11 +1192,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myNode = myFromNodes[i];
             if (myNode.key.substr(0,36) === node.key.substr(0,36)) {
               fromNode = myNode;
-              const fromObjview = myMetis.findObjectView(fromNode.objviewid);
-              fromObjview.loc = myNode.loc.valueOf();
-              if (debug) console.log('1156 fromNode, fromObjview', fromNode, fromObjview);
-              const jsnObjview = new jsn.jsnObjectView(fromObjview);
-              modifiedNodes.push(jsnObjview);
               break;
             }
           }
@@ -1253,13 +1248,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('1212 jsnObjview', jsnObjview);
             const jsnObj = new jsn.jsnObject(objview.object);
             modifiedObjects.push(jsnObj);
-            if (debug) console.log('1215 ClipboardPasted', modifiedObjects);
           }
         }
+        if (debug) console.log('1215 modifiedNodes', modifiedNodes);
         
         if (debug) console.log('1219 myFromNodes, myToNodes', myFromNodes, myToNodes);
         if (debug) console.log('1220 pastedNodes', pastedNodes);
-        if (debug) console.log('1221 ClipboardPasted', context.myGoModel);
+        if (debug) console.log('1221 myGoModel', context.myGoModel);
         const it1 = selection.iterator;
         // Then handle the relationships
         while (it1.next()) {

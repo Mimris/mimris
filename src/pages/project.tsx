@@ -16,27 +16,30 @@ import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';
 import SelectContext from '../components/utils/SelectContext';
 import Q from 'q';
+import HeaderButtons from '../components/utils/HeaderButtons';
 
 const debug = false
 
 const page = (props: any) => {
+
+  // if (typeof window === 'undefined') return <></>
     
   const dispatch = useDispatch()  
-  
+  const [refresh, setRefresh] = useState(false)
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   
-  if (debug) console.log('28 project',props, query)
+  if (!debug) console.log('28 project',props, query)
 
   // list query params
-  const org = props.phFocus.focusProj.org
-  const repo = props.phFocus.focusProj.repo
-  const path = props.phFocus.focusProj.path
-  const file = props.phFocus.focusProj.file
-  const branch = props.phFocus.focusProj.branch
-  const focus = props.phFocus
-  const ghtype = 'file'
+  let org = props.phFocus.focusProj.org
+  let repo = props.phFocus.focusProj.repo
+  let path = props.phFocus.focusProj.path
+  let file = props.phFocus.focusProj.file
+  let branch = props.phFocus.focusProj.branch
+  let focus = null //props.phFocus
+  let ghtype = 'file'
 
-  console.log('39 ', )
+  console.log('39 project', query, org, repo, path, file, branch, focus, ghtype, props ) 
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -49,6 +52,44 @@ const page = (props: any) => {
   const [issues, setIssues] = useState([]);
   const [collabs, setCollabs] = useState([]);
   const [error, setError] = useState(null);
+
+  function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
+    // if (debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    // GenGojsModel(props, dispatch)
+    // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+    }, 100);
+    return () => clearTimeout(timer);
+  } 
+
+
+  useEffect(() => {
+    if (query.repo) {
+      org = query.org
+      repo = query.repo
+      path = query.path
+      file = query.file
+      branch = query.branch
+      focus = query.focus
+      ghtype = query.ghtype
+      if (!debug) console.log('33 modelling dispatchGithub', query, props)  
+      dispatch({type: 'LOAD_DATAGITHUB', data: query })
+      const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
+      if (!debug) console.log('49 GithubParams', data)
+      dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+      const org1 = {id: org, name: org}
+      dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+      const repo1 = {id: 'role', name: ''}
+      dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
+    } 
+    const timer = setTimeout(() => {
+    if (!debug) console.log('73 GithubParams', org, repo, path, file, branch, focus, ghtype)
+    //   dispatch({type: 'SET_REFRESH', data: {refresh: true} })
+    // setRefresh(!refresh)
+  }, 1000);
+  return () => clearTimeout(timer);
+}, [query.repo])
 
   useEffect(() => {
 
@@ -81,6 +122,28 @@ const page = (props: any) => {
     }
   }, [props.phFocus.focusProj.org]);
 
+  useEffect(() => {
+
+    if (!debug) console.log('54 modelling dispatchGithub', query, props.phFocus.focusProj)
+    org = props.phFocus?.focusProj.org || prompt("Organisation?");
+    repo = props.phFocus?.focusProj.repo || prompt("Repo?");
+    path = props.phFocus?.focusProj.path || prompt("path?");
+    file = props.phFocus?.focusProj.file || prompt("file?");
+    branch = props.phFocus?.focusProj.branch || prompt("branch? (main)");
+    // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
+    // if (!ghtype) ghtype = prompt("ghtype?");
+    if (!debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
+    // dispatch({type: 'SET_FOCUS_PROJ', data: {org: org, repo: repo, path: path, file: file, branch: branch, focus: focus, ghtype: ghtype} })
+    const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
+    if (!debug) console.log('65 GithubParams', data)
+    dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+    const org1 = {id: org, name: org}
+    dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+    const repo1 = {id: 'role', name: ''}
+    dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
+  
+  }, [!query.repo]);
+
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
 
@@ -95,12 +158,13 @@ const page = (props: any) => {
     </div>
   )
 
-  const projectParamsDiv = 
+  const projectParamsDiv =// (props.phFocus?.focusProj?.org) &&  // top of page
     <>
       <div className='container' style={{  fontSize: '0.9rem'}}>
         {/* <div className="m-5"> */}
           {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-          <GithubParams ph={props} query={query} />  
+          ccc{props.phFocus?.focusProj?.name}aaa
+          <GithubParams phFocus={props.phFocus} />  
           <h5>Initial Startup model loaded !</h5> 
         {/* </div> */}
       </div>
@@ -120,12 +184,15 @@ const page = (props: any) => {
     <>
       <Layout user={props.phUser?.focusUser} >
         <div id="index" >
-          <div className="wrapper m-1 pr-2 ">
+          <div className="wrapper m-1 pr-2 d-flex flex-column" style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-              {contextDiv}  
+                {contextDiv}  
+                {/* <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} /> */}
+    
               <div className="workplace-focus gap " >
+                
                 <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
                   <h6 className='text-muted pt-2'>Links to Github :</h6>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
@@ -153,7 +220,7 @@ const page = (props: any) => {
                     {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                   </div>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                    <div className='text-muted'>Folder :</div>
+                    <div className='text-muted'>Path :</div>
                       {(repo) 
                         ? (path) 
                           ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
@@ -176,8 +243,9 @@ const page = (props: any) => {
                     ))}
                   </div> */}
                 </div>
+                {/* List the modelling params and link to modelling page */}
                 <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
-                    {projectParamsDiv }
+                    {projectParamsDiv}
                       {/* <div className=" d-flex justify-content-around "> */}
                         {/* <div className="rounded bg-light m-2 p-2">
                           <button className='rounded mt-2 px-2 m-2 '>
@@ -202,6 +270,7 @@ const page = (props: any) => {
                     </div>
                     {projectFormDiv}     
                 </div>
+                {/* Listing GitHub Issues */}
                 <div className="aside-right fs-4 " style={{minWidth: "20rem"}}>
                   <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
                   {(issues.length > 0) && issues.map((issue) => (

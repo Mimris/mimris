@@ -1,7 +1,9 @@
 import React, { useContext } from 'react'
+import Link from 'next/link'
 import { connect, useDispatch } from 'react-redux'
 import Layout from '../components/Layout'
 import Context from "../components/Context"
+import SetContext from '../defs/SetContext'
 
 
 const page = (props) => {
@@ -15,7 +17,15 @@ const page = (props) => {
                         <div className="main">
                             <h1 className="title">Context
                             </h1>
-                             <Context />
+                            <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
+                                <SetContext className='setContext' ph={props} />
+                                <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+                                    <Link className="home p-2 m-2 text-primary" href="/context"> Context </Link>
+                                    {/* <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />  */}
+                                    <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
+                                </div>
+                            </div>
+                            <Context />
                         </div>
                     </div>
                 </div>

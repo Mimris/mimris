@@ -68,7 +68,10 @@ const Context = (props) => {
 
 
     return (
-        <div className="select bg-light pt-0 ">
+
+      
+      <div className="select bg-light pt-0 ">
+        <hr style={{ backgroundColor: "#ccc", padding: "20px", marginTop: "25px", marginBottom: "0px" }} />
         <Selector key='Tab' type='SET_FOCUS_TAB' selArray={seltasks} selName='Tab' focustype='focusTab' />
         <Selector key='Task' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
         <Selector key='Role'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />

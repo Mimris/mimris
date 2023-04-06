@@ -84,7 +84,8 @@ import {
   UPDATE_OBJECT_PROPERTIES,
   UPDATE_RELSHIP_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
-  UPDATE_OBJECTVIEW_NAME
+  UPDATE_OBJECTVIEW_NAME,
+  SET_VISIBLE_CONTEXT
 } from '../actions/types';
 
 
@@ -1769,6 +1770,19 @@ function reducer(state = InitialState, action) {
             },
           },
         }
+      }
+    
+    case SET_VISIBLE_CONTEXT:
+      if (!debug) console.log('1776 SET_VISIBLE_CONTEXT', action);
+      return {
+        ...state,
+        phUser: {
+          ...state.phUser,
+          appSkin: {
+            ...state.phUser.appSkin,
+            visibleContext: action.data,
+          },
+        },
       }
       
     default:

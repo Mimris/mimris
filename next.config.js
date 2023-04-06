@@ -22,3 +22,5 @@ module.exports = {
   //   return config
   // }
 }
+const removeImports = require('next-remove-imports')();
+module.exports = removeImports({});

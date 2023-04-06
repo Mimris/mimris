@@ -15,7 +15,7 @@ import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';
 import SelectContext from '../components/utils/SelectContext';
-import Q from 'q';
+
 import HeaderButtons from '../components/utils/HeaderButtons';
 
 const debug = false
@@ -189,7 +189,7 @@ const page = (props: any) => {
                 <Header title='eaderTitle' />
               </div> */}
                 {contextDiv}  
-                {/* <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} /> */}
+                <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />
     
               <div className="workplace-focus gap " >
                 
@@ -326,3 +326,10 @@ const page = (props: any) => {
 }
 
 export default connect((state: any) => state)(page)
+
+
+
+
+
+
+

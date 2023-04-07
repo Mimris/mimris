@@ -83,7 +83,7 @@ const Context = (props) => {
       return type
     }
     
-    const curobjectview = curobjectviews.find(ov => ov.id === focusObjectview?.id)
+    const curobjectview = curobjectviews.find(ov => ov.id === focusObjectview?.id) || modelviews.find(mv => mv.id === focusModelview?.id)
     let objectviewChildren = []
     let objectChildren = []
     if (!curobjectview) { 
@@ -93,14 +93,23 @@ const Context = (props) => {
       objectChildren = objectviewChildren.map(ov => objects.find(o => o.id === ov.objectRef))
       if (!debug) console.log('51 Context', curobjectview, objectviewChildren);
     }
-    // find objectchildren
 
-    const curobject = objects?.find(o => o.id === focusObject?.id)  // find focusObject in objects 
+    const setObjview = (o) => {
+      const ov = curobjectviews.find(ov => ov.objectRef === o.id) || null
+      console.log('99 setObjview', o.id, ov, curobjectviews)
+      dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: {id: ov.id, name: ov.name} })
+      dispatch({ type: 'SET_FOCUS_OBJECT', data: {id: o.id, name: o.name} })
+    }
+
+
+    const curobject = objects?.find(o => o.id === focusObject?.id) 
     console.log('81 curobject', curobject)
     
     if (!curobject) return <>no current object</>
     // find parent object
-    const parent = objects?.find(o => o.id === curobject?.parentRef)
+    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || curobjectview
+    const parentobject = objects?.find(o => o.id === parentobjectview?.objectRef) || curobjectview
+    if (!debug) console.log('58 Context', parentobjectview.name, parentobject);
 
     let relatedObjects = []
     const curRelatedFromObects = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
@@ -109,10 +118,10 @@ const Context = (props) => {
     const curRelatedToObects = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
         
 
-    const includedKeysMain = ['id', 'name', 'description', 'propertyValues', 'valueset', 'typeName', 'typeDescription'];
+    const includedKeysMain = ['id', 'name', 'description', 'propertyValues', 'valueset'];
     const objectPropertiesMain = Object.keys(curobject).filter(key => includedKeysMain.includes(key));
 
-    const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract', 'typeRef', 'leftPorts',	
+    const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract', 'typeRef', 'typeName', 'typeDescription','leftPorts',	
     'rightPorts','topPorts', 'bottomPorts', 'markedAsDeleted', 'modified',	'sourceUri',	'relshipkind','Associationvalueset','copiedFromId']
 
     const objectPropertiesMore = Object.keys(curobject).filter(key => includedKeysMore.includes(key));
@@ -131,42 +140,7 @@ const Context = (props) => {
     markdownString += `\n\n <!-- ${JSON.stringify(curobject)} -->\n\n`
 
     const [activeTab, setActiveTab] = useState(0);
-    // console.log('114 ', objectviewChildren)
-    // objectviewChildren.map(ov => (
-    //   Object.keys(ov).filter(key => includedKeysMain.includes(key)).map(pv => (
-    //     console.log('', pv,  ov[pv])
-    //   ))
-    // ))
-
-    // console.log('123 ',objectviewChildren.map(ov => (
-    //   objects.find(o => (o.id === ov.objectRef) && o)
-    // )))
-
-    // const tableDiv = (obj) => {
-
-    //   return (
-    //     <table > {/* From relships */}
-    //       <tbody>
-    //         <tr>
-    //           <th> </th>
-    //           <th>Relship</th>
-    //           <th>To</th>
-
-    //         </tr>
-    //         {obj.map(r => (
-    //           <tr key={r.id}>
-    //             <td>{objects.find(o => o.id === r.fromobjectRef)?.name}</td>
-    //             <td>{r.name}</td>
-    //             <td>{objects.find(o => o.id === r.toobjectRef)?.name}</td>
-    //           </tr>
-    //         ))}
-    //       </tbody>
-    //     </table>
-    //   )
-    // }
-
-        
-
+  
     if (!state?.phUser?.appSkin?.visibleContext) {
       return (
         <>
@@ -184,6 +158,7 @@ const Context = (props) => {
                   <Tab>Markdown</Tab>
                 </TabList>
                 <TabPanel>
+                {(parentobject) && <span className="d-flex justify-content-end"> <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
                   <h3>{curobject.name}</h3>
                   <table >
                     <thead>
@@ -216,13 +191,14 @@ const Context = (props) => {
                             <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <span style={{ display: 'inline-block', width: '1.5em' }}>{obj.id === selectedId ? '▼' : '▶'}</span>
                               <span style={{ flex: 1, textAlign: 'left' }}>{obj.name}</span>
-                              <span style={{ textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === obj.typeRef)?.name})</span>
+                              <span style={{ textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === obj.typeRef)?.name})</span> 
                             </summary>
                             <table >
                               <thead>
                                 <tr>
-                                  <th >Property</th>
-                                  <th>Value</th>
+                                  <th >Property </th>
+                                  <th>Value </th>
+                                  <th><span className="d-flex justify-content-end"> <button onClick={() => setObjview(obj)} > 👉🏼</button> </span></th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -232,6 +208,7 @@ const Context = (props) => {
                                   <tr key={pv}>
                                     <td>{pv}</td>
                                     <td>{obj[pv]}</td>
+                                    <td></td>
                                   </tr>
                                 )))}
                               </tbody>
@@ -242,37 +219,38 @@ const Context = (props) => {
                       {/* {tableDiv(curRelatedFromObects)} */}                
                     </tbody>
                   </table>
-                  <table > {/* From relships */}
+                  <table  className="table-fromto"> {/* From relships */}
                     <thead>
                       <tr>
                         <th >From</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {curRelatedFromObects.map(r => (
-                        <tr key={r.id}>
-                          <details key={r.id}   open={r.id === selectedId}  onToggle={() => setSelectedId(r.id) }  >
-              
+                      {curRelatedFromObects.map(obj => (
+                        <tr key={obj.id}>
+                          <details key={obj.id}   open={obj.id === selectedId}  onToggle={() => setSelectedId(obj.id) }  >
                             <summary >
                               {/* <span >{r.id === selectedId ? '▼' : '▶'}</span> */}
                               <span >{curobject.name}</span>
-                              <span style={{  marginLeft: "16px"}}>{r.name}</span>
+                              <span style={{  marginLeft: "16px"}}>{obj.name}</span>
                               {/* <span style={{ flex: 1, textAlign: 'left', marginLeft: "6px"}}>({curmm.relshiptypes.find(ot => ot.id === r.typeRef)?.name})</span> */}
-                              <span style={{  marginLeft: "16px"}}>{objects.find(o => o.id === r.toobjectRef)?.name}</span>
+                              <span style={{  marginLeft: "16px"}}>{objects.find(o => o.id === obj.toobjectRef)?.name}</span>
                             </summary>
                             <thead>
                               <tr>
                                 <th >Property</th>
                                 <th>Value</th>
+                                <th><span className="d-flex justify-content-end"> <button onClick={() => setObjview(objects.find(o => o.id === obj.toobjectRef && o))} > 👉🏼</button> </span></th>
                               </tr>
                             </thead>
                             <tbody>
                               {/* {Object.keys(ov).filter(key => includedKeysMain.includes(key)).map(pv => ( */}
-                              {Object.keys(r).map(pv => (
+                              {Object.keys(obj).map(pv => (
                                 (includedKeysMain.includes(pv)) && (
                                 <tr key={pv}>
                                   <td>{pv}</td>
-                                  <td>{r[pv]}</td>
+                                  <td>{obj[pv]}</td>
+                                  <td></td>
                                 </tr>
                               )))}
                             </tbody>
@@ -296,14 +274,13 @@ const Context = (props) => {
                             <span >{curobject.name}</span>
                             <span style={{ marginLeft: "16px"}} >{obj.name}</span>
                             <span style={{ marginLeft: "16px"}}>{objects.find(o => o.id === obj.fromobjectRef)?.name}</span>
-             
                           </summary>
-
-                          <table >
+                          <table className="table-fromto">
                             <thead>
                               <tr>
                                 <th >Property</th>
                                 <th>Value</th>
+                                <th><span  className="d-flex justify-content-end"> <button onClick={() => setObjview(objects.find(o => o.id === obj.fromobjectRef && o))} > 👉🏼</button> </span></th>
                               </tr>
                             </thead>
                             <tbody>
@@ -313,6 +290,7 @@ const Context = (props) => {
                                 <tr key={pv}>
                                   <td>{pv}</td>
                                   <td>{obj[pv]}</td>
+                                  <td></td>
                                 </tr>
                               )))}
                        </tbody>
@@ -327,7 +305,7 @@ const Context = (props) => {
                   
                 </TabPanel>
                 <TabPanel>
-                <table >
+                  <table >
                     <thead>
                       <tr>
                         <th >Property</th>
@@ -341,7 +319,6 @@ const Context = (props) => {
                           <td>{curobject[key]}</td>
                         </tr>
                       ))}
-
                     </tbody>
                   </table>
                 </TabPanel>
@@ -382,10 +359,22 @@ const Context = (props) => {
               margin: 4px;
               padding: 4px;
             }
-
+            .table-fromto {
+              border-collapse: collapse;
+              width: 100%;
+              font-family: Arial, Helvetica, sans-serif;
+              margin: 4px;
+              padding: 4px;
+            }
+            thead {
+              margin: 4px;
+              padding: 4px;
+              width: 99%;
+            }
             tbody {
               margin: 4px;
               padding: 4px;
+              width: 99%;
             }
             
             th, td {

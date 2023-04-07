@@ -137,7 +137,7 @@ const page = (props:any) => {
                 <Modelling />
               </div>
               <div className="contextarea">
-                <Context />
+                {(props.phUser.appSkin) ? <Context /> : <></>}
               </div>
             </div>
             <div className="footer">

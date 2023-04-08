@@ -61,7 +61,7 @@ const Context = (props) => {
     const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
     const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
     if (!debug) console.log('51 Context',  currelshipviews, currelationships);
-
+    const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
     // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
     // remove duplicate objects
     const uniqueovs = curobjectviews?.filter((ov, index, self) =>
@@ -89,33 +89,36 @@ const Context = (props) => {
     if (!curobjectview) { 
       console.log(`objectview for ${focusObjectview.id} - ${focusObjectview.name} not found`);
     } else { // find children
-      objectviewChildren = curobjectviews.filter(ov => ov.group === curobjectview.id)
+      objectviewChildren = curobjectviews.filter(ov => ov.group === curobjectview.id) || curobjectviews
       objectChildren = objectviewChildren.map(ov => objects.find(o => o.id === ov.objectRef))
       if (!debug) console.log('51 Context', curobjectview, objectviewChildren);
     }
 
     const setObjview = (o) => {
-      const ov = curobjectviews.find(ov => ov.objectRef === o.id) || null
-      console.log('99 setObjview', o.id, ov, curobjectviews)
-      dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: {id: ov.id, name: ov.name} })
-      dispatch({ type: 'SET_FOCUS_OBJECT', data: {id: o.id, name: o.name} })
+      if (o) {
+        let ov =curobjectviews.find(ov => ov.objectRef === o?.id) 
+        console.log('99 setObjview', o?.id, ov, curobjectviews)
+        dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: {id: ov.id, name: ov.name} })
+        dispatch({ type: 'SET_FOCUS_OBJECT', data: {id: o.id, name: o.name} })
+      } else {
+        alert('No object to focus on')
+      }
     }
 
 
-    const curobject = objects?.find(o => o.id === focusObject?.id) 
+    let curobject = objects?.find(o => o.id === focusObject?.id) 
     console.log('81 curobject', curobject)
     
-    if (!curobject) return <>no current object</>
+    if (!curobject) curobject = curmodelview
     // find parent object
-    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || curobjectview
-    const parentobject = objects?.find(o => o.id === parentobjectview?.objectRef) || curobjectview
-    if (!debug) console.log('58 Context', parentobjectview.name, parentobject);
+    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
+    const parentobject = objects?.find(o => o.id === parentobjectview?.objectRef) || null
+    if (!debug) console.log('58 Context', parentobjectview?.name, parentobject);
 
     let relatedObjects = []
-    const curRelatedFromObects = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
-    if (!debug) console.log('58 Context', curRelatedFromObects);
-
-    const curRelatedToObects = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
+    const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
+    const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
+    if (!debug) console.log('58 Context', curRelatedFromObectRels, curRelatedToObectRels);
         
 
     const includedKeysMain = ['id', 'name', 'description', 'propertyValues', 'valueset'];
@@ -140,6 +143,90 @@ const Context = (props) => {
     markdownString += `\n\n <!-- ${JSON.stringify(curobject)} -->\n\n`
 
     const [activeTab, setActiveTab] = useState(0);
+
+    const ObjDetailTable = ({ title, curRelatedObjsRels, selectedId, setSelectedId, curobject, objects, includedKeys, setObjview }) => {
+      // curRelatedObjsRels are object for children or parents and relationships for to and from objects
+      return (
+        <>
+        <table className="table w-100">
+          <thead className="thead">
+            <tr className="tr">
+              <th className="th bg-light">{title}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {curRelatedObjsRels.map(objrel => (
+              <tr key={objrel.id}>
+                <details key={objrel.id} open={objrel.id === selectedId} onToggle={() => setSelectedId(objrel.id)}>
+                  <summary style={{ display: 'flex' }}>  
+                    <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel.id === selectedId ? '▼' : '▶'}</span>
+                    { (title==='Children') 
+                      ? <>
+                          <span style={{ marginLeft: "6px" }}>{objrel.name}</span>
+                          <span style={{ marginLeft: "126px" }}> </span>    
+                          <span style={{ flex: 1, textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === objrel.typeRef)?.name})</span> 
+                          <button style={{ marginLeft: "10px", border: "none", backgroundColor: "transparent", float: "right" }} onClick={() => setObjview(objects.find(o => o.id === objrel.id && o)) }>⤴️</button>
+
+
+                        </>
+                      : (title==='Related From') 
+                        ? <>
+                            <span>{curobject.name}</span>
+                            <span style={{ marginLeft: "16px", marginRight: "16px" }}>{objrel.name}</span>
+                            <span style={{ flex: 1, textAlign: 'right' }}>{objects.find(o => (o.id === objrel.toobjectRef)).name}</span>{/*  this is the relationships name  */}  
+                            <span style={{ flex: 1, textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === objects.find(o => (o.id === objrel.toobjectRef)).typeRef)?.name})</span>            
+                            <button style={{ marginLeft: "10px", border: "none", backgroundColor: "transparent", float: "right" }} onClick={() => setObjview(objects.find(o => o.id === objrel.toobjectRef && o)) }>⤴️</button>
+                          </>
+                        : <>
+                            <span>{curobject.name}</span>
+                            <span style={{ marginLeft: "16px", marginRight: "16px" }}>{objrel.name}</span>
+                            <span style={{ flex: 1, textAlign: 'right' }}>{objects.find(o => (o.id === objrel.fromobjectRef) && o).name}</span>{/*  this is the relationships name  */}  
+                            <span style={{ flex: 1, textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === objects.find(o => (o.id === objrel.toobjectRef)).typeRef)?.name})</span>            
+   
+                            <button style={{ marginLeft: "10px", border: "none", backgroundColor: "transparent", float: "right" }} onClick={() => setObjview(objects.find(o => o.id === objrel.fromobjectRef && o)) }>⤴️</button>
+                          </> 
+                    }
+                  </summary>
+
+                  {/* <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ display: 'inline-block', width: '1.5em' }}>{obj.id === selectedId ? '▼' : '▶'}</span>
+                          <span style={{ flex: 1, textAlign: 'left' }}>{obj.name}</span>
+                          <span style={{ textAlign: 'right' }}>({curmm.relshiptypes.find(ot => ot.id === obj.typeRef)?.name})</span> 
+                      </summary> */}
+                  <table className="table w-100">
+                    <thead className="thead"> 
+                      <tr className="tr">
+                        <th className="th">Property</th>
+                        <th className="th">Value </th>
+                        {/* <th className="th">Value {obj.name} - {curobject.name} -- {(objects.find(o => (curRelatedObjsRels.find(r => r.id === obj.fromobjectRef)).toobjectRef === o.id))}</th> */}
+                        {/* <th className="th">
+                          <span className="d-flex justify-content-end">
+                            <button onClick={() => setObjview(objects.find(o => curRelatedObjsRels.find(r => r.id === o.toobjectRef && o))) }>⤴️</button>
+                          </span>
+                        </th> */}
+                      </tr>
+                    </thead>
+                    <tbody className="tbody">
+                      {Object.keys(objrel).map(
+                        pv =>
+                          includedKeys.includes(pv) && (
+                            <tr className="tr" key={pv}>
+                              <td className="td">{pv}</td>
+                              <td className="td">{objrel[pv]}</td>
+                              <td className="td"></td>
+                            </tr>
+                          )
+                      )}
+                    </tbody>
+                  </table>
+                </details>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </>
+      );
+    };
   
     if (!state?.phUser?.appSkin?.visibleContext) {
       return (
@@ -158,158 +245,67 @@ const Context = (props) => {
                   <Tab>Markdown</Tab>
                 </TabList>
                 <TabPanel>
-                {(parentobject) && <span className="d-flex justify-content-end"> <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
-                  <h3>{curobject.name}</h3>
-                  <table >
-                    <thead>
-                      <tr>
-                        <th >Property</th>
-                        <th>Value</th>
+                  <h4 className="px-2">{curobject.name}                              
+                    <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject.typeRef)?.name})
+                    {(parentobject) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
+                    </span>
+                  </h4>      
+
+                  <table className='w-100'>
+                    <thead className="thead">
+                      <tr className="tr">
+                        <th className="th">Property</th>
+                        <th className="th">Value</th>
                       </tr>
                     </thead>
                     <tbody>
                       {objectPropertiesMain.map(key => (
-                        <tr key={key}>
-                          <td>{key}</td>
-                          <td>{curobject[key]}</td>
+                        <tr className="tr" key={key}>
+                          <td className="td">{key}</td>
+                          <td className="td">{curobject[key]}</td>
                         </tr>
                       ))}
 
                     </tbody>
                   </table>
-                  <table > {/*Children */}
-                    <thead>
-                      <tr>
-                        <th >Children</th>
-                        {/* <th>Value</th> */}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      { objectChildren.map(obj => (
-                        <tr key={obj.id}>
-                          <details key={obj.id}   open={obj.id === selectedId}  onToggle={() =>  setSelectedId(obj.id) }>
-                            <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ display: 'inline-block', width: '1.5em' }}>{obj.id === selectedId ? '▼' : '▶'}</span>
-                              <span style={{ flex: 1, textAlign: 'left' }}>{obj.name}</span>
-                              <span style={{ textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === obj.typeRef)?.name})</span> 
-                            </summary>
-                            <table >
-                              <thead>
-                                <tr>
-                                  <th >Property </th>
-                                  <th>Value </th>
-                                  <th><span className="d-flex justify-content-end"> <button onClick={() => setObjview(obj)} > 👉🏼</button> </span></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {/* {Object.keys(ov).filter(key => includedKeysMain.includes(key)).map(pv => ( */}
-                                {Object.keys(obj).map(pv => (
-                                  (includedKeysMain.includes(pv)) && (
-                                  <tr key={pv}>
-                                    <td>{pv}</td>
-                                    <td>{obj[pv]}</td>
-                                    <td></td>
-                                  </tr>
-                                )))}
-                              </tbody>
-                            </table>
-                          </details>
-                        </tr>
-                      ))}
-                      {/* {tableDiv(curRelatedFromObects)} */}                
-                    </tbody>
-                  </table>
-                  <table  className="table-fromto"> {/* From relships */}
-                    <thead>
-                      <tr>
-                        <th >From</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {curRelatedFromObects.map(obj => (
-                        <tr key={obj.id}>
-                          <details key={obj.id}   open={obj.id === selectedId}  onToggle={() => setSelectedId(obj.id) }  >
-                            <summary >
-                              {/* <span >{r.id === selectedId ? '▼' : '▶'}</span> */}
-                              <span >{curobject.name}</span>
-                              <span style={{  marginLeft: "16px"}}>{obj.name}</span>
-                              {/* <span style={{ flex: 1, textAlign: 'left', marginLeft: "6px"}}>({curmm.relshiptypes.find(ot => ot.id === r.typeRef)?.name})</span> */}
-                              <span style={{  marginLeft: "16px"}}>{objects.find(o => o.id === obj.toobjectRef)?.name}</span>
-                            </summary>
-                            <thead>
-                              <tr>
-                                <th >Property</th>
-                                <th>Value</th>
-                                <th><span className="d-flex justify-content-end"> <button onClick={() => setObjview(objects.find(o => o.id === obj.toobjectRef && o))} > 👉🏼</button> </span></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {/* {Object.keys(ov).filter(key => includedKeysMain.includes(key)).map(pv => ( */}
-                              {Object.keys(obj).map(pv => (
-                                (includedKeysMain.includes(pv)) && (
-                                <tr key={pv}>
-                                  <td>{pv}</td>
-                                  <td>{obj[pv]}</td>
-                                  <td></td>
-                                </tr>
-                              )))}
-                            </tbody>
-                          </details>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <table > {/* To relships */}
-                    <thead>
-                      <tr>
-                        <th >To</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {curRelatedToObects.map(obj => (
-                        <tr key={obj.id}>
-                        <details key={obj.id}   open={obj.id === selectedId}  onToggle={() =>  setSelectedId(obj.id) }>
-                          <summary>
-                            {/* <span style={{ display: 'inline-block', width: '1.5em' }}>{obj.id === selectedId ? '▼' : '▶'}</span> */}
-                            <span >{curobject.name}</span>
-                            <span style={{ marginLeft: "16px"}} >{obj.name}</span>
-                            <span style={{ marginLeft: "16px"}}>{objects.find(o => o.id === obj.fromobjectRef)?.name}</span>
-                          </summary>
-                          <table className="table-fromto">
-                            <thead>
-                              <tr>
-                                <th >Property</th>
-                                <th>Value</th>
-                                <th><span  className="d-flex justify-content-end"> <button onClick={() => setObjview(objects.find(o => o.id === obj.fromobjectRef && o))} > 👉🏼</button> </span></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {/* {Object.keys(ov).filter(key => includedKeysMain.includes(key)).map(pv => ( */}
-                              {Object.keys(obj).map(pv => (
-                                (includedKeysMain.includes(pv)) && (
-                                <tr key={pv}>
-                                  <td>{pv}</td>
-                                  <td>{obj[pv]}</td>
-                                  <td></td>
-                                </tr>
-                              )))}
-                       </tbody>
-                       
-                     </table>
-                     
-                   </details>
-                 </tr>
-                 ))}
-                    </tbody>
-                  </table>
-                  
+    
+                  <ObjDetailTable
+                    title="Children"
+                    curRelatedObjsRels={objectChildren}
+                    selectedId={selectedId}
+                    setSelectedId={setSelectedId}
+                    curobject={curobject}
+                    objects={objects}
+                    includedKeys={includedKeysMain}
+                    setObjview={setObjview}
+                  />
+                  <ObjDetailTable
+                    title="Related From"
+                    curRelatedObjsRels={curRelatedFromObectRels}
+                    selectedId={selectedId}
+                    setSelectedId={setSelectedId}
+                    curobject={curobject}
+                    objects={objects}
+                    includedKeys={includedKeysMain}
+                    setObjview={setObjview}
+                  />
+                  <ObjDetailTable
+                    title="Related To"
+                    curRelatedObjsRels={curRelatedToObectRels}
+                    selectedId={selectedId}
+                    setSelectedId={setSelectedId}
+                    curobject={curobject}
+                    objects={objects}
+                    includedKeys={includedKeysMain}
+                    setObjview={setObjview}
+                  />              
                 </TabPanel>
                 <TabPanel>
                   <table >
-                    <thead>
-                      <tr>
-                        <th >Property</th>
-                        <th>Value</th>
+                    <thead className="thead">
+                      <tr className="tr">
+                        <th className="th">Property</th>
+                        <th className="th">Value</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -352,42 +348,39 @@ const Context = (props) => {
             </div>
           <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} />
           <style jsx>{`
-            table {
-              border-collapse: collapse;
-              width: 99%;
-              font-family: Arial, Helvetica, sans-serif;
-              margin: 4px;
-              padding: 4px;
-            }
-            .table-fromto {
-              border-collapse: collapse;
-              width: 100%;
-              font-family: Arial, Helvetica, sans-serif;
-              margin: 4px;
-              padding: 4px;
-            }
-            thead {
-              margin: 4px;
-              padding: 4px;
-              width: 99%;
-            }
-            tbody {
-              margin: 4px;
-              padding: 4px;
-              width: 99%;
-            }
-            
-            th, td {
-              border: 1px solid #ddd;
-              padding: 8px;
-              text-align: left;
-              vertical-align: top;
-              width: auto;
-            }
-            
-            th {
-              background-color: #f2f2f2;
-            }
+            // table {
+            //   border-collapse: collapse;
+            //   font-family: Arial, Helvetica, sans-serif;
+            //   margin: 4px;
+            //   padding: 4px;
+            // }
+            // table-fromto {
+            //   display: flex;
+            //   border-collapse: collapse;
+            //   font-family: Arial, Helvetica, sans-serif;
+            //   margin: 4px;
+            //   padding: 4px;
+            // }
+            // thead{
+            //   margin: 4px;
+            //   padding: 4px;
+            // }
+            // tbody {
+            //   margin: 4px;
+            //   padding: 4px;
+            // }  
+            // th, td {
+            //   border: 1px solid #ddd;
+            //   padding: 8px;
+            //   text-align: left;
+            //   vertical-align: top;
+            //   width: fit-content;
+            // }
+
+            // th  {
+            //   background-color: #f2f2f2;
+            // }
+
           `}
           </style>
         </>

@@ -41,6 +41,9 @@ const Navbar = (props) => {
 					<li className="nav-item ">
 						<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</Link>
 					</li>
+					<li className="nav-item ">
+						<Link href="/context" className={currentRoute === "/context" ? "active" : "non-active"}>Context</Link>
+					</li>
 					{/* <li className="nav-item">
 						<Link href="/table" className={currentRoute === "/table" ? "active" : "non-active"}>Tables</Link>
 					</li> */}

@@ -37,6 +37,7 @@ import {
   SET_FOCUS_SOURCE, 
   SET_FOCUS_REFRESH, 
   SET_USER_SHOWDELETED,
+  SET_VISIBLE_CONTEXT,
 
   SET_MYMETIS_MODEL,
   SET_MYMETIS_PARAMETER,
@@ -581,6 +582,14 @@ export const edit_object_properties = (data) => {
   // console.log('76 action-object-edit-data', data.payload);
   return {
     type: EDIT_OBJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+
+export const setVisibleContext = (data) => {
+  console.log('590 action-type-data', data);
+  return {
+    type: SET_VISIBLE_CONTEXT,
     data: JSON.parse(data.value)
   }
 }

@@ -863,7 +863,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
                 }
               }
               if (prop === 'group') continue;
-              if (prop === 'isGroup') continue;
+              if (prop === 'isGroup') {
+                objview['size'] = new go.Size(200, 100);
+                continue;
+              }
               try {
                 objview[prop] = selObj[prop];
               } catch {}

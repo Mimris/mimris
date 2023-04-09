@@ -1012,7 +1012,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (node.category === constants.gojs.C_OBJECT)
                   return true;
             }),
-            makeButton("Change Icon",
+          makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
               if (debug) console.log('1503 node', node);
@@ -1029,7 +1029,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node, modalContext);
               if (debug) console.log('511 myMetis', myMetis);
-          },
+            },
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECTTYPE) {
@@ -1037,6 +1037,56 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
+            }),
+          makeButton("Convert to Group",
+            function (e: any, obj: any) {
+              const n = e.diagram.selection.first().data;
+              let objview = n.objectview;
+              objview = myMetis.findObjectView(objview.id);
+              objview.viewkind = 'Container';
+              objview.template = 'groupNoPorts'
+              objview.isGroup = true;
+              objview.size = "200 100";
+              n.objectview = objview;
+              const jsnObjview = new jsn.jsnObjectView(objview);
+              console.log('1052 objview, jsnObjview', objview, jsnObjview);
+              const data = JSON.parse(JSON.stringify(jsnObjview));
+              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+              alert("You need to a Reload to see the change!");
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Object') 
+                  return true;
+              }
+              return false;
+            }),
+          makeButton("Convert to Node",
+            function (e: any, obj: any) {
+              const n = e.diagram.selection.first().data;
+              let objview = n.objectview;
+              objview = myMetis.findObjectView(objview.id);
+              objview.viewkind = 'Object';
+              objview.template = 'textAndIcon'
+              objview.isGroup = false;
+              // objview.size = "200 100";
+              n.objectview = objview;
+              const jsnObjview = new jsn.jsnObjectView(objview);
+              console.log('1052 objview, jsnObjview', objview, jsnObjview);
+              const data = JSON.parse(JSON.stringify(jsnObjview));
+              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+              alert("You need to a Reload to see the change!");
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Container') 
+                  return true;
+              }
+              return false;
             }),
           makeButton("----------"),
           makeButton("Generate Target Object Type",
@@ -1200,7 +1250,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-
           makeButton("Execute Method",
             function (e: any, obj: any) { 
               const node = obj.part.data;

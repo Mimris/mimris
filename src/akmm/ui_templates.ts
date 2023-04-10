@@ -275,7 +275,6 @@ function getGeoFigure(figure: string): string {
             geometry = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
             break;
     }
-    console.log('278 geometry: ' + geometry);
     return geometry;
 }
 
@@ -302,7 +301,6 @@ function makeGeoFigure(name: string, figure: string, color: string) {
 }
 
 function makeGeoIcon(url: string) {
-    console.log('277 url', url);
     return $(go.Picture,  // the image -------------------------------------
         new go.Binding("source", "icon", findImage),
         {
@@ -1032,7 +1030,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     strokeWidth: 10,
                     margin: new go.Margin(1, 1, 1, 1),
                     shadowVisible: false,
-                    desiredSize: new go.Size(136, 48),              
                 }    
             ),
 
@@ -1099,9 +1096,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         },
                         {
                             defaultRowSeparatorStroke: "black",
-                            desiredSize: new go.Size(136, 60),
-                            maxSize: new go.Size(136, 66), 
-                            // margin: new go.Margin(2),
                             defaultAlignment: go.Spot.Center,                    
                         },
                         // $(go.RowColumnDefinition, { column: 2, width: 4 }),

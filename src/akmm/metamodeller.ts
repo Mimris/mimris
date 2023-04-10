@@ -7500,6 +7500,36 @@ export class cxInstance extends cxMetaObject {
         }
         return relships;
     }
+    getInputRelshipsByType(reltype: cxRelationshipType): cxRelationship[] | null {
+        let relships = new Array();
+        if (this.inputrels) {
+            for (let i = 0; i < this.inputrels.length; i++) {
+                let rel = this.inputrels[i];
+                if (rel && !rel.markedAsDeleted) {
+                    let type = rel.type;
+                    if (type && type.id === reltype.id) 
+                    relships.push(rel);
+                }
+            }
+        }
+        return relships;
+
+    }
+    getOutputRelshipsByType(reltype: cxRelationshipType): cxRelationship[] | null {
+        let relships = new Array();
+        if (this.outputrels) {
+            for (let i = 0; i < this.outputrels.length; i++) {
+                let rel = this.outputrels[i];
+                if (rel && !rel.markedAsDeleted) {
+                    let type = rel.type;
+                    if (type && type.id === reltype.id) 
+                    relships.push(rel);
+                }
+            }
+        }
+        return relships;
+
+    }
     addJsonValue(item_key: string, item_value: string) {
         if (!this.valueset)
             this.valueset = new Array();
@@ -8445,7 +8475,7 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
     }
-    findObjectViewsByObj(obj: cxObject): cxObjectView[] | null {
+    findObjectViewsByObject(obj: cxObject): cxObjectView[] | null {
         const objviews = new Array();
         let oviews = this.objectviews;
         if (!oviews) 
@@ -8541,6 +8571,25 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
         return null;
+    }
+    getRelviewsByFromAndToObjviews(fromView: cxObjectView, toView: cxObjectView): cxRelationshipView[] {    
+        const relviews = new Array();
+        if (fromView && toView) {
+            let rviews = this.relshipviews;
+            if (!rviews)
+                return null;
+            for (let i=0; i<rviews.length; i++) {
+                const rv:cxRelationshipView = rviews[i];
+                if (rv?.markedAsDeleted)
+                    continue;
+                if (rv?.fromObjview?.id === fromView.id) {  
+                    if (rv?.toObjview?.id === toView.id) {
+                        relviews.push(rv);
+                    }
+                }
+            }
+        }
+        return relviews;
     }
 }
 

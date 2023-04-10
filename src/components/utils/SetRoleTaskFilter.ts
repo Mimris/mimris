@@ -6,7 +6,7 @@ import { Dispatch } from "redux";
 const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
-    if (!debug) console.log('9 genRoleTasks', curtask)
+    if (debug) console.log('9 genRoleTasks', curtask)
     if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
@@ -55,6 +55,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     description: "Modeling with AKM-IRTV-POPS objects",
                     workOnTypes: [
                     "Container",   
+                    "Actor",
                     "Information",
                     "Role",
                     "Task",
@@ -219,7 +220,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
         }
     }
 
-    if (!debug) console.log("238 genRoleTasks", curtask, mmodel.name);
+    if (debug) console.log("238 genRoleTasks", curtask, mmodel.name);
     // found??? is the task object not only id and name
     const foundRole = datarole?.focusRole // hardcode for now
 
@@ -233,8 +234,8 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const foundAllTask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}]) || null
     const foundNewTask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}]) || null
 
-    if (!debug) console.log("267 genRoleTasks",  (mmodel.name.includes("POPS")), foundPOPSTask)
-    if (!debug) console.log("269 genRoleTasks",  foundNewTask?.id, foundMMTask?.id, foundIRTVTask?.id, foundPOPSTask?.id, foundProcessTask?.id, foundPropertyTask?.id, foundAllTask?.id)
+    if (debug) console.log("267 genRoleTasks",  (mmodel.name.includes("POPS")), foundPOPSTask)
+    if (debug) console.log("269 genRoleTasks",  foundNewTask?.id, foundMMTask?.id, foundIRTVTask?.id, foundPOPSTask?.id, foundProcessTask?.id, foundPropertyTask?.id, foundAllTask?.id)
 
     // first check if there is new task, if so, use that first and add others thats not null, else use other tasks with the task with the Metamodel name first
     const foundTasks = (foundNewTask.workOnTypes.length > 1) 
@@ -243,11 +244,11 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     
         if (debug) console.log("273 genRoleTasks",  foundTasks )
  
-    if (!debug) console.log("276 genRoleTasks", curtask)
+    if (debug) console.log("276 genRoleTasks", curtask)
     // curtask = {id: "Property", name: "Property Modelling"}
-    if (!debug) console.log("279 genRoleTasks", curtask)
-    if (!debug) console.log("280 genRoleTasks", datarole.focusRole?.tasks.find(t =>  (t.id === curtask?.id) && t))
-    if (!debug) console.log("281 genRoleTasks", foundRole?.tasks.find(t => t.id ===  mmodel.name && t))
+    if (debug) console.log("279 genRoleTasks", curtask)
+    if (debug) console.log("280 genRoleTasks", datarole.focusRole?.tasks.find(t =>  (t.id === curtask?.id) && t))
+    if (debug) console.log("281 genRoleTasks", foundRole?.tasks.find(t => t.id ===  mmodel.name && t))
     
     const foundTask = (curtask)
         ? (curtask?.id === 'Metamodelling') 
@@ -259,7 +260,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     ? foundRole?.tasks.find(t => t.id ===  mmodel.name && t)
                     : foundAllTask
     
-    if (!debug) console.log("288 genRoleTasks", foundTask, foundTasks)
+    if (debug) console.log("288 genRoleTasks", foundTask, foundTasks)
     if (debug) console.log("289 genRoleTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
     
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })

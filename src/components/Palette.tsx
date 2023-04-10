@@ -90,7 +90,7 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
-    if (!debug) console.log('83 Palette useEffect 1', role, task, tasks, types);
+    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types);
     const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
     // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
     if (debug) console.log('84 Palette useEffect 1', foundRTTs);
@@ -157,17 +157,17 @@ const Palette = (props: any) => {
     if (props.modelType === 'metamodel') {
       setTask({id: 'Metamodelling', name: 'Metamodelling'})
     } 
-    if (!debug) console.log('162 Palette ', task);
-    if (!debug) console.log('163 Palette ', role, task, types, mmodel, modellingtasks);
+    if (debug) console.log('162 Palette ', task);
+    if (debug) console.log('163 Palette ', role, task, types, mmodel, modellingtasks);
     const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
     if (debug) clog('123 Palette ', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
     setRefreshPalette(!refreshPalette) // set current palette accrording to selected modellingtask
-    if (!debug) console.log('131  Palette findCurRoleTaskTypes ', task, types, modellingtasks, foundRTTs)  
+    if (debug) console.log('131  Palette findCurRoleTaskTypes ', task, types, modellingtasks, foundRTTs)  
     setRole(foundRTTs?.currole)
     setTask(foundRTTs?.curtask)
     setModellingtasks(foundRTTs?.curtasks)
     setTypes(foundRTTs?.curtypes)
-    if (!debug) console.log('135 Palette findCurRoleTaskTypes ', task, types, modellingtasks)
+    if (debug) console.log('135 Palette findCurRoleTaskTypes ', task, types, modellingtasks)
     return {
       role: foundRTTs?.currole,
       task:  foundRTTs?.curtask,
@@ -195,10 +195,10 @@ const Palette = (props: any) => {
 
   function setModellingTask(taskObj) {
 
-    if (!debug) console.log('199 Palette setModellingTask',taskObj);
+    if (debug) console.log('199 Palette setModellingTask',taskObj);
     const task1 = {id: taskObj.id,name: taskObj.name}
 
-    if (!debug) console.log('156 Palette setModellingTask',task1);
+    if (debug) console.log('156 Palette setModellingTask',task1);
     const foundRTTs = findCurRoleTaskTypes(role, task1, tasks, types, mmodel, dispatch)
     if (debug) console.log('158 Palette setModellingTask',   foundRTTs.task, foundRTTs.types);
     setRole(foundRTTs?.role)

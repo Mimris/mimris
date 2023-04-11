@@ -426,7 +426,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionMoved": {        
         if (debug) console.log('412 context', context);
         const goModel = context.myGoModel;
-        if (!debug) console.log('414 goModel', goModel);
+        if (debug) console.log('414 goModel', goModel);
         // First remember the original locs
         const dragTool = myDiagram.toolManager.draggingTool;
         const myParts = dragTool.draggedParts;
@@ -435,7 +435,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = myParts.iterator; it?.next();) {
             let n = it.value;
             let loc = it.value.point.x + " " + it.value.point.y;
-            if (!debug) console.log('422 n, it.key.data, loc', n, it.key.data, loc);
+            if (debug) console.log('422 n, it.key.data, loc', n, it.key.data, loc);
             if (!(it.key.data.category === 'Object')) 
               continue;
             let scale = it.key.data.scale1;
@@ -561,9 +561,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
                   let rel = null;
                   let fromObj = null;
-                  // Check if a relationship of type 'hasMember' exists between the new parent group and the node
+                  // Check if a relationship of type 'hasMember' exists between the new parent (group) 
+                  // and the (current) node
                   const inputRels = node.object.getInputRelshipsByType(reltype);
-                  if (!debug) console.log('567 node, inputRels', node, inputRels);
+                  if (debug) console.log('567 node, inputRels', node, inputRels);
                   for (let i=0; i<inputRels?.length; i++) {
                     const r = inputRels[i];
                     fromObj = r.fromObject;
@@ -573,8 +574,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       const jsnRelship = new jsn.jsnRelationship(r);
                       jsnRelship.markedAsDeleted = true;
                       modifiedRelships.push(jsnRelship);
-                      if (!debug) console.log('576 jsnRelship', jsnRelship);
-
+                      if (debug) console.log('576 jsnRelship', jsnRelship);
                     }
                   }
                   // Find the corresponding relationship view if it exists and mark it as deleted
@@ -585,12 +585,18 @@ class GoJSApp extends React.Component<{}, AppState> {
                     relview.markedAsDeleted = true;
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     modifiedLinks.push(jsnRelview);
+                    // Then delete the gojs link
+                    const link = myGoModel.findLinkByViewId(relview.id);
+                    if (link) {
+                        link.markedAsDeleted = true;
+                        myDiagram.model.removeLinkData(link); 
+                    }
                     if (debug) console.log('588 jsnRelview', jsnRelview);
                   }
-                  if (!debug) console.log('590 group', group);
+                  if (debug) console.log('590 group', group);
                   {
                     const outputRels = parentObj.getOutputRelshipsByType(reltype);
-                    if (!debug) console.log('593 parentObj, outputRels', parentObj, outputRels);
+                    if (debug) console.log('593 parentObj, outputRels', parentObj, outputRels);
                     for (let i=0; i<outputRels?.length; i++) {
                       const r = outputRels[i];
                       if (r.toObject.id === node.object.id) {
@@ -802,7 +808,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const toObj = node.object;
                   const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
                   const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
-                  if (!debug) console.log('762 toObj, hasMemberRels', toObj, hasMemberRels);
+                  if (debug) console.log('762 toObj, hasMemberRels', toObj, hasMemberRels);
                   for (let i=0; i<hasMemberRels?.length; i++) {
                     let relview = null;
                     const hasMemberRel = hasMemberRels[i];
@@ -825,7 +831,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                     if (!relview) {
                       relview = new akm.cxRelationshipView(utils.createGuid(), hasMemberRel.name, hasMemberRel, "");
-                      if (!debug) console.log('788 relview', relview);
+                      if (debug) console.log('788 relview', relview);
                       relview.toObjview = toObjview;
                       const fromGroup = hasMemberRel.fromObject;  // group
                       const objviews = myModelview.findObjectViewsByObject(fromGroup);
@@ -855,7 +861,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                     }                    
                   }
-                  if (!debug) console.log('818 myGoModel', myGoModel);
+                  if (debug) console.log('818 myGoModel', myGoModel);
                 }
               }            
               if (debug) console.log('821 node, data,', node, data);
@@ -948,7 +954,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('908 modelview', myModelview);
           myDiagram.requestUpdate();
           if (debug) console.log('910 myGoModel', myDiagram.model.linkDataArray);
-          if (!debug) console.log('911 myMetis', myMetis);
+          if (debug) console.log('911 myMetis', myMetis);
         }
       }
       break;

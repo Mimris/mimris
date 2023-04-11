@@ -70,7 +70,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
+    let inst, inst1, instview, instview1, type, type1, typeview, objtypeview, reltypeview;
     let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
     if (debug) console.log('75 selObj', selObj);
     switch(category) {
@@ -79,7 +79,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst1 = myMetis.findObject(inst?.id);   
         if (inst1) inst = inst1;
         instview = selObj.objectview;
-        instview = myMetis.findObjectView(instview?.id);
+        instview1 = myMetis.findObjectView(instview?.id);
+        if (instview1) instview = instview1;
         type = selObj.objecttype;
         type1 = myMetis.findObjectType(type?.id);
         if (type1) type = type1;
@@ -98,7 +99,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst1 = myMetis.findRelationship(inst?.id);   
         if (inst1) inst = inst1;
         instview = selObj.relshipview;
-        instview = myMetis.findRelationshipView(instview?.id);
+        instview1 = myMetis.findRelationshipView(instview?.id);
+        if (instview1) instview = instview1;
         type = selObj.relshiptype;
         type1 = myMetis.findRelationshipType(type?.id);
         if (type1) type = type1;

@@ -1,6 +1,7 @@
 import React from 'react'
 
 // make a jsx component
+const debug = false
 
 export const ObjDetailTable = (props) => {
     const {
@@ -16,7 +17,7 @@ export const ObjDetailTable = (props) => {
       setObjview
     } = props;
   
-    console.log('5 ObjDetailTable: ', title, curRelatedObjsRels, curmodelview, curmetamodel, curobject, objects);
+    if (debug) console.log('5 ObjDetailTable: ', title, curRelatedObjsRels, curmodelview, curmetamodel, curobject, objects);
   
     return curRelatedObjsRels && (
       <table className="table w-100">
@@ -34,24 +35,25 @@ export const ObjDetailTable = (props) => {
                 <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel.id === selectedId ? '▼' : '▶'}</span>
               {title === 'Children' ? (
                 <>
-                  <span style={{ marginLeft: '6px' }}>{objrel.name}</span>
-                  <span style={{ marginLeft: '126px' }}> </span>
-                  <span style={{ flex: 1, textAlign: 'right' }}>
-                    ({curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name})
-                  </span>
-                  {curmodelview.id === curmodelview.objectviews.find((ov) => ov.id === curmodelview.id) ? (
-                    <span style={{ float: 'right', marginLeft: '4px' }}>
-                      {curmodelview.id} {objrel.id} 🟢
+                    <span style={{ marginLeft: '6px' }}>{objrel.name}</span>
+                    <span style={{ marginLeft: '126px' }}> </span>
+                    <span style={{ flex: 1, textAlign: 'right' }}>
+                        ({curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name}){curmodelview.name} {objrel.name}
                     </span>
-                  ) : (
-                    <></>
-                  )}
-                  <button
-                    style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
-                    onClick={() => setObjview(objects.find((o) => o.id === objrel.id))}
-                  >
-                    ⤴️
-                  </button>
+                    <button
+                        style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
+                        onClick={() => setObjview(objects.find((o) => o.id === objrel.id))}
+                    >
+                        ⤴️
+                    </button>
+                    {(curmodelview.id !== (curmodelview.objectviews.find(cmv => (cmv.id === (curmodelview.objectviews.find(ov => ov.objectRef === objrel.id)?.id)))?.id)) ? (
+                        <span style={{ float: 'right', marginLeft: '4px' }}>
+                            🟢
+                        </span>
+                        ) : (
+                        <></>
+                        )}
+
                 </>
               ) : title === 'Related From' ? (
                 <>

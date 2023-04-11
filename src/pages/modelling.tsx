@@ -137,7 +137,7 @@ const page = (props:any) => {
               </div>
               <div className="contextarea">
                 {/* <Context ph={props} /> */}
-                {(props.phUser.appSkin.visibleContext) ? <Context  ph={props}/> : <></>}
+                {/* {(props.phUser.appSkin.visibleContext) ? <Context  ph={props}/> : <></>} */}
               </div>
             </div>
             <div className="footer">

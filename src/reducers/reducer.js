@@ -57,7 +57,9 @@ import {
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
+  UPDATE_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
+  UPDATE_RELSHIP_PROPERTIES,
   UPDATE_RELSHIPVIEW_PROPERTIES,
   UPDATE_OBJECTTYPE_PROPERTIES,
   UPDATE_TARGETMETAMODEL_PROPERTIES,
@@ -81,8 +83,6 @@ import {
   UPDATE_VALUE_PROPERTIES,
   UPDATE_RELSHIPTYPE_PROPERTIES,
   UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
-  UPDATE_OBJECT_PROPERTIES,
-  UPDATE_RELSHIP_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME,
   SET_VISIBLE_CONTEXT
@@ -791,7 +791,7 @@ function reducer(state = InitialState, action) {
       }
     
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      if (debug) console.log('765 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      if (debug) console.log('794 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -1774,7 +1774,8 @@ function reducer(state = InitialState, action) {
     
     case SET_VISIBLE_CONTEXT:
       if (!debug) console.log('1776 SET_VISIBLE_CONTEXT', action);
-      return {
+      
+      let retval_SET_VISIBLE_CONTEXT = {
         ...state,
         phUser: {
           ...state.phUser,
@@ -1784,6 +1785,8 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (!debug) console.log('1784 SET_VISIBLE_CONTEXT', retval_SET_VISIBLE_CONTEXT.phUser.appSkin.visibleContext);
+      return retval_SET_VISIBLE_CONTEXT;
       
     default:
       return state

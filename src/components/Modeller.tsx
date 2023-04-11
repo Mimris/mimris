@@ -13,6 +13,7 @@ import GenGojsModel from './GenGojsModel'
 import { handleInputChange } from "../akmm/ui_modal";
 import { disconnect } from "process";
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
@@ -332,7 +333,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   const modellerDiv = 
     (props.modelType === 'model') 
     ? // modelling
-      <div className="modeller-workarea" >
+      <div className="modeller-workarea w-100" >
         <div className="modeller--topbar d-flex justify-content-between mt-1 p-0 ">
           <span className="--heading d-flex text-dark fw-bold px-2" style={{ minWidth: "15%"}} > Modeller </span>
           <div className="d-flex">
@@ -396,7 +397,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
   
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
       {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )

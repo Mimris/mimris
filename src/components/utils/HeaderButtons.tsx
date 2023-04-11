@@ -23,7 +23,7 @@ const debug = false;
 
 export default function HeaderButtons(props) {
 
-    if (!debug) console.log('HeaderButtons', props);
+    if (debug) console.log('HeaderButtons', props);
     
     let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
     let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 

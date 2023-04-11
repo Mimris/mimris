@@ -100,15 +100,14 @@ const page = (props:any) => {
   // }, [props.phFocus.focusModelview.id])
 
   const toggleContext = () => {
-    console.log('103 modelling toggleContext')
-    const data = !props.phUser.appSkin.visibleContext
-    dispatch({ type: 'SET_VISIBLE_CONTEXT', data: data })
+    console.log('103 modelling toggleContext', props.phUser.appSkin.visibleContext)
+    dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
   }
 
-  const contextDiv = (
-    <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
-      <SetContext className='setContext' ph={props} />
-      <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+  const contextDiv = ( // the top context area (green)
+    <div className="context-bar d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
+      <SetContext className='setContext w-100' ph={props} style={{backgroundColor: "#cdd" ,minWidth: "80%", maxWidth: "240px"}}/>
+      <div className="context-bar--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
         {/* <Link className="home p-2 m-2 text-primary" href="/context"> Context </Link> */}
         {/* <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />  */}
         <button className="btn bg-light text-primary btn-sm" onClick={toggleContext}>✵</button>
@@ -125,10 +124,10 @@ const page = (props:any) => {
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
-            {/* {videoDiv}           */}
+            {/* {videoDiv} */}
               {contextDiv}            
             <div className="workplace d-flex" >     
-              {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>}              */}
+              {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>} */}
               {/* <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
                 <TasksHelp />
               </div> */}
@@ -137,7 +136,8 @@ const page = (props:any) => {
                 <Modelling />
               </div>
               <div className="contextarea">
-                {(props.phUser.appSkin) ? <Context /> : <></>}
+                {/* <Context ph={props} /> */}
+                {(props.phUser.appSkin.visibleContext) ? <Context  ph={props}/> : <></>}
               </div>
             </div>
             <div className="footer">

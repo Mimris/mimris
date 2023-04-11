@@ -16,21 +16,22 @@ const SetContext = (props: any) =>  {
   }
 
   const contextRepoDiv = 
-    <div className="context-list d-flex justify-content-between flex-grow-1 px-1"> Context :
+    <div className="context-list d-flex justify-content-around flex-grow-1 px-1"> Context :
+      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
+      <span className="context-item "> Modelview: <strong>{ phFocus?.focusModelview?.name } </strong> </span> 
+      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
+      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span> |
+
+    </div>
+
+  const contextModelDiv = 
+    <div className="context-list d-flex justify-content-around align-items-center flex-grow-1"> Context 2:
       <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
       <span className="context-item"> Repo: <strong>{repo}</strong> </span> |
       <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> |
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Modelview: <strong>{ phFocus?.focusModelview?.name }</strong> </span> |
       <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
       <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
-    </div>
-
-  const contextModelDiv = 
-    <div className="context-list d-flex justify-content-between align-items-center flex-grow-1"> Context 2:
-      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
-      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span>
   </div>
 
   const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}

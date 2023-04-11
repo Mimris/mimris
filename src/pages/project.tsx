@@ -28,7 +28,7 @@ const page = (props: any) => {
   const [refresh, setRefresh] = useState(false)
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
   
-  if (!debug) console.log('28 project',props, query)
+  if (debug) console.log('28 project',props, query)
 
   // list query params
   let org = props.phFocus.focusProj.org
@@ -73,10 +73,10 @@ const page = (props: any) => {
       branch = query.branch
       focus = query.focus
       ghtype = query.ghtype
-      if (!debug) console.log('33 modelling dispatchGithub', query, props)  
+      if (debug) console.log('33 modelling dispatchGithub', query, props)  
       dispatch({type: 'LOAD_DATAGITHUB', data: query })
       const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
-      if (!debug) console.log('49 GithubParams', data)
+      if (debug) console.log('49 GithubParams', data)
       dispatch({ type: 'SET_FOCUS_PROJ', data: data })
       const org1 = {id: org, name: org}
       dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
@@ -84,7 +84,7 @@ const page = (props: any) => {
       dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
     } 
     const timer = setTimeout(() => {
-    if (!debug) console.log('73 GithubParams', org, repo, path, file, branch, focus, ghtype)
+    if (debug) console.log('73 GithubParams', org, repo, path, file, branch, focus, ghtype)
     //   dispatch({type: 'SET_REFRESH', data: {refresh: true} })
     // setRefresh(!refresh)
   }, 1000);
@@ -124,7 +124,7 @@ const page = (props: any) => {
 
   useEffect(() => {
 
-    if (!debug) console.log('54 modelling dispatchGithub', query, props.phFocus.focusProj)
+    if (debug) console.log('54 modelling dispatchGithub', query, props.phFocus.focusProj)
     org = props.phFocus?.focusProj.org || prompt("Organisation?");
     repo = props.phFocus?.focusProj.repo || prompt("Repo?");
     path = props.phFocus?.focusProj.path || prompt("path?");
@@ -132,10 +132,10 @@ const page = (props: any) => {
     branch = props.phFocus?.focusProj.branch || prompt("branch? (main)");
     // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
     // if (!ghtype) ghtype = prompt("ghtype?");
-    if (!debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
+    if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
     // dispatch({type: 'SET_FOCUS_PROJ', data: {org: org, repo: repo, path: path, file: file, branch: branch, focus: focus, ghtype: ghtype} })
     const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
-    if (!debug) console.log('65 GithubParams', data)
+    if (debug) console.log('65 GithubParams', data)
     dispatch({ type: 'SET_FOCUS_PROJ', data: data })
     const org1 = {id: org, name: org}
     dispatch({ type: 'SET_FOCUS_ORG', data: org1 })

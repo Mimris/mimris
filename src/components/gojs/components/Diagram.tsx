@@ -3525,20 +3525,24 @@ return (
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
         <Modal isOpen={this.state.showModal}  >
-          {/* <div className="modal-dialog w-100 mt-5">
-            <div className="modal-content"> */}
-              <div className="modal-head">
-                <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
-                </Button>
-                  <span className="text-secondary float-left">{ header }:</span> 
+          {/* <div className="modal-dialog w-100 mt-5"> */}
+            <div className="modal-content">
+              <div className="modal-head px-2 ">
+              <div className="d-flex p-1 ">
+                  <span className="text-secondary w-100 pt-1">{header}:</span>
+                  <span className="ml-auto ">
+                    <Button className="modal-button btn-sm" onClick={() => { this.handleCloseModal('x') }}>x</Button>
+                  </span>
+                </div>
                 <ModalHeader className="modal-header" >
                   <span className="modal-name ml-2" >{this.state.selectedData?.name} </span>
                   <span className="modal-objecttype"> {(this.state.selectedData?.objecttype?.name)
-                    ? `(${this.state.selectedData?.objecttype?.name})`
-                    : `(${this.state.selectedData?.relshiptype?.name})`
-                  }
-                    </span> 
+                      ? `(${this.state.selectedData?.objecttype?.name})`
+                      : (this.state.selectedData?.relshiptype?.name)
+                        ?`(${this.state.selectedData?.relshiptype?.name})`
+                        : ''
+                    }
+                  </span> 
                 </ModalHeader>
               </div>
               <ModalBody  className="modal-body w-100">
@@ -3551,8 +3555,8 @@ return (
               <ModalFooter className="modal-footer">
                 <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
               </ModalFooter>
-            {/* </div>
-          </div> */}
+            </div>
+          {/* </div> */}
         </Modal>        
         <style jsx>{`        
       `}

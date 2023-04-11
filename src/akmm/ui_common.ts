@@ -3238,7 +3238,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
     let relview;
     if (reltypeView) {
         let viewdata: any = reltypeView.getData();
-        if (!debug) console.log('3096 data, viewdata', data, viewdata);
+        if (debug) console.log('3096 data, viewdata', data, viewdata);
         relview = data.relshipview;
         if (relview) {
             for (let prop in viewdata) {
@@ -3274,7 +3274,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                     relview[prop] === "white";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                if (!debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
+                if (debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
             }
         }
     }

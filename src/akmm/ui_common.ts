@@ -96,7 +96,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         data.scale1 = Number(node.scale1);
                         // Check if the node and the group are of the same objecttypes
                         const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-                        //if (node.objecttype.id === group.objecttype.id) {
+                        if (reltype) {
                             // Check if the group already has a hasMember relationship to the node
                             const rels = group.object.getOutputRelshipsByType(reltype);
                             if (rels.length === 0) {
@@ -121,7 +121,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                     }
                                 }
                             }
-                        //}
+                        }
                     }
                 }
                 if (debug) console.log('108 data, node, myGoModel', data, node, myGoModel);    

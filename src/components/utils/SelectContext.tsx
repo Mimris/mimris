@@ -2,16 +2,18 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
+import '@fortawesome/fontawesome-free/css/all.css';
 import Selector from './Selector'
 import Context from '../Context'
+import EditFocusParameter from '../forms/EditFocusParameter'
 // import { loadState, saveState } from '../utils/LocalStorage'
 // import { FaJoint } from 'react-icons/fa';
 
 const debug = false;
 
 const SelectContext = (props: any) => {
-  // if (debug) console.log('12 ', props);
-
+  if (debug) console.log('12 ', props);
+  const dispatch = useDispatch();
   let state = useSelector((state:any) => state) // Selecting the whole redux store
 
   const [modal, setModal] = useState(false);
@@ -20,37 +22,17 @@ const SelectContext = (props: any) => {
   const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array 
   const { buttonLabel, className } = props;
 
+  
+
   return (models) && (
-    <>
+    < >
       <button className="btn-sm mt-0 pb-0 pt-0 mr-2" style={{height: "24px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>
       <Modal isOpen={modal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
-          <div className="context-list1 border-bottom border-dark">Current Context / Focus :<br />
-            <span className="context-item">Model: <strong className="focusValue">{ props.phFocus?.focusModel?.name }</strong> </span><br />
-            <span className="context-item">Modelview: <strong className="focusValue">{props.phFocus?.focusModelview?.name}</strong> </span><br />
-            <span className="context-item">Objectview: <strong className="focusValue">{props.phFocus?.focusObjectview?.name}</strong> </span><br />
-            <span className="context-item">Focus Object: <strong className="focusValue">{props.phFocus?.focusObject?.name}</strong> </span><br />
-            {/* <span className="context-item">Objecttype: <strong className="focusValue">{props.phFocus?.focusObjecttype?.name}</strong> </span> */}
-            {/* <span className="context-item">Objecttypeview: <strong className="focusValue">{props.phFocus?.focusObjecttypeview?.name}</strong> </span> */}
-            {/* <span className="context-item">Relshipview: <strong className="focusValue">{props.phFocus?.focusRelshipview?.name}</strong> </span> */}
-            {/* <span className="context-item">Relship: <strong className="focusValue">{props.phFocus?.focusRelship?.name}</strong> </span> */}
-            {/* <span className="context-item">Relshiptype: <strong className="focusValue"{props.phFocus?.focusRelshiptype?.name}</strong> </span> */}
-            <span className="context-item">Org: <strong className="focusValue">{props.phFocus?.focusOrg?.name}</strong> </span><br />
-            <span className="context-item">Proj: <strong className="focusValue">{props.phFocus?.focusProj?.name}</strong> </span><br />
-            <span className="context-item">Role: <strong className="focusValue">{props.phFocus?.focusRole?.name}</strong> </span><br />
-            <span className="context-item">Task: <strong className="focusValue">{props.phFocus?.focusTask?.name}</strong> </span><br />
-            {/* <span className="context-item"><SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> </span> */}
-            {/* <span className="context-item">FocusModel: <strong className="focusValue">{props.phFocus?.focusModel?.name}</strong> </span><br />
-            <span className="context-item">FocusModelview: <strong className="focusValue">{props.phFocus?.focusModelview?.name}</strong> </span><br /> */}
-            {/* <span className="context-item">Tab: <strong className="focusValue">{pprops.hFocus?.focusTab}</strong> </span> */}
-            <span className="context-item">Template: <strong className="focusValue">{props.phFocus?.focusTemplateModel?.name}</strong> </span><br />
-            <span className="context-item">TemplateModelview: <strong className="focusValue">{props.phFocus?.focusTemplateModelview?.name}</strong> </span><br />
-            <span className="context-item">TargetModel: <strong className="focusValue">{props.phFocus?.focusTargetModel?.name}</strong> </span><br />
-            <span className="context-item">TargetModelview: <strong className="focusValue">{props.phFocus?.focusTargetModelview?.name}</strong> </span><br />
-          </div>
-          <Context />
+          <EditFocusParameter phFocus={props.phFocus} models={props.phData.metis.models}/>
+          {/* <Context /> */}
         </ModalBody>
           {/* <div className="ml-2">{emailDivGmail}</div>
         <div className="ml-2">{emailDivMailto}</div> */}
@@ -73,7 +55,94 @@ export default SelectContext
 
 
 
-
+{/* <form>
+<div className="context-list1 border-bottom border-dark">
+  <h4>Current Context / Focus:</h4>
+  <div className="form-group row">
+    <label htmlFor="model" className="col-sm-3 col-form-label">Model:</label>
+    <div className="col-sm-8">
+      <input type="text" className="form-control" id="model" value={model} readOnly={!isEditing} onChange={(event) => setModel(event.target.value)} />
+    </div>
+    <div className="col-sm-1 pt-1 px-0">
+      {isEditing ? (
+        <button type="button" className="btn btn-sm btn-primary" onClick={() => handleSave('model')} data-toggle="tooltip" data-placement="top" title="Save">
+          <i className="fas fa-save fa-fw"></i>
+        </button>
+      ) : (
+        <button type="button" className="btn btn-sm btn-primary" onClick={() => handleEdit('model')} data-toggle="tooltip" data-placement="top" title="Edit">
+          <i className="fas fa-edit fa-fw"></i>
+        </button>
+      )}
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="modelview" className="col-sm-3 col-form-label">Modelview:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="modelview" value={props.phFocus?.focusModelview?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="objectview" className="col-sm-3 col-form-label">Objectview:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="objectview" value={props.phFocus?.focusObjectview?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="focusObject" className="col-sm-3 col-form-label">Focus Object:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="focusObject" value={props.phFocus?.focusObject?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="org" className="col-sm-3 col-form-label">Org:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="org" value={props.phFocus?.focusOrg?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="proj" className="col-sm-3 col-form-label">Proj:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="proj" value={props.phFocus?.focusProj?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="role" className="col-sm-3 col-form-label">Role:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="role" value={props.phFocus?.focusRole?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="task" className="col-sm-3 col-form-label">Task:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="task" value={props.phFocus?.focusTask?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="template" className="col-sm-3 col-form-label">Template:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="template" value={props.phFocus?.focusTemplateModel?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="templateModelview" className="col-sm-3 col-form-label">TemplateModelview:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="templateModelview" value={props.phFocus?.focusTemplateModelview?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="targetModel" className="col-sm-3 col-form-label">TargetModel:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="targetModel" value={props.phFocus?.focusTargetModel?.name} />
+    </div>
+  </div>
+  <div className="form-group row">
+    <label htmlFor="targetModelview" className="col-sm-3 col-form-label">TargetModelview:</label>
+    <div className="col-sm-9">
+      <input type="text" className="form-control" id="targetModelview" value={props.phFocus?.focusTargetModelview?.name} />
+    </div>
+  </div>
+</div>
+</form> */}
 
 
 

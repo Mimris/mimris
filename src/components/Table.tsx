@@ -157,7 +157,7 @@ const page = (props:any) => {
           </span>
         </div> 
         {/* <div className="modellingContent pt-1" > */}
-        <div className="modellingContent pt-1 pr-2"  >aaa
+        <div className="modellingContent pt-1 pr-2"  >
           {/* {modellingtabs} */}
           {refresh ? <> {tabletabs} </> : <>{tabletabs}</>}
         </div>

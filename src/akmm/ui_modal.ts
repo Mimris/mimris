@@ -1313,7 +1313,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myMetamodel.addRelationshipTypeView(typeview);
           myMetis.addRelationshipTypeView(typeview);
           const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
-          if (!debug) console.log('1313 jsnReltypeview', jsnReltypeview);
+          if (debug) console.log('1313 jsnReltypeview', jsnReltypeview);
           modifiedRelTypeviews.push(jsnReltypeview);
           modifiedRelTypeviews.map(mn => {
             let data = mn;

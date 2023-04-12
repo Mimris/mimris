@@ -7422,7 +7422,9 @@
         "zoomToFocus": false
       }
     },
-    "appSkin": false
+    "appSkin": {
+      "visibleContext": true
+    }
   },
   "phSource": "AKM-INIT-Startup.json",
   "lastUpdate": "2022-12-12T16:55:03.168Z"

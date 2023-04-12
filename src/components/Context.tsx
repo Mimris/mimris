@@ -1,4 +1,5 @@
-
+// This is a React component that displays details of a selected object in a tabbed interface.
+// It allows the user to edit the object's properties and view related objects.
 import React, { useRef,useContext, useState, useEffect } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
@@ -6,6 +7,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
+
+import {ObjDetailTable} from './forms/ObjDetailTable';
+import ObjectDetails from './forms/ObjectDetails';
 
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 
@@ -17,42 +21,30 @@ const debug = false
 
 const Context = (props) => {
 
-    let state = useSelector((state:any) => state) // Selecting the whole redux store
+    // console.log('20 context', props)
+    // let props.= useSelector((props.any) => props. // Selecting the whole redux store
+    const ph = props.ph
 
-    console.log('19 context', props, state)
-
-    if (!state.phData?.metis?.models) return <></>
-
-
-
+    if (!ph.phData?.metis?.models) return <></>
     const dispatch = useDispatch()
     const [selectedId, setSelectedId] = useState(null);
     const [value, setValue] = useState("");
+    // const [visibleContext, setVisibleContext] = useState(true);
+    const [formValues, setFormValues] = useState({});
 
-    useEffect(() => {
-      if (selectedId) {
-        setSelectedId(null);
-      }
-    }, []);
+    // if no props.then exit
+    const metamodels = useSelector(metamodels => ph.phData?.metis?.metamodels)  // selecting the models array
+    const focusModel = useSelector(focusModel => ph.phFocus?.focusModel) 
+    const focusUser = useSelector(focusUser => ph.phUser?.focusUser)
+    const focusModelview = useSelector(focusModelview => ph.phFocus?.focusModelview)
+    const focusObjectview = useSelector(focusObjectview => ph.phFocus?.focusObjectview)
+    const focusObject = useSelector(focusObject => ph.phFocus?.focusObject)
   
-    const MDEditor = dynamic(
-      () => import("@uiw/react-md-editor"),
-      { ssr: false }
-    );
 
-  
-    // if no state then exit
-    const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
-    const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
-    const focusUser = useSelector(focusUser => state.phUser?.focusUser)
-    const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
-    const focusObjectview = useSelector(focusObjectview => state.phFocus?.focusObjectview)
-    const focusObject = useSelector(focusObject => state.phFocus?.focusObject)
-
-    const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array
+    const models = useSelector(models =>  ph.phData?.metis?.models)  // selecting the models array
   
     // const [model, setModel] = useState(focusModel)
-    if (!debug) console.log('47 Context', focusObject, focusModel, models);
+    if (debug) console.log('47 Context', focusObject, focusModel, models);
     
     const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
@@ -60,9 +52,65 @@ const Context = (props) => {
     const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
     const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
     const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-    if (!debug) console.log('51 Context',  currelshipviews, currelationships);
+    if (debug) console.log('51 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
     const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
     // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
+
+    let curobject = objects?.find(o => o.id === focusObject?.id) 
+    if (debug) console.log('81 curobject', curobject)
+
+    useEffect(() => {
+      setFormValues(curobject);
+    }, [curobject]);
+  
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormValues({ ...formValues, [name]: value });
+    };
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      console.log('70 Context ',formValues);
+      if (formValues) {
+      const modifiedFields = {};
+      for (const key in formValues) { 
+        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+          modifiedFields[key] = formValues[key];
+        }
+      }
+      const objData = { id: formValues['id'], ...modifiedFields };
+      const objvData = { id: focusObjectview.id, name: formValues['name']};
+      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
+      dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
+      
+      if (modifiedFields['name']) {
+        const focobjData = { id: focusObject.id, name: modifiedFields['name'] };
+        const focobjvData = { id: focusObjectview.id, name: formValues['name']};
+        dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: focobjvData })
+        dispatch({ type: 'SET_FOCUS_OBJECT', data: focobjData })
+      }
+        
+        // dispatch(submitForm(formValues));
+        console.log('83 Context ',formValues, objData, objvData);
+      }
+    };
+
+
+
+    useEffect(() => {
+      if (selectedId) {
+        setSelectedId(null);
+      }
+    }, []);
+    
+  
+    const MDEditor = dynamic(
+      () => import("@uiw/react-md-editor"),
+      { ssr: false }
+    );
+
+  
+
     // remove duplicate objects
     const uniqueovs = curobjectviews?.filter((ov, index, self) =>
       index === self.findIndex((t) => (
@@ -83,60 +131,76 @@ const Context = (props) => {
       return type
     }
     
-    const curobjectview = curobjectviews.find(ov => ov.id === focusObjectview?.id) || modelviews.find(mv => mv.id === focusModelview?.id)
-    let objectviewChildren = []
-    let objectChildren = []
-    if (!curobjectview) { 
-      console.log(`objectview for ${focusObjectview.id} - ${focusObjectview.name} not found`);
-    } else { // find children
-      objectviewChildren = curobjectviews.filter(ov => ov.group === curobjectview.id) || curobjectviews
-      objectChildren = objectviewChildren.map(ov => objects.find(o => o.id === ov.objectRef))
-      if (!debug) console.log('51 Context', curobjectview, objectviewChildren);
-    }
 
-    const setObjview = (o) => {
-      if (o) {
-        let ov =curobjectviews.find(ov => ov.objectRef === o?.id) 
-        console.log('99 setObjview', o?.id, ov, curobjectviews)
-        dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: {id: ov.id, name: ov.name} })
-        dispatch({ type: 'SET_FOCUS_OBJECT', data: {id: o.id, name: o.name} })
-      } else {
-        alert('No object to focus on')
-      }
-    }
-
-
-    let curobject = objects?.find(o => o.id === focusObject?.id) 
-    console.log('81 curobject', curobject)
-    
-    if (!curobject) curobject = curmodelview
+    // if (!curobject) curobject = curmodelview
+    const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) &&  ({id: cmv.id, name: cmv.name}))
+    if (!debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
+    // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
     // find parent object
-    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
-    const parentobject = objects?.find(o => o.id === parentobjectview?.objectRef) || null
-    if (!debug) console.log('58 Context', parentobjectview?.name, parentobject);
+
 
     let relatedObjects = []
     const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
     const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
-    if (!debug) console.log('58 Context', curRelatedFromObectRels, curRelatedToObectRels);
-        
+    if (debug) console.log('58 Context', curRelatedFromObectRels, curRelatedToObectRels);
+  
+  
+   
+    const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+    if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
+    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
+    let parentobject =  objects?.find(o => o.id === parentobjectview?.objectRef)
+    parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
+    if (debug) console.log('58 Context', parentobjectview);
+    if (debug) console.log('58 Context', parentobject);
 
-    const includedKeysMain = ['id', 'name', 'description', 'propertyValues', 'valueset'];
-    const objectPropertiesMain = Object.keys(curobject).filter(key => includedKeysMain.includes(key));
+    let objectviewChildren = []
+    let objectChildren = []
+    if (debug) console.log('116 Context',  curobjectview?.name, curobject?.name);
+    if (!curobject) { 
+      console.log(`116 objectview for ${focusObjectview.id} - ${focusObjectview.name} not found`);
+    } else { // find children
+        if (debug) console.log('117 Context',  curobjectview?.name, curobjectviews);
+        objectviewChildren = curobjectviews?.filter(ov => ov.group === curobjectview?.id) || null
+        objectChildren = objectviewChildren?.map(ov => objects.find(o => o.id === ov.objectRef)) || null
+      // }
+    } 
 
-    const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract', 'typeRef', 'typeName', 'typeDescription','leftPorts',	
-    'rightPorts','topPorts', 'bottomPorts', 'markedAsDeleted', 'modified',	'sourceUri',	'relshipkind','Associationvalueset','copiedFromId']
 
-    const objectPropertiesMore = Object.keys(curobject).filter(key => includedKeysMore.includes(key));
+    // if (!curobjectview) { // use modelviews as parent
+    //   console.log('121 Context', parentobject);
+    //       objectviewChildren = curobjectviews?.filter(ov => ov.group === '')
+    //       objectChildren = objects.filter(o => objectviewChildren?.find(ov => ov.objectRef === o.id))
+    // }
+    if (debug) console.log('94 Context', objectviewChildren);
+    if (debug) console.log('95 Context', objectChildren);
+
+
+
+    const setObjview = (o) => {
+      let ovdata =  (o) ? curobjectviews.find(ov => ov.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
+      let odata = (o) ? {id: o.id, name: o.name} : {id: '', name: 'no object selected'}
+      if (debug) console.log('99 setObjview', ovdata, odata )
+      dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })
+      dispatch({ type: 'SET_FOCUS_OBJECT', data: odata })
+    }
+
+    const includedKeysMain = ['id', 'name', 'description', 'typeName', 'typeDescription'];
+    const objectPropertiesMain = (curobject) &&  Object.keys(curobject).filter(key => includedKeysMain.includes(key));
+
+    const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'leftPorts', 'propertyValues', 'valueset',
+    'rightPorts','topPorts', 'bottomPorts', 'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
+
+    const objectPropertiesMore = (curobject) && Object.keys(curobject).filter(key => includedKeysMore.includes(key));
 
     // const ovChildrenProperties = ovChildrenPropertiesList.reduce((a, b) => a.concat(b), [])
     // const objectProperties = Object.entries(curobject);
 
     let markdownString = ''
-    markdownString += `### ${curobject.name}\n\n `
-    markdownString += '**Name:**' + curobject.name + ' \n\n'
-    markdownString += 'Description:  ***' + curobject.description + '*** \n\n'
-    markdownString += objectPropertiesMain.map(key => (  
+    markdownString += `### ${curobject?.name}\n\n `
+    markdownString += '**Name:**' + curobject?.name + ' \n\n'
+    markdownString += 'Description:  ***' + curobject?.description + '*** \n\n'
+    markdownString += objectPropertiesMain?.map(key => (  
         `- ${key}:  ${curobject[key]} \n`
         // `| ${key}: | ${value} |\n`
         )).join('');
@@ -144,250 +208,149 @@ const Context = (props) => {
 
     const [activeTab, setActiveTab] = useState(0);
 
-    const ObjDetailTable = ({ title, curRelatedObjsRels, selectedId, setSelectedId, curobject, objects, includedKeys, setObjview }) => {
-      // curRelatedObjsRels are object for children or parents and relationships for to and from objects
-      return (
-        <>
-        <table className="table w-100">
-          <thead className="thead">
-            <tr className="tr">
-              <th className="th bg-light">{title}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {curRelatedObjsRels.map(objrel => (
-              <tr key={objrel.id}>
-                <details key={objrel.id} open={objrel.id === selectedId} onToggle={() => setSelectedId(objrel.id)}>
-                  <summary style={{ display: 'flex' }}>  
-                    <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel.id === selectedId ? '▼' : '▶'}</span>
-                    { (title==='Children') 
-                      ? <>
-                          <span style={{ marginLeft: "6px" }}>{objrel.name}</span>
-                          <span style={{ marginLeft: "126px" }}> </span>    
-                          <span style={{ flex: 1, textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === objrel.typeRef)?.name})</span> 
-                          <button style={{ marginLeft: "10px", border: "none", backgroundColor: "transparent", float: "right" }} onClick={() => setObjview(objects.find(o => o.id === objrel.id && o)) }>⤴️</button>
 
 
-                        </>
-                      : (title==='Related From') 
-                        ? <>
-                            <span>{curobject.name}</span>
-                            <span style={{ marginLeft: "16px", marginRight: "16px" }}>{objrel.name}</span>
-                            <span style={{ flex: 1, textAlign: 'right' }}>{objects.find(o => (o.id === objrel.toobjectRef)).name}</span>{/*  this is the relationships name  */}  
-                            <span style={{ flex: 1, textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === objects.find(o => (o.id === objrel.toobjectRef)).typeRef)?.name})</span>            
-                            <button style={{ marginLeft: "10px", border: "none", backgroundColor: "transparent", float: "right" }} onClick={() => setObjview(objects.find(o => o.id === objrel.toobjectRef && o)) }>⤴️</button>
-                          </>
-                        : <>
-                            <span>{curobject.name}</span>
-                            <span style={{ marginLeft: "16px", marginRight: "16px" }}>{objrel.name}</span>
-                            <span style={{ flex: 1, textAlign: 'right' }}>{objects.find(o => (o.id === objrel.fromobjectRef) && o).name}</span>{/*  this is the relationships name  */}  
-                            <span style={{ flex: 1, textAlign: 'right' }}>({curmm.objecttypes.find(ot => ot.id === objects.find(o => (o.id === objrel.toobjectRef)).typeRef)?.name})</span>            
-   
-                            <button style={{ marginLeft: "10px", border: "none", backgroundColor: "transparent", float: "right" }} onClick={() => setObjview(objects.find(o => o.id === objrel.fromobjectRef && o)) }>⤴️</button>
-                          </> 
-                    }
-                  </summary>
-
-                  {/* <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ display: 'inline-block', width: '1.5em' }}>{obj.id === selectedId ? '▼' : '▶'}</span>
-                          <span style={{ flex: 1, textAlign: 'left' }}>{obj.name}</span>
-                          <span style={{ textAlign: 'right' }}>({curmm.relshiptypes.find(ot => ot.id === obj.typeRef)?.name})</span> 
-                      </summary> */}
-                  <table className="table w-100">
-                    <thead className="thead"> 
-                      <tr className="tr">
-                        <th className="th">Property</th>
-                        <th className="th">Value </th>
-                        {/* <th className="th">Value {obj.name} - {curobject.name} -- {(objects.find(o => (curRelatedObjsRels.find(r => r.id === obj.fromobjectRef)).toobjectRef === o.id))}</th> */}
-                        {/* <th className="th">
-                          <span className="d-flex justify-content-end">
-                            <button onClick={() => setObjview(objects.find(o => curRelatedObjsRels.find(r => r.id === o.toobjectRef && o))) }>⤴️</button>
-                          </span>
-                        </th> */}
-                      </tr>
-                    </thead>
-                    <tbody className="tbody">
-                      {Object.keys(objrel).map(
-                        pv =>
-                          includedKeys.includes(pv) && (
-                            <tr className="tr" key={pv}>
-                              <td className="td">{pv}</td>
-                              <td className="td">{objrel[pv]}</td>
-                              <td className="td"></td>
-                            </tr>
-                          )
-                      )}
-                    </tbody>
-                  </table>
-                </details>
+    const tabsDiv = (
+      <Tabs  onSelect={index => setActiveTab(index)}>
+        <TabList>
+          <Tab>Main</Tab>
+          <Tab >Additional</Tab>
+          <Tab>Markdown</Tab>
+          {/* <Tab><FaPlaneArrival />Main</Tab>
+          <Tab ><FaCompass /></Tab> */}
+        </TabList>
+        <TabPanel>
+          {/* <h4 className="px-2">{curobject?.name}                              
+            <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name || ('Modelview')})
+            { (curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
+            </span>
+          </h4>       */}
+          <ObjectDetails
+            curmodel={curmodel}
+            curmodelview={curmodelview}
+            curmm={curmm}
+            curobject={curobject}
+            objectPropertiesMain={objectPropertiesMain}
+            formValues={formValues}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            curobjModelviews={curobjModelviews}
+            setObjview={setObjview}
+            parentobject={parentobject}
+          />
+          <table className='w-100'>
+            <thead className="thead">
+              <tr className="tr">
+                <th className="th">Current object shown in:</th>
+                <th className="th">Value <span style={{float: "right"}}>🟢 = in current Modelview</span></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
-      );
-    };
-  
-    if (!state?.phUser?.appSkin?.visibleContext) {
-      return (
-        <>
-            <div style={{ padding: "2px",border: '4px solid gray', width: '50vh' }} >
-              <div style={{ marginBottom: "-28px", display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}>
-                <button className="btn-sm m-0 px-1" onClick={() => dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !state?.phUser?.appSkin?.visibleContext })}>X</button>
-              </div>
-              {/* <h1>{curobject.name}</h1> */}
-              <Tabs  onSelect={index => setActiveTab(index)}>
-                <TabList>
-                  <Tab>Main</Tab>
-                  <Tab >Additional</Tab>
-                  {/* <Tab><FaPlaneArrival />Main</Tab>
-                  <Tab ><FaCompass /></Tab> */}
-                  <Tab>Markdown</Tab>
-                </TabList>
-                <TabPanel>
-                  <h4 className="px-2">{curobject.name}                              
-                    <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject.typeRef)?.name})
-                    {(parentobject) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
-                    </span>
-                  </h4>      
+            </thead>
+            <tbody>
+              {curobjModelviews.map(comv =>  (
+                <tr className="tr" key={comv.id}>
+                  <td className="td">Modelview</td>
+                {(comv.id === curmodelview?.id) ? <td className="td">{comv.name} <span style={{float: "right"}}>🟢</span></td> : <td className="td">{comv.name}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table> 
+          <ObjDetailTable
+            title="Children"
+            curRelatedObjsRels={objectChildren}
+            curmodelview={curmodelview}
+            curmetamodel={curmm}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
+            curobject={curobject}
+            objects={objects}
+            includedKeys={includedKeysMain}
+            setObjview={setObjview}
+          />
+          <ObjDetailTable
+            title="Related From"
+            curRelatedObjsRels={curRelatedFromObectRels}
+            curmodelview={curmodelview}
+            curmetamodel={curmm}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
+            curobject={curobject}
+            objects={objects}
+            includedKeys={includedKeysMain}
+            setObjview={setObjview}
+          />
+          <ObjDetailTable
+            title="Related To"
+            curRelatedObjsRels={curRelatedToObectRels}
+            curmodelview={curmodelview}
+            curmetamodel={curmm}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
+            curobject={curobject}
+            objects={objects}
+            includedKeys={includedKeysMain}
+            setObjview={setObjview}
+          />   
+                
+        </TabPanel>
+        <TabPanel>
+        <ObjectDetails
+            curmodel={curmodel}
+            curmodelview={curmodelview}
+            curmm={curmm}
+            curobject={curobject}
+            objectPropertiesMain={objectPropertiesMore}
+            formValues={formValues}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            curobjModelviews={curobjModelviews}
+            setObjview={setObjview}
+            parentobject={parentobject}
+          />
+        </TabPanel>
+        <TabPanel>
+          {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
+          {/* <div className="my-1" style={{ minHeight: 'h', width: '40vh' }} > */}
+            {/* <h3>{focusObject.name}</h3> */}                
+            <MDEditor 
+              value={markdownString} 
+              onChange={setValue} 
+              height={1030}
+              // preview="preview"
+            />
+            {/* <MDEditor
+            onChange={(newValue = "") => setValue(newValue)}
+            textareaProps={{
+              placeholder: "Please enter Markdown text"
+            }}
+            height={500}
+            value={value}
+            // previewOptions={{
+            //   components: {
+            //     code: Code
+            //   }
+            // }}
+          /> */}
+          {/* </div> */}
+        </TabPanel>
+      </Tabs>
+    )
 
-                  <table className='w-100'>
-                    <thead className="thead">
-                      <tr className="tr">
-                        <th className="th">Property</th>
-                        <th className="th">Value</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {objectPropertiesMain.map(key => (
-                        <tr className="tr" key={key}>
-                          <td className="td">{key}</td>
-                          <td className="td">{curobject[key]}</td>
-                        </tr>
-                      ))}
+    return (
+      <>
+        <div className="border bg-light border-rounded m-0 " style={{ minWidth: '700px', maxWidth: '800px', width: 'auto' }} >
+          <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn-sm px-1 me-4 mt-2 rounded" onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
+          </div>
+          {/* <h1>{curobject.name}</h1> */}
+          {/* {tabsDiv} */}
+          <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} >
+          {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+          </div>
+        </div>
+        {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
+      </>
+    )
 
-                    </tbody>
-                  </table>
-    
-                  <ObjDetailTable
-                    title="Children"
-                    curRelatedObjsRels={objectChildren}
-                    selectedId={selectedId}
-                    setSelectedId={setSelectedId}
-                    curobject={curobject}
-                    objects={objects}
-                    includedKeys={includedKeysMain}
-                    setObjview={setObjview}
-                  />
-                  <ObjDetailTable
-                    title="Related From"
-                    curRelatedObjsRels={curRelatedFromObectRels}
-                    selectedId={selectedId}
-                    setSelectedId={setSelectedId}
-                    curobject={curobject}
-                    objects={objects}
-                    includedKeys={includedKeysMain}
-                    setObjview={setObjview}
-                  />
-                  <ObjDetailTable
-                    title="Related To"
-                    curRelatedObjsRels={curRelatedToObectRels}
-                    selectedId={selectedId}
-                    setSelectedId={setSelectedId}
-                    curobject={curobject}
-                    objects={objects}
-                    includedKeys={includedKeysMain}
-                    setObjview={setObjview}
-                  />              
-                </TabPanel>
-                <TabPanel>
-                  <table >
-                    <thead className="thead">
-                      <tr className="tr">
-                        <th className="th">Property</th>
-                        <th className="th">Value</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {objectPropertiesMore.map(key => (
-                        <tr key={key}>
-                          <td>{key}</td>
-                          <td>{curobject[key]}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </TabPanel>
-                <TabPanel>
-                  {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
-                  {/* <div className="my-1" style={{ minHeight: 'h', width: '40vh' }} > */}
-                    {/* <h3>{focusObject.name}</h3> */}                
-                    <MDEditor 
-                      value={markdownString} 
-                      onChange={setValue} 
-                      height={1030}
-                      // preview="preview"
-                    />
-                    {/* <MDEditor
-                    onChange={(newValue = "") => setValue(newValue)}
-                    textareaProps={{
-                      placeholder: "Please enter Markdown text"
-                    }}
-                    height={500}
-                    value={value}
-                    // previewOptions={{
-                    //   components: {
-                    //     code: Code
-                    //   }
-                    // }}
-                  /> */}
-
-                  {/* </div> */}
-                </TabPanel>
-              </Tabs>
-            </div>
-          <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} />
-          <style jsx>{`
-            // table {
-            //   border-collapse: collapse;
-            //   font-family: Arial, Helvetica, sans-serif;
-            //   margin: 4px;
-            //   padding: 4px;
-            // }
-            // table-fromto {
-            //   display: flex;
-            //   border-collapse: collapse;
-            //   font-family: Arial, Helvetica, sans-serif;
-            //   margin: 4px;
-            //   padding: 4px;
-            // }
-            // thead{
-            //   margin: 4px;
-            //   padding: 4px;
-            // }
-            // tbody {
-            //   margin: 4px;
-            //   padding: 4px;
-            // }  
-            // th, td {
-            //   border: 1px solid #ddd;
-            //   padding: 8px;
-            //   text-align: left;
-            //   vertical-align: top;
-            //   width: fit-content;
-            // }
-
-            // th  {
-            //   background-color: #f2f2f2;
-            // }
-
-          `}
-          </style>
-        </>
-      )
-    } else {
-      return <></>
-    }
 
 }
 export default Context  

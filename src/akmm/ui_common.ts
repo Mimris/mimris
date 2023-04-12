@@ -86,9 +86,9 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 const node = new gjs.goObjectNode(key, objview);   
                 if (node) {
                     node.loc = data.loc;
-                    if (!debug) console.log('89 node, data', node, data);
+                    if (debug) console.log('89 node, data', node, data);
                     const group = getGroupByLocation(myGoModel, node.loc);
-                    if (!debug) console.log('91 node, group', node, group);
+                    if (debug) console.log('91 node, group', node, group);
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
@@ -96,7 +96,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         data.scale1 = Number(node.scale1);
                         // Check if the node and the group are of the same objecttypes
                         const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-                        if (node.objecttype.id === group.objecttype.id) {
+                        //if (node.objecttype.id === group.objecttype.id) {
                             // Check if the group already has a hasMember relationship to the node
                             const rels = group.object.getOutputRelshipsByType(reltype);
                             if (rels.length === 0) {
@@ -121,7 +121,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                     }
                                 }
                             }
-                        }
+                        //}
                     }
                 }
                 if (debug) console.log('108 data, node, myGoModel', data, node, myGoModel);    
@@ -3238,7 +3238,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
     let relview;
     if (reltypeView) {
         let viewdata: any = reltypeView.getData();
-        if (!debug) console.log('3096 data, viewdata', data, viewdata);
+        if (debug) console.log('3096 data, viewdata', data, viewdata);
         relview = data.relshipview;
         if (relview) {
             for (let prop in viewdata) {
@@ -3274,7 +3274,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                     relview[prop] === "white";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                if (!debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
+                if (debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
             }
         }
     }

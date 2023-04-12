@@ -90,7 +90,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
                     const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
                     const group = getGroupByLocation(myGoModel, node.loc);
-                    if () console.log('91 node, group', node, group);
+                    if (debug) console.log('91 node, group', node, group);
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;

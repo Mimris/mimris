@@ -26,7 +26,7 @@ import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile} from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
-import Context from "./Context";
+import ReportModule from "./ReportModule";
 
 // import ImpExpJSONFile from '../components/loadModelData/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
@@ -360,7 +360,8 @@ const page = (props:any) => {
                   </div>
                 </Col>
                 <Col className="col3 mr-0 p-0 " xs="auto"> 
-                {(props.phUser.appSkin.visibleContext) ? <Context  ph={props}/> : <></>}
+                {/* <ReportModule  props={props}/> */}
+                {(props.phUser.appSkin.visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col>
               </Row>
             </div>         

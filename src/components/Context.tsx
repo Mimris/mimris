@@ -6,24 +6,23 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 import {ObjDetailTable} from './forms/ObjDetailTable';
 import ObjectDetails from './forms/ObjectDetails';
+import MarkdownEditor from './forms/MarkdownEditor';
+import ObjDetailToMarkdown from './forms/MdFocusObject';
 
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
-
 import Selector from './utils/Selector'
-
 import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
 const Context = (props) => {
-
-    // console.log('20 context', props)
+    console.log('20 context', props, props.props)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
-    const ph = props.ph
+    const ph = props.props
 
     if (!ph.phData?.metis?.models) return <></>
     const dispatch = useDispatch()
@@ -56,6 +55,14 @@ const Context = (props) => {
     const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
     // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
 
+    // const [mdString, setMdString] = useState("");
+
+
+    // const setMdValue = (value) => {
+    //   setMdString(value);
+    // };
+    // const mdString = markdownString
+// 
     let curobject = objects?.find(o => o.id === focusObject?.id) 
     if (debug) console.log('81 curobject', curobject)
 
@@ -104,10 +111,10 @@ const Context = (props) => {
     }, []);
     
   
-    const MDEditor = dynamic(
-      () => import("@uiw/react-md-editor"),
-      { ssr: false }
-    );
+    // const MDEditor = dynamic(
+    //   () => import("@uiw/react-md-editor"),
+    //   { ssr: false }
+    // );
 
   
 
@@ -209,6 +216,15 @@ const Context = (props) => {
         )).join('');
     markdownString += `\n\n <!-- ${JSON.stringify(curobject)} -->\n\n`
 
+
+
+    // const mdString =  markdownString
+        const [mdString, setMdString] = useState("");
+
+    const handleMdChange = (value: string) => {
+      setMdString(value);
+    };
+
     const [activeTab, setActiveTab] = useState(0);
 
 
@@ -216,13 +232,13 @@ const Context = (props) => {
     const tabsDiv = (
       <Tabs  onSelect={index => setActiveTab(index)}>
         <TabList>
-          <Tab>Main</Tab>
-          <Tab >Additional</Tab>
-          <Tab>Markdown</Tab>
+          <Tab>Object main props</Tab>
+          <Tab >Additional Properties</Tab>
+          <Tab>Objectview</Tab>
           {/* <Tab><FaPlaneArrival />Main</Tab>
           <Tab ><FaCompass /></Tab> */}
         </TabList>
-        <TabPanel>
+        <TabPanel className="">
           {/* <h4 className="px-2">{curobject?.name}                              
             <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name || ('Modelview')})
             { (curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
@@ -257,43 +273,44 @@ const Context = (props) => {
               ))}
             </tbody>
           </table> 
-          <ObjDetailTable
-            title="Children"
-            curRelatedObjsRels={objectChildren}
-            curmodelview={curmodelview}
-            curmetamodel={curmm}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            curobject={curobject}
-            objects={objects}
-            includedKeys={includedKeysMain}
-            setObjview={setObjview}
-          />
-          <ObjDetailTable
-            title="Related From"
-            curRelatedObjsRels={curRelatedFromObectRels}
-            curmodelview={curmodelview}
-            curmetamodel={curmm}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            curobject={curobject}
-            objects={objects}
-            includedKeys={includedKeysMain}
-            setObjview={setObjview}
-          />
-          <ObjDetailTable
-            title="Related To"
-            curRelatedObjsRels={curRelatedToObectRels}
-            curmodelview={curmodelview}
-            curmetamodel={curmm}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            curobject={curobject}
-            objects={objects}
-            includedKeys={includedKeysMain}
-            setObjview={setObjview}
-          />   
-                
+          
+            <ObjDetailTable
+              title="Children"
+              curRelatedObjsRels={objectChildren}
+              curmodelview={curmodelview}
+              curmetamodel={curmm}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              curobject={curobject}
+              objects={objects}
+              includedKeys={includedKeysMain}
+              setObjview={setObjview}
+            />
+            <ObjDetailTable
+              title="Related From"
+              curRelatedObjsRels={curRelatedFromObectRels}
+              curmodelview={curmodelview}
+              curmetamodel={curmm}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              curobject={curobject}
+              objects={objects}
+              includedKeys={includedKeysMain}
+              setObjview={setObjview}
+            />
+            <ObjDetailTable
+              title="Related To"
+              curRelatedObjsRels={curRelatedToObectRels}
+              curmodelview={curmodelview}
+              curmetamodel={curmm}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              curobject={curobject}
+              objects={objects}
+              includedKeys={includedKeysMain}
+              setObjview={setObjview}
+            />   
+ 
         </TabPanel>
         <TabPanel>
         <ObjectDetails
@@ -311,45 +328,23 @@ const Context = (props) => {
           />
         </TabPanel>
         <TabPanel>
-          {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
-          {/* <div className="my-1" style={{ minHeight: 'h', width: '40vh' }} > */}
-            {/* <h3>{focusObject.name}</h3> */}                
-            <MDEditor 
-              value={markdownString} 
-              onChange={setValue} 
-              height={1030}
-              // preview="preview"
-            />
-            {/* <MDEditor
-            onChange={(newValue = "") => setValue(newValue)}
-            textareaProps={{
-              placeholder: "Please enter Markdown text"
-            }}
-            height={500}
-            value={value}
-            // previewOptions={{
-            //   components: {
-            //     code: Code
-            //   }
-            // }}
-          /> */}
-          {/* </div> */}
         </TabPanel>
       </Tabs>
     )
 
     return (
       <>
-        <div className="border bg-light border-rounded m-0 " style={{ minWidth: '700px', maxWidth: '800px', width: 'auto' }} >
-          <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="m-0 " style={{ minWidth: '686px', maxWidth: '800px', width: 'auto' }} >
+          {/* <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
             <button className="btn-sm px-1 me-4 mt-2 rounded" onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
-          </div>
+          </div> */}
           {/* <h1>{curobject.name}</h1> */}
           {/* {tabsDiv} */}
-          <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} >
-          {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+          <div className=""  >
+           {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
           </div>
         </div>
+
         {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
       </>
     )

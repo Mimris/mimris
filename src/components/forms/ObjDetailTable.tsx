@@ -30,7 +30,7 @@ export const ObjDetailTable = (props) => {
             {curRelatedObjsRels?.map(objrel => (
             <tr key={objrel.id}>
                 <td>
-                <details key={objrel.id} open={objrel.id === selectedId} onToggle={() => setSelectedId(objrel.id)}> 
+                <details key={objrel.id+'details'} open={objrel.id === selectedId} onToggle={() => setSelectedId(objrel.id)}> 
                 <summary style={{ display: 'flex' }}>  
                   <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel.id === selectedId ? '▼' : '▶'}</span>
                   {(title === 'Children' || curobject.id === curmodelview.id) ? (

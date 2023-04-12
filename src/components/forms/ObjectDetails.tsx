@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 
+const debug = false;
 
 const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview }) => {
-  console.log('ObjectHeader', curobject, parentobject);
+  if (debug) console.log('ObjectHeader', curobject, parentobject);
   return (
-    <h4 className="px-2">
+    <h4 className="p-2 bg-light mx-1">
       {curobject?.name}
       <span style={{ flex: 1, textAlign: 'right', float: 'right' }}>
         ({curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name || 'Modelview'})
@@ -233,7 +234,7 @@ const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropert
   return (
     <>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />
-      <div className=" bg-light">
+      <div className=" ">
         <div className="col">
             <ObjectForm
               objectPropertiesMain={objectPropertiesMain}

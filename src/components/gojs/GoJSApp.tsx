@@ -510,15 +510,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myModelview = context.myModelview;
             const myObjectviews = myModelview.objectviews;
-            // const myObjectviews = [];
-            // for (let i=0; i<myModelview.objectviews?.length; i++) {
-            //   const objview = myModelview.objectviews[i];
-            //   const myObjview = new akm.cxObjectView(objview.id, objview.name, objview.object, "");
-            //   for (let prop in objview) {
-            //     myObjview[prop] = objview[prop];
-            //   }
-            //   myObjectviews.push(myObjview);
-            // }
             if (debug) console.log('501 myObjectviews', myObjectviews);    
             // The object to move
             let fromloc, fromNode;
@@ -552,12 +543,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('533 group', group);
               if (debug) console.log('534 selcnt, group, node', selcnt, group, node);
 
+              const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
               if (group) { // The node IS moved into a group or moved INSIDE a group
                 const parentgroup = group;
                 node.group = parentgroup.key;
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 if (debug) console.log('557 parentgroup, node', parentgroup, node);
-                if (hasMemberType) {
+                if (group?.objecttype?.id !== containerType?.id && hasMemberType) {
                   const parentObj = parentgroup.object;
                   let rel = null;
                   let fromObj = null;

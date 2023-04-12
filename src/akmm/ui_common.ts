@@ -87,23 +87,24 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 if (node) {
                     node.loc = data.loc;
                     if (debug) console.log('89 node, data', node, data);
+                    const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+                    const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
                     const group = getGroupByLocation(myGoModel, node.loc);
-                    if (debug) console.log('91 node, group', node, group);
+                    if () console.log('91 node, group', node, group);
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
                         node.scale1 = new String(node.getMyScale(myGoModel));
                         data.scale1 = Number(node.scale1);
                         // Check if the node and the group are of the same objecttypes
-                        const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-                        if (reltype) {
+                        if (group.objecttype?.id !== containerType?.id && hasMemberType) { 
                             // Check if the group already has a hasMember relationship to the node
-                            const rels = group.object.getOutputRelshipsByType(reltype);
+                            const rels = group.object.getOutputRelshipsByType(hasMemberType);
                             if (rels.length === 0) {
                                 // No hasMember relationship exists between the group and the node
                                 // Create a hasMember relationship between the two
-                                const rel = new akm.cxRelationship(utils.createGuid(), reltype, group.object, 
-                                                                    node.object, reltype.name, "");
+                                const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
+                                                                    node.object, hasMemberType.name, "");
                                 myMetis.addRelationship(rel);
                                 myModel?.addRelationship(rel);
                             } else {
@@ -114,8 +115,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                         continue;
                                     } else {
                                         // Create a hasMember relationship between the two
-                                        const rel = new akm.cxRelationship(utils.createGuid(), reltype, group.object, 
-                                                                            node.object, reltype.name, reltype.description);
+                                        const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
+                                                                            node.object, hasMemberType.name, hasMemberType.description);
                                         myMetis.addRelationship(rel);
                                         myModel?.addRelationship(rel);
                                     }

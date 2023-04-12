@@ -153,26 +153,6 @@ function selectionIncludesPorts(n, myDiagram) {
     return n.containingGroup !== null && !myDiagram?.selection.has(n.containingGroup);
 }
 
-function groupStyle() {  // common settings for both Lane and Pool Groups
-    return [
-      {
-        layerName: 'Background',  // all pools and lanes are always behind all nodes and links
-        background: 'transparent',  // can grab anywhere in bounds
-        movable: true, // allows users to re-order by dragging
-        copyable: false,  // can't copy lanes or pools
-        avoidable: false  // don't impede AvoidsNodes routed Links
-      },
-      new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
-    ];
-  }
-
-// hide links between lanes when either lane is collapsed
-function updateCrossLaneLinks(group: go.Group) {
-    group.findExternalLinksConnected().each((ll) => {
-        ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
-    });
-  }
-
 // let dotted = [3, 3];
 // let dashed = [5, 5];
 
@@ -2817,6 +2797,115 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('groupNoPorts');        
     }
     if (false) {
+      // each Group is a "swimlane" with a header on the left and a resizable lane on the right
+      const laneTemplate = 
+        $(go.Group, "Horizontal", groupStyle(),
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("visible"),
+            {          
+                contextMenu: contextMenu,
+                resizable: true, 
+                selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+            },            // layout: $(go.LayeredDigraphLayout,  // automatically lay out the lane's subgraph
+            {
+                ungroupable: true,
+                // highlight when dragging into the Group
+                mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
+                mouseDragLeave: function (e, grp, next) { highlightGroup(e, grp, false); },
+                computesBoundsIncludingLinks: false,  // to reduce occurrences of links going briefly outside the lane
+                computesBoundsIncludingLocation: true,  // to support empty space at top-left corner of lane
+                computesBoundsAfterDrag: true,
+                // when the selection is dropped into a Group, add the selected Parts into that Group;
+                // if it fails, cancel the tool, rolling back any changes
+                // mouseDrop: finishDrop,
+                handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+            },
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted",
+            function (h) {
+                return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is the background of all
+                }).ofObject(),
+            { // Tooltip
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+          
+          new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
+          // the lane header consisting of a Shape and a TextBlock
+          $(go.Panel, "Horizontal",
+            {
+              name: "HEADER",
+              angle: 270,  // maybe rotate the header to read sideways going up
+              alignment: go.Spot.Center
+            },
+            $(go.Panel, "Horizontal",  // this is hidden when the swimlane is collapsed
+              new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+              $(go.Shape, "Diamond",
+                { width: 8, height: 8, fill: "white" },
+                new go.Binding("fill", "color")),
+              $(go.TextBlock,  // the lane label
+                { font: "bold 13pt sans-serif", editable: true, margin: new go.Margin(2, 0, 0, 0) },
+                new go.Binding("text", "text").makeTwoWay())
+            ),
+            $("SubGraphExpanderButton", { margin: 5 })  // but this remains always visible!
+          ),  // end Horizontal Panel
+          $(go.Panel, "Auto",  // the lane consisting of a background Shape and a Placeholder representing the subgraph
+            $(go.Shape, "Rectangle",  // this is the resized object
+              { name: "SHAPE", fill: "white" },
+              new go.Binding("fill", "color"),
+              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
+            $(go.Placeholder,
+              { padding: 12, alignment: go.Spot.TopLeft }),
+            $(go.TextBlock,  // this TextBlock is only seen when the swimlane is collapsed
+              {
+                name: "LABEL",
+                font: "bold 13pt sans-serif", editable: true,
+                angle: 0, alignment: go.Spot.TopLeft, margin: new go.Margin(2, 0, 0, 4)
+              },
+              new go.Binding("visible", "isSubGraphExpanded", e => !e).ofObject(),
+              new go.Binding("text", "text").makeTwoWay())
+          )  // end Auto Panel
+        
+        );  // end Group
+        groupTemplateMap.add("SwimLane", laneTemplate);
+        addGroupTemplateName('SwimLane');
+    }
+    if (false) {
+        const poolTemplate =
+        $(go.Group, "Auto", groupStyle(),
+        { // use a simple layout that ignores links to stack the "lane" Groups on top of each other
+            layout: $(PoolLayout, { spacing: new go.Size(0, 0) })  // no space between lanes
+        },
+        $(go.Shape,
+            { fill: "white" },
+            new go.Binding("fill", "color")),
+        $(go.Panel, "Table",
+            { defaultColumnSeparatorStroke: "black" },
+            $(go.Panel, "Horizontal",
+            { column: 0, angle: 270 },
+            $(go.TextBlock,
+                { font: "bold 16pt sans-serif", editable: true, margin: new go.Margin(2, 0, 0, 0) },
+                new go.Binding("text").makeTwoWay())
+            ),
+            $(go.Placeholder,
+            { column: 1 })
+        )
+        );
+        groupTemplateMap.add("SwimPool", poolTemplate);
+        addGroupTemplateName('SwimPool');
+    }
+
+    if (false) {
         const groupTemplate4 =
         $(go.Group, "Auto",
           { selectionAdorned: false },
@@ -3144,6 +3233,231 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 export function addPortTemplates() {
     // define the Node template for each attribute in the nodeDataArray
 }
+
+
+// In this design each swimlane is implemented by a Group, and all lanes are inside a "Pool" Group. Each lane Group has its own Group.layout, which in this case is a LayeredDigraphLayout. Each pool Group has its own custom GridLayout that arranges all of its lanes in a vertical stack. That custom layout makes sure all of the pool's lanes have the same length. If you don't want each lane/group to have its own layout, you could use set the lane group's Group.layout to null and set the pool group's Group.layout to an instance of SwimLaneLayout, shown at Swim Lane Layout.
+
+// When dragging nodes note that the nodes are limited to stay within the lanes. This is implemented by a custom Part.dragComputation function, here named stayInGroup. Hold down the Shift key while dragging simple nodes to move the selection to another lane. Lane groups cannot be moved between pool groups.
+
+// A Group (i.e. swimlane) is movable but not copyable. When the user moves a lane up or down the lanes automatically re-order. You can prevent lanes from being moved and thus re-ordered by setting Group.movable to false.
+
+// Each Group is collapsible. The previous breadth of that lane is saved in the savedBreadth property, to be restored when expanded.
+
+// When a Group/lane is selected, its custom Part.resizeAdornmentTemplate gives it a broad resize handle at the bottom of the Group and a broad resize handle at the right side of the Group. This allows the user to resize the "breadth" of the selected lane as well as the "length" of all of the lanes. However, the custom ResizingTool prevents the lane from being too narrow to hold the Group.placeholder that represents the subgraph, and it prevents the lane from being too short to hold any of the contents of the lanes. Each Group/lane is also has a GraphObject.minSize to keep it from being too narrow even if there are no member Parts at all.
+
+// A different sample has its swim lanes vertically oriented: Swim Lanes (vertical).
+
+// Layout Save Load Diagram Model saved in JSON format:
+// GoJS version 2.3.5. Copyright 1998-2023 by Northwoods Software.
+
+// View this sample page's source on GitHub
+
+// View the code for this sample in-pageDownload the HTML and JS to use as a starting point
+
+    // These parameters need to be set before defining the templates.
+    const MINLENGTH = 200;  // this controls the minimum length of any swimlane
+    const MINBREADTH = 20;  // this controls the minimum breadth of any non-collapsed swimlane
+
+    // some shared functions
+
+    // this may be called to force the lanes to be laid out again
+    function relayoutLanes() {
+      myDiagram.nodes.each(lane => {
+        if (!(lane instanceof go.Group)) return;
+        if (lane.category === "Pool") return;
+        lane.layout.isValidLayout = false;  // force it to be invalid
+      });
+      myDiagram.layoutDiagram();
+    }
+
+    // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
+    function relayoutDiagram(diagram) {
+      diagram.layout.invalidateLayout();
+      diagram.findTopLevelGroups().each(g => {
+        if (g.category === "Pool") g.layout.invalidateLayout();
+      });
+      diagram.layoutDiagram();
+    }
+
+    // compute the minimum size of a Pool Group needed to hold all of the Lane Groups
+    function computeMinPoolSize(pool) {
+      // assert(pool instanceof go.Group && pool.category === "Pool");
+      let len = MINLENGTH;
+      pool.memberParts.each(lane => {
+        // pools ought to only contain lanes, not plain Nodes
+        if (!(lane instanceof go.Group)) return;
+        const holder = lane.placeholder;
+        if (holder !== null) {
+          len = Math.max(len, holder.actualBounds.width);
+        }
+      });
+      return new go.Size(len, NaN);
+    }
+
+    // compute the minimum size for a particular Lane Group
+    function computeLaneSize(lane) {
+      // assert(lane instanceof go.Group && lane.category !== "Pool");
+      const sz = computeMinLaneSize(lane);
+      if (lane.isSubGraphExpanded) {
+        const holder = lane.placeholder;
+        if (holder !== null) {
+          sz.height = Math.ceil(Math.max(sz.height, holder.actualBounds.height));
+        }
+      }
+      // minimum breadth needs to be big enough to hold the header
+      const hdr = lane.findObject("HEADER");
+      if (hdr !== null) sz.height = Math.ceil(Math.max(sz.height, hdr.actualBounds.height));
+      return sz;
+    }
+
+    // determine the minimum size of a Lane Group, even if collapsed
+    function computeMinLaneSize(lane) {
+      if (!lane.isSubGraphExpanded) return new go.Size(MINLENGTH, 1);
+      return new go.Size(MINLENGTH, MINBREADTH);
+    }
+
+
+  // define a custom ResizingTool to limit how far one can shrink a lane Group
+  class LaneResizingTool extends go.ResizingTool {
+    isLengthening() {
+      return (this.handle.alignment === go.Spot.Right);
+    }
+
+    computeMinSize() {
+      const lane = this.adornedObject.part;
+      // assert(lane instanceof go.Group && lane.category !== "Pool");
+      const msz = computeMinLaneSize(lane);  // get the absolute minimum size
+      if (this.isLengthening()) {  // compute the minimum length of all lanes
+        const sz = computeMinPoolSize(lane.containingGroup);
+        msz.width = Math.max(msz.width, sz.width);
+      } else {  // find the minimum size of this single lane
+        const sz = computeLaneSize(lane);
+        msz.width = Math.max(msz.width, sz.width);
+        msz.height = Math.max(msz.height, sz.height);
+      }
+      return msz;
+    }
+
+    resize(newr) {
+      const lane = this.adornedObject.part;
+      if (this.isLengthening()) {  // changing the length of all of the lanes
+        lane.containingGroup.memberParts.each(lane => {
+          if (!(lane instanceof go.Group)) return;
+          const shape = lane.resizeObject;
+          if (shape !== null) {  // set its desiredSize length, but leave each breadth alone
+            shape.width = newr.width;
+          }
+        });
+      } else {  // changing the breadth of a single lane
+        super.resize(newr);
+      }
+      relayoutDiagram(this.diagram);  // now that the lane has changed size, layout the pool again
+    }
+  }
+  // end LaneResizingTool class
+
+
+  // define a custom grid layout that makes sure the length of each lane is the same
+  // and that each lane is broad enough to hold its subgraph
+  class PoolLayout extends go.GridLayout {
+    constructor() {
+      super();
+      this.cellSize = new go.Size(1, 1);
+      this.wrappingColumn = 1;
+      this.wrappingWidth = Infinity;
+      this.isRealtime = false;  // don't continuously layout while dragging
+      this.alignment = go.GridLayout.Position;
+      // This sorts based on the location of each Group.
+      // This is useful when Groups can be moved up and down in order to change their order.
+      this.comparer = (a, b) => {
+        const ay = a.location.y;
+        const by = b.location.y;
+        if (isNaN(ay) || isNaN(by)) return 0;
+        if (ay < by) return -1;
+        if (ay > by) return 1;
+        return 0;
+      };
+      this.boundsComputation = (part, layout, rect) => {
+        part.getDocumentBounds(rect);
+        rect.inflate(-1, -1);  // negative strokeWidth of the border Shape
+        return rect;
+      }
+    }
+
+    doLayout(coll) {
+      const diagram = this.diagram;
+      if (diagram === null) return;
+      diagram.startTransaction("PoolLayout");
+      const pool = this.group;
+      if (pool !== null && pool.category === "Pool") {
+        // make sure all of the Group Shapes are big enough
+        const minsize = computeMinPoolSize(pool);
+        pool.memberParts.each(lane => {
+          if (!(lane instanceof go.Group)) return;
+          if (lane.category !== "Pool") {
+            const shape = lane.resizeObject;
+            if (shape !== null) {  // change the desiredSize to be big enough in both directions
+              const sz = computeLaneSize(lane);
+              shape.width = (isNaN(shape.width) ? minsize.width : Math.max(shape.width, minsize.width));
+              shape.height = (!isNaN(shape.height)) ? Math.max(shape.height, sz.height) : sz.height;
+              const cell = lane.resizeCellSize;
+              if (!isNaN(shape.width) && !isNaN(cell.width) && cell.width > 0) shape.width = Math.ceil(shape.width / cell.width) * cell.width;
+              if (!isNaN(shape.height) && !isNaN(cell.height) && cell.height > 0) shape.height = Math.ceil(shape.height / cell.height) * cell.height;
+            }
+          }
+        });
+      }
+      // now do all of the usual stuff, according to whatever properties have been set on this GridLayout
+      super.doLayout(coll);
+      diagram.commitTransaction("PoolLayout");
+    }
+  }
+  // end PoolLayout class
+
+
+    // function init() {
+
+    //   // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+    //   // For details, see https://gojs.net/latest/intro/buildingObjects.html
+    //   const $ = go.GraphObject.make;
+
+
+    //   myDiagram.nodeTemplate =
+    //     $(go.Node, "Auto",
+    //       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+    //       $(go.Shape, "Rectangle",
+    //         { fill: "white", portId: "", cursor: "pointer", fromLinkable: true, toLinkable: true }),
+    //       $(go.TextBlock, { margin: 5 },
+    //         new go.Binding("text", "key")),
+    //       // { dragComputation: stayInGroup } // limit dragging of Nodes to stay within the containing Group, defined above
+    //     );
+
+      function groupStyle() {  // common settings for both Lane and Pool Groups
+        return [
+          {
+            layerName: "Background",  // all pools and lanes are always behind all nodes and links
+            background: "transparent",  // can grab anywhere in bounds
+            movable: true, // allows users to re-order by dragging
+            copyable: false,  // can't copy lanes or pools
+            avoidable: false,  // don't impede AvoidsNodes routed Links
+            minLocation: new go.Point(NaN, -Infinity),  // only allow vertical movement
+            maxLocation: new go.Point(NaN, Infinity)
+          },
+          new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify)
+        ];
+      }
+
+      // hide links between lanes when either lane is collapsed
+      function updateCrossLaneLinks(group) {
+        group.findExternalLinksConnected().each(l => {
+          l.visible = (l.fromNode.isVisible() && l.toNode.isVisible());
+        });
+      }
+
+
+
+
+
 
 // Function to identify images related to an image id
 export function findImage(image: string) {

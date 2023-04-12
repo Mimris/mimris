@@ -158,7 +158,10 @@ const Context = (props) => {
     let objectChildren = []
     if (debug) console.log('116 Context',  curobjectview?.name, curobject?.name);
     if (!curobject) { 
-      console.log(`116 objectview for ${focusObjectview.id} - ${focusObjectview.name} not found`);
+      objectviewChildren = curobjectviews
+      objectChildren = objectviewChildren?.map(ov => objects.find(o => o.id === ov.objectRef)) || null
+
+      console.log(`116 objectview for ${focusObjectview?.id} - ${focusObjectview?.name} not found`);
     } else { // find children
         if (debug) console.log('117 Context',  curobjectview?.name, curobjectviews);
         objectviewChildren = curobjectviews?.filter(ov => ov.group === curobjectview?.id) || null

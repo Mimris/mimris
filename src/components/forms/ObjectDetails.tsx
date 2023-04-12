@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 
 
-const ObjectHeader = ({ curmm, curobject, setObjview, parentobject }) => {
+const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview }) => {
+  console.log('ObjectHeader', curobject, parentobject);
   return (
     <h4 className="px-2">
       {curobject?.name}
@@ -10,7 +11,7 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject }) => {
         {curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name && (
           <span>
             {' '}
-            <button className="border-0 bg-transparent" onClick={() => setObjview(curobject)}> ⬆️</button>{' '}
+            <button className="border-0 bg-transparent" onClick={() => (!parentobject) ? setObjview(curmodelview) : setObjview(parentobject)}> ⬆️</button>{' '}
           </span>
         )}
       </span>
@@ -38,102 +39,163 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       };
 
 
-
-  return (
+console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  return (formValues) && (
     <form onSubmit={handleSubmit}>
-        <div className="form-group py-2 border border-rounded">
-        {objectPropertiesMain?.map((key) => (
-            <div className="row" key={key}>
-            <label htmlFor={key} className="col-sm-3 col-form-label m-1" >{key}</label>
-            <div className="col-sm-9">     
-                {key.endsWith('Id' || 'id' || 'Ref') ? ( // if key ends with 'Id' then it is a reference to another object
+      <div className="form-group py-2 border border-rounded">
+        {objectPropertiesMain?.map((key) => {
+          let inputElement;
+          switch (true) {
+            case key.endsWith('Id'):
+            case key.endsWith('id'):
+            case key.endsWith('Ref'):
+              inputElement = (
                 <input
-                    type="text"
-                    className="form-control hover-gra m-1"
-                    id={key}
-                    name={key}
-                    value={formValues[key] || curobject[key]}
-                    onChange={handleChange}
-                    readOnly
-                    style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
+                  type="text"
+                  className="form-control hover-gra m-1"
+                  id={key}
+                  name={key}
+                  value={formValues[key] || curobject[key]}
+                  onChange={handleChange}
+                  readOnly
+                  style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
                 />
-                ) : key === 'typeName' || key === 'typeDescription' ? (
+              );
+              break;
+            case key === 'typeName':
+            case key === 'typeDescription':
+              inputElement = (
                 <input
-                type="text"
-                className="form-control bg-light border-0 "
-                id={key}
-                name={key}
-                value={formValues[key] || curobject[key]}
-                onChange={handleChange}
-                readOnly
-                style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
-            />
-                ) : (key ==='name') ? (
+                  type="text"
+                  className="form-control bg-light border-0 "
+                  id={key}
+                  name={key}
+                  value={formValues[key] || curobject[key]}
+                  onChange={handleChange}
+                  readOnly
+                  style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
+                />
+              );
+              break;
+            case key === 'name':
+              inputElement = (
                 <textarea
-                    className="form-control hover-white bg-white m-1 "
-                    id={key}
-                    name={key}
-                    value={formValues[key] || curobject[key]}
-                    onChange={handleChange}
-                    style={{ backgroundColor: '#eee' }}
-                    ref={textareaRef}
-                    rows= {1} 
+                  className="form-control hover-white bg-white m-1 "
+                  id={key}
+                  name={key}
+                  value={formValues[key] || curobject[key]}
+                  onChange={handleChange}
+                  style={{ backgroundColor: '#eee' }}
+                  ref={textareaRef}
+                  rows={1}
                 />
-                ) : ( key === 'description') ? (
-                    <textarea
-                        className="form-control hover-white bg-white m-1 "
-                        id={key}
-                        name={key}
-                        value={formValues[key] || curobject[key]}
-                        onChange={handleInputChange}
-                        style={{ backgroundColor: '#eee' }}
-                        ref={textareaRef}
-                        rows= {3}
+              );
+              break;
+            case key === 'description':
+              inputElement = (
+                <textarea
+                  className="form-control hover-white bg-white m-1 "
+                  id={key}
+                  name={key}
+                  value={formValues[key] || curobject[key]}
+                  onChange={handleInputChange}
+                  style={{ backgroundColor: '#eee' }}
+                  ref={textareaRef}
+                  rows={3}
+                />
+              );
+              break;
+              case key.endsWith('Ports'):
+                const ports = formValues[key]?.map((ie, index) => 
+                  <div key={ie.id} className="d-flex align-items-center">
+                    <div
+                      style={{ backgroundColor: ie.color }}
                     />
-                ) : (
+                    {Object.keys(ie).map(ieKey => (ieKey === 'id') ? (
+                      <input
+                        key={ieKey}
+                        className="form-control hover-white bg-light m-1"
+                        id={ieKey}
+                        name={`${key}[${index}][${ieKey}]`}
+                        value={ie[ieKey]}
+                        onChange={handleInputChange}
+                        style={{ backgroundColor: ie.color }}
+                        readOnly
+                      />
+                    ) : (
+                      <input
+                        key={ieKey}
+                        className="form-control hover-white m-1"
+                        id={ieKey}
+                        name={`${key}[${index}][${ieKey}]`}
+                        value={ie[ieKey]}
+                        onChange={handleInputChange}
+                        style={{
+                          backgroundColor: ieKey === 'color' ? ie.color : '#eee',
+                        }}
+                      />
+                    )
+                    )}
+                  </div>
+                );
+                inputElement = (
+                  <div>
+                    {ports}
+                  </div>
+                );
+                break;
+            default:
+              inputElement = (
                 <input
-                    type="text"
-                    className="form-control hover-white bg-white m-1 "
-                    id={key}
-                    name={key}
-                    value={formValues[key] || curobject[key]}
-                    onChange={handleChange}
-                    style={{ backgroundColor: '#eee' }}
+                  type="text"
+                  className="form-control hover-white bg-white m-1 "
+                  id={key}
+                  name={key}
+                  value={formValues[key] || curobject[key]}
+                  onChange={handleChange}
+                  style={{ backgroundColor: '#eee' }}
                 />
-                )}
+              );
+          }
+          return (
+            <div className="row" key={key}>
+              <label htmlFor={key} className="col-sm-3 col-form-label m-1">
+                {key}
+              </label>
+              <div className="col-sm-9">{inputElement}</div>
             </div>
-            </div>
-        ))}
+          );
+        })}
         <div className="row m-1 pt-1">
-            <button type="submit" className="btn btn-sm btn-primary" style={{ float: 'right' }}>
+          <button type="submit" className="btn btn-sm btn-primary" style={{ float: 'right' }}>
             Submit
-            </button>
+          </button>
         </div>
-        </div>
-        <style jsx>{`
+      </div>
+      <style jsx>{`
         .hover-gray,
         .hover-white,
         input:focus {
-            cursor: text;
+          cursor: text;
         }
         form-control .form-read-only {
-            background-color: red;
+          background-color: red;
         }
         .hover-gray:hover,
         .hover-white:hover,
         input:focus:hover {
-            background-color: light;
-            cursor: text;
+          background-color: light;
+          cursor: text;
         }
-    
+
         input:focus {
-            border-color: orange;
+          border-color: orange;
         }
-    
+
         input:focus:hover::after {
-            border-color: orange;
+          border-color: orange;
         }
-        `}</style>
+      `}</style>
     </form>
   );
 };
@@ -170,7 +232,7 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
 const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject }) => {
   return (
     <>
-      <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} />
+      <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />
       <div className=" bg-light">
         <div className="col">
             <ObjectForm

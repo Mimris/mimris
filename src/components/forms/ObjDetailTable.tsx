@@ -32,64 +32,64 @@ export const ObjDetailTable = (props) => {
                 <td>
                 <details key={objrel.id} open={objrel.id === selectedId} onToggle={() => setSelectedId(objrel.id)}> 
                 <summary style={{ display: 'flex' }}>  
-                <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel.id === selectedId ? '▼' : '▶'}</span>
-              {title === 'Children' ? (
-                <>
-                    <span style={{ marginLeft: '6px' }}>{objrel.name}</span>
-                    <span style={{ marginLeft: '126px' }}> </span>
-                    <span style={{ flex: 1, textAlign: 'right' }}>
-                        ({curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name}){curmodelview.name} {objrel.name}
-                    </span>
-                    <button
-                        style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
-                        onClick={() => setObjview(objects.find((o) => o.id === objrel.id))}
-                    >
-                        ⤴️
-                    </button>
-                    {(curmodelview.id !== (curmodelview.objectviews.find(cmv => (cmv.id === (curmodelview.objectviews.find(ov => ov.objectRef === objrel.id)?.id)))?.id)) ? (
-                        <span style={{ float: 'right', marginLeft: '4px' }}>
-                            🟢
+                  <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel.id === selectedId ? '▼' : '▶'}</span>
+                  {(title === 'Children' || curobject.id === curmodelview.id) ? (
+                    <>
+                        <span style={{ marginLeft: '6px' }}>{objrel.name}</span>
+                        <span style={{ marginLeft: '126px' }}> </span>
+                        <span style={{ flex: 1, textAlign: 'right' }}>
+                            ({curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name}){curmodelview.name} {objrel.name}
                         </span>
-                        ) : (
-                        <></>
-                        )}
+                        <button
+                            style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
+                            onClick={() => setObjview(objects.find((o) => o.id === objrel.id))}
+                        >
+                            ⤴️
+                        </button>
+                        {/* {(curmodelview.id !== (curmodelview.objectviews.find(cmv => (cmv.id === (curmodelview.objectviews.find(ov => ov.objectRef === objrel.id)?.id)))?.id)) ? (
+                          <span style={{ float: 'right', marginLeft: '4px' }}>
+                              🟢
+                          </span>
+                          ) : (
+                          <></> */}
+                        {/* )} */}
 
-                </>
-              ) : title === 'Related From' ? (
-                <>
-                  <span>{curobject.name}</span>
-                  <span style={{ marginLeft: '16px', marginRight: '16px' }}>{objrel.name}</span>
-                  <span style={{ flex: 1, textAlign: 'right' }}>
-                    {objects.find((o) => o.id === objrel.toobjectRef).name}
-                  </span>
-                  <span style={{ flex: 1, textAlign: 'right' }}>
-                    ({curmetamodel.objecttypes.find((ot) => ot.id === objects.find((o) => o.id === objrel.toobjectRef).typeRef)?.name})
-                  </span>
-                  <button
-                    style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
-                    onClick={() => setObjview(objects.find((o) => o.id === objrel.toobjectRef))}
-                  >
-                    ⤴️
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span>{curobject.name}</span>
-                  <span style={{ marginLeft: '16px', marginRight: '16px' }}>{objrel.name}</span>
-                  <span style={{ flex: 1, textAlign: 'right' }}>
-                    {objects.find((o) => o.id === objrel.fromobjectRef && o).name}
-                  </span>
-                  <span style={{ flex: 1, textAlign: 'right' }}>
-                    ({curmetamodel.objecttypes.find((ot) => ot.id === objects.find((o) => o.id === objrel.toobjectRef).typeRef)?.name})
-                  </span>
-                  <button
-                    style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
-                    onClick={() => setObjview(objects.find((o) => o.id === objrel.fromobjectRef))}
-                  >
-                    ⤴️
-                  </button>
-                </>
-              )}
+                      </>
+                  ) : title === 'Related From' ? (
+                    <>
+                      <span>{curobject.name}</span>
+                      <span style={{ marginLeft: '16px', marginRight: '16px' }}>{objrel.name}</span>
+                      <span style={{ flex: 1, textAlign: 'right' }}>
+                        {objects.find((o) => o.id === objrel.toobjectRef).name}
+                      </span>
+                      <span style={{ flex: 1, textAlign: 'right' }}>
+                        ({curmetamodel.objecttypes.find((ot) => ot.id === objects.find((o) => o.id === objrel.toobjectRef).typeRef)?.name})
+                      </span>
+                      <button
+                        style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
+                        onClick={() => setObjview(objects.find((o) => o.id === objrel.toobjectRef))}
+                      >
+                        ⤴️
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span>{curobject.name}</span>
+                      <span style={{ marginLeft: '16px', marginRight: '16px' }}>{objrel.name}</span>
+                      <span style={{ flex: 1, textAlign: 'right' }}>
+                        {objects.find((o) => o.id === objrel.fromobjectRef && o).name}
+                      </span>
+                      <span style={{ flex: 1, textAlign: 'right' }}>
+                        ({curmetamodel.objecttypes.find((ot) => ot.id === objects.find((o) => o.id === objrel.toobjectRef).typeRef)?.name})
+                      </span>
+                      <button
+                        style={{ marginLeft: '10px', border: 'none', backgroundColor: 'transparent', float: 'right' }}
+                        onClick={() => setObjview(objects.find((o) => o.id === objrel.fromobjectRef))}
+                      >
+                        ⤴️
+                      </button>
+                    </>
+                  )}
                 </summary>
                 {/* <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ display: 'inline-block', width: '1.5em' }}>{obj.id === selectedId ? '▼' : '▶'}</span>

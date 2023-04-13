@@ -1,87 +1,245 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from 'react-redux'
+import { saveAs } from "file-saver";
+import Markdown from 'markdown-to-jsx';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
-import dynamic from "next/dynamic";
+import ObjDetailToMarkdown from "./MdFocusObject";
+import FocusParametersForm from "./EditFocusParameter";
 
-
-
-interface MarkdownEditorProps {
-  value: string;
-  // onChange: (value: string) => void;
-  props: any;
-}
-
+const debug = false
 
 function MarkdownEditor({ value, props }: MarkdownEditorProps) {
+  // const [markdownString, setMarkdownString] = useState('# My Markdown Document\n\nThis is a paragraph of text.');
+  console.log('18 MarkdownEditor.tsx', props);
+  const ph = props
+  const [mdHeaderString, setMdHeaderString] = useState('');
+  const [mdString, setMdString] = useState('');
+  const [mdFooterString, setMdFooterString] = useState('');
+  const [githubToken, setGithubToken] = useState('');
+  const [githubRepo, setGithubRepo] = useState('');
+  const [githubBranch, setGithubBranch] = useState('main');
+  const [githubPath, setGithubPath] = useState('my-markdown-file.md');
 
-  console.log('18 MarkdownEditor.tsx' );
+  const [selectedId, setSelectedId] = useState('');
+  const [objview, setObjview] = useState(null);
+
+  const metamodels = useSelector(state => props.phData?.metis?.metamodels)  // selecting the models array
+  const focusModel = useSelector(state => props.phFocus?.focusModel) 
+  const focusUser = useSelector(state => props.phUser?.focusUser)
+  const focusModelview = useSelector(state => props.phFocus?.focusModelview)
+  const focusObjectview = useSelector(state => props.phFocus?.focusObjectview)
+  const focusObject = useSelector(state => props.phFocus?.focusObject)
+
+  const models = useSelector(state => props.phData?.metis?.models)  // selecting the models array
+  const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
+  const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
+  const objects = curmodel?.objects //.map((o: any) => o)
+  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
+  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
+  const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
+  if (!debug) console.log('38 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+  const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
+  const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
+
+  let curobject = objects?.find(o => o.id === focusObject?.id)
+  let objectviewChildren = []
+  let objectChildren = []
+  console.log('45 Context',  curobjectviews, focusModelview.id, );
+  const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+  if (!debug) console.log('47 Context',  curobjectviews, curobjectview.id, focusModelview);
+  console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id) )
+
+  function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
+    return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
+  }
+
+  function findObjectsForObjectviews(objectviews: any[], objects: any[]): any[] {
+    return objectviews?.map((objectview) => objects.find((object) => object.id === objectview.objectRef)) || [];
+  }
+
+  objectviewChildren = findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id);
+  objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
+  if (!debug) console.log('75 Context', curobjectview?.name, objectviewChildren, objectChildren);
+
+  const title = 'children'
 
 
-  const [markdownString, setMarkdownString] = useState(value);
-
-  const MDEditor = dynamic(
-    () => import("@uiw/react-md-editor"),
-    { ssr: false }
-  );
-
-  const handleChange = (value: string) => {
-    setMarkdownString(value);
- 
+  const handleAddObjectHeader = () => {
+    setMdHeaderString(` ${props.phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
-  const handleSave = () => {
+  let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
+ ***Organisation:*** ${props.phFocus.focusProj?.org|| props.phFocus.focusOrg?.name} |
+ ***Repository:***${props.phFocus.focusProj?.repo} |
+ ***Path:*** ${props.phFocus.focusProj?.path} |
+ ***Project file:*** ${props.phFocus.focusProj?.file}\n
+ ***Branch:***${props.phFocus.focusProj?.branch} | `
+  
+  markdownString += `\n\n --- \n\n Focus object: \n\n #### ${curobject?.name}\n\n`
+  markdownString += 'Name: ' + curobject?.name + ' \n\n'
+  markdownString += '***Description:*** ***'+ curobject?.description +'*** \n\n'
+  if (!debug) console.log('82 MarkdownEditor.tsx', markdownString)
+
+  const mdFocusObjectProps = {
+    title: 'My Object Details',
+    curRelatedObjsRels: objectChildren,
+    curmodelview: curmodelview,
+    curmetamodel: curmetamodel,
+    selectedId,
+    setSelectedId,
+    curobject: curobject,
+    objects: objects,
+    includedKeys: [ 'name', 'description'],
+    setObjview,
+    markdownString,
+  };
+
+  // console.log('97 MarkdownEditor.tsx', mdFocusObjectProps )
+
+  let markdownStringChildren = ObjDetailToMarkdown(mdFocusObjectProps)
+
+  // console.log('101 MarkdownEditor.tsx', markdownString )
+  const handleAddFooter = () => {
+    setMdFooterString(`\n\n---\n\n  ---  
+  <hr style="background: gray" />  
+  <hr style="background: green" />  
+  <span style="color: green">  
+  Keep striving for progress over perfection! A little progress every day will go a very long way!" :)   
+  </span>  
+  
+  [( Dave Gray )](https://youtube.com/@DaveGrayTeachesCode)
+  
+  <hr style="background: green" /> 
+
+  ---
+
+# Test Markdown
+
+---
+
+This is a paragraph of text.
+
+| Column 1 | Column 2 | Column 3 |
+| -------- | -------- | -------- |
+| test 1 | Row 1 | --- |
+| test 1 | Row 2 | --- |
+
+---
+
+Here's an image:
+
+![Alt text](https://via.placeholder.com/150 "Optional title")
+
+`)};
+
+  const CodeBlock = ({ language, value }) => {
+    return (
+      <pre>
+        <code className={`language-${language}`}>{value}</code>
+      </pre>
+    );
+  };
+
+  const LinkRenderer = ({ href, children }) => {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  };
+
+  const ImageRenderer = ({ src, alt }) => {
+    return <img src={src} alt={alt} />;
+  };
+
+  const options = {
+    overrides: {
+      code: CodeBlock,
+      a: LinkRenderer,
+      img: ImageRenderer,
+    },
+  };
+
+  const handleSaveToFile = () => {
     const element = document.createElement("a");
-    const file = new Blob([markdownString], { type: "text/plain" });
+    const file = new Blob([mdString], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
-    element.download = "myMarkdownFile.md";
+    element.download = "my-markdown-file.md";
     document.body.appendChild(element);
     element.click();
   };
 
-  const handlePublish = async () => {
-    const accessToken = "YOUR_GITHUB_ACCESS_TOKEN";
-    const owner = props.phFocus.focusProj?.org;
-    const repo = props.phFocus.focusProj?.repoo;
-    const path = props.phFocus.focusProj?.path;
-    const file = props.phFocus.focusProj?.file;
-    const brach = props.phFocus.focusProj?.branch;
-    const message = "Publish myMarkdownFile.md";
-    const content = btoa(markdownString);
+  const handleSaveToGithub = async () => {
+    const url = `https://api.github.com/repos/${githubRepo}/contents/${githubPath}`;
+    const content = btoa(mdString);
+    const message = `Add ${githubPath}`;
+    const branch = githubBranch;
+    const token = githubToken;
 
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method: "PUT",
+    const response = await fetch(url, {
+      method: 'PUT',
       headers: {
-        Authorization: `token ${accessToken}`,
-        Accept: "application/vnd.github.v3+json",
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         message,
         content,
+        branch,
       }),
     });
 
     if (response.ok) {
-      console.log("File published successfully!");
+      alert('File saved to GitHub!');
     } else {
-      console.error("Failed to publish file:", response.statusText);
+      alert('Error saving file to GitHub.');
     }
   };
 
-  const toolbar = [
-    // ... toolbar buttons and options ...
-  ];
 
+
+  useEffect(() => {
+    setMdString(markdownStringChildren )
+  }, [markdownStringChildren])
+  
+  useEffect(() => {
+    setMdString( mdHeaderString + mdString )
+  }, [mdHeaderString])
+  
+  useEffect(() => {
+    setMdString( mdString + mdFooterString)
+  }, [mdFooterString])
+  
   return (
-    <>
-      <MDEditor value={markdownString} onChange={handleChange} height={870}  preview="preview"/>
-      <div style={{ display: "flex", justifyContent: "flex-end", height: "auto" }}>
-        <button className="btn btn-sm m-1" onClick={handleSave}>Save</button>
-        {/* <button onClick={handlePublish}>Publish</button> */}
-      </div>
-    </>
+    
+    <div className="App" >
+
+      <Tabs >
+        <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
+          <Tab>Preview</Tab>
+          <Tab>MarkDownCode</Tab>
+        </TabList>
+
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' }}>
+          <div className="container">
+            <Markdown options={options}>
+              {mdString}
+            </Markdown>
+          </div>
+        </TabPanel>
+
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' , overflowX: 'hidden' }}>
+          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "76vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
+            <button className="btn btn-sm mx-2" onClick={handleAddObjectHeader}>Add Header</button>
+            <button className="btn btn-sm mx-2 me-5" onClick={handleAddFooter}>Add Footer</button>
+            <button className="btn btn-sm mx-2 ms-5" onClick={handleSaveToFile}>Save to File</button>
+        </TabPanel>
+        
+      </Tabs>
+
+    </div>
   );
 }
-
-export default MarkdownEditor;
-
-
-
+  
+  export default MarkdownEditor;

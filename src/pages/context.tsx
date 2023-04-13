@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import Link from 'next/link'
 import { connect, useDispatch, useSelector } from 'react-redux'
 import Layout from '../components/Layout'
-import Context from "../components/Context"
+import ReportModule from "../components/ReportModule"
 import SetContext from '../defs/SetContext'
 import SelectContext from '../components/utils/SelectContext'
 
@@ -37,7 +37,9 @@ const page = (props) => {
                                 </div>
                                 <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > refresh </span>
                             </div>
-                             <Context ph={props}  refresh={refresh}/>
+                            <div className="container">
+                             <ReportModule props={props}  refresh={refresh}/>
+                            </div>
                         </div>
                     {/* </div> */}
                 </div>

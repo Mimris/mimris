@@ -10,7 +10,6 @@ import "@uiw/react-markdown-preview/markdown.css";
 
 import {ObjDetailTable} from './forms/ObjDetailTable';
 import ObjectDetails from './forms/ObjectDetails';
-import MarkdownEditor from './forms/MarkdownEditor';
 import ObjDetailToMarkdown from './forms/MdFocusObject';
 
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
@@ -39,7 +38,6 @@ const Context = (props) => {
     const focusObjectview = useSelector(focusObjectview => ph.phFocus?.focusObjectview)
     const focusObject = useSelector(focusObject => ph.phFocus?.focusObject)
   
-
     const models = useSelector(models =>  ph.phData?.metis?.models)  // selecting the models array
   
     // const [model, setModel] = useState(focusModel)
@@ -56,7 +54,6 @@ const Context = (props) => {
     // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
 
     // const [mdString, setMdString] = useState("");
-
 
     // const setMdValue = (value) => {
     //   setMdString(value);
@@ -102,21 +99,16 @@ const Context = (props) => {
       }
     };
 
-
-
     useEffect(() => {
       if (selectedId) {
         setSelectedId(null);
       }
     }, []);
     
-  
     // const MDEditor = dynamic(
     //   () => import("@uiw/react-md-editor"),
     //   { ssr: false }
     // );
-
-  
 
     // remove duplicate objects
     const uniqueovs = curobjectviews?.filter((ov, index, self) =>
@@ -126,7 +118,6 @@ const Context = (props) => {
     ) || []
 
     const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
-    
     
     // find object with type
     const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
@@ -138,20 +129,16 @@ const Context = (props) => {
       return type
     }
     
-
     // if (!curobject) curobject = curmodelview
     const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) &&  ({id: cmv.id, name: cmv.name}))
     if (!debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
     // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
     // find parent object
 
-
     let relatedObjects = []
     const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
     const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
     if (debug) console.log('58 Context', curRelatedFromObectRels, curRelatedToObectRels);
-  
-  
    
     const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
     if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
@@ -164,6 +151,7 @@ const Context = (props) => {
     let objectviewChildren = []
     let objectChildren = []
     if (debug) console.log('116 Context',  curobjectview?.name, curobject?.name);
+    
     if (!curobject) { 
       objectviewChildren = curobjectviews
       objectChildren = objectviewChildren?.map(ov => objects.find(o => o.id === ov.objectRef)) || null
@@ -176,7 +164,6 @@ const Context = (props) => {
       // }
     } 
 
-
     // if (!curobjectview) { // use modelviews as parent
     //   console.log('121 Context', parentobject);
     //       objectviewChildren = curobjectviews?.filter(ov => ov.group === '')
@@ -184,8 +171,6 @@ const Context = (props) => {
     // }
     if (debug) console.log('94 Context', objectviewChildren);
     if (debug) console.log('95 Context', objectChildren);
-
-
 
     const setObjview = (o) => {
       let ovdata =  (o) ? curobjectviews.find(ov => ov.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
@@ -206,31 +191,10 @@ const Context = (props) => {
     // const ovChildrenProperties = ovChildrenPropertiesList.reduce((a, b) => a.concat(b), [])
     // const objectProperties = Object.entries(curobject);
 
-    let markdownString = ''
-    markdownString += `### ${curobject?.name}\n\n `
-    markdownString += '**Name:**' + curobject?.name + ' \n\n'
-    markdownString += 'Description:  ***' + curobject?.description + '*** \n\n'
-    markdownString += objectPropertiesMain?.map(key => (  
-        `- ${key}:  ${curobject[key]} \n`
-        // `| ${key}: | ${value} |\n`
-        )).join('');
-    markdownString += `\n\n <!-- ${JSON.stringify(curobject)} -->\n\n`
-
-
-
-    // const mdString =  markdownString
-        const [mdString, setMdString] = useState("");
-
-    const handleMdChange = (value: string) => {
-      setMdString(value);
-    };
-
     const [activeTab, setActiveTab] = useState(0);
 
-
-
     const tabsDiv = (
-      <Tabs  onSelect={index => setActiveTab(index)}>
+      <Tabs  onSelect={index => setActiveTab(index)} style={{ overflow: 'auto' }}>
         <TabList>
           <Tab>Object main props</Tab>
           <Tab >Additional Properties</Tab>
@@ -238,7 +202,7 @@ const Context = (props) => {
           {/* <Tab><FaPlaneArrival />Main</Tab>
           <Tab ><FaCompass /></Tab> */}
         </TabList>
-        <TabPanel className="">
+        <TabPanel className="" style={{ overflow: 'auto' }}>
           {/* <h4 className="px-2">{curobject?.name}                              
             <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name || ('Modelview')})
             { (curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}

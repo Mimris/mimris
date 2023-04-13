@@ -14,7 +14,9 @@ export let viewkinds = {
 	CONT:   "Container",
 	TREE:   "Tree",
 	IMAGE:  "Image",
-	REL:    "Relationship"
+	REL:    "Relationship",
+     POOL:   "Pool",
+     LANE:   "Lane",
 };
 
 // Define Relationship kinds

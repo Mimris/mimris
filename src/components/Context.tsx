@@ -6,24 +6,22 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 import {ObjDetailTable} from './forms/ObjDetailTable';
 import ObjectDetails from './forms/ObjectDetails';
+import ObjDetailToMarkdown from './forms/MdFocusObject';
 
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
-
 import Selector from './utils/Selector'
-
 import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
 const Context = (props) => {
-
-    // console.log('20 context', props)
+    console.log('20 context', props, props.props)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
-    const ph = props.ph
+    const ph = props.props
 
     if (!ph.phData?.metis?.models) return <></>
     const dispatch = useDispatch()
@@ -40,7 +38,6 @@ const Context = (props) => {
     const focusObjectview = useSelector(focusObjectview => ph.phFocus?.focusObjectview)
     const focusObject = useSelector(focusObject => ph.phFocus?.focusObject)
   
-
     const models = useSelector(models =>  ph.phData?.metis?.models)  // selecting the models array
   
     // const [model, setModel] = useState(focusModel)
@@ -56,6 +53,13 @@ const Context = (props) => {
     const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
     // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
 
+    // const [mdString, setMdString] = useState("");
+
+    // const setMdValue = (value) => {
+    //   setMdString(value);
+    // };
+    // const mdString = markdownString
+// 
     let curobject = objects?.find(o => o.id === focusObject?.id) 
     if (debug) console.log('81 curobject', curobject)
 
@@ -95,21 +99,16 @@ const Context = (props) => {
       }
     };
 
-
-
     useEffect(() => {
       if (selectedId) {
         setSelectedId(null);
       }
     }, []);
     
-  
-    const MDEditor = dynamic(
-      () => import("@uiw/react-md-editor"),
-      { ssr: false }
-    );
-
-  
+    // const MDEditor = dynamic(
+    //   () => import("@uiw/react-md-editor"),
+    //   { ssr: false }
+    // );
 
     // remove duplicate objects
     const uniqueovs = curobjectviews?.filter((ov, index, self) =>
@@ -119,7 +118,6 @@ const Context = (props) => {
     ) || []
 
     const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
-    
     
     // find object with type
     const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
@@ -131,20 +129,16 @@ const Context = (props) => {
       return type
     }
     
-
     // if (!curobject) curobject = curmodelview
     const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) &&  ({id: cmv.id, name: cmv.name}))
     if (!debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
     // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
     // find parent object
 
-
     let relatedObjects = []
     const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
     const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
     if (debug) console.log('58 Context', curRelatedFromObectRels, curRelatedToObectRels);
-  
-  
    
     const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
     if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
@@ -157,6 +151,7 @@ const Context = (props) => {
     let objectviewChildren = []
     let objectChildren = []
     if (debug) console.log('116 Context',  curobjectview?.name, curobject?.name);
+    
     if (!curobject) { 
       objectviewChildren = curobjectviews
       objectChildren = objectviewChildren?.map(ov => objects.find(o => o.id === ov.objectRef)) || null
@@ -169,7 +164,6 @@ const Context = (props) => {
       // }
     } 
 
-
     // if (!curobjectview) { // use modelviews as parent
     //   console.log('121 Context', parentobject);
     //       objectviewChildren = curobjectviews?.filter(ov => ov.group === '')
@@ -177,8 +171,6 @@ const Context = (props) => {
     // }
     if (debug) console.log('94 Context', objectviewChildren);
     if (debug) console.log('95 Context', objectChildren);
-
-
 
     const setObjview = (o) => {
       let ovdata =  (o) ? curobjectviews.find(ov => ov.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
@@ -199,30 +191,18 @@ const Context = (props) => {
     // const ovChildrenProperties = ovChildrenPropertiesList.reduce((a, b) => a.concat(b), [])
     // const objectProperties = Object.entries(curobject);
 
-    let markdownString = ''
-    markdownString += `### ${curobject?.name}\n\n `
-    markdownString += '**Name:**' + curobject?.name + ' \n\n'
-    markdownString += 'Description:  ***' + curobject?.description + '*** \n\n'
-    markdownString += objectPropertiesMain?.map(key => (  
-        `- ${key}:  ${curobject[key]} \n`
-        // `| ${key}: | ${value} |\n`
-        )).join('');
-    markdownString += `\n\n <!-- ${JSON.stringify(curobject)} -->\n\n`
-
     const [activeTab, setActiveTab] = useState(0);
 
-
-
     const tabsDiv = (
-      <Tabs  onSelect={index => setActiveTab(index)}>
+      <Tabs  onSelect={index => setActiveTab(index)} style={{ overflow: 'auto' }}>
         <TabList>
-          <Tab>Main</Tab>
-          <Tab >Additional</Tab>
-          <Tab>Markdown</Tab>
+          <Tab>Object main props</Tab>
+          <Tab >Additional Properties</Tab>
+          <Tab>Objectview</Tab>
           {/* <Tab><FaPlaneArrival />Main</Tab>
           <Tab ><FaCompass /></Tab> */}
         </TabList>
-        <TabPanel>
+        <TabPanel className="" style={{ overflow: 'auto' }}>
           {/* <h4 className="px-2">{curobject?.name}                              
             <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name || ('Modelview')})
             { (curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
@@ -257,43 +237,44 @@ const Context = (props) => {
               ))}
             </tbody>
           </table> 
-          <ObjDetailTable
-            title="Children"
-            curRelatedObjsRels={objectChildren}
-            curmodelview={curmodelview}
-            curmetamodel={curmm}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            curobject={curobject}
-            objects={objects}
-            includedKeys={includedKeysMain}
-            setObjview={setObjview}
-          />
-          <ObjDetailTable
-            title="Related From"
-            curRelatedObjsRels={curRelatedFromObectRels}
-            curmodelview={curmodelview}
-            curmetamodel={curmm}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            curobject={curobject}
-            objects={objects}
-            includedKeys={includedKeysMain}
-            setObjview={setObjview}
-          />
-          <ObjDetailTable
-            title="Related To"
-            curRelatedObjsRels={curRelatedToObectRels}
-            curmodelview={curmodelview}
-            curmetamodel={curmm}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            curobject={curobject}
-            objects={objects}
-            includedKeys={includedKeysMain}
-            setObjview={setObjview}
-          />   
-                
+          
+            <ObjDetailTable
+              title="Children"
+              curRelatedObjsRels={objectChildren}
+              curmodelview={curmodelview}
+              curmetamodel={curmm}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              curobject={curobject}
+              objects={objects}
+              includedKeys={includedKeysMain}
+              setObjview={setObjview}
+            />
+            <ObjDetailTable
+              title="Related From"
+              curRelatedObjsRels={curRelatedFromObectRels}
+              curmodelview={curmodelview}
+              curmetamodel={curmm}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              curobject={curobject}
+              objects={objects}
+              includedKeys={includedKeysMain}
+              setObjview={setObjview}
+            />
+            <ObjDetailTable
+              title="Related To"
+              curRelatedObjsRels={curRelatedToObectRels}
+              curmodelview={curmodelview}
+              curmetamodel={curmm}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              curobject={curobject}
+              objects={objects}
+              includedKeys={includedKeysMain}
+              setObjview={setObjview}
+            />   
+ 
         </TabPanel>
         <TabPanel>
         <ObjectDetails
@@ -311,45 +292,23 @@ const Context = (props) => {
           />
         </TabPanel>
         <TabPanel>
-          {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
-          {/* <div className="my-1" style={{ minHeight: 'h', width: '40vh' }} > */}
-            {/* <h3>{focusObject.name}</h3> */}                
-            <MDEditor 
-              value={markdownString} 
-              onChange={setValue} 
-              height={1030}
-              // preview="preview"
-            />
-            {/* <MDEditor
-            onChange={(newValue = "") => setValue(newValue)}
-            textareaProps={{
-              placeholder: "Please enter Markdown text"
-            }}
-            height={500}
-            value={value}
-            // previewOptions={{
-            //   components: {
-            //     code: Code
-            //   }
-            // }}
-          /> */}
-          {/* </div> */}
         </TabPanel>
       </Tabs>
     )
 
     return (
       <>
-        <div className="border bg-light border-rounded m-0 " style={{ minWidth: '700px', maxWidth: '800px', width: 'auto' }} >
-          <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="m-0 " style={{ minWidth: '686px', maxWidth: '800px', width: 'auto' }} >
+          {/* <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
             <button className="btn-sm px-1 me-4 mt-2 rounded" onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
-          </div>
+          </div> */}
           {/* <h1>{curobject.name}</h1> */}
           {/* {tabsDiv} */}
-          <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} >
-          {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+          <div className=""  >
+           {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
           </div>
         </div>
+
         {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
       </>
     )

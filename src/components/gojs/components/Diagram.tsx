@@ -454,15 +454,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('430 myFromNodes', myFromNodes);
             const myModel = myMetis.currentModel;
             myModel.args1 = myFromNodes;
-            const jsnModel = new jsn.jsnModel(myModel, true);
-            const modifiedModels = new Array();
-            modifiedModels.push(jsnModel);
-            modifiedModels.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
-              e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-            })
-
             selection = [];
             e.diagram.selection.each(function(sel) {
               const key = sel.data.key;

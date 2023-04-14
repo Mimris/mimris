@@ -289,10 +289,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     { // Handle ports
         const porttype = myMetis.findObjectTypeByName(constants.types.AKM_PORT);
-        const leftports = new Array();
-        const rightports = new Array();
-        const topports = new Array();
-        const bottomports = new Array();
+        const ports = new Array();
         const rels = object.outputrels;
         if (debug) console.log('278 rels', rels);
         for (let i=0; i<rels?.length; i++) {
@@ -308,27 +305,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                             port.type = porttype;
                     }
                     if (debug) console.log('286 port', port);
-                    switch(port.side) {
-                        case constants.gojs.C_LEFT:
-                            leftports.push(port);
-                            continue;
-                        case constants.gojs.C_RIGHT:
-                            rightports.push(port);
-                            continue;
-                        case constants.gojs.C_TOP:
-                            topports.push(port);
-                            continue;
-                        case constants.gojs.C_BOTTOM:
-                            bottomports.push(port);
-                            continue;
-                    }
+                    ports.push(port);
                 }
             }
         }
-        if (leftports) objtype.leftPorts = leftports;
-        if (rightports) objtype.rightPorts = rightports;
-        if (topports) objtype.topPorts = topports;
-        if (bottomports) objtype.bottomPorts = bottomports;
+        if (ports) objtype.ports = ports;
         if (debug) console.log('306 objtype', objtype);
     }
     { // Handle typeviews

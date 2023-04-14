@@ -263,7 +263,6 @@ function getColor(color: string): string {
 }
 
 function makeGeoFigure(name: string, figure: string, color: string) {
-    let geometry = getGeoFigure(figure);
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)
          
         new go.Binding("geometryString", "geometry", 

@@ -411,7 +411,7 @@ export class cxMetis {
                     }
                     metamodel.relshiptypeviews = [];
                     items = item.relshiptypeviews;
-                    items.sort(utils.compare);
+                    if (items) items.sort(utils.compare);
                     if (debug) console.log('421 items', items);
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {

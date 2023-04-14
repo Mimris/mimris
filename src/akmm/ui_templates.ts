@@ -474,7 +474,7 @@ function addLinkTemplateName(name: string) {
 }
 
 // some shared functions
-if (false) {
+if (true) {
     // Swimpool and swimlane code
     // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
     function relayoutDiagram() {
@@ -573,22 +573,22 @@ if (false) {
             diagram.startTransaction('PoolLayout');
             const pool = this.group;
             if (pool !== null && pool.category === 'Pool') {
-            // make sure all of the Group Shapes are big enough
-            const minsize = computeMinPoolSize(pool);
-            pool.memberParts.each(function (lane) {
-                if (!(lane instanceof go.Group)) return;
-                if (lane.category !== 'Pool') {
-                const shape = lane.resizeObject;
-                if (shape !== null) {  // change the desiredSize to be big enough in both directions
-                    const sz = computeLaneSize(lane);
-                    shape.width = (isNaN(shape.width) ? minsize.width : Math.max(shape.width, minsize.width));
-                    shape.height = (!isNaN(shape.height)) ? Math.max(shape.height, sz.height) : sz.height;
-                    const cell = lane.resizeCellSize;
-                    if (!isNaN(shape.width) && !isNaN(cell.width) && cell.width > 0) shape.width = Math.ceil(shape.width / cell.width) * cell.width;
-                    if (!isNaN(shape.height) && !isNaN(cell.height) && cell.height > 0) shape.height = Math.ceil(shape.height / cell.height) * cell.height;
-                }
-                }
-            });
+                // make sure all of the Group Shapes are big enough
+                const minsize = computeMinPoolSize(pool);
+                pool.memberParts.each(function (lane) {
+                    if (!(lane instanceof go.Group)) return;
+                    if (lane.category !== 'Pool') {
+                        const shape = lane.resizeObject;
+                        if (shape !== null) {  // change the desiredSize to be big enough in both directions
+                            const sz = computeLaneSize(lane);
+                            shape.width = (isNaN(shape.width) ? minsize.width : Math.max(shape.width, minsize.width));
+                            shape.height = (!isNaN(shape.height)) ? Math.max(shape.height, sz.height) : sz.height;
+                            const cell = lane.resizeCellSize;
+                            if (!isNaN(shape.width) && !isNaN(cell.width) && cell.width > 0) shape.width = Math.ceil(shape.width / cell.width) * cell.width;
+                            if (!isNaN(shape.height) && !isNaN(cell.height) && cell.height > 0) shape.height = Math.ceil(shape.height / cell.height) * cell.height;
+                        }
+                    }
+                });
             }
             // now do all of the usual stuff, according to whatever properties have been set on this GridLayout
             super.doLayout.call(this, coll);
@@ -2799,110 +2799,139 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
     if (false) {
       // each Group is a "swimlane" with a header on the left and a resizable lane on the right
       const laneTemplate = 
-        $(go.Group, "Horizontal", groupStyle(),
-            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("visible"),
-            {          
-                contextMenu: contextMenu,
-                resizable: true, 
-                selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
-                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-            },            // layout: $(go.LayeredDigraphLayout,  // automatically lay out the lane's subgraph
-            {
-                ungroupable: true,
-                // highlight when dragging into the Group
-                mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
-                mouseDragLeave: function (e, grp, next) { highlightGroup(e, grp, false); },
-                computesBoundsIncludingLinks: false,  // to reduce occurrences of links going briefly outside the lane
-                computesBoundsIncludingLocation: true,  // to support empty space at top-left corner of lane
-                computesBoundsAfterDrag: true,
-                // when the selection is dropped into a Group, add the selected Parts into that Group;
-                // if it fails, cancel the tool, rolling back any changes
-                // mouseDrop: finishDrop,
-                handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-            },
-            new go.Binding("scale", "scale1").makeTwoWay(),
-            new go.Binding("background", "isHighlighted",
-            function (h) {
-                return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is the background of all
-                }).ofObject(),
-            { // Tooltip
-                toolTip:
-                $(go.Adornment, "Auto",
-                    $(go.Shape, { fill: "lightyellow" }),
-                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                        new go.Binding("text", "", 
-                            function (d) { 
-                                return uid.nodeInfo(d, myMetis);                
-                            }
-                        )
-                    )
-                )
-            },
-          
-          new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
-          // the lane header consisting of a Shape and a TextBlock
-          $(go.Panel, "Horizontal",
-            {
-              name: "HEADER",
-              angle: 270,  // maybe rotate the header to read sideways going up
-              alignment: go.Spot.Center
-            },
-            $(go.Panel, "Horizontal",  // this is hidden when the swimlane is collapsed
-              new go.Binding("visible", "isSubGraphExpanded").ofObject(),
-              $(go.Shape, "Diamond",
-                { width: 8, height: 8, fill: "white" },
-                new go.Binding("fill", "color")),
-              $(go.TextBlock,  // the lane label
-                { font: "bold 13pt sans-serif", editable: true, margin: new go.Margin(2, 0, 0, 0) },
-                new go.Binding("text", "text").makeTwoWay())
-            ),
-            $("SubGraphExpanderButton", { margin: 5 })  // but this remains always visible!
-          ),  // end Horizontal Panel
-          $(go.Panel, "Auto",  // the lane consisting of a background Shape and a Placeholder representing the subgraph
-            $(go.Shape, "Rectangle",  // this is the resized object
-              { name: "SHAPE", fill: "white" },
-              new go.Binding("fill", "color"),
-              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
-            $(go.Placeholder,
-              { padding: 12, alignment: go.Spot.TopLeft }),
-            $(go.TextBlock,  // this TextBlock is only seen when the swimlane is collapsed
-              {
-                name: "LABEL",
-                font: "bold 13pt sans-serif", editable: true,
-                angle: 0, alignment: go.Spot.TopLeft, margin: new go.Margin(2, 0, 0, 4)
-              },
-              new go.Binding("visible", "isSubGraphExpanded", e => !e).ofObject(),
-              new go.Binding("text", "text").makeTwoWay())
-          )  // end Auto Panel
-        
+      $(go.Group, "Horizontal", groupStyle(),
+      {
+        selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+        resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+        layout: $(go.LayeredDigraphLayout,  // automatically lay out the lane's subgraph
+          {
+            isInitial: false,  // don't even do initial layout
+            isOngoing: false,  // don't invalidate layout when nodes or links are added or removed
+            direction: 0,
+            columnSpacing: 10,
+            layeringOption: go.LayeredDigraphLayout.LayerLongestPathSource,
+            alignOption: go.LayeredDigraphLayout.AlignAll
+          }),
+        computesBoundsAfterDrag: true,  // needed to prevent recomputing Group.placeholder bounds too soon
+        computesBoundsIncludingLinks: false,  // to reduce occurrences of links going briefly outside the lane
+        computesBoundsIncludingLocation: true,  // to support empty space at top-left corner of lane
+        handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+        mouseDrop: (e, grp) => {  // dropping a copy of some Nodes and Links onto this Group adds them to this Group
+          if (!e.shift) return;  // cannot change groups with an unmodified drag-and-drop
+          // don't allow drag-and-dropping a mix of regular Nodes and Groups
+          if (!e.diagram.selection.any(n => n instanceof go.Group)) {
+            const ok = grp.addMembers(grp.diagram.selection, true);
+            if (ok) {
+              updateCrossLaneLinks(grp);
+            } else {
+              grp.diagram.currentTool.doCancel();
+            }
+          } else {
+            e.diagram.currentTool.doCancel();
+          }
+        },
+        subGraphExpandedChanged: grp => {
+          const shp = grp.resizeObject;
+          if (grp.diagram.undoManager.isUndoingRedoing) return;
+          if (grp.isSubGraphExpanded) {
+            shp.height = grp.data.savedBreadth;
+          } else {
+            if (!isNaN(shp.height)) grp.diagram.model.set(grp.data, "savedBreadth", shp.height);
+            shp.height = NaN;
+          }
+          updateCrossLaneLinks(grp);
+        }
+      },
+      new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
+      // the lane header consisting of a Shape and a TextBlock
+      $(go.Panel, "Horizontal",
+        {
+          name: "HEADER",
+          angle: 270,  // maybe rotate the header to read sideways going up
+          alignment: go.Spot.Center
+        },
+        $(go.Panel, "Horizontal",  // this is hidden when the swimlane is collapsed
+          new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+          $(go.Shape, "Diamond",
+            { width: 8, height: 8, fill: "white" },
+            new go.Binding("fill", "color")),
+          $(go.TextBlock,  // the lane label
+            { font: "bold 13pt sans-serif", editable: true, margin: new go.Margin(2, 0, 0, 0) },
+            new go.Binding("text", "text").makeTwoWay())
+        ),
+        $("SubGraphExpanderButton", { margin: 5 })  // but this remains always visible!
+      ),  // end Horizontal Panel
+      $(go.Panel, "Auto",  // the lane consisting of a background Shape and a Placeholder representing the subgraph
+        $(go.Shape, "Rectangle",  // this is the resized object
+          { name: "SHAPE", fill: "white" },
+          new go.Binding("fill", "color"),
+          new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
+        $(go.Placeholder,
+          { padding: 12, alignment: go.Spot.TopLeft }),
+        $(go.TextBlock,  // this TextBlock is only seen when the swimlane is collapsed
+          {
+            name: "LABEL",
+            font: "bold 13pt sans-serif", editable: true,
+            angle: 0, alignment: go.Spot.TopLeft, margin: new go.Margin(2, 0, 0, 4)
+          },
+          new go.Binding("visible", "isSubGraphExpanded", e => !e).ofObject(),
+          new go.Binding("text", "text").makeTwoWay())
+        )  // end Auto Panel
         );  // end Group
-        groupTemplateMap.add("SwimLane", laneTemplate);
-        addGroupTemplateName('SwimLane');
+        groupTemplateMap.add("Lane", laneTemplate);
+        addGroupTemplateName('Lane');
+
+      // define a custom resize adornment that has two resize handles if the group is expanded
+      groupTemplateMap.get("Lane").resizeAdornmentTemplate =
+        $(go.Adornment, "Spot",
+          $(go.Placeholder),
+          $(go.Shape,  // for changing the length of a lane
+            {
+              alignment: go.Spot.Right,
+              desiredSize: new go.Size(7, 50),
+              fill: "lightblue", stroke: "dodgerblue",
+              cursor: "col-resize"
+            },
+            new go.Binding("visible", "", ad => {
+              if (ad.adornedPart === null) return false;
+              return ad.adornedPart.isSubGraphExpanded;
+            }).ofObject()),
+          $(go.Shape,  // for changing the breadth of a lane
+            {
+              alignment: go.Spot.Bottom,
+              desiredSize: new go.Size(50, 7),
+              fill: "lightblue", stroke: "dodgerblue",
+              cursor: "row-resize"
+            },
+            new go.Binding("visible", "", ad => {
+              if (ad.adornedPart === null) return false;
+              return ad.adornedPart.isSubGraphExpanded;
+            }).ofObject())
+        );
     }
     if (false) {
         const poolTemplate =
         $(go.Group, "Auto", groupStyle(),
-        { // use a simple layout that ignores links to stack the "lane" Groups on top of each other
+          { // use a simple layout that ignores links to stack the "lane" Groups on top of each other
             layout: $(PoolLayout, { spacing: new go.Size(0, 0) })  // no space between lanes
-        },
-        $(go.Shape,
+          },
+          $(go.Shape,
             { fill: "white" },
             new go.Binding("fill", "color")),
-        $(go.Panel, "Table",
+          $(go.Panel, "Table",
             { defaultColumnSeparatorStroke: "black" },
             $(go.Panel, "Horizontal",
-            { column: 0, angle: 270 },
-            $(go.TextBlock,
+              { column: 0, angle: 270 },
+              $(go.TextBlock,
                 { font: "bold 16pt sans-serif", editable: true, margin: new go.Margin(2, 0, 0, 0) },
                 new go.Binding("text").makeTwoWay())
             ),
             $(go.Placeholder,
-            { column: 1 })
-        )
+              { column: 1 })
+          )
         );
-        groupTemplateMap.add("SwimPool", poolTemplate);
-        addGroupTemplateName('SwimPool');
+        groupTemplateMap.add("Pool", poolTemplate);
+        addGroupTemplateName('Pool');
     }
 
     if (false) {
@@ -3432,7 +3461,7 @@ export function addPortTemplates() {
     //       // { dragComputation: stayInGroup } // limit dragging of Nodes to stay within the containing Group, defined above
     //     );
 
-      function groupStyle() {  // common settings for both Lane and Pool Groups
+    function groupStyle() {  // common settings for both Lane and Pool Groups
         return [
           {
             layerName: "Background",  // all pools and lanes are always behind all nodes and links
@@ -3445,14 +3474,14 @@ export function addPortTemplates() {
           },
           new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify)
         ];
-      }
+    }
 
-      // hide links between lanes when either lane is collapsed
-      function updateCrossLaneLinks(group) {
-        group.findExternalLinksConnected().each(l => {
-          l.visible = (l.fromNode.isVisible() && l.toNode.isVisible());
-        });
-      }
+    // hide links between lanes when either lane is collapsed
+    function updateCrossLaneLinks(group) {
+    group.findExternalLinksConnected().each(l => {
+        l.visible = (l.fromNode.isVisible() && l.toNode.isVisible());
+    });
+    }
 
 
 

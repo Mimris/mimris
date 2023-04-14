@@ -1031,11 +1031,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Convert to Group",
             function (e: any, obj: any) {
+              const allowPorts = confirm("Allow Ports?");
               const n = e.diagram.selection.first().data;
               let objview = n.objectview;
               objview = myMetis.findObjectView(objview.id);
               objview.viewkind = 'Container';
-              objview.template = 'groupNoPorts'
+              objview.template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
               objview.isGroup = true;
               objview.size = "200 100";
               n.objectview = objview;
@@ -1306,19 +1307,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 //   return true;
                 return false;
             }),
-  
-            // makeButton("Group",
-          //   function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
-          //   function (o: any) { 
-          //     return false;
-          //     return o.diagram.commandHandler.canGroupSelection(); 
-          //   }),
-          // makeButton("Ungroup",
-          //   function (e: any, obj: any) { e.diagram.commandHandler.ungroupSelection(); },
-          //   function (o: any) { 
-          //     return false;
-          //     return o.diagram.commandHandler.canUngroupSelection(); 
-          //   })
         );
     }
 

@@ -5059,10 +5059,7 @@ export class cxType extends cxMetaObject {
 
 export class cxObjectType extends cxType {
     typeid: string;
-    leftPorts: cxPort[] | null;
-    rightPorts: cxPort[] | null;
-    topPorts: cxPort[] | null;
-    bottomPorts: cxPort[] | null;
+    ports: cxPort[] | null;
     fromObjtype: cxObjectType | null;
     toObjtype: cxObjectType | null;
     objtypegeos: cxObjtypeGeo[] | null;
@@ -5077,10 +5074,7 @@ export class cxObjectType extends cxType {
         this.typeid = constants.types.OBJECTTYPE_ID;
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
-        this.leftPorts = null;
-        this.rightPorts = [];
-        this.topPorts = [];
-        this.bottomPorts = [];
+        this.ports = null;
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -5159,30 +5153,11 @@ export class cxObjectType extends cxType {
         }
         return reltypes;
     }
-    addPort(port: cxPort, side: string) {
+    addPort(port: cxPort) {
         let ports;
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                if (!this.leftPorts)
-                    this.leftPorts = new Array();
-                ports = this.leftPorts;
-                break;
-            case constants.gojs.C_RIGHT:
-                if (!this.rightPorts)
-                    this.rightPorts = new Array();
-                ports = this.rightPorts;
-                break;
-            case constants.gojs.C_TOP:
-                if (!this.topPorts)
-                    this.topPorts = new Array();
-                ports = this.topPorts;
-                break;
-            case constants.gojs.C_BOTTOM:
-                if (!this.bottomPorts)
-                    this.bottomPorts = new Array();
-                ports = this.bottomPorts;
-                break;
-        }
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
         const len = ports.length;
         for (let i=0; i<len; i++) {
             const p = ports[i];
@@ -5193,22 +5168,11 @@ export class cxObjectType extends cxType {
             ports.push(port);
         }
     }
-    getPort(portid: string, side: string): cxPort | null {
-        let ports;
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                ports = this.leftPorts;
-                break;
-            case constants.gojs.C_RIGHT:
-                ports = this.rightPorts;
-                break;
-            case constants.gojs.C_TOP:
-                ports = this.topPorts;
-                break;
-            case constants.gojs.C_BOTTOM:
-                ports = this.bottomPorts;
-                break;
-        }
+    getPorts() {
+        return this.ports;
+    }
+    getPort(portid: string): cxPort | null {
+        let ports = this.ports;
         const len = ports.length;
         for (let i=0; i<len; i++) {
             const p = ports[i];
@@ -5219,17 +5183,15 @@ export class cxObjectType extends cxType {
         return null;
     }
     getPortsBySide(side: string): cxPort[] | null {   
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                return this.leftPorts;
-            case constants.gojs.C_RIGHT:
-                return this.rightPorts;
-            case constants.gojs.C_TOP:
-                return this.topPorts;
-            case constants.gojs.C_BOTTOM:
-                return this.bottomPorts;
+        const ports = [];
+        const len = this.ports.length;
+        for (let i=0; i<len; i++) {
+            const p = this.ports[i];
+            if (p.side === side) {
+                ports.push(p);
+            }
         }
-        return null;
+        return ports;
     }
     getPortByNameAndSide(name: string, side: string): cxPort | null {
         let ports = this.getPortsBySide(side);
@@ -7548,21 +7510,14 @@ export class cxInstance extends cxMetaObject {
 }
 
 export class cxObject extends cxInstance {
-    leftPorts: cxPort[] | null;
-    rightPorts: cxPort[] | null;
-    topPorts: cxPort[] | null;
-    bottomPorts: cxPort[] | null;
+    ports: cxPort[] | null;
     objectviews: cxObjectView[] | null;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
-        this.leftPorts = [];
-        this.rightPorts = [];
-        this.topPorts = [];
-        this.bottomPorts = [];
+        this.ports = [];
         this.objectviews = null;
-
         // Handle properties
         const props = this.type?.properties;
         for (let i=0; i<props?.length; i++) {
@@ -7572,51 +7527,15 @@ export class cxObject extends cxInstance {
         } 
         if (debug) console.log('4600 obj', this);   
         // Handle ports
-        const leftPorts = this.type?.leftPorts;
-        if (leftPorts) {
-            this.leftPorts = new Array();
-            for (let i=0; i<leftPorts.length; i++) {
-                const port = leftPorts[i];
+        const ports = this.type?.ports;
+        if (ports) {
+            this.ports = new Array();
+            for (let i=0; i<ports.length; i++) {
+                const port = ports[i];
                 if (port) {
                     const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
                     portInst.color = port.color;
-                    this.leftPorts.push(portInst);
-                }
-            }
-        }
-        const rightPorts = this.type?.rightPorts;
-        if (rightPorts) {
-            this.rightPorts = new Array();
-            for (let i=0; i<rightPorts.length; i++) {
-                const port = rightPorts[i];
-                if (port) {
-                    const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
-                    portInst.color = port.color;
-                    this.rightPorts.push(portInst);
-                }
-            }
-        }
-        const topPorts = this.type?.topPorts;
-        if (topPorts) {
-            this.topPorts = new Array();
-            for (let i=0; i<topPorts.length; i++) {
-                const port = topPorts[i];
-                if (port) {
-                    const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
-                    portInst.color = port.color;
-                    this.topPorts.push(portInst);
-                }
-            }
-        }
-        const bottomPorts = this.type?.bottomPorts;
-        if (bottomPorts) {
-            this.bottomPorts = new Array();
-            for (let i=0; i<bottomPorts.length; i++) {
-                const port = bottomPorts[i];
-                if (port) {
-                    const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
-                    portInst.color = port.color;
-                    this.bottomPorts.push(portInst);
+                    this.ports.push(portInst);
                 }
             }
         }
@@ -7905,78 +7824,63 @@ export class cxObject extends cxInstance {
     addPort(side: string, name: string): cxPort {
         const port = new cxPort(utils.createGuid(), name, "", side);
         port.color = constants.gojs.C_PORT_COLOR;
-        if (side === constants.gojs.C_LEFT) {
-            this.leftPorts.push(port);
-        } else if (side === constants.gojs.C_RIGHT) {
-            this.rightPorts.push(port);
-        } else if (side === constants.gojs.C_TOP) {
-            this.topPorts.push(port);
-        } else if (side === constants.gojs.C_BOTTOM) {
-            this.bottomPorts.push(port);
-        }
+        this.ports.push(port);
         return port;
     }
     deletePort(side: string, name: string) {
-        if (side === constants.gojs.C_LEFT) {
-            this.leftPorts = this.leftPorts.filter(p => p.name !== name);
-        } else if (side === constants.gojs.C_RIGHT) {
-            this.rightPorts = this.rightPorts.filter(p => p.name !== name);
-        } else if (side === constants.gojs.C_TOP) {
-            this.topPorts = this.topPorts.filter(p => p.name !== name);
-        } else if (side === constants.gojs.C_BOTTOM) {
-            this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
-        }
+        this.ports = this.ports.filter(p => p.name !== name && p.side !== side);
     }
     deleteSidePorts(side: string) {
-        if (side === constants.gojs.C_LEFT) {
-            this.leftPorts = [];
-        } else if (side === constants.gojs.C_RIGHT) {
-            this.rightPorts = [];
-        } else if (side === constants.gojs.C_TOP) {
-            this.topPorts = [];
-        } else if (side === constants.gojs.C_BOTTOM) {
-            this.bottomPorts = [];
-        }
+        this.ports = this.ports.filter(p => p.side !== side);
     }
     getPort(side: string, name: string): cxPort {
         let port = null;
-        if (side === constants.gojs.C_LEFT) {
-            if (this.leftPorts) {
-                port = this.leftPorts?.find(p => p.name === name);
-            }
-        } else if (side === constants.gojs.C_RIGHT) {
-            if (this.leftPorts) {
-                port = this.rightPorts?.find(p => p.name === name);
-            }
-        } else if (side === constants.gojs.C_TOP) {
-            if (this.topPorts) {
-                port = this.topPorts?.find(p => p.name === name);
-            }
-        } else if (side === constants.gojs.C_BOTTOM) {
-            if (this.bottomPorts) {
-                port = this.bottomPorts?.find(p => p.name === name);
+        for (let i=0; i<this.ports?.length; i++) {
+            const p = this.ports[i];
+            if ((p.side === side) && (p.name === name)) {
+                port = p;
+                break;
             }
         }
         return port;
     }
     getPorts(): cxPort[] {
-        const ports = this.leftPorts.concat(this.rightPorts).concat(this.topPorts).concat(this.bottomPorts);
-        return ports;
+        return this.ports;
     }
     getLeftPorts(): cxPort[] {
-        const ports = this.leftPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_LEFT)
+                ports.push(port);
+        }
         return ports;
     }
     getRightPorts(): cxPort[] {
-        const ports = this.rightPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_RIGHT)
+                ports.push(port);
+        }
         return ports;
     }
     getTopPorts(): cxPort[] {
-        const ports = this.topPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_TOP)
+                ports.push(port);
+        }
         return ports;
     }
     getBottomPorts(): cxPort[] {
-        const ports = this.bottomPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_BOTTOM)
+                ports.push(port);
+        }
         return ports;
     }
     getRelsConnectedToPort(portId: string): cxRelationship[] {

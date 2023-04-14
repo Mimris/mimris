@@ -75,11 +75,17 @@ const Navbar = (props) => {
 			align-items: center;
 			background: #e5e5e5;
 			box-shadow: 0 0px 10px #aaa;
-		  }
-		  .nav-item {
-			background: #efefef;
-		  }
-  
+		}
+		.nav-item {
+		background: #efefef;
+		border-top: 3px solid #ccc;
+		border-bottom: 3px solid #fff;
+		}
+
+		.nav-item:first-child {
+		border-left: 3px solid #ddd;
+		}
+
 		  /* Basic styles for nav links */
 		  nav a {
 			display: flex;
@@ -92,6 +98,7 @@ const Navbar = (props) => {
 			font-weight: bold;
 			background: #e5e5e5;
 			border-bottom: 3px solid transparent;
+			border-right: 3px solid #fff;
 			transition: border-color 0.2s ease-in-out;
 		  }
   
@@ -107,6 +114,7 @@ const Navbar = (props) => {
 			border-top: 3px solid #fff;
 			border-right: 3px solid #ccc;
 			border-left: 3px solid #fff;
+			border-bottom: 3px solid #e5e5e5;
 			border-radius: 10px 10px 0 0;
 		  }
 			/* Specific styles for the navbar brand */

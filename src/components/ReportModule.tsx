@@ -24,7 +24,7 @@ const ReportModule = (props) => {
     const [activeTab, setActiveTab] = useState(0);
 
     const tabsDiv = (
-      <Tabs  onSelect={index => setActiveTab(index)} >
+      <Tabs onSelect={index => setActiveTab(index)} >
         <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
           <Tab>Current Object</Tab>
           <Tab >MarkDown</Tab>
@@ -45,16 +45,17 @@ const ReportModule = (props) => {
 
     return (
       <>
-        <div className=" " style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+        <div className="bg-light border " style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+            <h5 className='ms-2 mb-0'>Context and Focus :</h5>
           <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
             <button className="btn-sm px-1 me-4 mt-2 " onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
           </div>
           {/* <h1>{curobject.name}</h1> */}
           {/* {tabsDiv} */}
           {/* <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} > */}
-          <div className=" border border-rounded m-1 " style={{ height: '88vh', maxHeight: '88vh', overflow: 'auto' }} >
-          { ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
-          </div>
+          <div className="border border-dark rounded bg-white" style={{ height: '88vh', maxHeight: '88vh', overflow: 'auto', borderTop: 'none' }}>
+  {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+</div>
         </div>
         {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
       </>

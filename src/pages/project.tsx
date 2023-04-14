@@ -1,7 +1,6 @@
 // make a page for project
 import { connect, useDispatch } from 'react-redux';
 import React, { useState, useEffect } from "react";
-// import client from '@sanity/client'
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from "next/router";
@@ -15,21 +14,18 @@ import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';
 import SelectContext from '../components/utils/SelectContext';
+import ProjectDetailsModal from '../components/modals/ProjectDetailsModal';
 
 import HeaderButtons from '../components/utils/HeaderButtons';
 
 const debug = false
 
 const page = (props: any) => {
-
-  // if (typeof window === 'undefined') return <></>
-    
+  // if (typeof window === 'undefined') return <></>  
   const dispatch = useDispatch()  
   const [refresh, setRefresh] = useState(false)
-  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
-  
+  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
   if (debug) console.log('28 project',props, query)
-
   // list query params
   let org = props.phFocus.focusProj.org
   let repo = props.phFocus.focusProj.repo
@@ -43,11 +39,6 @@ const page = (props: any) => {
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
-
-  // if query object is not empty object
-  // useEffect(() => {
-  //   LoadGithubParams(props)
-  // }, [query])
 
   const [issues, setIssues] = useState([]);
   const [collabs, setCollabs] = useState([]);
@@ -63,33 +54,27 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   } 
 
-
-  useEffect(() => {
+  const handleGithubParams = (query) => {
     if (query.repo) {
-      org = query.org
-      repo = query.repo
-      path = query.path
-      file = query.file
-      branch = query.branch
-      focus = query.focus
-      ghtype = query.ghtype
-      if (debug) console.log('33 modelling dispatchGithub', query, props)  
-      dispatch({type: 'LOAD_DATAGITHUB', data: query })
-      const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
-      if (debug) console.log('49 GithubParams', data)
-      dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-      const org1 = {id: org, name: org}
-      dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-      const repo1 = {id: 'role', name: ''}
-      dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-    } 
+    const { org, repo, path, file, branch, focus, ghtype } = query;
+    dispatch({ type: 'LOAD_DATAGITHUB', data: query });
+    const data = { id: org + repo + path + file, name: repo, org, repo, path, file, branch, focus };
+    dispatch({ type: 'SET_FOCUS_PROJ', data });
+    const org1 = { id: org, name: org };
+    dispatch({ type: 'SET_FOCUS_ORG', data: org1 });
+    const repo1 = { id: 'role', name: '' };
+    dispatch({ type: 'SET_FOCUS_REPO', data: repo1 });
+    }
     const timer = setTimeout(() => {
-    if (debug) console.log('73 GithubParams', org, repo, path, file, branch, focus, ghtype)
-    //   dispatch({type: 'SET_REFRESH', data: {refresh: true} })
+    // dispatch({type: 'SET_REFRESH', data: {refresh: true} })
     // setRefresh(!refresh)
-  }, 1000);
-  return () => clearTimeout(timer);
-}, [query.repo])
+    }, 1000);
+    return () => clearTimeout(timer);
+    };
+    
+    useEffect(() => {
+    handleGithubParams(query);
+    }, [query.repo]);
 
   useEffect(() => {
 
@@ -103,18 +88,6 @@ const page = (props: any) => {
       }
     }
     fetchData(); 
-
-    // async function fetchCollab() {
-    //   try {
-    //     const { data } = await axios.get(collabUrl);
-    //     setCollabs(data);
-    //     console.log('68 collabs', data)
-    //   } catch (err) {
-    //     setError(err);
-    //   }
-    // }
-    // fetchCollab(); 
-
     // show error message popup
     if (error) {
       // console.log('78 error', error.response.data.message)
@@ -123,13 +96,17 @@ const page = (props: any) => {
   }, [props.phFocus.focusProj.org]);
 
   useEffect(() => {
-
-    if (debug) console.log('54 modelling dispatchGithub', query, props.phFocus.focusProj)
-    org = props.phFocus?.focusProj.org || prompt("Organisation?");
-    repo = props.phFocus?.focusProj.repo || prompt("Repo?");
-    path = props.phFocus?.focusProj.path || prompt("path?");
-    file = props.phFocus?.focusProj.file || prompt("file?");
-    branch = props.phFocus?.focusProj.branch || prompt("branch? (main)");
+    if (!debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
+    if (!props.phFocus.focusProj.org) {
+      if (confirm("Do you want to update the project details?")) {
+        <ProjectDetailsModal onSubmit={(details) => console.log(details)} />
+        // org = props.phFocus?.focusProj.org || prompt("Organisation?");
+        // repo = props.phFocus?.focusProj.repo || prompt("Repo?");
+        // path = props.phFocus?.focusProj.path || prompt("Path?");
+        // file = props.phFocus?.focusProj.file || prompt("File?");
+        // branch = props.phFocus?.focusProj.branch || prompt("Branch? (main)");
+      }
+    }
     // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
     // if (!ghtype) ghtype = prompt("ghtype?");
     if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
@@ -141,8 +118,8 @@ const page = (props: any) => {
     dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
     const repo1 = {id: 'role', name: ''}
     dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-  
-  }, [!query.repo]);
+
+  }, [props.phFocus.focusProj.org]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
@@ -178,8 +155,7 @@ const page = (props: any) => {
         <ProjectForm phFocus={props.phFocus} />
       </div>
     </>
-
-  
+ 
   return (
     <>
       <Layout user={props.phUser?.focusUser} >
@@ -189,10 +165,8 @@ const page = (props: any) => {
                 <Header title='eaderTitle' />
               </div> */}
                 {contextDiv}  
-                <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />
-    
-              <div className="workplace-focus gap " >
-                
+                <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />  
+              <div className="workplace-focus gap " >               
                 <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
                   <h6 className='text-muted pt-2'>Links to Github :</h6>
                   <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
@@ -228,37 +202,11 @@ const page = (props: any) => {
                         : <></>
                       }
                     </div>
-                  
-                  {/* <div className="aside-right fs-4 mt-3" style={{minWidth: "20rem"}}>
-                    <h2 className='text-muted fs-6 p-2'>GitHub Collaborators :</h2>git 
-                    {(collabs.length > 0) && collabs.map((col) => (
-                      <div className='bg-light fs-6  m-2 p-2' key={col.id}>
-                        <div className='d-flex justify-content-between'>
-                          <Link className='text-primary' href={col.html_url} target="_blank"># {col.number} - {col.state} - {col.created_at.slice(0, 10)}</Link>
-                          <div className='text-muted'>{col.user.name}</div>
-                        </div>
-                        <h6>{col.title}</h6>
-                        <div className='text-muted'>Created by: {col.user.login} - Assignee: {col.assignees[0]?.login} </div>
-                      </div>
-                    ))}
-                  </div> */}
                 </div>
                 {/* List the modelling params and link to modelling page */}
                 <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv}
-                      {/* <div className=" d-flex justify-content-around "> */}
-                        {/* <div className="rounded bg-light m-2 p-2">
-                          <button className='rounded mt-2 px-2 m-2 '>
-                              <Link className='text-primary ' href={generatedUrl}>Reload from GitHub </Link>
-                          </button>
-                        <span className='text-muted pr-2'>NB! This will overwrite any changes made in current model </span>  
-                        </div>    */}
-                        {/* <div className="rounded bg-light m-2 p-2">
-                          <button className='rounded mt-2 px-2 m-2  '>
-                            <SelectContext className='ContextModal mr-2' buttonLabel='Set Context' phData={props.phData} phFocus={props.phFocus} />  
-                          </button>
-                        </div>    */}
-                      {/* </div>    */}
+
                     <div className="rounded bg-light m-2 p-2 ">
                       <button className='rounded mt-2 px-2 '>
                           <Link className='text-primary ' href="/modelling">Start Modelling</Link>
@@ -316,10 +264,6 @@ const page = (props: any) => {
           }
         ` }
         </style>
-
-
-
-
       </Layout>
     </>
   )

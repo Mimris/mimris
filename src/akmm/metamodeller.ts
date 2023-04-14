@@ -7507,7 +7507,7 @@ export class cxInstance extends cxMetaObject {
                 let rel = this.inputrels[i];
                 if (rel && !rel.markedAsDeleted) {
                     let type = rel.type;
-                    if (type && type.id === reltype.id) 
+                    if (type && type.id === reltype?.id) //sf added ?
                     relships.push(rel);
                 }
             }

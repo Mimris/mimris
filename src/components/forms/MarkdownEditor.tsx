@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import { saveAs } from "file-saver";
 import Markdown from 'markdown-to-jsx';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { FormGroup, Label, Input, Button } from 'reactstrap';
 
 import ObjDetailToMarkdown from "./MdFocusObject";
 import FocusParametersForm from "./EditFocusParameter";
@@ -219,6 +220,7 @@ Here's an image:
         <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
           <Tab>Preview</Tab>
           <Tab>MarkDownCode</Tab>
+          <Tab>GitHub</Tab>
         </TabList>
 
         <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' }}>
@@ -235,7 +237,29 @@ Here's an image:
             <button className="btn btn-sm mx-2 me-5" onClick={handleAddFooter}>Add Footer</button>
             <button className="btn btn-sm mx-2 ms-5" onClick={handleSaveToFile}>Save to File</button>
         </TabPanel>
-        
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' }}>
+          <div className="container">
+            <FormGroup>
+              <Label for="githubToken">GitHub Token:</Label>
+              <Input type="text" id="githubToken" value={githubToken} onChange={(e) => setGithubToken(e.target.value)} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="githubRepo">GitHub Repository:</Label>
+              <Input type="text" id="githubRepo" value={githubRepo} onChange={(e) => setGithubRepo(e.target.value)} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="githubBranch">GitHub Branch:</Label>
+              <Input type="text" id="githubBranch" value={githubBranch} onChange={(e) => setGithubBranch(e.target.value)} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="githubPath">GitHub Path:</Label>
+              <Input type="text" id="githubPath" value={githubPath} onChange={(e) => setGithubPath(e.target.value)} />
+            </FormGroup>
+            <div className="d-flex justify-content-end">
+              <Button className="btn btn-sm m-2" color="primary" onClick={handleSaveToGithub}>Save to GitHub</Button>
+            </div>
+          </div>
+        </TabPanel>
       </Tabs>
 
     </div>

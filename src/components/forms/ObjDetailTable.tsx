@@ -96,6 +96,7 @@ export const ObjDetailTable = (props) => {
                         <span style={{ flex: 1, textAlign: 'left' }}>{obj.name}</span>
                         <span style={{ textAlign: 'right' }}>({curmetamodel.relshiptypes.find(ot => ot.id === obj.typeRef)?.name})</span> 
                     </summary> */}
+               {(title === 'Children') ? <span className='px-2'>Object Properties</span> : <span  className='px-2'>Relationship Properties</span>}
                 <table className="table w-100">
                     <thead className="thead">
                     <tr className="tr">

@@ -106,7 +106,7 @@ console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
                 />
               );
               break;
-              case key.endsWith('Ports'):
+              case key.endsWith('ports'):
                 const ports = formValues[key]?.map((ie, index) => 
                   <div key={ie.id} className="d-flex align-items-center">
                     <div

@@ -15,6 +15,8 @@ const debug = false
 const ReportModule = (props) => {
     
     const dispatch = useDispatch()
+    const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
+    function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const ph = props.props
     console.log('20 ReportModule', ph.phUser?.appSkin.visibleContext , props)
@@ -24,38 +26,50 @@ const ReportModule = (props) => {
     const [activeTab, setActiveTab] = useState(0);
 
     const tabsDiv = (
-      <Tabs  onSelect={index => setActiveTab(index)} >
-        <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
-          <Tab>Current Object</Tab>
-          <Tab >MarkDown</Tab>
-          <Tab></Tab>
-          {/* <Tab><FaPlaneArrival />Main</Tab>
-              <Tab ><FaCompass /></Tab> */}
-        </TabList>
-        <TabPanel>
-            <Context props={ph} />
-        </TabPanel>
-        <TabPanel>
-            <MarkdownEditor value='' props={ph}/>
-        </TabPanel>
-        <TabPanel>
-        </TabPanel>
-      </Tabs>
+      <>
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 bg-light " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
+        onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
+      </button>
+      {visibleTabsDiv ?
+        <Tabs onSelect={index => setActiveTab(index)} >
+          <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
+            <Tab>Current Object</Tab>
+            <Tab >MarkDown</Tab>
+            <Tab></Tab>
+            {/* <Tab><FaPlaneArrival />Main</Tab>
+                <Tab ><FaCompass /></Tab> */}
+          </TabList>
+          <TabPanel>
+              <Context props={ph} />
+          </TabPanel>
+          <TabPanel>
+              <MarkdownEditor value='' props={ph}/>
+          </TabPanel>
+          <TabPanel>
+          </TabPanel>
+        </Tabs>   
+       : <div className="btn-verticall m-0  pl-2 " style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", paddingLeft: "4px", fontSize: "12px" }}><span> C o n t e x t & F o c u s </span></div>
+      } 
+      </>
     )
 
     return (
       <>
-        <div className=" " style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-          <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-sm px-1 me-4 mt-2 " onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
-          </div>
-          {/* <h1>{curobject.name}</h1> */}
-          {/* {tabsDiv} */}
-          {/* <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} > */}
-          <div className=" border border-rounded m-1 " style={{ height: '88vh', maxHeight: '88vh', overflow: 'auto' }} >
-          { ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
-          </div>
-        </div>
+            {visibleTabsDiv ? 
+              <div className="bg-light border bg-light" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+                  {/* <h5 className='ms-2 mb-0'>Context and Focus :</h5> */}
+                {/* <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-sm px-1 me-4 mt-2 bg-light " onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
+                </div> */}
+                {/* <h1>{curobject.name}</h1> */}
+                {/* {tabsDiv} */}
+                {/* <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} > */}
+                  <div className="border border-dark rounded bg-white" style={{ height: '88vh', maxHeight: '88vh', overflow: 'auto', borderTop: 'none' }}>
+                    {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+                  </div>
+              </div>
+            : <div className="border border-dark  bg-white" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
+          }
         {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
       </>
     )

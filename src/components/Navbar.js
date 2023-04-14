@@ -1,159 +1,162 @@
-// should  be refractor to react-bootstrap
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { FaUser, FaEnvelope } from 'react-icons/fa';
 
-
 const Navbar = (props) => {
-	
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	// console.log(currentRoute);
-	
-// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
-// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
-// navbar-expand{-sm|-md|-lg|-xl}
-
+  
 	return (
-	<nav className="navbar navbar-expand-sm d-flex justify-content-between bg-white py-0"
-			// variant="pils" defaultactiveKey="/"
-		>
+	  <nav className="navbar navbar-expand-sm d-flex justify-content-between bg-ligth my-0 py-0">
 		<div className="d-flex  w-50 mx-0 ">
-			<div className="d-flex justify-content-between" style={{width: "692px"}}>
-				<a className="navbar-brand navbar-left mr-4" href="#">
-					<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
-					{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
-					{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
-				</a>
-				{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-				<span className="fs-3 text-warning" style={{ fontsize: "30%", maxWidth: "30%", minWidth: "220px", marginTop: "5px"}}>
-					<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}><strong> AKM Modeller</strong></Link>
-				</span>
-			</div>
-			<div className="collapse navbar-collapse " id="nav-toggler-metis">
-				<ul className="navbar-nav bg-light">
-					<li className="nav-item">
-						<Link href="/"className={currentRoute === "/" ? "active" : "non-active"}>Home</Link>
-					</li>			
-					<li className="nav-item ">
-						<Link href="/project" className={currentRoute === "/project" ? "active" : "non-active"}>Project</Link>
-					</li>
-					<li className="nav-item ">
-						<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</Link>
-					</li>
-					<li className="nav-item ">
-						<Link href="/context" className={currentRoute === "/context" ? "active" : "non-active"}>Context</Link>
-					</li>
-					{/* <li className="nav-item">
-						<Link href="/table" className={currentRoute === "/table" ? "active" : "non-active"}>Tables</Link>
-					</li> */}
-					{/* <li className="nav-item dropdown">
-						<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							More
-            			</a>
-						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
-							<a className="dropdown-item" href="/login">Login</a>
-							<a className="dropdown-item" href="/signup">Sign-up</a>
-							<a className="dropdown-item" href="/people">Users</a>
-							<a className="dropdown-item" href="/settings">Settings</a>
-							<a className="dropdown-item" href="/akmm-graphql">JSON export</a>
-							<a className="dropdown-item" href="/genGqlSchema">Gen Gql Schema</a>
-							<a className="dropdown-item" href="/api/graphql" target="_blank" >GrapQL test</a>
-							<div className="dropdown-divider"></div>
-							<form className="form-inline my-2 my-lg-0">
-								<input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
-								<button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-							</form>
-						</div>
-					</li> */}
-					{/* <li className="nav-item">
-						<Link href="/videos"className={currentRoute === "/videos" ? "active" : "non-active"}>Videos
-						</Link>
-					</li> */}
-					<li className="nav-item">
-						<Link href="/helpblog" className={currentRoute === "/helpblog" ? "active" : "non-active"} >Help</Link> 
-					</li>
-					<li className="nav-item">
-						<Link href="/about" className={currentRoute === "/about" ? "active" : "non-active"}>About</Link>
-					</li>
-					<li className="nav-item" style={{minWidth: "120px"}}>				
-						<a className={currentRoute === "/Modelling" ? "active" : "non-active"} 
-							href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
-							target="_blank"
-						> 
-							<FaEnvelope style={{ width: "30px",  verticalAlign: "middle" }} />More info
-						</a>
-					</li> 
-					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
-						<a className="nav-link nav-login dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="false" href="mailto:snorres@gmail.com?subject=More info about how to progress with AKM Modeller and access to more templates and examples. & body=Hi, Please send me more info about: xxxxxx.   My Name is: xxxxxx, Email: xxxxx, Phone: 99999999.   ">
-							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} /> */}
-							{/* <span className="username"> {props?.user?.name}</span> </a> */}
-							{/* <span className="username"> E-mail us</span> </a> */}
-						{/* <div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4"> */}
-							{/* <a className="dropdown-item" href="/login">Login</a>
-							<a className="dropdown-item" href="/signup">Sign-up</a>
-							<a className="dropdown-item" href="/settings">Settings</a> */}
-						{/* </div> */}
-					{/* </li> */}
-				</ul>
-			</div>
-			<div className='buttons' aria-expanded="false">
-				<button className="navbar-toggler navbar-light"
-					type="button"
-					data-toggle="collapse"
-					data-target="#nav-toggler-metis"
-					aria-controls="nav-toggler-metis"
-					aria-expanded="false"
-					aria-label="Toggle navigation"
+		  <div className="d-flex justify-content-between" style={{ width: "692px" }}>
+			<a className="navbar-brand navbar-left mr-4" href="#">
+			  <img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo" />
+			</a>
+			<span className="fs-3 text-warning" style={{ fontsize: "30%", maxWidth: "30%", minWidth: "220px", marginTop: "5px" }}>
+			  <Link href="/modelling"><strong> AKM Modeller</strong></Link>
+			</span>
+		  </div>
+		  <div className="collapse navbar-collapse mt-1" id="nav-toggler-metis">
+			<ul className="navbar-nav bg-light">
+			  <li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
+				<Link href="/">Home</Link>
+			  </li>
+			  <li className={`nav-item ${currentRoute === "/project" ? "active" : ""}`}>
+				<Link href="/project">Project</Link>
+			  </li>
+			  <li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
+				<Link href="/modelling">Modelling</Link>
+			  </li>
+			  <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
+				<Link href="/context">Context</Link>
+			  </li>
+			  <li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`}>
+				<Link href="/helpblog">Help</Link>
+			  </li>
+			  <li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`}>
+				<Link href="/about">About</Link>
+			  </li>
+			  <li className="nav-item" style={{ minWidth: "140px" }}>
+				<a
+					className={currentRoute === "/Modelling" ? "active" : "non-active"}
+					href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
+					target="_blank"
+					style={{ whiteSpace: "nowrap" }}
 				>
-					<span className="navbar-toggler-icon "></span>
-				</button>
-			</div>
-			{/* <div><pre>{props}</pre></div> */}
+					<FaEnvelope style={{ width: "36px", verticalAlign: "middle" }} />More info
+				</a>
+				</li>
+			</ul>
+		  </div>
+		  <div className='buttons' aria-expanded="false">
+			<button
+			  className="navbar-toggler navbar-light"
+			  type="button"
+			  data-toggle="collapse"
+			  data-target="#nav-toggler-metis"
+			  aria-controls="nav-toggler-metis"
+			  aria-expanded="false"
+			  aria-label="Toggle navigation"
+			>
+			  <span className="navbar-toggler-icon "></span>
+			</button>
+		  </div>
 		</div>
 		<a className="navbar-brand ml-auto" href="http://www.kavca.no">
-			<img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo"/>
-			<span className="fw-bold fs-4" style={{color: "#0083e2"}}>avca AS</span>
-			{/* <img src="images/Equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
-			{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
-			{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
+		  <img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo" />
+		  <span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
 		</a>
-			<style jsx>{`
-                nav {
-					height: 35px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    background: red;
-                    // background: #e91e63;
-                    box-shadow: 0 0px 10px #aaa ;
-                  }
-                  
-                  /* Basic styles for nav links */
-                  nav a {
-                    display: flex;
-                    align-items: center;
-                    padding-left: 10px;
-                    padding-right: 10px;
-                    height: 100%;
-					margin-bottom: 10;
-                    text-decoration: none;
-                  }
-                  
-                  /* Specific styles for non-active links */
-                  .non-active {
-                    color: blue;
-                  }
-                  
-                  /* Specific styles for active links */
-                  .active {
-                    color: black;
-                    background: #ddd;
-                  }
-            `}</style>
-	</nav>
-)};
+		<style jsx>{`
+		  nav {
+			height: 50px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: #e5e5e5;
+			box-shadow: 0 0px 10px #aaa;
+		}
+		.nav-item {
+		background: #efefef;
+		border-top: 3px solid #ccc;
+		border-bottom: 3px solid #fff;
+		}
+
+		.nav-item:first-child {
+		border-left: 3px solid #ddd;
+		}
+
+		  /* Basic styles for nav links */
+		  nav a {
+			display: flex;
+			align-items: center;
+			padding-left: 20px;
+			padding-right: 20px;
+			height: 100%;
+			text-decoration: none;
+			color: #55f;
+			font-weight: bold;
+			background: #e5e5e5;
+			border-bottom: 3px solid transparent;
+			border-right: 3px solid #fff;
+			transition: border-color 0.2s ease-in-out;
+		  }
+  
+		  /* Specific styles for non-active links */
+		  .non-active {
+			color: blue;
+		  }
+  
+		  /* Specific styles for active links */
+		  .active {
+			color: black;
+			background: #e5e5e5;
+			border-top: 3px solid #fff;
+			border-right: 3px solid #ccc;
+			border-left: 3px solid #fff;
+			border-bottom: 3px solid #e5e5e5;
+			border-radius: 10px 10px 0 0;
+		  }
+			/* Specific styles for the navbar brand */
+			.navbar-brand {
+			  display: flex;
+			  align-items: center;
+			  height: 100%;
+			  padding-left: 20px;
+			  padding-right: 20px;
+			  text-decoration: none;
+			  color: #0083e2;
+			  font-weight: bold;
+			}
+		
+			/* Specific styles for the active navbar brand */
+			.navbar-brand.active {
+			  background: #0083e2;
+			  color: #fff;
+			}
+		
+			/* Specific styles for the dropdown menu */
+			.dropdown-menu {
+			  background: #fff;
+			  border: none;
+			  box-shadow: 0 0px 10px #aaa;
+			}
+		
+			/* Specific styles for the dropdown menu items */
+			.dropdown-item {
+			  color: #333;
+			  font-weight: bold;
+			  padding: 10px 20px;
+			  transition: background-color 0.2s ease-in-out;
+			}
+		
+			/* Specific styles for the active dropdown menu item */
+			.dropdown-item.active,
+			.dropdown-item:hover {
+			  background-color: #f5f5f5;
+			}
+		  `}</style>
+		</nav>);
+};
 
 export default Navbar;
-

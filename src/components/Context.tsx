@@ -4,13 +4,8 @@ import React, { useRef,useContext, useState, useEffect } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
 
-import "@uiw/react-md-editor/markdown-editor.css";
-import "@uiw/react-markdown-preview/markdown.css";
-// import dynamic from "next/dynamic";
-
 import {ObjDetailTable} from './forms/ObjDetailTable';
 import ObjectDetails from './forms/ObjectDetails';
-import ObjDetailToMarkdown from './forms/MdFocusObject';
 
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 import Selector from './utils/Selector'
@@ -304,8 +299,8 @@ const Context = (props) => {
           </div> */}
           {/* <h1>{curobject.name}</h1> */}
           {/* {tabsDiv} */}
-          <div className=""  >
-           {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+          <div className="border border-dark rounded bg-white mx-1" style={{ height: '88vh', maxHeight: '88vh', overflow: 'auto', borderTop: 'none' }}>
+            {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
           </div>
         </div>
 

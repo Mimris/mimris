@@ -27,13 +27,15 @@ const page = (props: any) => {
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
   if (debug) console.log('28 project',props, query)
   // list query params
-  let org = props.phFocus.focusProj.org
-  let repo = props.phFocus.focusProj.repo
-  let path = props.phFocus.focusProj.path
-  let file = props.phFocus.focusProj.file
-  let branch = props.phFocus.focusProj.branch
-  let focus = null //props.phFocus
-  let ghtype = 'file'
+
+  const [org, setOrg] = useState(query.org ? query.org : props.phFocus.focusProj.org)
+  const [repo, setRepo] = useState(query.repo ? query.repo : props.phFocus.focusProj.repo)
+  const [path, setPath] = useState(query.path ? query.path : props.phFocus.focusProj.path)
+  const [file, setFile] = useState(query.file ? query.file : props.phFocus.focusProj.file)
+  const [branch, setBranch] = useState(query.branch ? query.branch : props.phFocus.focusProj.branch)
+  const [focus, setFocus] = useState(props.phFocus)
+  const [ghtype, setGhtype] = useState('file')
+
 
   console.log('39 project', query, org, repo, path, file, branch, focus, ghtype, props ) 
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
@@ -70,14 +72,14 @@ const page = (props: any) => {
     // setRefresh(!refresh)
     }, 1000);
     return () => clearTimeout(timer);
-    };
+  };
     
-    useEffect(() => {
-    handleGithubParams(query);
-    }, [query.repo]);
+  useEffect(() => {
+    if (query.repo) handleGithubParams(query);
+    toggleRefresh();
+  }, []);
 
   useEffect(() => {
-
     async function fetchData() {
       try {
         const { data } = await axios.get(issueUrl);
@@ -88,38 +90,34 @@ const page = (props: any) => {
       }
     }
     fetchData(); 
+
     // show error message popup
     if (error) {
       // console.log('78 error', error.response.data.message)
       alert(error.response.data.message)
     }
-  }, [props.phFocus.focusProj.org]);
+  }, [props.phFocus.focusProj.org !== '']);
 
-  useEffect(() => {
-    if (!debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
-    if (!props.phFocus.focusProj.org) {
-      if (confirm("Do you want to update the project details?")) {
-        <ProjectDetailsModal onSubmit={(details) => console.log(details)} />
-        // org = props.phFocus?.focusProj.org || prompt("Organisation?");
-        // repo = props.phFocus?.focusProj.repo || prompt("Repo?");
-        // path = props.phFocus?.focusProj.path || prompt("Path?");
-        // file = props.phFocus?.focusProj.file || prompt("File?");
-        // branch = props.phFocus?.focusProj.branch || prompt("Branch? (main)");
-      }
-    }
-    // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
-    // if (!ghtype) ghtype = prompt("ghtype?");
-    if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
-    // dispatch({type: 'SET_FOCUS_PROJ', data: {org: org, repo: repo, path: path, file: file, branch: branch, focus: focus, ghtype: ghtype} })
-    const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
-    if (debug) console.log('65 GithubParams', data)
-    dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-    const org1 = {id: org, name: org}
-    dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-    const repo1 = {id: 'role', name: ''}
-    dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
 
-  }, [props.phFocus.focusProj.org]);
+  // useEffect(() => {
+  //   if (!debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
+  //   if (!props.phFocus.focusProj.org) {
+  //    prompt('Click OK to set focus project')
+  //   }
+    
+  //   // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
+  //   // if (!ghtype) ghtype = prompt("ghtype?");
+  //   if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
+  //   // dispatch({type: 'SET_FOCUS_PROJ', data: {org: org, repo: repo, path: path, file: file, branch: branch, focus: focus, ghtype: ghtype} })
+  //   const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
+  //   if (debug) console.log('65 GithubParams', data)
+  //   dispatch({ type: 'SET_FOCUS_PROJ', data: data })
+  //   const org1 = {id: org, name: org}
+  //   dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
+  //   const repo1 = {id: 'role', name: ''}
+  //   dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
+
+  // }, [props.phFocus.focusProj.org]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
@@ -140,11 +138,12 @@ const page = (props: any) => {
       <div className='container' style={{  fontSize: '0.9rem'}}>
         {/* <div className="m-5"> */}
           {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-          ccc{props.phFocus?.focusProj?.name}aaa
+          {props.phFocus?.focusProj?.name}
           <GithubParams phFocus={props.phFocus} />  
           <h5>Initial Startup model loaded !</h5> 
         {/* </div> */}
       </div>
+      <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} />
       {/* <hr  className='mx-5 p-2 bg-success' /> */}
     </>
   
@@ -234,6 +233,7 @@ const page = (props: any) => {
                   ))}
                 </div>
               </div> 
+
               <div className="footer">
                 <Footer />
               </div>

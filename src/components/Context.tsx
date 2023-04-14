@@ -188,6 +188,8 @@ const Context = (props) => {
 
     const [activeTab, setActiveTab] = useState(0);
 
+    const [activeTab2, setActiveTab2] = useState(0);
+
     const tabsDiv = (
       <Tabs  onSelect={index => setActiveTab(index)} style={{ overflow: 'auto' }}>
         <TabList>
@@ -216,79 +218,97 @@ const Context = (props) => {
             setObjview={setObjview}
             parentobject={parentobject}
           />
-          <table className='w-100'>
-            <thead className="thead">
-              <tr className="tr">
-                <th className="th">Current object shown in:</th>
-                <th className="th">Value <span style={{float: "right"}}>🟢 = in current Modelview</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {curobjModelviews.map(comv =>  (
-                <tr className="tr" key={comv.id}>
-                  <td className="td">Modelview</td>
-                {(comv.id === curmodelview?.id) ? <td className="td">{comv.name} <span style={{float: "right"}}>🟢</span></td> : <td className="td">{comv.name}</td>}
-                </tr>
-              ))}
-            </tbody>
-          </table> 
-          
-            <ObjDetailTable
-              title="Children"
-              curRelatedObjsRels={objectChildren}
-              curmodelview={curmodelview}
-              curmetamodel={curmm}
-              selectedId={selectedId}
-              setSelectedId={setSelectedId}
-              curobject={curobject}
-              objects={objects}
-              includedKeys={includedKeysMain}
-              setObjview={setObjview}
-            />
-            <ObjDetailTable
-              title="Related From"
-              curRelatedObjsRels={curRelatedFromObectRels}
-              curmodelview={curmodelview}
-              curmetamodel={curmm}
-              selectedId={selectedId}
-              setSelectedId={setSelectedId}
-              curobject={curobject}
-              objects={objects}
-              includedKeys={includedKeysMain}
-              setObjview={setObjview}
-            />
-            <ObjDetailTable
-              title="Related To"
-              curRelatedObjsRels={curRelatedToObectRels}
-              curmodelview={curmodelview}
-              curmetamodel={curmm}
-              selectedId={selectedId}
-              setSelectedId={setSelectedId}
-              curobject={curobject}
-              objects={objects}
-              includedKeys={includedKeysMain}
-              setObjview={setObjview}
-            />   
- 
+             <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
+              <TabList>
+                <Tab>Children</Tab>
+                <Tab>Relationship from Objects</Tab>
+                <Tab>Relationship To Objects</Tab>
+                <Tab>Viewed in Modelview</Tab>
+              </TabList>
+
+              <TabPanel>
+                <ObjDetailTable
+                  title="Children"
+                  curRelatedObjsRels={objectChildren}
+                  curmodelview={curmodelview}
+                  curmetamodel={curmm}
+                  selectedId={selectedId}
+                  setSelectedId={setSelectedId}
+                  curobject={curobject}
+                  objects={objects}
+                  includedKeys={includedKeysMain}
+                  setObjview={setObjview}
+                />
+              </TabPanel>
+              <TabPanel>
+                <ObjDetailTable
+                  title="Related From"
+                  curRelatedObjsRels={curRelatedFromObectRels}
+                  curmodelview={curmodelview}
+                  curmetamodel={curmm}
+                  selectedId={selectedId}
+                  setSelectedId={setSelectedId}
+                  curobject={curobject}
+                  objects={objects}
+                  includedKeys={includedKeysMain}
+                  setObjview={setObjview}
+                />
+              </TabPanel>
+
+              <TabPanel>
+                <ObjDetailTable
+                  title="Related To"
+                  curRelatedObjsRels={curRelatedToObectRels}
+                  curmodelview={curmodelview}
+                  curmetamodel={curmm}
+                  selectedId={selectedId}
+                  setSelectedId={setSelectedId}
+                  curobject={curobject}
+                  objects={objects}
+                  includedKeys={includedKeysMain}
+                  setObjview={setObjview}
+                /> 
+              </TabPanel>
+              <TabPanel>
+                <table className='w-100'>
+                  <thead className="thead">
+                    <tr className="tr">
+                      <th className="th">Current object shown in:</th>
+                      <th className="th">Value <span style={{float: "right"}}>🟢 = Current Modelview</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {curobjModelviews.map(comv =>  (
+                      <tr className="tr" key={comv.id}>
+                        <td className="td">Modelview</td>
+                      {(comv.id === curmodelview?.id) ? <td className="td">{comv.name} <span style={{float: "right"}}>🟢</span></td> : <td className="td">{comv.name}</td>}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table> 
+               </TabPanel>
+            </Tabs>
         </TabPanel>
         <TabPanel>
-        <ObjectDetails
-            curmodel={curmodel}
-            curmodelview={curmodelview}
-            curmm={curmm}
-            curobject={curobject}
-            objectPropertiesMain={objectPropertiesMore}
-            formValues={formValues}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            curobjModelviews={curobjModelviews}
-            setObjview={setObjview}
-            parentobject={parentobject}
-          />
-        </TabPanel>
-        <TabPanel>
-        </TabPanel>
-      </Tabs>
+          <ObjectDetails
+              curmodel={curmodel}
+              curmodelview={curmodelview}
+              curmm={curmm}
+              curobject={curobject}
+              objectPropertiesMain={objectPropertiesMore}
+              formValues={formValues}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              curobjModelviews={curobjModelviews}
+              setObjview={setObjview}
+              parentobject={parentobject}
+            />
+
+          </TabPanel>
+          <TabPanel>
+          </TabPanel>
+        </Tabs>
+
     )
 
     return (

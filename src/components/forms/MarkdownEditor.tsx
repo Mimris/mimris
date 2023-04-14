@@ -48,7 +48,7 @@ function MarkdownEditor({ value, props }: MarkdownEditorProps) {
   let objectChildren = []
   console.log('45 Context',  curobjectviews, focusModelview.id, );
   const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
-  if (!debug) console.log('47 Context',  curobjectviews, curobjectview.id, focusModelview);
+  if (!debug) console.log('47 Context',  curobjectviews, curobjectview?.id, focusModelview);
   console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id) )
 
   function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
@@ -232,7 +232,8 @@ Here's an image:
         </TabPanel>
 
         <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' , overflowX: 'hidden' }}>
-          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "76vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
+          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "68vh", maxHeight: "70vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
+          <hr />
             <button className="btn btn-sm mx-2" onClick={handleAddObjectHeader}>Add Header</button>
             <button className="btn btn-sm mx-2 me-5" onClick={handleAddFooter}>Add Footer</button>
             <button className="btn btn-sm mx-2 ms-5" onClick={handleSaveToFile}>Save to File</button>

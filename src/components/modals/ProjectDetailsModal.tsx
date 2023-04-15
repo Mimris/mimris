@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 
 function ProjectDetailsModal(props) {
+  console.log("6 ProjectDetailsModal", props);
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => {
@@ -28,7 +29,7 @@ function ProjectDetailsModal(props) {
               <span className="close" onClick={handleCloseModal}>
                 &times;
               </span>
-              <ProjectDetailsForm onSubmit={handleSubmit} />
+              <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
             </div>
           </div>,
           document.body

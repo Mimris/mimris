@@ -365,6 +365,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 {modelviewTabDiv}
               </div>
               <div className="modeller--footer-buttons d-flex justify-content-end">
+              <span className="btn mx-1 py-0 mt-1 pt-1 bg-light text-secondary"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+ 
                 {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
                 <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>

@@ -1,17 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ProjectDetailsForm(props) {
-  const [org, setOrg] = useState(props.phFocus?.focusProj.org || "");
-  const [repo, setRepo] = useState(props.phFocus?.focusProj.repo || "");
-  const [path, setPath] = useState(props.phFocus?.focusProj.path || "");
-  const [file, setFile] = useState(props.phFocus?.focusProj.file || "");
-  const [branch, setBranch] = useState(props.phFocus?.focusProj.branch || "main");
+
+const [org, setOrg] = useState("");
+const [repo, setRepo] = useState("");
+const [path, setPath] = useState("");
+const [file, setFile] = useState("");
+const [branch, setBranch] = useState("");
+
+useEffect(() => {
+  setOrg(props.phFocus?.focusProj.org)
+  setRepo(props.phFocus?.focusProj.repo)
+  setPath(props.phFocus?.focusProj.path)
+  setFile(props.phFocus?.focusProj.file)
+  setBranch(props.phFocus?.focusProj.branch)
+}, [])
 
   const handleSubmit = (event) => {
     event.preventDefault();
     props.onSubmit({ org, repo, path, file, branch });
   };
 
+  console.log("13 ProjectDetailsForm", props);
+  console.log("14 ProjectDetailsForm", org, repo, path, file, branch);
+  console.log("15 ProjectDetailsForm", props.phFocus?.focusProj.org);
   return (
     <form onSubmit={handleSubmit}>
       <label>

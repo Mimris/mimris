@@ -6,7 +6,7 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
   if (debug) console.log('ObjectHeader', curobject, parentobject);
   return (
     <h4 className="p-2 bg-light mx-1">
-      {curobject?.name}
+      {curobject?.name || curmodelview.name}
       <span style={{ flex: 1, textAlign: 'right', float: 'right' }}>
         ({curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name || 'Modelview'})
         {curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name && (
@@ -40,7 +40,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       };
 
 
-console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>
       <div className="form-group py-2 border border-rounded">

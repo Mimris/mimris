@@ -27,7 +27,7 @@ const ReportModule = (props) => {
 
     const tabsDiv = (
       <>
-      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 bg-light " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 bg-light w-100 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
         onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
       </button>
       {visibleTabsDiv ?

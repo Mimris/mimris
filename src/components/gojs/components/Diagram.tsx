@@ -1290,7 +1290,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
             }),
-
           makeButton("Get My Scale",
             function (e: any, obj: any) { 
               const myGoModel = myMetis.gojsModel;

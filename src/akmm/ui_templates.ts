@@ -10,6 +10,8 @@ require('gojs/extensions/Figures.js');
 
 let myDiagram: go.Diagram;
 
+const KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
+
 go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
     let len = Math.min(w, 10);
     let maxlen = Math.max(w, 10);
@@ -246,7 +248,7 @@ function getGeoFigure(figure: string): string {
             geometry = "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z";
             break;
         case 'Interface':
-            geometry = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
+            geometry = "F M 0,0  a200,300 0 1,0 10,-10  M 300,0  a200,300 0 1,0 10,-10z";
             break;
         case 'Function':
             geometry = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
@@ -2606,7 +2608,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         // new go.Binding("source", "icon", findImage),
                         // makeGeoIcon("source"),
 
-                        makeGeoFigure("BusinessProcess", "Interface", "lightyellow"),
+                        makeGeoFigure("BusinessProcess", "Process", "lightyellow"),
                     ), // End Horizontal Panel
                     
                     $(go.Shape,  // using a Shape instead of a Placeholder

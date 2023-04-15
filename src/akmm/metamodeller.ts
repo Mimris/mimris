@@ -3316,7 +3316,6 @@ export class cxMethodType extends cxMetaObject {
 // -------------------------------------------------------------
 
 export class cxMetaModel extends cxMetaObject {
-    isEKA:       boolean;
     metamodels:  cxMetaModel[] | null;
     viewstyle:   cxViewStyle | null;
     viewstyles:  cxViewStyle[] | null;
@@ -3366,7 +3365,6 @@ export class cxMetaModel extends cxMetaObject {
             this.datatypes = null;
             this.categories = null;
             this.generatedFromModelRef = "";
-            this.isEKA = false;
             this.layout = "ForceDirected";
             this.routing = "Normal";
             this.linkcurve = "None";  
@@ -4621,12 +4619,6 @@ export class cxMetaModel extends cxMetaObject {
             i++;
         }
         return null;
-    }
-    setIsEKA(flag: boolean) {
-        this.isEKA = flag;
-    }
-    getIsEKA(): boolean {
-        return this.isEKA;
     }
     setLayout(layout: string) {
         this.layout = layout;
@@ -5886,13 +5878,14 @@ export class cxViewStyle extends cxMetaObject {
 }
 
 export class cxObjtypeviewData {
-    abstract: boolean;
-    arrowscale: string;
+    // abstract: boolean;
     memberscale: string;
+    arrowscale: string;
     viewkind: string;
     template: string;
     figure: string;
     geometry: string;
+    icon: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -5900,15 +5893,15 @@ export class cxObjtypeviewData {
     strokewidth: string;
     textcolor: string;
     textscale: string;
-    icon: string;
     constructor() {
-        this.abstract = false;
+        // this.abstract = false;
         this.memberscale = "1";
         this.arrowscale = "1.3";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.figure = "";
         this.geometry = "";
+        this.icon = "";
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "black";
@@ -5916,7 +5909,6 @@ export class cxObjtypeviewData {
         this.strokewidth = "";
         this.textcolor = "black";
         this.textscale = "";
-        this.icon = "";
     }
 }
 
@@ -5924,11 +5916,13 @@ export class cxObjectTypeView extends cxMetaObject {
     // type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
-    template: string;
-    figure: string;
     arrowscale: string;
     memberscale: string;
+    viewkind: string;
+    template: string;
+    figure: string;
     geometry: string;
+    icon: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -5936,8 +5930,6 @@ export class cxObjectTypeView extends cxMetaObject {
     strokewidth: string;
     textcolor: string;
     textscale: string;
-    viewkind: string;
-    icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection

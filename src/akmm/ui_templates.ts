@@ -1077,7 +1077,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         },
                         {
                             defaultRowSeparatorStroke: "black",
-                            defaultAlignment: go.Spot.Center,                    
+                            desiredSize: new go.Size(136, 60),
+                            maxSize: new go.Size(136, 60), 
+                            margin: new go.Margin(2),
+                            defaultAlignment: go.Spot.Center,
                         },
                         // $(go.RowColumnDefinition, { column: 2, width: 4 }),
                         // content
@@ -1088,10 +1091,12 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 row: 0, column: 0, columnSpan: 6,
                                 font: "bold 10pt Segoe UI,sans-serif",
                                 // background: "lightgray",
+
+        
                                 minSize: new go.Size(120, 36), 
-                                // text: "textAlign: 'center'",
+                                // // text: "textAlign: 'center'",
                                 textAlign: "center",
-                                // alignment: go.Spot.Center,
+                                // // alignment: go.Spot.Center,
                                 height: 46,
                                 // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
                                 verticalAlignment: go.Spot.Center,
@@ -1204,12 +1209,15 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     ),
                     // define the panel where the text will appear
                     $(go.Panel, "Table", // separator ---------------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
+                        { 
+                            contextMenu: contextMenu , 
+                            cursor: "move" 
+                        },
                         {
                         defaultRowSeparatorStroke: "black",
                         desiredSize: new go.Size(136, 60),
-                        maxSize: new go.Size(140, 66), 
-                        // margin: new go.Margin(2),
+                        maxSize: new go.Size(136, 60), 
+                        margin: new go.Margin(2),
                         defaultAlignment: go.Spot.Center,
                         },
                         // $(go.RowColumnDefinition, { column: 2, width: 4 }),
@@ -1255,6 +1263,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndFigure", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -1317,7 +1326,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         defaultAlignment: go.Spot.Center
                     },
                     $(go.Panel, "Vertical", // Panel for Figure  ------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
+                        { 
+                            contextMenu: contextMenu , 
+                            cursor: "move" 
+                        },
                         $(go.Shape, 
                             { 
                                 name: "SHAPE", 
@@ -1336,12 +1348,15 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     ),
                     // define the panel where the text will appear
                     $(go.Panel, "Table", // separator ---------------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
+                        { 
+                            contextMenu: contextMenu , 
+                            cursor: "move" 
+                        },
                         {
                         defaultRowSeparatorStroke: "black",
                         desiredSize: new go.Size(136, 60),
-                        maxSize: new go.Size(140, 66), 
-                        // margin: new go.Margin(2),
+                        maxSize: new go.Size(136, 60), 
+                        margin: new go.Margin(2),
                         defaultAlignment: go.Spot.Center,
                         },
                         // $(go.RowColumnDefinition, { column: 2, width: 4 }),

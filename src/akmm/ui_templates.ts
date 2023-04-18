@@ -162,6 +162,71 @@ let nodeTemplateNames = [];
 let linkTemplateNames = []; 
 let groupTemplateNames = []; 
 
+function makeTooltip() {
+    return $(go.Adornment, "Auto",    
+            $(go.Shape, { fill: "lightyellow" }),
+            $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                new go.Binding("text", "", 
+                    function (d) { 
+                        const tt = uid.nodeInfo(d, myMetis); 
+                        if (debug) console.log('234 tooltip', tt);
+                        return tt;               
+                    }
+                )
+            )
+        )
+}
+
+function addNodeText(contextMenu: any) {
+    return $(go.Panel, "Table", // separator ---------------------------------
+        {   
+            contextMenu: contextMenu, 
+            cursor: "move" 
+        },
+        {
+            defaultRowSeparatorStroke: "black",
+            desiredSize: new go.Size(136, 60),
+            maxSize: new go.Size(136, 60), 
+            margin: new go.Margin(2),
+            defaultAlignment: go.Spot.Center,
+        },
+        // $(go.RowColumnDefinition, { column: 2, width: 4 }),
+        // content
+        $(go.TextBlock, textStyle(),  // the name -----------------------
+            {
+                isMultiline: false,  // don't allow newlines in text
+                editable: true,  // allow in-place editing by user
+                row: 0, column: 0, columnSpan: 6,
+                font: "bold 10pt Segoe UI,sans-serif",
+                // background: "lightgray",
+                minSize: new go.Size(120, 36), 
+                // // text: "textAlign: 'center'",
+                textAlign: "center",
+                // // alignment: go.Spot.Center,
+                height: 46,
+                // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
+                verticalAlignment: go.Spot.Center,
+                // stretch: go.GraphObject.Fill, // added to not resize object
+                // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
+                margin: new go.Margin(0,2,0,0),
+                name: "name"
+            },        
+            new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("stroke", "textcolor").makeTwoWay()
+        ),
+        $(go.TextBlock, textStyle(), // the typename  --------------------
+            {
+                row: 1, column: 1, columnSpan: 6,
+                editable: false, isMultiline: false,
+                minSize: new go.Size(10, 4),
+                margin: new go.Margin(0, 0, 0, 2),  
+                textAlign: "center",
+            },
+            new go.Binding("text", "typename")
+        ),
+    )
+}
+
 function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) {
     let rightside = side === 'right';
     let leftside = side === 'left';
@@ -1070,53 +1135,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     ),
                     // comment out icon stop
                     // define the panel where the text will appear
-                    $(go.Panel, "Table", // separator ---------------------------------
-                        {   
-                            contextMenu: contextMenu , 
-                            cursor: "move" 
-                        },
-                        {
-                            defaultRowSeparatorStroke: "black",
-                            desiredSize: new go.Size(136, 60),
-                            maxSize: new go.Size(136, 60), 
-                            margin: new go.Margin(2),
-                            defaultAlignment: go.Spot.Center,
-                        },
-                        // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                        // content
-                        $(go.TextBlock, textStyle(),  // the name -----------------------
-                            {
-                                isMultiline: false,  // don't allow newlines in text
-                                editable: true,  // allow in-place editing by user
-                                row: 0, column: 0, columnSpan: 6,
-                                font: "bold 10pt Segoe UI,sans-serif",
-                                // background: "lightgray",
-                                minSize: new go.Size(120, 36), 
-                                // // text: "textAlign: 'center'",
-                                textAlign: "center",
-                                // // alignment: go.Spot.Center,
-                                height: 46,
-                                // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                                verticalAlignment: go.Spot.Center,
-                                // stretch: go.GraphObject.Fill, // added to not resize object
-                                // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                                margin: new go.Margin(0,2,0,0),
-                                name: "name"
-                            },        
-                            new go.Binding("text", "name").makeTwoWay(),
-                            new go.Binding("stroke", "textcolor").makeTwoWay()
-                        ),
-                        $(go.TextBlock, textStyle(), // the typename  --------------------
-                            {
-                                row: 1, column: 1, columnSpan: 6,
-                                editable: false, isMultiline: false,
-                                minSize: new go.Size(10, 4),
-                                margin: new go.Margin(0, 0, 0, 2),  
-                                textAlign: "center",
-                            },
-                            new go.Binding("text", "typename")
-                        ),
-                    ),
+                    addNodeText(contextMenu),
                 ),
             ),
         )
@@ -1206,53 +1225,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    $(go.Panel, "Table", // separator ---------------------------------
-                        { 
-                            contextMenu: contextMenu , 
-                            cursor: "move" 
-                        },
-                        {
-                        defaultRowSeparatorStroke: "black",
-                        desiredSize: new go.Size(136, 60),
-                        maxSize: new go.Size(136, 60), 
-                        margin: new go.Margin(2),
-                        defaultAlignment: go.Spot.Center,
-                        },
-                        // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                        // content
-                        $(go.TextBlock, textStyle(),  // the name -----------------------
-                            {
-                                isMultiline: false,  // don't allow newlines in text
-                                editable: true,  // allow in-place editing by user
-                                row: 0, column: 0, columnSpan: 6,
-                                font: "bold 10pt Segoe UI,sans-serif",
-                                // background: "lightgray",
-                                minSize: new go.Size(120, 36), 
-                                // text: "textAlign: 'center'",
-                                textAlign: "center",
-                                // alignment: go.Spot.Center,
-                                height: 46,
-                                // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                                verticalAlignment: go.Spot.Center,
-                                // stretch: go.GraphObject.Fill, // added to not resize object
-                                // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                                margin: new go.Margin(0,2,0,0),
-                                name: "name"
-                            },        
-                            new go.Binding("text", "name").makeTwoWay(),
-                            new go.Binding("stroke", "textcolor").makeTwoWay()
-                            ),
-                        $(go.TextBlock, textStyle(), // the typename  --------------------
-                            {
-                                row: 1, column: 1, columnSpan: 6,
-                                editable: false, isMultiline: false,
-                                // minSize: new go.Size(10, 4),
-                                margin: new go.Margin(2, 0, 1, 0),  
-                                alignment: go.Spot.Center,                  
-                            },
-                            new go.Binding("text", "typename")
-                        ),
-                    ),
+                    addNodeText(contextMenu),
                 ),
             ),
         )
@@ -1345,53 +1318,54 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    $(go.Panel, "Table", // separator ---------------------------------
-                        { 
-                            contextMenu: contextMenu , 
-                            cursor: "move" 
-                        },
-                        {
-                        defaultRowSeparatorStroke: "black",
-                        desiredSize: new go.Size(136, 60),
-                        maxSize: new go.Size(136, 60), 
-                        margin: new go.Margin(2),
-                        defaultAlignment: go.Spot.Center,
-                        },
-                        // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                        // content
-                        $(go.TextBlock, textStyle(),  // the name -----------------------
-                            {
-                                isMultiline: false,  // don't allow newlines in text
-                                editable: true,  // allow in-place editing by user
-                                row: 0, column: 0, columnSpan: 6,
-                                font: "bold 10pt Segoe UI,sans-serif",
-                                // background: "lightgray",
-                                minSize: new go.Size(120, 36), 
-                                // text: "textAlign: 'center'",
-                                textAlign: "center",
-                                // alignment: go.Spot.Center,
-                                height: 46,
-                                // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                                verticalAlignment: go.Spot.Center,
-                                // stretch: go.GraphObject.Fill, // added to not resize object
-                                // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                                margin: new go.Margin(0,2,0,0),
-                                name: "name"
-                            },        
-                            new go.Binding("text", "name").makeTwoWay(),
-                            new go.Binding("stroke", "textcolor").makeTwoWay()
-                            ),
-                        $(go.TextBlock, textStyle(), // the typename  --------------------
-                            {
-                                row: 1, column: 1, columnSpan: 6,
-                                editable: false, isMultiline: false,
-                                // minSize: new go.Size(10, 4),
-                                margin: new go.Margin(2, 0, 1, 0),  
-                                alignment: go.Spot.Center,                  
-                            },
-                            new go.Binding("text", "typename")
-                        ),
-                    ),
+                    addNodeText(contextMenu),
+                    // $(go.Panel, "Table", // separator ---------------------------------
+                    //     { 
+                    //         contextMenu: contextMenu , 
+                    //         cursor: "move" 
+                    //     },
+                    //     {
+                    //     defaultRowSeparatorStroke: "black",
+                    //     desiredSize: new go.Size(136, 60),
+                    //     maxSize: new go.Size(136, 60), 
+                    //     margin: new go.Margin(2),
+                    //     defaultAlignment: go.Spot.Center,
+                    //     },
+                    //     // $(go.RowColumnDefinition, { column: 2, width: 4 }),
+                    //     // content
+                    //     $(go.TextBlock, textStyle(),  // the name -----------------------
+                    //         {
+                    //             isMultiline: false,  // don't allow newlines in text
+                    //             editable: true,  // allow in-place editing by user
+                    //             row: 0, column: 0, columnSpan: 6,
+                    //             font: "bold 10pt Segoe UI,sans-serif",
+                    //             // background: "lightgray",
+                    //             minSize: new go.Size(120, 36), 
+                    //             // text: "textAlign: 'center'",
+                    //             textAlign: "center",
+                    //             // alignment: go.Spot.Center,
+                    //             height: 46,
+                    //             // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
+                    //             verticalAlignment: go.Spot.Center,
+                    //             // stretch: go.GraphObject.Fill, // added to not resize object
+                    //             // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
+                    //             margin: new go.Margin(0,2,0,0),
+                    //             name: "name"
+                    //         },        
+                    //         new go.Binding("text", "name").makeTwoWay(),
+                    //         new go.Binding("stroke", "textcolor").makeTwoWay()
+                    //         ),
+                    //     $(go.TextBlock, textStyle(), // the typename  --------------------
+                    //         {
+                    //             row: 1, column: 1, columnSpan: 6,
+                    //             editable: false, isMultiline: false,
+                    //             // minSize: new go.Size(10, 4),
+                    //             margin: new go.Margin(2, 0, 1, 0),  
+                    //             alignment: go.Spot.Center,                  
+                    //         },
+                    //         new go.Binding("text", "typename")
+                    //     ),
+                    // ),
                 ),
             ),
         )

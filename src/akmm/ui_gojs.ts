@@ -456,10 +456,11 @@ export class goObjectNode extends goNode {
                     this.typename = objtype.getName();
                     this.typedescription = this.objecttype.getDescription();
                     // Check if a Draft property exists
-                    const draft = objtype.findPropertyByName("Draft");
+                    const draftProp = constants.props.DRAFT;
+                    const draft = objtype.findPropertyByName(draftProp);
                     if (draft) {
-                        const value = object.getStringValue2("Draft");
-                        if (value.length > 0) {
+                        const value = object.getStringValue2(draftProp);
+                        if (value && value?.length > 0) {
                             this.typename = value;
                         }
                     }

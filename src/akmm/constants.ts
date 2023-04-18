@@ -204,6 +204,10 @@ export let types = {
           _EKA_PART         : "_part",
 
 };
+
+export let props = {
+          DRAFT               : "Draft"
+}
   
 // Define Firestore constants
 

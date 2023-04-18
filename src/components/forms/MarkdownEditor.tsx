@@ -5,15 +5,15 @@ import Markdown from 'markdown-to-jsx';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FormGroup, Label, Input, Button } from 'reactstrap';
 
-import ObjDetailToMarkdown from "./MdFocusObject";
+import ObjDetailToMarkdown from "./ObjDetailToMarkdown";
 import FocusParametersForm from "./EditFocusParameter";
 
 const debug = false
 
-function MarkdownEditor({ value, props }: MarkdownEditorProps) {
+function MarkdownEditor({ props }) {
   // const [markdownString, setMarkdownString] = useState('# My Markdown Document\n\nThis is a paragraph of text.');
   console.log('18 MarkdownEditor.tsx', props);
-  const ph = props
+ 
   const [mdHeaderString, setMdHeaderString] = useState('');
   const [mdString, setMdString] = useState('');
   const [mdFooterString, setMdFooterString] = useState('');
@@ -39,16 +39,18 @@ function MarkdownEditor({ value, props }: MarkdownEditorProps) {
   const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
   const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
   const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (!debug) console.log('38 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
   const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
   const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
 
   let curobject = objects?.find(o => o.id === focusObject?.id)
+  console.log('41 Context', focusObjectview?.name, curobject.name, curobjectviews?.find(ov => ov.id === focusObjectview?.id));
+
   let objectviewChildren = []
   let objectChildren = []
-  console.log('45 Context',  curobjectviews, focusModelview.id, );
+  console.log('45 Context', curobjectviews, focusModelview.id, );
   const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
-  if (!debug) console.log('47 Context',  curobjectviews, curobjectview?.id, focusModelview);
+  if (debug) console.log('47 Context',  curobjectviews, curobjectview?.id, focusModelview);
   console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id) )
 
   function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
@@ -59,28 +61,56 @@ function MarkdownEditor({ value, props }: MarkdownEditorProps) {
     return objectviews?.map((objectview) => objects.find((object) => object.id === objectview.objectRef)) || [];
   }
 
+  function findToobjectsForCurobject(curobject: any, currelationships: any[]): any[] {
+    return currelationships?.map((relship) => relship.toobjectRef === curobject.id ? relship.fromobjectRef : null) || [];
+  }
+
   objectviewChildren = findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id);
   objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
-  if (!debug) console.log('75 Context', curobjectview?.name, objectviewChildren, objectChildren);
+  if (debug) console.log('75 Context', curobjectview?.name, objectviewChildren, objectChildren);
 
   const title = 'children'
 
+  let orgLength = props.phFocus.focusProj?.org?.length || 0;
+  let repoLength = props.phFocus.focusProj?.repo?.length || 0;
+  let pathLength = props.phFocus.focusProj?.path?.length || 0;
+  let fileLength = props.phFocus.focusProj?.file?.length || 0;
+  let branchLength = props.phFocus.focusProj?.branch?.length || 0;
+
+  let userLength = props.phFocus.focusUser?.name.length || 0;
+  let dateLength = new Date().toLocaleDateString().length;
+  let timeLength = new Date().toLocaleTimeString().length;
 
   const handleAddObjectHeader = () => {
     setMdHeaderString(` ${props.phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
   let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
- ***Organisation:*** ${props.phFocus.focusProj?.org|| props.phFocus.focusOrg?.name} |
- ***Repository:***${props.phFocus.focusProj?.repo} |
- ***Path:*** ${props.phFocus.focusProj?.path} |
- ***Project file:*** ${props.phFocus.focusProj?.file}\n
- ***Branch:***${props.phFocus.focusProj?.branch} | `
-  
-  markdownString += `\n\n --- \n\n Focus object: \n\n #### ${curobject?.name}\n\n`
+  Project file: ${props.phFocus.focusProj?.file}
+
+  <details>
+  <summary>More about the project ... </summary>
+  <nobr>
+    | ***Organisation:*** | ***Repository:*** | ***Path:*** | ***Project file:*** | ***Branch:*** |
+    |  ${"-".repeat(orgLength + 4)} | ${"-".repeat(repoLength + 4)} | ${"-".repeat(pathLength + 4)} | ${"-".repeat(fileLength + 4)} | ${"-".repeat(branchLength + 4)} |
+    |  "${props.phFocus.focusProj?.org?.padEnd(2)}"  |  "${props.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${props.phFocus.focusProj?.path}"  |  "${props.phFocus.focusProj?.file}"  |  "${props.phFocus.focusProj?.branch}"  |
+    </nobr>
+    <nobr> --- \n\n
+    | user | date${" ".repeat(dateLength - 4)} | time${" ".repeat(timeLength - 4)} |
+    | ${"-".repeat(userLength + 2)} | ${"-".repeat(dateLength + 2)} | ${"-".repeat(timeLength + 2)} |
+    | "${props.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
+    </nobr>
+  </details>
+  `
+
+  markdownString += `\n\n --- \n\n --- \n\n ## Focus object:\n\n --- \n\n `
+  markdownString += `#### ${curobject?.name}\n\n`
   markdownString += 'Name: ' + curobject?.name + ' \n\n'
   markdownString += '***Description:*** ***'+ curobject?.description +'*** \n\n'
-  if (!debug) console.log('82 MarkdownEditor.tsx', markdownString)
+  markdownString += ` \n\n *Children:* \n\n  ---  \n\n`
+
+  
+  if (debug) console.log('82 MarkdownEditor.tsx', markdownString)
 
   const mdFocusObjectProps = {
     title: 'My Object Details',
@@ -90,6 +120,7 @@ function MarkdownEditor({ value, props }: MarkdownEditorProps) {
     selectedId,
     setSelectedId,
     curobject: curobject,
+    curtoobjects: objectChildren,
     objects: objects,
     includedKeys: [ 'name', 'description'],
     setObjview,
@@ -100,39 +131,31 @@ function MarkdownEditor({ value, props }: MarkdownEditorProps) {
 
   let markdownStringChildren = ObjDetailToMarkdown(mdFocusObjectProps)
 
-  // console.log('101 MarkdownEditor.tsx', markdownString )
+
+  console.log('101 MarkdownEditor.tsx',  markdownStringChildren )
+
   const handleAddFooter = () => {
-    setMdFooterString(`\n\n---\n\n  ---  
-  <hr style="background: gray" />  
-  <hr style="background: green" />  
-  <span style="color: green">  
-  Keep striving for progress over perfection! A little progress every day will go a very long way!" :)   
-  </span>  
-  
-  [( Dave Gray )](https://youtube.com/@DaveGrayTeachesCode)
-  
-  <hr style="background: green" /> 
+    setMdFooterString(
+      `
+      \n\n --- \n\n  ---  
 
-  ---
+      <hr style="background: gray" />  
 
-# Test Markdown
+      <hr style="background: green" />  
 
----
+      <span style="color: green">  
+        Keep striving for progress over perfection! A little progress every day will go a very long way!" :)   
+      </span>  
+      
+      [( Dave Gray )](https://youtube.com/@DaveGrayTeachesCode)
+      
+      <hr style="background: green" /> 
 
-This is a paragraph of text.
+      Here's an image:
 
-| Column 1 | Column 2 | Column 3 |
-| -------- | -------- | -------- |
-| test 1 | Row 1 | --- |
-| test 1 | Row 2 | --- |
-
----
-
-Here's an image:
-
-![Alt text](https://via.placeholder.com/150 "Optional title")
-
-`)};
+      ![Alt text](https://via.placeholder.com/150 "Optional title")
+    `
+  )};
 
   const CodeBlock = ({ language, value }) => {
     return (
@@ -197,11 +220,18 @@ Here's an image:
       alert('Error saving file to GitHub.');
     }
   };
-
-
+  
+  // useEffect (() => {
+  // setMdString(`***Children:*** \n\n  ---  \n\n`)
+  // }, [])
 
   useEffect(() => {
-    setMdString(markdownStringChildren )
+    setMdString(markdownString)
+  }, [curobject])
+
+  useEffect(() => {
+    setMdString(markdownStringChildren)
+    console.log('222 MarkdownEditor.tsx', markdownStringChildren)
   }, [markdownStringChildren])
   
   useEffect(() => {
@@ -212,17 +242,14 @@ Here's an image:
     setMdString( mdString + mdFooterString)
   }, [mdFooterString])
   
-  return (
-    
+  return (   
     <div className="App" >
-
       <Tabs >
         <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
           <Tab>Preview</Tab>
           <Tab>MarkDownCode</Tab>
           <Tab>GitHub</Tab>
         </TabList>
-
         <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' }}>
           <div className="container">
             <Markdown options={options}>
@@ -230,7 +257,6 @@ Here's an image:
             </Markdown>
           </div>
         </TabPanel>
-
         <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' , overflowX: 'hidden' }}>
           <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "68vh", maxHeight: "70vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
           <hr />
@@ -262,7 +288,6 @@ Here's an image:
           </div>
         </TabPanel>
       </Tabs>
-
     </div>
   );
 }

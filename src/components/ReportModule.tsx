@@ -43,7 +43,7 @@ const ReportModule = (props) => {
               <Context props={ph} />
           </TabPanel>
           <TabPanel>
-              <MarkdownEditor value='' props={ph}/>
+              <MarkdownEditor props={ph}/>
           </TabPanel>
           <TabPanel>
           </TabPanel>

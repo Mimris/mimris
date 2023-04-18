@@ -1091,8 +1091,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 row: 0, column: 0, columnSpan: 6,
                                 font: "bold 10pt Segoe UI,sans-serif",
                                 // background: "lightgray",
-
-        
                                 minSize: new go.Size(120, 36), 
                                 // // text: "textAlign: 'center'",
                                 textAlign: "center",

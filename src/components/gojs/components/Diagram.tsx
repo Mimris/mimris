@@ -2663,6 +2663,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
+          makeButton("Generate SVG",
+            function (e: any, obj: any) {
+              var svgData = myDiagram.makeSvg({
+                scale: 1,
+                maxSize: new go.Size(NaN, NaN)
+              });
+              console.log(svgData); // or send to server to save as file
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return false;
+            }),
           makeButton("Toggle Admin layer",
             function (e: any, obj: any) {
               utils.toggleAdminModel();
@@ -2671,7 +2684,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
-              return true; 
+              return false; 
+              // return true;
             }),
           makeButton("----------",
             function (e: any, obj: any) {

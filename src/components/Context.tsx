@@ -14,7 +14,7 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const Context = (props) => {
-    console.log('20 context', props, props.props)
+    if (debug) console.log('20 context', props, props.props)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const ph = props.props
 

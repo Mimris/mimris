@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
+  import useLocalStorage  from '../../hooks/use-local-storage'
+  import { SaveModelToLocState } from "../utils/SaveModelToLocState";
+
 function ProjectDetailsForm(props) {
   const dispatch = useDispatch();
-  console.log("7 ProjectDetailsForm", props.phFocus?.focusProj);
+  console.log("7 ProjectDetailsForm", props.props.phFocus);
 
-  const [org, setOrg] = useState(props.phFocus?.focusProj.org);
-  const [repo, setRepo] = useState(props.phFocus?.focusProj.repo);
-  const [path, setPath] = useState(props.phFocus?.focusProj.path);
-  const [file, setFile] = useState(props.phFocus?.focusProj.file);
-  const [branch, setBranch] = useState(props.phFocus?.focusProj.branch);
+  const [id, setId] = useState(props.props.phFocus?.focusProj.id);
+  const [name, setName] = useState(props.props.phFocus?.focusProj.name); 
+  const [org, setOrg] = useState(props.props.phFocus?.focusProj.org || props.props.phFocus.focusOrg.name);
+  const [repo, setRepo] = useState(props.props.phFocus?.focusProj.repo);
+  const [path, setPath] = useState(props.props.phFocus?.focusProj.path);
+  const [file, setFile] = useState(props.props.phFocus?.focusProj.file);
+  const [branch, setBranch] = useState(props.props.phFocus?.focusProj.branch);
 
 
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+
+    
+
+
+console.log("14 ProjectDetailsForm", org, repo, path, file, branch);
 
   useEffect(() => {
     // setOrg(props.phFocus?.focusOrg.org);
@@ -21,16 +32,26 @@ function ProjectDetailsForm(props) {
     // setBranch(props.phFocus?.focusProj.branch);
   }, []);
 
+  const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org+repo+path+file+branch;
+  const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    props.onSubmit({ org, repo, path, file, branch });
-    const data = { org, repo, path, file, branch };
+    // props.onSubmit({ org, repo, path, file, branch });
+    const data = { id: idnew, name: namenew, org, repo, path, file, branch };
     dispatch({ type: 'SET_FOCUS_PROJ', data });
+    const timer = setTimeout(() => {
+      console.log("44 ProjectDetailsForm", props.props.phFocus);
+      SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
+    }, 2000);
+    return () => clearTimeout(timer);
   };
 
   return (
     <>  
-     {props.phFocus?.focusProj.name}
+
+     <div>id: {idnew}</div>
+     <div>name: {namenew}</div>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Organisation:</label>
@@ -44,7 +65,7 @@ function ProjectDetailsForm(props) {
           <label>Repo:</label>
           <input className='rounded bg-white'
             type="text"
-            value={(repo !== '') ? repo : props.phFocus?.focusProj.name}
+            value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
             onChange={(e) => setRepo(e.target.value)}
           />
         </div>
@@ -72,7 +93,7 @@ function ProjectDetailsForm(props) {
             onChange={(e) => setBranch(e.target.value)}
           />
         </div>
-        {/* <button type="submit">Save</button> */}
+        <button type="submit">Save</button>
       </form>
     </>
   );

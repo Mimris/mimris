@@ -9,7 +9,7 @@ const debug = false
 
 export default function GithubParams(props) {  // props = props.phFocus
 
-  if (!debug) console.log('5 GithubParams',  props)
+  if (debug) console.log('5 GithubParams',  props)
 
   if (!props.phFocus) return <div>no props.phFocus</div>
 

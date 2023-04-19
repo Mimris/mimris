@@ -19,7 +19,7 @@ const ReportModule = (props) => {
     function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const ph = props.props
-    console.log('20 ReportModule', ph.phUser?.appSkin.visibleContext , props)
+    if (debug) console.log('20 ReportModule', props)
 
     if (!ph?.phData?.metis?.models) return <></>
 

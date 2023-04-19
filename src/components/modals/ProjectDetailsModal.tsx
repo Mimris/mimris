@@ -3,8 +3,9 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 
 function ProjectDetailsModal(props) {
-  console.log("6 ProjectDetailsModal", props);
-  const [showModal, setShowModal] = useState(true);
+
+  console.log("6 ProjectDetailsModal", props.props.phFocus);
+  const [showModal, setShowModal] = useState(false);
   const toggle = () => setShowModal(!showModal);
 
   const handleOpenModal = () => {
@@ -24,7 +25,7 @@ function ProjectDetailsModal(props) {
 
   return (
     <>
-      <button className="btn-sm mt-0 pb-0 pt-0 mr-2" style={{height: "24px"}} color="link" onClick={toggle}>Edit Project Details
+      <button className=" rounded mt-2 px-2 text-primary"   onClick={toggle}>Edit Project Details
       </button>
       <Modal isOpen={showModal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>

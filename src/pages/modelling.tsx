@@ -55,17 +55,29 @@ const page = (props:any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+  const [visibleContext, setVisibleContext] = useState(false);
+  const [akmmUser, setAkmmUser] = useState(props.phUser);
+ 
 
-  // function toggle() { setVisible(!visible); }
+  function getUserSettings(key) {
+    if (memoryAkmmUser !== '' && memoryAkmmUser !== null) {
+      console.log('63 Modelling', memoryAkmmUser)
+      return memoryAkmmUser
+    } 
+  }
 
-  if (debug) console.log('49 modelling',props)
+  function setUserSettings(key, value) {
+    console.log('69 Modelling', value.appSkin.visibleContext)
+    localStorage.setItem(key, JSON.stringify(value));
+  }
 
   useEffect(() => { 
-    if (debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('81 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
     // let data = {}
     // if (!props.phData.metis.name) {
     // } else {
-      console.log('68 modelling', props.phFocus.focusProj.file)
+      if (debug) console.log('68 modelling', props.phFocus.focusProj.file)
       if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
         if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
         if ((window.confirm("Do you want to recover your last model project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
@@ -84,37 +96,10 @@ const page = (props:any) => {
     setMount(true)
   }, []) 
 
-  // useEffect(() => { // toggle
-  //   const timer = setTimeout(() => {
-  //     if (debug) useEfflog('81 modelling useEff 2', props)
-  //     toggle()
-  //   }, 1000)
-  //   return () => clearTimeout(timer)
-  // }, [props.phFocus.focusModelview.id])
-  
-  // useEffect(() => { // refresh the model when localstorage is loaded
-  //   if (debug) useEfflog('79 modelling useEff 3', props, props.phFocus.focusModelview.name)
-  //   GenGojsModel(props, dispatch)
-  //   const timer = setTimeout(() => {
-  //     // dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
-  //     dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
-  //     if (!ebug) useEfflog('modelling 90', props.phData, props.phFocus.focusModelview.name)
-  //   }, 1000)
-  //   clearTimeout(timer)
-  // }, [props.phFocus.focusModelview.id])
-
-  const toggleContext = () => {
-    console.log('103 modelling toggleContext', props.phUser.appSkin.visibleContext)
-    dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
-  }
-
   const contextDiv = ( // the top context area (green)
     <div className="context-bar d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
       <SetContext className='setContext w-100' ph={props} style={{backgroundColor: "#cdd" ,minWidth: "80%", maxWidth: "240px"}}/>
       <div className="context-bar--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
-        {/* <Link className="home p-2 m-2 text-primary" href="/context"> Context </Link> */}
-        {/* <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />  */}
-        <button className="btn bg-light text-primary btn-sm" onClick={toggleContext}>✵</button>
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
@@ -137,6 +122,7 @@ const page = (props:any) => {
               </div> */}
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                 {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
+                {/* <Modelling  /> */}
                 <Modelling />
               </div>
               <div className="contextarea">
@@ -162,8 +148,6 @@ return (
      display: grid;
      height: 101%;
      min-height: 101%;
-     // grid-template-columns: 1fr auto;
-     // grid-template-rows:  auto;
      grid-gap: 0px;
      grid-template-areas:
      "header"
@@ -173,38 +157,14 @@ return (
    .workplace {
      grid-area: workplace;
      display: grid ;
-    //  height: 101%;
-     // min-height: 101%;
-     // background-color: #ddd;
      grid-template-columns: auto 1fr;
      grid-template-areas:
      "contextarea contextarea"
      "tasksarea workarea";
    }
 
-   // @media only screen and (max-width: 475px) {
-   // .workplace {
-   //     grid-area: workplace;
-   //     display: grid ;
-   //     background-color: #aaa;
-   //     grid-template-columns: auto 2fr;
-   //     grid-template-areas:
-   //     "taskarea"
-   //     "workarea";
-   //   }
-   // }
-
    .contextarea {
-     // grid-area: contextarea;
-     // display: grid;
-     // border-radius: 4px;
-     // // outline-offset:-6px;
-     // padding: 0px;
-     // margin: 0px;
-     // font-size: 80%;
      background-color: #e8e8e8;
-     // color: #700;
-     // max-height: 20px; 
    }
    .tasksarea {
      grid-area: tasksarea;
@@ -214,18 +174,11 @@ return (
      border: 2px;
      border-radius: 5px 5px 5px 5px;
      border-width: 2px;
-     // border-color: #000;
      background-color: #ffe;
-     // max-width: 220px;
-     // font-size: 100%;
    }
    .workarea {
      grid-area: workarea;
-     // display: grid ;
      border-radius: 5px 5px 0px 0px;
-     // padding-right: 4px;
-     // max-width: 400px;
-     // min-height: 60vh;
      grid-template-columns: auto;
      grid-template-areas:
      "workpad";
@@ -233,35 +186,8 @@ return (
      .workpad {
        grid-area: workpad;
        display: grid;
-       border-radius: 5px 5px 0px 0px;
-       // height: 100%;
-       // width: 100vh;
-       // min-width: 400px;
-       // grid-template-columns: auto 1fr;
-       // grid-template-areas: 
-       // "myPalette myModeller";         
+       border-radius: 5px 5px 0px 0px;      
      }
-     // .myPalette {
-     //   grid-area: myPalette;
-     //   // margin: 2px;
-     //   // padding-right: 3px;
-     //   // height: 100%;
-     //   // // min-height: 50vh;
-     //   // border-radius: 5px 5px 0px 0px;
-     //   // background-color: #ddd; 
-     //   // // max-width: 200px;    
-     //   // // min-width: 400px;
-     // }
-     // .myModeller {
-     //   grid-area: myModeller;
-     //   // // height: 100%;
-     //   // margin: 2px;
-     //   // padding-right: 3px;
-     //   // border-radius: 5px 5px 0px 0px;
-     //   // background-color: #e0e;
-     //   // // width: 100%;
-     //   // max-width: 10hv;
-     // }
    p {
      color: white;
    }
@@ -269,50 +195,3 @@ return (
   </>)
 }
 export default Page(connect(state => state)(page));
-
-
-
-
-
-if (false) {
-  
-  // const curStore = async (state) => {
-    //   await LoadInitial(state) 
-    //   .then((data) => 
-    //     {
-      //       dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: curStore.phData })
-      //       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: curStore.phFocus })
-      //       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: curStore.phUser })
-      //       let source = (curStore.phSource === "") ? curStore.phData.metis.name : curStore.phSource
-      //       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: curStore.source })
-      //     }
-      //   )
-      //   .catch((err) => console.log('error:', err));
-      // }
-      
-      // console.log('32 curStore',curStore)
-      
-
-
-// const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
-// DispatchFromLocalStore(memoryLocState)
-// console.log('23 modelling', memoryLocState);
-// if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
-//   if (typeof window !== "undefined") {
-  //   const loadMemory = confirm("Open saved memory model?");
-    // if (loadMemory) {
-      // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
-      // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
-      // if (memoryLocState ) {
-      //   // Save it!
-      //   const memoryState = {
-      //     ...memoryLocState,
-      //     phSource: 'savedMemory'
-      //   }
-      //   // console.log('35 modelling', memoryState);
-      //   DispatchFromLocalStore(memoryState)
-      // }
-    // }
-//   }
-// }
-}

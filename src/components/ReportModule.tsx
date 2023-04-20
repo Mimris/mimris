@@ -33,7 +33,7 @@ const ReportModule = (props) => {
       {visibleTabsDiv ?
         <Tabs onSelect={index => setActiveTab(index)} >
           <TabList style={{  margin: '0px' }}>
-            <Tab>Current Object</Tab>
+            <Tab>Focus Object</Tab>
             <Tab >MarkDown</Tab>
             <Tab></Tab>
             {/* <Tab><FaPlaneArrival />Main</Tab>

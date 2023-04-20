@@ -22,7 +22,7 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
 
 const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit }) => {
     const textareaRef = useRef(null);
-    const [value, setValue] = useState("");
+    // const [value, setValue] = useState("");
 
     const handleInputChange = (event) => {
         // console.log('27', event.target.value)
@@ -148,7 +148,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             default:
               inputElement = (
                 <input
-                  // type="text"
+                  type="text"
                   className="form-control hover-white bg-white m-1 "
                   id={key}
                   name={key}

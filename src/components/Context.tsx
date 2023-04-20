@@ -272,7 +272,7 @@ const Context = (props) => {
       <Tabs  onSelect={index => setActiveTab(index)}>
 
         <TabList>
-          <Tab>Object main props</Tab>
+          <Tab>Main properties</Tab>
           <Tab >Additional Properties</Tab>
           <Tab>Objectview</Tab>
           <Tab>Objecttype</Tab>

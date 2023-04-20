@@ -767,6 +767,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const n = myDiagram.findNodeForKey(node.key)
       const data = n ? n.data : node.data;
       if (debug) console.log('628 node', node);
+      // Special handling of the Draft property
+      if (node.Draft) {
+        myDiagram.model.setDataProperty(data, 'typename', node.Draft);
+      }
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;

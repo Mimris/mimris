@@ -18,7 +18,7 @@ const page = (props) => {
         dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
     }
 
-    if (!debug) console.log('13 context',  props)
+    if (debug) console.log('13 context',  props)
 
     return (
         <>

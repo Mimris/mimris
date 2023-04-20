@@ -26,6 +26,7 @@ import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile} from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./ReportModule";
 
 // import ImpExpJSONFile from '../components/loadModelData/ImpExpJSONFile'
@@ -48,15 +49,17 @@ const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (debug) console.log('52 Modelling:', props);        
+  if (debug) console.log('52 Modelling:',  props)//, props);        
   const dispatch = useDispatch();
   
   const [refresh, setRefresh] = useState(true);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
-
+  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+  
   const [activeTab, setActiveTab] = useState('2');
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
+  const [visibleContext, setVisibleContext] = useState(true)
 
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -86,18 +89,18 @@ const page = (props:any) => {
   } 
 
   useEffect(() => {
-    useEfflog('81 Modelling useEffect 1 []', props);
+    if (debug) useEfflog('81 Modelling useEffect 1 []', props);
     GenGojsModel(props, dispatch);
     setMount(true)
   }, [])
 
   useEffect(() => {
-    useEfflog('87 Modelling useEffect 2 [activTab]', props);
+    if (debug) useEfflog('87 Modelling useEffect 2 [activTab]', props);
     GenGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
-    useEfflog('87 Modelling useEffect 3 [props.phFocus]', props);
+    if (debug) useEfflog('87 Modelling useEffect 3 [props.phFocus]', props);
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       setRefresh(!refresh)
@@ -106,13 +109,17 @@ const page = (props:any) => {
   }, [props.phFocus.focusModel?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
+    if (debug) useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
     setRefresh(!refresh)
     }, 200);
     return () => clearTimeout(timer); 
   }, [props.phFocus?.focusModelview.id])
+
+  useEffect(() => { 
+    setRefresh(!refresh)
+  }, [memoryAkmmUser])
 
   if (!mount) {
     return <></>
@@ -167,7 +174,16 @@ const page = (props:any) => {
     function toggleTasks() {
       setVisibleTasks(!visibleTasks);
     }
-      
+
+    let locStateKey
+    const toggleShowContext = () => {
+      // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
+      setVisibleContext(!visibleContext)
+      SaveAkmmUser({...memoryAkmmUser, visibleContext}, locStateKey='akmmUser')
+      // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
+      console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
+    }
+
     // ===================================================================
     // Divs
     if (debug) console.log('162 Modelling: ', gojsmetamodelpalette);
@@ -351,6 +367,7 @@ const page = (props:any) => {
                       metis={metis}
                       dispatch={dispatch}
                       modelType='model'
+                      userSettings={memoryAkmmUser}
                     />
                   </div>
                 </Col>
@@ -361,7 +378,7 @@ const page = (props:any) => {
                 </Col>
                 <Col className="col3 mr-0 p-0 " xs="auto"> 
                 {/* <ReportModule  props={props}/> */}
-                {(props.phUser.appSkin.visibleContext) ? <ReportModule  props={props}/> : <></>}
+                {(visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col>
               </Row>
             </div>         
@@ -427,7 +444,8 @@ const page = (props:any) => {
     const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
       // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    if (debug) console.log('460 Modelling', gojsmodelobjects);
+
+      if (debug) console.log('460 Modelling', gojsmodelobjects);
 
   
     // return  (mount && (gojsmodelobjects?.length > 0)) ? (
@@ -463,6 +481,7 @@ const page = (props:any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
             <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+            <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button> 
           </span> 
         </div>
         

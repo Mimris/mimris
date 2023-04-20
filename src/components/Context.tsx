@@ -14,7 +14,7 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const Context = (props) => {
-    console.log('20 context', props, props.props)
+    if (debug) console.log('20 context', props, props.props)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const ph = props.props
 
@@ -126,7 +126,7 @@ const Context = (props) => {
     
     // if (!curobject) curobject = curmodelview
     const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) &&  ({id: cmv.id, name: cmv.name}))
-    if (!debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
+    if (debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
     // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
     // find parent object
 

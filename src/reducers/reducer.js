@@ -427,7 +427,7 @@ function reducer(state = InitialState, action) {
     //   }
 
     case SET_FOCUS_PROJ:
-      if (debug) console.log('455 SET_FOCUS_PROJ', action.data)
+      if (debug) console.log('430 SET_FOCUS_PROJ', action.data)
       const retval_SET_FOCUS_PROJ = {
         ...state,
         phFocus: {
@@ -435,7 +435,7 @@ function reducer(state = InitialState, action) {
           focusProj: action.data
         }
       }
-      if (debug) console.log('463 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
+      if (debug) console.log('438 retval_SET_FOCUS_PROJ', retval_SET_FOCUS_PROJ)
       return retval_SET_FOCUS_PROJ
 
     case SET_FOCUS_ORG:
@@ -1773,7 +1773,7 @@ function reducer(state = InitialState, action) {
       }
     
     case SET_VISIBLE_CONTEXT:
-      if (!debug) console.log('1776 SET_VISIBLE_CONTEXT', action);
+      if (debug) console.log('1776 SET_VISIBLE_CONTEXT', action);
       
       let retval_SET_VISIBLE_CONTEXT = {
         ...state,
@@ -1785,7 +1785,7 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-      if (!debug) console.log('1784 SET_VISIBLE_CONTEXT', retval_SET_VISIBLE_CONTEXT.phUser.appSkin.visibleContext);
+      if (debug) console.log('1784 SET_VISIBLE_CONTEXT', retval_SET_VISIBLE_CONTEXT.phUser.appSkin.visibleContext);
       return retval_SET_VISIBLE_CONTEXT;
       
     default:

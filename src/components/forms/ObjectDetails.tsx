@@ -40,7 +40,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       };
 
 
-  console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>
       <div className="form-group py-2 border border-rounded">

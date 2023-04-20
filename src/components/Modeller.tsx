@@ -13,6 +13,7 @@ import GenGojsModel from './GenGojsModel'
 import { handleInputChange } from "../akmm/ui_modal";
 import { disconnect } from "process";
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
@@ -53,7 +54,7 @@ const Modeller = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   useEffect(() => { // set activTab when focusModelview.id changes
-    useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex, props.phFocus.focusModel?.name);
+    if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex, props.phFocus.focusModel?.name);
     setActiveTab(activetabindex)
   }, [props.phFocus.focusModelview?.id])
   // }, [props.phFocus.focusModelview?.id])
@@ -61,22 +62,25 @@ const Modeller = (props: any) => {
   // ------------------------------
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmodel = props.gojsModel;
-  if (debug) console.log('98 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
+  if (debug) console.log('65 Modeller: gojsmodel', props, gojsmodel?.nodeDataArray);
  
   let seltasks = props.phFocus?.focusRole?.tasks || []
   let focusTask = props.phFocus?.focusTask
+  let locStateKey
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
   function toggleRefreshObjects() { 
-    if (debug) console.log('110 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
+    if (debug) console.log('75 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     SaveModelToLocState(props, memoryLocState, setMemoryLocState)
-    if (debug) console.log('112 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
+    SaveAkmmUser(props, locStateKey='akmmUser')
+    console.log('78 Modeller: toggleRefreshObjects',  props);
+    if (debug) console.log('79 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     setRefresh(!refresh)
   }
 
-  if (debug) console.log('121 Modeller: props, refresh', props, refresh);
+  if (debug) console.log('83 Modeller: props, refresh', props, refresh);
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }

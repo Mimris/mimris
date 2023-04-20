@@ -32,18 +32,19 @@ const ObjDetailToMarkdown: React.FC<MdFocusObjectProps> = ({
   // markdownString += `### ${title}\n\n`;
   markdownString += Array.isArray(curRelatedObjsRels)
     ? curRelatedObjsRels.map((objrel) => {
-          const properties = Object.keys(objrel)
-            .filter((pv) => includedKeys.includes(pv))
-            .map((pv) => `**${pv}:** ${objrel[pv]}`)
-            .join('\n\n');
+      const properties = Object.keys(objrel)
+        .filter((pv) => includedKeys.includes(pv))
+        .map((pv) => ` 1. **${pv}:**  ${objrel[pv]}  `)
+        .join('\n\n');
 
-          const objectType = curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name;
+      const objectType = curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name;
 
-          return `#### ${objrel.name}\n\n ${properties}\n\n**Object:** ${objectType} ${curmodelview.name} ${objrel.name}\n\n`;
-        })
-        .join('')
+      return `1. Object: ${objrel.name} (${objectType} )\n\n ${properties} \n\n --- \n\n`;
+          // return `1. ${objrel.name} \n\n${properties} \n\n2. Object: ${objrel.name} (${objectType} )\n\n --- \n\n`;
+      })
+      .join('')
     : '';
-  if (!debug) console.log('43 markdownString', markdownString);
+  if (debug) console.log('43 markdownString', markdownString);
   return markdownString;
 };
 

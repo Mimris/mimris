@@ -16,6 +16,9 @@ import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadFile = (props: any) => {
   
+
+  // if (typeof window === 'undefined') return null
+
   const debug = false
   const dispatch = useDispatch()  
   const refresh = props.refresh
@@ -27,8 +30,6 @@ const LoadFile = (props: any) => {
 
   if (debug) console.log('26 LoadLocal', props, typeof(window));
   
-  if (typeof window === 'undefined') return null
-  
   if (debug) console.log('28 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
@@ -38,7 +39,6 @@ const LoadFile = (props: any) => {
       phSource: props.phSource,
       lastUpdate: new Date().toISOString()
     }
-
 
   // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
@@ -56,7 +56,6 @@ const LoadFile = (props: any) => {
     // SaveAllToFileDate(data, projectname, 'Project')
     SaveAllToFileDate(data, projectname, '_PR')
   }
-  
 
   // Save current model, metamodel, modelview, container to a file to the downloads folder
   // Attatch the metamodel to the model or modelview
@@ -80,28 +79,6 @@ const LoadFile = (props: any) => {
     SaveModelviewToFile(modelview, curmodel.name, "_MV")
   }
 
-  // // Save current modelview (without instances) to a file in downloads foler 
-  // function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
-  //   const projectname = props.ph.phData.metis.name
-  //   const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-  //   const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
-  //   const modelview = model.modelviews[focusModelviewIndex]
-  //   console.log('43', focusModelviewIndex, modelview);
-    
-  //   SaveModelToFile({modelview: modelview}, modelview.name, 'MV')
-  //   // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
-  //   // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  // }
-
-  // Save current model to a file with date and time in the name to the downloads folder
-  // function handleSaveModelToFile() {
-  //   const projectname = props.ph.phData.metis.name
-  //   const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-  //   SaveModelToFile(model, model.name, 'MO')
-  //   // SaveModelToFile(model, model.name, 'AKMM-Model')
-  //   // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  // }
-  
   // Save current metamodel to a file with date and time in the name to the downloads folder
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
@@ -123,8 +100,6 @@ const LoadFile = (props: any) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-
-  
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
@@ -174,25 +149,8 @@ const LoadFile = (props: any) => {
       </button >
     </div>
 
-  // const buttonSaveModelWMMToFileDiv = // SAVE MODEL WITH METAMODEL TO FILE
-  //   <button className="btn-success text-secondary btn-sm mr-2   " 
-  //     data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-  //     title="Click to save current model with Metamodel to file &#013; (in Downloads folder)."
-  //     onClick={handleSaveModelToFile}>Save Current Model w/Metamodel to File 
-  //   </button >
-  
-  // const projectname = props.ph.phData.metis.name
-  // const today = new Date().toISOString().slice(0, 19)
-  // const emailAddress = 'snorres@gmail.com'
-  // const subject = `Project_${projectname}_${today} (AKM Models)`
-  // const body = JSON.stringify(data)
-  // const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
-  // const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
-  // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
-  // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
-  
   if (debug) console.log('172', buttonLabel);
-  
+
   return (
     <>
       <button className="btn px-2 bg-light text-secondary" onClick={toggle}>{buttonLabel}</button>
@@ -205,13 +163,12 @@ const LoadFile = (props: any) => {
           <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="loadsave px-2 pb-1 mb-0">
-            <div className="loadsave--modelToFile select mb-1 p-2 border border-dark">
+              <div className="loadsave--modelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                   <h5>Model</h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current) </h6>
                   <input className="select-input " type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
-             
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export Models to file </h6>
@@ -229,9 +186,9 @@ const LoadFile = (props: any) => {
               </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                 <h5>Metamodel </h5>
+                <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border"> 
-                 <h6>Import from file (will overwrite current)</h6>
+                <h6>Import from file (will overwrite current)</h6>
                   <input className="select-input" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border"> 
@@ -333,6 +290,7 @@ const LoadFile = (props: any) => {
             `}</style>
     </>
   )
+  
 }
 
 export default LoadFile

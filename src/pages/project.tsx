@@ -9,6 +9,7 @@ import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
+import GenGojsModel from '../components/GenGojsModel'
 import SetContext from '../defs/SetContext'
 import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
@@ -28,16 +29,16 @@ const page = (props: any) => {
   if (debug) console.log('28 project',props, query)
   // list query params
 
-  const [org, setOrg] = useState(query.org ? query.org : props.phFocus.focusProj.org)
-  const [repo, setRepo] = useState(query.repo ? query.repo : props.phFocus.focusProj.repo)
-  const [path, setPath] = useState(query.path ? query.path : props.phFocus.focusProj.path)
-  const [file, setFile] = useState(query.file ? query.file : props.phFocus.focusProj.file)
-  const [branch, setBranch] = useState(query.branch ? query.branch : props.phFocus.focusProj.branch)
-  const [focus, setFocus] = useState(props.phFocus)
-  const [ghtype, setGhtype] = useState('file')
+  const [org, setOrg] = useState(props.phFocus.focusProj.org )
+  const [repo, setRepo] = useState(props.phFocus.focusProj.repo)
+  const [path, setPath] = useState(props.phFocus.focusProj.path)
+  const [file, setFile] = useState(props.phFocus.focusProj.file)
+  const [branch, setBranch] = useState(props.phFocus.focusProj.branch)
+  const [focus, setFocus] = useState(props.phFocus.focusProj.focus)
+  const [ghtype, setGhtype] = useState(props.phFocus.focusProj.ghtype)
 
 
-  console.log('39 project', query, org, repo, path, file, branch, focus, ghtype, props ) 
+  console.log('39 project', org, repo, path, file, branch, props.phFocus.focusProj.org ) 
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -47,7 +48,7 @@ const page = (props: any) => {
   const [error, setError] = useState(null);
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    // if (debug) console.log('71 Modelling', focusModel, props) //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('50 project', props) //, memoryLocState, (Array.isArray(memoryLocState)));
     // GenGojsModel(props, dispatch)
     // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
     const timer = setTimeout(() => {
@@ -56,31 +57,26 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   } 
 
-  const handleGithubParams = (query) => {
-    if (query.repo) {
-    const { org, repo, path, file, branch, focus, ghtype } = query;
-    dispatch({ type: 'LOAD_DATAGITHUB', data: query });
-    const data = { id: org + repo + path + file, name: repo, org, repo, path, file, branch, focus };
-    dispatch({ type: 'SET_FOCUS_PROJ', data });
-    const org1 = { id: org, name: org };
-    dispatch({ type: 'SET_FOCUS_ORG', data: org1 });
-    const repo1 = { id: 'role', name: '' };
-    dispatch({ type: 'SET_FOCUS_REPO', data: repo1 });
-    }
-    const timer = setTimeout(() => {
-    // dispatch({type: 'SET_REFRESH', data: {refresh: true} })
-    // setRefresh(!refresh)
-    }, 1000);
-    return () => clearTimeout(timer);
-  };
+  useEffect(() => { // when the page loads, set the focus
+
+   
+    console.log('61 project', query,  query?.repo)
+    const data = {id: query.org+query.repo+query.path+query.file+query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus}
+    console.log('65 project', data);
+    (query.repo) && dispatch({ type: 'SET_FOCUS_PROJ', data });
     
-  useEffect(() => {
-    if (query.repo) handleGithubParams(query);
-    toggleRefresh();
-  }, []);
+    const { org, repo, path, file, branch, focus, ghtype } = query;
+    console.log('69 project',  org, repo, path, file, branch)
+    dispatch({ type: 'LOAD_DATAGITHUB', data: query });
+
+  }, [query.repo !== undefined]);
+    
+  // useEffect(() => {
+  //   toggleRefresh(); // refresh the page
+  // }, []);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData() { // fetch issues
       try {
         const { data } = await axios.get(issueUrl);
         setIssues(data);
@@ -89,18 +85,15 @@ const page = (props: any) => {
         setError(err);
       }
     }
-    fetchData(); 
-
-    // show error message popup
-    if (error) {
-      // console.log('78 error', error.response.data.message)
-      alert(error.response.data.message)
+    fetchData(); // call the function 
+     if (error) {
+      alert(error.response.data.message) // alert the error message
     }
-  }, [props.phFocus.focusProj.org !== '']);
+  }, [query.repo !== '']);
 
 
   // useEffect(() => {
-  //   if (!debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
+  //   if (debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
   //   if (!props.phFocus.focusProj.org) {
   //    prompt('Click OK to set focus project')
   //   }
@@ -133,17 +126,17 @@ const page = (props: any) => {
     </div>
   )
 
-  const projectParamsDiv =// (props.phFocus?.focusProj?.org) &&  // top of page
+  const projectParamsDiv = // (props.phFocus?.focusProj?.org) &&  // top of page
     <>
       <div className='container' style={{  fontSize: '0.9rem'}}>
         {/* <div className="m-5"> */}
           {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
           {props.phFocus?.focusProj?.name}
-          <GithubParams phFocus={props.phFocus} />  
+          <GithubParams phFocus={props.phFocus} />
+          {/* {(refresh) ? <GithubParams phFocus={props.phFocus} />  : <><GithubParams phFocus={props.phFocus} />aaaa</>  } */}
           <h5>Initial Startup model loaded !</h5> 
         {/* </div> */}
       </div>
-      <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} />
       {/* <hr  className='mx-5 p-2 bg-success' /> */}
     </>
   
@@ -155,7 +148,7 @@ const page = (props: any) => {
       </div>
     </>
  
-  return (
+   const renderDiv =
     <>
       <Layout user={props.phUser?.focusUser} >
         <div id="index" >
@@ -163,8 +156,8 @@ const page = (props: any) => {
               {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-                {contextDiv}  
-                <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />  
+              {contextDiv}  
+              {/* <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />   */}
               <div className="workplace-focus gap " >               
                 <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
                   <h6 className='text-muted pt-2'>Links to Github :</h6>
@@ -205,11 +198,13 @@ const page = (props: any) => {
                 {/* List the modelling params and link to modelling page */}
                 <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv}
-
-                    <div className="rounded bg-light m-2 p-2 ">
+                    {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
+                    <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
                       <button className='rounded mt-2 px-2 '>
-                          <Link className='text-primary ' href="/modelling">Start Modelling</Link>
+                        <Link className='text-primary ' href="/modelling">Start Modelling</Link>
                       </button>
+                        <ProjectDetailsModal props={props} />
+                        {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
                     </div>   
                     <div className="rounded bg-light m-2 p-2">
                       <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>  
@@ -266,7 +261,10 @@ const page = (props: any) => {
         </style>
       </Layout>
     </>
-  )
+  
+    return (
+      (refresh) ? <>{renderDiv}</> : <> {renderDiv} </>
+    )
 }
 
 export default connect((state: any) => state)(page)

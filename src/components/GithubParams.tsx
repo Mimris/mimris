@@ -11,6 +11,9 @@ export default function GithubParams(props) {  // props = props.phFocus
 
   if (debug) console.log('5 GithubParams',  props)
 
+  if (!props.phFocus) return <div>no props.phFocus</div>
+
+
   return (
     <Container className=' p-1' style={{backgroundColor: "#cdd"}}>
         <h4 className='text-primary fs-6'>You have loaded a model from the following repo on GitHub :</h4>

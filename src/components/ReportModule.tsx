@@ -27,28 +27,31 @@ const ReportModule = (props) => {
 
     const tabsDiv = (
       <>
-      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 bg-light w-100 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
+      <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 " style={{ textAlign: "left",  backgroundColor: "#cdd", outline: "0", borderStyle: "none" }}
         onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
       </button>
       {visibleTabsDiv ?
         <Tabs onSelect={index => setActiveTab(index)} >
-          <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
+          <TabList style={{  margin: '0px' }}>
             <Tab>Current Object</Tab>
             <Tab >MarkDown</Tab>
             <Tab></Tab>
             {/* <Tab><FaPlaneArrival />Main</Tab>
                 <Tab ><FaCompass /></Tab> */}
           </TabList>
-          <TabPanel>
+          <TabPanel className='p-1 border border-dark' >
               <Context props={ph} />
           </TabPanel>
-          <TabPanel>
+          <TabPanel className='p-1 border border-dark' >
               <MarkdownEditor props={ph}/>
           </TabPanel>
           <TabPanel>
           </TabPanel>
         </Tabs>   
-       : <div className="btn-verticall m-0  pl-2 " style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", paddingLeft: "4px", fontSize: "12px" }}><span> C o n t e x t & F o c u s </span></div>
+       :  <div className="btn-verticalm-0  pl-2 " 
+            style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px", backgroundColor: "#cdd" }}>
+            <span style={{backgroundColor: "#cdd"}}> C o n t e x t & F o c u s </span>
+          </div>
       } 
       </>
     )
@@ -56,21 +59,15 @@ const ReportModule = (props) => {
     return (
       <>
             {visibleTabsDiv ? 
-              <div className="bg-light border bg-light" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-                  {/* <h5 className='ms-2 mb-0'>Context and Focus :</h5> */}
-                {/* <div style={{ marginBottom: "-36px", display: 'flex', justifyContent: 'flex-end' }}>
-                  <button className="btn-sm px-1 me-4 mt-2 bg-light " onClick={() => { dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !ph.phUser?.appSkin.visibleContext }) }}>X</button>
-                </div> */}
-                {/* <h1>{curobject.name}</h1> */}
-                {/* {tabsDiv} */}
-                {/* <div className=" border border-rounded m-1 " style={{ maxHeight: '88vh', overflowY: 'auto', overflowX: 'hidden' }} > */}
-                  <div className="border border-dark rounded bg-white" style={{ height: '88vh', maxHeight: '88vh', overflow: 'auto', borderTop: 'none' }}>
-                    {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>}
+              <div className="report-module pe-1" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden', backgroundColor: "#cdd" }} >
+                  <div className="report-module--tabs p-1 border border-dark rounded bg-light" 
+                    style={{ height: '84vh', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none', backgroundColor: "#cdd" }}>
+                    {tabsDiv} 
+                    {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
                   </div>
               </div>
-            : <div className="border border-dark  bg-white" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
+            : <div className="border border-dark" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
           }
-        {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
       </>
     )
 }

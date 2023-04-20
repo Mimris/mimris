@@ -14,6 +14,7 @@ import { handleInputChange } from "../akmm/ui_modal";
 import { disconnect } from "process";
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
 import { SaveAkmmUser } from "./utils/SaveAkmmUser";
+import ReportModule from "./ReportModule";
 
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
@@ -37,8 +38,10 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const [ofilter, setOfilter] = useState('All')
   const [visibleObjects, setVisiblePalette] = useState(false)
+  const [visibleContext, setVisibleContext] = useState(true)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -52,6 +55,14 @@ const Modeller = (props: any) => {
   const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
   const metamodels = props.metis?.metamodels
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
+
+  const toggleShowContext = () => {
+    // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
+    setVisibleContext(!visibleContext)
+    SaveAkmmUser({...memoryAkmmUser, visibleContext}, locStateKey='akmmUser')
+    // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
+    console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
+  }
 
   useEffect(() => { // set activTab when focusModelview.id changes
     if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex, props.phFocus.focusModel?.name);
@@ -134,7 +145,7 @@ const Modeller = (props: any) => {
   // Selector for selecting models ---------------------------------------------------------
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
     // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
-    <div className="Selector--menu d-flex  gap-1">  
+    <div className="Selector--menu d-flex justify-content-between gap-2 pt-1">  
       <div className="d-flex ">
         <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap "
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
@@ -340,9 +351,13 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <div className="modeller-workarea w-100" >
         <div className="modeller--topbar d-flex justify-content-between mt-1 p-0 ">
           <span className="--heading d-flex text-dark fw-bold px-2" style={{ minWidth: "15%"}} > Modeller </span>
-          <div className="d-flex">
-            <div className="modeller--heading-selector ">{selector}</div>
-            <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" style={{scale: "0.6"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+          <div className="d-flex justify-content-around me-4">
+            <div className="modeller--heading-selector">{selector}</div>
+            <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
+              style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
+              {refresh ? 'save2memory' : 'save2memory'} 
+            </span>
+            <button className="btn bg-light text-success py-1 btn-sm" onClick={toggleShowContext} style={{scale: "0.8"}} >✵</button> 
           </div>
         </div>
         <div className="modeller--workarea m-0 p-0">
@@ -385,6 +400,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     Current source:  {props.phSource} 
                 </span> 
               </div>
+            </Col>
+            <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd"}}> 
+                {(visibleContext) ? <ReportModule  props={props}/> : <></>}
             </Col>
           </Row>
         </div>

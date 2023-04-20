@@ -3,13 +3,13 @@ import { useRef, useState } from "react";
 const debug = false;
 
 const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview }) => {
-  if (debug) console.log('ObjectHeader', curobject, parentobject);
+  if (!debug) console.log('6 ObjectHeader', curmm.objecttypes.map((ot) => ot.id === curobject?.typeRef), curobject, parentobject);
   return (
     <h4 className="p-2 bg-light mx-1">
       {curobject?.name || curmodelview.name}
       <span style={{ flex: 1, textAlign: 'right', float: 'right' }}>
-        ({curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name || 'Modelview'})
-        {curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name && (
+        ({curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name || 'Modelview'}) {/*  || 'Modelview'}) */}
+        {(curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name) && (
           <span>
             {' '}
             <button className="border-0 bg-transparent" onClick={() => (!parentobject) ? setObjview(curmodelview) : setObjview(parentobject)}> ⬆️</button>{' '}
@@ -23,7 +23,6 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
 const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit }) => {
     const textareaRef = useRef(null);
     const [value, setValue] = useState("");
-
 
     const handleInputChange = (event) => {
         // console.log('27', event.target.value)
@@ -39,11 +38,12 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
         }
       };
 
-
-  if (debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (!debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (!debug) console.log('44 ObjectForm', formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>
       <div className="form-group py-2 border border-rounded">
+      <div className='' style={{ overflowY: 'auto', overflowX: 'hidden', maxHeight: '66vh' }}>
         {objectPropertiesMain?.map((key) => {
           let inputElement;
           switch (true) {
@@ -56,7 +56,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   className="form-control hover-gra m-1"
                   id={key}
                   name={key}
-                  value={formValues[key] || curobject[key]}
+                  value={formValues[key] }
                   onChange={handleChange}
                   readOnly
                   style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
@@ -71,7 +71,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   className="form-control bg-light border-0 "
                   id={key}
                   name={key}
-                  value={formValues[key] || curobject[key]}
+                  value={formValues[key] }
                   onChange={handleChange}
                   readOnly
                   style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
@@ -84,7 +84,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   className="form-control hover-white bg-white m-1 "
                   id={key}
                   name={key}
-                  value={formValues[key] || curobject[key]}
+                  value={formValues[key] }
                   onChange={handleChange}
                   style={{ backgroundColor: '#eee' }}
                   ref={textareaRef}
@@ -106,53 +106,53 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                 />
               );
               break;
-              case key.endsWith('ports'):
-                const ports = formValues[key]?.map((ie, index) => 
-                  <div key={ie.id} className="d-flex align-items-center">
-                    <div
+            case key.endsWith('ports'):
+              const Ports = formValues[key]?.map((ie, index) => 
+                <div key={ie.id} className="d-flex align-items-center">
+                  <div
+                    style={{ backgroundColor: ie.color }}
+                  />
+                  {Object.keys(ie).map(ieKey => (ieKey === 'id') ? (
+                    <input
+                      key={ieKey}
+                      className="form-control hover-white bg-light m-1"
+                      id={ieKey}
+                      name={`${key}[${index}][${ieKey}]`}
+                      value={ie[ieKey]}
+                      onChange={handleInputChange}
                       style={{ backgroundColor: ie.color }}
+                      readOnly
                     />
-                    {Object.keys(ie).map(ieKey => (ieKey === 'id') ? (
-                      <input
-                        key={ieKey}
-                        className="form-control hover-white bg-light m-1"
-                        id={ieKey}
-                        name={`${key}[${index}][${ieKey}]`}
-                        value={ie[ieKey]}
-                        onChange={handleInputChange}
-                        style={{ backgroundColor: ie.color }}
-                        readOnly
-                      />
-                    ) : (
-                      <input
-                        key={ieKey}
-                        className="form-control hover-white m-1"
-                        id={ieKey}
-                        name={`${key}[${index}][${ieKey}]`}
-                        value={ie[ieKey]}
-                        onChange={handleInputChange}
-                        style={{
-                          backgroundColor: ieKey === 'color' ? ie.color : '#eee',
-                        }}
-                      />
-                    )
-                    )}
-                  </div>
-                );
-                inputElement = (
-                  <div>
-                    {ports}
-                  </div>
-                );
-                break;
+                  ) : (
+                    <input
+                      key={ieKey}
+                      className="form-control hover-white m-1"
+                      id={ieKey}
+                      name={`${key}[${index}][${ieKey}]`}
+                      value={ie[ieKey]}
+                      onChange={handleInputChange}
+                      style={{
+                        backgroundColor: ieKey === 'color' ? ie.color : '#eee',
+                      }}
+                    />
+                  )
+                  )}
+                </div>
+              );
+              inputElement = (
+                <div>
+                  {Ports}
+                </div>
+              );
+              break;
             default:
               inputElement = (
                 <input
-                  type="text"
+                  // type="text"
                   className="form-control hover-white bg-white m-1 "
                   id={key}
                   name={key}
-                  value={formValues[key] || curobject[key]}
+                  value={formValues[key] }
                   onChange={handleChange}
                   style={{ backgroundColor: '#eee' }}
                 />
@@ -167,6 +167,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             </div>
           );
         })}
+        </div>
         <div className="row m-1 pt-1">
           <button type="submit" className="btn btn-sm btn-primary" style={{ float: 'right' }}>
             Submit
@@ -203,7 +204,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
 
 const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
   return (
-    <table className="w-100 border border-rounded ">
+    <table className="w-100 border border-rounded " style={{ overflow: 'auto' }}>
       <thead className="thead">
         <tr className="tr">
           <th className="th">Current object shown in:</th>
@@ -231,10 +232,12 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
 };
 
 const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject }) => {
+  console.log('233 ObjectDetails ', curobject, formValues);
   return (
-    <>
+    <div className='object-details' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />
-      <div className=" ">
+      <div className="object-details--content " >
+      {/* <div className="object-details--content " style={{ overflow: 'auto', maxHeight: '700px' }}> */}
         <div className="col">
             <ObjectForm
               objectPropertiesMain={objectPropertiesMain}
@@ -245,7 +248,7 @@ const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropert
             />
           </div>
       </div>
-    </>
+    </div>
   );
 };
 

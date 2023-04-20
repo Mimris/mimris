@@ -1,5 +1,7 @@
 import React from "react";
 
+//console.log("Page.js");
+
 const page = (Page) => {
   return (
     class PageWrapper extends React.Component {

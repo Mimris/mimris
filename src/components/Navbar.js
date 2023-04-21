@@ -2,9 +2,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { FaUser, FaEnvelope } from 'react-icons/fa';
 
+const debug = false;
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
+	if (debug) console.log('8 Navbar currentRoute', currentRoute, props);
   
 	return (
 	  <nav className="navbar navbar-expand-sm d-flex justify-content-between bg-ligth my-0 py-0">

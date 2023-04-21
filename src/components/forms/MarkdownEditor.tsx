@@ -44,7 +44,7 @@ function MarkdownEditor({ props }) {
   const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
 
   let curobject = objects?.find(o => o.id === focusObject?.id)
-  console.log('41 Context', focusObjectview?.name, curobject.name, curobjectviews?.find(ov => ov.id === focusObjectview?.id));
+  console.log('41 Context', focusObjectview?.name, curobject?.name, curobjectviews?.find(ov => ov.id === focusObjectview?.id));
 
   let objectviewChildren = []
   let objectChildren = []

@@ -122,12 +122,9 @@ const page = (props:any) => {
               </div> */}
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                 {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
-                {/* <Modelling  /> */}
                 <Modelling />
               </div>
               <div className="contextarea">
-                {/* <Context ph={props} /> */}
-                {/* {(props.phUser.appSkin.visibleContext) ? <Context  ph={props}/> : <></>} */}
               </div>
             </div>
             <div className="footer">

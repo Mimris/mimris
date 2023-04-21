@@ -59,7 +59,7 @@ const page = (props:any) => {
   const [activeTab, setActiveTab] = useState('2');
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
-  const [visibleContext, setVisibleContext] = useState(true)
+  // const [visibleContext, setVisibleContext] = useState(true)
 
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -175,14 +175,14 @@ const page = (props:any) => {
       setVisibleTasks(!visibleTasks);
     }
 
-    let locStateKey
-    const toggleShowContext = () => {
-      // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
-      setVisibleContext(!visibleContext)
-      SaveAkmmUser({...memoryAkmmUser, visibleContext}, locStateKey='akmmUser')
-      // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
-      console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
-    }
+    // let locStateKey
+    // const toggleShowContext = () => {
+    //   // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
+    //   setVisibleContext(!visibleContext)
+    //   SaveAkmmUser({...memoryAkmmUser, visibleContext}, locStateKey='akmmUser')
+    //   // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
+    //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
+    // }
 
     // ===================================================================
     // Divs
@@ -371,14 +371,13 @@ const page = (props:any) => {
                     />
                   </div>
                 </Col>
+                {/* <Col className="col3 mr-0 p-0 " xs="auto"> 
+                 {(visibleContext) ? <ReportModule  props={props}/> : <></>}
+                </Col> */}
                 <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
                   <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                     {targetmetamodelDiv}
                   </div>
-                </Col>
-                <Col className="col3 mr-0 p-0 " xs="auto"> 
-                {/* <ReportModule  props={props}/> */}
-                {(visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col>
               </Row>
             </div>         
@@ -481,7 +480,7 @@ const page = (props:any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
             <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
-            <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button> 
+            {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
           </span> 
         </div>
         

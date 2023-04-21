@@ -200,9 +200,7 @@ function addNodeText(contextMenu: any) {
                 font: "bold 10pt Segoe UI,sans-serif",
                 // background: "lightgray",
                 minSize: new go.Size(120, 36), 
-                // // text: "textAlign: 'center'",
                 textAlign: "center",
-                // // alignment: go.Spot.Center,
                 height: 46,
                 // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
                 verticalAlignment: go.Spot.Center,
@@ -700,8 +698,23 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("scale", "scale1").makeTwoWay(),
+        { // Tooltips
+            toolTip:
+            $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "lightyellow" }),
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", 
+                        function (d) { 
+                            const tt = uid.nodeInfo(d, myMetis); 
+                            if (debug) console.log('234 tooltip', tt);
+                            return tt;               
+                        }
+                    )
+                )
+            )
+        },
         $(go.Shape, 'RoundedRectangle', 
-        {
+            {
             cursor: "alias",
             fill: 'yellow', 
             stroke: "#fff",  
@@ -733,75 +746,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 shadowVisible: false,
                 desiredSize: new go.Size(136, 60),              
             }    
-        ),        
-        $(go.Panel, "Table", // Panel for text 
-            // { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-            $(go.RowColumnDefinition, { column: 1, width: 4 }),
-            $(go.Panel, "Horizontal",
-            {
-                defaultAlignment: go.Spot.Center
-            },
-            // define the panel where the text will appear
-            $(go.Panel, "Table", // separator ---------------------------------
-                { 
-                    contextMenu: contextMenu , 
-                    cursor: "move" 
-                },
-                {
-                defaultRowSeparatorStroke: "black",
-                desiredSize: new go.Size(136, 60),
-                maxSize: new go.Size(136, 66), 
-                // margin: new go.Margin(2),
-                defaultAlignment: go.Spot.Center,
-                },
-                { // Tooltips
-                    toolTip:
-                    $(go.Adornment, "Auto",
-                        $(go.Shape, { fill: "lightyellow" }),
-                        $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                            new go.Binding("text", "", 
-                                function (d) { 
-                                    const tt = uid.nodeInfo(d, myMetis); 
-                                    if (debug) console.log('234 tooltip', tt);
-                                    return tt;               
-                                }
-                            )
-                        )
-                    )
-                },
-                // content
-                $(go.TextBlock, textStyle(),  // the name -----------------------
-                {
-                    isMultiline: false,  // don't allow newlines in text
-                    editable: true,  // allow in-place editing by user
-                    row: 0, column: 0, columnSpan: 6,
-                    font: "bold 10pt Segoe UI,sans-serif",
-                    minSize: new go.Size(120, 36), 
-                    textAlign: "center",
-                    height: 46,
-                    // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                    verticalAlignment: go.Spot.Center,
-                    // stretch: go.GraphObject.Fill, // added to not resize object
-                    // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                    margin: new go.Margin(0,2,0,0),
-                    name: "name"
-                },        
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
-                ),
-                $(go.TextBlock, textStyle(), // the typename  --------------------
-                {
-                    row: 1, column: 1, columnSpan: 6,
-                    editable: false, isMultiline: false,
-                    // minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 1, 0),  
-                    alignment: go.Spot.Center,                  
-                },
-                new go.Binding("text", "typename")
-                ),
-            ),
-            ),
-        ),
+        ), 
+        addNodeText(contextMenu),       
     );
     nodeTemplateMap.add("", nodeTemplate0);
     nodeTemplateMap.add("textOnly", nodeTemplate0);
@@ -887,14 +833,16 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 isMultiline: false,  // don't allow newlines in text
                 editable: true,  // allow in-place editing by user
                 row: 0, column: 0, columnSpan: 6,
-                // stretch: go.GraphObject.Fill,
                 font: "bold 10pt Segoe UI,sans-serif",
                 minSize: new go.Size(120, 36), 
-                desiredSize: new go.Size(120, 60),
+                desiredSize: new go.Size(200, 60),
                 textAlign: "center",
                 height: 46,
+                // width: 200,
                 verticalAlignment: go.Spot.Center,
                 margin: new go.Margin(2,2,2,2),
+                stretch: go.GraphObject.Fill,
+                // wrap: go.TextBlock.WrapFit,
                 name: "name"
             },        
             new go.Binding("text", "name").makeTwoWay(),
@@ -1319,53 +1267,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     ),
                     // define the panel where the text will appear
                     addNodeText(contextMenu),
-                    // $(go.Panel, "Table", // separator ---------------------------------
-                    //     { 
-                    //         contextMenu: contextMenu , 
-                    //         cursor: "move" 
-                    //     },
-                    //     {
-                    //     defaultRowSeparatorStroke: "black",
-                    //     desiredSize: new go.Size(136, 60),
-                    //     maxSize: new go.Size(136, 60), 
-                    //     margin: new go.Margin(2),
-                    //     defaultAlignment: go.Spot.Center,
-                    //     },
-                    //     // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                    //     // content
-                    //     $(go.TextBlock, textStyle(),  // the name -----------------------
-                    //         {
-                    //             isMultiline: false,  // don't allow newlines in text
-                    //             editable: true,  // allow in-place editing by user
-                    //             row: 0, column: 0, columnSpan: 6,
-                    //             font: "bold 10pt Segoe UI,sans-serif",
-                    //             // background: "lightgray",
-                    //             minSize: new go.Size(120, 36), 
-                    //             // text: "textAlign: 'center'",
-                    //             textAlign: "center",
-                    //             // alignment: go.Spot.Center,
-                    //             height: 46,
-                    //             // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                    //             verticalAlignment: go.Spot.Center,
-                    //             // stretch: go.GraphObject.Fill, // added to not resize object
-                    //             // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                    //             margin: new go.Margin(0,2,0,0),
-                    //             name: "name"
-                    //         },        
-                    //         new go.Binding("text", "name").makeTwoWay(),
-                    //         new go.Binding("stroke", "textcolor").makeTwoWay()
-                    //         ),
-                    //     $(go.TextBlock, textStyle(), // the typename  --------------------
-                    //         {
-                    //             row: 1, column: 1, columnSpan: 6,
-                    //             editable: false, isMultiline: false,
-                    //             // minSize: new go.Size(10, 4),
-                    //             margin: new go.Margin(2, 0, 1, 0),  
-                    //             alignment: go.Spot.Center,                  
-                    //         },
-                    //         new go.Binding("text", "typename")
-                    //     ),
-                    // ),
                 ),
             ),
         )

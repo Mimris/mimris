@@ -112,14 +112,24 @@ const page = (props:any) => {
     if (debug) useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
-    setRefresh(!refresh)
+      setRefresh(!refresh)
     }, 200);
     return () => clearTimeout(timer); 
   }, [props.phFocus?.focusModelview.id])
-
+  
   useEffect(() => { 
+    if (debug) useEfflog('121 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
     setRefresh(!refresh)
   }, [memoryAkmmUser])
+
+  useEffect(() => {
+    if (debug) useEfflog('126 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+    GenGojsModel(props, dispatch);
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusRefresh?.id])
 
   if (!mount) {
     return <></>

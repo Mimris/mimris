@@ -29,7 +29,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
+  if (!debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
+  const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
   const focusModel = props.phFocus?.focusModel
@@ -91,8 +92,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('87 myPalette', myPalette);
       let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
         if (debug) console.log('89 myModelview', myModelview);
-        if (debug) console.log('90 GenGojsModel  myModel', myMetis, myModel, myModelview);
-      const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject);
+        if (!debug) console.log('90 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
+      const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
         if (debug) console.log('92 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
         if (debug) console.log('94 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);

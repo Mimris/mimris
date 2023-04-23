@@ -37,6 +37,7 @@ import {
   SET_FOCUS_SOURCE, 
   SET_FOCUS_REFRESH, 
   SET_USER_SHOWDELETED,
+  SET_USER_SHOWMODIFIED,
   SET_VISIBLE_CONTEXT,
 
   SET_MYMETIS_MODEL,
@@ -396,6 +397,13 @@ export const setUserShowDeleted = (data) => {
   // console.log('action-type-data', data);
   return {
     type: SET_USER_SHOWDELETED,
+    data: JSON.parse(data.value)
+  }
+}
+export const setUserShowModified = (data) => {
+  // console.log('action-type-data', data);
+  return {
+    type: SET_USER_SHOWMODIFIED,
     data: JSON.parse(data.value)
   }
 }

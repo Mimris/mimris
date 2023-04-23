@@ -193,7 +193,7 @@ let includeNoType = false;
   }
 
   export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, 
-                               includeDeleted: boolean, includeNoObject: boolean): gjs.goModel {
+                               includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
     if (debug) console.log('197 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
@@ -250,6 +250,21 @@ let includeNoType = false;
               }
             }
           }
+          // added 2023-04-23 sf
+          if (showModified) {
+            console.log('255 ui_buildmodels ', showModified, objview.modified, objview);
+            if (objview.modified) {
+              if (objview.object?.modified) {
+                objview.strokecolor = "green";
+                objview.strokewidth = 4;
+                includeObjview = true;
+              } else {
+                // objview.strokecolor = "pink";
+                includeObjview = true;
+              }
+            }
+          }
+          // end added 2023-04-23 sf
           if (includeNoObject) {
             if (!objview.object) {
               objview.strokecolor = "blue";

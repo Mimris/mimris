@@ -201,7 +201,7 @@ const Context = (props) => {
       return objectviews?.map((objectview) => {
         const object = objects.find((object) => object.id === objectview.objectRef)
         const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
-        const objecttype = metamodel.objecttypes.find((ot) => ot.id === object.typeRef)
+        const objecttype = metamodel.objecttypes.find((ot) => ot.id === object?.typeRef)
         return objecttype
       }) || [];
     }
@@ -233,7 +233,7 @@ const Context = (props) => {
     const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
     if (debug) console.log('211 Context', curRelatedFromObectRels, curRelatedToObectRels);
 
-    const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot.id === curobject?.typeRef)
+    const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
     if (!debug) console.log('216 Context', curobjecttype);
     const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews) 
     if (!debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
@@ -241,7 +241,7 @@ const Context = (props) => {
  
 
     const setObjview = (o) => {
-      let ovdata =  (o) ? curobjectviews.find(ov => ov.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
+      let ovdata =  (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
       let odata = (o) ? {id: o.id, name: o.name} : {id: '', name: 'no object selected'}
       if (debug) console.log('246 setObjview', ovdata, odata )
       dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })

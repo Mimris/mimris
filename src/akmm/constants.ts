@@ -206,7 +206,7 @@ export let types = {
 };
 
 export let props = {
-          DRAFT               : "Draft"
+          DRAFT               : "draft"
 }
   
 // Define Firestore constants

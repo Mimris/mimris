@@ -455,7 +455,7 @@ export class goObjectNode extends goNode {
                     this.objecttype = objtype;
                     this.typename = objtype.getName();
                     this.typedescription = this.objecttype.getDescription();
-                    // Check if a Draft property exists
+                    // Check if a draft property exists
                     const draftProp = constants.props.DRAFT;
                     const draft = objtype.findPropertyByName(draftProp);
                     if (draft) {

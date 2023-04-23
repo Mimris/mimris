@@ -38,7 +38,7 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const [ofilter, setOfilter] = useState('All')
   const [visibleObjects, setVisiblePalette] = useState(false)
-  const [visibleContext, setVisibleContext] = useState(true)
+  const [visibleContext, setVisibleContext] = useState(false)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);

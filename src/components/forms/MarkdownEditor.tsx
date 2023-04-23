@@ -107,6 +107,8 @@ function MarkdownEditor({ props }) {
   markdownString += `#### ${curobject?.name}\n\n`
   markdownString += 'Name: ' + curobject?.name + ' \n\n'
   markdownString += '***Description:*** ***'+ curobject?.description +'*** \n\n'
+  markdownString += '***Figure:*** \n\n'
+  markdownString += '![Figure](https://via.placeholder.com/150) \n\n'
   markdownString += ` \n\n *Children:* \n\n  ---  \n\n`
 
   
@@ -275,12 +277,16 @@ function MarkdownEditor({ props }) {
               <Input type="text" id="githubRepo" value={githubRepo} onChange={(e) => setGithubRepo(e.target.value)} />
             </FormGroup>
             <FormGroup>
-              <Label for="githubBranch">GitHub Branch:</Label>
-              <Input type="text" id="githubBranch" value={githubBranch} onChange={(e) => setGithubBranch(e.target.value)} />
-            </FormGroup>
-            <FormGroup>
               <Label for="githubPath">GitHub Path:</Label>
               <Input type="text" id="githubPath" value={githubPath} onChange={(e) => setGithubPath(e.target.value)} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="githubPath">GitHub Filename:</Label>
+              <Input type="text" id="githubPath" value={githubPath} onChange={(e) => setGithubPath(e.target.value)} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="githubBranch">GitHub Branch:</Label>
+              <Input type="text" id="githubBranch" value={githubBranch} onChange={(e) => setGithubBranch(e.target.value)} />
             </FormGroup>
             <div className="d-flex justify-content-end">
               <Button className="btn btn-sm m-2" color="primary" onClick={handleSaveToGithub}>Save to GitHub</Button>

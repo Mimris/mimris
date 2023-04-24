@@ -227,6 +227,8 @@ const page = (props:any) => {
           dispatch={dispatch}
           modelType='metamodel'
           phUser={phUser}
+          phSource={phSource}
+          userSettings={memoryAkmmUser}
         />
         : <></>;
 
@@ -358,6 +360,7 @@ const page = (props:any) => {
                         phFocus={phFocus}
                         dispatch={dispatch}
                         modelType='model'
+                        phUser={phUser}
                       />
                   </div>
                 </Col>

@@ -344,6 +344,29 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
 
+  const footerButtonsDiv = 
+  <div className="modeller--footer-buttons d-flex justify-content-end">
+    <span className="btn mx-4 py-0 mt-1 pt-1 bg-light text-secondary"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+    {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
+    <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
+    <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
+    <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
+    <button className="btn bg-secondary mt-1 py-0 mx-1 px-2 " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide modified object/relship-views" 
+      onClick={() =>     { dispatch({ type: 'SET_USER_SHOWMODIFIED', data: !showModified }) ; 
+                          dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showModified) ? ' Hide modified' : 'Show modified' }
+    </button>
+    <button className="btn bg-secondary mt-1 py-0 mx-1 px-2" 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" 
+      onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ;   
+                          dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
+    </button>
+    {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
+    <span className="sourceName m-2 px-2" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee"}}>
+        Current source:  {props.phSource} 
+    </span> 
+  </div>
+
   if (debug) console.log('372 Modeller ', props.modelType) 
 
   const modellerDiv = 
@@ -372,42 +395,19 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                   onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
                   Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>} 
                 </button>
-                {/* <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", height: "100%", border: "solid 1px black" }}> */}
                   {visibleObjects 
                     ? (objectsTabDiv) 
                       ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{  fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</> 
                       : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{  fontSize: "11px", minWidth: "166px", maxWidth: "166px"}}></div>{ objectsTabDiv }</>
                     : <div className="btn-vertical px-1 text-center " style={{ height: "78vh", maxWidth: "20px", padding: "0px", fontSize: "12px"}}><span> O b j e c t s </span> </div>
                   }
-                {/* </div> */}
               </div>
             </Col>
             <Col className="modeller--workarea-modelling px-1 ">
-            {/* <Col className="modelller--workarea-modelling w-100"> */}
               <div className="mt-2">
                 {modelviewTabDiv}
               </div>
-              <div className="modeller--footer-buttons d-flex justify-content-end">
-                <span className="btn mx-4 py-0 mt-1 pt-1 bg-light text-secondary"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
-                {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
-                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
-                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
-                <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
-                <button className="btn bg-secondary mt-1 py-0 mx-1 px-2 " 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide changed object/relship-views" 
-                  onClick={() =>     { dispatch({ type: 'SET_USER_SHOWMODIFIED', data: !showModified }) ; 
-                                       dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showModified) ? ' Hide modified' : 'Show modified' }
-                </button>
-                <button className="btn bg-secondary mt-1 py-0 mx-1 px-2" 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" 
-                  onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ;   
-                                       dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
-                </button>
-                {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-                <span className="sourceName m-2 px-2" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee"}}>
-                    Current source:  {props.phSource} 
-                </span> 
-              </div>
+                {footerButtonsDiv}
             </Col>
             <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd"}}> 
                 {(visibleContext) ? <ReportModule  props={props}/> : <></>}
@@ -416,16 +416,17 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
       </div>
     : // metamodelling
-      <div className="metamodeller-workarea mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
-        {/* <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-primary"  onClick={toggleRefreshObjects} data-tog gle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span> */}
-        <span className="modeller--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
-        <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
-        {metamodelTabDiv} 
-        <style jsx>{`
-        // .diagram-component {
-          //   height: 80%;
-          // }
-          `}</style>
+      <div className="modeller-workarea w-100" >
+        <div className="modeller--topbar  mt-1 p-0 ">
+          <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Meta-Modeller</span>
+          <div className="">
+            <div className="modeller--heading-selector d-flex justify-content-between me-4" > <span className="mt-1 ms-2 px-2 " style={{backgroundColor: '#bcd'}} >Metamodel : {mmodel.name}</span> {selector}</div>
+            </div>
+            <div>
+              {metamodelTabDiv} 
+            </div>
+        </div>
+          {footerButtonsDiv}
       </div>
   
   return (

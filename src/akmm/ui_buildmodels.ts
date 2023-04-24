@@ -252,11 +252,11 @@ let includeNoType = false;
           }
           // added 2023-04-23 sf
           if (showModified) {
-            console.log('255 ui_buildmodels ', showModified, objview.modified, objview);
+            if (debug) console.log('255 ui_buildmodels ', showModified, objview.modified, objview);
             if (objview.modified) {
               if (objview.object?.modified) {
                 objview.strokecolor = "green";
-                objview.strokewidth = 4;
+                objview.strokewidth = 2;
                 includeObjview = true;
               } else {
                 // objview.strokecolor = "pink";
@@ -442,7 +442,7 @@ let includeNoType = false;
     return myGoMetaPalette;
   }
 
-  export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean): gjs.goModel | undefined {
+  export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean, showModified: boolean): gjs.goModel | undefined {
     if (!metamodel)
       return;
     if (debug) console.log('435 metamodel', metamodel);
@@ -487,6 +487,21 @@ let includeNoType = false;
                 }
               }
             }
+
+            // added 2023-04-24 sf
+            if (showModified) {
+              console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
+              if (objtype.modified) {
+                  objtype.strokecolor = "green";
+                  includeObjtype = true;
+                } else {
+                  objtype.strokewidth = 2;
+                  // objview.strokecolor = "pink";
+                  includeObjtype = true;
+              }
+            }
+            // end added 2023-04-24 sf
+
             if (includeObjtype) {
               if (!objtype.typeview) 
                 objtype.typeview = objtype.newDefaultTypeView('Object');

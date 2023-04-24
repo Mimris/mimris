@@ -83,7 +83,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
       const myMetamodelPalette = (myMetamodel) && uib.buildGoMetaPalette();
         if (debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
-      const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted);
+      const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified);
         if (debug) console.log('82 myGoMetamodel', myGoMetamodel);
       const myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
         if (debug) console.log('84 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);

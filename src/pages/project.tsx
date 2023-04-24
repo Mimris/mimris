@@ -21,6 +21,13 @@ import HeaderButtons from '../components/utils/HeaderButtons';
 
 const debug = false
 
+const clog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: blue; color: white');
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
+const ctrace = console.trace.bind(console, '%c %s',
+    'background: blue; color: white');
+
 const page = (props: any) => {
   // if (typeof window === 'undefined') return <></>  
   const dispatch = useDispatch()  
@@ -68,8 +75,18 @@ const page = (props: any) => {
     const { org, repo, path, file, branch, focus, ghtype } = query;
     console.log('69 project',  org, repo, path, file, branch)
     dispatch({ type: 'LOAD_DATAGITHUB', data: query });
+    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })
 
   }, [query.repo !== undefined]);
+
+  useEffect(() => {
+    if (debug) useEfflog('126 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+    GenGojsModel(props, dispatch);
+    const timer = setTimeout(() => {
+      toggleRefresh()
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusRefresh?.id])
     
   // useEffect(() => {
   //   toggleRefresh(); // refresh the page
@@ -114,6 +131,8 @@ const page = (props: any) => {
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
+  const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
+  // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
 
   const contextDiv = (
     <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
@@ -209,6 +228,12 @@ const page = (props: any) => {
                     <div className="rounded bg-light m-2 p-2">
                       <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>  
                       <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{generatedUrl} </span>  
+                    </div>
+                    <div className="rounded bg-light m-2 p-2">
+                      <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>  
+                      <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{akmIrtvPopsMetamodelUrl} </span>  
+                      {/* make a link to a new window with akmIrtvPopsMetamodelUrl */}
+                      <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
                     </div>
                     {projectFormDiv}     
                 </div>

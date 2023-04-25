@@ -21,22 +21,22 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
 };
 
 const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit }) => {
-    const textareaRef = useRef(null);
-    // const [value, setValue] = useState("");
+  const textareaRef = useRef(null);
+  // const [value, setValue] = useState("");
 
-    const handleInputChange = (event) => {
-        // console.log('27', event.target.value)
-        // setValue(event.target.value);
-        adjustTextareaHeight();
-        handleChange(event);
-      };
+  const handleInputChange = (event) => {
+      // console.log('27', event.target.value)
+      // setValue(event.target.value);
+      adjustTextareaHeight();
+      handleChange(event);
+    };
 
-    const adjustTextareaHeight = () => {
-        if (textareaRef.current) {
-          textareaRef.current.style.height = 'auto';
-          textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-        }
-      };
+  const adjustTextareaHeight = () => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    };
 
   if (debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
   if (debug) console.log('44 ObjectForm', formValues, curobject);

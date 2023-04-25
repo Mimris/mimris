@@ -404,12 +404,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 const rel = relview.relship;
                 if (rel) {
+                  rel.name = text;
                   const relviews = rel.relshipviews;
                   if (debug) console.log('394 rel, relviews', rel, relviews);
                   for (let i=0; i<relviews.length; i++) {
                     const relview = relviews[i];
                     relview.name = text;
-                    rel.name = text;
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     if (debug) console.log('407 jsnRelview', jsnRelview);
                     modifiedLinks.push(jsnRelview);

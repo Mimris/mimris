@@ -2,7 +2,7 @@ const debug = false;
 
 export const SaveAkmmUser = (props, key) => {
 
-    if (!debug) console.log("5 SaveAkmmUser akmmUser exists in localStorage, use it", key,  props.phUser);
+    if (debug) console.log("5 SaveAkmmUser akmmUser exists in localStorage, use it", key,  props.phUser);
 
     // Function to save data to localStorage
     function saveToLocalStorage(key, data) {

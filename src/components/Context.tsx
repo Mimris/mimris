@@ -222,11 +222,11 @@ const Context = (props) => {
     //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
     // }
   
-    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview.objectviews; 
+    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview?.objectviews; 
     let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
-    if (!debug) console.log('227 Context',  curobjectview, curmodelview.objectviews);
-    if (!debug) console.log('228 Context', objectviewChildren);
-    if (!debug) console.log('229 Context', objectChildren);
+    if (debug) console.log('227 Context',  curobjectview, curmodelview?.objectviews);
+    if (debug) console.log('228 Context', objectviewChildren);
+    if (debug) console.log('229 Context', objectChildren);
 
     // find related objects
     const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
@@ -234,9 +234,9 @@ const Context = (props) => {
     if (debug) console.log('211 Context', curRelatedFromObectRels, curRelatedToObectRels);
 
     const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
-    if (!debug) console.log('216 Context', curobjecttype);
+    if (debug) console.log('216 Context', curobjecttype);
     const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews) 
-    if (!debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
+    if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
     
  
 

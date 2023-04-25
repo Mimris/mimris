@@ -351,7 +351,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
 }
 
 export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cxRelationshipView, context: any) {
-    if (debug) console.log('316 relship, relview: ', relship, relview);
+    if (!debug) console.log('316 relship, relview: ', relship, relview);
     if (!relship) {
         return;
     }
@@ -365,28 +365,38 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     if (debug) console.log('327 myTargetMetamodel', myTargetMetamodel);
     // relship is the relationship defining the relationship type to be generated
     const currentRel  = myMetis.findRelationship(relship.id);
-    if (debug) console.log('330 currentRel: ', currentRel);
+    if (!debug) console.log('330 currentRel: ', currentRel);
+    // fromName is the relationship type name seen from the from object
+    // toName is the relationship type name seen from the to object
+    let fromName, toName = "";
+    const names = currentRel.name.split("/");
+    fromName = names[0];
+    if (names.length > 0) {
+        toName   = names[1];
+    }
     const fromObj  = currentRel?.getFromObject();
-    let fromName = fromObj?.name;
-    fromName = utils.camelize(fromName);
-    fromName = utils.capitalizeFirstLetter(fromName);
-    const fromtype = myTargetMetamodel?.findObjectTypeByName(fromName);
+    let fromObjName = fromObj?.name;
+    fromObjName = utils.camelize(fromObjName);
+    fromObjName = utils.capitalizeFirstLetter(fromObjName);
+    const fromtype = myTargetMetamodel?.findObjectTypeByName(fromObjName);
     const toObj    = currentRel?.getToObject();
-    let toName = toObj?.name;
-    toName = utils.camelize(toName);
-    toName = utils.capitalizeFirstLetter(toName);
-    const totype   = myTargetMetamodel?.findObjectTypeByName(toName);
+    let toObjName = toObj?.name;
+    toObjName = utils.camelize(toObjName);
+    toObjName = utils.capitalizeFirstLetter(toObjName);
+    const totype   = myTargetMetamodel?.findObjectTypeByName(toObjName);
     if (debug) console.log('341 fromObj, toObj: ', fromObj, toObj);
-    if (debug) console.log('342 fromtype, totype, toname ', fromtype, totype, toName);
-    let newName  = currentRel?.getName();
+    if (!debug) console.log('342 fromtype, totype, fromName, toName ', fromtype, totype, fromName, toName);
+    // let newName  = currentRel?.getName();
+    let newName = fromName;
+    if (toName.length > 0) newName = newName + "/" + toName;
     let oldName = "";
-    newName = utils.camelize(newName);
-    if (newName !== constants.types.AKM_IS)
-        newName = utils.uncapitalizeFirstLetter(newName);
+    // newName = utils.camelize(newName);
+    // if (newName !== constants.types.AKM_IS)
+    //     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
     let reltype, reltypeview;
     let typeid = currentRel?.generatedTypeId;
-    if (debug) console.log('345 currentRel, typeid, length, newName', currentRel, typeid, typeid.length, newName);
+    if (!debug) console.log('345 currentRel, typeid, length, newName', currentRel, typeid, typeid.length, newName);
     if (typeid) // The type has been generated before
     {
         reltype = myMetis.findRelationshipType(typeid);  // The existing relationship type
@@ -428,13 +438,18 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             reltype.cardinality = relship.cardinality;
         }
     }
-    if (debug) console.log('385 reltype, relname, fromtype, totype: ', reltype, relname, fromtype, totype);
+    if (!debug) console.log('385 reltype, relname, fromtype, totype: ', reltype, relname, fromtype, totype);
     if (!reltype) {
         if (relname && fromtype && totype) // This is a new relationship type
         {
-            if (debug) console.log('384 relname, fromtype, totype: ', relname, fromtype, totype);
+            if (!debug) console.log('384 relname, fromtype, totype: ', relname, fromtype, totype);
             reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, currentRel.description);
             if (debug) console.log('386 reltype: ', reltype);
+            const names = relname.split("/");
+            if (names.length > 1) {
+                reltype.nameFrom = names[0];
+                reltype.nameTo   = names[1];
+            }
             { // Handle special attributes
                 reltype.relshipkind = relship.relshipkind;
                 reltype.cardinality = relship.cardinality;
@@ -453,7 +468,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             myTargetMetamodel?.addRelationshipType(reltype);
             myMetis.addRelationshipType(reltype);
             currentRel.generatedTypeId = reltype.id;
-            if (debug) console.log('400 currentRel, reltype', currentRel, reltype);
+            if (!debug) console.log('400 currentRel, reltype', currentRel, reltype);
         }
     }
     if (reltype) { // Create/Modify the relationship typeview
@@ -484,7 +499,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         if (debug) console.log('444 relview, reltypeview', relview, reltypeview);
         if (debug) console.log('445 reltypeview', reltypeview);
     }
-    if (debug) console.log('468 reltype', reltype);
+    if (!debug) console.log('468 reltype', reltype);
     return reltype;
 }
 

@@ -6,7 +6,7 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
   if (debug) console.log('6 ObjectHeader', curmm.objecttypes.map((ot) => ot.id === curobject?.typeRef), curobject, parentobject);
   return (
     <h4 className="p-2 bg-light mx-1">
-      {curobject?.name || curmodelview.name}
+      {curobject?.name || curmodelview?.name}
       <span style={{ flex: 1, textAlign: 'right', float: 'right' }}>
         ({curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name || 'Modelview'}) {/*  || 'Modelview'}) */}
         {(curmm.objecttypes.find((ot) => ot.id === curobject?.typeRef)?.name) && (

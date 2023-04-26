@@ -1237,7 +1237,7 @@ export function createRelationship(data: any, context: any) {
 }
 
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
-    if (debug) console.log('1216 createRelshipCallback', args);
+    if (!debug) console.log('1216 createRelshipCallback', args);
     const myDiagram = args.context.myDiagram;
     const myGoModel = args.context.myGoModel;
     const myMetis   = args.context.myMetis; 
@@ -1256,8 +1256,9 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const objTo    = nodeTo.data.object;
     const portTo   = args.toPort;
     const context  = args.context;
-    const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1241 data, reltype, myModelview', data, reltype, myModelview);
+    const reltype  = data.relshiptype;
+    // const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+    if (!debug) console.log('1241 data, reltype, myModelview', data, reltype, myModelview);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
@@ -1715,7 +1716,7 @@ export function clearRelationshipPoints(modelview: akm.cxModelView, myMetis: akm
 
 export function createLink(data: any, context: any): any {
     // Creates both relship and relship view
-    if (debug) console.log('1431 createLink', data, context);
+    if (!debug) console.log('1719 createLink', data, context);
     if (!data.key)
         data.key = utils.createGuid();
     const myMetis = context.myMetis;
@@ -1742,9 +1743,10 @@ export function createLink(data: any, context: any): any {
         const toPort = data.toPort;
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
-        if (debug) console.log('1450 createLink', data.relshiptype.name, fromType, toType);
+        if (debug) console.log('1746 createLink', data.relshiptype.name, fromType, toType);
         reltype = myMetis.findRelationshipTypeByName2(data.relshiptype.name, fromType, toType);
-        if (debug) console.log('1452 reltype', reltype);
+        const typename = reltype?.name;
+        if (debug) console.log('1749 reltype', reltype);
         if (reltype && reltype.isInstantiable()) {
             // Create the relationship
             const myGoModel = context.myGoModel;
@@ -1760,12 +1762,12 @@ export function createLink(data: any, context: any): any {
                 toObj = toObjView.object;
                 toObj = myMetis.findObject(toObj?.id);
             }
-            if (debug) console.log('1466 createLink', fromObj, toObj);
+            if (debug) console.log('1765 createLink', fromObj, toObj);
             if (fromObj && toObj) {
                 // Find relationship if it already exists
                 const myModel = context.myModel;
                 let relship = myModel.findRelationship2(fromObj, toObj, reltype.name, reltype, fromPort, toPort);
-                if (debug) console.log('1471 relship', relship);
+                if (debug) console.log('1770 relship', relship);
                 if (!relship) {
                     relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
                     if (relship) {
@@ -1778,19 +1780,20 @@ export function createLink(data: any, context: any): any {
                         myMetis.addRelationship(relship);
                     }
                 }
-                if (debug) console.log('1484 relship', relship);
+                if (debug) console.log('1783 relship', relship);
                 if (relship) {
                     let typeview = data.relshiptype.typeview;
                     if (!typeview) typeview = reltype.getDefaultTypeView();
-                    if (debug) console.log('1487 typeview', typeview);
-                    relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
-                    if (debug) console.log('1609 relshipview', relshipview);
+                    if (debug) console.log('1787 typeview', typeview);
+                    let relviewName = data.relshiptype.nameFrom;
+                    if (relviewName === "") relviewName = data.relshiptype.name;
+                    relshipview = new akm.cxRelationshipView(utils.createGuid(), relviewName, relship, "");
+                    if (debug) console.log('1791 relshipview', relshipview);
                     if (relshipview) {
                         const myModelview = context.myModelview;
                         const diagram = context.myDiagram;
                         relshipview.setModified();
-                        data.relshipview = relshipview;
-                        relshipview.setName(relship.name);
+                        // relshipview.setName(relviewName);
                         relshipview.setTypeView(typeview);
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
@@ -1801,9 +1804,10 @@ export function createLink(data: any, context: any): any {
                         relshipview.toport = toPort;
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
+                        data.relshipview = relshipview;
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
+                        if (!debug) console.log('1809 typeview, relshipview', typeview, relshipview);
                     }
-                    if (debug) console.log('1503 typeview, relshipview', typeview, relshipview);
                 }
             }
         }

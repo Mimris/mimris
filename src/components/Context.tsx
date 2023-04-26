@@ -222,9 +222,9 @@ const Context = (props) => {
     //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
     // }
   
-    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview.objectviews; 
+    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview?.objectviews; 
     let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
-    if (debug) console.log('227 Context',  curobjectview, curmodelview.objectviews);
+    if (debug) console.log('227 Context',  curobjectview, curmodelview?.objectviews);
     if (debug) console.log('228 Context', objectviewChildren);
     if (debug) console.log('229 Context', objectChildren);
 

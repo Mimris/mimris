@@ -768,9 +768,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const data = n ? n.data : node.data;
       if (debug) console.log('628 node', node);
       // Special handling of the draft property
-      if (node.draft) {
-        myDiagram.model.setDataProperty(data, 'typename', node.draft);
-      }
+      if (node[constants.props.DRAFT]) {
+        myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
+        }
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;

@@ -1036,12 +1036,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let objview = n.objectview;
               objview = myMetis.findObjectView(objview.id);
               objview.viewkind = 'Container';
-              objview.template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
+              let template = n.template;
+              switch(template) {
+                case 'textAndIcon':
+                  template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
+                  break;
+                case 'textAndGeometry':
+                  template = allowPorts ? 'groupWithPorts2' : 'groupNoPorts2';
+                  break;
+                case 'textAndFigure':
+                  template = allowPorts ? 'groupWithPorts3' : 'groupNoPorts3';
+                  break;
+              }
+              objview.template = template;
               objview.isGroup = true;
               objview.size = "200 100";
               n.objectview = objview;
+              n.template = template;
               const jsnObjview = new jsn.jsnObjectView(objview);
-              console.log('1052 objview, jsnObjview', objview, jsnObjview);
+              jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
               alert("You need to a Reload to see the change!");

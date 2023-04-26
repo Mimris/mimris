@@ -195,12 +195,24 @@ function getColor(color: string): string {
     return color;
 }
 
-function makeGeoFigure(figure: string, color: string) {
+function makeGeometry() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
-        new go.Binding("geometryString", "geometry", 
-            function(g) { return getGeoFigure(figure); }),
-        new go.Binding("fill", "fillcolor2", 
-            function(c) { return getColor(color); }),
+        new go.Binding("geometryString", "geometry"), 
+        new go.Binding("fill", "fillcolor2"), 
+        {     
+            row: 0, 
+            column: 2, 
+            margin: new go.Margin(0, 4, 0, 2),
+            desiredSize: new go.Size(25, 25),
+            alignment: go.Spot.Right,
+        }
+    )
+}
+
+function makeFigure() {
+    return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
+        new go.Binding("figure", "figure"), 
+        new go.Binding("fill", "fillcolor2"), 
         {     
             row: 0, 
             column: 2, 
@@ -267,9 +279,84 @@ export function groupTopFigure(contextMenu: any) {
                             new go.Binding("text", "name").makeTwoWay(),
                             new go.Binding("stroke", "textcolor").makeTwoWay()
                         ),
-                        new go.Binding("source", "icon", findImage),
-                        // makeGeoIcon("source"),
-                        makeGeoFigure("Process", "lightyellow"),
+                        makeFigure(),
+                    ), // End Horizontal Panel
+                    
+                    $(go.Shape,  // using a Shape instead of a Placeholder
+                        { 
+                            name: "SHAPE", 
+                            fill: "lightyellow", 
+                            opacity: 0.95,
+                            minSize: new go.Size(200, 100),
+                            margin: new go.Margin(0, 10, 10, 10),
+                            cursor: "move",
+                            stroke: "transparent",
+                        },
+                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+                        new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+                    )
+                ),
+            )
+}
+
+export function groupTopGeometry(contextMenu: any) {
+    return $(go.Panel, "Auto",
+                {
+                    row: 1, 
+                    column: 1, 
+                    name: "BODY",
+                    stretch: go.GraphObject.Fill
+                },
+                $(go.Shape, "RoundedRectangle", // surrounds everything
+                    {
+                        cursor: "alias",
+                        fill: "transparent", 
+                        shadowVisible: true,
+                        minSize: new go.Size(160, 65),
+                        portId: "", 
+                        fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("stroke", "strokecolor"),
+                ),
+                $(go.Panel, "Vertical",  // position header above the subgraph
+                    { 
+                        name: "HEADER", 
+                        defaultAlignment: go.Spot.TopLeft, 
+                    },
+                    $(go.Panel, "Table",  // the header
+                        {
+                            contextMenu: contextMenu , 
+                            cursor: "move",
+                            stretch: go.GraphObject.Horizontal,
+                        },
+                        $("SubGraphExpanderButton",
+                            {
+                                row: 0, 
+                                column: 0, 
+                                margin: new go.Margin(-4, 0, 0, 2),
+                                alignment: go.Spot.Left,
+                                scale: 1.2,
+                            },
+                        ),  
+                        $(go.TextBlock, // group title located at the center
+                            { 
+                                row: 0, 
+                                column: 1, 
+                                margin: 5, 
+                                alignment: go.Spot.Center,
+                                font: "Bold 14pt Sans-Serif",
+                                editable: true, 
+                                isMultiline: false,
+                                name: "name",
+                            },
+                            new go.Binding("fill", "fillcolor"),
+                            new go.Binding("text", "name").makeTwoWay(),
+                            new go.Binding("stroke", "textcolor").makeTwoWay()
+                        ),
+                        makeGeometry(),
                     ), // End Horizontal Panel
                     
                     $(go.Shape,  // using a Shape instead of a Placeholder
@@ -2546,7 +2633,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('Container2');
     }
     if (true) {
-        const groupWithPorts =
+        const groupWithPorts1 =
         $(go.Group, "Spot",
             {
                 name: "GROUP",
@@ -2574,8 +2661,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            // groupTopIcon(contextMenu),
-            groupTopFigure("Process", "lightyellow"),
+            groupTopIcon(contextMenu),
 
             // Now the ports
             $(go.Panel, "Vertical", 
@@ -2633,11 +2719,185 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 }
             ),  // end bottomPorts Panel
         )
-        groupTemplateMap.add("groupWithPorts", groupWithPorts);
-        addGroupTemplateName('groupWithPorts');        
+        groupTemplateMap.add("groupWithPorts", groupWithPorts1);
+        addGroupTemplateName('groupWithPorts');      
+        
+        const groupWithPorts2 =
+        $(go.Group, "Spot",
+            {
+                name: "GROUP",
+                resizable: true, 
+                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionAdorned: true,
+                contextMenu: contextMenu,
+            },
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted", function(h) { 
+                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+                }).ofObject(),
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+            groupTopGeometry(contextMenu),
+            // Now the ports
+            $(go.Panel, "Vertical", 
+                new go.Binding("itemArray", "leftPorts"),
+                {
+                    row: 1, 
+                    column: 0,
+                    itemTemplate: makeItemTemplate('left', true, portContextMenu),
+                    alignment: go.Spot.Left, 
+                },
+            ),  // end leftPorts Panel
+
+            // the Panel holding the top port elements
+            $(go.Panel, "Horizontal",
+                { 
+                    // name: "TOPPORTS", 
+                    // alignment: new go.Spot(1, 0.5, 0, 7)
+                },
+                new go.Binding("itemArray", "topPorts"),
+                {
+                    row: 0, 
+                    column: 1,
+                    itemTemplate: makeItemTemplate('top', true, portContextMenu),
+                    alignment: go.Spot.Top, 
+                }
+            ),  // end topPorts Panel
+
+            // the Panel holding the right port elements
+            $(go.Panel, "Vertical", 
+            { 
+                // name: "RIGHTPORTS", 
+                // alignment: new go.Spot(1, 0.5, 0, 7) 
+            },
+            new go.Binding("itemArray", "rightPorts"),
+                {
+                    row: 1, 
+                    column: 2,
+                    itemTemplate: makeItemTemplate('right', true, portContextMenu),
+                    alignment: go.Spot.Right, 
+                }
+            ),  // end rightPorts Panel
+
+            // the Panel holding the bottom port elements
+            $(go.Panel, "Horizontal",
+                { 
+                    // name: "BOTTOMPORTS", 
+                    // alignment: new go.Spot(1, 0.5, 0, 7)
+                },
+                new go.Binding("itemArray", "bottomPorts"),
+                {
+                    row: 0, 
+                    column: 1,
+                    itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
+                    alignment: go.Spot.Bottom, 
+                }
+            ),  // end bottomPorts Panel
+        )
+        groupTemplateMap.add("groupWithPorts2", groupWithPorts2);
+        
+        const groupWithPorts3 =
+        $(go.Group, "Spot",
+            {
+                name: "GROUP",
+                resizable: true, 
+                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionAdorned: true,
+                contextMenu: contextMenu,
+            },
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted", function(h) { 
+                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+                }).ofObject(),
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+            groupTopFigure(contextMenu),
+            // Now the ports
+            $(go.Panel, "Vertical", 
+                new go.Binding("itemArray", "leftPorts"),
+                {
+                    row: 1, 
+                    column: 0,
+                    itemTemplate: makeItemTemplate('left', true, portContextMenu),
+                    alignment: go.Spot.Left, 
+                },
+            ),  // end leftPorts Panel
+
+            // the Panel holding the top port elements
+            $(go.Panel, "Horizontal",
+                { 
+                    // name: "TOPPORTS", 
+                    // alignment: new go.Spot(1, 0.5, 0, 7)
+                },
+                new go.Binding("itemArray", "topPorts"),
+                {
+                    row: 0, 
+                    column: 1,
+                    itemTemplate: makeItemTemplate('top', true, portContextMenu),
+                    alignment: go.Spot.Top, 
+                }
+            ),  // end topPorts Panel
+
+            // the Panel holding the right port elements
+            $(go.Panel, "Vertical", 
+            { 
+                // name: "RIGHTPORTS", 
+                // alignment: new go.Spot(1, 0.5, 0, 7) 
+            },
+            new go.Binding("itemArray", "rightPorts"),
+                {
+                    row: 1, 
+                    column: 2,
+                    itemTemplate: makeItemTemplate('right', true, portContextMenu),
+                    alignment: go.Spot.Right, 
+                }
+            ),  // end rightPorts Panel
+
+            // the Panel holding the bottom port elements
+            $(go.Panel, "Horizontal",
+                { 
+                    // name: "BOTTOMPORTS", 
+                    // alignment: new go.Spot(1, 0.5, 0, 7)
+                },
+                new go.Binding("itemArray", "bottomPorts"),
+                {
+                    row: 0, 
+                    column: 1,
+                    itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
+                    alignment: go.Spot.Bottom, 
+                }
+            ),  // end bottomPorts Panel
+        )
+        groupTemplateMap.add("groupWithPorts3", groupWithPorts3);
     }
     if (true) {
-        const groupWithoutPorts =
+        const groupWithoutPorts1 =
         $(go.Group, "Spot",
             {
                 name: "GROUP",
@@ -2666,11 +2926,78 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             },
             groupTopIcon(contextMenu),
+        )
+        groupTemplateMap.add("groupNoPorts", groupWithoutPorts1);
+        addGroupTemplateName('groupNoPorts');        
+    
+        const groupWithoutPorts2 =
+        $(go.Group, "Spot",
+            {
+                name: "GROUP",
+                resizable: true, 
+                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionAdorned: true,
+                contextMenu: contextMenu,
+            },
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted", function(h) { 
+                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+                }).ofObject(),
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+            // groupTopIcon(contextMenu),
+            groupTopGeometry(contextMenu),
+            // groupTopFigure(contextMenu),
 
         )
-        groupTemplateMap.add("groupNoPorts", groupWithoutPorts);
-        addGroupTemplateName('groupNoPorts');        
+        groupTemplateMap.add("groupNoPorts2", groupWithoutPorts2);
+
+        const groupWithoutPorts3 =
+        $(go.Group, "Spot",
+            {
+                name: "GROUP",
+                resizable: true, 
+                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionAdorned: true,
+                contextMenu: contextMenu,
+            },
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("background", "isHighlighted", function(h) { 
+                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+                }).ofObject(),
+            { // Tooltips
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+            groupTopFigure(contextMenu),
+        )
+        groupTemplateMap.add("groupNoPorts3", groupWithoutPorts3);
     }
+
     if (false) {
       // each Group is a "swimlane" with a header on the left and a resizable lane on the right
       const laneTemplate = 
@@ -2808,7 +3135,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Pool", poolTemplate);
         addGroupTemplateName('Pool');
     }
-
     if (false) {
         const groupTemplate4 =
         $(go.Group, "Auto",
@@ -2834,7 +3160,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("groupTemplate4", groupTemplate4);
         addGroupTemplateName('groupTemplate4');
     }
-
     if (false) {
         const groupTemplate4 = 
             $(go.Group, "Vertical",

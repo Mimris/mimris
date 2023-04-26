@@ -125,7 +125,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           })
         } 
         // find  all objectviews in currentModelview of object
-        let objview = myMetis.currentModelview.objectviews?.filter(ov => ov.object.id === object?.id);
+        let objview = myMetis.currentModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
         // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
         let dataov = {id: '', name: ''};
         if (objview && objview[0]?.id) {

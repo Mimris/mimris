@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState , useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
@@ -9,6 +10,8 @@ import Selector from './utils/Selector'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
 import { KnownTypeNamesRule } from "graphql";
 // import { setMyMetisParameter } from "../actions/actions";
+
+import * as uib from '../akmm/ui_buildmodels';
 
 const debug = false;
 
@@ -74,6 +77,7 @@ const Palette = (props: any) => {
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette);}
   
   let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
+  let ndarr1 = props.gojsMetaModel?.nodeDataArray // error first render???
 
   // let ndarr = gojsmetamodel?.nodeDataArray // error first render???
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
@@ -90,17 +94,19 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
-    if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types);
-    const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
-    // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
-    if (debug) console.log('84 Palette useEffect 1', foundRTTs);
-    // setRefreshPalette(!refreshPalette) 
-    const timer = setTimeout(() => {
-      buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
-      // setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
-      if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
-    }, 1000);
-    return () => { isRendered = false;  clearTimeout(timer); }
+    if (props.modelType !== 'metamodel') {
+      if (debug) console.log('83 Palette useEffect 1', role, task, tasks, types);
+      const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
+      // const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch)
+      if (debug) console.log('84 Palette useEffect 1', foundRTTs, ndarr);
+      // setRefreshPalette(!refreshPalette) 
+      const timer = setTimeout(() => {
+        buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
+        // setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
+        if (debug) console.log('88 Palette useEffect 1 []', foundRTTs?.types, types, modellingtasks, foundRTTs);
+      }, 1000);
+      return () => { isRendered = false;  clearTimeout(timer); }
+    }
   }, [])
 
   useEffect(() => {
@@ -109,7 +115,7 @@ const Palette = (props: any) => {
     const timer = setTimeout(() => {
       // buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
       setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
-      if (debug) console.log('88 Palette useEffect 1 []', types, modellingtasks);
+      if (debug) console.log('88 Palette useEffect 2 []', types, modellingtasks);
       }, 100);
       return () => { clearTimeout(timer); }
   }, [types?.length > 0 && ndarr?.length > 0])
@@ -130,6 +136,24 @@ const Palette = (props: any) => {
   //   // }, 20);
   //   // return () => clearTimeout(timer);
   // }, [filteredOtNodeDataArray])
+
+
+
+ 
+  const myPalettes =  props.myMetis?.metamodels?.map(mm =>  {
+    if (mm.name === 'AKM-ADMIN_MM')  return null
+      const palette = uib.buildGoPalette(mm, props.myMetis);  
+      if (debug) console.log('144 palette', palette); 
+      return palette; // or any other condition you want to use
+  }).filter(Boolean);
+  if (debug) (myPalettes) && console.log('147 Palette', myPalettes[0]);
+
+  let gojsPalettes = myPalettes?.map(mp => ( {  
+      nodeDataArray: mp?.nodes,
+      linkDataArray: mp?.links 
+  }))
+ if (debug)(myPalettes) && console.log('154 Palette', myPalettes[0], gojsPalettes[0]);
+
 
   // buildfilteredOtNodeDataArray according to types
   const buildFilterOtNodeDataArray = (types, ndarr) => {
@@ -223,27 +247,56 @@ const Palette = (props: any) => {
 
   if (debug) console.log('220 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
  
-  const gojsappPalette = //(gojsmetamodel.nodeDataArray) &&  // this is the palette with tabs for Types and Objects Todo: add possibility to select many types or objects to drag in (and also with links)
-    <div className="workpad p-1 pt-0 bg-white" >
-      {/* <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div> */}
-      <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
-      <div className="modellingtask bg-light w-100" >
-          {otDiv}
-        </div>
-      < GoJSPaletteApp
-        nodeDataArray={filteredOtNodeDataArray}
-        linkDataArray={[]}
-        metis={props.metis}
-        myMetis={props.myMetis}
-        myGoModel={props.myGoModel}
-        phFocus={props.phFocus}
-        dispatch={props.dispatch}
-      />
-    </div>
+  const gojsappPalette =
+    <>
+      <Tabs onSelect={index => setActiveTab(index)} >
+        <TabList style={{  margin: '0px' }}>
+          {/* <Tab>{(activeTab !== 1)? 'MM1' : '1'} </Tab> */}
+          <Tab>MM1</Tab>
+          {/* <Tab>{(activeTab !== 2)? 'MM2' : '2'}</Tab> */}
+          <Tab>MM2</Tab>
+        </TabList>
+        <TabPanel className='pt-1 border border-white bg-light' >
+          <div className="metamodel-pad p-1 pt-0 bg-white" >
+            <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
+            <div className="modellingtask bg-light w-100" >
+              {otDiv}
+            </div>
+            <GoJSPaletteApp
+              nodeDataArray={filteredOtNodeDataArray}
+              linkDataArray={[]}
+              myMetis={props.myMetis}
+              metis={props.metis}
+              myGoModel={props.myGoModel}
+              phFocus={props.phFocus}
+              dispatch={props.dispatch}
+            />
+          </div>
+        </TabPanel>
+        <TabPanel className='pt-1 border border-white bg-light' >
+          <div className="metamodel-pad p-1 pt-0 bg-white" >
+            <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{props.myMetis?.metamodels[1]?.name}</div>
+            <div className="modellingtask bg-light w-100" >
+              {(myPalettes) && (myPalettes[0]?.nodeDataArray) &&  myPalettes[0]?.nodeDataArray[0].name}
+              {/* {otDiv} */}
+            </div>
+            <GoJSPaletteApp
+              nodeDataArray={(gojsPalettes) && gojsPalettes[0]?.nodeDataArray}
+              linkDataArray={[]}
+              metis={props.metis}
+              myMetis={props.myMetis}
+              myGoModel={props.myGoModel}
+              phFocus={props.phFocus}
+              dispatch={props.dispatch}
+            />
+          </div>
+        </TabPanel>
+      </Tabs>   
+    </>
 
    const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
-        <button className="btn-sm pt-0 pr-1 b-0 mt-0 mb-0 mr-2" style={{ backgroundColor: "#7ab", outline: "0", borderStyle: "none"}}
+        <button className="btn-sm " style={{ backgroundColor: "#8bc", outline: "0", borderStyle: "none"}}
           onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette: Src Metamodel</span> : <span> -&gt;</span>} 
         </button>
 

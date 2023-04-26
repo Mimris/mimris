@@ -29,7 +29,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  if (!debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
+  if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
@@ -72,39 +72,47 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
       
       let myMetamodel = myModel?.metamodel;
-        if (debug) console.log('70 myMetamodel :', myMetamodel);
+        if (debug) console.log('75 myMetamodel :', myMetamodel);
       myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
-        if (debug) console.log('72 myMetamodel :', myMetamodel);
-        if (debug) console.log('73 myTargetMetamodel :', curmod, curmod.targetMetamodelRef, curtargetmodel);
+        if (debug) console.log('77 myMetamodel :', myMetamodel);
+      let myMetamodels = myMetis.metamodels;
+        if (debug) console.log('79 myMetamodel :', myMetamodels, myModel.metamodels);
       let myTargetMetamodel = myMetis.findMetamodel(curmod.targetMetamodelRef) || null;
+        if (debug) console.log('81 myTargetMetamodel :', curmod, curmod.targetMetamodelRef, curtargetmodel);
       // if (myTargetMetamodel !== null)
       //   myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
       if (debug) console.log('77 myTargetMetamodel :', myTargetMetamodel);
-
       const myMetamodelPalette = (myMetamodel) && uib.buildGoMetaPalette();
         if (debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified);
-        if (debug) console.log('82 myGoMetamodel', myGoMetamodel);
+        if (debug) console.log('88 myGoMetamodel', myGoMetamodel);
       const myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
-        if (debug) console.log('84 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
-
+        if (debug) console.log('90 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
       const myPalette = (myMetamodel) && uib.buildGoPalette(myMetamodel, myMetis);
-        if (debug) console.log('87 myPalette', myPalette);
+        if (debug) console.log('92 myPalette', myPalette);
+        // const myPalettes = (myMetamodels) && myMetis.metamodels.map(mm =>  {
+        //   if (mm.name === 'AKM-ADMIN_MM')  return null
+        //     const palette = uib.buildGoPalette(mm, myMetis);  
+        //     console.log('98 palette', palette); 
+        //     return palette; // or any other condition you want to use
+        // }).filter(Boolean);
+        // if (debug) console.log('105 myMetamodelPalettes', myPalettes);
+
       let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
-        if (debug) console.log('89 myModelview', myModelview);
-        if (!debug) console.log('90 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
+        if (debug) console.log('108 myModelview', myModelview);
+        if (debug) console.log('109 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
       const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
-        if (debug) console.log('92 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
+        if (debug) console.log('111 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
-        if (debug) console.log('94 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
+        if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelview);
       (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
       (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
-      if (debug) console.log('101 GenGojsModel  myGoModel', myGoModel);
-      if (debug) console.log('102 GenGojsModel  myMetis', myMetis);
+      if (debug) console.log('120 GenGojsModel  myGoModel', myGoModel);
+      if (debug) console.log('121 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>
@@ -127,6 +135,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         nodeDataArray: myMetamodelPalette?.nodes,
         linkDataArray: []
       }
+      
+      // const gojsPalettes = myPalettes?.map(mp => ( {
+      //     nodeDataArray: [mp?.nodes],
+      //     linkDataArray: [mp?.links] 
+      //   }
+      // ))
+      // console.log('138 GenGojsModel', gojsPalettes, myPalettes);
 
       const gojsTargetMetamodel = myTargetMetamodelPalette && {
         nodeDataArray: myTargetMetamodelPalette?.nodes,

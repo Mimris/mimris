@@ -426,7 +426,7 @@ let includeNoType = false;
 
   export function buildGoMetaPalette() {
     if (debug) console.log('415 buildGoMetaPalette');
-    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
+    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), 'myMetaPalette', null);
     const nodeArray = new Array();
     const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);

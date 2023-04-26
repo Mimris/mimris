@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 const debug = false;
 
 const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview }) => {
-  if (!debug) console.log('6 ObjectHeader', curmm.objecttypes.map((ot) => ot.id === curobject?.typeRef), curobject, parentobject);
+  if (debug) console.log('6 ObjectHeader', curmm.objecttypes.map((ot) => ot.id === curobject?.typeRef), curobject, parentobject);
   return (
     <h4 className="p-2 bg-light mx-1">
       {curobject?.name || curmodelview.name}
@@ -38,8 +38,8 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       }
     };
 
-  if (!debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
-  if (!debug) console.log('44 ObjectForm', formValues, curobject);
+  if (debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (debug) console.log('44 ObjectForm', formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>
       <div className="form-group py-2 border border-rounded">

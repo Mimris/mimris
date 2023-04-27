@@ -1201,7 +1201,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             modifiedGeos.push(jsnObjTypegeo);
         }
     }
-    if (!debug) console.log('1098 objtypes, metamodel', objtypes, metamodel);
+    if (debug) console.log('1098 objtypes, metamodel', objtypes, metamodel);
     // Add system relationship types
     let reltypes;
     if (model.includeSystemtypes) {
@@ -1264,7 +1264,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
         if (debug) console.log('1268 metaObject, objectviews', metaObject, objectviews);
         if (objectviews) {
-            if (!debug) console.log('1270 objectviews', objectviews);
+            if (debug) console.log('1270 objectviews', objectviews);
             for (let i=0; i<objectviews.length; i++) {
                 const objview = objectviews[i];
                 if (!objview /*|| objview.markedAsDeleted*/) 

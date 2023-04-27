@@ -372,7 +372,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Relationship or Relationship type
           if (sel instanceof go.Link) {
             const key = data.key;
-            let text = data.name ? data.name : " ";
+            let text = data.nameFrom ? data.nameFrom : " ";
             let typename = data.type;
             // Relationship type
             if (typename === constants.gojs.C_RELSHIPTYPE) {
@@ -562,7 +562,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     fromObj = r.fromObject;
                     if (debug) console.log('570 i, r, fromObj, id', i, r, fromObj, fromObj.id);
                     if (fromObj.id !== parentObj.id) {
-                      r.markedAsDeleted;
+                      r.markedAsDeleted = true;
                       const jsnRelship = new jsn.jsnRelationship(r);
                       jsnRelship.markedAsDeleted = true;
                       modifiedRelships.push(jsnRelship);
@@ -896,7 +896,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (debug) console.log('694 error', error);
                   }
                 }
-                if (n.data)
+                if (n?.data)
                   myDiagram.model.setDataProperty(n.data, "loc", node.loc);
                 myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
                 if (debug) console.log('693 myGoModel', myGoModel);
@@ -954,6 +954,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('910 myGoModel', myDiagram.model.linkDataArray);
           if (debug) console.log('911 myMetis', myMetis);
         }
+        uic.deleteDuplicateRelshipViews(myModelview);
       }
       break;
       case "SelectionDeleting": {

@@ -38,6 +38,7 @@ const ObjDetailToMarkdown: React.FC<MdFocusObjectProps> = ({
         .join('\n\n');
 
       const objectType = curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name;
+      
 
       return `1. Object: ${objrel.name} (${objectType} )\n\n ${properties} \n\n --- \n\n`;
           // return `1. ${objrel.name} \n\n${properties} \n\n2. Object: ${objrel.name} (${objectType} )\n\n --- \n\n`;

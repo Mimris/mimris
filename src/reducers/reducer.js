@@ -39,6 +39,7 @@ import {
   SET_FOCUS_SOURCE,
   SET_FOCUS_REFRESH,
   SET_USER_SHOWDELETED,
+  SET_USER_SHOWMODIFIED,
 
   SET_MYMETIS_MODEL,
   SET_MYMETIS_PARAMETER,
@@ -519,6 +520,21 @@ function reducer(state = InitialState, action) {
             diagram: {
               ...state.phUser.focusUser.diagram,
               showDeleted: action.data
+            } 
+          }
+        }
+      }
+    case SET_USER_SHOWMODIFIED:
+      if (debug) console.log('528 SET_USER_SHOWMODIFIED', action);
+      return {
+        ...state,
+        phUser: {
+          ...state.phUser,
+          focusUser: {
+            ...state.focusUser,
+            diagram: {
+              ...state.phUser.focusUser.diagram,
+              showModified: action.data
             } 
           }
         }

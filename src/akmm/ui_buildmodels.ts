@@ -193,7 +193,7 @@ let includeNoType = false;
   }
 
   export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, 
-                               includeDeleted: boolean, includeNoObject: boolean): gjs.goModel {
+                               includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
     if (debug) console.log('197 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
@@ -250,6 +250,21 @@ let includeNoType = false;
               }
             }
           }
+          // added 2023-04-23 sf
+          if (showModified) {
+            if (debug) console.log('255 ui_buildmodels ', showModified, objview.modified, objview);
+            if (objview.modified) {
+              if (objview.object?.modified) {
+                objview.strokecolor = "green";
+                objview.strokewidth = 2;
+                includeObjview = true;
+              } else {
+                // objview.strokecolor = "pink";
+                includeObjview = true;
+              }
+            }
+          }
+          // end added 2023-04-23 sf
           if (includeNoObject) {
             if (!objview.object) {
               objview.strokecolor = "blue";
@@ -411,7 +426,7 @@ let includeNoType = false;
 
   export function buildGoMetaPalette() {
     if (debug) console.log('415 buildGoMetaPalette');
-    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
+    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), 'myMetaPalette', null);
     const nodeArray = new Array();
     const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);
@@ -427,7 +442,7 @@ let includeNoType = false;
     return myGoMetaPalette;
   }
 
-  export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean): gjs.goModel | undefined {
+  export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean, showModified: boolean): gjs.goModel | undefined {
     if (!metamodel)
       return;
     if (debug) console.log('435 metamodel', metamodel);
@@ -472,6 +487,21 @@ let includeNoType = false;
                 }
               }
             }
+
+            // added 2023-04-24 sf
+            if (showModified) {
+              console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
+              if (objtype.modified) {
+                  objtype.strokecolor = "green";
+                  includeObjtype = true;
+                } else {
+                  objtype.strokewidth = 2;
+                  // objview.strokecolor = "pink";
+                  includeObjtype = true;
+              }
+            }
+            // end added 2023-04-24 sf
+
             if (includeObjtype) {
               if (!objtype.typeview) 
                 objtype.typeview = objtype.newDefaultTypeView('Object');

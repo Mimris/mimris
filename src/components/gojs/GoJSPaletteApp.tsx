@@ -117,11 +117,21 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           const modifiedObjects = new Array();
           modifiedObjects.push(jsnObj);
           modifiedObjects.map(mn => {
-            let data = mn
-            data = JSON.parse(JSON.stringify(data));
+            // let data = mn
+            // data = JSON.parse(JSON.stringify(data));
+            let data = {id: mn.id, name: mn.name};
+            if (debug) console.log('120 data', data);
             this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
           })
+        } 
+        // find  all objectviews in currentModelview of object
+        let objview = myMetis.currentModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
+        // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
+        let dataov = {id: '', name: ''};
+        if (objview && objview[0]?.id) {
+          dataov = { id: objview[0]?.id, name: objview[0]?.name};
         }
+        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov })
         break;
       }
       default: 

@@ -5,6 +5,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from "next/router";
 import { loadData, setfocusRefresh } from '../actions/actions'
+import useLocalStorage  from '../hooks/use-local-storage'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -21,14 +22,31 @@ import HeaderButtons from '../components/utils/HeaderButtons';
 
 const debug = false
 
+const clog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: blue; color: white');
+const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: red; color: white');
+const ctrace = console.trace.bind(console, '%c %s',
+    'background: blue; color: white');
+
 const page = (props: any) => {
   // if (typeof window === 'undefined') return <></>  
   const dispatch = useDispatch()  
   const [refresh, setRefresh] = useState(false)
   const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
   if (debug) console.log('28 project',props, query)
-  // list query params
 
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+  const [mount, setMount] = useState(false)
+  function dispatchLocalStore(locStore) { 
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
+    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+  }
+
+  // list query params
   const [org, setOrg] = useState(props.phFocus.focusProj.org )
   const [repo, setRepo] = useState(props.phFocus.focusProj.repo)
   const [path, setPath] = useState(props.phFocus.focusProj.path)
@@ -57,9 +75,38 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   } 
 
-  useEffect(() => { // when the page loads, set the focus
+  useEffect(() => { 
+    const getQueryParams = async () => { 
+      try {
 
-   
+        if (debug) console.log('76 modelling useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
+        // let data = {}
+        if (debug) console.log('68 modelling', props.phFocus.focusProj.file)
+        if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+          if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+          if ((window.confirm("Do you want to recover your last model project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+            if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+                const locStore = (memoryLocState[0]) 
+                if (locStore) {
+                  dispatchLocalStore(locStore)
+                  // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+                  // console.log('modelling 73 ', data)
+                }
+              } 
+            }
+          }   
+        }
+      } catch (err) {
+        setError(err);
+      }
+    }
+    if (query.repo) {
+      getQueryParams();
+    }
+  }, [query.repo === undefined]) 
+
+
+  useEffect(() => { // when the page loads, set the focus
     console.log('61 project', query,  query?.repo)
     const data = {id: query.org+query.repo+query.path+query.file+query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus}
     console.log('65 project', data);
@@ -68,8 +115,20 @@ const page = (props: any) => {
     const { org, repo, path, file, branch, focus, ghtype } = query;
     console.log('69 project',  org, repo, path, file, branch)
     dispatch({ type: 'LOAD_DATAGITHUB', data: query });
-
+    const timer = setTimeout(() => {
+    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })
+    }, 100);
+    return () => clearTimeout(timer);
   }, [query.repo !== undefined]);
+
+  useEffect(() => {
+    if (debug) useEfflog('126 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+    GenGojsModel(props, dispatch);
+    const timer = setTimeout(() => {
+      toggleRefresh()
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusRefresh?.id])
     
   // useEffect(() => {
   //   toggleRefresh(); // refresh the page
@@ -114,6 +173,8 @@ const page = (props: any) => {
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
+  const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
+  // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
 
   const contextDiv = (
     <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
@@ -142,7 +203,7 @@ const page = (props: any) => {
   
   const projectFormDiv =
     <>
-      <div className="">
+      <div className="cur-context-focus">
         {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
         <ProjectForm phFocus={props.phFocus} />
       </div>
@@ -189,14 +250,14 @@ const page = (props: any) => {
                     <div className='text-muted'>Path :</div>
                       {(repo) 
                         ? (path) 
-                          ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
-                          : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
+                        ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
+                        : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
                         : <></>
                       }
                     </div>
                 </div>
                 {/* List the modelling params and link to modelling page */}
-                <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                <div className=" main m-1 fs-6" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
                     {projectParamsDiv}
                     {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
                     <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
@@ -210,10 +271,17 @@ const page = (props: any) => {
                       <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>  
                       <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{generatedUrl} </span>  
                     </div>
+                    <div className="rounded bg-light m-2 p-2">
+                      <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>  
+                      <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{akmIrtvPopsMetamodelUrl} </span>  
+                      {/* make a link to a new window with akmIrtvPopsMetamodelUrl */}
+                      <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
+                    </div>
                     {projectFormDiv}     
                 </div>
                 {/* Listing GitHub Issues */}
-                <div className="aside-right fs-4 " style={{minWidth: "20rem"}}>
+                <div className="aside-right fs-4
+                6 " style={{minWidth: "20rem"}}>
                   <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
                   {(issues.length > 0) && issues.map((issue) => (
                     <div className='bg-light fs-6  m-2 p-2' key={issue.id}>

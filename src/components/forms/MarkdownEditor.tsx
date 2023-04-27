@@ -252,15 +252,15 @@ function MarkdownEditor({ props }) {
           <Tab>MarkDownCode</Tab>
           <Tab>GitHub</Tab>
         </TabList>
-        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' }}>
-          <div className="container">
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', overflowX: 'auto'  }}>
+          <div className="container bg-white" style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', maxHeight: "70vh", overflowX: 'auto'  }}>
             <Markdown options={options}>
               {mdString}
             </Markdown>
           </div>
         </TabPanel>
-        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' , overflowX: 'hidden' }}>
-          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "68vh", maxHeight: "70vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' , overflowX: 'auto' }}>
+          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "68vh", maxHeight: "64vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
           <hr />
             <button className="btn btn-sm mx-2" onClick={handleAddObjectHeader}>Add Header</button>
             <button className="btn btn-sm mx-2 me-5" onClick={handleAddFooter}>Add Footer</button>

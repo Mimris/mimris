@@ -29,7 +29,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (debug) console.log('19 Modeller: props', props);
+  if (!debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -69,7 +69,7 @@ const Modeller = (props: any) => {
     setActiveTab(activetabindex)
   }, [props.phFocus.focusModelview?.id])
   // }, [props.phFocus.focusModelview?.id])
-  
+
   // ------------------------------
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmodel = props.gojsModel;
@@ -85,14 +85,31 @@ const Modeller = (props: any) => {
   
   function toggleRefreshObjects() { 
     if (debug) console.log('75 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
-    SaveModelToLocState(props, memoryLocState, setMemoryLocState)
-    SaveAkmmUser(props, locStateKey='akmmUser')
+    saveModelsToLocState(props, memoryLocState, setMemoryLocState)
     console.log('78 Modeller: toggleRefreshObjects',  props);
     if (debug) console.log('79 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     setRefresh(!refresh)
   }
-
   if (debug) console.log('83 Modeller: props, refresh', props, refresh);
+
+  function saveModelsToLocState(props, memoryLocState, setMemoryLocState) {
+    const propps = {
+      phData:   props.phData,
+      phFocus:  props.phFocus,
+      phUser:   props.phUser,
+      phSource: props.phSource,
+    }
+    console.log('87 Modeller: saveModelsToLocState', props, propps);
+
+    SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+    SaveAkmmUser(props, locStateKey='akmmUser')
+  }
+  
+
+  useEffect(() => { 
+    saveModelsToLocState(props,  memoryLocState, setMemoryLocState)
+  }, [props.phFocus.focusObjectview?.id])
+  
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
@@ -129,8 +146,13 @@ const Modeller = (props: any) => {
       dispatch({  type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]
       const data2 = { id: mv.id, name: mv.name}
-      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-      console.log('124 Selector', data, data2);
+      // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
+      // console.log('124 Selector', data, data2);
+      // const timer = setTimeout(() => {
+      //   GenGojsModel(props, dispatch);
+      // }, 200);
+      // setRefresh(!refresh)
+      return () => clearTimeout(timer);
     }
   }
 
@@ -272,9 +294,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
-              // onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefreshObjects() }}
-              // onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
-              // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
             > 
               {mv.name}
             </NavLink>

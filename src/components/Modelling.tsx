@@ -49,7 +49,7 @@ const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (debug) console.log('52 Modelling:',  props)//, props);        
+  if (!debug) console.log('52 Modelling:',  props)//, props);        
   const dispatch = useDispatch();
   
   const [refresh, setRefresh] = useState(true);
@@ -84,32 +84,36 @@ const page = (props:any) => {
     // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
     const timer = setTimeout(() => {
       setRefresh(!refresh)
+      
     }, 100);
     return () => clearTimeout(timer);
   } 
 
   useEffect(() => {
-    if (debug) useEfflog('81 Modelling useEffect 1 []', props);
+    if (!debug) useEfflog('81 Modelling useEffect 1 []', props);
     GenGojsModel(props, dispatch);
     setMount(true)
   }, [])
 
   useEffect(() => {
-    if (debug) useEfflog('87 Modelling useEffect 2 [activTab]', props);
+    if (!debug) useEfflog('87 Modelling useEffect 2 [activTab]', props);
     GenGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) useEfflog('87 Modelling useEffect 3 [props.phFocus]', props);
-    GenGojsModel(props, dispatch);
-    const timer = setTimeout(() => {
-      setRefresh(!refresh)
-    }, 200);
-    return () => clearTimeout(timer); 
+    if (!debug) useEfflog('87 Modelling useEffect 3 [props.phFocus]', props);
+    // if (props.phFocus.focusModel.id !== props.phMymetis?.myMetis?.currentModel.id) {
+
+      GenGojsModel(props, dispatch);
+    // }
+      const timer = setTimeout(() => {
+        setRefresh(!refresh)
+    }, 100);
+    return () => clearTimeout(timer);
   }, [props.phFocus.focusModel?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
+    if (!debug) useEfflog('116 Modelling useEffect 4 [props.phFocus?.focusRefresh?.id]', props.phFocus.focusModelview);
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       setRefresh(!refresh)
@@ -118,12 +122,12 @@ const page = (props:any) => {
   }, [props.phFocus?.focusModelview.id])
   
   useEffect(() => { 
-    if (debug) useEfflog('121 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
+    if (!debug) useEfflog('121 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
     setRefresh(!refresh)
   }, [memoryAkmmUser])
 
   useEffect(() => {
-    if (debug) useEfflog('126 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+    if (!debug) useEfflog('126 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       setRefresh(!refresh)

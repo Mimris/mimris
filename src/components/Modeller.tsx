@@ -29,7 +29,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (!debug) console.log('19 Modeller: props', props);
+  if (debug) console.log('19 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
@@ -99,15 +99,31 @@ const Modeller = (props: any) => {
       phUser:   props.phUser,
       phSource: props.phSource,
     }
-    console.log('87 Modeller: saveModelsToLocState', props, propps);
-
-    SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
-    SaveAkmmUser(props, locStateKey='akmmUser')
+    console.log('102 Modeller: saveModelsToLocState', 
+    props.phFocus.focusModel?.name, 
+    props.phFocus.focusModelview?.name, 
+    props.phFocus?.focusRefresh?.name,
+    props, propps);
+    const timer = setTimeout(() => {
+      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+      SaveAkmmUser(props, locStateKey='akmmUser')
+    }, 3000);
+    return () => clearTimeout(timer); 
   }
   
 
   useEffect(() => { 
-    saveModelsToLocState(props,  memoryLocState, setMemoryLocState)
+    const propps = {
+      phData:   props.phData,
+      phFocus:  props.phFocus,
+      phUser:   props.phUser,
+      phSource: props.phSource,
+    }
+    const timer = setTimeout(() => {
+      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+      SaveAkmmUser(props, locStateKey='akmmUser')
+    }, 5000);
+    return () => clearTimeout(timer); 
   }, [props.phFocus.focusObjectview?.id])
   
 
@@ -141,18 +157,18 @@ const Modeller = (props: any) => {
     const selObj = models.find( (obj: any) => obj.id === id ) 
     if (debug) console.log('86 Selector', selObj);
     let data
-    if (selObj) {
+    if (selObj && selObj.name !== 'Select '+props.selName+'...') {
       data = { id: id, name: name} 
       dispatch({  type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]
       const data2 = { id: mv.id, name: mv.name}
-      // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-      // console.log('124 Selector', data, data2);
+      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
+      console.log('124 Selector', data, data2);
       // const timer = setTimeout(() => {
       //   GenGojsModel(props, dispatch);
-      // }, 200);
+      // }, 1000);
       // setRefresh(!refresh)
-      return () => clearTimeout(timer);
+      // return () => clearTimeout(timer);
     }
   }
 

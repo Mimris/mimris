@@ -2,7 +2,7 @@ const debug = false;
 
 export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) => {
 
-    if (!debug) console.log('6 SaveModelToLocState', props, );
+    if (debug) console.log('6 SaveModelToLocState', props, );
     const localprops = props;
 
     // check if focusModel exists in one of the current models. If not, set it to the first model

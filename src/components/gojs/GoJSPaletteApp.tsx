@@ -131,6 +131,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         if (objview && objview[0]?.id) {
           dataov = { id: objview[0]?.id, name: objview[0]?.name};
         }
+        if (debug) console.log('134 dataov', dataov);
         this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov })
         break;
       }

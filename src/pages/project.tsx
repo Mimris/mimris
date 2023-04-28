@@ -122,7 +122,7 @@ const page = (props: any) => {
   }, [query.repo !== undefined]);
 
   useEffect(() => {
-    if (debug) useEfflog('126 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+    if (!debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
       toggleRefresh()

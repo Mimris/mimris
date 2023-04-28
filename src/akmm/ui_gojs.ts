@@ -573,7 +573,6 @@ export class goObjectNode extends goNode {
         return this;
     }
     getMyScale(model: goModel): number {
-        // let scale = this.typeview.memberscale;
         let scale = this.scale1;
         const pnode = this.getParentNode(model);
         if (pnode) {

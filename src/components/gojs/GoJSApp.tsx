@@ -135,7 +135,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.setState({ showModal: false, selectedData: null, modalContext: null });
   }
   
-
     /**
      * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
      * This method should iterate over those changes and update state to keep in sync with the GoJS model.
@@ -530,25 +529,24 @@ class GoJSApp extends React.Component<{}, AppState> {
                   break;
                 }
             }
-            if (debug) console.log('523 data, fromloc, toloc, fromNode, toNode', data, fromloc, toloc, fromNode, toNode);
+            if (debug) console.log('532 data, fromloc, toloc, fromNode, toNode', data, fromloc, toloc, fromNode, toNode);
             // Move the object
-            if (debug) console.log('527 selcnt, data', selcnt, data);
+            if (debug) console.log('534 selcnt, data', selcnt, data);
             let node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
             node = goModel?.findNode(data.key);
             if (node) {
               node.scale1 = node.getMyScale(myGoModel).toString();
-              if (debug) console.log('532 node, node.scale1', node, node.scale1);
-              if (debug) console.log('532 myGoModel, node.loc', myGoModel, node.loc);
+              if (debug) console.log('539 myGoModel, node.loc', myGoModel, node.loc);
               const group = uic.getGroupByLocation(myGoModel, node.loc);
-              if (debug) console.log('533 group', group);
-              if (debug) console.log('534 selcnt, group, node', selcnt, group, node);
-
+              if (debug) console.log('541 group', group);
+              if (debug) console.log('542 selcnt, group, node', selcnt, group, node);
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
               if (group) { // The node IS moved into a group or moved INSIDE a group
                 const parentgroup = group;
                 node.group = parentgroup.key;
+                // node.scale1 = node.getMyScale(myGoModel).toString();
                 myDiagram.model.setDataProperty(data, "group", node.group);
-                if (debug) console.log('557 parentgroup, node', parentgroup, node);
+                if (debug) console.log('549 parentgroup, node', parentgroup, node);
                 if (group?.objecttype?.id !== containerType?.id && hasMemberType) {
                   const parentObj = parentgroup.object;
                   let rel = null;
@@ -667,12 +665,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('609 myModelview', myModelview);
                 }
                 // Do the scaling and location of the node
-                toNode.scale = new String(node.getMyScale(myGoModel));
-                if (debug) console.log('625 fromNode, toNode', fromNode, toNode);
+                toNode.scale = node.getMyScale(myGoModel).toString();
+                if (debug) console.log('669 node, fromNode, toNode', node, fromNode, toNode);
                 const scale0 = fromNode.scale.valueOf();
                 const scale1 = toNode.scale.valueOf();
                 let scaleFactor = scale0 < scale1 ? scale0 / scale1 : scale1 / scale0;
-                if (debug) console.log('539 scale0, scale1, scaleFactor', scale0, scale1, scaleFactor);
+                if (debug) console.log('673 scale0, scale1, scaleFactor', scale0, scale1, scaleFactor);
                 node.scale1 = scale1;
                 let key = data.key;
                 key = key.substr(0, 36);  // Hack - should not be neccessary
@@ -713,7 +711,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     node.group = parentgroup.key;
                     // const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
                     // if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
-                }                  
+                }     
               } else { // node is NOT moved into a group, possibly out of a group
                 node.group = "";
                 let fromScale = fromNode.scale; 
@@ -725,7 +723,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     node.scale1 = 1;
                     node.group = "";
                     node.memberscale = node.typeview.memberscale;
-                    myDiagram.model.setDataProperty(node, "scale", Number(node.scale1));
+                    // myDiagram.model.setDataProperty(node, "scale", Number(node.scale1));
                     const nodes = uic.getNodesInGroup(node, myGoModel, myObjectviews);
                     let refloc = node.loc;
                     if (debug) console.log('688 node, nodes, scaleFactor, refloc', node, nodes, scaleFactor, refloc);
@@ -860,47 +858,47 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                   if (debug) console.log('818 myGoModel', myGoModel);
                 }
-                          
-                if (debug) console.log('821 node, data,', node, data);
-                // Handle relview scaling
-                let n = myDiagram.findNodeForKey(node.key);
-                if (n) {
-                  for (let lnks = n?.findLinksConnected(); lnks?.next(); ) {
-                    let link = lnks?.value;  
-                    if (debug) console.log('671 link', link);
-                    if (link) {
-                      if(debug) console.log('673 link', link);
-                      let relview = link.data.relshipview;
-                      if (relview) {
-                        // Handle relview scaling
-                        if (group) {
-                          const grpScale = group.scale1;
-                          const grpMemberscale = group.memberscale;
-                          const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
-                          relview.textscale = textscale;
-                          uic.setLinkProperties(link, relview, myDiagram);
-                        }
-                        // Handle relview points
-                        relview.points = link.points;
-                        const jsnRelview = new jsn.jsnRelshipView(relview);
-                        modifiedLinks.push(jsnRelview);
+              }            
+              if (debug) console.log('821 node, data,', node, data);
+              // Handle relview scaling
+              let n = myDiagram.findNodeForKey(node.key);
+              if (n) {
+                for (let lnks = n?.findLinksConnected(); lnks?.next(); ) {
+                  let link = lnks?.value;  
+                  if (debug) console.log('671 link', link);
+                  if (link) {
+                    if(debug) console.log('673 link', link);
+                    let relview = link.data.relshipview;
+                    if (relview) {
+                      // Handle relview scaling
+                      if (group) {
+                        const grpScale = group.scale1;
+                        const grpMemberscale = group.memberscale;
+                        const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
+                        relview.textscale = textscale;
+                        uic.setLinkProperties(link, relview, myDiagram);
                       }
+                      // Handle relview points
+                      relview.points = link.points;
+                      const jsnRelview = new jsn.jsnRelshipView(relview);
+                      modifiedLinks.push(jsnRelview);
                     }
-                  }  
-                }   
-                if (debug) console.log('848 group, node, n', group, node, n);
-                if (n && n.data && n.data.group !== node.group) {
-                  try {
-                    myDiagram.model.setDataProperty(n.data, "group", node.group);
-                  } catch (error) {
-                    if (debug) console.log('694 error', error);
                   }
+                }  
+              }   
+              if (debug) console.log('848 group, node, n', group, node, n);
+              if (n && n.data && n.data.group !== node.group) {
+                try {
+                  myDiagram.model.setDataProperty(n.data, "group", node.group);
+                } catch (error) {
+                  if (debug) console.log('694 error', error);
                 }
-                if (n?.data)
-                  myDiagram.model.setDataProperty(n.data, "loc", node.loc);
-                myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
-                if (debug) console.log('693 myGoModel', myGoModel);
               }
+              if (n?.data)
+                myDiagram.model.setDataProperty(n.data, "loc", node.loc);
+              myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
+              if (debug) console.log('693 myGoModel', myGoModel);
+              
             }
             // Update objectview scaling and location
             if (debug) console.log('863 myFromNodes, myToNodes', myFromNodes, myToNodes);
@@ -932,8 +930,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             selcnt++;
-          }
-        
+          }        
           if (debug) console.log('893 modifiedNodes', modifiedNodes);
         
           // Update objectviews in the modelview
@@ -954,7 +951,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('910 myGoModel', myDiagram.model.linkDataArray);
           if (debug) console.log('911 myMetis', myMetis);
         }
-        uic.deleteDuplicateRelshipViews(myModelview);
       }
       break;
       case "SelectionDeleting": {

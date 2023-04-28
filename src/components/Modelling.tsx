@@ -137,7 +137,7 @@ const page = (props:any) => {
         setRefresh(!refresh)
       }, 50); 
       return () => clearTimeout(timer); 
-  }, [props.phFocus?.focusModelview.id])
+  }, [props.phFocus?.focusModelview?.id])
   
   useEffect(() => { 
     if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);

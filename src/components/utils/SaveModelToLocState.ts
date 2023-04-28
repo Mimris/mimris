@@ -22,7 +22,7 @@ export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) =>
 
         // Check if focusModelview exists in one of the current modelviews. If not, set it to the first modelview
         found = props.phData?.metis.models[0].modelviews.some((modelview: any) => {
-            return props.phFocus.focusModelview.id === modelview.id;
+            return props.phFocus?.focusModelview?.id === modelview?.id;
         });
 
         if (!found) {

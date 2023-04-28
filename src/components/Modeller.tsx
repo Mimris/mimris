@@ -105,24 +105,26 @@ const Modeller = (props: any) => {
     props.phFocus?.focusRefresh?.name,
     props, propps);
     const timer = setTimeout(() => {
-      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+      setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
       SaveAkmmUser(props, locStateKey='akmmUser')
-    }, 3000);
+    }, 100);
     return () => clearTimeout(timer); 
   }
   
 
   useEffect(() => { 
+    const timer = setTimeout(() => {
     const propps = {
       phData:   props.phData,
       phFocus:  props.phFocus,
       phUser:   props.phUser,
       phSource: props.phSource,
     }
-    const timer = setTimeout(() => {
-      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+      if (debug) console.log('119 Modeller: useEffect 2 [props.phFocus.focusModelview?.id]',
+      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)[0].phFocus?.focusModel?.name,);
+      setMemoryLocState(SaveModelToLocState(propps, memoryLocState, setMemoryLocState))
       SaveAkmmUser(props, locStateKey='akmmUser')
-    }, 5000);
+    }, 50);
     return () => clearTimeout(timer); 
   }, [props.phFocus.focusObjectview?.id])
   
@@ -158,6 +160,7 @@ const Modeller = (props: any) => {
     if (debug) console.log('86 Selector', selObj);
     let data
     if (selObj && selObj.name !== 'Select '+props.selName+'...') {
+      console.log('161 Selector', selObj.name);
       data = { id: id, name: name} 
       dispatch({  type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]

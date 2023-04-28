@@ -71,7 +71,7 @@ const LoadRecovery = (props: any) => {
 
    
     function  dispatchToStore() {
-      if (debug) console.log('62 LoadRecovery', inputValue, memoryLocState);
+      if (!debug) console.log('62 LoadRecovery', inputValue, memoryLocState);
       if (inputValue !== '') {
         if (memoryLocState[inputValue] !== undefined) {
           if (inputValue > memoryLocState.length) return;

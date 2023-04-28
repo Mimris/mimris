@@ -1,10 +1,11 @@
 async function generateText(prompt) {
-    const apiKey = 'YOUR_API_KEY';
+    const apiKey = process.env.OPENAI_API_KEY;
+    // const apiKey = 'YOUR_API_KEY';
     const apiUrl = 'https://api.openai.com/v1/engines/davinci-codex/completions';
   
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
+      headers: 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },

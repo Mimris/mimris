@@ -53,7 +53,7 @@ const page = (props:any) => {
   const dispatch = useDispatch();
   
   const [refresh, setRefresh] = useState(true);
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   
   const [activeTab, setActiveTab] = useState('2');

@@ -198,4 +198,3 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 }
 export default GenGojsModel;
-

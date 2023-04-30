@@ -1159,7 +1159,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         objtypes = myMetamodel.objecttypes;
         metamodel.includeInheritedReltypes = true;
     } else {
-        let osystemtypes = ['Element', 'EntityType', 'Generic', 'Container', 'Label'];
+        let osystemtypes = ['Element', 'EntityType', 'Generic', 'Container', 'Label', 'Information', 'Role', 'Task', 'View'];
         objtypes = [];
         const otypes = [];
         for (let i=0; i<osystemtypes.length; i++) {

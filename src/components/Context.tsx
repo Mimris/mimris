@@ -302,8 +302,7 @@ const Context = (props) => {
           <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
             <TabList>
               <Tab>Children</Tab>
-              <Tab>Relationship from Objects</Tab>
-              <Tab>Relationship To Objects</Tab>
+              <Tab>Relationship from and to Objects</Tab>
               <Tab>Viewed in Modelview</Tab>
             </TabList>
             <TabPanel> {/* Children */}
@@ -320,7 +319,7 @@ const Context = (props) => {
                 setObjview={setObjview}
               />
             </TabPanel>
-            <TabPanel>  {/* Relationship from Objects */}
+            <TabPanel>  {/* Relationship from/to Objects */}
               <ObjDetailTable
                 title="Related From"
                 curRelatedObjsRels={curRelatedFromObectRels}
@@ -333,8 +332,6 @@ const Context = (props) => {
                 includedKeys={includedKeysMain}
                 setObjview={setObjview}
               />
-            </TabPanel>
-            <TabPanel>  {/* Relationship To Objects */}
               <ObjDetailTable
                 title="Related To"
                 curRelatedObjsRels={curRelatedToObectRels}

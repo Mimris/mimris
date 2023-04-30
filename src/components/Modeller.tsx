@@ -415,14 +415,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           <span className="--heading d-flex text-dark fw-bold px-2" style={{ minWidth: "15%"}} > Modeller </span>
           <div className="d-flex justify-content-around me-4">
             <div className="modeller--heading-selector">{selector}</div>
-            <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
+            {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
               style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
               {refresh ? 'save2memory' : 'save2memory'} 
-            </span>
-            <button className="btn bg-light text-success py-1 btn-sm" 
+            </span> */}
+            <button className="btn bg-light text-success ms-2 pt-1 btn-sm" 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Toggle Context & Focus pane!"
-            onClick={toggleShowContext} style={{scale: "0.8"}} >✵</button> 
+            onClick={toggleShowContext} style={{scale: "0.9"}} >✵</button> 
           </div>
         </div>
         <div className="modeller--workarea m-0 p-0">

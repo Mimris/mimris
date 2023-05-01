@@ -3528,6 +3528,7 @@ return (
           // modelType={this.props.modelType}
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+          style={this.props.diagramStyle}       
         />
         <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}

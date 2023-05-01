@@ -47,6 +47,7 @@ interface AppState {
   showModal: boolean;
   modalContext: any;
   selectedOption: any;
+  diagramStyle: any;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -71,7 +72,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       modelType: this.props.phFocus.focusTab,
       showModal: false,
       modalContext: null,
-      selectedOption: null
+      selectedOption: null,
+      diagramStyle: this.props.diagramStyle
     };
     if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
@@ -1589,7 +1591,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "LinkReshaped": {
         let link = e.subject; 
         link = myDiagram.findLinkForKey(link.key);
-        const data = link.data;
+        const data = link?.data;
         if (debug) console.log('1596 link, data', link, data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
@@ -1779,6 +1781,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
+          diagramStyle      ={this.state.diagramStyle}
         />
         <Modal className="" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">

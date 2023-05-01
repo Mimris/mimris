@@ -61,6 +61,7 @@ interface DiagramProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent:     (e: go.DiagramEvent) => void;
   onModelChange:      (e: go.IncrementalData) => void;
+  diagramStyle:       React.CSSProperties;
 }
 
 interface DiagramState {
@@ -98,7 +99,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedData: null, 
       modalContext: null,
       selectedOption: null,
-      currentActiveTab: null
+      currentActiveTab: null,
+      diagramStyle: props.diagramStyle
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();

@@ -115,6 +115,8 @@ const Palette = (props: any) => {
     buildFilterOtNodeDataArray(types, ndarr)
     if (debug) console.log('111 Palette useEffect 2 [types]', types, ndarr)
     const timer = setTimeout(() => {
+      setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(types, ndarr))
+      // setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(newTypes?.types, ndarr))
       // buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
       setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
       if (debug) console.log('88 Palette useEffect 2 []', types, modellingtasks);
@@ -256,7 +258,7 @@ const Palette = (props: any) => {
         <TabPanel className='pt-1 border border-white bg-light' >
           {((filteredNewtypesNodeDataArray.length === 0) ||  (filteredNewtypesNodeDataArray === undefined) || (task?.name === 'AKM-IRTV-POPS_MM') )
             ? <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "0vh"}}> 1</div> 
-            : <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "43vh"}}> 2
+            : <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "36vh"}}> 2
                 <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{props.myMetis?.metamodels[1]?.name}</div>
                 <div className="modellingtask bg-light w-100" >
                   {(myPalettes) && (myPalettes[0]?.nodeDataArray) &&  myPalettes[0]?.nodeDataArray[0].name}
@@ -270,13 +272,13 @@ const Palette = (props: any) => {
                   myGoModel={props.myGoModel}
                   phFocus={props.phFocus}
                   dispatch={props.dispatch}
-                  diagramStyle= {{height: "38vh"}}
+                  diagramStyle= {{height: "34vh"}}
                 />
               </div>
           }
-          {(filteredNewtypesNodeDataArray.length !== 0)
+          {(filteredOtNodeDataArray.length === 0)
             ? <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" >no new types</div> 
-            : <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" >new types
+            : <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "44vh"}} >new types
             <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
             <div className="modellingtask bg-light w-100" >
               {otDiv}
@@ -289,7 +291,7 @@ const Palette = (props: any) => {
               myGoModel={props.myGoModel}
               phFocus={props.phFocus}
               dispatch={props.dispatch}
-              diagramStyle={{height: "40%"}}
+              diagramStyle={{height: "38vh"}}
             />
             </div> 
           }

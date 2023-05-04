@@ -36,10 +36,10 @@ const Palette = (props: any) => {
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
   const [filteredNewtypesNodeDataArray, setFilteredNewtypesNodeDataArray] = useState([])
-  const [modellingtasks, setModellingtasks] = useState(null)
+  const [modellingtasks, setModellingtasks] = useState(props.phFocus?.focusRole?.tasks)
   const [types, setTypes] = useState([])
-  const [role, setRole] = useState(null)
-  const [task, setTask] = useState(null)
+  const [role, setRole] = useState(props.phFocus?.focusRole.id)
+  const [task, setTask] = useState(props.phFocus?.focusTask.id)
 
 
   if (debug) console.log('43 Palette', role, task, types, tasks, modellingtasks)
@@ -51,6 +51,8 @@ const Palette = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   if (debug) console.log('47', props, mmodel?.name, model?.metamodelRef);
 
+ 
+
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel =  props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
   if (debug) console.log('50 Palette start', gojsmetamodel, props)
@@ -60,8 +62,8 @@ const Palette = (props: any) => {
   let tasks = []
 
   let focusTask = props.phFocus?.focusTask
-  let seltasks = props.phFocus?.focusRole?.tasks || []
-  if (debug) console.log('52 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+  // let seltasks = props.phFocus?.focusRole?.tasks || []
+  // if (debug) console.log('52 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
   
   function toggleRefresh() { setRefresh(!refresh); } 
   
@@ -94,176 +96,190 @@ const Palette = (props: any) => {
     if (debug) console.log('73 taskNodeDataArray',  taskNodeDataArray0)
   } 
 
-  useEffect(() => {
-    if ((props.modelType !== 'metamodel') && ndarr) {
-      if (!debug) console.log('98 Palette useEffect 1', role, task, tasks, types);
-      const foundRTTs = findCurRoleTaskTypes(role, task, tasks, types, mmodel, dispatch)
-      const IRTVPOPSTask = { id: 'AKM-IRTV-POPS_MM', name: 'AKM-IRTV-POPS_MM'}
-      const newTypes = findCurRoleTaskTypes(role, IRTVPOPSTask, tasks, types, mmodel, dispatch)
-      if (!debug) console.log('103 Palette useEffect 1', newTypes, foundRTTs);
-      const timer = setTimeout(() => {
-        setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(foundRTTs?.types, ndarr))
-        setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(newTypes?.types, ndarr))
+  const IRTVPOPSTask = { id: 'AKM-IRTV-POPS_MM', name: 'AKM-IRTV-POPS_MM'}
+  const newTask = { id: 'New-types_MM', name: 'New-types_MM'}
+  const irtvpopsmm = metamodels?.find((m: any) => m?.name === 'AKM-IRTV-POPS_MM')
 
-        if (!debug) console.log('108 Palette useEffect 1 []', foundRTTs?.types, newTypes);
-      }, 1000);
-      return () => { isRendered = false;  clearTimeout(timer); }
-    }
-  }, [])
-
-  useEffect(() => {
-    buildFilterOtNodeDataArray(types, ndarr)
-    if (debug) console.log('111 Palette useEffect 2 [types]', types, ndarr)
-    const timer = setTimeout(() => {
-      setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(types, ndarr))
-      // setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(newTypes?.types, ndarr))
-      // buildFilterOtNodeDataArray(foundRTTs?.types, ndarr)
-      setRefreshPalette(!refreshPalette)   // set current palette accrording to selected modellingtask
-      if (debug) console.log('88 Palette useEffect 2 []', types, modellingtasks);
-      }, 100);
-      return () => { clearTimeout(timer); }
-  }, [types?.length > 0 && ndarr?.length > 0])
-
- 
-  const myPalettes =  props.myMetis?.metamodels?.map(mm =>  {
-    if (mm.name === 'AKM-ADMIN_MM' || mm.name === 'AKM-IRTV-POPS_MM')  return null
-      const palette = uib.buildGoPalette(mm, props.myMetis);  
-      if (!debug) console.log('144 palette', palette); 
-      return palette; // or any other condition you want to use
-  }).filter(Boolean);
+  if (!debug) console.log('101 Palette', role, task, modellingtasks, types, tasks);
   
-  if (debug) (myPalettes) && console.log('147 Palette', myPalettes[0]);
-  let myPaletteArrays = myPalettes?.map(mp => ( {  
-      nodeDataArray: mp?.nodes,
-      linkDataArray: mp?.links 
-  }))
-  if (!debug)(myPalettes) && console.log('154 Palette', myPalettes, myPaletteArrays[0]);
-  const gojsPalettes = (myPaletteArrays && (myPaletteArrays.length !== 0)) && myPaletteArrays[0]
+  useEffect(() => {
+    // setTypes(props.phFocus?.focusRole?.types)
+    if (props.modelType !== 'metamodel' && ndarr) {
+      if (!debug) console.log('98 Palette useEffect 1', role, task, modellingtasks, types);
+      
+      const foundIrtvPopsTypes = findCurRoleTaskTypes(role, IRTVPOPSTask, tasks, types, irtvpopsmm, dispatch);
+      if (!debug) console.log('106 Palette useEffect 1', foundIrtvPopsTypes.tasks);
 
-  const IRTVPOPSPalette = props.myMetis?.metamodels?.find(mm =>  {
-    (mm.name === 'AKM-IRTV-POPS_MM') &&
-      uib.buildGoPalette(mm, props.myMetis);
-      if (debug) console.log('153 Palette', mm);
-      return {
-        nodeDataArray: mm?.nodeDataArray,
-        linkDataArray: mm?.linkDataArray
+      // setTask()
+      console.log('107 Palette useEffect 1', foundIrtvPopsTypes , buildFilterOtNodeDataArray(foundIrtvPopsTypes?.types, ndarr));
+
+      setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(foundIrtvPopsTypes?.types, ndarr));
+
+      (foundIrtvPopsTypes?.role) && setRole(foundIrtvPopsTypes?.role);
+      setTask(foundIrtvPopsTypes?.task?.id);
+      setModellingtasks(foundIrtvPopsTypes?.tasks); 
+      setTypes(foundIrtvPopsTypes?.types);
+
+      console.log('114 Palette useEffect 1', foundIrtvPopsTypes.tasks, modellingtasks, types);
+  
+      const newTypes = findCurRoleTaskTypes(role, newTask, modellingtasks, types, mmodel, dispatch);
+      // if no newtypes, then set empty array
+      if (!debug) console.log('103 Palette useEffect 1', newTypes, foundIrtvPopsTypes.types, mmodel.name);
+      if (mmodel.name === 'AKM-IRTV-POPS_MM') {
+        setFilteredNewtypesNodeDataArray([]);
+      } else {
+        setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(newTypes?.types, ndarr));
       }
-  }); 
-
-
-  const buildFilterOtNodeDataArray = (types, ndarr) => {
-    if (types?.length > 0) {
-      const otsArr = types.map((wot) =>
-        ndarr?.find((i) => {
-          if (debug) console.log('105 ', i?.name, wot, i?.name === wot);
-          return i?.name === wot && i;
-        })
-      ).filter(Boolean);
   
-      if (debug) console.log('106 ', types, otsArr, ndarr);
-      return otsArr
-      // setFilteredOtNodeDataArray(otsArr);
-    } else {
-      return ndarr
-      // setFilteredOtNodeDataArray(ndarr);
+      if (!debug) console.log('110 Palette useEffect 1 []', filteredNewtypesNodeDataArray, filteredOtNodeDataArray);
+      const timer = setTimeout(() => {
+        setRefreshPalette(!refreshPalette); // set current palette according to selected modellingtask
+        if (!debug) console.log('112 Palette useEffect 1 []', modellingtasks, filteredNewtypesNodeDataArray, filteredOtNodeDataArray);
+      }, 1000);
+  
+      return () => {
+        isRendered = false;
+        clearTimeout(timer);
+      };
     }
-  };
+  }, []);
   
-  const findCurRoleTaskTypes = (role, task, tasks, types, mmodel, dispatch) => {
+  // useEffect(() => {
+  //   if (!debug) console.log('130 Palette useEffect 2 [types]', role, modellingtasks, tasks, types);
+ 
+  //   console.log('132 Palette useEffect 2 [types]', role, task, modellingtasks, types, irtvpopsmm);
+  //   const foundRTTs = findCurRoleTaskTypes(role, IRTVPOPSTask, modellingtasks, types, irtvpopsmm, dispatch);
+
+  //   if (!debug) console.log('132 Palette useEffect 2 [types]', foundRTTs);
+    
+  //   const filteredNodeDataArray = buildFilterOtNodeDataArray(foundRTTs?.types, irtvpopsmm);
+  //   if (!debug) console.log('134 Palette useEffect 2 [types]', filteredNodeDataArray);
+  //   setFilteredOtNodeDataArray(filteredNodeDataArray);
+  
+  //   // const timer = setTimeout(() => {
+  //   //   setRefreshPalette(!refreshPalette); // set current palette according to selected modellingtask
+  //     if (!debug) console.log('138 Palette useEffect 2 []',  filteredOtNodeDataArray);
+  //   // }, 1000);
+  //   // return () => { clearTimeout(timer); };
+  // }, [model.id]);
+
+  const findCurRoleTaskTypes = (role, task, tasks, types, metmodel, dispatch) => {
+    if (!debug) console.log('144 Palette findCurRoleTaskTypes ', role, task, tasks, types, metmodel);
     if (props.modelType === 'metamodel') {
       setTask({ id: 'Metamodelling', name: 'Metamodelling' });
     }
+    
+    if (debug) console.log('178 Palette ', role, task, tasks, types);
+    const foundRTTs = genRoleTasks(role, task, tasks, types, metmodel, dispatch);
+    if (!debug) console.log('180 Palette ', role, task, tasks, types);
   
-    if (debug) {
-      console.log('162 Palette ', task);
-      console.log('163 Palette ', role, task, types, mmodel, modellingtasks);
+    if (!debug) {
+      // clog('123 Palette ', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
+      console.log('184  Palette findCurRoleTaskTypes ', role, task, tasks, types, modellingtasks, foundRTTs);
     }
   
-    const foundRTTs = genRoleTasks(role, task, tasks, types, mmodel, dispatch);
-  
-    if (debug) {
-      clog('123 Palette ', foundRTTs, foundRTTs.filterRole, foundRTTs.filterTask, foundRTTs.filterTasks, foundRTTs.filterTypes);
-      console.log('131  Palette findCurRoleTaskTypes ', task, types, modellingtasks, foundRTTs);
-    }
-  
-    setRole(foundRTTs?.currole);
-    setTask(foundRTTs?.curtask);
-    setModellingtasks(foundRTTs?.curtasks);
-    setTypes(foundRTTs?.curtypes);
-  
-    if (debug) console.log('135 Palette findCurRoleTaskTypes ', task, types, modellingtasks);
+    if (!debug) console.log('168 Palette findCurRoleTaskTypes ', modellingtasks);
   
     return {
-      role: foundRTTs?.currole,
-      task: foundRTTs?.curtask,
-      tasks: foundRTTs?.curtasks,
-      types: foundRTTs?.curtypes,
+      role: foundRTTs?.role,
+      task: foundRTTs?.task,
+      tasks: foundRTTs?.tasks,
+      types: foundRTTs?.types,
     };
   };
+ 
+  const buildFilterOtNodeDataArray = (types, mm) => {
+    if (debug) console.log('178 ', types, mm);
+    const irtvPopsMm = metamodels?.find((m: any) => m?.name === 'AKM-IRTV-POPS_MM')
+    const irtvPopsMyMetamodel = props.myMetis?.findMetamodel(irtvPopsMm?.id)
+    const irtvpopsArr = (irtvPopsMm) && uib.buildGoPalette(irtvPopsMyMetamodel, props.myMetis);
+    if (debug) console.log('183 ', irtvpopsArr);
+    if (types?.length > 0) {
+      const otsArr = types.map(wot =>
+        irtvpopsArr?.nodes.find(i => {
+          if (debug) console.log('188 ', i?.name, wot, i?.name === wot);
+          return i?.name === wot && i;
+        })
+      ).filter(Boolean);
+      if (debug) console.log('192 ',  otsArr);
+      return otsArr
+    } else { return ndarr }
+  };
   
-  if (debug) console.log('139 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
   
-  const otDiv = (
-    <>
-      <label className='label-field px-1'>Modelling tasks:</label>
-      <select className='select-field mx-1 text-secondary' style={{ width: "96%" }} onChange={(e) => setModellingTask(modellingtasks[e.target.value])}>
-        {modellingtasks?.map((t, i) => <option key={i} value={i}>{t?.name}</option>)}
-      </select>
-    </>
-  );
-  
-  function setModellingTask(taskObj) {
-    if (debug) console.log('199 Palette setModellingTask', taskObj);
-  
-    const task1 = { id: taskObj.id, name: taskObj.name };
-  
-    if (debug) console.log('156 Palette setModellingTask', task1);
-  
+  if (debug) console.log('211 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+
+  function getModellingTask(e) {
+    const selectedIndex = e.target.value;
+    if (!debug) console.log('214 Palette setModellingTask', selectedIndex);
+    const taskObj = modellingtasks[selectedIndex];
+    const task1 = { id: taskObj?.id, name: taskObj?.name };
     const foundRTTs = findCurRoleTaskTypes(role, task1, tasks, types, mmodel, dispatch);
+    console.log('210 getModellingTask foundRTTs:', foundRTTs);
+    console.log('211 getModellingTask foundRTTs.types:', foundRTTs.types);
   
-    if (debug) console.log('158 Palette setModellingTask', foundRTTs.task, foundRTTs.types);
+    buildFilterOtNodeDataArray(foundRTTs?.types, ndarr);
   
     setRole(foundRTTs?.role);
     setTask(foundRTTs?.task);
     setModellingtasks(foundRTTs?.tasks);
     setTypes(foundRTTs?.types);
   
-    if (debug) console.log('163 Palette setModellingTask', task, types);
+    console.log('227 Palette setModellingTask', foundRTTs?.types, modellingtasks, types);
+    setRefreshPalette(!refreshPalette);
   
-    buildFilterOtNodeDataArray(foundRTTs?.types, ndarr);
+    const timer = setTimeout(() => {
+      console.log('231 Palette setModellingTask', foundRTTs?.types, modellingtasks, types);
+      setRefreshPalette(!refreshPalette);
+      console.log('233 Palette setModellingTask', foundRTTs?.types, modellingtasks, types);
+    }, 2000);
+    return () => { clearTimeout(timer); };
   }
-  if (debug) console.log('165 filteredOtNodeDataArray', filteredOtNodeDataArray, ndarr)
 
+  if (debug) console.log('238 filteredOtNodeDataArray', filteredOtNodeDataArray, ndarr)
   
-  // ------------------   ------------------
-  const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
-  const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
-  seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
+  if (!debug) console.log('236 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'modellingtasks', modellingtasks, 'types', types, 'filteredOtNodeDataArray', filteredOtNodeDataArray);
+  
+  const otDiv = (
+    <>
+      <label className='label-field px-1'>Modelling tasks:</label>
+      <select
+        className='select-field mx-1 text-secondary'
+        style={{ width: "96%" }}
+        value={task}
+        onChange={(e) => getModellingTask(e)}
+      >
+        {/* <option value="" key="-1" disabled hidden> */}
+        <option value="" key="-1" >
+          Select Modellingtask
+        </option>
+        {modellingtasks?.map((t, i) => (
+          <option key={i} value={i}>
+            {t?.name}
+          </option>
+        ))}
+      </select>
+    </>
+  );
 
-  if (debug) console.log('220 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
- 
-  const diagramStyle = {
-    height: '36vh', // Set the desired height here
-  };
-
-  const gojsappPalette =
+  const gojsappPaletteDiv =
     <>
       <Tabs onSelect={index => setActiveTab(index)} >
         <TabList style={{  margin: '0px' }}>
           {/* <Tab>{(activeTab !== 1)? 'MM1' : '1'} </Tab> */}
-          <Tab>MM1</Tab>
+          <Tab>Metamodel</Tab>
           {/* <Tab>{(activeTab !== 2)? 'MM2' : '2'}</Tab> */}
-          <Tab>MM2</Tab>
+          {/* <Tab>MM2</Tab> */}
         </TabList>
         <TabPanel className='pt-1 border border-white bg-light' >
-          {((filteredNewtypesNodeDataArray.length === 0) ||  (filteredNewtypesNodeDataArray === undefined) || (task?.name === 'AKM-IRTV-POPS_MM') )
-            ? <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "0vh"}}> 1</div> 
-            : <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "36vh"}}> 2
-                <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{props.myMetis?.metamodels[1]?.name}</div>
+          {(filteredNewtypesNodeDataArray.length > 0 ) // > 4 because IRTV is included in new-types
+          // {((filteredNewtypesNodeDataArray.length === 4) ||  (filteredNewtypesNodeDataArray === undefined) || (task?.name === 'AKM-IRTV-POPS_MM') ) // > 4 because IRTV is included in new-types
+            ? <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "35vh"}}>
+                <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmodel.name}</div>
                 <div className="modellingtask bg-light w-100" >
-                  {(myPalettes) && (myPalettes[0]?.nodeDataArray) &&  myPalettes[0]?.nodeDataArray[0].name}
                   {otDiv}
                 </div>
+                {/* filteredNewtypesNodeDataArray */}
                 <GoJSPaletteApp
                   nodeDataArray= {filteredNewtypesNodeDataArray}
                   linkDataArray={[]}
@@ -272,28 +288,29 @@ const Palette = (props: any) => {
                   myGoModel={props.myGoModel}
                   phFocus={props.phFocus}
                   dispatch={props.dispatch}
-                  diagramStyle= {{height: "34vh"}}
+                  diagramStyle= {{height: "30vh"}}
                 />
               </div>
-          }
-          {(filteredOtNodeDataArray.length === 0)
-            ? <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" >no new types</div> 
-            : <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={{height: "44vh"}} >new types
-            <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
-            <div className="modellingtask bg-light w-100" >
-              {otDiv}
-            </div>
-            <GoJSPaletteApp
-              nodeDataArray={filteredOtNodeDataArray}
-              linkDataArray={[]}
-              myMetis={props.myMetis}
-              metis={props.metis}
-              myGoModel={props.myGoModel}
-              phFocus={props.phFocus}
-              dispatch={props.dispatch}
-              diagramStyle={{height: "38vh"}}
-            />
-            </div> 
+              : <div className="metamodel-pad mt-0 p-1 pt-0 bg-white" style={{height: "0vh"}}></div> 
+          } 
+          { 
+            <div className="metamodel-pad mt-3 p-1 pt-0 bg-white" style={(filteredNewtypesNodeDataArray.length === 0) ? {height: "80vh"} :{height: "45vh"} } >
+                <div className="mmname mx-0 px-1 my-0" style={{fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px"}}>{IRTVPOPSTask.name}</div>
+                <div className="modellingtask bg-light w-100" >
+                  {otDiv}
+                </div>
+                {/* filteredOtNodeDataArray */}
+                <GoJSPaletteApp
+                  nodeDataArray={filteredOtNodeDataArray}
+                  linkDataArray={[]}
+                  myMetis={props.myMetis}
+                  metis={props.metis}
+                  myGoModel={props.myGoModel}
+                  phFocus={props.phFocus}
+                  dispatch={props.dispatch}
+                  diagramStyle={(filteredNewtypesNodeDataArray.length === 0) ? {height: "75vh"} : {height: "40vh"}}
+                />
+              </div> 
           }
         </TabPanel>
       </Tabs>   
@@ -311,8 +328,8 @@ const Palette = (props: any) => {
 
           {visiblePalette 
             ? (refreshPalette) 
-              ? <>{ gojsappPalette }</> // these two lines needs to be different to refresh the palette
-              : <><div className="btn-horizontal bg-light mx-0 px-0 mb-0" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPalette }</>
+              ? <>{ gojsappPaletteDiv }</> // these two lines needs to be different to refresh the palette
+              : <><div className="btn-horizontal bg-light mx-0 px-0 mb-0" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsappPaletteDiv }</>
             : <div className="btn-vertical px-1 " style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
           } 
         </div>

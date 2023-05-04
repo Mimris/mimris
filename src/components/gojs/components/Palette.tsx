@@ -260,7 +260,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           //   height: '36vh', // Set the desired height here
           //   width: '100%', // Set the desired width here
           // };
-          console.log('261 Palette diagramStyle', this.props.diagramStyle);
+          // console.log('261 Palette diagramStyle', this.props.diagramStyle);
 
 
       return (

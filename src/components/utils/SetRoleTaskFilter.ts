@@ -6,8 +6,9 @@ import { Dispatch } from "redux";
 const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
+    if (currole !== "Modeller1") { currole = "Modeller1" }
     if (debug) console.log('9 genRoleTasks', curtask)
-    if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
+    if (!debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
@@ -114,7 +115,13 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                                 (t.name !=="End") &&
                                 (t.name !=="EntityType") &&
                                 (t.name !=="Property") &&
-                                t.name).filter(Boolean)
+                                (t.name !=="Generic") &&
+                                t.name).filter(Boolean),
+                        "Information",
+                        "Role",
+                        "Task",
+                        "View",
+
                     ]
                 },
                 {
@@ -151,69 +158,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                         "InputPattern",
                         "FieldType",
                         "Unittype"
-                    ]
-                },
-                {
-                    id: "IRTV+New-types",  
-                    name: "IRTV + New types",
-                    description: "Modelling",
-                    workOnTypes: [
-                        "Container",
-                        "Information",
-                        "Role",
-                        "Task",
-                        "View",
-                        "Label",
-                        "Property",
-                        "Generic",
-                        "EntityType",
-                        ...oTypesSorted?.map((t: { name: any; }) => 
-                            (t.name !== "Container") &&
-                            (t.name !== "EntityType") &&
-                            (t.name !== "Information") &&
-                            (t.name !== "Role") &&
-                            (t.name !== "Task") &&
-                            (t.name !== "View") &&
-                            (t.name !== "Label") &&
-                            (t.name !== "Property") &&
-                            (t.name !== "Generic") &&
-                            (t.name !== "Datatype") &&
-                            (t.name !== "InputPattern") &&
-                            (t.name !== "FieldType") &&
-                            (t.name !== "Unittype") &&
-                            (t.name !== "Value") &&
-                            (t.name !== "ViewFormat") &&
-                            (t.name !== "Method") &&
-                            (t.name !== "MethodType") &&
-                            (t.name !== "View") &&
-                            (t.name !== "RelshipType") &&
-                            (t.name !== "ExclusiveGate") &&
-                            (t.name !== "Process") &&
-                            (t.name !== "Function") &&
-                            (t.name !== "Activity") &&
-                            (t.name !== "Start") &&
-                            (t.name !== "End") &&
-                            (t.name !== "ExclusiveGate") &&
-                            (t.name !== "InclusiveGate") &&
-                            (t.name !== "ParallelGate")
-                            && t.name).filter(Boolean),
-                            "Process",
-                            "Function",
-                            "Activity",
-                            "Start",
-                            "End",
-                            "ExclusiveGate",
-                            "InclusiveGate",
-                            "ParallelGate",
-                            "Datatype",
-                            "InputPattern",
-                            "FieldType",
-                            "Unittype",
-                            "Value",
-                            "ViewFormat",
-                            "Method",
-                            "MethodType",
-                            "RelshipType"
                     ]
                 },
             ]

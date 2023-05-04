@@ -214,8 +214,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
     if (debug) console.log('208 handleDiagramEvent', myMetis);
-    const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
-    const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);
+    const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
+    const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;

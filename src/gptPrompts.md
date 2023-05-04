@@ -2,6 +2,8 @@
 
 ## Guides
 
+1. Start with "Ignore all previous instructions before this one" to clear the model's memory
+
 1. Creating a good prompt for GPT models involves clear instructions, relevant context, and a well-defined goal. Here's a step-by-step guide to crafting an effective prompt:
 
 1. Define your goal: Determine the specific information or output you want from the model. This could be an answer to a question, a creative text, or a solution to a problem.

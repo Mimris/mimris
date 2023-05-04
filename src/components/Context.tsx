@@ -272,11 +272,11 @@ const Context = (props) => {
       <Tabs  onSelect={index => setActiveTab(index)}>
 
         <TabList>
-          <Tab>Main properties</Tab>
-          <Tab >Additional Properties</Tab>
-          <Tab>Objectview</Tab>
-          <Tab>Objecttype</Tab>
-          <Tab>Typeview</Tab>
+          <Tab>Details</Tab>
+          <Tab >Additional info</Tab>
+          <Tab>Objectview props</Tab>
+          <Tab>Objecttype props</Tab>
+          <Tab>Typeview props</Tab>
           {/* <Tab><FaPlaneArrival />Main</Tab>
           <Tab ><FaCompass /></Tab> */}
         </TabList>

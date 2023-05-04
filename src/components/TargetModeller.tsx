@@ -107,7 +107,7 @@ const TargetModeller = (props: any) => {
       if (mv) { 
           const strindex = index.toString()
           const data = {id: mv.id, name: mv.name}
-          if (!debug) console.log('110 TargetModeller GenGojsModel run')
+          if (debug) console.log('110 TargetModeller GenGojsModel run')
           GenGojsModel(props, dispatch);
          
           return (

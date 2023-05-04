@@ -102,7 +102,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   onChange={handleInputChange}
                   style={{ backgroundColor: '#eee' }}
                   ref={textareaRef}
-                  rows={3}
+                  rows={15}
                 />
               );
               break;

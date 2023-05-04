@@ -8,7 +8,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     // const mmodel = mmodel?.mmodel;
     if (currole !== "Modeller1") { currole = "Modeller1" }
     if (debug) console.log('9 genRoleTasks', curtask)
-    if (!debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
+    if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
     if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
@@ -34,23 +34,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
             name: "Modeller 1",
             tasks: [
                 {
-                    id: "Process",
-                    name: "Process Modelling",
-                    description: "Modelling with AKM-IRTV-POPS Process objects",
-                    workOnTypes: [
-                    "Container",   
-                    "Process",
-                    "Activity",
-                    "ParrallelGate",
-                    "ExclusiveGate",
-                    "InclusiveGate",
-                    "Gateway",
-                    "Start",
-                    "End",
-                    "Label",
-                    ]
-                },
-                {
                     id: "AKM-IRTV-POPS_MM",
                     name: "IRTV-POPS Modelling",
                     description: "Modeling with AKM-IRTV-POPS objects",
@@ -67,21 +50,34 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     "Process",
                     "System",   
                     "Actor",
-                    "EntityType",
+                    ]
+                },
+                {
+                    id: "Process",
+                    name: "Process Modelling",
+                    description: "Modelling with AKM-IRTV-POPS Process objects",
+                    workOnTypes: [  
+                    "Process",
+                    "Activity",
+                    "ParrallelGate",
+                    "ExclusiveGate",
+                    "InclusiveGate",
+                    "Gateway",
+                    "Start",
+                    "End",
+                    "Label",
                     ]
                 },
                 {
                     id: "IRTV",
                     name: "IRTV Modelling",
                     description: "Model IRTV objects",
-                    workOnTypes: [
-                    "Container",   
+                    workOnTypes: [ 
                     "Information",
                     "Role",
                     "Task",
                     "View",
                     "Label",  
-                    "EntityType",
                     ]
                 },
                 {
@@ -121,34 +117,14 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                         "Role",
                         "Task",
                         "View",
-
-                    ]
-                },
-                {
-                    id: "AKM-CORE+_MM",
-                    name: "AKM-CORE+_MM",
-                    description: "AKM-CORE+_MM modelling",
-                    workOnTypes: [
-                        "Container",   
-                        "Property",
-                        "Datatype",
-                        "Value",
-                        "Method",
-                        "MethodType",
-                        "ViewFormat",
-                        "InputPattern",
-                        "FieldType",
-                        "RelshipType",
-                        "EntityType",
-                        "Generic",
+                        "Label",
                     ]
                 },
                 {
                     id: "Property",
                     name: "Property Modelling",
                     description: "Create New Entity using objecttype: EntityType and add properties",
-                    workOnTypes: [
-                        "Container",   
+                    workOnTypes: [ 
                         "EntityType",
                         "Property",
                         "Datatype",

@@ -9,7 +9,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     if (currole !== "Modeller1") { currole = "Modeller1" }
     if (debug) console.log('9 genRoleTasks', curtask)
     if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
-    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
+    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0.length, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
 
@@ -39,7 +39,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     description: "Modeling with AKM-IRTV-POPS objects",
                     workOnTypes: [
                     "Container",   
-                    "Actor",
                     "Information",
                     "Role",
                     "Task",
@@ -91,30 +90,30 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     name: "New-types",
                     workOnTypes:  [
                         "Container",    
-                            ...oTypes?.map((t: { name: any; }) => 
-                                (t.name !== "Container") &&
-                                (t.name !=="Information") &&
-                                (t.name !=="Role") &&
-                                (t.name !=="Task") &&
-                                (t.name !=="View") &&
-                                (t.name !=="Label") &&
-                                (t.name !=="Product") &&
-                                (t.name !=="Organisation") &&
-                                (t.name !=="Process") &&
-                                (t.name !=="System") &&
-                                (t.name !=="Activity") &&
-                                (t.name !=="ParallelGate") &&
-                                (t.name !=="ExclusiveGate") &&
-                                (t.name !=="InclusiveGate") &&
-                                (t.name !=="Gateway") &&
-                                (t.name !=="Start") &&
-                                (t.name !=="End") &&
-                                (t.name !=="EntityType") &&
-                                (t.name !=="Property") &&
-                                (t.name !=="Generic") &&
-                                t.name).filter(Boolean),
-                        "Information",
-                        "Role",
+                        ...oTypes?.map((t: { name: any; }) => 
+                            (t.name !== "Container") &&
+                            // (t.name !=="Information") &&
+                            (t.name !=="Role") &&
+                            (t.name !=="Task") &&
+                            (t.name !=="View") &&
+                            (t.name !=="Label") &&
+                            (t.name !=="Product") &&
+                            (t.name !=="Organisation") &&
+                            (t.name !=="Process") &&
+                            (t.name !=="System") &&
+                            (t.name !=="Activity") &&
+                            (t.name !=="ParallelGate") &&
+                            (t.name !=="ExclusiveGate") &&
+                            (t.name !=="InclusiveGate") &&
+                            (t.name !=="Gateway") &&
+                            (t.name !=="Start") &&
+                            (t.name !=="End") &&
+                            (t.name !=="EntityType") &&
+                            (t.name !=="Property") &&
+                            // (t.name !=="Generic") &&
+                            t.name).filter(Boolean),
+                            "Role",
+                            "Information",
                         "Task",
                         "View",
                         "Label",

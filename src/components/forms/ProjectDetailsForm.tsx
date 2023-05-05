@@ -43,7 +43,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch);
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
       SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
-    }, 2000);
+    }, 200);
     return () => clearTimeout(timer);
   };
 

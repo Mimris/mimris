@@ -162,7 +162,7 @@ function makeGeoIcon(url: string) {
             name: "Picture",
             row: 0, 
             column: 2, 
-            margin: new go.Margin(0, 4, 0, 2),
+            margin: new go.Margin(0, 2, 6, 2),
             desiredSize: new go.Size(25, 25),
             alignment: go.Spot.Right,
         },

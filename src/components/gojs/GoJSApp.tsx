@@ -1593,7 +1593,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         link = myDiagram.findLinkForKey(link.key);
         const data = link?.data;
         if (debug) console.log('1596 link, data', link, data);
-        let relview = data.relshipview;
+        let relview = data?.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
           const points = [];

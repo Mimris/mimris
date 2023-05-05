@@ -510,7 +510,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('501 data', data);
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myModelview = context.myModelview;
-            const myObjectviews = myModelview.objectviews;
+            const myObjectviews = myModelview?.objectviews;
             if (debug) console.log('501 myObjectviews', myObjectviews);    
             // The object to move
             let fromloc, fromNode;
@@ -938,7 +938,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Update objectviews in the modelview
           for (let j=0; j<modifiedNodes.length; j++) {
             const modnode = modifiedNodes[j];
-            for (let i=0; i<myModelview.objectviews.length; i++) {
+            for (let i=0; i<myModelview?.objectviews.length; i++) {
               const objview = myModelview.objectviews[i];
               if (objview.id === modnode.id) {
                 objview.loc = modnode.loc;

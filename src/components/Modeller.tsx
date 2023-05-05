@@ -160,13 +160,13 @@ const Modeller = (props: any) => {
     if (debug) console.log('86 Selector', selObj);
     let data
     if (selObj && selObj.name !== 'Select '+props.selName+'...') {
-      console.log('161 Selector', selObj.name);
+      if (!debug) console.log('161 Selector', selObj.name);
       data = { id: id, name: name} 
       dispatch({  type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]
       const data2 = { id: mv.id, name: mv.name}
       dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-      console.log('124 Selector', data, data2);
+      if (!debug) console.log('169 Selector', data, data2);
       // const timer = setTimeout(() => {
       //   GenGojsModel(props, dispatch);
       // }, 1000);

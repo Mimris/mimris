@@ -145,7 +145,7 @@ const Palette = (props: any) => {
       if (debug) console.log('140 Palette useEffect 1 []', setFilteredOtNodeDataArray(filteredNodeDataArrayot), filteredNodeDataArrayot);
       setRefreshPalette(!refreshPalette); // set current palette according to selected modellingtask
       if (debug) console.log('143 Palette useEffect 1 []', filteredNewtypesNodeDataArray, filteredOtNodeDataArray);
-    }, 20);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -220,7 +220,7 @@ const Palette = (props: any) => {
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
       console.log('233 Palette setModellingTask', foundRTTs?.types, modellingtasks, types);
-    }, 100);
+    }, 500);
     return () => { clearTimeout(timer); };
   }
 

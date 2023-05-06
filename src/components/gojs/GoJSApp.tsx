@@ -230,8 +230,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     for (let i=0; i<nods?.length; i++) {
       const node = nods[i] as gjs.goObjectTypeNode;
       const objtype = node.objecttype;
-      if (objtype.abstract) continue;
-      if (objtype.markedAsDeleted)  continue;
+      if (objtype?.abstract) continue;
+      if (objtype?.markedAsDeleted)  continue;
       nodes.push(node);
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;

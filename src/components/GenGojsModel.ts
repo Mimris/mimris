@@ -43,14 +43,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) clog('42 GenGojsModel: props', props);
     if (debug) clog('43 GenGojsModel: metis', props.phData.metis);
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
+    const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)) 
+        ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+        : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
     const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
     const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
     const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-    const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)) 
-        ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-        : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
 
     if (debug) console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod?.modelviews)
 
@@ -131,10 +131,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('117 myTargetMetamodelPalette', myTargetMetamodelPalette);
 
       
-      const gojsMetamodelPalette =  {
-        nodeDataArray: myMetamodelPalette?.nodes,
-        linkDataArray: []
-      }
+      // const gojsMetamodelPalette =  {
+      //   nodeDataArray: myMetamodelPalette?.nodes,
+      //   linkDataArray: []
+      // }
       
       // const gojsPalettes = myPalettes?.map(mp => ( {
       //     nodeDataArray: [mp?.nodes],
@@ -143,38 +143,40 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // ))
       // console.log('138 GenGojsModel', gojsPalettes, myPalettes);
 
-      const gojsTargetMetamodel = myTargetMetamodelPalette && {
-        nodeDataArray: myTargetMetamodelPalette?.nodes,
-        linkDataArray: []
-      }
-      const gojsMetamodelModel = 
-        (myGoMetamodel) && 
-        { 
-          nodeDataArray: myGoMetamodel?.nodes,
-          linkDataArray: myGoMetamodel?.links
-        }
+      // const gojsTargetMetamodel = myTargetMetamodelPalette && {
+      //   nodeDataArray: myTargetMetamodelPalette?.nodes,
+      //   linkDataArray: []
+      // }
+      
+      // const gojsMetamodelModel = 
+      //   (myGoMetamodel) && 
+      //   { 
+      //     nodeDataArray: myGoMetamodel?.nodes,
+      //     linkDataArray: myGoMetamodel?.links
+      //   }
 
-      const gojsMetamodel = {
-        nodeDataArray: myPalette?.nodes,
-        linkDataArray: myPalette?.links
-      }
-      let gojsModel = {}
-      gojsModel = {
-          nodeDataArray: myGoModel?.nodes,
-          linkDataArray: myGoModel?.links
-        }
+      // const gojsMetamodel = {
+      //   nodeDataArray: myPalette?.nodes,
+      //   linkDataArray: myPalette?.links
+      // }
+      // let gojsModel = {}
+      // gojsModel = {
+      //     nodeDataArray: myGoModel?.nodes,
+      //     linkDataArray: myGoModel?.links
+      //   }
 
-      const gojsTargetModel = {
-        nodeDataArray: myGoTargetModel?.nodes,
-        linkDataArray: myGoTargetModel?.links
-      }
+      // const gojsTargetModel = {
+      //   nodeDataArray: myGoTargetModel?.nodes,
+      //   linkDataArray: myGoTargetModel?.links
+      // }
 
-      const objects = myModel.objects;
-      const nodes = uib.buildObjectPalette(objects);
-      const gojsModelObjects = {
-        nodeDataArray: nodes,
-        linkDataArray: [] //myGoModel?.links
-      }
+      // const objects = myModel.objects;
+      // const nodes = uib.buildObjectPalette(objects);
+
+      // const gojsModelObjects = {
+      //   nodeDataArray: nodes,
+      //   linkDataArray: [] //myGoModel?.links
+      // }
   
       if (debug) console.log('155 GenGojsModel gojsModel', myGoMetamodel);
       if (debug) console.log('155 GenGojsModel gojsModel',  gojsMetamodelModel);
@@ -183,17 +185,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodel?.id);
            
       // update the Gojs arrays in the store
-        dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
-        dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-        dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-        dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
-        dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-        dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
-        dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
+        // dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
+        // dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
+        // dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+        // dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
+        // dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+        // dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
+        // dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
         dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
-        dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
-        dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
-        dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
+        // dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
+        // dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+        // dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
     }
   }
 }

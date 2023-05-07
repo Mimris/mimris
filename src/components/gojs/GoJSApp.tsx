@@ -474,7 +474,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         if (debug) console.log('459 myFromNodes, myToNodes', myFromNodes, myToNodes);
 
-        // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
+        // First do the move and scale the nodes. 
         let selcnt = 0;
         let refloc;
         let count = -1;
@@ -539,13 +539,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (node) {
               node.scale1 = node.getMyScale(myGoModel).toString();
               if (debug) console.log('539 myGoModel, node.loc', myGoModel, node.loc);
-              const group = uic.getGroupByLocation(myGoModel, node.loc);
+              const group = uic.getGroupByLocation(myGoModel, node.loc, node.size, node);
               if (debug) console.log('541 group', group);
               if (debug) console.log('542 selcnt, group, node', selcnt, group, node);
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
               if (group) { // The node IS moved into a group or moved INSIDE a group
                 const parentgroup = group;
                 node.group = parentgroup.key;
+                node.scale = group.scale * group.memberscale;
                 // node.scale1 = node.getMyScale(myGoModel).toString();
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 if (debug) console.log('549 parentgroup, node', parentgroup, node);
@@ -711,8 +712,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (debug) console.log('575 group, node', parentgroup, node);
                     if (debug) console.log('576 context', context);
                     node.group = parentgroup.key;
-                    // const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
-                    // if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
+                    const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
+                    if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
                 }     
               } else { // node is NOT moved into a group, possibly out of a group
                 node.group = "";
@@ -1147,6 +1148,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           const node = myDiagram.findNodeForKey(n.data.key);
           let part = node.data;
           part.scale = node.scale;
+          if (part.size === "") {
+            if (part.isGroup) {
+              part.size = "200 100";
+            } else {
+              part.size = "160 70";
+            }
+          }
           const isLabel = (part.typename === 'Label');
           if (debug) console.log('916 node', node);
           if (debug) console.log('917 myMetis', myMetis);
@@ -1198,11 +1206,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // Hack
                 if (debug) console.log('1009 objview', objview);
                 if (objview.isGroup) {
-                  node.size = "200 100";
+                  if (node.size = "")
+                    node.size = "200 100";
                   myDiagram.model?.setDataProperty(n.data, "size", node.size);
                   objview.size = node.size;
                 } else {
-                  node.size = "160 70";
+                  if (node.size = "")
+                    node.size = "160 70";
                   objview.size = node.size;
                   myDiagram.model?.setDataProperty(n.data, "size", node.size);
                 }
@@ -1378,7 +1388,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             if (debug) console.log('1380 myGoModel, nodes, objview', myGoModel, nodes, objview);
             if (debug) console.log('1381 myGoModel, loc', myGoModel, objview.loc);
-            const group = uic.getGroupByLocation(myGoModel, objview.loc);
+            const group = uic.getGroupByLocation(myGoModel, objview.loc, objview.size, node);
             if (debug) console.log('1383 group', group)
             const gjsNode = myDiagram.findNodeForKey(node.key);
             if (group && node) {

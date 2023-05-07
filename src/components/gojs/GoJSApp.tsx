@@ -474,7 +474,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         if (debug) console.log('459 myFromNodes, myToNodes', myFromNodes, myToNodes);
 
-        // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
+        // First do the move and scale the nodes. 
         let selcnt = 0;
         let refloc;
         let count = -1;
@@ -712,8 +712,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (debug) console.log('575 group, node', parentgroup, node);
                     if (debug) console.log('576 context', context);
                     node.group = parentgroup.key;
-                    // const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
-                    // if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
+                    const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
+                    if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
                 }     
               } else { // node is NOT moved into a group, possibly out of a group
                 node.group = "";
@@ -1206,11 +1206,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // Hack
                 if (debug) console.log('1009 objview', objview);
                 if (objview.isGroup) {
-                  node.size = "200 100";
+                  if (node.size = "")
+                    node.size = "200 100";
                   myDiagram.model?.setDataProperty(n.data, "size", node.size);
                   objview.size = node.size;
                 } else {
-                  node.size = "160 70";
+                  if (node.size = "")
+                    node.size = "160 70";
                   objview.size = node.size;
                   myDiagram.model?.setDataProperty(n.data, "size", node.size);
                 }

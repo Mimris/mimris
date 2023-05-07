@@ -181,7 +181,7 @@ const page = (props:any) => {
     // set the myMetis object etc. from the props;
     const myMetis = props.phMymetis?.myMetis
     const myModel = myMetis?.findModel(curmod?.id);
-    console.log('171 Modelling myModel', curmod, focusModel, metis.models, myModel);
+    if (debug) console.log('171 Modelling myModel', curmod, focusModel, metis.models, myModel);
     let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
     let myMetamodel = myModel?.metamodel;
     myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
@@ -191,7 +191,7 @@ const page = (props:any) => {
     let myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod.targetMetamodelRef) || null;
     const myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
-    console.log('178 Modelling myMetamodel', props, myMetis, myModel, myModelview, myMetamodel);
+    if (debug) console.log('178 Modelling myMetamodel', props, myMetis, myModel, myModelview, myMetamodel);
     let myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
     let myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
     let myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
@@ -240,7 +240,7 @@ const page = (props:any) => {
         linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links
       }
 
-    if (!debug) console.log('119 Modelling: ', gojsmodelobjects, myModel, myModelview);
+    if (debug) console.log('119 Modelling: ', gojsmodelobjects, myModel, myModelview);
     
 
 

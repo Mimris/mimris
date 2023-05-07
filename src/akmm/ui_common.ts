@@ -819,8 +819,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gh = parseInt(grpSize[1]);
             // const size = Math.sqrt(gw * gw + gh * gh);
             const size = gw + " " + gh;
-            if (!debug) console.log('822 nodeLoc, grpLoc', nodeLoc, grpLoc);
-            if (!debug) console.log('823 nx, ny, nw, nh, gx, gy, gw, gh', nx, ny, nw, nh, gx, gy, gw, gh);
+            if (debug) console.log('822 nodeLoc, grpLoc', nodeLoc, grpLoc);
+            if (debug) console.log('823 nx, ny, nw, nh, gx, gy, gw, gh', nx, ny, nw, nh, gx, gy, gw, gh);
             if (
                 (nx > gx) // Check lower left corner of node
                 && 

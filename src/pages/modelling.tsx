@@ -86,7 +86,7 @@ const page = (props:any) => {
                 if (Array.isArray(memoryLocState) && memoryLocState[0]) {
                     const locStore = (memoryLocState[0]) 
                     if (locStore) {
-                      dispatchLocalStore(locStore)
+                      dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
                       // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
                       // console.log('modelling 73 ', data)
                     }

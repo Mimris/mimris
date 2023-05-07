@@ -80,6 +80,13 @@ const Modeller = (props: any) => {
   let locStateKey
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   const showModified = props.phUser?.focusUser?.diagram?.showModified
+
+  function dispatchLocalStore(locStore) { 
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
+    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+  }
   
   function toggleObjects() { setVisiblePalette(!visibleObjects); } 
   
@@ -90,6 +97,20 @@ const Modeller = (props: any) => {
     if (debug) console.log('79 Modeller: toggleRefreshObjects',  memoryLocState[0].phFocus);
     setRefresh(!refresh)
   }
+  function loadLocalStorageModel() { 
+    if (!debug) console.log('94 Modeller: loadLocalStorageModel',  memoryLocState);
+    if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+      const locStore = (memoryLocState[1]) 
+      if (locStore) {
+        dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
+        // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+        // console.log('modelling 73 ', data)
+      }
+    } 
+    if (debug) console.log('97 Modeller: loadLocalStorageModel',  memoryLocState[0].phFocus);
+    setRefresh(!refresh)
+  }
+
   if (debug) console.log('83 Modeller: props, refresh', props, refresh);
 
   function saveModelsToLocState(props, memoryLocState, setMemoryLocState) {
@@ -383,8 +404,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     </>
 
   const footerButtonsDiv = 
-  <div className="modeller--footer-buttons d-flex justify-content-end">
-    <span className="btn mx-4 py-0 mt-1 pt-1 bg-light text-secondary"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'save2memory' : 'save2memory'} </span>
+  <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area">
+    <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary"  onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" > {refresh ? 'save2memory' : 'save2memory'} </span>
+    <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary"  onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" > {refresh ? 'getMemory' : 'getmemory'} </span>
     {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
@@ -425,7 +447,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             onClick={toggleShowContext} style={{scale: "0.9"}} >✵</button> 
           </div>
         </div>
-        <div className="modeller--workarea m-0 p-0">
+        <div className="modeller--workarea-objects m-0 p-0"   data-placement="top" title="Modelling Objects palette">
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> 
               <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{    height: "82vh"}} >
@@ -454,11 +476,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
       </div>
     : // metamodelling
-      <div className="modeller-workarea w-100" >
+      <div className="modeller-workarea w-100" data-placement="top" title="Modelling workarea" >
         <div className="modeller--topbar  mt-1 p-0 ">
           <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Meta-Modeller</span>
           <div className="">
-            <div className="modeller--heading-selector d-flex justify-content-between me-4" > <span className="mt-1 ms-2 px-2 " style={{backgroundColor: '#bcd'}} >Metamodel : {mmodel.name}</span> {selector}</div>
+            <div className="modeller--heading-selector d-flex justify-content-between me-4" title="Modeller heading area" > <span className="mt-1 ms-2 px-2 " style={{backgroundColor: '#bcd'}} >Metamodel : {mmodel.name}</span> {selector}</div>
             </div>
             <div>
               {metamodelTabDiv} 
@@ -468,7 +490,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
   
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
+    <div style={{ display: 'flex', flexDirection: 'row' }}   data-placement="top" title="Modelling workarea">
       {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )

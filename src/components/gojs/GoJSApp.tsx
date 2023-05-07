@@ -570,7 +570,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                   }
                   // Find the corresponding relationship view if it exists and mark it as deleted
-                  const relviews = myModelview.getRelviewsByFromAndToObjviews(parentObj.objectview, node.objectview);
+                  const relviews = myModelview?.getRelviewsByFromAndToObjviews(parentObj.objectview, node.objectview);
                   if (debug) console.log('582 relviews', relviews);
                   for (let j=0; j<relviews?.length; j++) {
                     const relview = relviews[j];

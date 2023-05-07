@@ -143,10 +143,10 @@ export const InitialState = {
   phData: InitState.phData,
   // phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
-  phGojs: null,
+  // phGojs: null,
   phMymetis: null,
-  phMyGoModel: null,
-  phMyGoMetamodel: null,
+  // phMyGoModel: null,
+  // phMyGoMetamodel: null,
   phUser: InitState.phUser,
   phSource: InitState.phSource,
   lastUpdate: new Date().toISOString()
@@ -169,6 +169,30 @@ let focusCollection
 
 
 function reducer(state = InitialState, action) {
+
+  const { phData, phFocus, phUser } = state;
+  const focusModel = phFocus.focusModel
+  const curModel = phData.metis.models.find((m) => m.id === focusModel.id);
+  if (!curModel) return state;
+  const curModelIndex = phData.metis.models.findIndex((m) => m.id === focusModel.id);
+  const curModelview = curModel?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
+  const curModelviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
+  const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
+  const curObjectviewsLength = curModelview?.objectviews.length
+  const curModelviewsLength = curModel.modelviews.length // lentgh of modelviews array
+  let objectviewIndex = curModel.objectviews?.findIndex((ov) => ov.id === curObjectview.id); // current objectview index
+  if (objectviewIndex < 0) { objectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
+
+  // const curObjectType = curMetamodel.objecttypes.find((ot) => ot.id === curObjectView.objecttypeRef);
+  // const curObjectTypeIndex = curMetamodel.objecttypes.findIndex((ot) => ot.id === curObjectView.objecttypeRef);
+  const curObject = curModel.objects.find((o) => o.id === action.data?.id);
+  let curObjectIndex = curModel.objects.findIndex((o) => o.id === curObject?.id);
+  const curObjectLength = curModel.objects.length;
+  if (curObjectIndex > 0) { curObjectIndex = curObjectLength}
+
+  const curMetamodel = phData.metis.metamodels.find( (m) => m.id === curModel.metamodelRef);
+  const curMetamodelIndex = phData.metis.metamodels.findIndex((m) => m.id === curModel.metamodelRef);
+
   switch (action.type) {
     
     case FAILURE:
@@ -225,50 +249,50 @@ function reducer(state = InitialState, action) {
           }, 
         phSource: 'Model server'
       }
-      case LOAD_TOSTORE_DATA:
-        if (debug) console.log('169 LOAD_TOSTORE_DATA', action);   
-        return {
-          ...state,
-          ...action.data
+    case LOAD_TOSTORE_DATA:
+      if (debug) console.log('169 LOAD_TOSTORE_DATA', action);   
+      return {
+        ...state,
+        ...action.data
+      }
+    case LOAD_TOSTORE_PHDATA:
+      if (debug) console.log('227 LOAD_TOSTORE_PHDATA', action);   
+      return {
+        ...state,
+        phData: action.data
+      }
+    case LOAD_TOSTORE_PHFOCUS:
+      if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
+      return {
+        ...state,
+        phFocus: action.data
+      }
+    case LOAD_TOSTORE_PHUSER:
+      if (debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
+      return {
+        ...state,
+        phUser: action.data
+      }
+    case LOAD_TOSTORE_PHSOURCE:
+      if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
+      return {
+        ...state,
+        phSource: action.data
+      }
+    case LOAD_TOSTORE_NEWMODEL:
+      if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models, action.data         
+              ]
+            }
         }
-      case LOAD_TOSTORE_PHDATA:
-        if (debug) console.log('227 LOAD_TOSTORE_PHDATA', action);   
-        return {
-          ...state,
-          phData: action.data
-        }
-      case LOAD_TOSTORE_PHFOCUS:
-        if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
-        return {
-          ...state,
-          phFocus: action.data
-        }
-      case LOAD_TOSTORE_PHUSER:
-        if (debug) console.log('176 LOAD_TOSTORE_PHUSER', action.data);   
-        return {
-          ...state,
-          phUser: action.data
-        }
-      case LOAD_TOSTORE_PHSOURCE:
-        if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
-        return {
-          ...state,
-          phSource: action.data
-        }
-      case LOAD_TOSTORE_NEWMODEL:
-        if (debug) console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
-        return {
-          ...state,
-          phData: {
-            ...state.phData,
-              metis: {
-                ...state.phData.metis,
-                models: [
-                  ...state.phData.metis.models, action.data         
-                ]
-              }
-          }
-        }
+      }
     case LOAD_TOSTORE_NEWMODELVIEW:
       if (debug) console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);   
       const curmnew = state.phData?.metis?.models?.find(m => m.id === action.data.id) //current model
@@ -645,11 +669,6 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_PROJECT_PROPERTIES:
       if (debug) console.log('429 UPDATE_PROJECT_PROPERTIES', action);
-      //const curmprojindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
-      // if (debug) console.log('431 reducer', curmindex1)
-      // if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
-      // if (debug) console.log('433 reducer', curmindex1)
       return {
         ...state,
         phData: {
@@ -660,13 +679,9 @@ function reducer(state = InitialState, action) {
             },
           },
         }
+
     case UPDATE_MODEL_PROPERTIES:
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
-      // const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
-      // if (debug) console.log('431 reducer', curmindex1)
-      if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
-      // if (debug) console.log('433 reducer', curmindex1)
       return {
         ...state,
         phData: {
@@ -674,24 +689,18 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               models: [
-                ...state.phData.metis.models.slice(0,curmindex1),
+                ...state.phData.metis.models.slice(0, curModelIndex),
                 {
-                  ...state.phData.metis.models[curmindex1],
+                  ...state.phData.metis.models[curModelIndex],
                   ...action.data, 
                 },      
-                ...state.phData.metis.models.slice(curmindex1 + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
               ]
             },
           },
         }
     case UPDATE_TARGETMODEL_PROPERTIES:
       // if (debug) console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
-      // const curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      let curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.targetModelRef) // target model index
-      if (debug) console.log('464 reducer', state.phData.metis.models, 'curmindex12: ', curmindex12, 'action: ', action , "END")
-
-      if (curmindex12 < 0) {curmindex12 = state.phData.metis.models.length}
-      // if (debug) console.log('466 reducer', curmindex12)
       return {
         ...state,
         phData: {
@@ -699,24 +708,18 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               models: [
-                ...state.phData.metis.models.slice(0,curmindex12),
+                ...state.phData.metis.models.slice(0, curModelIndex),
                 {
-                  ...state.phData.metis.models[curmindex12],
+                  ...state.phData.metis.models[curModelIndex],
                   ...action.data, 
                 },      
-                ...state.phData.metis.models.slice(curmindex12 + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
               ]
             },
           },
         }
 
     case UPDATE_MODELVIEW_PROPERTIES:
-      // if (debug) console.log('385 UPDATE_MODELVIEW_PROPERTIES', action);
-      const curmmv2     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindex2 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      const curmv2  = curmmv2?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-      const curmvindex2  = curmmv2?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
- 
       return {
         ...state,
         phData: {
@@ -724,108 +727,53 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               models: [
-                ...state.phData.metis.models.slice(0,curmindex2),
+                ...state.phData.metis.models.slice(0, curModelIndex),
                 {
-                  ...state.phData.metis.models[curmindex2],
+                  ...state.phData.metis.models[curModelIndex],
                   modelviews: [
-                    ...curmmv2?.modelviews?.slice(0, curmvindex2),
+                    ...curModel?.modelviews?.slice(0, curModelviewIndex),
                     {
-                      ...curmmv2?.modelviews[curmvindex2],
+                      ...curModel?.modelviews[curModelviewIndex],
                       ...action.data, 
                     },
-                    ...curmmv2?.modelviews?.slice(curmvindex2 + 1),
+                    ...curModel?.modelviews?.slice(curModelviewIndex + 1),
                   ]
                 },
-                ...state.phData.metis.models.slice(curmindex2 + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
               ]
             },
           },
         }
 
     case UPDATE_OBJECT_PROPERTIES:
-      if (debug) console.log('637 UPDATE_OBJECT_PROPERTIES', action.data);  
-      const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
-      let curoindexo = (curmo) && curmo.objects?.findIndex(o => o.id === curoo?.id) // curretn objectindex
-      if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', action.data, curoo, curmindexo);
-
-      const lengtho = curmo?.objects.length
-      if (curoindexo < 0) { curoindexo = lengtho } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-      
-      // const { id, ...rest } = (action.data)
-      // const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
-
-      if (debug) console.log('725 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
+      const retval_UPTDATE_OBJECT_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curmindexo),
+              ...state.phData.metis.models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curmindexo],
+                ...state.phData.metis.models[curModelIndex],
                 objects: [
-                  ...curmo?.objects.slice(0, curoindexo),
+                  ...curModel?.objects.slice(0, curModelIndex),
                   {
-                    ...curmo.objects[curoindexo], 
-                    ...action.data, 
-                  },
-                  ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
-                ],
-              },
-              ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
-            ],
-          },
-        }
-      })
-
-      return {
-        ...state,
-        phData: {
-          ...state.phData,
-          metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models.slice(0, curmindexo),
-              {
-                ...state.phData.metis.models[curmindexo],
-                objects: [
-                  ...curmo?.objects.slice(0, curoindexo),
-                  {
-                    ...curmo.objects[curoindexo], 
+                    ...curModel.objects[curModelIndex], 
                     ...action.data,
                   },
-                  ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
+                  ...curModel?.objects.slice(curModelIndex + 1, curModel?.objects.length)
                 ],
               },
-              ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
+              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
             ],
           },
         }
       }
+      return retval_UPTDATE_OBJECT_PROPERTIES
     
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('794 UPDATE_OBJECTVIEW_PROPERTIES', action);
-      const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-      const curmvindex = curm?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
-      const curmvlength = curm.modelviews.length
-      // if (debug) console.log('371 curmindex', curmindex);
-      // if (debug) console.log('372 curmvindex', curmvindex);
-
-      const curov = curmv?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
-      // if (debug) console.log('409 curov', curov);
-      const ovlength = curmv?.objectviews.length
-      let ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id) // current objectview index
-      if (ovindex < 0) { ovindex = ovlength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-      const curo = curm?.objects?.find(o => o.id === curov?.objectRef) //current Object
-      const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
-      // if (debug) console.log('506  reduser', curm);
-
-
       const retval_UPDATE_OBJECTVIEW_PROPERTIES = 
       {
         ...state,
@@ -834,39 +782,26 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curmindex),
+              ...state.phData.metis.models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curmindex],
+                ...state.phData.metis.models[curModelIndex],
                 modelviews: [
-                  ...curm?.modelviews?.slice(0, curmvindex),
+                  ...curModel?.modelviews?.slice(0, curModelIndex),
                   {
-                    ...curm?.modelviews[curmvindex],
+                    ...curModel?.modelviews[curModelIndex],
                     objectviews: [
-                      ...curmv?.objectviews?.slice(0, ovindex),
+                      ...curModelview?.objectviews?.slice(0, objectviewIndex),
                       {
-                        ...curmv.objectviews[ovindex],
+                        ...curModelview.objectviews[objectviewIndex],
                         ...action.data, 
                       },
-                      ...curmv?.objectviews?.slice(ovindex + 1, curmv?.objectviews.length)
+                      ...curModelview?.objectviews?.slice(objectviewIndex + 1, curModelview?.objectviews.length)
                     ]
                   },
-                  ...curm?.modelviews?.slice(curmvindex + 1, curm.modelviews.length),
+                  ...curModel?.modelviews?.slice(curModelIndex + 1, curModel.modelviews.length),
                 ],
-                // objects: [
-                //   ...curm.objects.slice(0, curoindex),
-                //   {
-                //     ...curo,                 
-                //     name: action.data.name,
-                //     description: action.data.desctription,
-                //     typeRef: action.data.typeviewRef,
-                //     // ...curopropertyValues: [
-                //     //   ...curo.propertyValues
-                //     // ]
-                //   },
-                //   ...curm.objects.slice(curoindex + 1)  
-                // ]
               },
-              ...state.phData.metis.models.slice(curmindex + 1, state.phData.metis.models.length),
+              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
             ]
           },
         },
@@ -876,17 +811,14 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIP_PROPERTIES:
       if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
-      const curmr = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindexr = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-
-      const curr = curmr.relships?.find(rv => rv.id === action?.data?.id) // current relview
+      const curr = curModel.relships?.find(rv => rv.id === action?.data?.id) // current relview
       // if (debug) console.log('409 curov', curov);
-      const r2length = curmr?.relships.length
-      let r2index = curmr?.relships?.findIndex(r => r.id === curr?.id) // current relview index
+      const r2length = curModel?.relships.length
+      let r2index = curModel?.relships?.findIndex(r => r.id === curr?.id) // current relview index
       if (r2index < 0) { r2index = r2length } // ovindex = -1, i.e.  not fond, which means adding a new relview
       // if (debug) console.log('411 ovindex', ovindex, ovlength);
-      const curr2 = curmr?.relships?.find(r => r.id === curr?.relshipRef)
-      const currindex = curmr?.relships?.findIndex(r => r.id === curr2?.objectRef)
+      const curr2 = curModel?.relships?.find(r => r.id === curr?.relshipRef)
+      const currindex = curModel?.relships?.findIndex(r => r.id === curr2?.objectRef)
 
       return {
         ...state,
@@ -895,19 +827,19 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curmindexr),
+              ...state.phData.metis.models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curmindexr],
+                ...state.phData.metis.models[curModelIndex],
                 relships: [
-                  ...curmr.relships.slice(0, r2index),
+                  ...curModel.relships.slice(0, r2index),
                   {
-                    ...curmr.relships[r2index],
+                    ...curModel.relships[r2index],
                     ...action.data, 
                   },
-                  ...curmr.relships.slice(r2index+1 , curmr.relships.length)
+                  ...curModel.relships.slice(r2index+1 , curModel.relships.length)
                 ]
               },
-              ...state.phData.metis.models.slice(curmindexr + 1, state.phData.metis.models.length),
+              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
             ]
           },
         },
@@ -915,15 +847,10 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
-      const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
-      const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-      const curmindexvrv = curmrv?.modelviews?.findIndex(mv => mv.id === curmvrv?.id) // curretn modelview index
-      const currvlength =  curmvrv?.relshipviews?.length
-      const currv =     curmvrv?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
-      let currvindex =     curmvrv?.relshipviews?.findIndex(rv => rv.id === currv?.id) // current relshipview index
+      const currvlength =  curModel?.relshipviews?.length
+      const currv =     curModel?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
+      let currvindex =     curModelview?.relshipviews?.findIndex(rv => rv.id === currv?.id) // current relshipview index
       if (currvindex < 0) { currvindex = currvlength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
- 
       return {
         ...state,
         phData: {
@@ -931,26 +858,26 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               models: [
-                ...state.phData.metis.models.slice(0,curmindexrv),
+                ...state.phData.metis.models.slice(0,curModelIndex),
                 {
-                  ...state.phData.metis.models[curmindexrv],
+                  ...state.phData.metis.models[curModelIndex],
                   modelviews: [
-                    ...curmrv?.modelviews?.slice(0, curmindexvrv),
+                    ...curModel?.modelviews?.slice(0, curModelviewIndex),
                     {
-                      ...curmrv?.modelviews[curmindexvrv],
+                      ...curModel?.modelviews[curModelviewIndex],
                       relshipviews: [
-                        ...curmvrv?.relshipviews?.slice(0, currvindex),
+                        ...curModelview?.relshipviews?.slice(0, currvindex),
                         {
-                          ...curmvrv?.relshipviews[currvindex],  
+                          ...curModelview?.relshipviews[currvindex],  
                           ...action.data, 
                         },
-                        ...curmvrv?.relshipviews.slice(currvindex + 1, curmvrv?.relshipviews.length)
+                        ...curModelview?.relshipviews.slice(currvindex + 1, curModelview?.relshipviews?.length)
                       ]
                     },
-                    ...curmrv?.modelviews.slice(curmindexvrv + 1, curmrv.modelviews.length),
+                    ...curModel?.modelviews.slice(curModelviewIndex + 1, curModel?.modelviews?.length),
                   ],
                 },
-                ...state.phData.metis.models.slice(curmindexrv + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
               ]
             },
           },
@@ -1096,8 +1023,8 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('1208 indextotv', curmmtotv, indextotv, lengthtotv);
       if (indextotv < 0) {indextotv = lengthtotv} 
       if (debug) console.log('1210 indextotv', indextotv, lengthtotv);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
+      // const curo = curModel?.objects?.find(o => o.id === curov?.objectRef)
+      // const curoindex = curModel?.objects?.findIndex(o => o.id === curov?.objectRef)
       const retval_TARGETOBJECTTYPEVIEW = 
       {
         ...state,
@@ -1209,8 +1136,6 @@ function reducer(state = InitialState, action) {
       let indextrt = curmmtrt?.relshiptypes?.findIndex(ot => ot.id === curtrt?.id)
       if (indextrt < 0) { indextrt = lengthtrt }
       if (debug) console.log('619 indexrt', curmmtrt, indexrt, lengthtrt);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
         ...state,
         phData: {
@@ -1246,8 +1171,6 @@ function reducer(state = InitialState, action) {
       if (indextrtv < 0) { indextrtv = lengthtrtv }
       if (debug) console.log('669 ovindex', curmmtrtv, curmmindextrtv, curtrtv);
       if (debug) console.log('670 ovindex', lengthtrtv, indextrtv);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
         ...state,
         phData: {
@@ -1390,8 +1313,6 @@ function reducer(state = InitialState, action) {
       let indexotv = curmmotv?.objecttypeviews?.findIndex(ot => ot.id === curotv?.id)
       if (indexotv < 0) {indexotv = lengthotv} 
       if (debug) console.log('411 ovindex', ovindex, ovlength);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
         ...state,
         phData: {
@@ -1426,8 +1347,6 @@ function reducer(state = InitialState, action) {
       let indexvs = curmmvs?.viewstyles?.findIndex(vs => vs.id === curvs?.id)
       if (indexvs < 0) {indexvs = lengthvs} 
       if (debug) console.log('411 indexvs', indexvs, lengthvs);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
         ...state,
         phData: {
@@ -1679,8 +1598,6 @@ function reducer(state = InitialState, action) {
       let indexrt = curmmrt?.relshiptypes?.findIndex(ot => ot.id === currt?.id)
       if (indexrt < 0) { indexrt = lengthrt }
       if (debug) console.log('619 indexrt', curmmrt, indexrt, lengthrt);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
         ...state,
         phData: {
@@ -1717,8 +1634,6 @@ function reducer(state = InitialState, action) {
       if (indexrtv < 0) { indexrtv = lengthrtv }
       if (debug) console.log('669 ovindex', curmmrtv, curmmindexrtv, currtv);
       if (debug) console.log('670 ovindex', lengthrtv, indexrtv);
-      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
-      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
         ...state,
         phData: {

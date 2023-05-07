@@ -15,7 +15,15 @@ export const makeStore = (context: Context) => {
     const sagaMiddleware = createSagaMiddleware();
 
     // 2: Add an extra parameter for applying middleware:
-    const store = createStore(reducer, applyMiddleware(sagaMiddleware));
+    const bindMiddleware = (middleware) => {
+        if (process.env.NODE_ENV !== 'production') {
+            const { composeWithDevTools } = require('redux-devtools-extension')
+            return composeWithDevTools(applyMiddleware(...middleware))
+        }
+        return applyMiddleware(...middleware)
+    }
+    // Corrected line below
+    const store = createStore(reducer, bindMiddleware([sagaMiddleware, logger]));
     // const store = createStore(reducer, applyMiddleware(sagaMiddleware, logger));
 
     // 3: Run your sagas on server

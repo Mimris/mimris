@@ -24,6 +24,7 @@ interface DiagramProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
+  diagramStyle: React.CSSProperties;
 }
 
 export class PaletteWrapper extends React.Component<DiagramProps, {}> {
@@ -38,6 +39,9 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       this.myMetis = props.myMetis;
       this.diagramRef = React.createRef();
       this.initPalette = this.initPalette.bind(this);
+      // this.state = {
+      //   diagramStyle:  props.diagramStyle,
+      // }
     }
   
     /**
@@ -251,6 +255,14 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           ? 'diagram-component-target'
           : 'diagram-component-palette'
 
+
+          // const diagramStyle = {
+          //   height: '36vh', // Set the desired height here
+          //   width: '100%', // Set the desired width here
+          // };
+          // console.log('261 Palette diagramStyle', this.props.diagramStyle);
+
+
       return (
         <ReactDiagram
           ref={this.diagramRef}
@@ -265,6 +277,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         //   onPartResized       = {this.props.onModelChange}
         //   onMouseDrop         = {this.props.onModelChange}
           skipsDiagramUpdate  = {this.props.skipsDiagramUpdate}
+          style               = {this.props.diagramStyle} 
         />
       );
     }

@@ -61,6 +61,7 @@ interface DiagramProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent:     (e: go.DiagramEvent) => void;
   onModelChange:      (e: go.IncrementalData) => void;
+  diagramStyle:       React.CSSProperties;
 }
 
 interface DiagramState {
@@ -98,7 +99,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedData: null, 
       modalContext: null,
       selectedOption: null,
-      currentActiveTab: null
+      currentActiveTab: null,
+      diagramStyle: props.diagramStyle
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -3528,6 +3530,7 @@ return (
           // modelType={this.props.modelType}
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+          style={this.props.diagramStyle}       
         />
         <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}

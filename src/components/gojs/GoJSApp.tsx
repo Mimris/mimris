@@ -47,6 +47,7 @@ interface AppState {
   showModal: boolean;
   modalContext: any;
   selectedOption: any;
+  diagramStyle: any;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -71,7 +72,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       modelType: this.props.phFocus.focusTab,
       showModal: false,
       modalContext: null,
-      selectedOption: null
+      selectedOption: null,
+      diagramStyle: this.props.diagramStyle
     };
     if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
@@ -212,8 +214,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
     if (debug) console.log('208 handleDiagramEvent', myMetis);
-    const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
-    const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);
+    const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
+    const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
@@ -228,8 +230,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     for (let i=0; i<nods?.length; i++) {
       const node = nods[i] as gjs.goObjectTypeNode;
       const objtype = node.objecttype;
-      if (objtype.abstract) continue;
-      if (objtype.markedAsDeleted)  continue;
+      if (objtype?.abstract) continue;
+      if (objtype?.markedAsDeleted)  continue;
       nodes.push(node);
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
@@ -508,7 +510,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('501 data', data);
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myModelview = context.myModelview;
-            const myObjectviews = myModelview.objectviews;
+            const myObjectviews = myModelview?.objectviews;
             if (debug) console.log('501 myObjectviews', myObjectviews);    
             // The object to move
             let fromloc, fromNode;
@@ -937,7 +939,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Update objectviews in the modelview
           for (let j=0; j<modifiedNodes.length; j++) {
             const modnode = modifiedNodes[j];
-            for (let i=0; i<myModelview.objectviews.length; i++) {
+            for (let i=0; i<myModelview?.objectviews.length; i++) {
               const objview = myModelview.objectviews[i];
               if (objview.id === modnode.id) {
                 objview.loc = modnode.loc;
@@ -1597,9 +1599,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "LinkReshaped": {
         let link = e.subject; 
         link = myDiagram.findLinkForKey(link.key);
-        const data = link.data;
+        const data = link?.data;
         if (debug) console.log('1596 link, data', link, data);
-        let relview = data.relshipview;
+        let relview = data?.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
           const points = [];
@@ -1787,6 +1789,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
+          diagramStyle      ={this.state.diagramStyle}
         />
         <Modal className="" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">

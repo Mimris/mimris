@@ -253,7 +253,7 @@ const Context = (props) => {
     const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
     const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
-    const includedKeysMain = ['id', 'name', 'description', 'draft', 'typeName', 'typeDescription'];
+    const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
     const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key));
 
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
@@ -272,11 +272,11 @@ const Context = (props) => {
       <Tabs  onSelect={index => setActiveTab(index)}>
 
         <TabList>
-          <Tab>Main properties</Tab>
-          <Tab >Additional Properties</Tab>
-          <Tab>Objectview</Tab>
-          <Tab>Objecttype</Tab>
-          <Tab>Typeview</Tab>
+          <Tab>Details</Tab>
+          <Tab >Additional info</Tab>
+          <Tab>Objectview props</Tab>
+          <Tab>Objecttype props</Tab>
+          <Tab>Typeview props</Tab>
           {/* <Tab><FaPlaneArrival />Main</Tab>
           <Tab ><FaCompass /></Tab> */}
         </TabList>
@@ -302,8 +302,7 @@ const Context = (props) => {
           <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
             <TabList>
               <Tab>Children</Tab>
-              <Tab>Relationship from Objects</Tab>
-              <Tab>Relationship To Objects</Tab>
+              <Tab>Relationship from and to Objects</Tab>
               <Tab>Viewed in Modelview</Tab>
             </TabList>
             <TabPanel> {/* Children */}
@@ -320,7 +319,7 @@ const Context = (props) => {
                 setObjview={setObjview}
               />
             </TabPanel>
-            <TabPanel>  {/* Relationship from Objects */}
+            <TabPanel>  {/* Relationship from/to Objects */}
               <ObjDetailTable
                 title="Related From"
                 curRelatedObjsRels={curRelatedFromObectRels}
@@ -333,8 +332,6 @@ const Context = (props) => {
                 includedKeys={includedKeysMain}
                 setObjview={setObjview}
               />
-            </TabPanel>
-            <TabPanel>  {/* Relationship To Objects */}
               <ObjDetailTable
                 title="Related To"
                 curRelatedObjsRels={curRelatedToObectRels}
@@ -353,14 +350,16 @@ const Context = (props) => {
                 <thead className="thead">
                   <tr className="tr">
                     <th className="th">Current object shown in:</th>
-                    <th className="th">Value <span style={{float: "right"}}>🟢 = Current Modelview</span></th>
+                    <th className="th">Value <span style={{float: "right"}}>🟢 = Modelview</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   {curobjModelviews.map(comv =>  (
                     <tr className="tr" key={comv.id}>
                       <td className="td">Modelview</td>
-                    {(comv.id === curmodelview?.id) ? <td className="td">{comv.name} <span style={{float: "right"}}>🟢</span></td> : <td className="td">{comv.name}</td>}
+                    {(comv.id === curmodelview?.id) 
+                      ? <td className="td">{comv.name} <span style={{float: "right"}}>🟢</span></td> 
+                      : <td className="td">{comv.name}</td>}
                     </tr>
                   ))}
                 </tbody>

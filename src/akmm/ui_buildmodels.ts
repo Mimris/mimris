@@ -15,8 +15,8 @@ let includeNoType = false;
   export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('16 metamodel', metamodel);
     let inheritedTypenames, typenames;
-    const modelRef = metamodel.generatedFromModelRef;
-    let model = metis.findModel(modelRef);
+    const modelRef = metamodel?.generatedFromModelRef;
+    let model = metis?.findModel(modelRef);
     if (metamodel) {
       const mmtypenames = [];
       const objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;

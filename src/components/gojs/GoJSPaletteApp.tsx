@@ -34,6 +34,7 @@ interface AppState {
   myGoModel: gjs.goModel;
   phFocus: any;
   dispatch: any;
+  diagramStyle: any;
 }
 
 class GoJSPaletteApp extends React.Component<{}, AppState> {
@@ -57,7 +58,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       myMetis: this.props.myMetis,
       myGoModel: this.props.myGoModel,
       phFocus: this.props.phFocus,
-      dispatch: this.props.dispatch
+      dispatch: this.props.dispatch,
+      diagramStyle: this.props.diagramStyle
     };
     if (debug) console.log('55 myMetis', this.state.myMetis);
     // init maps
@@ -277,7 +279,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   }
 
   public render() {
-
     const selectedData = this.state.selectedData;
     if (debug) console.log('269 selectedData', selectedData);
     let inspector;
@@ -290,7 +291,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-
+    if (debug) console.log('294 this.diagramStyle', this.state.diagramStyle);
     return (
       <div>
         <PaletteWrapper
@@ -300,6 +301,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
+          diagramStyle      ={this.state.diagramStyle} 
         />
         {/* <label>
           Allow Relinking?

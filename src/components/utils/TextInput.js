@@ -10,7 +10,7 @@ useEffect(() => {
   const timer = setTimeout(() => {
     setFinalvalue(tmpvalue);
     // onChange(tmpvalue);
-  }, 1000);
+  }, 100);
   return () => clearTimeout(timer);
 } , [tmpvalue]);
 

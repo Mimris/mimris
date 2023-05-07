@@ -162,7 +162,7 @@ function makeGeoIcon(url: string) {
             name: "Picture",
             row: 0, 
             column: 2, 
-            margin: new go.Margin(0, 4, 0, 2),
+            margin: new go.Margin(0, 2, 6, 2),
             desiredSize: new go.Size(25, 25),
             alignment: go.Spot.Right,
         },
@@ -452,7 +452,18 @@ export function groupTopIcon(contextMenu: any) {
                         new go.Binding("fill", "fillcolor"),
                         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
                         new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-                    )
+                    ),
+                    $(go.TextBlock, textStyle(), // the typename  --------------------
+                    {
+                        row: 1, column: 1, columnSpan: 6,
+                        stretch: go.GraphObject.Fill,
+                        editable: false, isMultiline: false,
+                        minSize: new go.Size(10, 4),
+                        margin: new go.Margin(0, 0, 0, 2),  
+                        textAlign: "center",
+                    },
+                    new go.Binding("text", "typename")
+                    ),
                 ),
             )
 }
@@ -2478,6 +2489,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "textcolor").makeTwoWay()
                     ),
+                    new go.Binding("source", "icon", findImage),
+                    makeGeoIcon("source"),
                     $(go.Shape, // a figure (a symbol illustrating what this is all about)
                         new go.Binding("geometryString", "geometry"),
                         new go.Binding("fill", "fillcolor2"),
@@ -2495,7 +2508,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         name: "SHAPE",
                         fill: "white",
                         stroke: "black",
-                        opacity: 0.95,
+                        opacity: 0.75,
                         minSize: new go.Size(200, 100), 
                         margin: new go.Margin(-5, 5, 5, 5),
                         cursor: "move",
@@ -2503,7 +2516,18 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     new go.Binding("fill", "fillcolor2"),
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
                     new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-                )        
+                ) ,     
+                $(go.TextBlock, textStyle(), // the typename  --------------------
+                {
+                    row: 1, column: 1, columnSpan: 6,
+                    stretch: go.GraphObject.Fill,
+                    editable: false, isMultiline: false,
+                    minSize: new go.Size(10, 2),
+                    margin: new go.Margin(0, 0, 0, 0),  
+                    textAlign: "center",
+                },
+                new go.Binding("text", "typename")
+                ),  
             ),
         )    
         groupTemplateMap.add("", groupTemplate1);

@@ -105,24 +105,26 @@ const Modeller = (props: any) => {
     props.phFocus?.focusRefresh?.name,
     props, propps);
     const timer = setTimeout(() => {
-      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+      setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
       SaveAkmmUser(props, locStateKey='akmmUser')
-    }, 3000);
+    }, 100);
     return () => clearTimeout(timer); 
   }
   
 
   useEffect(() => { 
+    const timer = setTimeout(() => {
     const propps = {
       phData:   props.phData,
       phFocus:  props.phFocus,
       phUser:   props.phUser,
       phSource: props.phSource,
     }
-    const timer = setTimeout(() => {
-      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)
+      if (debug) console.log('119 Modeller: useEffect 2 [props.phFocus.focusModelview?.id]',
+      SaveModelToLocState(propps, memoryLocState, setMemoryLocState)[0].phFocus?.focusModel?.name,);
+      setMemoryLocState(SaveModelToLocState(propps, memoryLocState, setMemoryLocState))
       SaveAkmmUser(props, locStateKey='akmmUser')
-    }, 5000);
+    }, 50);
     return () => clearTimeout(timer); 
   }, [props.phFocus.focusObjectview?.id])
   
@@ -158,12 +160,13 @@ const Modeller = (props: any) => {
     if (debug) console.log('86 Selector', selObj);
     let data
     if (selObj && selObj.name !== 'Select '+props.selName+'...') {
+      if (!debug) console.log('161 Selector', selObj.name);
       data = { id: id, name: name} 
       dispatch({  type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]
       const data2 = { id: mv.id, name: mv.name}
       dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-      console.log('124 Selector', data, data2);
+      if (!debug) console.log('169 Selector', data, data2);
       // const timer = setTimeout(() => {
       //   GenGojsModel(props, dispatch);
       // }, 1000);
@@ -412,14 +415,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           <span className="--heading d-flex text-dark fw-bold px-2" style={{ minWidth: "15%"}} > Modeller </span>
           <div className="d-flex justify-content-around me-4">
             <div className="modeller--heading-selector">{selector}</div>
-            <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
+            {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
               style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
               {refresh ? 'save2memory' : 'save2memory'} 
-            </span>
-            <button className="btn bg-light text-success py-1 btn-sm" 
+            </span> */}
+            <button className="btn bg-light text-success ms-2 pt-1 btn-sm" 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Toggle Context & Focus pane!"
-            onClick={toggleShowContext} style={{scale: "0.8"}} >✵</button> 
+            onClick={toggleShowContext} style={{scale: "0.9"}} >✵</button> 
           </div>
         </div>
         <div className="modeller--workarea m-0 p-0">

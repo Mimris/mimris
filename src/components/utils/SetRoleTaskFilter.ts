@@ -6,9 +6,10 @@ import { Dispatch } from "redux";
 const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
+    if (currole !== "Modeller1") { currole = "Modeller1" }
     if (debug) console.log('9 genRoleTasks', curtask)
     if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
-    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
+    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0.length, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
 
@@ -33,11 +34,28 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
             name: "Modeller 1",
             tasks: [
                 {
+                    id: "AKM-IRTV-POPS_MM",
+                    name: "IRTV-POPS Modelling",
+                    description: "Modeling with AKM-IRTV-POPS objects",
+                    workOnTypes: [
+                    "Container",   
+                    "Information",
+                    "Role",
+                    "Task",
+                    "View",
+                    "Label",
+                    "Product",
+                    "Organisation",
+                    "Process",
+                    "System",   
+                    "Actor",
+                    ]
+                },
+                {
                     id: "Process",
                     name: "Process Modelling",
                     description: "Modelling with AKM-IRTV-POPS Process objects",
-                    workOnTypes: [
-                    "Container",   
+                    workOnTypes: [  
                     "Process",
                     "Activity",
                     "ParrallelGate",
@@ -50,37 +68,15 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     ]
                 },
                 {
-                    id: "AKM-IRTV-POPS_MM",
-                    name: "IRTV-POPS Modelling",
-                    description: "Modeling with AKM-IRTV-POPS objects",
-                    workOnTypes: [
-                    "Container",   
-                    "Actor",
-                    "Information",
-                    "Role",
-                    "Task",
-                    "View",
-                    "Label",
-                    "Product",
-                    "Organisation",
-                    "Process",
-                    "System",   
-                    "Actor",
-                    "EntityType",
-                    ]
-                },
-                {
                     id: "IRTV",
                     name: "IRTV Modelling",
                     description: "Model IRTV objects",
-                    workOnTypes: [
-                    "Container",   
+                    workOnTypes: [ 
                     "Information",
                     "Role",
                     "Task",
                     "View",
                     "Label",  
-                    "EntityType",
                     ]
                 },
                 {
@@ -94,54 +90,40 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     name: "New-types",
                     workOnTypes:  [
                         "Container",    
-                            ...oTypes?.map((t: { name: any; }) => 
-                                (t.name !== "Container") &&
-                                (t.name !=="Information") &&
-                                (t.name !=="Role") &&
-                                (t.name !=="Task") &&
-                                (t.name !=="View") &&
-                                (t.name !=="Label") &&
-                                (t.name !=="Product") &&
-                                (t.name !=="Organisation") &&
-                                (t.name !=="Process") &&
-                                (t.name !=="System") &&
-                                (t.name !=="Activity") &&
-                                (t.name !=="ParallelGate") &&
-                                (t.name !=="ExclusiveGate") &&
-                                (t.name !=="InclusiveGate") &&
-                                (t.name !=="Gateway") &&
-                                (t.name !=="Start") &&
-                                (t.name !=="End") &&
-                                (t.name !=="EntityType") &&
-                                (t.name !=="Property") &&
-                                t.name).filter(Boolean)
-                    ]
-                },
-                {
-                    id: "AKM-CORE+_MM",
-                    name: "AKM-CORE+_MM",
-                    description: "AKM-CORE+_MM modelling",
-                    workOnTypes: [
-                        "Container",   
-                        "Property",
-                        "Datatype",
-                        "Value",
-                        "Method",
-                        "MethodType",
-                        "ViewFormat",
-                        "InputPattern",
-                        "FieldType",
-                        "RelshipType",
-                        "EntityType",
-                        "Generic",
+                        ...oTypes?.map((t: { name: any; }) => 
+                            (t.name !== "Container") &&
+                            // (t.name !=="Information") &&
+                            (t.name !=="Role") &&
+                            (t.name !=="Task") &&
+                            (t.name !=="View") &&
+                            (t.name !=="Label") &&
+                            (t.name !=="Product") &&
+                            (t.name !=="Organisation") &&
+                            (t.name !=="Process") &&
+                            (t.name !=="System") &&
+                            (t.name !=="Activity") &&
+                            (t.name !=="ParallelGate") &&
+                            (t.name !=="ExclusiveGate") &&
+                            (t.name !=="InclusiveGate") &&
+                            (t.name !=="Gateway") &&
+                            (t.name !=="Start") &&
+                            (t.name !=="End") &&
+                            (t.name !=="EntityType") &&
+                            (t.name !=="Property") &&
+                            // (t.name !=="Generic") &&
+                            t.name).filter(Boolean),
+                            "Role",
+                            "Information",
+                        "Task",
+                        "View",
+                        "Label",
                     ]
                 },
                 {
                     id: "Property",
                     name: "Property Modelling",
                     description: "Create New Entity using objecttype: EntityType and add properties",
-                    workOnTypes: [
-                        "Container",   
+                    workOnTypes: [ 
                         "EntityType",
                         "Property",
                         "Datatype",
@@ -151,69 +133,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                         "InputPattern",
                         "FieldType",
                         "Unittype"
-                    ]
-                },
-                {
-                    id: "IRTV+New-types",  
-                    name: "IRTV + New types",
-                    description: "Modelling",
-                    workOnTypes: [
-                        "Container",
-                        "Information",
-                        "Role",
-                        "Task",
-                        "View",
-                        "Label",
-                        "Property",
-                        "Generic",
-                        "EntityType",
-                        ...oTypesSorted?.map((t: { name: any; }) => 
-                            (t.name !== "Container") &&
-                            (t.name !== "EntityType") &&
-                            (t.name !== "Information") &&
-                            (t.name !== "Role") &&
-                            (t.name !== "Task") &&
-                            (t.name !== "View") &&
-                            (t.name !== "Label") &&
-                            (t.name !== "Property") &&
-                            (t.name !== "Generic") &&
-                            (t.name !== "Datatype") &&
-                            (t.name !== "InputPattern") &&
-                            (t.name !== "FieldType") &&
-                            (t.name !== "Unittype") &&
-                            (t.name !== "Value") &&
-                            (t.name !== "ViewFormat") &&
-                            (t.name !== "Method") &&
-                            (t.name !== "MethodType") &&
-                            (t.name !== "View") &&
-                            (t.name !== "RelshipType") &&
-                            (t.name !== "ExclusiveGate") &&
-                            (t.name !== "Process") &&
-                            (t.name !== "Function") &&
-                            (t.name !== "Activity") &&
-                            (t.name !== "Start") &&
-                            (t.name !== "End") &&
-                            (t.name !== "ExclusiveGate") &&
-                            (t.name !== "InclusiveGate") &&
-                            (t.name !== "ParallelGate")
-                            && t.name).filter(Boolean),
-                            "Process",
-                            "Function",
-                            "Activity",
-                            "Start",
-                            "End",
-                            "ExclusiveGate",
-                            "InclusiveGate",
-                            "ParallelGate",
-                            "Datatype",
-                            "InputPattern",
-                            "FieldType",
-                            "Unittype",
-                            "Value",
-                            "ViewFormat",
-                            "Method",
-                            "MethodType",
-                            "RelshipType"
                     ]
                 },
             ]

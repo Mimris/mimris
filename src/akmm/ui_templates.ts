@@ -295,7 +295,18 @@ export function groupTopFigure(contextMenu: any) {
                         new go.Binding("fill", "fillcolor"),
                         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
                         new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-                    )
+                    ),
+                    $(go.TextBlock, textStyle(), // the typename  --------------------
+                    {
+                        row: 1, column: 1, columnSpan: 6,
+                        stretch: go.GraphObject.Fill,
+                        editable: false, isMultiline: false,
+                        minSize: new go.Size(10, 4),
+                        margin: new go.Margin(0, 0, 0, 2),  
+                        textAlign: "center",
+                    },
+                    new go.Binding("text", "typename")
+                    ),
                 ),
             )
 }
@@ -372,7 +383,18 @@ export function groupTopGeometry(contextMenu: any) {
                         new go.Binding("fill", "fillcolor"),
                         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
                         new go.Binding("isSubGraphExpanded").makeTwoWay(),    
-                    )
+                    ),
+                    $(go.TextBlock, textStyle(), // the typename  --------------------
+                    {
+                        row: 1, column: 1, columnSpan: 6,
+                        stretch: go.GraphObject.Fill,
+                        editable: false, isMultiline: false,
+                        minSize: new go.Size(10, 4),
+                        margin: new go.Margin(0, 0, 0, 2),  
+                        textAlign: "center",
+                    },
+                    new go.Binding("text", "typename")
+                    ),
                 ),
             )
 }
@@ -2747,6 +2769,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         )
         groupTemplateMap.add("groupWithPorts", groupWithPorts1);
         addGroupTemplateName('groupWithPorts');      
+        addGroupTemplateName('groupWithIconAndPorts');      
         
         const groupWithPorts2 =
         $(go.Group, "Spot",
@@ -2834,6 +2857,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             ),  // end bottomPorts Panel
         )
         groupTemplateMap.add("groupWithPorts2", groupWithPorts2);
+        addGroupTemplateName('groupWithGeoAndPorts');      
         
         const groupWithPorts3 =
         $(go.Group, "Spot",
@@ -2920,7 +2944,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 }
             ),  // end bottomPorts Panel
         )
-        groupTemplateMap.add("groupWithPorts3", groupWithPorts3);
+        groupTemplateMap.add("groupWithFigAndPorts", groupWithPorts3);
+        addGroupTemplateName('groupWithFigAndPorts');      
     }
     if (true) { // groupWithoutPorts1
         const groupWithoutPorts1 =
@@ -2953,8 +2978,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             groupTopIcon(contextMenu),
         )
-        groupTemplateMap.add("groupNoPorts", groupWithoutPorts1);
-        addGroupTemplateName('groupNoPorts');        
+        groupTemplateMap.add("groupIconNoPorts", groupWithoutPorts1);
+        addGroupTemplateName('groupIconNoPorts');        
     
         const groupWithoutPorts2 =
         $(go.Group, "Spot",
@@ -2984,12 +3009,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            // groupTopIcon(contextMenu),
             groupTopGeometry(contextMenu),
-            // groupTopFigure(contextMenu),
 
         )
-        groupTemplateMap.add("groupNoPorts2", groupWithoutPorts2);
+        groupTemplateMap.add("groupGeoNoPorts", groupWithoutPorts2);
+        addGroupTemplateName('groupGeoNoPorts');        
 
         const groupWithoutPorts3 =
         $(go.Group, "Spot",
@@ -3021,7 +3045,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             groupTopFigure(contextMenu),
         )
-        groupTemplateMap.add("groupNoPorts3", groupWithoutPorts3);
+        groupTemplateMap.add("groupFigNoPorts", groupWithoutPorts3);
+        addGroupTemplateName('groupFigNoPorts');        
     }
     if (false) { // laneTemplate
       // each Group is a "swimlane" with a header on the left and a resizable lane on the right

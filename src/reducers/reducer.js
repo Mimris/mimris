@@ -175,20 +175,35 @@ function reducer(state = InitialState, action) {
   const curModel = phData.metis.models.find((m) => m.id === focusModel.id);
   if (!curModel) return state;
   const curModelIndex = phData.metis.models.findIndex((m) => m.id === focusModel.id);
-  const curModelview = curModel?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-  const curModelviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
+  const curModelview = curModel?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) || curModel?.modelviews[0] //current modelview
+  let curModelviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
+  const curModelviewsLength = curModel?.modelviews?.length // lentgh of modelviews array
+  if (curModelviewIndex < 0) {curModelviewIndex = curModelviewsLength} // if modelview not found, i.e. -1, then add a new modelview
+
   const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
-  const curObjectviewsLength = curModelview?.objectviews.length
-  const curModelviewsLength = curModel.modelviews.length // lentgh of modelviews array
-  let objectviewIndex = curModel.objectviews?.findIndex((ov) => ov.id === curObjectview.id); // current objectview index
-  if (objectviewIndex < 0) { objectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
+  let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview); // current objectview index
+  const curObjectviewsLength = curModelview?.objectviews?.length
+  if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
+
+  const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
+  let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
+  const curObjectLength = curModel?.objects?.length;
+  if (curObjectIndex > 0) { curObjectIndex = curObjectLength}
+
+  const curRelshipview = curModelview?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
+  let curRelshipviewIndex = curModelview?.relshipviews?.findIndex((rv) => rv.id === curRelshipview?.id) //action?.data?.id); // current relshipview index
+  const curRelshipviewsLength = curModelview?.relshipviews?.length
+  if (curRelshipviewIndex < 0) { curRelshipviewIndex = curRelshipviewsLength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
+
+  const curRelship = curModel?.relships?.find((r) => r.id === action.data?.id);
+  let curRelshipIndex = curModel?.relships?.findIndex((r) => r.id === curRelship?.id);
+  const curRelshipLength = curModel?.relships?.length;
+  if (curRelshipIndex > 0) { curRelshipIndex = curRelshipLength}
+
+
 
   // const curObjectType = curMetamodel.objecttypes.find((ot) => ot.id === curObjectView.objecttypeRef);
   // const curObjectTypeIndex = curMetamodel.objecttypes.findIndex((ot) => ot.id === curObjectView.objecttypeRef);
-  const curObject = curModel.objects.find((o) => o.id === action.data?.id);
-  let curObjectIndex = curModel.objects.findIndex((o) => o.id === curObject?.id);
-  const curObjectLength = curModel.objects.length;
-  if (curObjectIndex > 0) { curObjectIndex = curObjectLength}
 
   const curMetamodel = phData.metis.metamodels.find( (m) => m.id === curModel.metamodelRef);
   const curMetamodelIndex = phData.metis.metamodels.findIndex((m) => m.id === curModel.metamodelRef);
@@ -757,12 +772,12 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.models[curModelIndex],
                 objects: [
-                  ...curModel?.objects.slice(0, curModelIndex),
+                  ...curModel?.objects.slice(0, curObjectIndex),
                   {
-                    ...curModel.objects[curModelIndex], 
+                    ...curModel.objects[curObjectIndex], 
                     ...action.data,
                   },
-                  ...curModel?.objects.slice(curModelIndex + 1, curModel?.objects.length)
+                  ...curModel?.objects.slice(curObjectIndex + 1, curModel?.objects.length)
                 ],
               },
               ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
@@ -786,19 +801,19 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.models[curModelIndex],
                 modelviews: [
-                  ...curModel?.modelviews?.slice(0, curModelIndex),
+                  ...curModel?.modelviews?.slice(0, curModelviewIndex),
                   {
-                    ...curModel?.modelviews[curModelIndex],
+                    ...curModel?.modelviews[curModelviewIndex],
                     objectviews: [
-                      ...curModelview?.objectviews?.slice(0, objectviewIndex),
+                      ...curModelview?.objectviews?.slice(0, curObjectviewIndex),
                       {
-                        ...curModelview.objectviews[objectviewIndex],
+                        ...curModelview.objectviews[curObjectviewIndex],
                         ...action.data, 
                       },
-                      ...curModelview?.objectviews?.slice(objectviewIndex + 1, curModelview?.objectviews.length)
+                      ...curModelview?.objectviews?.slice(curObjectviewIndex + 1, curModelview?.objectviews.length)
                     ]
                   },
-                  ...curModel?.modelviews?.slice(curModelIndex + 1, curModel.modelviews.length),
+                  ...curModel?.modelviews?.slice(curModelviewIndex + 1, curModel.modelviews.length),
                 ],
               },
               ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
@@ -806,21 +821,12 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-      if (debug) console.log('857 retval', retval_UPDATE_OBJECTVIEW_PROPERTIES);
+      if (!debug) console.log('857 retval', retval_UPDATE_OBJECTVIEW_PROPERTIES);
       return retval_UPDATE_OBJECTVIEW_PROPERTIES
 
     case UPDATE_RELSHIP_PROPERTIES:
       if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
-      const curr = curModel.relships?.find(rv => rv.id === action?.data?.id) // current relview
-      // if (debug) console.log('409 curov', curov);
-      const r2length = curModel?.relships.length
-      let r2index = curModel?.relships?.findIndex(r => r.id === curr?.id) // current relview index
-      if (r2index < 0) { r2index = r2length } // ovindex = -1, i.e.  not fond, which means adding a new relview
-      // if (debug) console.log('411 ovindex', ovindex, ovlength);
-      const curr2 = curModel?.relships?.find(r => r.id === curr?.relshipRef)
-      const currindex = curModel?.relships?.findIndex(r => r.id === curr2?.objectRef)
-
-      return {
+      const retval_UPDATE_RELSHIP_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -831,12 +837,12 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.models[curModelIndex],
                 relships: [
-                  ...curModel.relships.slice(0, r2index),
+                  ...curModel.relships.slice(0, curRelshipIndex),
                   {
-                    ...curModel.relships[r2index],
+                    ...curModel.relships[curRelshipIndex],
                     ...action.data, 
                   },
-                  ...curModel.relships.slice(r2index+1 , curModel.relships.length)
+                  ...curModel.relships.slice(curRelshipIndex+1 , curModel.relships.length)
                 ]
               },
               ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
@@ -844,14 +850,11 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      return retval_UPDATE_RELSHIP_PROPERTIES
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
-      const currvlength =  curModel?.relshipviews?.length
-      const currv =     curModel?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
-      let currvindex =     curModelview?.relshipviews?.findIndex(rv => rv.id === currv?.id) // current relshipview index
-      if (currvindex < 0) { currvindex = currvlength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
-      return {
+      const retval_UPDATE_RELSHIPVIEW_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -866,12 +869,12 @@ function reducer(state = InitialState, action) {
                     {
                       ...curModel?.modelviews[curModelviewIndex],
                       relshipviews: [
-                        ...curModelview?.relshipviews?.slice(0, currvindex),
+                        ...curModelview?.relshipviews?.slice(0, curRelshipviewIndex),
                         {
-                          ...curModelview?.relshipviews[currvindex],  
+                          ...curModelview?.relshipviews[curRelshipviewIndex],  
                           ...action.data, 
                         },
-                        ...curModelview?.relshipviews.slice(currvindex + 1, curModelview?.relshipviews?.length)
+                        ...curModelview?.relshipviews.slice(curRelshipviewIndex + 1, curModelview?.relshipviews?.length)
                       ]
                     },
                     ...curModel?.modelviews.slice(curModelviewIndex + 1, curModel?.modelviews?.length),
@@ -882,6 +885,8 @@ function reducer(state = InitialState, action) {
             },
           },
         }
+      if (!debug) console.log('889 retval', retval_UPDATE_RELSHIPVIEW_PROPERTIES);
+        return retval_UPDATE_RELSHIPVIEW_PROPERTIES
       
     case UPDATE_OBJECTTYPE_PROPERTIES:
       if (debug) console.log('949 UPDATE_OBJECTTYPE_PROPERTIES', action);

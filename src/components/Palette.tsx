@@ -145,7 +145,7 @@ const Palette = (props: any) => {
       if (debug) console.log('140 Palette useEffect 1 []', setFilteredOtNodeDataArray(filteredNodeDataArrayot), filteredNodeDataArrayot);
       setRefreshPalette(!refreshPalette); // set current palette according to selected modellingtask
       if (debug) console.log('143 Palette useEffect 1 []', filteredNewtypesNodeDataArray, filteredOtNodeDataArray);
-    }, 1000);
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 

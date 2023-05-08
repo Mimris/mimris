@@ -1155,7 +1155,7 @@ export class cxMetis {
                 });
                 const relshipviews: any[] = item.relshipviews;
                 if (debug) console.log('978 relshipviews', relshipviews);
-                relshipviews.forEach(relview => {
+                relshipviews?.forEach(relview => {
                     if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });

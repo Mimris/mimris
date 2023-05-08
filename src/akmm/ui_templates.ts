@@ -469,7 +469,7 @@ export function groupTopIcon(contextMenu: any) {
 }
 
 function addNodeText(contextMenu: any) {
-    return $(go.Panel, "Table", // separator ---------------------------------
+    return $(go.Panel, "Table", // separator  name typename ---------------------------------
         {   
             contextMenu: contextMenu, 
             cursor: "move" 
@@ -772,8 +772,7 @@ function addLinkTemplateName(name: string) {
 }
 
 // some shared functions
-if (true) {
-    // Swimpool and swimlane code
+if (true) {  // Swimpool and swimlane code
     // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
     function relayoutDiagram() {
         myDiagram.layout.invalidateLayout();
@@ -951,6 +950,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             {
             cursor: "alias",
             fill: 'yellow', 
+            // fill: 'hsla(0, 50%, 100%, 0.5)',
             stroke: "#fff",  
             strokeWidth: 2, 
             margin: new go.Margin(1, 1, 1, 1),
@@ -2477,9 +2477,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     $(go.TextBlock, // group title located at the center
                         { 
                             row: 0, 
-                            column: 1, 
-                            margin: new go.Margin(5, 5, 10, 5), // 0, 
-                            alignment: go.Spot.Center,
+                            column: 0, 
+                            margin: new go.Margin(0, 0, 8, 28), // 0, 
+                            // margin: new go.Margin(5, 5, 10, 5), // 0, 
+                            alignment: go.Spot.Left,
                             font: "Bold 14pt Sans-Serif",
                             editable: true, 
                             isMultiline: false,
@@ -2497,8 +2498,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         { 
                             row: 0, 
                             column: 2, 
-                            margin: new go.Margin(5, 5, 10, 5),
-                            desiredSize: new go.Size(20, 20),
+                            margin: new go.Margin(0, 5, 10, 0),
+                            desiredSize: new go.Size(25, 25),
                             alignment: go.Spot.Right,
                         }
                     ),
@@ -2506,6 +2507,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
                     {
                         name: "SHAPE",
+                        // fill: "transparent",
                         fill: "white",
                         stroke: "black",
                         opacity: 0.75,
@@ -2523,8 +2525,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     stretch: go.GraphObject.Fill,
                     editable: false, isMultiline: false,
                     minSize: new go.Size(10, 2),
-                    margin: new go.Margin(0, 0, 0, 0),  
-                    textAlign: "center",
+                    margin: new go.Margin(0, 0, 0, 8),  
+                    textAlign: "left",
                 },
                 new go.Binding("text", "typename")
                 ),  
@@ -2534,7 +2536,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Container1", groupTemplate1);
         addGroupTemplateName('Container1');
 
-    if (true) {
+    if (true) { // groupTemplate2
         const groupTemplate2 =
         $(go.Group, "Auto",
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -2613,9 +2615,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     $(go.TextBlock, // group title located at the center
                         { 
                             row: 0, 
-                            column: 1, 
-                            margin: new go.Margin(5, 5, 10, 5), // 0, 
-                            alignment: go.Spot.Center,
+                            column: 0, 
+                            margin: new go.Margin(0, 0, 8, 28), // 0, 
+                            alignment: go.Spot.Left,
                             font: "Bold 14pt Sans-Serif",
                             editable: true, 
                             isMultiline: false,
@@ -2631,8 +2633,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         { 
                             row: 0, 
                             column: 2, 
-                            margin: new go.Margin(5, 5, 10, 5),
-                            desiredSize: new go.Size(20, 20),
+                            margin: new go.Margin(0, 0, 28, 0),
+                            desiredSize: new go.Size(25, 25),
                             alignment: go.Spot.Right,
                         }
                     ),
@@ -2656,7 +2658,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Container2", groupTemplate2);
         addGroupTemplateName('Container2');
     }
-    if (true) {
+    if (true) { // groupWithPorts1
         const groupWithPorts1 =
         $(go.Group, "Spot",
             {
@@ -2687,7 +2689,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             groupTopIcon(contextMenu),
 
-            // Now the ports
+            // Now the leftports
             $(go.Panel, "Vertical", 
                 new go.Binding("itemArray", "leftPorts"),
                 {
@@ -2920,7 +2922,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         )
         groupTemplateMap.add("groupWithPorts3", groupWithPorts3);
     }
-    if (true) {
+    if (true) { // groupWithoutPorts1
         const groupWithoutPorts1 =
         $(go.Group, "Spot",
             {
@@ -3021,8 +3023,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         )
         groupTemplateMap.add("groupNoPorts3", groupWithoutPorts3);
     }
-
-    if (false) {
+    if (false) { // laneTemplate
       // each Group is a "swimlane" with a header on the left and a resizable lane on the right
       const laneTemplate = 
       $(go.Group, "Horizontal", groupStyle(),
@@ -3135,7 +3136,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             }).ofObject())
         );
     }
-    if (false) {
+    if (false) { // poolTemplate
         const poolTemplate =
         $(go.Group, "Auto", groupStyle(),
           { // use a simple layout that ignores links to stack the "lane" Groups on top of each other
@@ -3159,7 +3160,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Pool", poolTemplate);
         addGroupTemplateName('Pool');
     }
-    if (false) {
+    if (false) { // groupTemplate4
         const groupTemplate4 =
         $(go.Group, "Auto",
           { selectionAdorned: false },
@@ -3184,7 +3185,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("groupTemplate4", groupTemplate4);
         addGroupTemplateName('groupTemplate4');
     }
-    if (false) {
+    if (false) { // groupTemplate4
         const groupTemplate4 = 
             $(go.Group, "Vertical",
             { layout: $(go.TreeLayout, { setsPortSpot: false, setsChildPortSpot: false }) },
@@ -3222,7 +3223,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             groupTemplateMap.add("Test", groupTemplate4);
             addGroupTemplateName('Test');
     }
-    if (false) {
+    if (false) { // groupTemplate5
         const groupTemplate5 =
         $(go.Group, go.Panel.Auto,
           { contextMenu: contextMenu },
@@ -3274,7 +3275,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Container5", groupTemplate5);
         addGroupTemplateName('Container5'); 
     }
-    if (false) {
+    if (false) { // groupTemplate6
         const groupTemplate6 =
         $(go.Group, "Auto",
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3341,7 +3342,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Container6", groupTemplate6);
         addGroupTemplateName('Container6'); 
     }
-    if (false) {
+    if (false) { // swimLanesGroupTemplate
         const swimLanesGroupTemplate =
         $(go.Group, 'Spot', groupStyle(),
           {
@@ -3454,7 +3455,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("SwimLane", swimLanesGroupTemplate);
         addGroupTemplateName('SwimLane'); 
     }    
-    if (false) {
+    if (false) { // poolGroupTemplate
         const poolGroupTemplate =
         $(go.Group, 'Auto', groupStyle(),
         {

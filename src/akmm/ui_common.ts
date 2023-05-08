@@ -798,51 +798,51 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     const nodeSize = siz?.split(" ");
     const nw = parseInt(nodeSize[0]);
     const nh = parseInt(nodeSize[1]);
+    const myNode = nod;
     let nodes = model.nodes;
     let uniqueSet = utils.removeArrayDuplicates(nodes);
     nodes = uniqueSet;
     if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
+    // Go through all the groups
     let groups = new Array();
     for (let i = 0; i < nodes?.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         if (debug) console.log('798 node', node);
         if (node.key === nod.key) continue;
         if (node.isGroup) {
-            if (debug) console.log('801 node', node);
-            const grpLoc = node.loc?.split(" ");
-            const grpSize = node.size?.split(" ");
-            const scale = /* node.scale1 **/ node.memberscale;
+            const myGroup = node;
+            if (debug) console.log('801 myNode', myNode);
+            const grpLoc = myGroup.loc?.split(" ");
+            const grpSize = myGroup.size?.split(" ");
+            const scale = myGroup.scale1;
             if (!grpLoc) return;
             const gx = parseInt(grpLoc[0]);
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
-            // const size = Math.sqrt(gw * gw + gh * gh);
-            const size = gw + " " + gh;
-            if (debug) console.log('822 nodeLoc, grpLoc', nodeLoc, grpLoc);
+            if (debug) console.log('822 myNode, myNode.scale', myNode, myNode.scale1);
             if (debug) console.log('823 nx, ny, nw, nh, gx, gy, gw, gh', nx, ny, nw, nh, gx, gy, gw, gh);
             if (
-                (nx > gx) // Check lower left corner of node
+                (nx > gx) // Check upper left corner of node
                 && 
-                (nx + nw * scale < gx + gw ) // Check lower right corner of node
+                (nx < gx + gw * scale ) // Check upper right corner of node
                 &&
-                (ny > gy) // Check upper left corner of node
+                (ny > gy) // Check lower left corner of node
                 && 
-                (ny + nh * scale  < gy + gh) // Check lower right corner of node
+                (ny < gy + gh * scale) // Check lower right corner of node
             ) {
-                // let grp = {"node": node, "size": size, "memberscale": scale};
                 let grp = {
                     "name": node.name, 
                     "groupId": node.key, 
                     "group": node, 
                     "size": gw * scale * gh * scale, 
-                    "memberscale": scale
                 };
                 if (debug) console.log('834 group', grp);
                 groups.push(grp);
             }
         }
     }
+    if (debug) console.log('847 groups', groups);
     uniqueSet = utils.removeArrayDuplicates(groups);
     groups = uniqueSet;
 

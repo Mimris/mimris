@@ -37,7 +37,8 @@ const colornames = ['black', 'white',
                     'grey', 'lightgrey', 'darkgrey',
                     'yellow', 'lightyellow', 'yellowgreen', 'orange', 
                     'brown', 'purple', 
-                    'violet', 'turquoise'
+                    'violet', 'turquoise',
+                    'transparent'
                    ];
 
 const strokewidths = ['1', '2', '3', '4', '5'];

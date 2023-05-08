@@ -435,7 +435,7 @@ const Context = (props) => {
 
     return (
       <>
-        <div className="context m-0 " style={{ minWidth: '686px', maxWidth: '800px', width: 'auto' }} >
+        <div className="context m-0 " style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
           <div className="context-tabs border border-dark rounded bg-white mx-1" style={{ height: 'auto',   borderTop: 'none' }}>
             {tabsDiv} 
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}

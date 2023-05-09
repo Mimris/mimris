@@ -978,7 +978,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Typeview",
           function (e: any, obj: any) { 
-            const node = obj.part.data;
+            const node = e.diagram.selection.first().data;
+            if (debug) console.log('983 node, myMetis', node, myMetis);
             uid.editTypeview(node, myMetis, myDiagram); 
           }, 
           function (o: any) {
@@ -996,8 +997,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.selection.each(function(sel) {
                 const inst = sel.data;
                 if (inst.category === constants.gojs.C_OBJECT) {
-                  let node = myGoModel.findNode(inst.key);
-                  uid.resetToTypeview(node, myMetis, myDiagram); 
+                  if (!debug) console.log('1000 myGoModel, inst', myGoModel, inst);
+                  uid.resetToTypeview(inst, myMetis, myDiagram); 
                 }
               })
             }, 

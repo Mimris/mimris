@@ -575,7 +575,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   if (myDiagram && modalContext.context) myDiagram = modalContext.context.myDiagram;
   const selection = myDiagram.selection;
   if (debug) console.log('547 selection', selection);
-  const myMetis = props.myMetis;
+  const myMetis = props.myMetis as akm.cxMetis;
   if (debug) console.log('549 myMetis', myMetis);
   const myMetamodel = myMetis.currentMetamodel;
   const myModel     = myMetis.currentModel;
@@ -881,6 +881,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (obj) obj.viewkind = objview.viewkind;
           }
           const node = myDiagram.findNodeForKey(sel.data.key);
+          if (debug) console.log('884 node.data, objview', node.data, objview);
           if (node) {
             const data = node.data;
             myDiagram.model.setDataProperty(node, "groupable", objview.isGroup);
@@ -906,9 +907,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
                   myDiagram.model.setDataProperty(data, prop, objview[prop]);
                 if (prop === 'strokewidth' && objview[prop] !== "")
                   myDiagram.model.setDataProperty(data, prop, objview[prop]);
-                  if (prop === 'textcolor' && objview[prop] !== "") 
+                if (prop === 'textcolor' && objview[prop] !== "") 
                   myDiagram.model.setDataProperty(data, prop, objview[prop]);
                 if (prop === 'textscale' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'memberscale' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                  if (prop === 'arrowscale' && objview[prop] !== "") 
+                  myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                if (prop === 'icon' && objview[prop] !== "") 
                   myDiagram.model.setDataProperty(data, prop, objview[prop]);
             }
             if (debug) console.log('906 node, data', node, data);
@@ -1254,24 +1261,37 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         })
       }
       if (selObj.category === constants.gojs.C_OBJECT) {
-        const node = myDiagram.findNodeForKey(selObj.key);
-        data = node.data;
-        let objview = data.objectview;
-        objview = myMetis.findObjectView(objview?.id);
-        objtypeview = data.objectview?.typeview;
-        if (debug) console.log('950 objtypeview, data, objview', objtypeview, data, objview);
-        const typeviews = myMetis.objecttypeviews;
-        for (let i = 0; i < typeviews.length; i++) {
-          const typeview = typeviews[i];
-          if (typeview.id === objtypeview?.id) {
-            for (let prop in data.typeview.data) {
-              objview[prop] = data.objectview[prop];
-              typeview.data[prop] = selObj[prop];
-              if (debug) console.log('958 typeview', typeview);
-            }
-          }
+        data = selObj;
+        objtypeview = selObj.typeview;
+        objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        if (debug) console.log('950 selObj, objtypeview, data', selObj, objtypeview, data);
+        for (let prop in objtypeview?.data) {
+          objtypeview[prop] = selObj[prop];
         }
-        if (debug) console.log('962 data, objtypeview', data, objtypeview);        
+        if (debug) console.log('956 objtypeview', objtypeview);
+        for (let prop in objtypeview?.data) {
+          if (prop === 'id') continue;
+          if (prop === 'name') continue;
+          if (prop === 'abstract') continue;
+          if (prop === 'category') continue;
+          if (prop === 'class') continue;
+          if (prop === 'fromArrow') 
+            if (selObj[prop] === 'None') selObj[prop] = "";
+          if (prop === 'toArrow') 
+            if (selObj[prop] === 'None') selObj[prop] = "";
+          objtypeview[prop] = selObj[prop];
+          objtypeview.data[prop] = selObj[prop];
+          myDiagram.model.setDataProperty(data, prop, selObj[prop]);
+        }
+        if (debug) console.log('1051 objtypeview', objtypeview);        
+        const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
+        if (debug) console.log('1049 jsnObjtypeview', jsnObjtypeview);
+        modifiedObjTypeviews.push(jsnObjtypeview);
+        modifiedObjTypeviews.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+        })
       }
       if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
         const link = myDiagram.findLinkForKey(selObj.key);
@@ -1307,6 +1327,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               let toArrow = typeview[prop];
               if (typeview[prop] === 'None') toArrow = "";
               myDiagram.model.setDataProperty(data, prop, toArrow);           
+            if (prop === 'memberscale') {
+                let scale = typeview[prop];
+                if (typeview[prop] === 'None') scale = "";
+                myDiagram.model.setDataProperty(data, prop, toArrow);           
             } else {          
               typeview[prop] = selObj[prop];
               typeview.data[prop] = selObj[prop];
@@ -1363,6 +1387,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         return;
       }
       break;
+      }
     }
     case "editModelview": {
       break;

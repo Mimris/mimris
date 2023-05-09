@@ -93,7 +93,7 @@ export class cxMetis {
         this.objecttypes = [portType];
     }
     importData(importedData: any, includeDeleted: boolean) {
-        if (debug) console.log('79 importedData', importedData);
+        if (!debug) console.log('79 importedData', importedData, includeDeleted);
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
@@ -499,7 +499,7 @@ export class cxMetis {
                             if (rels && rels.length) {
                                 for (let i = 0; i < rels.length; i++) {
                                     const item = rels[i];
-                                    if (includeDeleted || !item.markedAsDeleted) { 
+                                    if (item && (includeDeleted || !item.markedAsDeleted)) { 
                                         const rel = new cxRelationship(item.id, null, null, null, item.name, item.description);
                                         if (!rel) continue;
                                         model.addRelationship(rel);
@@ -1098,6 +1098,7 @@ export class cxMetis {
     }
     importRelship(item: any, model: cxModel | null) {
         if (model) {
+            if (!item) return; // sf 2023-05-09
             const rel = this.findRelationship(item.id);
             if (debug) console.log('948 item, rel', item, rel);
             if (rel && item.typeRef) {
@@ -1155,7 +1156,7 @@ export class cxMetis {
                 });
                 const relshipviews: any[] = item.relshipviews;
                 if (debug) console.log('978 relshipviews', relshipviews);
-                relshipviews.forEach(relview => {
+                relshipviews?.forEach(relview => { // sf added ? 2021-05-09
                     if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });

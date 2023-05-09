@@ -7,7 +7,8 @@ const linkToLink = false;
 
 import * as go from 'gojs';
 
-<script src="../release/go-debug.js"></script>
+import { SaveModelviewToSvgFile } from '../../utils/SaveModelToFile';
+{/* <script src="../release/go-debug.js"></script> */}
 
 import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
@@ -3513,11 +3514,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         </TabContent>
       </>  
 
-if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
-if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ', 
-    this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
+    const exportToSvg = () => {
+      if (!this.diagramRef.current) return;
+      const diagram = this.diagramRef.current.getDiagram();
+      if (!diagram) return;
+      console.log('3521 Diagram :',  myModel.name);
 
-return (
+      const svg = diagram.makeSvg({ scale: 1, background: 'white' });
+      const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
+      console.log('SVG string:', svgString);
+          // Create a Blob from the SVG string
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+
+      SaveModelviewToSvgFile(blob, myModel.name, "_MV.", "image/svg+xml")
+
+      // Revoke the old Blob URL and create a new one
+      // if (downloadUrl) {
+      //   URL.revokeObjectURL(downloadUrl);
+      // }
+      // setDownloadUrl(URL.createObjectURL(blob))
+    };
+
+    if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
+    if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ', 
+        this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
+
+    return (
       <div>
         <ReactDiagram 
           ref={this.diagramRef}
@@ -3530,8 +3552,10 @@ return (
           // modelType={this.props.modelType}
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
-          style={this.props.diagramStyle}       
+          style={this.props.diagramStyle}      
         />
+        <button onClick={exportToSvg}>Export to SVG</button>
+
         <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}
             <div className="modal-content">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from 'react-redux'
 import { saveAs } from "file-saver";
-import Markdown from 'markdown-to-jsx';
+import Markdown from 'Markdown-to-jsx';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FormGroup, Label, Input, Button } from 'reactstrap';
 
@@ -15,12 +15,12 @@ function MarkdownEditor({ props }) {
   console.log('18 MarkdownEditor.tsx', props);
  
   const [mdHeaderString, setMdHeaderString] = useState('');
-  const [mdString, setMdString] = useState('');
+  const [mdString, setMdString] = useState(``);
   const [mdFooterString, setMdFooterString] = useState('');
   const [githubToken, setGithubToken] = useState('');
   const [githubRepo, setGithubRepo] = useState('');
-  const [githubBranch, setGithubBranch] = useState('main');
-  const [githubPath, setGithubPath] = useState('my-markdown-file.md');
+  const [githubBranch, setGithubBranch] = useState('Main');
+  const [githubPath, setGithubPath] = useState('My-markdown-file.md');
 
   const [selectedId, setSelectedId] = useState('');
   const [objview, setObjview] = useState(null);
@@ -108,7 +108,8 @@ function MarkdownEditor({ props }) {
   markdownString += 'Name: ' + curobject?.name + ' \n\n'
   markdownString += '***Description:*** ***'+ curobject?.description +'*** \n\n'
   markdownString += '***Figure:*** \n\n'
-  markdownString += '![Figure](https://via.placeholder.com/150) \n\n'
+
+  markdownString += `![Alt text] (./_ADMIN_MODEL__MO.svg.svg) \n\n`
   markdownString += ` \n\n *Children:* \n\n  ---  \n\n`
 
   
@@ -153,7 +154,7 @@ function MarkdownEditor({ props }) {
       
       <hr style="background: green" /> 
 
-      Here's an image:
+     Here's an image:
 
       ![Alt text](https://via.placeholder.com/150 "Optional title")
     `

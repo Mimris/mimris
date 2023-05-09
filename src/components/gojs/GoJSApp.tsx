@@ -48,6 +48,7 @@ interface AppState {
   modalContext: any;
   selectedOption: any;
   diagramStyle: any;
+
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -73,7 +74,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       showModal: false,
       modalContext: null,
       selectedOption: null,
-      diagramStyle: this.props.diagramStyle
+      diagramStyle: this.props.diagramStyle,
     };
     if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
@@ -1713,6 +1714,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('1704 myMetis', myMetis);
   }
 
+
   public render() {   
     const selectedData = this.state.selectedData;
     if (debug) console.log('1483 selectedData', selectedData, this.props);
@@ -1793,6 +1795,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           dispatch          ={this.state.dispatch}
           diagramStyle      ={this.state.diagramStyle}
         />
+
         <Modal className="" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">
             <div className="modal-content"> */}

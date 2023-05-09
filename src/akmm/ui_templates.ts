@@ -2977,6 +2977,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             groupTopIcon(contextMenu),
         )
         groupTemplateMap.add("groupIconNoPorts", groupWithoutPorts1);
+        addGroupTemplateName('groupNoPorts');        
         addGroupTemplateName('groupIconNoPorts');        
     
         const groupWithoutPorts2 =

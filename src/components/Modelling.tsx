@@ -179,7 +179,7 @@ const page = (props:any) => {
     const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
     
     // set the myMetis object etc. from the props;
-    const myMetis = props.phMymetis?.myMetis
+    const myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
     const myModel = myMetis?.findModel(curmod?.id);
     if (debug) console.log('171 Modelling myModel', curmod, focusModel, metis.models, myModel);
     let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);

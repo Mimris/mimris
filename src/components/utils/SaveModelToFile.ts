@@ -97,6 +97,19 @@ export const SaveAllToFileDate = (data, name, type) => {
     document.body.removeChild(link);
 }
 
+export const SaveModelviewToSvgFile = (svgString, name, type) => {
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = (name.includes('_MV')) ? name : name+"_"+type //+'_'+today;
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".svg";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
 
          // const existsMetamodel = props.phData?.metis?.metamodels.find(m => m.id === modelff?.metamodelRef)

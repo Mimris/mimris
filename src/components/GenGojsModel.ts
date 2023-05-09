@@ -56,11 +56,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
     
     const myMetis = new akm.cxMetis();
-    const tempMetis = myMetis
-    if (debug) console.log('55 GenGojsModel: tempMetis', tempMetis);
+    // const tempMetis = myMetis
+    // if (debug) console.log('55 GenGojsModel: tempMetis', tempMetis);
+    if (!debug) console.log('51 GenGojsModel: metis', metis);
     myMetis.importData(metis, true);
     // const metis2 = uib.buildMinimisedMetis(metis, curmod) //Todo: change modelview not load from redux store
-    // if (debug) console.log('51 GenGojsModel: metis2', metis2);
     // myMetis.importData(metis2, true);
     adminModel = uib.buildAdminModel(myMetis);
     clog('61 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);

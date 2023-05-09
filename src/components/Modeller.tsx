@@ -447,7 +447,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             onClick={toggleShowContext} style={{scale: "0.9"}} >✵</button> 
           </div>
         </div>
-        <div className="modeller--workarea-objects m-0 p-0"   data-placement="top" title="Modelling Objects palette">
+        <div className="modeller--workarea-objects m-0 p-0" >
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> 
               <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{    height: "82vh"}} >

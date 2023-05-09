@@ -166,8 +166,6 @@ let focusProj
 let focusRole
 let focusCollection
 
-
-
 function reducer(state = InitialState, action) {
 
   const { phData, phFocus, phUser } = state;
@@ -180,36 +178,13 @@ function reducer(state = InitialState, action) {
   const curModelviewsLength = curModel?.modelviews?.length // lentgh of modelviews array
   if (curModelviewIndex < 0) {curModelviewIndex = curModelviewsLength} // if modelview not found, i.e. -1, then add a new modelview
 
-  const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
-  let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview); // current objectview index
-  const curObjectviewsLength = curModelview?.objectviews?.length
-  if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-
-  const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
-  let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
-  const curObjectLength = curModel?.objects?.length;
-  if (curObjectIndex > 0) { curObjectIndex = curObjectLength}
-
-  const curRelshipview = curModelview?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
-  let curRelshipviewIndex = curModelview?.relshipviews?.findIndex((rv) => rv.id === curRelshipview?.id) //action?.data?.id); // current relshipview index
-  const curRelshipviewsLength = curModelview?.relshipviews?.length
-  if (curRelshipviewIndex < 0) { curRelshipviewIndex = curRelshipviewsLength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
-
-  const curRelship = curModel?.relships?.find((r) => r.id === action.data?.id);
-  let curRelshipIndex = curModel?.relships?.findIndex((r) => r.id === curRelship?.id);
-  const curRelshipLength = curModel?.relships?.length;
-  if (curRelshipIndex > 0) { curRelshipIndex = curRelshipLength}
-
-
-
   // const curObjectType = curMetamodel.objecttypes.find((ot) => ot.id === curObjectView.objecttypeRef);
   // const curObjectTypeIndex = curMetamodel.objecttypes.findIndex((ot) => ot.id === curObjectView.objecttypeRef);
 
   const curMetamodel = phData.metis.metamodels.find( (m) => m.id === curModel.metamodelRef);
   const curMetamodelIndex = phData.metis.metamodels.findIndex((m) => m.id === curModel.metamodelRef);
 
-  switch (action.type) {
-    
+  switch (action.type) { 
     case FAILURE:
       if (debug) console.log('113 FAILURE', action);
       return {
@@ -578,110 +553,109 @@ function reducer(state = InitialState, action) {
           }
         }
       }
-      case SET_MYMETIS_MODEL:
-        // if (debug) console.log('228 SET_MYMETIS_MODEL', action);
-        return {
-          ...state,
-          phMymetis: {
-            ...state.phMymetis,
-            myMetis: action.myMetis
+    case SET_MYMETIS_MODEL:
+      // if (debug) console.log('228 SET_MYMETIS_MODEL', action);
+      return {
+        ...state,
+        phMymetis: {
+          ...state.phMymetis,
+          myMetis: action.myMetis
+        }
+      }
+    case SET_MYMETIS_PARAMETER:
+      // if (debug) console.log('221 SET_MYMETIS_PARAMETER', action.data);
+      return {
+        ...state,
+        phMymetis: {
+          ...state.phMymetis,
+          myMetis: {
+            ...state.phMymetis.myMetis,        
+            pasteViewsOnly: (action.data.pasteViewsOnly) && action.data.pasteViewsOnly,  
+            deleteViewsOnly: (action.data.deleteViewsOnly) && action.data.deleteViewsOnly       
           }
         }
-      case SET_MYMETIS_PARAMETER:
-        // if (debug) console.log('221 SET_MYMETIS_PARAMETER', action.data);
-        return {
-          ...state,
-          phMymetis: {
-            ...state.phMymetis,
-            myMetis: {
-              ...state.phMymetis.myMetis,        
-              pasteViewsOnly: (action.data.pasteViewsOnly) && action.data.pasteViewsOnly,  
-              deleteViewsOnly: (action.data.deleteViewsOnly) && action.data.deleteViewsOnly       
-            }
-          }
+      }
+    case SET_MY_GOMODEL:
+      // if (debug) console.log('220 SET_MY_GOMODEL', action);
+      return {
+        ...state,
+        phMyGoModel: {
+          ...state.phMyGoModel,
+          myGoModel: action.myGoModel
         }
-      case SET_MY_GOMODEL:
-        // if (debug) console.log('220 SET_MY_GOMODEL', action);
-        return {
-          ...state,
-          phMyGoModel: {
-            ...state.phMyGoModel,
-            myGoModel: action.myGoModel
-          }
+      }
+    case SET_MY_GOMETAMODEL:
+      // if (debug) console.log('220 SET_MY_GOMODEL', action);
+      return {
+        ...state,
+        phMyGoMetamodel: {
+          ...state.phMyGoMetamodel,
+          myGoMetamodel: action.myGoMetamodel
         }
-      case SET_MY_GOMETAMODEL:
-        // if (debug) console.log('220 SET_MY_GOMODEL', action);
-        return {
-          ...state,
-          phMyGoMetamodel: {
-            ...state.phMyGoMetamodel,
-            myGoMetamodel: action.myGoMetamodel
-          }
+      }
+    case SET_GOJS_METAMODELPALETTE:
+      if (debug) console.log('592 SET_GOJS_METAMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsMetamodelPalette: action.gojsMetamodelPalette
         }
-      case SET_GOJS_METAMODELPALETTE:
-        if (debug) console.log('592 SET_GOJS_METAMODEL', action);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsMetamodelPalette: action.gojsMetamodelPalette
-          }
+      }
+    case SET_GOJS_METAMODELMODEL:
+      if (debug) console.log('601 SET_GOJS_METAMODELMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsMetamodelModel: action.gojsMetamodelModel
         }
-      case SET_GOJS_METAMODELMODEL:
-        if (debug) console.log('601 SET_GOJS_METAMODELMODEL', action);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsMetamodelModel: action.gojsMetamodelModel
-          }
+      }
+    case SET_GOJS_TARGETMETAMODEL:
+      if (debug) console.log('229 SET_GOJS_TARGETMETAMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsTargetMetamodel: action.gojsTargetMetamodel
         }
-      case SET_GOJS_TARGETMETAMODEL:
-        if (debug) console.log('229 SET_GOJS_TARGETMETAMODEL', action);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsTargetMetamodel: action.gojsTargetMetamodel
-          }
+      }
+    case SET_GOJS_METAMODEL:
+      // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsMetamodel: action.gojsMetamodel
         }
-      case SET_GOJS_METAMODEL:
-        // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsMetamodel: action.gojsMetamodel
-          }
+      }
+    case SET_GOJS_MODEL:
+      if (debug) console.log('560 SET_GOJS_MODEL', action, state);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsModel: action.gojsModel
         }
-      case SET_GOJS_MODEL:
-        if (debug) console.log('560 SET_GOJS_MODEL', action, state);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsModel: action.gojsModel
-          }
+      }
+    case SET_GOJS_TARGETMODEL:
+      // if (debug) console.log('210 SET_GOJS_TARGETMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsTargetModel: action.gojsTargetModel
         }
-      case SET_GOJS_TARGETMODEL:
-        // if (debug) console.log('210 SET_GOJS_TARGETMODEL', action);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsTargetModel: action.gojsTargetModel
-          }
+      }
+    case SET_GOJS_MODELOBJECTS:
+      // if (debug) console.log('210 SET_GOJS_MODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsModelObjects: action.gojsModelObjects
         }
-      case SET_GOJS_MODELOBJECTS:
-        // if (debug) console.log('210 SET_GOJS_MODEL', action);
-        return {
-          ...state,
-          phGojs: {
-            ...state.phGojs,
-            gojsModelObjects: action.gojsModelObjects
-          }
-        }
-
+      }
     case UPDATE_PROJECT_PROPERTIES:
       if (debug) console.log('429 UPDATE_PROJECT_PROPERTIES', action);
       return {
@@ -694,7 +668,6 @@ function reducer(state = InitialState, action) {
             },
           },
         }
-
     case UPDATE_MODEL_PROPERTIES:
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
       return {
@@ -733,7 +706,6 @@ function reducer(state = InitialState, action) {
             },
           },
         }
-
     case UPDATE_MODELVIEW_PROPERTIES:
       return {
         ...state,
@@ -759,8 +731,13 @@ function reducer(state = InitialState, action) {
             },
           },
         }
-
     case UPDATE_OBJECT_PROPERTIES:
+
+      const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
+      let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
+      const curObjectLength = curModel?.objects?.length;
+      if (curObjectIndex > 0) { curObjectIndex = curObjectLength}
+
       const retval_UPTDATE_OBJECT_PROPERTIES = {
         ...state,
         phData: {
@@ -789,6 +766,11 @@ function reducer(state = InitialState, action) {
     
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('794 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
+      let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview); // current objectview index
+      const curObjectviewsLength = curModelview?.objectviews?.length
+      if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
+
       const retval_UPDATE_OBJECTVIEW_PROPERTIES = 
       {
         ...state,
@@ -826,6 +808,11 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIP_PROPERTIES:
       if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
+      const curRelship = curModel?.relships?.find((r) => r.id === action.data?.id) || [];
+      let curRelshipIndex = curModel?.relships?.findIndex((r) => r.id === curRelship?.id);
+      const curRelshipLength = curModel?.relships?.length;
+      if (curRelshipIndex > 0) { curRelshipIndex = curRelshipLength}
+
       const retval_UPDATE_RELSHIP_PROPERTIES = {
         ...state,
         phData: {
@@ -854,6 +841,11 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      const curRelshipview = curModelview?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
+      let curRelshipviewIndex = curModelview?.relshipviews?.findIndex((rv) => rv.id === curRelshipview?.id) //action?.data?.id); // current relshipview index
+      const curRelshipviewsLength = curModelview?.relshipviews?.length
+      if (curRelshipviewIndex < 0) { curRelshipviewIndex = curRelshipviewsLength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
+
       const retval_UPDATE_RELSHIPVIEW_PROPERTIES = {
         ...state,
         phData: {
@@ -922,7 +914,6 @@ function reducer(state = InitialState, action) {
             },
          },
       }
-
     case UPDATE_METAMODEL_PROPERTIES:
       if (debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
@@ -948,7 +939,6 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-
     case UPDATE_TARGETMETAMODEL_PROPERTIES:
       if (debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model

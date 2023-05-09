@@ -2465,7 +2465,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             $(go.Shape, "RoundedRectangle", // surrounds everything
                 {
                     cursor: "alias",
-                    fill: "white", 
+                    fill: "white",
+                    // fill: "rgba(128,128,128,0.33)",
                     shadowVisible: true,
                     minSize: new go.Size(150,75),
                     portId: "", 
@@ -2530,7 +2531,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     {
                         name: "SHAPE",
                         // fill: "transparent",
-                        fill: "white",
+                        // fill: "white",
+                        fill: "rgba(128,128,128,0.33)",
                         stroke: "black",
                         opacity: 0.75,
                         minSize: new go.Size(200, 100), 

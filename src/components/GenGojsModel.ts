@@ -56,7 +56,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     
     const myMetis = new akm.cxMetis();
 
-    if (debug) console.log('51 GenGojsModel: metis', metis);
+    if (!debug) console.log('51 GenGojsModel: metis', metis);
     myMetis.importData(metis, true);
 
     adminModel = uib.buildAdminModel(myMetis);
@@ -64,7 +64,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
-        if (debug) console.log('65 myModel :', myModel);
+        if (!debug) console.log('65 myModel :', myModel);
       const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
       
@@ -87,9 +87,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('92 myPalette', myPalette);
       let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
         if (debug) console.log('108 myModelview', myModelview);
-        if (debug) console.log('109 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
+        if (!debug) console.log('109 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
       const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
-        if (debug) console.log('111 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
+        if (!debug) console.log('111 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
         if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
@@ -99,7 +99,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentModelview(myModelview);
       (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
       (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
-      if (debug) console.log('121 GenGojsModel  myMetis', myMetis);
+      if (!debug) console.log('121 GenGojsModel  myMetis', myMetis);
 
       dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
 

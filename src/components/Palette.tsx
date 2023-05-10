@@ -116,7 +116,7 @@ const Palette = (props: any) => {
   
     if (props.modelType === 'metamodel') {
       return buildFilterOtNodeDataArray(mmodel?.nodeDataArray, mmodel);
-    } else if (mmodel.name === 'AKM-IRTV-POPS_MM') {
+    } else if (mmodel?.name === 'AKM-IRTV-POPS_MM') {
       if (debug) console.log('124 Palette useEffect 1', foundIrtvPopsTypes);
       return buildFilterOtNodeDataArray(foundIrtvPopsTypes?.types, mmodel);
     } else {

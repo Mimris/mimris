@@ -179,7 +179,7 @@ const page = (props:any) => {
     const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
     
     // set the myMetis object etc. from the props;
-    const myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
+    const myMetis = props.phMymetis?.myMetis
     const myModel = myMetis?.findModel(curmod?.id);
     if (debug) console.log('171 Modelling myModel', curmod, focusModel, metis.models, myModel);
     let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
@@ -188,7 +188,7 @@ const page = (props:any) => {
 
     const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
     let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
-    let myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod.targetMetamodelRef) || null;
+    let myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
     const myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
     if (debug) console.log('178 Modelling myMetamodel', props, myMetis, myModel, myModelview, myMetamodel);

@@ -499,13 +499,14 @@ export function handleSelectDropdownChange(selected, context) {
       break;
     }
     case "Create Relationship": {
-      if (debug) console.log('504 context', context);
       const myMetamodel = context.myMetamodel;
       const myGoModel = context.myGoModel;
       const myDiagram = context.myDiagram;
       const modalContext = context.modalContext;
       const data = modalContext.data;
       const typename = selected.value;
+      if (debug) console.log('508 context, modalContext', context, modalContext);
+      if (debug) console.log('510 myGoModel, myMetamodel', myGoModel, myMetamodel);
       modalContext.selected = selected;
       if (debug) console.log('512 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
@@ -517,21 +518,21 @@ export function handleSelectDropdownChange(selected, context) {
       let fromType = fromNode?.objecttype;
       let toType   = toNode?.objecttype;
       fromType = myMetamodel.findObjectType(fromType?.id);
-      if (debug) console.log('522 fromType', fromType);
+      if (debug) console.log('522 fromNode, fromType', fromNode, fromType);
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
           fromType.allObjecttypes = myMetamodel.objecttypes;
           fromType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       toType   = myMetamodel.findObjectType(toType?.id);
-      if (debug) console.log('529 toType', toType);
+      if (debug) console.log('529 toNode, toType', toNode, toType);
       if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
       if (toType) {
           toType.allObjecttypes = myMetamodel.objecttypes;
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (debug) console.log('536 reltype', reltype, fromType, toType);
+      if (debug) console.log('536 reltype, fromType, toType', reltype, fromType, toType);
 
       if (!reltype) {
           alert("Relationship type given does not exist!")

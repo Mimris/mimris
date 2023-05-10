@@ -26,5 +26,7 @@
         "seltask",
         "seltasks",
         "workpad"
-    ]
+    ],
+    "genieai.openai.model": "gpt-4",
+    "genieai.enableConversationHistory": true
 }

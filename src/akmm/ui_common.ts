@@ -1282,11 +1282,11 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const portTo   = args.toPort;
     const context  = args.context;
     let reltype  = data.relshiptype;
-    if (!debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
+    if (debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
     reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (!debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
+    if (debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
     if (!reltype) {
-        alert("Relationship type given does not exist!")
+        alert("Relationship type given does not exist! 1")
         myDiagram.model.removeLinkData(data);
         return;
     }
@@ -1371,7 +1371,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         link = myDiagram.findLinkForKey(data.key);
-        const lnk = link.data;
+        const lnk = link?.data;
         if (debug) console.log('1349 lnk, relshipview', lnk, relshipview);
         if (name === " ") {
             myDiagram.model.setDataProperty(lnk, "name", ".");  // Hack

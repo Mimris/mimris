@@ -93,7 +93,7 @@ export class cxMetis {
         this.objecttypes = [portType];
     }
     importData(importedData: any, includeDeleted: boolean) {
-        if (!debug) console.log('79 importedData', importedData, includeDeleted);
+        if (debug) console.log('79 importedData', importedData, includeDeleted);
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);

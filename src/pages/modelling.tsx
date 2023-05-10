@@ -13,7 +13,7 @@ import SetContext from '../defs/SetContext'
 import Context from "../components/Context"
 import SelectContext from '../components/utils/SelectContext'
 import TasksHelp from '../components/TasksHelp'
-import useLocalStorage  from '../hooks/use-local-storage'
+import useLocalStorage from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
 import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
 import GenGojsModel from "../components/GenGojsModel";
@@ -28,14 +28,14 @@ import GenGojsModel from "../components/GenGojsModel";
 const debug = false
 
 const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
-    'background: red; color: white');
+  'background: red; color: white');
 
-const page = (props:any) => {
-  
+const page = (props: any) => {
+
   if (debug) console.log('34 modelling ', props)
   const dispatch = useDispatch()
 
-  function dispatchLocalStore(locStore) { 
+  function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
@@ -58,13 +58,13 @@ const page = (props:any) => {
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const [akmmUser, setAkmmUser] = useState(props.phUser);
- 
+
 
   function getUserSettings(key) {
     if (memoryAkmmUser !== '' && memoryAkmmUser !== null) {
       console.log('63 Modelling', memoryAkmmUser)
       return memoryAkmmUser
-    } 
+    }
   }
 
   function setUserSettings(key, value) {
@@ -72,7 +72,7 @@ const page = (props:any) => {
     localStorage.setItem(key, JSON.stringify(value));
   }
 
-  useEffect(() => { 
+  useEffect(() => {
     if (debug) console.log('76 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
     // let data = {}
     const getQuery = async () => {
@@ -84,14 +84,14 @@ const page = (props:any) => {
             if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
               if ((window.confirm("Do you want to recover your last model project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
                 if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-                    const locStore = (memoryLocState[0]) 
-                    if (locStore) {
-                      dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
-                      // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-                      // console.log('modelling 73 ', data)
-                    }
-                  } 
-              } else {  
+                  const locStore = (memoryLocState[0])
+                  if (locStore) {
+                    dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
+                    // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+                    // console.log('modelling 73 ', data)
+                  }
+                }
+              } else {
                 setRefresh(!refresh)
               }
             }
@@ -104,28 +104,30 @@ const page = (props:any) => {
     getQuery()
 
     setMount(true)
-  }, []) 
+  }, [])
 
   const contextDiv = ( // the top context area (green)
-    <div className="context-bar d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
-      <SetContext className='setContext w-100' ph={props} style={{backgroundColor: "#cdd" ,minWidth: "80%", maxWidth: "240px"}}/>
-      <div className="context-bar--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+    <div className="context-bar d-flex" style={{ backgroundColor: "#cdd", width: "99%", maxHeight: "24px" }}>
+      <SetContext className='setContext w-100' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%", maxWidth: "240px" }} />
+      <div className="context-bar--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc" }}>
+        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
+
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
-  ) 
+  )
 
   const modellingDiv = (mount)
-    ?  <div>
-       <Layout user={props.phUser?.focusUser} >
+    ? <div>
+      <Layout user={props.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper" >
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             {/* {videoDiv} */}
-              {contextDiv}            
-            <div className="workplace d-flex" >     
+            {contextDiv}
+            <div className="workplace d-flex" >
               {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>} */}
               {/* <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
                 <TasksHelp />
@@ -146,11 +148,11 @@ const page = (props:any) => {
     </div>
     : <>No model loaded</>
 
-return (
-   <>
-   {/* {modellingDiv} */}
-   {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
-   <style jsx>{`
+  return (
+    <>
+      {/* {modellingDiv} */}
+      {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
+      <style jsx>{`
    .wrapper {
      display: grid;
      height: 101%;
@@ -199,6 +201,6 @@ return (
      color: white;
    }
   `}</style>
-  </>)
+    </>)
 }
 export default Page(connect(state => state)(page));

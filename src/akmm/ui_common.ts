@@ -1282,11 +1282,11 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const portTo   = args.toPort;
     const context  = args.context;
     let reltype  = data.relshiptype;
-    if (debug) console.log('1285 data, reltype, myModelview', data, reltype, myModelview);
+    if (debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
     reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1287 reltype, fromType, toType, myMetamodel', reltype, fromType, toType, myMetamodel);
+    if (debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
     if (!reltype) {
-        alert("Relationship type given does not exist!")
+        alert("Relationship type given does not exist! 1")
         myDiagram.model.removeLinkData(data);
         return;
     }

@@ -119,7 +119,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 }
 
 export function handleSelectDropdownChange(selected, context) {
-  if (!debug) console.log('121 selected, context:', selected, context);
+  if (debug) console.log('121 selected, context:', selected, context);
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis;
   const myMetamodel = context.myMetamodel;
@@ -510,6 +510,7 @@ export function handleSelectDropdownChange(selected, context) {
       modalContext.selected = selected;
       if (debug) console.log('512 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
+      if (debug) console.log('514 fromNode', fromNode)
       const fromPortId = modalContext.data.fromPort;
       // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
       const toNode = myGoModel.findNode(modalContext.data.to);
@@ -532,8 +533,15 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+<<<<<<< HEAD
       if (debug) console.log('536 reltype, fromType, toType', reltype, fromType, toType);
 
+=======
+      if (debug) console.log('535 reltype', reltype, fromType, toType);
+      if (debug) console.log('536 reltype ids', context.modalContext.nodeFrom.data.objectview.id,  context.modalContext.nodeTo.data.objectview.id );
+      if (debug) console.log('536 reltype names', context.modalContext.nodeFrom.data.objectview.name, context.modalContext.typename, context.modalContext.nodeTo.data.objectview.name );
+      if (debug) console.log('537 reltype keys', context.modalContext.nodeFrom.data.key, context.modalContext.nodeTo.data.key );
+>>>>>>> f5124fdf11bcbc9a8cab1a99db255171e9694d90
       if (!reltype) {
           alert("Relationship type given does not exist!")
           myDiagram.model.removeLinkData(data);

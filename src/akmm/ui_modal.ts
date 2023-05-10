@@ -533,15 +533,10 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-<<<<<<< HEAD
-      if (debug) console.log('536 reltype, fromType, toType', reltype, fromType, toType);
-
-=======
       if (debug) console.log('535 reltype', reltype, fromType, toType);
       if (debug) console.log('536 reltype ids', context.modalContext.nodeFrom.data.objectview.id,  context.modalContext.nodeTo.data.objectview.id );
       if (debug) console.log('536 reltype names', context.modalContext.nodeFrom.data.objectview.name, context.modalContext.typename, context.modalContext.nodeTo.data.objectview.name );
       if (debug) console.log('537 reltype keys', context.modalContext.nodeFrom.data.key, context.modalContext.nodeTo.data.key );
->>>>>>> f5124fdf11bcbc9a8cab1a99db255171e9694d90
       if (!reltype) {
           alert("Relationship type given does not exist!")
           myDiagram.model.removeLinkData(data);

@@ -119,7 +119,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 }
 
 export function handleSelectDropdownChange(selected, context) {
-  if (debug) console.log('121 selected, context:', selected, context);
+  if (!debug) console.log('121 selected, context:', selected, context);
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis;
   const myMetamodel = context.myMetamodel;
@@ -199,15 +199,12 @@ export function handleSelectDropdownChange(selected, context) {
     }
     case "Change Icon": {
       const icon = (selectedOption) && selectedOption;
-      let node;
       myDiagram.selection.each(function(sel) {
         const inst = sel.data;
         if (inst.category === constants.gojs.C_OBJECT) {
-          node = myGoModel.findNode(inst.key);
-          if (debug) console.log('208 node', node);
-          let objview = node.objectview;
-          if (debug) console.log('210 objview', objview, node, myMetis);
-          const icn = myDiagram.findNodeForKey(node.key);
+          let objview = inst.objectview;
+          if (debug) console.log('206 objview', objview, node, myMetis);
+          const icn = myDiagram.findNodeForKey(inst.key);
           const idata = icn.data;
           myDiagram.model.setDataProperty(idata, "icon", icon);
           myDiagram.requestUpdate();
@@ -219,9 +216,9 @@ export function handleSelectDropdownChange(selected, context) {
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
               let data = mn;
-              if (debug) console.log('223 data', data);
+              if (debug) console.log('219 data', data);
               data = JSON.parse(JSON.stringify(data));
-              if (debug) console.log('225 data, jsnObjview', data, jsnObjview);
+              if (debug) console.log('221 data, jsnObjview', data, jsnObjview);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -1265,9 +1262,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         objtypeview = selObj.typeview;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
         if (debug) console.log('950 selObj, objtypeview, data', selObj, objtypeview, data);
-        for (let prop in objtypeview?.data) {
-          objtypeview[prop] = selObj[prop];
-        }
+        // for (let prop in objtypeview?.data) {
+        //   objtypeview[prop] = selObj[prop];
+        // }
         if (debug) console.log('956 objtypeview', objtypeview);
         for (let prop in objtypeview?.data) {
           if (prop === 'id') continue;

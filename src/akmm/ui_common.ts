@@ -1281,9 +1281,10 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const objTo    = nodeTo.data.object;
     const portTo   = args.toPort;
     const context  = args.context;
-    const reltype  = data.relshiptype;
-    // const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
+    let reltype  = data.relshiptype;
+    if (!debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
+    reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+    if (!debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);

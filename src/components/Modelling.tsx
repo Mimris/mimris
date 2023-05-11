@@ -82,6 +82,14 @@ const page = (props: any) => {
 
   const [mount, setMount] = useState(false)
 
+  const metis = props.phData?.metis
+  const models = metis?.models
+  const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id) // find the current model
+  const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
+    ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
+  if (debug) console.log('169 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
+
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('71 Modelling GenGojsModel run') //, memoryLocState, (Array.isArray(memoryLocState)));
     GenGojsModel(props, dispatch)
@@ -104,26 +112,10 @@ const page = (props: any) => {
     GenGojsModel(props, dispatch);
   }, [activeTab])
 
-  // useEffect(() => {
-  //   if (debug) useEfflog('104 Modelling useEffect 3 [props.phFocus]', 
-  //   props.phFocus.focusModel?.name, 
-  //   props.phFocus.focusModelview?.name, 
-  //   props.phFocus?.focusRefresh?.name,
-  //   props);
-  //   const timer = setTimeout(() => {
-  //     // if (props.phFocus.focusModel.id !== props.phMymetis?.myMetis?.currentModel.id)
-  //       // {
-  //         if (debug) console.log('112 ',     
-  //         props.phFocus.focusModel?.name, 
-  //         props.phFocus.focusModelview?.name, 
-  //         props.phFocus?.focusRefresh?.name,
-  //         props);
-  //           // GenGojsModel(props, dispatch);
-  //             setRefresh(!refresh)
-  //       // }
-  //     }, 200);
-  //     return () => clearTimeout(timer); 
-  // }, [props.phFocus.focusModel?.id])
+  useEffect(() => {
+    if (debug) useEfflog('87 Modelling useEffect 2 [activTab]', props);
+    GenGojsModel(props, dispatch);
+  }, [curmodview.objectviews.length])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('125 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',
@@ -160,13 +152,7 @@ const page = (props: any) => {
   if (!mount) {
     return <></>
   } else {
-    const metis = props.phData?.metis
-    const models = metis?.models
-    const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id) // find the current model
-    const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
-      ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-      : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
-    if (debug) console.log('169 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
+
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
     const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
@@ -182,7 +168,7 @@ const page = (props: any) => {
     // set the myMetis object etc. from the props;
     const myMetis = props.phMymetis?.myMetis
     const myModel = myMetis?.findModel(curmod?.id);
-    if (debug) console.log('171 Modelling myModel', curmod, focusModel, metis?.models, myModel);
+    if (!debug) console.log('185 Modelling myModel', myMetis, myModel);
     let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
     let myMetamodel = myModel?.metamodel;
     myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
@@ -443,7 +429,7 @@ const page = (props: any) => {
               <Row className="row1">
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                    <Palette
+                    <Palette // this is the Objects Palette area
                       gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}

@@ -266,7 +266,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   const nodeArray_all = ndArr
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
-  if (debug) console.log('209 nodeArray_all', nodeArray_all, objectsNotDeleted);
+  if (debug) console.log('269 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
   // // filter out all objects of type Property
   const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'EntityType'))

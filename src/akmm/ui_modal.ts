@@ -512,20 +512,16 @@ export function handleSelectDropdownChange(selected, context) {
       const fromNode = myGoModel.findNode(modalContext.data.from);
       if (debug) console.log('514 fromNode', fromNode)
       const fromPortId = modalContext.data.fromPort;
-      // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
       const toNode = myGoModel.findNode(modalContext.data.to);
       const toPortId = modalContext.data.toPort;
-      // const nodeTo   = myDiagram.findNodeForKey(toNode?.key)
-      let fromType = fromNode?.objecttype;
-      let toType   = toNode?.objecttype;
-      fromType = myMetamodel.findObjectType(fromType?.id);
+      let fromType = modalContext.fromType; // fromNode?.objecttype;
       if (debug) console.log('522 fromNode, fromType', fromNode, fromType);
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
           fromType.allObjecttypes = myMetamodel.objecttypes;
           fromType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
-      toType   = myMetamodel.findObjectType(toType?.id);
+      let toType   = modalContext.toType; // toNode?.objecttype;
       if (debug) console.log('529 toNode, toType', toNode, toType);
       if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
       if (toType) {

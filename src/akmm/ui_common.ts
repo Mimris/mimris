@@ -1210,7 +1210,7 @@ export function createRelationship(data: any, context: any) {
                 includeInherited = true;
             }
             const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            if (debug) console.log('1017 reltypes, includeInherited', reltypes, includeInherited);
+            if (debug) console.log('1017 fromType, toType, reltypes', fromType, toType, reltypes);
             if (reltypes) {
                 const choices1: string[] = [];
                 if (defText.length > 0) choices1.push(defText);

@@ -514,14 +514,14 @@ export function handleSelectDropdownChange(selected, context) {
       const fromPortId = modalContext.data.fromPort;
       const toNode = myGoModel.findNode(modalContext.data.to);
       const toPortId = modalContext.data.toPort;
-      let fromType = modalContext.fromType; // fromNode?.objecttype;
+      let fromType = modalContext.fromType; 
       if (debug) console.log('522 fromNode, fromType', fromNode, fromType);
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
           fromType.allObjecttypes = myMetamodel.objecttypes;
           fromType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
-      let toType   = modalContext.toType; // toNode?.objecttype;
+      let toType   = modalContext.toType; 
       if (debug) console.log('529 toNode, toType', toNode, toType);
       if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
       if (toType) {

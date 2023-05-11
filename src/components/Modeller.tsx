@@ -39,9 +39,11 @@ const Modeller = (props: any) => {
   const [ofilter, setOfilter] = useState('All')
   const [visibleObjects, setVisiblePalette] = useState(false)
   const [visibleContext, setVisibleContext] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -63,6 +65,8 @@ const Modeller = (props: any) => {
     // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
     console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
   }
+
+  const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
 
   useEffect(() => { // set activTab when focusModelview.id changes
     if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex, props.phFocus.focusModel?.name);
@@ -399,6 +403,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
+          diagramStyle={{ height: "82vh" }}
         />
       </div>
     </>
@@ -455,14 +460,21 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           <Row className="m-0">
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto ">
               <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{ height: "82vh" }} >
-                <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                  onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
-                  Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
-                </button>
-                {visibleObjects
+                <div div className="d-flex justify-content-between">
+                  <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                    onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
+                        Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
+                  </button>
+                  <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                    onClick={toggleIsExpanded} data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                  </button>
+                </div>
+                {(visibleObjects)
                   ? (objectsTabDiv)
-                    ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "166px" }}></div>{objectsTabDiv}</>
-                    : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "166px" }}></div>{objectsTabDiv}</>
+                    ? (isExpanded)
+                      ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "466px", maxWidth: "666px" }}></div>{objectsTabDiv}</>
+                      : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "166px" }}></div>{objectsTabDiv}</>
+                    : <div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "166px" }}></div>
                   : <div className="btn-vertical px-1 text-center " style={{ height: "78vh", maxWidth: "20px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div>
                 }
               </div>
@@ -478,9 +490,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </Col>
           </Row>
         </div>
-      </div>
+      </div >
       : // metamodelling
-      <div className="modeller-workarea w-100" data-placement="top" title="Modelling workarea" >
+      <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
         <div className="modeller--topbar  mt-1 p-0 ">
           <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
           <div className="">
@@ -494,7 +506,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }} data-placement="top" title="Modelling workarea">
+    <div style={{ display: 'flex', flexDirection: 'row' }} >
       {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )

@@ -15,6 +15,7 @@ import { disconnect } from "process";
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
 import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./ReportModule";
+import { gojs } from "../akmm/constants";
 
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
@@ -266,6 +267,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
   let ndArr = props.gojsModelObjects?.nodeDataArray
+  let ldArr = props.gojsModelObjects?.linkDataArray
   // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr
   // filter out the objects that are marked as deleted
@@ -307,9 +309,9 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
-  let gojsobjects = { nodeDataArray: ofilteredArr, linkDataArray: [] }
+  let gojsobjects = { nodeDataArray: ofilteredArr, linkDataArray: ldArr }
 
-  if (debug) console.log('253  Modeller', gojsobjects.nodeDataArray);
+  if (!debug) console.log('253  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray);
 
   const objArr = taskNodeDataArray
   // Hack: if viewkind === 'Container' then set isGroup to true
@@ -397,7 +399,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"
           nodeDataArray={gojsobjects.nodeDataArray}
-          linkDataArray={[]}
+          linkDataArray={gojsobjects.linkDataArray}
           metis={props.metis}
           myMetis={props.myMetis}
           myGoModel={props.myGoModel}

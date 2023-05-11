@@ -28,6 +28,7 @@ interface DiagramProps {
   diagramStyle: React.CSSProperties;
 }
 
+const debug = false;
 export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
@@ -294,7 +295,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     //   width: '100%', // Set the desired width here
     // };
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
-
+    if (!debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
     return (
       <ReactDiagram

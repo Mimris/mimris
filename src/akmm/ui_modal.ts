@@ -499,33 +499,30 @@ export function handleSelectDropdownChange(selected, context) {
       break;
     }
     case "Create Relationship": {
-      if (debug) console.log('504 context', context);
       const myMetamodel = context.myMetamodel;
       const myGoModel = context.myGoModel;
       const myDiagram = context.myDiagram;
       const modalContext = context.modalContext;
       const data = modalContext.data;
       const typename = selected.value;
+      if (debug) console.log('508 context, modalContext', context, modalContext);
+      if (debug) console.log('510 myGoModel, myMetamodel', myGoModel, myMetamodel);
       modalContext.selected = selected;
       if (debug) console.log('512 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
       if (debug) console.log('514 fromNode', fromNode)
       const fromPortId = modalContext.data.fromPort;
-      // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
       const toNode = myGoModel.findNode(modalContext.data.to);
       const toPortId = modalContext.data.toPort;
-      // const nodeTo   = myDiagram.findNodeForKey(toNode?.key)
-      let fromType = fromNode?.objecttype;
-      let toType   = toNode?.objecttype;
-      fromType = myMetamodel.findObjectType(fromType?.id);
-      if (debug) console.log('522 fromType', fromType);
+      let fromType = modalContext.fromType; 
+      if (debug) console.log('522 fromNode, fromType', fromNode, fromType);
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
           fromType.allObjecttypes = myMetamodel.objecttypes;
           fromType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
-      toType   = myMetamodel.findObjectType(toType?.id);
-      if (debug) console.log('529 toType', toType);
+      let toType   = modalContext.toType; 
+      if (debug) console.log('529 toNode, toType', toNode, toType);
       if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
       if (toType) {
           toType.allObjecttypes = myMetamodel.objecttypes;

@@ -7,6 +7,7 @@ const debug = false;
 import * as akm from '../akmm/metamodeller';
 import * as jsn from './ui_json';
 import * as uic from './ui_common';
+import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 const utils = require('./utilities');
@@ -119,7 +120,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 }
 
 export function handleSelectDropdownChange(selected, context) {
-  if (debug) console.log('121 selected, context:', selected, context);
+  if (debug) console.log('122 selected, context:', selected, context);
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis;
   const myMetamodel = context.myMetamodel;
@@ -130,24 +131,27 @@ export function handleSelectDropdownChange(selected, context) {
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
   const selectedOption = selected.value;
-  if (debug) console.log('132 modalContext', modalContext);
+  if (debug) console.log('133 modalContext', modalContext);
   switch(modalContext.case) {
     case "Change Object type": {
-      if (debug) console.log('133 selection', myDiagram.selection);
+      if (debug) console.log('136 selection', myDiagram.selection);
       const typename = (selectedOption) && selectedOption;
       const objtype = myMetis.findObjectTypeByName(typename);
-      if (debug) console.log('136 objtype', objtype);
-      let node;
+      if (debug) console.log('139 objtype', objtype);
       myDiagram.selection.each(function(sel) {
         const inst = sel.data;
+        if (debug) console.log('143 inst', inst);
         if (inst.category === constants.gojs.C_OBJECT) {
-          node = myGoModel.findNode(inst.key);
-          if (debug) console.log('142 node', node);
-          const objview = (objtype) && uic.setObjectType(node, objtype, context);
-          if (debug) console.log('144 objview', objview, node, myMetis);
-          const n = myMetis.myDiagram.findNodeForKey(node.key);
-          const data = n.data;
-          myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
+          const obj = inst.object;
+          obj.type = objtype;
+          let objview = inst.objectview;
+          objview = (objtype) && uic.setObjectType(inst, objtype, context);
+          const node = myGoModel.findNodeByViewId(objview.id);
+          if (debug) console.log('149 objview, node, myGoModel', objview, node, myGoModel);
+          const n = myDiagram.findNodeForKey(inst.key);
+          // const data = n.data;
+          myDiagram.model.setDataProperty(n.data, "typename", typename);
+          uid.resetToTypeview(inst, myMetis, myDiagram);
           myMetis.myDiagram.requestUpdate();
         }
       });
@@ -389,29 +393,26 @@ export function handleSelectDropdownChange(selected, context) {
       break;
     }
     case "Change Relationship type": { 
-      if (debug) console.log('369 selection', myDiagram.selection);
+      if (debug) console.log('392 selection', myDiagram.selection);
       const typename = (selectedOption) && selectedOption;
-
-      let link;
+      if (debug) console.log('394 typename', typename);
       myDiagram.selection.each(function(sel) {
-        const inst = sel.data;
-        if (inst.category === constants.gojs.C_RELATIONSHIP) {
-          link = myGoModel.findLink(inst.key);
+        const link = sel.data;
+        if (link.category === constants.gojs.C_RELATIONSHIP) {
           if (!link) return;
           let relship = link.relship;
           relship = myModel.findRelationship(relship.id);
           let relshipview = link.relshipview;
           relshipview = myModelview.findRelationshipView(relshipview.id);
-          let fromNode = myGoModel?.findNode(link.from);
-          let toNode   = myGoModel?.findNode(link.to);
-          if (debug) console.log('381 myGoModel, link, from and toNode: ', myGoModel, link, fromNode, toNode);
+          let fromNode = link.fromNode;
+          let toNode   = link.toNode;
           let fromType = fromNode?.objecttype;
           let toType   = toNode?.objecttype;
           fromType = myMetis.findObjectType(fromType?.id);
           toType   = myMetis.findObjectType(toType?.id);
-          if (debug) console.log('386 link', fromType, toType);
+          if (debug) console.log('413 fromType, toType', fromType, toType);
           const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-          const relshipkind = reltype.relshipkind;
+          const relshipkind = reltype?.relshipkind;
           relship.setRelshipKind(relshipkind);
           switch(relshipkind) {
             case 'Composition':
@@ -419,9 +420,10 @@ export function handleSelectDropdownChange(selected, context) {
               relship.cardinalityFrom = reltype.cardinalityFrom;
               relship.cardinalityTo = reltype.cardinalityTo;
           }
-          if (debug) console.log('398 reltype', reltype, fromType, toType);
+          if (debug) console.log('423 reltype', reltype, fromType, toType);
           const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
           if (debug) console.log('400 relview', relview);
+          uid.resetToTypeview(link, myMetis, myDiagram);
           myMetis.myDiagram.requestUpdate();        
         }
       });

@@ -1523,24 +1523,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e, obj) {
               const myGoModel = myMetis.gojsModel;
               const myModelview = myMetis.currentModelview;
-              const includeInheritedReltypes = myModelview.includeInheritedReltypes;
+              let includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
-              if (debug) console.log('1440 link', link, myDiagram, myGoModel);
-              let fromNode = myGoModel?.findNode(link.from);
-              let toNode = myGoModel?.findNode(link.to);
-              if (debug) console.log('1443 from and toNode', fromNode, toNode);
-              let fromType = fromNode?.objecttype;
-              let toType = toNode?.objecttype;
-              fromType = myMetis.findObjectType(fromType?.id);
-              toType = myMetis.findObjectType(toType?.id);
-              const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';
-              if (debug) console.log('1449 link', fromType, toType);
+              if (debug) console.log('1440 link, myGoModel', link, myGoModel);
+              if (debug) console.log('1441 link.relshiptype', link.relshiptype);
               const myMetamodel = myMetis.currentMetamodel;
-              const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
-              let defText = "";
+              const relshipType = link.relshiptype as akm.cxRelationshipType;
+              let fromType = relshipType.fromObjtype as akm.cxObjectType;
+              fromType = myMetamodel.findObjectType(fromType.id);
+              let toType = relshipType.toObjtype as akm.cxObjectType;
+              toType = myMetamodel.findObjectType(toType.id);
+              if (!debug) console.log('1449 link, fromType, toType', link, fromType, toType);
+              const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               link.choices = [];
-              // if (!appliesToLabel)
-              //   link.choices.push(constants.types.AKM_GENERIC_REL);
               if (debug) console.log('1456 reltypes, fromType, toType', reltypes, fromType, toType);
               if (reltypes) {
                 for (let i = 0; i < reltypes.length; i++) {

@@ -12,7 +12,7 @@ import { SaveModelviewToSvgFile } from '../../utils/SaveModelToFile';
 
 import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -49,6 +49,8 @@ import { METHODS } from 'http';
 // import "../../../styles/styles.css"
 import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
+import { set } from 'immer/dist/internal';
+import { on } from 'process';
 
 const AllowTopLevel = true;
 
@@ -63,6 +65,7 @@ interface DiagramProps {
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
+  onExportSvgReady: any;
 }
 
 interface DiagramState {
@@ -72,6 +75,7 @@ interface DiagramState {
   modalContext: any;
   selectedOption: any;
   currentActiveTab: any;
+  // onExportSvgReady: any;
 }
 
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
@@ -101,7 +105,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       modalContext: null,
       selectedOption: null,
       currentActiveTab: null,
-      diagramStyle: props.diagramStyle
+      diagramStyle: props.diagramStyle,
+      onExportSvgReady: props.onExportSvgReady
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -145,6 +150,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
       diagram.addModelChangedListener(this.props.onModelChange);
+
+      if (this.props.onExportSvgReady) {
+        this.props.onExportSvgReady(this.exportSvg, true); // Pass true to indicate that the diagram is ready
+      }
+
     }
   }
 
@@ -174,6 +184,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
 
       diagram.removeChangedListener(this.props.onModelChange);
+
+      if (this.props.onExportSvgReady) {
+        this.props.onExportSvgReady(null, false); // Pass false to indicate that the diagram is not ready
+      }
     }
   }
 
@@ -3241,9 +3255,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }).ofObject() : {}
       );
     }
-
     return myDiagram;
   }
+
+  exportSvg = () => {
+    return new Promise((resolve) => {
+      const diagram = this.diagramRef.current.getDiagram();
+      // console.log('3259 exportSvg: ', diagram);
+      if (diagram) {
+        const svg = diagram.makeSvg({ scale: 0.7 });
+        // console.log('3266 svg: ', svg);
+        resolve(svg);
+      } else {
+        resolve(null);
+      }
+    });
+  };
 
   public render() {
     // Handle property dialogs
@@ -3517,26 +3544,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         </TabContent>
       </>
 
-    const exportToSvg = () => {
-      if (!this.diagramRef.current) return;
-      const diagram = this.diagramRef.current.getDiagram();
-      if (!diagram) return;
-      console.log('3521 Diagram :', myModel.name);
 
-      const svg = diagram.makeSvg({ scale: 1, background: 'white' });
-      const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
-      console.log('SVG string:', svgString);
-      // Create a Blob from the SVG string
-      const blob = new Blob([svgString], { type: 'image/svg+xml' });
-
-      SaveModelviewToSvgFile(blob, myModel.name, "_MV.", "image/svg+xml")
-
-      // Revoke the old Blob URL and create a new one
-      // if (downloadUrl) {
-      //   URL.revokeObjectURL(downloadUrl);
-      // }
-      // setDownloadUrl(URL.createObjectURL(blob))
-    };
 
     if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
     if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ',
@@ -3556,8 +3564,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
           style={this.props.diagramStyle}
+        // exportToSvg={this.props.exportToSvg}
         />
-        <button onClick={exportToSvg}>Export to SVG</button>
+        {/* <button onClick={exportToSvg}>Export to SVG</button> */}
 
         <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}

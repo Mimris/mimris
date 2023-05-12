@@ -120,8 +120,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           new go.Binding("stroke", "strokecolor"),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
-          // new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-          new go.Binding("scale", "scale1").makeTwoWay(),
+          new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+          // new go.Binding("scale", "scale1").makeTwoWay(),
           {
             name: "GROUP",
             resizable: true,

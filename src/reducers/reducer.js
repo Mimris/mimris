@@ -813,8 +813,8 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIP_PROPERTIES:
       if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
-      const curRelship = curModel?.relships?.find((r) => r.id === action.data?.id) || [];
-      let curRelshipIndex = curModel?.relships?.findIndex((r) => r.id === curRelship?.id);
+      const curRelship = curModel?.relships?.find((r) => r?.id === action.data?.id) || [];
+      let curRelshipIndex = curModel?.relships?.findIndex((r) => r?.id === curRelship?.id);
       const curRelshipLength = curModel?.relships?.length;
       if (curRelshipIndex > 0) { curRelshipIndex = curRelshipLength }
 

@@ -166,7 +166,7 @@ const page = (props: any) => {
     const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
 
     // set the myMetis object etc. from the props;
-    const myMetis = props.phMymetis?.myMetis
+    const myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
     const myModel = myMetis?.findModel(curmod?.id);
     if (!debug) console.log('185 Modelling myModel', myMetis, myModel);
     let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
@@ -427,7 +427,7 @@ const page = (props: any) => {
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Palette */}
+                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
                       gojsModelObjects={gojsmodelobjects}

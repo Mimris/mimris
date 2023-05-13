@@ -114,7 +114,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const props = this.props;
     const modalContext = this.state.modalContext;
     let typename = modalContext.selected?.value;
-    if (!typename) typename = modalContext.typename;
+    if (!typename) typename = modalContext?.typename;
     if (debug) console.log('113 typename: ', typename);
     const myDiagram = modalContext.context?.myDiagram;
     const data = modalContext.data;

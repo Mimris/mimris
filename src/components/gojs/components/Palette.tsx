@@ -115,20 +115,18 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       let paletteNodeTemplate: any;
       paletteNodeTemplate =
         $(go.Node, "Auto",
-          // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
           new go.Binding("visible"),
           new go.Binding("stroke", "strokecolor"),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
-          new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-          // new go.Binding("scale", "scale1").makeTwoWay(),
+          // new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+          new go.Binding("scale", "scale1").makeTwoWay(),
           {
             name: "GROUP",
             resizable: true,
             resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
             selectionAdorned: true,
-
             click: function (e, node) {
               // const myMetis = this.myMetis;
               // console.log('103 node, myMetis', node, myMetis);

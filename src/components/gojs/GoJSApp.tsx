@@ -113,11 +113,11 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('109 handleCloseModal');
     const props = this.props;
     const modalContext = this.state.modalContext;
-    let typename = modalContext.selected?.value;
+    let typename = modalContext?.selected?.value;
     if (!typename) typename = modalContext?.typename;
     if (debug) console.log('113 typename: ', typename);
-    const myDiagram = modalContext.context?.myDiagram;
-    const data = modalContext.data;
+    const myDiagram = modalContext?.context?.myDiagram;
+    const data = modalContext?.data;
     if (debug) console.log('122 modalContext', modalContext);
     if (e === 'x') {
       if (myDiagram)

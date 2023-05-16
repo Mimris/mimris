@@ -26,9 +26,9 @@ const EditFocusModal = (props) => {
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
   const curmodelview = curmodel?.modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const curobjview = curmodelview?.objectviews?.find((ov: any) => ov?.id === focusObjectview?.id)
-  const curobj_tmp = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
+  const curobj_tmp = curmodel?.objects?.find((o:any) => o?.id === curobjview?.objectRef)
   const curobj = (curobj_tmp) && {...curobj_tmp, name: curobjview?.name, description: curobjview?.description} // the object(instance) of current objview
-  const curtableobj = curmodel?.objects?.find(o => o.id === focusObject?.id)
+  const curtableobj = curmodel?.objects?.find((o: any) => o?.id === focusObject?.id)
   const currelview = curmodelview?.relshipviews?.find((rv: any) => rv?.id === focusRelshipview?.id)
   const currel_tmp= curmodel?.relships?.find((r: any) => r?.id === currelview?.relshipRef)
   const currel = (currel_tmp) && {...currel_tmp, name: currelview?.name, description: currelview?.description}

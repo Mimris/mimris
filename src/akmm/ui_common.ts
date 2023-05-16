@@ -90,7 +90,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
-                        node.scale = group.scale * group.typeview.memberscale;
+                        // node.scale = group.scale * group.memberscale;
                         node.scale1 = new String(node.getMyScale(myGoModel));
                         myDiagram.model.setDataProperty(data, "group", node.group);
                         data.scale1 = Number(node.scale1);

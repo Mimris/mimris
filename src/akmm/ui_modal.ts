@@ -846,6 +846,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const oview = myMetis.findObjectView(selObj.objectview.id);
       if (!oview)
         break;
+      if (debug) console.log('849 oview', oview);
       oview.group = selObj.objectview?.group;
       myMetis.addObjectView(oview);
       // End fix
@@ -867,7 +868,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               }
               if (prop === 'group') continue;
               if (prop === 'isGroup') {
-                objview['size'] = new go.Size(200, 100);
+                if (objview['size'] == "0 0")
+                  objview['size'] = "200 100";
                 continue;
               }
               try {
@@ -880,7 +882,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (obj) obj.viewkind = objview.viewkind;
           }
           const node = myDiagram.findNodeForKey(sel.data.key);
-          if (debug) console.log('884 node.data, objview', node.data, objview);
+          if (debug) console.log('884 node.data, objview, typeview', node.data, objview, objview.typeview);
           if (node) {
             const data = node.data;
             myDiagram.model.setDataProperty(node, "groupable", objview.isGroup);

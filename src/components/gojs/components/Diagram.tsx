@@ -1311,17 +1311,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
               const data = obj.part.data;
-              const node = myGoModel.findNode(data.key);
-              const myScale = node.getMyScale(myGoModel);
+              const node = myGoModel.findNodeByViewId(data.objectview.id);
+              const myScale = node?.getMyScale(myGoModel); 
               const msg = 'My Scale is: ' + myScale;
               alert(msg);
-              // myDiagram.model?.setDataProperty(node, "scale", myScale);
             },
             function (o: any) {
               const node = o.part.data;
               // if (node.category === constants.gojs.C_OBJECT)
               //   return true;
-              return false;
+              return true;
             }),
         );
     }
@@ -1533,7 +1532,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               fromType = myMetamodel.findObjectType(fromType.id);
               let toType = relshipType.toObjtype as akm.cxObjectType;
               toType = myMetamodel.findObjectType(toType.id);
-              if (!debug) console.log('1449 link, fromType, toType', link, fromType, toType);
+              if (debug) console.log('1449 link, fromType, toType', link, fromType, toType);
               const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               link.choices = [];
               if (debug) console.log('1456 reltypes, fromType, toType', reltypes, fromType, toType);

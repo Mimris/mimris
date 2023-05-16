@@ -168,7 +168,7 @@ const page = (props: any) => {
     // set the myMetis object etc. from the props;
     const myMetis = props.phMymetis?.myMetis
     const myModel = myMetis?.findModel(curmod?.id);
-    if (!debug) console.log('185 Modelling myModel', myMetis, myModel);
+    if (debug) console.log('185 Modelling myModel', myMetis, myModel);
     let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
     let myMetamodel = myModel?.metamodel;
     myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;

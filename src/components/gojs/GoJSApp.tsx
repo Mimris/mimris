@@ -341,7 +341,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     objview.name = text;
                     objview.text = textvalue;
                     if (debug) console.log('328 objview', objview);
-                    // objview.text = myNode.text;
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
                       if (debug) console.log('330 node', node);
@@ -351,15 +350,16 @@ class GoJSApp extends React.Component<{}, AppState> {
                       const jsnObjview = new jsn.jsnObjectView(objview);
                       jsnObjview.name = text;
                       jsnObjview.text = textvalue;
-                      modifiedNodes.push(jsnObjview);
                       if (debug) console.log('337 jsnObjview', jsnObjview);
+                      let data = JSON.parse(JSON.stringify(jsnObjview));
+                      context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
                     } 
                   }
                 }
                 const jsnObj = new jsn.jsnObject(obj);
                 jsnObj.text = textvalue;
-                modifiedObjects.push(jsnObj);
-                if (debug) console.log('343 obj, jsnObj', obj, jsnObj);
+                let data = JSON.parse(JSON.stringify(jsnObj));
+                context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
               }
             }
             const nodes = myGoModel?.nodes;
@@ -374,7 +374,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Relationship or Relationship type
           if (sel instanceof go.Link) {
             const key = data.key;
-            let text = data.nameFrom ? data.nameFrom : " ";
+            let text = data.nameFrom ? data.nameFrom : data.name;
             let typename = data.type;
             // Relationship type
             if (typename === constants.gojs.C_RELSHIPTYPE) {
@@ -414,15 +414,18 @@ class GoJSApp extends React.Component<{}, AppState> {
                     relview.name = text;
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     if (debug) console.log('407 jsnRelview', jsnRelview);
-                    modifiedLinks.push(jsnRelview);
+                    let data = JSON.parse(JSON.stringify(jsnRelview));
+                    context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                     const jsnRel = new jsn.jsnRelationship(rel);
                     if (debug) console.log('418 jsnRel', jsnRel);
-                    modifiedRelships.push(jsnRel);
+                    data = JSON.parse(JSON.stringify(jsnRel));
+                    context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
                   }
                 }
               }
             }
           }
+          return;
       }
       break;
       case "SelectionMoved": {        
@@ -547,8 +550,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (group) { // The node IS moved into a group or moved INSIDE a group
                 const parentgroup = group;
                 node.group = parentgroup.key;
-                node.scale = group.scale * group.memberscale;
-                // node.scale1 = node.getMyScale(myGoModel).toString();
+                node.scale = node.getMyScale(myGoModel).toString();
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 if (debug) console.log('549 parentgroup, node', parentgroup, node);
                 if (group?.objecttype?.id !== containerType?.id && hasMemberType) {
@@ -862,7 +864,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                   if (debug) console.log('818 myGoModel', myGoModel);
                 }
-              }            
+              }     
+              node.size = data.size;       
               if (debug) console.log('821 node, data,', node, data);
               // Handle relview scaling
               let n = myDiagram.findNodeForKey(node.key);
@@ -917,8 +920,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
               }
               const objview = node.objectview;
-              objview.scale1 = node.scale1;
               objview.loc = node.loc;
+              objview.scale = node.scale1;
+              objview.size = node.size;
               if (debug) console.log('706 node, objview', node, objview);
               if (node.group) {
                 const grp = myGoModel.findNode(node.group);
@@ -928,7 +932,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (jsnObjview) {
-                jsnObjview.loc = node.loc;
+                // jsnObjview.loc = node.loc;
                 uic.addItemToList(modifiedNodes, jsnObjview);
                 if (debug) console.log('753 jsnObjview', jsnObjview);
               }
@@ -937,19 +941,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           }        
           if (debug) console.log('893 modifiedNodes', modifiedNodes);
         
-          // Update objectviews in the modelview
-          for (let j=0; j<modifiedNodes.length; j++) {
-            const modnode = modifiedNodes[j];
-            for (let i=0; i<myModelview?.objectviews.length; i++) {
-              const objview = myModelview.objectviews[i];
-              if (objview.id === modnode.id) {
-                objview.loc = modnode.loc;
-                objview.scale1 = modnode.scale1;
-                objview.group = modnode.group;
-                break;
-              }
-            }
-          }
           if (debug) console.log('908 modelview', myModelview);
           myDiagram.requestUpdate();
           if (debug) console.log('910 myGoModel', myDiagram.model.linkDataArray);
@@ -1146,7 +1137,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'ExternalObjectsDropped': {
         e.subject.each(function(n) {
+          if (debug) console.log('1149 n.data', n.data, n);
           const node = myDiagram.findNodeForKey(n.data.key);
+          let typeview = n.data.typeview;
           let part = node.data;
           part.scale = node.scale;
           if (part.size === "") {
@@ -1221,7 +1214,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const jsnObjview = new jsn.jsnObjectView(objview);
               uic.addItemToList(modifiedNodes, jsnObjview);
-              if (debug) console.log('966 New object', jsnObjview, modifiedNodes);
+              if (debug) console.log('966 objview, jsnObjview', objview, jsnObjview, modifiedNodes);
               const jsnObj = new jsn.jsnObject(objview.object);
               modifiedObjects.push(jsnObj);
               if (debug) console.log('969 New object', jsnObj);
@@ -1571,7 +1564,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          if (!debug) console.log('1564 data, context', data, context);
+          if (debug) console.log('1564 data, context', data, context);
           uic.createRelationship(data, context);
         }
         myDiagram.requestUpdate(); 

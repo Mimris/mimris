@@ -94,7 +94,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         node.scale1 = new String(node.getMyScale(myGoModel));
                         myDiagram.model.setDataProperty(data, "group", node.group);
                         data.scale1 = Number(node.scale1);
-                        // Check if the node and the group are of the same objecttypes
+                        // Check if the group is a container or not
                         if (group.objecttype?.id !== containerType?.id && hasMemberType) { 
                             // Check if the group already has a hasMember relationship to the node
                             const rels = group.object.getOutputRelshipsByType(hasMemberType);
@@ -103,22 +103,39 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                 // Create a hasMember relationship between the two
                                 const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
                                                                     node.object, hasMemberType.name, "");
-                                myMetis.addRelationship(rel);
                                 myModel?.addRelationship(rel);
+                                myMetis.addRelationship(rel);
+                                // Then create the relship view
+                                const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+                                relview.fromObjview = parentgroup.objectview;
+                                relview.toObjview = objview;
+                                myModelview?.addRelationshipView(relview);
+                                myMetis.addRelationshipView(relview);
                             } else {
+                                let found = false;
+                                let rel = null;
                                 for (let i=0; i<rels.length; i++) {
-                                    const rel = rels[i];
+                                    rel = rels[i];
                                     if (rel.toObject.id === node.object.id) {
                                         // The relationship already exists
-                                        continue;
-                                    } else {
-                                        // Create a hasMember relationship between the two
-                                        const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
-                                                                            node.object, hasMemberType.name, hasMemberType.description);
-                                        myMetis.addRelationship(rel);
-                                        myModel?.addRelationship(rel);
-                                    }
+                                        found = true;
+                                        break;
+                                    } 
                                 }
+                                if (!found) {
+                                    // Create a hasMember relationship between the two
+                                    const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
+                                                                        node.object, hasMemberType.name, hasMemberType.description);
+                                    myModel?.addRelationship(rel);
+                                    myMetis.addRelationship(rel);
+                                    // Then create the relship view
+                                    const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+                                    myMetis.addRelationshipView(relview);
+                                    relview.fromObjview = parentgroup.objectview;
+                                    relview.toObjview = objview;
+                                    myModelview?.addRelationshipView(relview);
+                                    myMetis.addRelationshipView(relview);
+                                }                               
                             }
                         }
                     }

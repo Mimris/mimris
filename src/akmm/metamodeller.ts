@@ -1045,7 +1045,7 @@ export class cxMetis {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
                 if (debug) console.log('833 model', model);
-                if (objects && objects.length) {
+                if (objects && objects.length > 0) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
                     });

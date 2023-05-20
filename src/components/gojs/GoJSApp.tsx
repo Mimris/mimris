@@ -551,7 +551,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (group) { 
                 const parentgroup = group;
                 node.group = parentgroup.key;
-                node.scale1 = node.getMyScale(myGoModel).toString();
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 if (debug) console.log('549 parentgroup, node', parentgroup, node);
                 // Handle hasMember relationships:
@@ -723,13 +722,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               } else { // The node is NOT moved into a group, possibly OUT OF a group
                 node.group = "";
                 let fromScale = fromNode.scale; 
-                let toScale  =  1;
+                let toScale  =  node.getMyScale(myGoModel); // 1;
                 let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
                 myDiagram.model.setDataProperty(node.data, "group", node.group);
                 if (node.isGroup) { // The node moved is a group 
                     // Do not scale the group members          
-                    node.scale1 = 1;
                     node.group = "";
+                    node.scale1 = node.getMyScale(myGoModel);
                     node.memberscale = node.typeview.memberscale;
                     const nodes = uic.getNodesInGroup(node, myGoModel, myObjectviews);
                     let refloc = node.loc;
@@ -764,18 +763,20 @@ class GoJSApp extends React.Component<{}, AppState> {
                                 let loc = nodeloc.x + " " + nodeloc.y;
                                 n.loc = loc;
                                 toNode.loc = new String(loc);
-                                n.scale1 = Number(toScale.valueOf());                  
+                                n.scale1 = node.getMyScale(myGoModel).toString();
                                 let nod = myGoModel.findNodeByViewId(n.objectview.id) as any;
                                 if (nod) {
                                     nod = myDiagram.findNodeForKey(nod.key);
                                     nod.loc = loc;
-                                    nod.scale1 = Number(toScale.valueOf());
+                                    nod.scale1 = node.getMyScale(myGoModel).toString();
                                     myDiagram.model.setDataProperty(nod.data, "loc", loc);
                                   }
                                 if (debug) console.log('727 nod, loc', nod, loc);
                             }                  
                         }
                     }
+                    // Handle hasMember relationships                 
+                    uic.addHasMemberRelship(node, modifiedLinks, myMetis, myModelview, myDiagram);                  
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
                   if (debug) console.log('734 node, group', node, group);
@@ -796,77 +797,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myDiagram.model.setDataProperty(n.data, "loc", loc);
                     }
                   }
+
                   // This is a node that is NOT inside a group
                   // I.e. the hasMember relationship should be visible
                   node.objectview.group = "";
                   if (debug) console.log('704 objectview, loc', node.objectview, node.loc);
                   node.scale1 = Number(toScale.valueOf());
                   myDiagram.model.setDataProperty(n, "scale", node.scale1);
-                  // Handle hasMember relationships
-                  const myGoModel = myMetis.gojsModel;
-                  const toObjview = node.objectview;
-                  const toObj = node.object;
-                  const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
-                  if (debug) console.log('762 toObj, hasMemberRels', toObj, hasMemberRels);
-                  for (let i=0; i<hasMemberRels?.length; i++) {
-                    let relview = null;
-                    const hasMemberRel = hasMemberRels[i];
-                    if (hasMemberRel) {
-                      let relviews = hasMemberRel.relshipviews;
-                      for (let j=0; j<relviews?.length; j++) {
-                        const rview = relviews[j];
-                        if (rview) { 
-                          if (rview.toObjview.id === toObjview.id) {
-                            rview.markedAsDeleted = false;
-                            if (!relview) {
-                              relview = rview;  
-                              // Add link
-                              let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                              if (!myDiagram.findLinkForKey(link.key)) {
-                                link.loadLinkContent(myGoModel);
-                                myGoModel.addLink(link);
-                                myDiagram.model.addLinkData(link);
-                                if (debug) console.log('810 link', link);
-                              }
-                            } 
-                            if (debug) console.log('781 relview', relview);
-                          }
-                        }
-                      }
-                    }
-                    if (!relview) {
-                      relview = new akm.cxRelationshipView(utils.createGuid(), hasMemberRel.name, hasMemberRel, "");
-                      if (debug) console.log('788 relview', relview);
-                      relview.toObjview = toObjview;
-                      const fromGroup = hasMemberRel.fromObject;  // group
-                      const objviews = myModelview.findObjectViewsByObject(fromGroup);
-                      if (objviews) {
-                        for (let j=0; j<objviews.length; j++) {
-                          const fromObjview = objviews[j];   // group
-                          if (fromObjview) {
-                            relview.fromObjview = fromObjview;
-                            if (debug) console.log('798 relview', relview);
-                            hasMemberRel.addRelationshipView(relview);
-                            myModelview.addRelationshipView(relview);
-                            myMetis.addRelationshipView(relview);     
-                            const jsnRelview = new jsn.jsnRelshipView(relview);
-                            if (debug) console.log('802 jsnRelview', jsnRelview);
-                            modifiedLinks.push(jsnRelview);
-                            // Add link
-                            let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                            if (!myDiagram.findLinkForKey(link.key)) {
-                              link.loadLinkContent(myGoModel);
-                              myGoModel.addLink(link);
-                              myDiagram.model.addLinkData(link);
-                              if (debug) console.log('810 link', link);
-                            }
-                            if (debug) console.log('812 relview, link', relview, link);
-                          }
-                        }
-                      }
-                    }                    
-                  }
-                  if (debug) console.log('818 myGoModel', myGoModel);
+                  // Handle hasMember relationships                 
+                    uic.addHasMemberRelship(node, modifiedLinks, myMetis, myModelview, myDiagram);                  
                 }
               }     
               node.size = data.size;       
@@ -919,12 +858,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 tnode = myToNodes[j];
                 if (node.key === tnode.key) {
                   node.loc = tnode.loc.valueOf();
+                  node.scale1 = node.getMyScale(myGoModel);
                   break;
                 }
               }
               const objview = node.objectview;
               objview.loc = node.loc;
-              objview.scale1 = node.getMyScale(myGoModel);
+              objview.scale1 = node.scale1;
               objview.size = node.size;
               if (debug) console.log('706 node, objview', node, objview);
               if (node.group) {
@@ -933,6 +873,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               } else {
                 objview.group = "";
               }
+              myDiagram.model.setDataProperty(node, "scale", node.scale1);
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (jsnObjview) {
                 // jsnObjview.loc = node.loc;

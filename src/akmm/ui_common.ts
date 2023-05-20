@@ -109,8 +109,16 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                 const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
                                 relview.fromObjview = parentgroup.objectview;
                                 relview.toObjview = objview;
+                                rel.addRelationshipView(relview);
                                 myModelview?.addRelationshipView(relview);
                                 myMetis.addRelationshipView(relview);
+                                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                                if (!myDiagram.findLinkForKey(link.key)) {
+                                  link.loadLinkContent(myGoModel);
+                                  myGoModel.addLink(link);
+                                  myDiagram.model.addLinkData(link);
+                                  if (debug) console.log('810 link', link);
+                                }
                             } else {
                                 let found = false;
                                 let rel = null;
@@ -130,9 +138,9 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                     myMetis.addRelationship(rel);
                                     // Then create the relship view
                                     const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
-                                    myMetis.addRelationshipView(relview);
                                     relview.fromObjview = parentgroup.objectview;
                                     relview.toObjview = objview;
+                                    rel.addRelationshipView(relview);
                                     myModelview?.addRelationshipView(relview);
                                     myMetis.addRelationshipView(relview);
                                 }                               

@@ -648,7 +648,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       const jsnRelview = new jsn.jsnRelshipView(relview);
                       modifiedLinks.push(jsnRelview);
                       if (debug) console.log('582 jsnRelview', jsnRelview);
-                      // Then delete the gojs link
+                      // Delete the gojs link
                       const link = myGoModel.findLinkByViewId(relview.id);
                       if (link) {
                           link.markedAsDeleted = true;
@@ -669,27 +669,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const jsnRel = new jsn.jsnRelationship(rel);
                     modifiedRelships.push(jsnRel);
                     if (debug) console.log('596 rel', rel);
-                  }
-                  if (false) {
-                    // The relationship now exists. Check if the relationship view also exists
-                    // If not, create it
-                    let relview = null;
-                    const relviews = myModelview.getRelviewsByFromAndToObjviews(parentgroup.objectview, node.objectview);
-                    if (relviews.length > 0) {
-                      relview = relviews[0];
-                      if (debug) console.log('591 relview', relview);
-                    } else {
-                      // Create a new relationship view
-                      relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
-                      relview.setFromObjectView(parentgroup.objectview);
-                      relview.setToObjectView(node.objectview);
-                      myModelview.addRelationshipView(relview);
-                      myMetis.addRelationshipView(relview);
-                      const jsnRelview = new jsn.jsnRelshipView(relview);
-                      modifiedLinks.push(jsnRelview);
-                      if (debug) console.log('601 relview', relview);
-                    }                        
-                    if (debug) console.log('603 relview', relview);
                   }
                   if (debug) console.log('609 myModelview', myModelview);
                 }
@@ -741,18 +720,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
                     if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
                 }     
-              } else { // node is NOT moved into a group, possibly out of a group
+              } else { // The node is NOT moved into a group, possibly OUT OF a group
                 node.group = "";
                 let fromScale = fromNode.scale; 
                 let toScale  =  1;
                 let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
                 myDiagram.model.setDataProperty(node.data, "group", node.group);
-                if (node.isGroup) {
-                    // The node itself is a group, do not scale the group members
+                if (node.isGroup) { // The node moved is a group 
+                    // Do not scale the group members          
                     node.scale1 = 1;
                     node.group = "";
                     node.memberscale = node.typeview.memberscale;
-                    // myDiagram.model.setDataProperty(node, "scale", Number(node.scale1));
                     const nodes = uic.getNodesInGroup(node, myGoModel, myObjectviews);
                     let refloc = node.loc;
                     if (debug) console.log('688 node, nodes, scaleFactor, refloc', node, nodes, scaleFactor, refloc);
@@ -798,8 +776,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                             }                  
                         }
                     }
-                } else {
-                  // The node moved is NOT a group
+                } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
                   if (debug) console.log('734 node, group', node, group);
                   if (count<0) { // The reference node
@@ -819,6 +796,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myDiagram.model.setDataProperty(n.data, "loc", loc);
                     }
                   }
+                  // This is a node that is NOT inside a group
+                  // I.e. the hasMember relationship should be visible
                   node.objectview.group = "";
                   if (debug) console.log('704 objectview, loc', node.objectview, node.loc);
                   node.scale1 = Number(toScale.valueOf());
@@ -836,8 +815,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                       let relviews = hasMemberRel.relshipviews;
                       for (let j=0; j<relviews?.length; j++) {
                         const rview = relviews[j];
-                        if (rview && !rview.markedAsDeleted) { 
+                        if (rview) { 
                           if (rview.toObjview.id === toObjview.id) {
+                            rview.markedAsDeleted = false;
                             if (!relview) {
                               relview = rview;  
                               // Add link
@@ -848,14 +828,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                                 myDiagram.model.addLinkData(link);
                                 if (debug) console.log('810 link', link);
                               }
-                            } else {
-                              rview.markedAsDeleted = true;
-                              if (debug) console.log('779 rview', rview);
-                              const link = myGoModel.findLinkByViewId(rview.id);
-                              if (link) {
-                                  link.markedAsDeleted = true;
-                                  myDiagram.model.removeLinkData(link); 
-                              }                                      }
+                            } 
                             if (debug) console.log('781 relview', relview);
                           }
                         }
@@ -935,8 +908,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (n?.data)
                 myDiagram.model.setDataProperty(n.data, "loc", node.loc);
               myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
-              if (debug) console.log('693 myGoModel', myGoModel);
-              
+              if (debug) console.log('693 myGoModel', myGoModel);              
             }
             // Update objectview scaling and location
             if (debug) console.log('863 myFromNodes, myToNodes', myFromNodes, myToNodes);
@@ -1162,10 +1134,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       data = JSON.parse(JSON.stringify(data));
       if (debug) console.log('941 PhData', data);
       myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })       
-
       return;
-
-      break;
       case 'ExternalObjectsDropped': {
         e.subject.each(function(n) {
           if (debug) console.log('1149 n.data', n.data, n);
@@ -1738,7 +1707,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (debug) console.log('1704 myMetis', myMetis);
   }
-
 
   public render() {   
     const selectedData = this.state.selectedData;

@@ -484,6 +484,7 @@ export class cxMetis {
                             if (objs && objs.length) {
                                 for (let i = 0; i < objs.length; i++) {
                                     const item = objs[i];
+                                    if (!item) continue;
                                     if (includeDeleted || !item.markedAsDeleted) { 
                                         const obj = new cxObject(item.id, item.name, null, item.description);
                                         for (let k in item) {
@@ -1044,7 +1045,7 @@ export class cxMetis {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
                 if (debug) console.log('833 model', model);
-                if (objects && objects.length) {
+                if (objects && objects.length > 0) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
                     });
@@ -6007,7 +6008,7 @@ export class cxObjectTypeView extends cxMetaObject {
         // this.setIsGroup(viewkind);
     }
     getViewKind(): string {
-        if (utils.objExists(this.data.viewkind))
+        if (this.data.viewkind)
             return this.data.viewkind;
         else
             return constants.viewkinds.OBJ;
@@ -6058,10 +6059,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.figure = figure;
     }
     getFigure(): string {
-        if (this.data.figure)
-            return this.data.figure;
-        else if (this.figure)
+        if (this.figure)
             return this.figure;
+        else if (this.data.figure)
+            return this.data.figure;
         return "";
     }
     setGeometry(geometry: string) {
@@ -6069,10 +6070,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.geometry = geometry;
     }
     getGeometry(): string {
-        if (this.data.geometry)
-            return this.data.geometry;
-        else if (this.geometry)
+        if (this.geometry)
             return this.geometry;
+        else if (this.data.geometry)
+            return this.data.geometry;
         return "";
     }
     setFillcolor(fillcolor: string) {
@@ -6080,10 +6081,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.fillcolor = fillcolor;
     }
     getFillcolor(): string {
-        if (this.data.fillcolor)
-            return this.data.fillcolor;
-        else if (this.fillcolor)
+        if (this.fillcolor)
             return this.fillcolor;
+        else if (this.data.fillcolor)
+            return this.data.fillcolor;
         return "white";
     }
     setFillcolor2(fillcolor: string) {
@@ -6091,10 +6092,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.fillcolor2 = fillcolor;
     }
     getFillcolor2(): string {
-        if (this.data.fillcolor2)
-            return this.data.fillcolor2;
-        else if (this.fillcolor2)
+        if (this.fillcolor2)
             return this.fillcolor2;
+        else if (this.data.fillcolor2)
+            return this.data.fillcolor2;
         return "white";
     }
     setTextcolor(color: string) {
@@ -6102,10 +6103,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textcolor = color;
     }
     getTextcolor(): string {
-        if (this.data.textcolor)
-            return this.data.textcolor;
-        else if (this.textcolor)
+        if (this.textcolor)
             return this.textcolor;
+        else if (this.data.textcolor)
+            return this.data.textcolor;
         return "black";
     }
     setTextscale(scale: string) {
@@ -6113,10 +6114,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textscale = scale;
     }
     getTextscale(): string {
-        if (this.data.textscale)
-            return this.data.textscale;
-        else if (this.textscale)
+        if (this.textscale)
             return this.textscale;
+        else if (this.data.textscale)
+            return this.data.textscale;
         return "1";
     }
     setStrokecolor(strokecolor: string) {
@@ -6124,10 +6125,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor = strokecolor;
     }
     getStrokecolor(): string {
-        if (this.data.strokecolor)
-            return this.data.strokecolor;
-        else if (this.strokecolor)
+        if (this.strokecolor)
             return this.strokecolor;
+        else if (this.data.strokecolor)
+            return this.data.strokecolor;
         return "black";
     }
     setStrokecolor2(strokecolor: string) {
@@ -6135,10 +6136,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor2 = strokecolor;
     }
     getStrokecolor2(): string {
-        if (this.data.strokecolor2)
-            return this.data.strokecolor2;
-        else if (this.strokecolor2)
+        if (this.strokecolor2)
             return this.strokecolor2;
+        else if (this.data.strokecolor2)
+            return this.data.strokecolor2;
         return "black";
     }
     setStrokewidth(strokewidth: string) {
@@ -6146,10 +6147,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.strokewidth = strokewidth;
     }
     getStrokewidth(): string {
-        if (this.data.strokewidth)
-            return this.data.strokewidth;
-        else if (this.strokewidth)
+        if (this.strokewidth)
             return this.strokewidth;
+        else if (this.data.strokewidth)
+            return this.data.strokewidth;
         return "2";
     }
     setMemberscale(memberscale: string) {
@@ -6157,32 +6158,21 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.memberscale = memberscale;
     }
     getMemberscale(): string {
-        if (this.data.memberscale)
-            return this.data.memberscale;
-        else if (this.memberscale)
+        if (this.memberscale)
             return this.memberscale;
+        else if (this.data.memberscale)
+            return this.data.memberscale;
         return "1"; // Default  1
     }
-    // setTextscale(textscale: string) {
-    //     this.textscale = textscale;
-    //     this.data.textscale = textscale;
-    // }
-    // getTextscale(): string {
-    //     if (this.data.textscale)
-    //         return this.data.textscale;
-    //     else if (this.textscale)
-    //         return this.textscale;
-    //     return "1"; // Default  1
-    // }
     setArrowscale(arrowscale: string) {
         this.arrowscale = arrowscale;
         this.data.arrowscale = arrowscale;
     }
     getArrowscale(): string {
-        if (this.data.arrowscale)
-            return this.data.arrowscale;
-        else if (this.arrowscale)
+        if (this.arrowscale)
             return this.arrowscale;
+        else if (this.data.arrowscale)
+            return this.data.arrowscale;
         return "1.3"; // Default  1
     }
     setIcon(icon: string) { 
@@ -6190,10 +6180,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.icon = icon;
     }
     getIcon(): string {
-        if (this.data.icon)
-            return this.data.icon;
-        else if (this.icon)
+        if (this.icon)
             return this.icon;
+        else if (this.data.icon)
+            return this.data.icon;
         return "";
     }
 }

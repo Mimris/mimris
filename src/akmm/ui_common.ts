@@ -74,8 +74,6 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
             if (debug) console.log('75 objview', objview);
             if (objview) {
-                // objview.setTemplate(data.template);
-                // objview.setFigure(data.figure);
                 let key = utils.createGuid();
                 if (debug) console.log('85 key, objview', key, objview);
                 const node = new gjs.goObjectNode(key, objview);   
@@ -90,11 +88,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
-                        node.scale = group.scale * group.typeview.memberscale;
                         node.scale1 = new String(node.getMyScale(myGoModel));
                         myDiagram.model.setDataProperty(data, "group", node.group);
                         data.scale1 = Number(node.scale1);
-                        // Check if the node and the group are of the same objecttypes
+                        // Check if the group is a container or not
                         if (group.objecttype?.id !== containerType?.id && hasMemberType) { 
                             // Check if the group already has a hasMember relationship to the node
                             const rels = group.object.getOutputRelshipsByType(hasMemberType);
@@ -103,22 +100,26 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                                 // Create a hasMember relationship between the two
                                 const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
                                                                     node.object, hasMemberType.name, "");
-                                myMetis.addRelationship(rel);
                                 myModel?.addRelationship(rel);
+                                myMetis.addRelationship(rel);
                             } else {
+                                let found = false;
+                                let rel = null;
                                 for (let i=0; i<rels.length; i++) {
-                                    const rel = rels[i];
+                                    rel = rels[i];
                                     if (rel.toObject.id === node.object.id) {
                                         // The relationship already exists
-                                        continue;
-                                    } else {
-                                        // Create a hasMember relationship between the two
-                                        const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
-                                                                            node.object, hasMemberType.name, hasMemberType.description);
-                                        myMetis.addRelationship(rel);
-                                        myModel?.addRelationship(rel);
-                                    }
+                                        found = true;
+                                        break;
+                                    } 
                                 }
+                                if (!found) {
+                                    // Create a hasMember relationship between the two
+                                    const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, group.object, 
+                                                                        node.object, hasMemberType.name, hasMemberType.description);
+                                    myModel?.addRelationship(rel);
+                                    myMetis.addRelationship(rel);
+                                }                               
                             }
                         }
                     }
@@ -173,12 +174,6 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 if (objtypeView) {
                     objview.setTypeView(objtypeView);
                     const otdata = objtypeView.data;
-                    // if (data['template'] !== otdata['template']) objview['template'] = data['template'];
-                    // if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
-                    // if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
-                    // if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
-                    // if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
-                    // if (data['icon'] !== otdata['icon']) objview['icon'] = data['icon'];  
                     // Create the new node                          
                     const node = new gjs.goObjectNode(data.key, objview);
                     if (debug) console.log('160 createObject', node, data);
@@ -721,6 +716,70 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
     newArray.push(myNode);
     parent.nodeDataArray = newArray;
     return myNode;
+}
+
+export function addHasMemberRelship(node: any, modifiedLinks: any, myMetis: akm.cxMetis, myModelview: akm.cxModelView, myDiagram: any) {
+    const myGoModel = myMetis.gojsModel;
+    const toObjview = node.objectview;
+    const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
+    const toObj = node.object;
+    const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
+    if (debug) console.log('726 toObj, hasMemberRels', toObj, hasMemberRels);
+    let found = false;
+    for (let i=0; i<hasMemberRels?.length; i++) {
+      let relview = null;
+      const hasMemberRel = hasMemberRels[i];
+      if (hasMemberRel) {
+        let relviews = hasMemberRel.relshipviews;
+        for (let j=0; j<relviews?.length; j++) {
+          const rview = relviews[j];
+          if (rview) { 
+            if (rview.toObjview.id === toObjview.id) {
+              rview.markedAsDeleted = false;
+              if (!relview) {
+                relview = rview;  
+                // Add link
+                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                link.loadLinkContent(myGoModel);
+                myGoModel.addLink(link);
+                myDiagram.model.addLinkData(link);
+                if (debug) console.log('746 link', link);
+              } 
+              if (debug) console.log('749 relview', relview);
+            }
+          }
+        }
+      }
+      if (!relview) {
+        relview = new akm.cxRelationshipView(utils.createGuid(), hasMemberRel.name, hasMemberRel, "");
+        if (debug) console.log('756 relview', relview);
+        relview.toObjview = toObjview;
+        const fromGroup = hasMemberRel.fromObject;  // group
+        const objviews = myModelview.findObjectViewsByObject(fromGroup);
+        if (objviews) {
+          for (let j=0; j<objviews.length; j++) {
+            const fromObjview = objviews[j];   // group
+            if (fromObjview) {
+              relview.fromObjview = fromObjview;
+              if (debug) console.log('765 relview', relview);
+              hasMemberRel.addRelationshipView(relview);
+              myModelview.addRelationshipView(relview);
+              myMetis.addRelationshipView(relview);     
+              const jsnRelview = new jsn.jsnRelshipView(relview);
+              if (debug) console.log('770 jsnRelview', jsnRelview);
+              modifiedLinks.push(jsnRelview);
+              // Add link
+              let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+              link.loadLinkContent(myGoModel);
+              myGoModel.addLink(link);
+              myDiagram.model.addLinkData(link);
+              if (debug) console.log('780 relview, link', relview, link);
+            }
+          }
+        }
+      }                    
+    }
+    if (debug) console.log('786 myGoModel', myGoModel);
 }
 
 // Callback function initiated when a node is pasted

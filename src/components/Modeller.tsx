@@ -291,6 +291,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   };
 
   const handleExportClick = async () => {
+    console.log('294 handleExportClick', exportSvg);
     if (exportSvg) {
       const svg = await exportSvg();
       if (svg) {
@@ -300,7 +301,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
         // const blob = new Blob([svgString], { type: 'image/svg+xml' });
         const proj = props.phFocus.focusProj.name
         const model = focusModel.name
-        const modelview = focusModelview.name
+        const modelview = focusModelview?.name
         const filename = `${proj}_${model}_${modelview}`.replace(/ /g, "-")
         alert('A SVG-file of this modelview will be downloaded to your computer make sure you save it with the name: \n ' + filename + '.svg')
         SaveModelviewToSvgFile(svgString, filename)

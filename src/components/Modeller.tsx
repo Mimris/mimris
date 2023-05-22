@@ -351,12 +351,13 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   // // filter out all objects of type 
   let ofilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container'))
+  if (debug) console.log('354 Palette ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
   if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
   let gojsobjects = { nodeDataArray: ofilteredArr, linkDataArray: ldArr }
 
-  if (debug) console.log('253  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray);
+  if (debug) console.log('360  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
 
   const objArr = taskNodeDataArray
   // Hack: if viewkind === 'Container' then set isGroup to true

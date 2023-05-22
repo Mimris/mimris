@@ -293,7 +293,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     //   width: '100%', // Set the desired width here
     // };
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
-    if (!debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
+    if (debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
     return (
       <ReactDiagram

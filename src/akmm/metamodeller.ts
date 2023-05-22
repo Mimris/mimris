@@ -301,9 +301,9 @@ export class cxMetis {
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
-                if (includeDeleted || !item.markedAsDeleted) { 
+                if (item && (includeDeleted || !item.markedAsDeleted)) { 
                     const metamodel = (item) && new cxMetaModel(item.id, item.name, item.description);
-                    metamodel.markedAsDeleted = item.markedAsDeleted;
+                    metamodel.markedAsDeleted = item?.markedAsDeleted;
                     metamodel.layout = item.layout;
                     metamodel.routing = item.routing;
                     metamodel.linkcurve = item.linkcurve;

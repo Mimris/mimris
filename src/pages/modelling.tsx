@@ -90,9 +90,9 @@ const page = (props: any) => {
                     // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
                     // console.log('modelling 73 ', data)
                   }
+                  setRefresh(!refresh)
                 }
               } else {
-                setRefresh(!refresh)
               }
             }
           }

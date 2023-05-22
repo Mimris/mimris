@@ -1547,7 +1547,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               fromType = myMetamodel.findObjectType(fromType.id);
               let toType = relshipType.toObjtype as akm.cxObjectType;
               toType = myMetamodel.findObjectType(toType.id);
-              if (!debug) console.log('1449 link, fromType, toType', link, fromType, toType);
+              if (debug) console.log('1449 link, fromType, toType', link, fromType, toType);
               const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               link.choices = [];
               if (debug) console.log('1456 reltypes, fromType, toType', reltypes, fromType, toType);

@@ -1573,7 +1573,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          if (!debug) console.log('1564 data, context', data, context);
+          if (debug) console.log('1564 data, context', data, context);
           uic.createRelationship(data, context);
         }
         myDiagram.requestUpdate();

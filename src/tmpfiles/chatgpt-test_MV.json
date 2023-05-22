@@ -1,0 +1,158 @@
+{
+    "objects": [
+        {
+            "id": "uuid_role1",
+            "name": "Geologist",
+            "typeName": "Role"
+        },
+        {
+            "id": "uuid_role2",
+            "name": "Geophysicist",
+            "typeName": "Role"
+        },
+        {
+            "id": "uuid_role3",
+            "name": "Risk Analyst",
+            "typeName": "Role"
+        },
+        {
+            "id": "uuid_role4",
+            "name": "Drilling Engineer",
+            "typeName": "Role"
+        },
+        {
+            "id": "uuid_role5",
+            "name": "Petrophysicist",
+            "typeName": "Role"
+        },
+        {
+            "id": "uuid_role6",
+            "name": "Production Engineer",
+            "typeName": "Role"
+        },
+        {
+            "id": "uuid_task1",
+            "name": "Data Collection and Analysis",
+            "description": "Gather and analyze geological, geophysical, and geochemical data.",
+            "roleRef": "uuid_role1",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task2",
+            "name": "Seismic Survey",
+            "description": "Conduct a seismic survey to obtain a detailed image of the subsurface.",
+            "roleRef": "uuid_role2",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task3",
+            "name": "Prospect Evaluation",
+            "description": "Evaluate prospects based on their potential to contain hydrocarbons.",
+            "roleRef": "uuid_role1",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task4",
+            "name": "Risk Assessment",
+            "description": "Perform a risk assessment to determine the probability of success for each prospect.",
+            "roleRef": "uuid_role3",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task5",
+            "name": "Drilling Location Selection",
+            "description": "Choose the optimal drilling location based on prospect evaluation and risk assessment.",
+            "roleRef": "uuid_role4",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task6",
+            "name": "Drilling Plan Development",
+            "description": "Develop a detailed drilling plan outlining objectives, well design, equipment, and procedures.",
+            "roleRef": "uuid_role4",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task7",
+            "name": "Drilling Operations",
+            "description": "Execute the drilling plan, ensuring safety and environmental regulations are followed.",
+            "roleRef": "uuid_role4",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task8",
+            "name": "Well Logging and Testing",
+            "description": "Perform well logging and testing to gather data on reservoir properties and hydrocarbon potential.",
+            "roleRef": "uuid_role5",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task9",
+            "name": "Data Integration and Analysis",
+            "description": "Integrate and analyze data from drilling, well logging, and testing operations.",
+            "roleRef": "uuid_role1",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_task10",
+            "name": "Field Development and Production",
+            "description": "Proceed with field development and production if the well is economically viable.",
+            "roleRef": "uuid_role6",
+            "typeName": "Task"
+        },
+        {
+            "id": "uuid_info1",
+            "name": "Geological Maps, Satellite Imagery, Well Data",
+            "taskRef": "uuid_task1",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info2",
+            "name": "Seismic Waves, Reflection Data",
+            "taskRef": "uuid_task2",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info3",
+            "name": "Reservoir Size, Porosity, Permeability, Hydrocarbon Saturation",
+            "taskRef": "uuid_task3",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info5",
+            "name": "Prospect Evaluation, Risk Assessment",
+            "taskRef": "uuid_task5",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info6",
+            "name": "Drilling Objectives, Well Design, Equipment, Operational Procedures",
+            "taskRef": "uuid_task6",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info7",
+            "name": "Drilling Plan, Real-time Data, Observations",
+            "taskRef": "uuid_task7",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info8",
+            "name": "Resistivity, Porosity, Formation Pressure, Flow Capacity, Hydrocarbon Composition",
+            "taskRef": "uuid_task8",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info9",
+            "name": "Drilling Data, Well Logging Data, Testing Data",
+            "taskRef": "uuid_task9",
+            "typeName": "Information"
+        },
+        {
+            "id": "uuid_info10",
+            "name": "Reservoir Potential, Production Facilities, Drilling Additional Wells, Enhanced Oil Recovery Techniques",
+            "taskRef": "uuid_task10",
+            "typeName": "Information"
+        }
+    ]
+}

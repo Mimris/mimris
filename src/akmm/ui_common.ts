@@ -740,12 +740,10 @@ export function addHasMemberRelship(node: any, modifiedLinks: any, myMetis: akm.
                 relview = rview;  
                 // Add link
                 let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                if (!myDiagram.findLinkForKey(link.key)) {
-                  link.loadLinkContent(myGoModel);
-                  myGoModel.addLink(link);
-                  myDiagram.model.addLinkData(link);
-                  if (debug) console.log('746 link', link);
-                }
+                link.loadLinkContent(myGoModel);
+                myGoModel.addLink(link);
+                myDiagram.model.addLinkData(link);
+                if (debug) console.log('746 link', link);
               } 
               if (debug) console.log('749 relview', relview);
             }
@@ -772,12 +770,9 @@ export function addHasMemberRelship(node: any, modifiedLinks: any, myMetis: akm.
               modifiedLinks.push(jsnRelview);
               // Add link
               let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-              if (!myDiagram.findLinkForKey(link.key)) {
-                link.loadLinkContent(myGoModel);
-                myGoModel.addLink(link);
-                myDiagram.model.addLinkData(link);
-                if (debug) console.log('778 link', link);
-              }
+              link.loadLinkContent(myGoModel);
+              myGoModel.addLink(link);
+              myDiagram.model.addLinkData(link);
               if (debug) console.log('780 relview, link', relview, link);
             }
           }
@@ -786,7 +781,6 @@ export function addHasMemberRelship(node: any, modifiedLinks: any, myMetis: akm.
     }
     if (debug) console.log('786 myGoModel', myGoModel);
 }
-
 
 // Callback function initiated when a node is pasted
 export function onClipboardPasted(selection: any, context: any) {

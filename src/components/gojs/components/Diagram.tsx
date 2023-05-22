@@ -1594,21 +1594,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Reset Typeview",
+          makeButton("Reset to Typeview",
             function (e: any, obj: any) {
               const link = obj.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP) {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {
-                  const myMetamodel = myMetis.currentMetamodel;
                   const reltype = currentRelship.type;
                   let typeview = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview as akm.cxRelationshipTypeView;
                   currentRelshipView.typeview = defaultTypeview;
                   if (debug) console.log('856 viewdata', typeview.data);
-                  const viewdata = defaultTypeview.data;
                   for (let prop in defaultTypeview.data) {
+                    if (prop === 'abstract') continue;
+                    if (prop === 'class') continue;
+                    if (prop === 'relshipkind') continue;
+                    currentRelshipView[prop] = "";
                     myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
                   }
                   link.typeview = defaultTypeview;
@@ -1627,27 +1629,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (true)
-                return false;
-              else {
-                const link = o.part.data;
-                if (link.category === constants.gojs.C_RELATIONSHIP) {
-                  const currentRelship = link.relship;
-                  const currentRelshipView = link.relshipview;
-                  if (currentRelship && currentRelshipView) {
-                    const reltype = currentRelship.type;
-                    const typeView = link.typeview;
-                    const defaultTypeview = reltype.typeview;
-                    if (typeView && (typeView.id !== defaultTypeview.id)) {
-                      return true;
-                    }
-                  }
-                }
-                else if (link.category === constants.gojs.C_RELSHIPTYPE) {
-                  return false;
-                }
+              const link = o.part.data;
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
+                // const currentRelship = link.relship;
+                // const currentRelshipView = link.relshipview;
+                // if (currentRelship && currentRelshipView) {
+                //   const reltype = currentRelship.type;
+                //   const typeView = link.typeview;
+                //   const defaultTypeview = reltype.typeview;
+                //   if (typeView && (typeView.id !== defaultTypeview.id)) {
+                //     return true;
+                //   }
+                // }
+                return true;
+              }
+              else if (link.category === constants.gojs.C_RELSHIPTYPE) {
                 return false;
               }
+              return false;
             }),
           makeButton("Edit Attribute",
             function (e: any, obj: any) {
@@ -1712,23 +1711,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
               }
               return false;
-            }),
-          makeButton("Reset to Typeview",
-            function (e: any, obj: any) {
-
-              const myGoModel = myMetis.gojsModel;
-              myDiagram.selection.each(function (sel) {
-                const inst = sel.data;
-                if (inst.category === constants.gojs.C_RELATIONSHIP) {
-                  let link = myGoModel.findLink(inst.key);
-                  uid.resetToTypeview(link, myMetis, myDiagram);
-                }
-              })
-            },
-            function (o: any) {
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP)
-                return true;
             }),
           makeButton("----------"),
           makeButton("Generate Relationship Type",

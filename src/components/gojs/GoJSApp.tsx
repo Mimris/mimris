@@ -772,7 +772,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                                     myDiagram.model.setDataProperty(nod.data, "loc", loc);
                                   }
                                 if (debug) console.log('727 nod, loc', nod, loc);
-                            }                  
+                            } else {
+                                let nod = myGoModel.findNodeByViewId(n.objectview.id) as any;
+                                if (nod) {
+                                    nod = myDiagram.findNodeForKey(nod.key);
+                                  myDiagram.model.setDataProperty(nod, "scale", n.scale1);
+                                }  
+                            }                
                         }
                     }
                     // Handle hasMember relationships                 

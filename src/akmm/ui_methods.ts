@@ -31,7 +31,6 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         const nx = parseInt(nodeLoc[0]);
         const ny = parseInt(nodeLoc[1]);
         const objtype = object.type;
-        // objtype = object.type;
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
@@ -55,27 +54,27 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     toObj = myMetis.findObject(toObj.id);
                     if (!toObj || toObj.markedAsDeleted)
                         continue;
-                    if (objtype) {
-                        if (toObj.type.id !== objtype.id)
-                        continue;
-                    }
                     const toObjtype = toObj.type;
                     const toObjtypeview = toObjtype.typeview;
                     const toTypeviewData = toObjtypeview.data;
                     const toObjviews = toObj.objectviews;
                     if (debug) console.log('57 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
                     // Find toObj in modelview
-                    const objviews = modelview.findObjectViewsByObj(toObj);
+                    const objviews = modelview.findObjectViewsByObject(toObj);
                     let toObjview;
                     if (objviews && objviews.length >0) {
                         for (let j=0; j<objviews.length; j++) {   
                             const oview = objviews[j];
-                            if (oview.markedAsDeleted)
-                                continue; 
+                            if (oview.markedAsDeleted) {
+                                oview.markedAsDeleted = false;
+                            }
                             if (toObjtype.isContainer())
                                 oview.viewkind = constants.viewkinds.CONT;
                             if (debug) console.log('1625 Create relship views to objviews', object, objviews);
-                        }
+                            toObjview = oview;
+                            const jsnObjview = new jsn.jsnObjectView(toObjview);
+                            modifiedObjectViews.push(jsnObjview);
+                            }
                         // Create relship views and links to the found objviews if they do not exist
                         let relviews;
                         if (useinp) {
@@ -170,7 +169,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         noLevels--;
         for (let i=0; i<objectviews?.length; i++) {
             const oview = objectviews[i];
-            addConnectedObjects(modelview, oview, null, goModel, myMetis, noLevels);
+            addConnectedObjects(modelview, oview, goModel, myMetis, noLevels);
         }
     }
 }

@@ -28,6 +28,7 @@ interface DiagramProps {
   diagramStyle: React.CSSProperties;
 }
 
+const debug = false;
 export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
@@ -114,7 +115,6 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       let paletteNodeTemplate: any;
       paletteNodeTemplate =
         $(go.Node, "Auto",
-          // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
           new go.Binding("visible"),
           new go.Binding("stroke", "strokecolor"),
           new go.Binding("layerName", "layer"),
@@ -127,7 +127,6 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
             selectionAdorned: true,
-
             click: function (e, node) {
               // const myMetis = this.myMetis;
               // console.log('103 node, myMetis', node, myMetis);
@@ -294,7 +293,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     //   width: '100%', // Set the desired width here
     // };
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
-
+    if (debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
     return (
       <ReactDiagram

@@ -13,7 +13,7 @@ const debug = false
 function MarkdownEditor({ props }) {
   // const [markdownString, setMarkdownString] = useState('# My Markdown Document\n\nThis is a paragraph of text.');
   console.log('18 MarkdownEditor.tsx', props);
- 
+
   const [mdHeaderString, setMdHeaderString] = useState('');
   const [mdString, setMdString] = useState(``);
   const [mdFooterString, setMdFooterString] = useState('');
@@ -26,7 +26,7 @@ function MarkdownEditor({ props }) {
   const [objview, setObjview] = useState(null);
 
   const metamodels = useSelector(state => props.phData?.metis?.metamodels)  // selecting the models array
-  const focusModel = useSelector(state => props.phFocus?.focusModel) 
+  const focusModel = useSelector(state => props.phFocus?.focusModel)
   const focusUser = useSelector(state => props.phUser?.focusUser)
   const focusModelview = useSelector(state => props.phFocus?.focusModelview)
   const focusObjectview = useSelector(state => props.phFocus?.focusObjectview)
@@ -36,10 +36,10 @@ function MarkdownEditor({ props }) {
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
   const objects = curmodel?.objects //.map((o: any) => o)
-  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
-  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
-  const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
+  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
+  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id))
+  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
   const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
   const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
 
@@ -48,10 +48,10 @@ function MarkdownEditor({ props }) {
 
   let objectviewChildren = []
   let objectChildren = []
-  console.log('45 Context', curobjectviews, focusModelview.id, );
+  console.log('45 Context', curobjectviews, focusModelview?.id,);
   const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
-  if (debug) console.log('47 Context',  curobjectviews, curobjectview?.id, focusModelview);
-  console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id) )
+  if (debug) console.log('47 Context', curobjectviews, curobjectview?.id, focusModelview);
+  console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id))
 
   function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
     return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
@@ -85,6 +85,15 @@ function MarkdownEditor({ props }) {
     setMdHeaderString(` ${props.phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
+  const fileName = `${props.phFocus.focusProj?.name}_${props.phFocus.focusModel?.name}_${props.phFocus.focusModelview?.name}`.replace(/ /g, '-');
+  const svgFileName = `${fileName}.svg`
+  const pngFileName = `${fileName}.png`
+  const mdFileName = `${fileName}.md`
+
+  console.log('91 svgFileName', svgFileName);
+
+
+
   let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
   Project file: ${props.phFocus.focusProj?.file}
 
@@ -103,16 +112,16 @@ function MarkdownEditor({ props }) {
   </details>
   `
 
-  markdownString += `\n\n --- \n\n --- \n\n ## Focus object:\n\n --- \n\n `
-  markdownString += `#### ${curobject?.name}\n\n`
-  markdownString += 'Name: ' + curobject?.name + ' \n\n'
-  markdownString += '***Description:*** ***'+ curobject?.description +'*** \n\n'
-  markdownString += '***Figure:*** \n\n'
+  markdownString += `\n\n---\n\n---\n\n*Focus object:*\n\n---\n\n`
+  markdownString += `## ${curobject?.name}\n\n`
+  markdownString += 'Name: ' + curobject?.name + '\n\n'
+  markdownString += 'Description: ' + curobject?.description + '\n\n'
+  markdownString += '***Modelview :***\n\n'
 
-  markdownString += `![Alt text] (./_ADMIN_MODEL__MO.svg.svg) \n\n`
-  markdownString += ` \n\n *Children:* \n\n  ---  \n\n`
+  markdownString += `![${svgFileName}](/Users/snorrefossland/Downloads/${svgFileName})\n\n`
+  markdownString += `\n\n#### Children:\n\n---\n\n`
 
-  
+
   if (debug) console.log('82 MarkdownEditor.tsx', markdownString)
 
   const mdFocusObjectProps = {
@@ -125,7 +134,7 @@ function MarkdownEditor({ props }) {
     curobject: curobject,
     curtoobjects: objectChildren,
     objects: objects,
-    includedKeys: [ 'name', 'description'],
+    includedKeys: ['name', 'description'],
     setObjview,
     markdownString,
   };
@@ -135,7 +144,7 @@ function MarkdownEditor({ props }) {
   let markdownStringChildren = ObjDetailToMarkdown(mdFocusObjectProps)
 
 
-  console.log('101 MarkdownEditor.tsx',  markdownStringChildren )
+  console.log('101 MarkdownEditor.tsx', markdownStringChildren)
 
   const handleAddFooter = () => {
     setMdFooterString(
@@ -158,7 +167,8 @@ function MarkdownEditor({ props }) {
 
       ![Alt text](https://via.placeholder.com/150 "Optional title")
     `
-  )};
+    )
+  };
 
   const CodeBlock = ({ language, value }) => {
     return (
@@ -192,7 +202,7 @@ function MarkdownEditor({ props }) {
     const element = document.createElement("a");
     const file = new Blob([mdString], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
-    element.download = "my-markdown-file.md";
+    element.download = mdFileName;
     document.body.appendChild(element);
     element.click();
   };
@@ -223,7 +233,7 @@ function MarkdownEditor({ props }) {
       alert('Error saving file to GitHub.');
     }
   };
-  
+
   // useEffect (() => {
   // setMdString(`***Children:*** \n\n  ---  \n\n`)
   // }, [])
@@ -236,16 +246,16 @@ function MarkdownEditor({ props }) {
     setMdString(markdownStringChildren)
     console.log('222 MarkdownEditor.tsx', markdownStringChildren)
   }, [markdownStringChildren])
-  
+
   useEffect(() => {
-    setMdString( mdHeaderString + mdString )
+    setMdString(mdHeaderString + mdString)
   }, [mdHeaderString])
-  
+
   useEffect(() => {
-    setMdString( mdString + mdFooterString)
+    setMdString(mdString + mdFooterString)
   }, [mdFooterString])
-  
-  return (   
+
+  return (
     <div className="App" >
       <Tabs >
         <TabList style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', margin: '0px' }}>
@@ -253,19 +263,19 @@ function MarkdownEditor({ props }) {
           <Tab>MarkDownCode</Tab>
           <Tab>GitHub</Tab>
         </TabList>
-        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', overflowX: 'auto'  }}>
-          <div className="container bg-white" style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', maxHeight: "70vh", overflowX: 'auto'  }}>
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', overflowX: 'auto' }}>
+          <div className="container bg-white" style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', maxHeight: "70vh", overflowX: 'auto' }}>
             <Markdown options={options}>
               {mdString}
             </Markdown>
           </div>
         </TabPanel>
-        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' , overflowX: 'auto' }}>
-          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "68vh", maxHeight: "64vh",  width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
+        <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray', overflowX: 'auto' }}>
+          <textarea style={{ margin: '4px', padding: '4px', border: 'none', height: "68vh", maxHeight: "64vh", width: '100%' }} value={mdString} onChange={(e) => setMdString(e.target.value)} />
           <hr />
-            <button className="btn btn-sm mx-2" onClick={handleAddObjectHeader}>Add Header</button>
-            <button className="btn btn-sm mx-2 me-5" onClick={handleAddFooter}>Add Footer</button>
-            <button className="btn btn-sm mx-2 ms-5" onClick={handleSaveToFile}>Save to File</button>
+          <button className="btn btn-sm mx-2" onClick={handleAddObjectHeader}>Add Header</button>
+          <button className="btn btn-sm mx-2 me-5" onClick={handleAddFooter}>Add Footer</button>
+          <button className="btn btn-sm mx-2 ms-5" onClick={handleSaveToFile}>Save to File</button>
         </TabPanel>
         <TabPanel style={{ borderRight: '1px solid gray', borderLeft: '1px solid gray' }}>
           <div className="container">
@@ -298,5 +308,5 @@ function MarkdownEditor({ props }) {
     </div>
   );
 }
-  
-  export default MarkdownEditor;
+
+export default MarkdownEditor;

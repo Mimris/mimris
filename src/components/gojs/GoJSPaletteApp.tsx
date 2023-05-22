@@ -42,10 +42,10 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
 
-  
+
   constructor(props: object) {
     super(props);
-    if (debug) console.log('47 GoJSPaletteApp',props.nodeDataArray);
+    if (debug) console.log('47 GoJSPaletteApp', props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -121,23 +121,23 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           modifiedObjects.map(mn => {
             // let data = mn
             // data = JSON.parse(JSON.stringify(data));
-            let data = {id: mn.id, name: mn.name};
+            let data = { id: mn.id, name: mn.name };
             if (debug) console.log('120 data', data);
             this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
           })
-        } 
+        }
         // find  all objectviews in currentModelview of object
         let objview = myMetis.currentModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
         // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
-        let dataov = {id: '', name: ''};
+        let dataov = { id: '', name: '' };
         if (objview && objview[0]?.id) {
-          dataov = { id: objview[0]?.id, name: objview[0]?.name};
+          dataov = { id: objview[0]?.id, name: objview[0]?.name };
         }
         if (debug) console.log('134 dataov', dataov);
         this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov })
         break;
       }
-      default: 
+      default:
         break;
     }
   }
@@ -292,16 +292,18 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       </>
     }
     if (debug) console.log('294 this.diagramStyle', this.state.diagramStyle);
+    if (debug) console.log('295 this.state', this.state.linkDataArray);
     return (
       <div>
         <PaletteWrapper
-          nodeDataArray     ={this.state.nodeDataArray}
-          linkDataArray     ={this.state.linkDataArray}
-          modelData         ={this.state.modelData}
+          nodeDataArray={this.state.nodeDataArray}
+          linkDataArray={this.state.linkDataArray}
+          modelData={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent    ={this.handleDiagramEvent}
-          onModelChange     ={this.handleModelChange}
-          diagramStyle      ={this.state.diagramStyle} 
+          onDiagramEvent={this.handleDiagramEvent}
+          onModelChange={this.handleModelChange}
+          diagramStyle={this.state.diagramStyle}
+
         />
         {/* <label>
           Allow Relinking?

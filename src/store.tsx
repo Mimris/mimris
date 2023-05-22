@@ -22,9 +22,9 @@ export const makeStore = (context: Context) => {
         }
         return applyMiddleware(...middleware)
     }
-    // Corrected line below
-    const store = createStore(reducer, bindMiddleware([sagaMiddleware, logger]));
-    // const store = createStore(reducer, applyMiddleware(sagaMiddleware, logger));
+    // use redux-logger only in development
+    // const store = createStore(reducer, bindMiddleware([sagaMiddleware, logger]));
+    const store = createStore(reducer, applyMiddleware(sagaMiddleware));
 
     // 3: Run your sagas on server
     (store as SagaStore).sagaTask = sagaMiddleware.run(rootSaga);

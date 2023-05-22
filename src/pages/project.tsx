@@ -5,7 +5,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from "next/router";
 import { loadData, setfocusRefresh } from '../actions/actions'
-import useLocalStorage  from '../hooks/use-local-storage'
+import useLocalStorage from '../hooks/use-local-storage'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -23,23 +23,23 @@ import HeaderButtons from '../components/utils/HeaderButtons';
 const debug = false
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
-    'background: blue; color: white');
+  'background: blue; color: white');
 const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
-    'background: red; color: white');
+  'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
-    'background: blue; color: white');
+  'background: blue; color: white');
 
 const page = (props: any) => {
   // if (typeof window === 'undefined') return <></>  
-  const dispatch = useDispatch()  
+  const dispatch = useDispatch()
   const [refresh, setRefresh] = useState(false)
-  const {query} = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
-  if (debug) console.log('28 project',props, query)
+  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
+  if (debug) console.log('28 project', props, query)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [mount, setMount] = useState(false)
-  function dispatchLocalStore(locStore) { 
+  function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
@@ -47,7 +47,7 @@ const page = (props: any) => {
   }
 
   // list query params
-  const [org, setOrg] = useState(props.phFocus.focusProj.org )
+  const [org, setOrg] = useState(props.phFocus.focusProj.org)
   const [repo, setRepo] = useState(props.phFocus.focusProj.repo)
   const [path, setPath] = useState(props.phFocus.focusProj.path)
   const [file, setFile] = useState(props.phFocus.focusProj.file)
@@ -56,7 +56,7 @@ const page = (props: any) => {
   const [ghtype, setGhtype] = useState(props.phFocus.focusProj.ghtype)
 
 
-  console.log('39 project', org, repo, path, file, branch, props.phFocus.focusProj.org ) 
+  console.log('39 project', org, repo, path, file, branch, props.phFocus.focusProj.org)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -73,10 +73,10 @@ const page = (props: any) => {
       setRefresh(!refresh)
     }, 100);
     return () => clearTimeout(timer);
-  } 
+  }
 
-  useEffect(() => { 
-    const getQueryParams = async () => { 
+  useEffect(() => {
+    const getQueryParams = async () => {
       try {
 
         if (debug) console.log('76 modelling useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
@@ -84,17 +84,17 @@ const page = (props: any) => {
         if (debug) console.log('68 modelling', props.phFocus.focusProj.file)
         if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
           if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-          if ((window.confirm("Do you want to recover your last model project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-            if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-                const locStore = (memoryLocState[0]) 
+            if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+              if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+                const locStore = (memoryLocState[0])
                 if (locStore) {
                   dispatchLocalStore(locStore)
                   // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
                   // console.log('modelling 73 ', data)
                 }
-              } 
+              }
             }
-          }   
+          }
         }
       } catch (err) {
         setError(err);
@@ -103,20 +103,20 @@ const page = (props: any) => {
     if (query.repo) {
       getQueryParams();
     }
-  }, [query.repo === undefined]) 
+  }, [query.repo === undefined])
 
 
   useEffect(() => { // when the page loads, set the focus
-    console.log('61 project', query,  query?.repo)
-    const data = {id: query.org+query.repo+query.path+query.file+query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus}
+    console.log('61 project', query, query?.repo)
+    const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus }
     console.log('65 project', data);
     (query.repo) && dispatch({ type: 'SET_FOCUS_PROJ', data });
-    
+
     const { org, repo, path, file, branch, focus, ghtype } = query;
-    console.log('69 project',  org, repo, path, file, branch)
+    console.log('69 project', org, repo, path, file, branch)
     dispatch({ type: 'LOAD_DATAGITHUB', data: query });
     const timer = setTimeout(() => {
-    dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })
+      dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
     }, 100);
     return () => clearTimeout(timer);
   }, [query.repo !== undefined]);
@@ -129,7 +129,7 @@ const page = (props: any) => {
     }, 200);
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
-    
+
   // useEffect(() => {
   //   toggleRefresh(); // refresh the page
   // }, []);
@@ -145,7 +145,7 @@ const page = (props: any) => {
       }
     }
     fetchData(); // call the function 
-     if (error) {
+    if (error) {
       alert(error.response.data.message) // alert the error message
     }
   }, [query.repo !== '']);
@@ -156,7 +156,7 @@ const page = (props: any) => {
   //   if (!props.phFocus.focusProj.org) {
   //    prompt('Click OK to set focus project')
   //   }
-    
+
   //   // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
   //   // if (!ghtype) ghtype = prompt("ghtype?");
   //   if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
@@ -177,11 +177,11 @@ const page = (props: any) => {
   // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
 
   const contextDiv = (
-    <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
+    <div className="contextarea d-flex" style={{ backgroundColor: "#cdd", width: "99%", maxHeight: "24px" }}>
       <SetContext className='setContext' ph={props} />
-      <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+      <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc" }}>
         {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
-        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
+        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
@@ -189,18 +189,18 @@ const page = (props: any) => {
 
   const projectParamsDiv = // (props.phFocus?.focusProj?.org) &&  // top of page
     <>
-      <div className='container' style={{  fontSize: '0.9rem'}}>
+      <div className='container' style={{ fontSize: '0.9rem' }}>
         {/* <div className="m-5"> */}
-          {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-          {props.phFocus?.focusProj?.name}
-          <GithubParams phFocus={props.phFocus} />
-          {/* {(refresh) ? <GithubParams phFocus={props.phFocus} />  : <><GithubParams phFocus={props.phFocus} />aaaa</>  } */}
-          <h5>Initial Startup model loaded !</h5> 
+        {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
+        {props.phFocus?.focusProj?.name}
+        <GithubParams phFocus={props.phFocus} />
+        {/* {(refresh) ? <GithubParams phFocus={props.phFocus} />  : <><GithubParams phFocus={props.phFocus} />aaaa</>  } */}
+        <h5>Initial Startup model loaded !</h5>
         {/* </div> */}
       </div>
       {/* <hr  className='mx-5 p-2 bg-success' /> */}
     </>
-  
+
   const projectFormDiv =
     <>
       <div className="cur-context-focus">
@@ -208,101 +208,101 @@ const page = (props: any) => {
         <ProjectForm phFocus={props.phFocus} />
       </div>
     </>
- 
-   const renderDiv =
+
+  const renderDiv =
     <>
       <Layout user={props.phUser?.focusUser} >
         <div id="index" >
-          <div className="wrapper m-1 pr-2 d-flex flex-column" style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-              {/* <div className="header">
+          <div className="wrapper m-1 pr-2 d-flex flex-column" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+            {/* <div className="header">
                 <Header title='eaderTitle' />
               </div> */}
-              {contextDiv}  
-              {/* <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />   */}
-              <div className="workplace-focus gap " >               
-                <div className="aside-left fs-6 m-1 p-2 " style={{  backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                  <h6 className='text-muted pt-2'>Links to Github :</h6>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                    <div className='text-muted'>GitHub Docs :</div>
-                    {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
-                  </div>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
-                    <div className='text-muted'>Issues for this repo:</div>
-                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}</Link>}
-                  </div>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
-                    <div className='text-muted'>Project Canban for this repo:</div>
-                    {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
-                  </div>
-                  <h6 className='text-muted pt-2'>Other GitHub links :</h6>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
-                    <div className='text-muted'>GitHub :</div>
-                    {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
-                    {/* {(org && repo && path) 
+            {contextDiv}
+            {/* <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />   */}
+            <div className="workplace-focus gap " >
+              <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+                <h6 className='text-muted pt-2'>Links to Github :</h6>
+                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                  <div className='text-muted'>GitHub Docs :</div>
+                  {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
+                </div>
+                <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
+                  <div className='text-muted'>Issues for this repo:</div>
+                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}</Link>}
+                </div>
+                <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
+                  <div className='text-muted'>Project Canban for this repo:</div>
+                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
+                </div>
+                <h6 className='text-muted pt-2'>Other GitHub links :</h6>
+                <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
+                  <div className='text-muted'>GitHub :</div>
+                  {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
+                  {/* {(org && repo && path) 
                       ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
                       : <Link className='text-primary ' href={`https:/github.com/kavca/.github/`} target="_blank">Kavca</Link>} */}
-                  </div>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                    <div className='text-muted'>Repository :</div>
-                    {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-                  </div>
-                  <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                    <div className='text-muted'>Path :</div>
-                      {(repo) 
-                        ? (path) 
-                        ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
-                        : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
-                        : <></>
-                      }
-                    </div>
                 </div>
-                {/* List the modelling params and link to modelling page */}
-                <div className=" main m-1 fs-6" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
-                    {projectParamsDiv}
-                    {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
-                    <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
-                      <button className='rounded mt-2 px-2 '>
-                        <Link className='text-primary ' href="/modelling">Start Modelling</Link>
-                      </button>
-                        <ProjectDetailsModal props={props} />
-                        {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
-                    </div>   
-                    <div className="rounded bg-light m-2 p-2">
-                      <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>  
-                      <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{generatedUrl} </span>  
-                    </div>
-                    <div className="rounded bg-light m-2 p-2">
-                      <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>  
-                      <span className='rounded  p-2' style={{fontSize: '0.6rem', backgroundColor: '#dde'}}>{akmIrtvPopsMetamodelUrl} </span>  
-                      {/* make a link to a new window with akmIrtvPopsMetamodelUrl */}
-                      <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
-                    </div>
-                    {projectFormDiv}     
+                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                  <div className='text-muted'>Repository :</div>
+                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                 </div>
-                {/* Listing GitHub Issues */}
-                <div className="aside-right fs-4
-                6 " style={{minWidth: "20rem"}}>
-                  <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
-                  {(issues.length > 0) && issues.map((issue) => (
-                    <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
-                      <div className='d-flex justify-content-between'>
-                        <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
-                        <div className='text-muted'>{issue.user.name}</div>
-                      </div>
-                      <h6>{issue.title}</h6>
-                      {/* <p className='text-secondary m-2'>{issue.body}</p> */}
-                      <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
-                    </div>
-                  ))}
+                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                  <div className='text-muted'>Path :</div>
+                  {(repo)
+                    ? (path)
+                      ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
+                      : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
+                    : <></>
+                  }
                 </div>
-              </div> 
-
-              <div className="footer">
-                <Footer />
               </div>
+              {/* List the modelling params and link to modelling page */}
+              <div className=" main m-1 fs-6" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                {projectParamsDiv}
+                {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
+                <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
+                  <button className='rounded mt-2 px-2 '>
+                    <Link className='text-primary ' href="/modelling">Start Modelling</Link>
+                  </button>
+                  <ProjectDetailsModal props={props} />
+                  {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
+                </div>
+                <div className="rounded bg-light m-2 p-2">
+                  <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>
+                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{generatedUrl} </span>
+                </div>
+                <div className="rounded bg-light m-2 p-2">
+                  <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>
+                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{akmIrtvPopsMetamodelUrl} </span>
+                  {/* make a link to a new window with akmIrtvPopsMetamodelUrl */}
+                  <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
+                </div>
+                {projectFormDiv}
+              </div>
+              {/* Listing GitHub Issues */}
+              <div className="aside-right fs-4
+                6 " style={{ minWidth: "20rem" }}>
+                <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
+                {(issues.length > 0) && issues.map((issue) => (
+                  <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                    <div className='d-flex justify-content-between'>
+                      <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
+                      <div className='text-muted'>{issue.user.name}</div>
+                    </div>
+                    <h6>{issue.title}</h6>
+                    {/* <p className='text-secondary m-2'>{issue.body}</p> */}
+                    <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="footer">
+              <Footer />
+            </div>
           </div>
         </div>
-        <style jsx>{ `
+        <style jsx>{`
           .main { grid-area: main;}
           .focusarea { grid-area: focusarea;}
           .workplace-focus { grid-area: workplace-focus;}
@@ -329,10 +329,10 @@ const page = (props: any) => {
         </style>
       </Layout>
     </>
-  
-    return (
-      (refresh) ? <>{renderDiv}</> : <> {renderDiv} </>
-    )
+
+  return (
+    (refresh) ? <>{renderDiv}</> : <> {renderDiv} </>
+  )
 }
 
 export default connect((state: any) => state)(page)

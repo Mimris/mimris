@@ -129,7 +129,7 @@ const Palette = (props: any) => {
     setRole(props.phFocus?.focusRole);
     setTask(props.phFocus?.focusTask);
     setModellingtasks(props.phFocus?.focusRole?.tasks);
-    setTypes(props.phFocus.focusRole.tasks[0].workOnTypes); // ???
+    setTypes(props.phFocus.focusRole?.tasks[0].workOnTypes); // ???
 
     const filteredNodeDataArraynew = buildFilter(role, task, modellingtasks, types, mmodel);
     const filteredNodeDataArrayot = buildFilter(role, IRTVPOPSTask, modellingtasks, types, irtvpopsmm);
@@ -236,7 +236,7 @@ const Palette = (props: any) => {
       <select
         className='select-field mx-1 text-secondary'
         style={{ width: "96%" }}
-        value={modellingtasks.findIndex(t => t.id === task.id)}
+        value={modellingtasks?.findIndex(t => t.id === task.id)}
         onChange={(e) => getModellingTask(e.target.value)}
       >
         {/* <option value="" key="-1" disabled hidden> */}

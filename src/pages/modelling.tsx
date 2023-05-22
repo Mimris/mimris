@@ -82,7 +82,7 @@ const page = (props: any) => {
           if (debug) console.log('68 modelling', props.phFocus.focusProj.file)
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
             if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-              if ((window.confirm("Do you want to recover your last model project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+              if ((window.confirm("Do you want to recover your last modelling edits? \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
                 if (Array.isArray(memoryLocState) && memoryLocState[0]) {
                   const locStore = (memoryLocState[0])
                   if (locStore) {
@@ -90,9 +90,9 @@ const page = (props: any) => {
                     // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
                     // console.log('modelling 73 ', data)
                   }
+                  setRefresh(!refresh)
                 }
               } else {
-                setRefresh(!refresh)
               }
             }
           }

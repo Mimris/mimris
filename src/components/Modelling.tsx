@@ -5,7 +5,7 @@ const debug = false;
 
 // import React from "react";
 import { useRouter } from "next/router";
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, use } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -83,8 +83,9 @@ const page = (props: any) => {
   const [mount, setMount] = useState(false)
 
   const metis = props.phData?.metis
-  const models = metis?.models
-  const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id) // find the current model
+  const models = metis?.models || []
+
+  const curmod = (models && focusModel?.id) && models?.find((m: any) => m.id === focusModel.id)  // find the current model
   const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
     ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
     : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
@@ -115,7 +116,7 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('87 Modelling useEffect 2 [activTab]', props);
     GenGojsModel(props, dispatch);
-  }, [curmodview.objectviews.length])
+  }, [curmodview?.objectviews.length])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('125 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',
@@ -149,86 +150,174 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
 
+  const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
+  const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+  const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
+  const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+  const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+
+
+  const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
+
+  let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
+  let myMetis, myModel, myGoModel, myGoObjectPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
+  let myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, myTargetMetamodelPalette
+  let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
+
+  myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
+  // myModel = myMetis?.currentModel;
+  myModel = myMetis?.findModel(curmod.id);
+
+  myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+  myMetamodel = myModel?.metamodel;
+  myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
+
+  myTargetModel = myMetis?.findModel(curtargetmodel?.id);
+  myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
+  myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
+  myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
+
+  if (!debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+  myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
+  myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
+  myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
+  myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
+  myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  if (!debug) console.log('188 Modelling ', myGoObjectPalette);
+  myMetis?.setGojsModel(myGoModel);
+  myMetis?.setCurrentMetamodel(myMetamodel);
+  myMetis?.setCurrentModel(myModel);
+  myMetis?.setCurrentModelview(myModelview);
+  (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
+  (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
+
+  // set the gojs objects from the myMetis objects
+  gojsmetamodelpalette = (myGoMetamodel) &&   // props.phGojs?.gojsMetamodelPalette 
+  {
+    nodeDataArray: myGoMetamodel?.nodes,
+    linkDataArray: myGoMetamodel?.links
+  }
+  gojsmetamodelmodel = (myGoMetamodelModel) &&
+  {
+    nodeDataArray: myGoMetamodelModel?.nodes,
+    linkDataArray: myGoMetamodelModel?.links
+  }
+  gojsmodel = (myGoModel) && //props.phGojs?.gojsModel 
+  {
+    nodeDataArray: myGoModel.nodes,
+    linkDataArray: myGoModel.links
+  }
+  console.log('287 gojsmodel', gojsmodel)
+  gojsmetamodel = (myGoMetamodelPalette) &&   // props.phGojs?.gojsMetamodel 
+  {
+    nodeDataArray: myGoMetamodelPalette?.nodes,
+    linkDataArray: myGoMetamodelPalette?.links
+  }
+
+  gojsmodelobjects = (myGoModel) &&// props.phGojs?.gojsModelObjects // || []
+  {
+    nodeDataArray: myGoObjectPalette,
+    linkDataArray: []//myGoObjectPalette.links
+  }
+  console.log('300 gojsmodelobjects', gojsmodelobjects)
+  gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
+  {
+    nodeDataArray: myGoModel.nodes,
+    linkDataArray: myGoModel.links
+  }
+  gojstargetmetamodel = (myTargetMetamodel) &&    // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  {
+    nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,
+    linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links
+  }
+
+
+  // useEffect(() => {
+
+
+  //   // GenGojsModel(props, dispatch)
+  //   // set the myMetis object etc. from the props;
+
+
+  //   if (!debug) console.log('241 Modelling myModel', myMetis, myModel);
+  //   myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+  //   myMetamodel = myModel?.metamodel;
+  //   myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
+
+  //   myTargetModel = myMetis?.findModel(curtargetmodel?.id);
+  //   myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
+  //   myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
+  //   myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
+
+  //   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
+  //   if (!debug) console.log('178 Modelling myMetamodel', myModelview, myMetamodel, myGoModel);
+  //   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
+  //   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
+  //   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
+  //   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
+  //   myGoObjectPalette = uib.buildObjectPalette(myModel?.objects) //props.phMyGoObjectPalette?.myGoObjectPalette
+  //   myMetis?.setGojsModel(myGoModel);
+  //   myMetis?.setCurrentMetamodel(myMetamodel);
+  //   myMetis?.setCurrentModel(myModel);
+  //   myMetis?.setCurrentModelview(myModelview);
+  //   (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
+  //   (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
+
+  //   // set the gojs objects from the myMetis objects
+  //   gojsmetamodelpalette = (myMetamodel) &&   // props.phGojs?.gojsMetamodelPalette 
+  //   {
+  //     nodeDataArray: myGoMetamodel?.nodes,
+  //     linkDataArray: myGoMetamodel?.links
+  //   }
+  //   gojsmetamodelmodel = (myMetamodel) &&
+  //   {
+  //     nodeDataArray: myGoMetamodelModel?.nodes,
+  //     linkDataArray: myGoMetamodelModel?.links
+  //   }
+  //   gojsmodel = (myModel) && //props.phGojs?.gojsModel 
+  //   {
+  //     nodeDataArray: myGoModel.nodes,
+  //     linkDataArray: myGoModel.links
+  //   }
+  //   console.log('218 gojsmodel', gojsmodel)
+  //   gojsmetamodel = (myMetamodel) &&   // props.phGojs?.gojsMetamodel 
+  //   {
+  //     nodeDataArray: myGoMetamodelPalette?.nodes,
+  //     linkDataArray: myGoMetamodelPalette?.links
+  //   }
+
+  //   gojsmodelobjects = (myModel) &&// props.phGojs?.gojsModelObjects // || []
+  //   {
+  //     nodeDataArray: myGoObjectPalette.nodes,
+  //     linkDataArray: myGoObjectPalette.links
+  //   }
+  //   console.log('230 gojsmodelobjects', myGoModel, gojsmodelobjects)
+  //   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
+  //   {
+  //     nodeDataArray: myGoModel.nodes,
+  //     linkDataArray: myGoModel.links
+  //   }
+  //   gojstargetmetamodel = (myTargetMetamodel) &&    // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  //   {
+  //     nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,
+  //     linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links
+  //   }
+
+
+  // }, [refresh])
+
+  if (debug) console.log('233 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
+
   if (!mount) {
     return <></>
   } else {
 
-    const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
-    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
-    const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
-    const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-
-
-    const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-    const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-    const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-    const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
-
-    // set the myMetis object etc. from the props;
-    const myMetis = props.phMymetis?.myMetis
-    const myModel = myMetis?.findModel(curmod?.id);
     if (debug) console.log('185 Modelling myModel', myMetis, myModel);
-    let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
-    let myMetamodel = myModel?.metamodel;
-    myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
 
-    const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
-    let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
-    let myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
-    const myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
-    if (debug) console.log('178 Modelling myMetamodel', props, myMetis, myModel, myModelview, myMetamodel);
-    let myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
-    let myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
-    let myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
-    let myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-    myMetis?.setGojsModel(myGoModel);
-    myMetis?.setCurrentMetamodel(myMetamodel);
-    myMetis?.setCurrentModel(myModel);
-    myMetis?.setCurrentModelview(myModelview);
-    (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
-    (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
-
-    // set the gojs objects from the myMetis objects
-    let gojsmetamodelpalette = (myMetamodel) &&   // props.phGojs?.gojsMetamodelPalette 
-    {
-      nodeDataArray: myGoMetamodel?.nodes,
-      linkDataArray: myGoMetamodel?.links
-    }
-    let gojsmetamodelmodel = (myMetamodel) &&
-    {
-      nodeDataArray: myGoMetamodelModel?.nodes,
-      linkDataArray: myGoMetamodelModel?.links
-    }
-    let gojsmodel = (myModel) && (myModelview) && //props.phGojs?.gojsModel 
-    {
-      nodeDataArray: myGoModel.nodes,
-      linkDataArray: myGoModel.links
-    }
-    console.log('222 gojsmodel', gojsmodel)
-    let gojsmetamodel = (myMetamodel) &&   // props.phGojs?.gojsMetamodel 
-    {
-      nodeDataArray: myGoMetamodelPalette?.nodes,
-      linkDataArray: myGoMetamodelPalette?.links
-    }
-    let gojsmodelobjects = (myModel) && (myModelview) &&// props.phGojs?.gojsModelObjects // || []
-    {
-      nodeDataArray: uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified).nodes,
-      linkDataArray: uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified).links
-    }
-    let gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
-    {
-      nodeDataArray: uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject, showModified).nodes,
-      linkDataArray: uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject, showModified).links
-    }
-    let gojstargetmetamodel = (myTargetMetamodel) &&    // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
-    {
-      nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,
-      linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links
-    }
-
-    if (debug) console.log('119 Modelling: ', gojsmodelobjects, myModel, myModelview);
 
 
 
@@ -427,7 +516,7 @@ const page = (props: any) => {
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Palette */}
+                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
                       gojsModelObjects={gojsmodelobjects}
@@ -540,7 +629,8 @@ const page = (props: any) => {
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
 
-    // return  (mount && (gojsmodelobjects?.length > 0)) ? (
+    // return (models.length > 0) && (
+    // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
       <>
         <div className="header-buttons float-end" style={{ transform: "scale(0.7)", transformOrigin: "center", backgroundColor: "#ddd" }}>

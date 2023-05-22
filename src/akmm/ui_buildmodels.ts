@@ -131,13 +131,15 @@ let includeNoType = false;
 
   export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: boolean = false): gjs.goModel {
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
+    if (debug) console.log('134 ui_buildmodels objects', objects);
     if (objects) {
-      objects.sort(utils.compare);
+      // objects.sort(utils.compare);
     }
     const nodeArray = new Array();
     for (let i=0; i<objects?.length; i++) {
       let includeObject = false;
       const obj = objects[i];
+      if (debug) console.log('142 obj', obj);
       const objtype = obj?.getObjectType();
       if (!objtype) continue; // added 2022-09-29 sf 
       if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
@@ -188,6 +190,11 @@ let includeNoType = false;
           if (debug) console.log('188 node', node);
       }
     }
+    // const linkArray = new Array();
+    // for (let i=0; i<linkArray.length; i++) {
+    //   const link = linkArray[i];
+
+    // }
     if (debug) console.log('191 Object palette', nodeArray);
     return nodeArray;
   }

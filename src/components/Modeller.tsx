@@ -1,7 +1,7 @@
 // modeller
 // @ts-nocheck
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import useLocalStorage from '../hooks/use-local-storage'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -13,8 +13,11 @@ import GenGojsModel from './GenGojsModel'
 import { handleInputChange } from "../akmm/ui_modal";
 import { disconnect } from "process";
 import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+import { SaveModelviewToSvgFile, SaveModelviewToSvgFileAuto } from "./utils/SaveModelToFile";
 import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./ReportModule";
+import { gojs } from "../akmm/constants";
+
 
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
@@ -44,6 +47,11 @@ const Modeller = (props: any) => {
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
+  const [exportSvg, setExportSvg] = useState(null);
+  const [diagramReady, setDiagramReady] = useState(false);
+
+
+  const diagramRef = useRef(null);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -251,8 +259,6 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
-
-
   let ndarr = props.gojsMetamodel?.nodeDataArray
   let taskNodeDataArray: any[] = ndarr
 
@@ -260,12 +266,54 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // ================================================================================================
   // Show all the objects in this model
   // const gojsmodelObjects = props.gojsModelObjects
-
-
+  // const exportToSvg = () => {
+  //   if (!this.diagramRef.current) return;
+  //   const diagram = this.diagramRef.current.getDiagram();
+  //   if (!diagram) return;
+  //   console.log('3521 Diagram :', myModel.name);
+  //   const svg = diagram.makeSvg({ scale: .4, background: 'lightgray' });
+  //   const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
+  //   console.log('SVG string:', svgString);
+  //   // Create a Blob from the SVG string
+  //   const blob = new Blob([svgString], { type: 'image/svg+xml' });
+  //   SaveModelviewToSvgFile(blob, myModel.name, "_MV.", "image/svg+xml")
+  //   // Revoke the old Blob URL and create a new one
+  //   // if (downloadUrl) {
+  //   //   URL.revokeObjectURL(downloadUrl);
+  //   // }
+  //   // setDownloadUrl(URL.createObjectURL(blob))
+  // };
   // let objArr = props.myMetis.gojsModel?.model.objects
+
+  const handleExportSvgReady = (exportSvgFunction, isReady) => {
+    setExportSvg(() => exportSvgFunction);
+    setDiagramReady(isReady);
+  };
+
+  const handleExportClick = async () => {
+    console.log('294 handleExportClick', exportSvg);
+    if (exportSvg) {
+      const svg = await exportSvg();
+      if (svg) {
+        const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
+        // console.log('SVG string:', svgString);
+        // Create a Blob from the SVG string
+        // const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const proj = props.phFocus.focusProj.name
+        const model = focusModel.name
+        const modelview = focusModelview?.name
+        const filename = `${proj}_${model}_${modelview}`.replace(/ /g, "-")
+        alert('A SVG-file of this modelview will be downloaded to your computer make sure you save it with the name: \n ' + filename + '.svg')
+        SaveModelviewToSvgFile(svgString, filename)
+      } else {
+        console.log('SVG is not ready yet');
+      }
+    }
+  };
 
   seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
   let ndArr = props.gojsModelObjects?.nodeDataArray
+  let ldArr = props.gojsModelObjects?.linkDataArray
   // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr
   // filter out the objects that are marked as deleted
@@ -304,12 +352,13 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   // // filter out all objects of type 
   let ofilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container'))
+  if (debug) console.log('354 Palette ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
   if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
-  let gojsobjects = { nodeDataArray: ofilteredArr, linkDataArray: [] }
+  let gojsobjects = { nodeDataArray: ofilteredArr, linkDataArray: ldArr }
 
-  if (debug) console.log('253  Modeller', gojsobjects.nodeDataArray);
+  if (debug) console.log('360  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
 
   const objArr = taskNodeDataArray
   // Hack: if viewkind === 'Container' then set isGroup to true
@@ -357,6 +406,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       phFocus={props.phFocus}
       dispatch={props.dispatch}
       modelType={props.phFocus.focusTab}
+      onExportSvgReady={handleExportSvgReady}
     />
 
   const modelviewTabDiv = // this is the modelview tabs
@@ -397,7 +447,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"
           nodeDataArray={gojsobjects.nodeDataArray}
-          linkDataArray={[]}
+          linkDataArray={gojsobjects.linkDataArray}
           metis={props.metis}
           myMetis={props.myMetis}
           myGoModel={props.myGoModel}
@@ -408,8 +458,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
 
+
+
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area">
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" >exportToSvg </span>
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" > {refresh ? 'save2memory' : 'save2memory'} </span>
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" > {refresh ? 'getMemory' : 'getmemory'} </span>
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
@@ -437,6 +490,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     </div>
 
   if (debug) console.log('372 Modeller ', props.modelType)
+
 
   const modellerDiv =
     (props.modelType === 'model')

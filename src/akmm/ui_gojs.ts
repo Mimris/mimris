@@ -576,7 +576,9 @@ export class goObjectNode extends goNode {
         let scale = this.scale1;
         const pnode = this.getParentNode(model);
         if (pnode) {
-            scale = pnode.typeview.memberscale;
+            scale = pnode.memberscale;
+            if (!scale)
+                scale = pnode.typeview.memberscale;
             scale *= pnode.getMyScale(model);
         } else 
             scale = 1;

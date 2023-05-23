@@ -276,17 +276,17 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             dispatch({ type: type, data: data })
         }
 
-        // ---------------------  check type of import ---------------------
+        // ---------------------  check type of import --------------------- Todo: this can be removed
         if (data.phData) { // if modelff has phData, then it is a project file , just import all data
             if (!debug) console.log('246 ReadModelFromFile', data)
         } else if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
             if (!debug) console.log('248 ReadModelFromFile _MV found', data)
 
-        if (!impObjects) { //|| !impRelships) {
-            const r = window.confirm("This Modelview import has no Objects and/or Relships. Click OK to cancel?")
-            if (r === false) { return null } // if user clicks cancel, then do nothing
-        }
-        if (debug) console.log('254 ReadModelFromFile', data);
+            if (!impObjects) { //|| !impRelships) {
+                const r = window.confirm("This Modelview import has no Objects and/or Relships. Click OK to cancel?")
+                if (r === false) { return null } // if user clicks cancel, then do nothing
+            }
+            if (debug) console.log('254 ReadModelFromFile', data);
   
         } else if (filename.includes('_MO')) { // then it is a model file           
             // if (debug) console.log('290 ReadModelFromFile _MO found', filename, data));
@@ -346,7 +346,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         }
 
         // merge imported with existing project
-        if (filename.includes('_PR')) { // its a project file, just import as is
+        if (filename.includes('_PR' || '.Project')) { // its a project file, just import as is
             data = importedfile
         } else if (importedfile.phData) { // its a model, modelview or metamodel file, merge with existing project
             data = {

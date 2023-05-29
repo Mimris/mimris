@@ -526,7 +526,7 @@ export class goObjectNode extends goNode {
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 this.setScale(this.objectview.getScale())
-                // this.isCollapsed = this.objectview.isCollapsed;
+                this.isCollapsed = this.objectview.isCollapsed;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
             }
@@ -577,7 +577,7 @@ export class goObjectNode extends goNode {
         const pnode = this.getParentNode(model);
         if (pnode) {
             scale = pnode.memberscale;
-            if (!scale)
+            if (!scale || scale == 'undefined')
                 scale = pnode.typeview.memberscale;
             scale *= pnode.getMyScale(model);
         } else 

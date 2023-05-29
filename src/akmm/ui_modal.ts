@@ -1434,14 +1434,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myModelview.addRelationshipView(relview); 
           if (debug) console.log('1162 myModelview, relview', myModelview, relview);
           myMetis.addRelationshipView(relview); 
-
-          // Then create the corresponding goRelshipLink 
-          if (debug) console.log('1159 myMetis, myGoModel', myMetis, myGoModel);
-          let gjslink = new gjs.goRelshipLink(link.key, myGoModel, relview);
-          gjslink.loadLinkContent(myGoModel);
-          if (debug) console.log('1160 gjslink', gjslink);
-          myDiagram.model.removeLinkData(link);
-          myDiagram.model.addLinkData(gjslink);
         }
       }
     }

@@ -837,6 +837,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myMetis.modelType == 'Modelling') {
                 const node = o.part.data;
                 switch(node.template) {
+                  case 'Container1':
                   case 'nodeWithPorts':
                   case 'groupWithPorts':
                   case 'groupWithIconAndPorts':

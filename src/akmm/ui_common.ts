@@ -88,8 +88,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
-                        node.scale1 = new String(node.getMyScale(myGoModel));
                         myDiagram.model.setDataProperty(data, "group", node.group);
+                        node.scale1 = new String(node.getMyScale(myGoModel));
                         data.scale1 = Number(node.scale1);
                         // Check if the group is a container or not
                         if (group.objecttype?.id !== containerType?.id && hasMemberType) { 
@@ -129,7 +129,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 objview.setScale(data.scale1);
-                objview.setMemberscale(data.memberscale);
+                if (data.isGroup) objview.setMemberscale(data.memberscale);
                 data.objectview = objview;
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
@@ -188,7 +188,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     const group = getGroupByLocation(myGoModel, objview.loc, objview.size, node);
                     if (debug) console.log('170 group', group, node);
                     if (group) {
-                        group.memberscale = group.typeview.memberscale;
+                        group.memberscale = group.memberscale ? group.memberscale : group.typeview.memberscale;
                         node.group = group.key;
                         let scale1 = Number(group.scale1) * Number(group.memberscale);
                         if (scale1 === 0) scale1 = 1;
@@ -1047,8 +1047,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
             if (debug) console.log('944 data, node, tonode', data, node, toloc);
             node.loc = toloc;
             node.size = data.size;
-            const scale = data.scale1;
-            node.scale1 = scale;
+            node.scale1 = node.getMyScale(goModel).toString();;
             if (node.isGroup) {   // node is a group
                 const group = node;
                 // Get potential members of the group

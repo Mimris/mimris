@@ -836,10 +836,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               if (myMetis.modelType == 'Modelling') {
                 const node = o.part.data;
-                if (node.template === 'nodeWithPorts')
-                  return true;
-                else if (node.template === 'groupWithPorts')
-                  return true;
+                switch(node.template) {
+                  case 'nodeWithPorts':
+                  case 'groupWithPorts':
+                  case 'groupWithIconAndPorts':
+                  case 'groupWithGeoAndPorts':
+                  case 'groupWithFigAndPorts':
+                        return true;
+                }
               }
               return false;
             }),
@@ -1060,10 +1064,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
                   break;
                 case 'textAndGeometry':
-                  template = allowPorts ? 'groupWithPorts2' : 'groupNoPorts2';
+                  template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
                   break;
                 case 'textAndFigure':
-                  template = allowPorts ? 'groupWithPorts3' : 'groupNoPorts3';
+                  template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
                   break;
               }
               objview.template = template;
@@ -1326,8 +1330,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const myGoModel = myMetis.gojsModel;
               const data = obj.part.data;
               const node = myGoModel.findNodeByViewId(data.objectview.id);
-              const myScale = node?.getMyScale(myGoModel); 
-              const msg = 'My Scale is: ' + myScale;
+              let msg = "";
+              if (node) {
+                const myScale = node?.getMyScale(myGoModel); 
+                msg = 'My Scale is: ' + myScale;
+              }
+              else {
+                msg = data.scale1;
+              }
               alert(msg);
             },
             function (o: any) {

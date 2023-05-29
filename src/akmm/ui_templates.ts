@@ -489,7 +489,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let topside = side === 'top';
     let bottomside = side === 'bottom';
      let fromlinkable = rightside || isGroup;
-    let tolinkable = leftside || topside || bottomside || isGroup;
+    let tolinkable = leftside || topside || bottomside || isGroup;
     let geostring1 = "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z";
     geostring1.normalize();
     let geostring2 =   "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z";
@@ -2396,6 +2396,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             },
             groupTop2(contextMenu, 'Icon'),
+            addLeftPorts(portContextMenu),
+            addTopPorts(portContextMenu),
+            addRightPorts(portContextMenu),
+            addBottomPorts(portContextMenu),
         );   
         groupTemplateMap.add("", groupTemplate1);
         groupTemplateMap.add("Container1", groupTemplate1);

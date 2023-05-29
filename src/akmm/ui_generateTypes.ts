@@ -1376,19 +1376,21 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     }                   
                     // Prepare dispatches
                     if (reltype) {
+                        myMetis.addRelationshipType(reltype);
                         metamodel.addRelationshipType(reltype);
                         metamodel.addRelationshipType0(reltype);
-                        const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
                         if (debug) console.log('1385 Generate Relationship Type', reltype, jsnRelshipType);
                         const modifiedTypeLinks = new Array();
-                        modifiedTypeLinks.push(jsnRelshipType);
                         const relTypeview = reltype.typeview;
                         if (relTypeview) {
                             myMetis.addRelationshipTypeView(relTypeview);
+                            reltype.setDefaultTypeView(relTypeview);
                             const jsnRelTypeview = new jsn.jsnRelshipTypeView(relTypeview);
                             if (debug) console.log('1392 Generate Reltypeview', jsnRelTypeview);
                             modifiedRelTypeViews.push(jsnRelTypeview);
                         }
+                        const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
+                        modifiedTypeLinks.push(jsnRelshipType);
                     }
                 }
             }

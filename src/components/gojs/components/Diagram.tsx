@@ -1169,28 +1169,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("----------"),
           makeButton("Select all objects of this type",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              if (debug) console.log('1400 node', node);
-              const currentObject = myMetis.findObject(node.object?.id)
-              const currentType = currentObject?.type;
-              const myModel = myMetis.currentModel;
-              const myGoModel = myMetis.gojsModel;
-              const objects = myModel.getObjectsByType(currentType, false);
-              for (let i = 0; i < objects.length; i++) {
-                const o = objects[i];
-                if (o) {
-                  const oviews = o.objectviews;
-                  if (oviews) {
-                    for (let j = 0; j < oviews.length; j++) {
-                      const ov = oviews[j];
-                      if (ov) {
-                        const node = myGoModel.findNodeByViewId(ov?.id);
-                        const gjsNode = myDiagram.findNodeForKey(node?.key);
-                        if (gjsNode) gjsNode.isSelected = true;
-                      }
-                    }
+              const currentNode = obj.part.data;
+              const currentObject = currentNode.object;
+              const currentType = currentObject.type;
+              const nodes = myDiagram.nodes;
+              for (let it = nodes.iterator; it?.next();) {
+                  const node = it.value;
+                  if (node.data.object.type.id == currentType.id) {
+                    node.isSelected = true;
                   }
-                }
               }
             },
             function (o: any) {
@@ -1283,6 +1270,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
+                let objectview = node.objectview;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
                 const objects = new Array();
@@ -1293,6 +1281,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const context = {
                   "myMetis": myMetis,
                   "myMetamodel": myMetis.currentMetamodel,
+                  "myCurrentModelview": myMetis.currentModelview,
+                  "myObjectview": objectview,
                   "myObject": object,
                   "objects": objects,
                   "myDiagram": myDiagram,
@@ -1815,42 +1805,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Select all views of this relationship",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const myGoModel = myMetis.gojsModel;
               const relship = myMetis.findRelationship(link.relship.id)
-              const rviews = relship.relshipviews;
-              if (rviews) {
-                for (let j = 0; j < rviews.length; j++) {
-                  const rv = rviews[j];
-                  if (rv) {
-                    const link = myGoModel.findLinkByViewId(rv?.id);
-                    const gjsLink = myDiagram.findLinkForKey(link?.key);
-                    if (gjsLink) gjsLink.isSelected = true;
-                  }
+              const links = myDiagram.links;
+              for (let it = links.iterator; it?.next();) {
+                const link = it.value;
+                if (link.data.relship.id == relship.id) {
+                  link.isSelected = true;
                 }
               }
             },
             function (o: any) {
               const link = o.part.data;
-              const myGoModel = myMetis.gojsModel;
               const relship = myMetis.findRelationship(link.relship.id)
-              const rviews = relship.relshipviews;
-              if (rviews?.length > 1) {
-                let cnt = 0;
-                for (let j = 0; j < rviews.length; j++) {
-                  const rv = rviews[j];
-                  if (rv) {
-                    const link = myGoModel.findLinkByViewId(rv?.id);
-                    if (link) {
-                      const gjsLink = myDiagram.findLinkForKey(link?.key);
-                      if (gjsLink)
-                        cnt++;
-                    }
-                  }
+              const links = myDiagram.links;
+              let cnt = 0;
+              for (let it = links.iterator; it?.next();) {
+                const link = it.value;
+                if (link.data.relship.id == relship.id) {
+                  cnt++;
                 }
-                if (cnt > 1)
-                  return true;
               }
-              return false;
+              if (cnt > 1)
+                return true;
+              else
+                return false;
             }),
           makeButton("Select all relationships of this type",
             function (e: any, obj: any) {
@@ -1858,23 +1836,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('984 link', link);
               const currentRelship = myMetis.findRelationship(link.relship.id)
               const currentType = currentRelship?.type as akm.cxRelationshipType;
-              const myModel = myMetis.currentModel;
-              const myGoModel = myMetis.gojsModel;
-              const relships = myModel.getRelationshipsByType(currentType, false);
-              for (let i = 0; i < relships.length; i++) {
-                const r = relships[i];
-                if (r) {
-                  const rviews = r.relshipviews;
-                  if (rviews) {
-                    for (let j = 0; j < rviews.length; j++) {
-                      const rv = rviews[j];
-                      if (rv) {
-                        const link = myGoModel.findLinkByViewId(rv?.id);
-                        const gjsLink = myDiagram.findLinkForKey(link?.key)
-                        if (gjsLink) gjsLink.isSelected = true;
-                      }
-                    }
-                  }
+              const links = myDiagram.links;
+              for (let it = links.iterator; it?.next();) {
+                const link = it.value;
+                if (link.data.relshiptype.id == currentType.id) {
+                  link.isSelected = true;
                 }
               }
             },
@@ -1883,16 +1849,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Clear Breakpoints",
             function (e: any, obj: any) {
-              const myGoModel = myMetis.gojsModel;
               const modifiedRelshipViews = new Array();
               myDiagram.selection.each(function (sel) {
-                const inst = sel.data;
-                if (inst.category === constants.gojs.C_RELATIONSHIP) {
-                  let myLink = myGoModel.findLink(inst.key);
-                  const link = myMetis.myDiagram.findLinkForKey(myLink.key);
+                const link = sel.data;
+                if (link.category === constants.gojs.C_RELATIONSHIP) {
                   link.points = [];
                   myDiagram.model.setDataProperty(link, "points", []);
-                  const relview = myLink.relshipview;
+                  const relview = link.relshipview;
                   relview.points = [];
                   const jsnRelView = new jsn.jsnRelshipView(relview);
                   modifiedRelshipViews.push(jsnRelView);

@@ -484,12 +484,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             } 
-          } else {
-            if (!uic.isPropIncluded(k, type)) {
-              if (debug) console.log('459 k', k);
-              continue;
-            }
-          }
+          } 
           if (k === 'fs_collection') 
             continue;
           if (k === 'dash') {

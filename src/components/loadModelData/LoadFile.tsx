@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts- nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
@@ -25,7 +25,7 @@ const LoadFile = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
-  console.log('28 LoadFile', props.ph.phData.metis.models);
+  if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
 
   const modelNames = props.ph.phData?.metis?.models?.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels?.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)

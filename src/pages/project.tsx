@@ -95,6 +95,8 @@ const page = (props: any) => {
               }
             }
           }
+        } else {
+          const data = { id: props.phFocus.focusProj.id, name: props.phFocus.focusProj.name, org: props.phFocus.focusProj.org, repo: props.phFocus.focusProj.repo, path: props.phFocus.focusProj.path, file: props.phFocus.focusProj.file, branch: props.phFocus.focusProj.branch, focus: props.phFocus.focusProj.focus }
         }
       } catch (err) {
         setError(err);
@@ -136,19 +138,22 @@ const page = (props: any) => {
 
   useEffect(() => {
     async function fetchData() { // fetch issues
-      try {
+      if (query.repo?.length > 0) {
+        // try {
         const { data } = await axios.get(issueUrl);
         setIssues(data);
         console.log('55 issues', data)
-      } catch (err) {
-        setError(err);
+
+        // } catch (err) {
+        //   setError(err);
+        // }
       }
     }
     fetchData(); // call the function 
     if (error) {
       alert(error.response.data.message) // alert the error message
     }
-  }, [query.repo !== '']);
+  }, [query.repo !== '' && query.repo !== undefined]);
 
 
   // useEffect(() => {

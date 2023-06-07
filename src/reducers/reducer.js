@@ -772,7 +772,7 @@ function reducer(state = InitialState, action) {
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('794 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
-      let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview); // current objectview index
+      let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview.id); // current objectview index
       const curObjectviewsLength = curModelview?.objectviews?.length
       if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
 

@@ -349,8 +349,8 @@ export class goNode extends goMetaObject {
         this.text = "";
         this.loc = "";
         this.size = "";
-        this.scale = "";
-        this.scale1 = "";
+        this.scale = "1";
+        this.scale1 = "1";
         this.memberscale = "";
         this.strokecolor = "";
         this.strokecolor2 = "";
@@ -373,13 +373,21 @@ export class goNode extends goMetaObject {
         return this.size;
     }
     setScale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.scale = scale;
         this.scale1 = scale;
     }
     getScale(): string {
+        let scale = this.scale;
+        if (scale == undefined || scale == "" || scale == null)
+            this.scale = "1";
         return this.scale;
     }
     getScale1(): string {
+        let scale = this.scale1;
+        if (scale == undefined || scale == "" || scale == null)
+            this.scale1 = "1";
         return this.scale1;
     }
     setViewkind(kind: string) {
@@ -482,7 +490,9 @@ export class goObjectNode extends goNode {
                 this.geometry = this.typeview?.geometry;
             if (!this.figure)
                 this.figure = this.typeview?.figure;
-        }
+            if (!this.figure)
+                this.figure = "";
+            }
     }
     // Methods
     getObjectViewId(viewid: string): string {
@@ -586,6 +596,8 @@ export class goObjectNode extends goNode {
     }
     getActualScale(model: goModel): number {
         let scale1 = this.scale1;
+        if (!scale || scale == 'undefined')
+            scale1 = 1;
         const node = this.getParentNode(model);
         if (debug) console.log('597 node', node);
         if (node && node.key !== this.key) {
@@ -833,7 +845,7 @@ export class goRelshipLink extends goLink {
         this.routing         = relview?.routing ? relview.routing : "";
         this.curve           = relview?.curve ? relview.curve : "";
         this.corner          = relview?.corner ? relview.corner : "";
-        this.points          = null;
+        this.points          = [];
         this.relshipkind     = "";
         this.cardinality     = "";
         this.cardinalityFrom = "";
@@ -847,15 +859,27 @@ export class goRelshipLink extends goLink {
                 this.relship = relship;
                 this.relshiptype = relship.type;
                 // this.typename    = this.relshiptype.getName();
-                this.type = this.typename;
-                this.name = this.relship.name;
-                if (this.name.length == 0)
-                    this.name = this.typename;
-                this.cardinalityFrom = this.relship.cardinalityFrom;
-                this.cardinalityTo = this.relship.cardinalityTo;
-                this.nameFrom = this.relship.nameFrom;
-                this.nameTo = this.relship.nameTo;
-                if (debug) console.log('629 relshipLink', this);
+                const reltype = relship.getType() as akm.cxRelationshipType;
+                if (reltype) {
+                    this.typename = reltype.getName();
+                    this.name = this.relship.name;
+                    if (this.name.length == 0)
+                        this.name = this.typename;
+                    this.cardinalityFrom = this.relship.cardinalityFrom;
+                    this.cardinalityTo = this.relship.cardinalityTo;
+                    this.nameFrom = this.relship.nameFrom;
+                    this.nameTo = this.relship.nameTo;
+                    if (debug) console.log('629 relshipLink', this);
+                    // Check if a draft property exists
+                    const draftProp = constants.props.DRAFT;
+                    const draft = reltype.findPropertyByName(draftProp);
+                    if (draft) {
+                        const value = relship.getStringValue2(draftProp);
+                        if (value && value?.length > 0) {
+                            this.name = value;
+                        }
+                    }
+                }
             }
             this.typeview = relview.getTypeView();
             this.relshipkind = this.relshiptype?.getRelshipKind();
@@ -1031,7 +1055,7 @@ export class goRelshipTypeLink extends goLink {
         this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
-        this.points = null;
+        this.points = [];
 
         if (reltype) {
             this.setName(reltype.getName());

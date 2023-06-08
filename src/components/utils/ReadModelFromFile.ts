@@ -277,9 +277,8 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         }
 
         // ---------------------  check type of import --------------------- Todo: this can be removed
-        if (data.phData) { // if modelff has phData, then it is a project file , just import all data
-            if (!debug) console.log('246 ReadModelFromFile', data)
-        } else if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
+
+        if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
             if (!debug) console.log('248 ReadModelFromFile _MV found', data)
 
             if (!impObjects) { //|| !impRelships) {
@@ -287,66 +286,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 if (r === false) { return null } // if user clicks cancel, then do nothing
             }
             if (debug) console.log('254 ReadModelFromFile', data);
-  
-        } else if (filename.includes('_MO')) { // then it is a model file           
-            // if (debug) console.log('290 ReadModelFromFile _MO found', filename, data));
-            // // if model already exist in props.phData.metis.models, then remove it from props.phData.metis.models
-            // const mmindex = props.phData.metis.models.findIndex(m => m.id === data.id)
-            // const tmpmodel = props.phData.metis.models
-            // if (mmindex >= 0) {   // if model exist, then remove it from props.phData.metis.models, i.e. the model will be replaced by the new model
-            //     alert("Model already exists! Delete current model and try again!")
-            //     return null
-            // } else { // mmindex = -1, i.e.  not fond, which means adding a new model
-            //     const r = window.confirm("This model import will also add corresponding Metamodel!  Click OK to continue?")
-            //     if (r === false) { 
-            //         return null // if user clicks cancel, then do nothing
-            //     } 
-            // } 
-                
-            // data = {
-            //     phData: {
-            //         ...props.phData,
-            //         metis: {
-            //             ...props.phData.metis,
-            //             metamodels: [
-            //                 ...props.phData.metis.metamodels,   
-            //                 modelffmetamodels
-            //             ],
-            //             models: [
-            //                 ...props.phData.metis.models,     
-            //                 modelffmodels,
-            //             ],
-            //         },
-            //     }, 
-            // };
-              
-        } else if (filename.includes('_MM')) { // if filename contains _MM, then it is a metamodel file
-            // let  mmmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === modelff?.id) // current model index
-            // const mmlength = props.phData?.metis?.metamodels.length
-            // if ( mmmindex < 0) { mmmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-            // if (debug) console.log('108 ReadModelFromFile', metamodelff, mmmindex, mmlength);
-            // data = {
-            //     phData: {
-            //         ...props.phData,
-            //         metis: {
-            //             ...props.phData.metis,
-            //             metamodels: [ 
-            //                 ...props.phData.metis.metamodels?.slice(0, mmindex),  
-            //                 {  
-            //                     ...props.phData.metis.metamodels[mmindex],  
-            //                     modelff
-            //                 },
-            //                 ...props.phData.metis.metamodels?.slice(mmindex + 1, mlength),
-            //             ],
-            //         },
-            //     }, 
-            // };  
-        } else {
-
         }
 
         // merge imported with existing project
-        if (filename.includes('_PR' || '.Project')) { // its a project file, just import as is
+        if (data.phData || filename.includes('_PR' || '.Project')) { // its a project file, just import as is
             data = importedfile
         } else if (importedfile.phData) { // its a model, modelview or metamodel file, merge with existing project
             data = {
@@ -396,7 +339,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 }
             }
         }
-        if (debug) console.log('333 ReadModelFromFile', data, importedfile.phData.metis.models, importedfile.phData.metis.metamodels)
+        if (!debug) console.log('333 ReadModelFromFile', data, importedfile.phData.metis.models, importedfile.phData.metis.metamodels)
 
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)

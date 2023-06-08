@@ -129,7 +129,7 @@ const Palette = (props: any) => {
     setRole(props.phFocus?.focusRole);
     setTask(props.phFocus?.focusTask);
     setModellingtasks(props.phFocus?.focusRole?.tasks);
-    setTypes(props.phFocus.focusRole?.tasks[0].workOnTypes); // ???
+    (props.phFocus.focusRole?.tasks) && setTypes(props.phFocus.focusRole?.tasks[0]?.workOnTypes); // ???
 
     const filteredNodeDataArraynew = buildFilter(role, task, modellingtasks, types, mmodel);
     const filteredNodeDataArrayot = buildFilter(role, IRTVPOPSTask, modellingtasks, types, irtvpopsmm);

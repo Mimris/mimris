@@ -94,7 +94,6 @@ const page = (props: any) => {
                     setRefresh(!refresh)
                   }, 100);
                 }
-              } else {
               }
             }
           }

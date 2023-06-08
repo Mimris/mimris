@@ -297,7 +297,6 @@ export function groupTop1(contextMenu: any, notation: string) {
 }
 
 export function groupTop2(contextMenu: any, notation: string) {
-    // Without ports
     return $(go.Panel, "Auto",
                 {
                     row: 1, 
@@ -369,6 +368,95 @@ export function groupTop2(contextMenu: any, notation: string) {
                     },
                         new go.Binding("fill", "fillcolor2"),
                         new go.Binding("stroke", "strokecolor2"),
+                        new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+                    ) ,     
+                    $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+                    $(go.TextBlock, textStyle(), // the typename  --------------------
+                        {
+                            row: 2, 
+                            stretch: go.GraphObject.Horizontal,
+                            isMultiline: false,
+                            minSize: new go.Size(10, 2),
+                            margin: new go.Margin(0, 0, 3, 10), 
+                            cursor: "move", 
+                        },
+                        new go.Binding("text", "typename"),
+                    ),  
+                ),
+    );
+}
+
+export function groupTop3(contextMenu: any, notation: string) {
+    return $(go.Panel, "Auto",
+                {
+                    row: 1, 
+                    column: 1, 
+                    name: "BODY",
+                    stretch: go.GraphObject.Fill,
+                },
+                $(go.Shape, "RoundedRectangle", // surrounds everything
+                    {
+                        cursor: "alias",
+                        fill: "white", 
+                        shadowVisible: true,
+                        minSize: new go.Size(160, 65),
+                        portId: "", 
+                        fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("stroke", "strokecolor"),
+                ),
+                $(go.Panel, "Table",  // position header above the subgraph
+                    {
+                        stretch: go.GraphObject.Fill,
+                        defaultAlignment: go.Spot.TopLeft
+                    },
+                    $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                    $(go.Panel, "Table",  // the header
+                        {
+                            row: 0,
+                            contextMenu: contextMenu , 
+                            cursor: "move",
+                            stretch: go.GraphObject.Horizontal,
+                        },
+                        $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
+                        $("SubGraphExpanderButton",
+                            {
+                                column: 0, 
+                                margin: new go.Margin(-2, 2, 2, 0), 
+                                alignment: go.Spot.Left,
+                                scale: 1.2,
+                            },
+                            new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
+                            ),  
+                        $(go.TextBlock, // group title located at the left
+                            { 
+                                column: 1, 
+                                stretch: go.GraphObject.Horizontal,
+                                alignment: go.Spot.Left,
+                                margin: new go.Margin(0, 0, 0, 5), 
+                                font: "Bold 14pt Sans-Serif",
+                                editable: true, 
+                                isMultiline: false,
+                                // name: "name",
+                            },
+                            new go.Binding("text", "name").makeTwoWay(),
+                            new go.Binding("stroke", "textcolor").makeTwoWay()
+                        ),
+                        makeNotation(notation),
+                    ), // End Horizontal Panel
+                    $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
+                        {
+                            row: 1,
+                            stretch: go.GraphObject.Fill,
+                            fill: "rgba(128,128,128,0.33)",
+                            stroke: "transparent",
+                            opacity: 0.75,
+                            margin: new go.Margin(2, 10, 5, 10),
+                            cursor: "move",
+                    },
+                        new go.Binding("fill", "fillcolor2"),
                         new go.Binding("isSubGraphExpanded").makeTwoWay(),    
                     ) ,     
                     $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
@@ -2373,7 +2461,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Auto",
             {
                 resizable: true,
-                minSize: new go.Size(200, 120),
+                minSize: new go.Size(300, 200),
                 contextMenu: contextMenu,
             },
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -2396,10 +2484,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             },
             groupTop2(contextMenu, 'Icon'),
-            addLeftPorts(portContextMenu),
-            addTopPorts(portContextMenu),
-            addRightPorts(portContextMenu),
-            addBottomPorts(portContextMenu),
         );   
         groupTemplateMap.add("", groupTemplate1);
         groupTemplateMap.add("Container1", groupTemplate1);
@@ -2407,21 +2491,19 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 
     if (true) { // groupTemplate2
         const groupTemplate2 =
-        $(go.Group, "Spot",
+        $(go.Group, "Auto",
             {
-                name: "GROUP",
-                resizable: true, 
-                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
-                selectionAdorned: true,
+                resizable: true,
+                minSize: new go.Size(300, 200),
                 contextMenu: contextMenu,
             },
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("visible"),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            new go.Binding("background", "isHighlighted", function(h) { 
-                    return h ? "rgba(255,0,0,0.2)" : "transparent"; 
-                }).ofObject(),
-            { // Tooltips
+            new go.Binding("background", "isHighlighted",
+                            h => h ? "rgba(255,0,0,0.2)" : "transparent").ofObject(), // this is the background of all
+            { // Tooltip
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
@@ -2434,8 +2516,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop1(contextMenu, 'Icon'),
-        )
+            groupTop3(contextMenu, 'Icon'),
+        );   
         groupTemplateMap.add("Container2", groupTemplate2);
         addGroupTemplateName('Container2');
     }

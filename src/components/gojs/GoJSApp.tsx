@@ -419,13 +419,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   if (debug) console.log('407 jsnRelview', jsnRelview);
                   modifiedLinks.push(jsnRelview);
-                  // let data = JSON.parse(JSON.stringify(jsnRelview));
-                  // context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                   const jsnRel = new jsn.jsnRelationship(rel);
                   if (debug) console.log('418 jsnRel', jsnRel);
-                  modifiedLinks.push(jsnRel);
-                  // data = JSON.parse(JSON.stringify(jsnRel));
-                  // context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+                  modifiedRelships.push(jsnRel);
                 }
               }
             }

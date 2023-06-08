@@ -250,10 +250,13 @@ function reducer(state = InitialState, action) {
       }
     case LOAD_TOSTORE_PHDATA:
       if (debug) console.log('227 LOAD_TOSTORE_PHDATA', action);
-      return {
+      const retval_LOAD_TOSTORE_PHDATA =
+      {
         ...state,
         phData: action.data
       }
+      if (!debug) console.log('235 LOAD_TOSTORE_PHDATA', retval_LOAD_TOSTORE_PHDATA);
+      return retval_LOAD_TOSTORE_PHDATA;
     case LOAD_TOSTORE_PHFOCUS:
       if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action);
       return {
@@ -741,9 +744,9 @@ function reducer(state = InitialState, action) {
       const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
       let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
       const curObjectLength = curModel?.objects?.length;
-      if (curObjectIndex > 0) { curObjectIndex = curObjectLength }
+      if (curObjectIndex < 0) { curObjectIndex = curObjectLength }
 
-      const retval_UPTDATE_OBJECT_PROPERTIES = {
+      const retval_UPDATE_OBJECT_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -767,12 +770,13 @@ function reducer(state = InitialState, action) {
           },
         }
       }
-      return retval_UPTDATE_OBJECT_PROPERTIES
+      if (!debug) console.log('773 retval_UPDATE_OBJECT_PROPERTIES', retval_UPDATE_OBJECT_PROPERTIES)
+      return retval_UPDATE_OBJECT_PROPERTIES
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('794 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
-      let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview.id); // current objectview index
+      let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview?.id); // current objectview index
       const curObjectviewsLength = curModelview?.objectviews?.length
       if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
 
@@ -816,7 +820,7 @@ function reducer(state = InitialState, action) {
       const curRelship = curModel?.relships?.find((r) => r?.id === action.data?.id) || [];
       let curRelshipIndex = curModel?.relships?.findIndex((r) => r?.id === curRelship?.id);
       const curRelshipLength = curModel?.relships?.length;
-      if (curRelshipIndex > 0) { curRelshipIndex = curRelshipLength }
+      if (curRelshipIndex < 0) { curRelshipIndex = curRelshipLength }
 
       const retval_UPDATE_RELSHIP_PROPERTIES = {
         ...state,
@@ -846,8 +850,8 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
-      const curRelshipview = curModelview?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
-      let curRelshipviewIndex = curModelview?.relshipviews?.findIndex((rv) => rv.id === curRelshipview?.id) //action?.data?.id); // current relshipview index
+      const curRelshipview = curModelview?.relshipviews?.find(rv => rv?.id === action?.data?.id) // current relshipview
+      let curRelshipviewIndex = curModelview?.relshipviews?.findIndex((rv) => rv?.id === curRelshipview?.id) //action?.data?.id); // current relshipview index
       const curRelshipviewsLength = curModelview?.relshipviews?.length
       if (curRelshipviewIndex < 0) { curRelshipviewIndex = curRelshipviewsLength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
 

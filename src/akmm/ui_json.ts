@@ -605,6 +605,12 @@ export class jsnObjectType {
             const port = ports[i];
             this.addPort(port);
         }
+        const mtds = objtype.getMethods();
+        cnt = mtds?.length;
+        for (let i = 0; i < cnt; i++) {
+            const mtd = mtds[i];
+            this.addMethod(mtd);
+        }
         if (debug) console.log('610 objtype, props, this', objtype, props, this);
         //this.loc  = (includeViews) ? objtype.loc : "";
         //this.size = (includeViews) ? objtype.size : "";
@@ -1363,22 +1369,15 @@ export class jsnRelationship {
         this.generatedTypeId = relship.generatedTypeId;
         this.modified        = relship.modified;
         // Code
-        if (relship) {
-            if (relship.description)
-                this.description = relship.description;
-            const type = relship.type;
-            if (type)
-                this.typeRef = type.id;
-            const fromObj = relship.fromObject;
-            const toObj = relship.toObject;
-            const values = relship.valueset;
-            if (values) {
-                const cnt = values.length;
-                for (let i = 0; i < cnt; i++) {
-                    const val = values[i];
-                    this.addPropertyValue(val);
-                }
-            }
+        const properties = relship.allProperties;
+        if (debug) console.log('879 relship, properties', relship, properties);
+        for (let i=0; i<properties?.length; i++) {
+          const prop = properties[i];
+          if (!prop) continue;
+          const propname = prop.name;
+          const value = relship.getStringValue2(propname);
+          if (debug) console.log('885 propname, value', propname, value);
+          this[propname] = value;                      
         }
     }
     addPropertyValue(val: akm.cxPropertyValue) {

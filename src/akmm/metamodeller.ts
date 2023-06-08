@@ -1149,7 +1149,7 @@ export class cxMetis {
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
-                objectviews.forEach(objview => {
+                objectviews?.forEach(objview => {
                     if (objview && objview.id) {
                         this.importObjectView(objview, modelview);
                         if (debug) console.log('630 model', model);
@@ -6110,6 +6110,8 @@ export class cxObjectTypeView extends cxMetaObject {
         return "black";
     }
     setTextscale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.data.textscale = scale;
         this.textscale = scale;
     }
@@ -6362,6 +6364,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
             return "black";
     }
     setTextscale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.data.textscale = scale;
         this.textscale = scale;
     }
@@ -7080,7 +7084,7 @@ export class cxInstance extends cxMetaObject {
         const typeprops = this.type?.getProperties(true);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
-        if (this.type.name === 'Method') {
+        if (this.type?.name === 'Method') {
             const mtdtype = this["methodtype"];
             if (mtdtype) {
                 const metamodel = metis.currentMetamodel;
@@ -7091,8 +7095,8 @@ export class cxInstance extends cxMetaObject {
               }
             }
         }
-        let properties = typeprops.concat(mtdprops);  
-        properties = properties.filter(function (p) {
+        let properties = typeprops?.concat(mtdprops);  
+        properties = properties?.filter(function (p) {
             return p != null;
         });
         this.allProperties = properties;      
@@ -8791,7 +8795,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.routing = "";
         this.curve = "";
         this.corner = "";
-        this.points = null;
+        this.points = [];
     }
     // Methods
     getRelationship(): cxRelationship | null {
@@ -8852,6 +8856,8 @@ export class cxRelationshipView extends cxMetaObject {
         return this.textscale;
     }
     setArrowScale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.arrowscale = scale;
     }
     getArrowScale(): string {

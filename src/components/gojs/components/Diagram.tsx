@@ -398,7 +398,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 nodeCategoryProperty: "template",
                 linkCategoryProperty: "template",
                 // Uncomment the next line to turn ON linkToLink
-                linkLabelKeysProperty: "labelKeys",
+                // linkLabelKeysProperty: "labelKeys",
                 linkKeyProperty: 'key'
               })
           }

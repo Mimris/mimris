@@ -96,15 +96,30 @@ const page = (props: any) => {
             }
           }
         } else {
-          const data = { id: props.phFocus.focusProj.id, name: props.phFocus.focusProj.name, org: props.phFocus.focusProj.org, repo: props.phFocus.focusProj.repo, path: props.phFocus.focusProj.path, file: props.phFocus.focusProj.file, branch: props.phFocus.focusProj.branch, focus: props.phFocus.focusProj.focus }
+          setOrg(props.phFocus.focusProj.org)
+          setRepo(props.phFocus.focusProj.repo)
+          setPath(props.phFocus.focusProj.path)
+          setFile(props.phFocus.focusProj.file)
+          setBranch(props.phFocus.focusProj.branch)
+          setFocus(props.phFocus.focusProj.focus)
+          setGhtype(props.phFocus.focusProj.ghtype)
+          const timer = setTimeout(() => {
+            setRefresh(!refresh)
+          }
+            , 100);
+          return () => clearTimeout(timer);
         }
+
       } catch (err) {
         setError(err);
       }
     }
-    if (query.repo) {
-      getQueryParams();
-    }
+
+    // if (!query.repo) {
+    getQueryParams();
+    // }
+
+
   }, [query.repo === undefined])
 
 

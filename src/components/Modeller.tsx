@@ -43,6 +43,9 @@ const Modeller = (props: any) => {
   const [visibleObjects, setVisiblePalette] = useState(false)
   const [visibleContext, setVisibleContext] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
+  const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
+
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
@@ -179,10 +182,14 @@ const Modeller = (props: any) => {
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
-  const handleProjectChange = (e) => { // Editing project name
-    if (debug) console.log('69 Modeller: handleProjectChange', e);
-    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } }); // update project name
-    dispatch({ type: 'SET_FOCUS_PROJ', data: { id: e.value, name: e.value } }); // set focus project
+  const handleProjectChange = (event) => { // Editing project name
+    if (!debug) console.log('69 Modeller: handleProjectChange', e);
+    setInputValue(event.tartet.value)
+  }
+  const handleProjectBlur = () => { // finish editing project name
+    if (!debug) console.log('69 Modeller: handleProjectChange', displayValue);
+    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
+    dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
   }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
@@ -235,7 +242,15 @@ const Modeller = (props: any) => {
             The suffix '.json' will be added to the filename.`
           }><span className="bg-light"> Project : </span>
         </label>
-        <input className=" px-2" style={{ width: '300px' }} label="test" type="text" value={props.metis.name} onChange={(event) => handleProjectChange({ value: event.target.value })} onBlur={(event) => handleProjectChange({ value: event.target.value })} />
+        <input
+          className=" px-2"
+          style={{ width: '300px' }}
+          type="text"
+          value={props.metis.name}
+          onChange={handleProjectChange}
+          onBlur={handleProjectBlur}
+        />
+        {/* <input className=" px-2" style={{ width: '300px' }} label="test" type="text" value={props.metis.name} onBlur={(event) => handleProjectChange({ value: event.target.value })} onChange={(event) => handleProjectChange({ value: event.target.value })} /> */}
       </div>
 
       <span className="model-selection border-top border-bottom border-success bg-light px-2 text-nowrap" data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -462,7 +477,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area">
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" >exportToSvg </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" >export2Svg </span>
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" > {refresh ? 'save2memory' : 'save2memory'} </span>
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" > {refresh ? 'getMemory' : 'getmemory'} </span>
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>

@@ -251,10 +251,10 @@ function reducer(state = InitialState, action) {
     case LOAD_TOSTORE_PHDATA:
       if (debug) console.log('227 LOAD_TOSTORE_PHDATA', action);
       const retval_LOAD_TOSTORE_PHDATA =
-        {
-          ...state,
-          phData: action.data
-        }
+      {
+        ...state,
+        phData: action.data
+      }
       if (!debug) console.log('235 LOAD_TOSTORE_PHDATA', retval_LOAD_TOSTORE_PHDATA);
       return retval_LOAD_TOSTORE_PHDATA;
     case LOAD_TOSTORE_PHFOCUS:

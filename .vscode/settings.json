@@ -28,5 +28,6 @@
         "workpad"
     ],
     "genieai.openai.model": "gpt-4",
-    "genieai.enableConversationHistory": true
+    "genieai.enableConversationHistory": true,
+    "easycode.openAI ApiKey": "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"
 }

@@ -73,6 +73,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, instview1, type, type1, typeview, objtypeview, reltypeview;
     let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
+    let typename = "";
+    let typedescription = "";
     if (debug) console.log('75 selObj', selObj);
     switch(category) {
       case constants.gojs.C_OBJECT:
@@ -101,6 +103,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst = selObj.relship;
         inst1 = myMetis.findRelationship(inst?.id);   
         if (inst1) inst = inst1;
+        currentType = inst.type;
+        chosenType = currentType;
+        chosenInst = inst;
+        typename = currentType?.name;
+        typedescription = currentType?.description;
         instview = selObj.relshipview;
         instview1 = myMetis.findRelationshipView(instview?.id);
         if (instview1) instview = instview1;
@@ -124,8 +131,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('123 inst, type, typeview', inst, type, typeview);
     if (debug) console.log('121 selObj, this.props, inst, type', selObj, this.props, inst, type);
     // Set chosenType
-    let typename = "";
-    let typedescription = "";
     let includeInherited = false;
     let includeConnected = false;
     let tabIndex = 0;
@@ -251,6 +256,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       else if (category === constants.gojs.C_RELATIONSHIP) {
         let flag = false;
         const typeProps = type?.getProperties(flag);
+        properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
         properties = typeProps;
       }
       else if (category === constants.gojs.C_RELSHIPTYPE) {
@@ -330,7 +336,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             useFillColor = true;
         } else if (what === "editRelshipview")
           useStrokeColor = true;
-        test = typeview.data;
+        test = typeview?.data;
         break;
       default:
         item = inst;
@@ -528,7 +534,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               if (k === 'typeDescription') {
                 if (chosenInst)  // Object
-                  val = chosenInst.type.description;
+                  val = chosenInst.type?.description;
                 else // Object type
                   val = selObj[k];
                 break;
@@ -598,17 +604,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   if (debug) console.log('547 item, prop, val', item, prop, val);
                 }
                 // Handle connected objects
-                const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-                if (debug) console.log('570 prop, chosenInst, objs', prop, chosenInst, objs);
-                if (objs?.length > 1)
-                  val = '';
-                for (let i=0; i<objs?.length; i++) {
-                  const obj = objs[i];
-                  if (obj) {
-                    if (i == 0)
-                      val = obj.name;
-                    else
-                      val += ' | ' + obj.name;
+                if (inst.category === constants.gojs.C_OBJECT) {
+                  const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+                  if (debug) console.log('570 prop, chosenInst, objs', prop, chosenInst, objs);
+                  if (objs?.length > 1)
+                    val = '';
+                  for (let i=0; i<objs?.length; i++) {
+                    const obj = objs[i];
+                    if (obj) {
+                      if (i == 0)
+                        val = obj.name;
+                      else
+                        val += ' | ' + obj.name;
+                    }
                   }
                 }
               }

@@ -531,10 +531,6 @@ let includeNoType = false;
           let reltype = relshiptypes[i];
           if (reltype.name === 'isRelatedTo')
             reltype.name = 'generic';
-          if (reltype.name === 'contains') {
-            if (reltype.fromObjtype === reltype.toObjtype)
-              reltype.markedAsDeleted = true;
-          }
           let strokecolor = reltype.typeview?.strokecolor;
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 

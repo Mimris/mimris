@@ -780,10 +780,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('636 node', node, data, obj, k);
         myDiagram.model.setDataProperty(data, k, obj[k]);
       }
-      if (jsnObject)
-        modifiedObjects.push(jsnObject);
-      if (debug) console.log('696 selObj', selObj);
-    break;
+      if (jsnObject) {
+        // Do dispatch
+        let data = JSON.parse(JSON.stringify(jsnObject));
+        if (debug) console.log('912 jsnObject, data', jsnObject, data);
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+      }
+      break;
     }
     case "addPort": {
       const selObj = selectedData;
@@ -836,7 +839,25 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(data, 'cardinalityFrom', '');
         myDiagram.model.setDataProperty(data, 'cardinalityTo', '');
       }
-      break;
+      const modifiedRelships = new Array();
+      const jsnRelship = new jsn.jsnRelationship(relship);
+      modifiedRelships.push(jsnRelship);
+      modifiedRelships?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      });
+      const modifiedRelviews = new Array();
+      const jsnRelview = new jsn.jsnRelshipView(relview);
+      if (debug) console.log('1356 jsnRelview', jsnRelview);
+      modifiedRelviews.push(jsnRelview);
+      modifiedRelviews.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          if (debug) console.log('1314 data', data);
+          (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      });              
+      return;
     }
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
@@ -1134,6 +1155,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.requestUpdate();
         }
       }
+      break;
     }
     case "editRelshipview": {
       // selRel contains the changed values
@@ -1150,12 +1172,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         let relview = sel.data.relshipview;
         if (relview) {
           relview = myMetis.findRelationshipView(relview.id);
-          for (let prop in reltypeview?.data) {
-            if (prop === 'class') continue;
-            try {
-              relview[prop] = selRel[prop];
-            } catch {}
-            if (debug) console.log('803 prop, relview', prop, relview);
+          if (relview) {
+            for (let prop in reltypeview?.data) {
+              if (prop === 'class') continue;
+              try {
+                relview[prop] = selRel[prop];
+              } catch {}
+              if (debug) console.log('803 prop, relview', prop, relview);
+            }
             myMetis.addRelationshipView(relview);
           }
         }
@@ -1307,7 +1331,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         } else {
           reltypeview = data.typeview;
           typeview = myMetis.findRelationshipTypeView(reltypeview.id);
-          }
+        }
         if (debug) console.log('1123 selObj, reltype, typeview', selObj, reltype, typeview);
         if (typeview) {
           typeview.setFromArrow2(selObj.relshipkind);
@@ -1348,8 +1372,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             let data = mn;
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
+          }
         }
-        myDiagram.clearSelection();
       }
       if (selObj.category === constants.gojs.C_RELATIONSHIP) {
         const link = myDiagram.findLinkForKey(selObj.key);
@@ -1387,8 +1411,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.clearSelection();
         return;
       }
+      myDiagram.clearSelection();
       break;
-      }
     }
     case "editModelview": {
       break;
@@ -1440,10 +1464,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     break;
   }
   // Dispatch metis
-  const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-  let data = {metis: jsnMetis}
-  data = JSON.parse(JSON.stringify(data));
-  if (debug) console.log('1323 myMetis, data', myMetis, data);
-  myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+  // const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+  // let data = {metis: jsnMetis}
+  // data = JSON.parse(JSON.stringify(data));
+  // if (debug) console.log('1323 myMetis, data', myMetis, data);
+  // myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   myDiagram.clearSelection();
 }

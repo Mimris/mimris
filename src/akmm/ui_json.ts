@@ -1356,7 +1356,7 @@ export class jsnRelationship {
         this.relshipkind     = relship.relshipkind;
         this.fromobjectRef   = relship.fromObject ? relship.fromObject.id : "";
         this.toobjectRef     = relship.toObject ? relship.toObject.id : "";
-        this.typeRef         = "";
+        this.typeRef         = relship.type ? relship.type.id : "";
         this.propvalues      = [];
         this.cardinality     = relship.cardinality;
         this.cardinalityFrom = relship.cardinalityFrom;

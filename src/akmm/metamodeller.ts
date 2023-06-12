@@ -487,10 +487,10 @@ export class cxMetis {
                                     if (!item) continue;
                                     if (includeDeleted || !item.markedAsDeleted) { 
                                         const obj = new cxObject(item.id, item.name, null, item.description);
+                                        if (!obj) continue;
                                         for (let k in item) {
                                             obj[k] = item[k];
                                         }
-                                        if (!obj) continue;
                                         model.addObject(obj);
                                         this.addObject(obj);
                                     }
@@ -503,6 +503,9 @@ export class cxMetis {
                                     if (item && (includeDeleted || !item.markedAsDeleted)) { 
                                         const rel = new cxRelationship(item.id, null, null, null, item.name, item.description);
                                         if (!rel) continue;
+                                        for (let k in item) {
+                                            rel[k] = item[k];
+                                        }
                                         model.addRelationship(rel);
                                         this.addRelationship(rel);
                                     }
@@ -559,7 +562,7 @@ export class cxMetis {
                                         if (views && views.length) {
                                             for (let i = 0; i < views.length; i++) {
                                                 const item = views[i];
-                                                if (includeDeleted || !item.markedAsDeleted) { 
+                                                if (item && (includeDeleted || !item.markedAsDeleted)) { 
                                                     const rel = new cxRelationshipView(item.id, item.name, null, item.description);
                                                     if (!rel) continue;
                                                     mv.addRelationshipView(rel);
@@ -747,9 +750,9 @@ export class cxMetis {
         if (debug) console.log('736 relshiptypes0', relshiptypes0);
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
-                if (debug) console.log('371 reltype0', reltype0);
-                if (reltype0) {
-                    let reltype = this.findRelationshipType(reltype0.id);
+                let reltype = this.findRelationshipType(reltype0?.id);
+                if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
+                        && reltype.name !== constants.types.AKM_IS) {                
                     if (!reltype) {
                         this.addRelationshipType(reltype0);
                     }
@@ -1098,32 +1101,31 @@ export class cxMetis {
         }
     }
     importRelship(item: any, model: cxModel | null) {
-        if (model) {
-            if (!item) return; // sf 2023-05-09
-            const rel = this.findRelationship(item.id);
+        if (!item) return; // sf 2023-05-09
+        const rel = this.findRelationship(item.id);
+        if (rel) {
+            const reltype = this.findRelationshipType(item.typeRef);
             if (debug) console.log('948 item, rel', item, rel);
-            if (rel && item.typeRef) {
-                const reltype = this.findRelationshipType(item.typeRef);
-                const fromObj = this.findObject(item.fromobjectRef);
-                const toObj = this.findObject(item.toobjectRef);
-                if (reltype && fromObj && toObj) {
-                    rel.setType(reltype);
-                    rel.setFromObject(fromObj);
-                    rel.setToObject(toObj);
-                    fromObj.addOutputrel(rel);
-                    toObj.addInputrel(rel);
-                    rel.fromPortid      = item.fromPortid;
-                    rel.toPortid        = item.toPortid;
-                    rel.relshipkind     = item.relshipkind;
-                    rel.cardinality     = item.cardinality;
-                    rel.cardinalityFrom = item.cardinalityFrom;
-                    rel.cardinalityTo   = item.cardinalityTo;
-                    rel.markedAsDeleted = item.markedAsDeleted;
-                    rel.generatedTypeId = item.generatedTypeId;
+            const fromObj = this.findObject(item.fromobjectRef);
+            const toObj = this.findObject(item.toobjectRef);
+            if (reltype && fromObj && toObj) {
+                rel.setType(reltype);
+                rel.setFromObject(fromObj);
+                rel.setToObject(toObj);
+                fromObj.addOutputrel(rel);
+                toObj.addInputrel(rel);
+                rel.fromPortid      = item.fromPortid;
+                rel.toPortid        = item.toPortid;
+                rel.relshipkind     = item.relshipkind;
+                rel.cardinality     = item.cardinality;
+                rel.cardinalityFrom = item.cardinalityFrom;
+                rel.cardinalityTo   = item.cardinalityTo;
+                rel.markedAsDeleted = item.markedAsDeleted;
+                rel.generatedTypeId = item.generatedTypeId;
+                if (debug) console.log('966 fromObj, toObj, rel', fromObj, toObj, rel);                
+                if (model)
                     model.addRelationship(rel);
-                    if (debug) console.log('966 fromObj, toObj, rel', fromObj, toObj, rel);
-                }
-            } else if (rel) {
+            } else {
                 rel.typeName = item.typeName;
             } 
         }
@@ -3909,11 +3911,12 @@ export class cxMetaModel extends cxMetaObject {
     addRelationshipType0(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
         if (relType.category === constants.gojs.C_RELSHIPTYPE) {
-            if (this.relshiptypes0 == null)
-                this.relshiptypes0 = new Array();
-            if (!this.findRelationshipType0(relType.id)) 
-                this.relshiptypes0.push(relType);
-            else {
+            if (relType.name !== constants.types.AKM_RELSHIP_TYPE && relType.name !== constants.types.AKM__IS) {
+                if (this.relshiptypes0 == null)
+                    this.relshiptypes0 = new Array();
+                if (!this.findRelationshipType0(relType.id)) 
+                    this.relshiptypes0.push(relType);
+            } else {
                 const types = this.relshiptypes0;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
@@ -7931,6 +7934,7 @@ export class cxRelationship extends cxInstance {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_RELATIONSHIPS;  // Firestore collection
         this.category = constants.gojs.C_RELATIONSHIP;
+        this.relshipviews = null;
         this.fromObject = fromObj as cxObject;
         this.toObject = toObj as cxObject;
         this.cardinality = "";
@@ -7946,6 +7950,13 @@ export class cxRelationship extends cxInstance {
             this.cardinalityFrom = this.getCardinalityFrom();
             this.cardinalityTo = this.getCardinalityTo();
         }
+        // Handle properties
+        const props = this.type?.properties;
+        for (let i=0; i<props?.length; i++) {
+          const prop = props[i];
+          if (prop.name === 'id') continue;
+          if (prop) this[prop.name] = "";
+        } 
         toObj?.addInputrel(this);
         fromObj?.addOutputrel(this);
     }

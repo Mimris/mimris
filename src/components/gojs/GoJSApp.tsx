@@ -254,6 +254,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     let modifiedRelships = new Array();
     let modifiedObjectViews = new Array();
     let modifiedRelshipViews = new Array();
+    let selectedObjectViews = new Array();
+    let selectedRelshipViews = new Array();
+    let selectedObjectTypes = new Array();
+    let selectedRelationshipTypes = new Array();
     let done = false;
     let pasted = false;
 
@@ -553,7 +557,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (node) {
               node.scale1 = node.getMyScale(myGoModel).toString();
               if (debug) console.log('539 myGoModel, node.loc', myGoModel, node.loc);
-              const group = uic.getGroupByLocation(myGoModel, node.loc, node.size, node);  // A node
+              const group = uic.getGroupByLocation(myGoModel, node.loc, node.size, node);
               if (debug) console.log('541 group', group);
               if (debug) console.log('542 selcnt, group, node', selcnt, group, node);
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
@@ -568,83 +572,59 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const parentObj = parentgroup.object;
                   let rel = null;
                   let fromObj = null;
-                  // Check if a relationship of type 'hasMember' exists 
-                  //    between the parent (group) and the (current) node
+                  // Check if a relationship of type 'hasMember' exists between the parent (group) 
+                  // and the (current) node
+                  let done = false;
                   const inputRels = node.object.getInputRelshipsByType(hasMemberType);
                   if (debug) console.log('567 node, inputRels', node, inputRels);
-                  // There are already existing hasMember relationships. Check them. 
+                  // There are already existing hasMember relationships: 
                   for (let i = 0; i < inputRels?.length; i++) {
-                    // The result of the move should be just one hasMember relationship 
+                    // The result of the move should be one hasMember relationship 
                     // between the parent group (parentObj) and the node 
                     const r = inputRels[i]; // The hasMember relationship
-                    // fromObj = r.fromObject;
-                    // if (debug) console.log('570 i, r, fromObj, id', i, r, fromObj, fromObj.id);
-                    // if (fromObj.id !== parentObj.id) { 
-                      // The wrong fromObject, delete the hasMember relationship
-                      // This is not the  hasMember relationship we want - delete it and the view and link
-                      // Delete the relationship
-                      uic.deleteRelationship(r, myModelview, myMetis);
-                      // r.markedAsDeleted = true;
-                      // const jsnRelship = new jsn.jsnRelationship(r);
-                      // jsnRelship.markedAsDeleted = true;
-                      // modifiedRelships.push(jsnRelship);
-                      // Also delete the relationship view and the link
-                      // const rviews = r.relshipviews;
-                      // for (let j = 0; j < rviews?.length; j++) {
-                      //   const rview = rviews[j];
-                      //   rview.markedAsDeleted = true;
-                      //   const jsnRelview = new jsn.jsnRelshipView(rview);
-                      //   jsnRelview.markedAsDeleted = true;
-                      //   modifiedRelshipViews.push(jsnRelview);
-                      //   if (debug) console.log('584 jsnRelview', jsnRelview);
-                      //   // Delete the link
-                      //   const link = myGoModel.findLinkByViewId(rview.id);
-                      //   if (link) {
-                      //     link.markedAsDeleted = true;
-                      //     myDiagram.model.removeLinkData(link);
-                      //   }
-                      // }
-                    // } else {
-                    //     rel = r;
-                    //     const jsnRelship = new jsn.jsnRelationship(r);
-                    //     jsnRelship.markedAsDeleted = true;
-                    //     modifiedRelships.push(jsnRelship);
+                    fromObj = r.fromObject;
+                    if (debug) console.log('570 i, r, fromObj, id', i, r, fromObj, fromObj.id);
+                    if (fromObj.id !== parentObj.id) { // The wrong fromObject, delete the hasMember relationship
+                      // This is not the right hasMember relationship - delete it, the view and the link
+                      const rviews = r.relshipviews;
+                      for (let j = 0; j < rviews?.length; j++) {
+                        const rview = rviews[j];
+                        rview.markedAsDeleted = true;
+                        const jsnRelview = new jsn.jsnRelshipView(rview);
+                        modifiedRelshipViews.push(jsnRelview);
+                        const link = myGoModel.findLinkByViewId(rview.id);
+                        if (link) {
+                          myDiagram.model.removeLinkData(link);
+                        }
+                        uic.deleteRelationshipView(rview, myModelview, myMetis);
+                        uic.deleteRelationship(r, myModelview, myMetis);
                       }
-                  }
-                  // The hasMember relationship has been identified
-                  // Find the corresponding relationship view if it exists and hide it
-                  // const relviews = myModelview?.getRelviewsByFromAndToObjviews(parentObj.objectview, node.objectview);
-                  // for (let j = 0; j < relviews?.length; j++) {
-                  //   const relview = relviews[j];
-                  //   if (relview.relship.id === rel.id) {
-                  //     // Keep the relationship view but hide it
-                  //     // I.e. delete the link from the diagram
-                  //     const link = myGoModel.findLinkByViewId(relview.id);
-                  //     if (link) {
-                  //       myDiagram.model.removeLinkData(link);
-                  //     }
-                  //   }
-                  // }
-                  if (debug) console.log('590 group', group);
-                  {
-                    const outputRels = parentObj.getOutputRelshipsByType(hasMemberType);
-                    if (debug) console.log('593 parentObj, outputRels', parentObj, outputRels);
-                    for (let i = 0; i < outputRels?.length; i++) {
-                      const r = outputRels[i];
-                      if (r.toObject.id === node.object.id) {
-                        r.fromObject = fromObj;
-                        r.markedAsDeleted = false;
-                        const jsnRelship = new jsn.jsnRelationship(r);
-                        modifiedRelships.push(jsnRelship);
-                        if (debug) console.log('601 jsnRelship', jsnRelship);
+                    } else { // The right hasMember relationship
+                      // Delete the view but keep the relationship
+                      rel = r;
+                      const rviews = rel.relshipviews;
+                      for (let j = 0; j < rviews?.length; j++) {
+                        const rview = rviews[j];
+                        rview.markedAsDeleted = true;
+                        const jsnRelview = new jsn.jsnRelshipView(rview);
+                        modifiedRelshipViews.push(jsnRelview);
+                        const link = myGoModel.findLinkByViewId(rview.id);
+                        if (link) {
+                          myDiagram.model.removeLinkData(link);
+                        }
+                        uic.deleteRelationshipView(rview, myModelview, myMetis);
                       }
+                      done = true;
                     }
                   }
+                  // if (done) 
+                  //   break;
+                  if (debug) console.log('590 group', group);
                   // Check if a relationship of type 'hasMember' exists between the parent group and the node
                   // If not, create it
-                  const outputRels = parentObj.getOutputRelshipsByType(hasMemberType);
+                  const outputRels = !done ? parentObj.getOutputRelshipsByType(hasMemberType) : [];
                   if (debug) console.log('564 outputRels', outputRels);
-                  // Handle relationships of type hasMember if they exist
+                  // Handle EXISTING relationships of type hasMember 
                   for (let i = 0; i < outputRels?.length; i++) {
                     const r = outputRels[i];
                     if (r.toObject.id !== node.object.id) {
@@ -653,33 +633,28 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                     // Found the correct relationship
                     rel = r;
-                    uic.deleteRelationship(rel, myModelview, myMetis);
-
-                    // const jsnRelship = new jsn.jsnRelationship(r);
-                    // jsnRelship.markedAsDeleted = true;
-                    // modifiedRelships.push(jsnRelship);
-                    // // Find the corresponding relationship view if it exists and mark it as deleted
-                    // const relviews = myModelview.getRelviewsByFromAndToObjviews(parentgroup.objectview, node.objectview);
-                    // for (let j = 0; j < relviews?.length; j++) {
-                    //   const relview = relviews[j];
-                    //   relview.markedAsDeleted = true;
-                    //   const jsnRelview = new jsn.jsnRelshipView(relview);
-                    //   modifiedRelshipViews.push(jsnRelview);
-                    //   if (debug) console.log('582 jsnRelview', jsnRelview);
-                    //   // Delete the gojs link
-                    //   const link = myGoModel.findLinkByViewId(relview.id);
-                    //   if (link) {
-                    //     link.markedAsDeleted = true;
-                    //     myDiagram.model.removeLinkData(link);
-                    //   }
-                    //   if (debug) console.log('540 delete relview', relview);
-                    // }
+                    // Find the corresponding relationship view if it exists and mark it as deleted
+                    const relviews = myModelview.getRelviewsByFromAndToObjviews(parentgroup.objectview, node.objectview);
+                    for (let j = 0; j < relviews?.length; j++) {
+                      const relview = relviews[j];
+                      relview.markedAsDeleted = true;
+                      const jsnRelview = new jsn.jsnRelshipView(relview);
+                      modifiedRelshipViews.push(jsnRelview);
+                      if (debug) console.log('582 jsnRelview', jsnRelview);
+                      // Delete the gojs link
+                      const link = myGoModel.findLinkByViewId(relview.id);
+                      if (link) {
+                        link.markedAsDeleted = true;
+                        myDiagram.model.removeLinkData(link);
+                      }
+                      if (debug) console.log('540 delete relview', relview);
+                    }
                     break;
                   }
 
+                  // There is no existing hasMember relationship between the parent group and the node
                   if (debug) console.log('587 rel', rel);
-                  if (!rel) {
-                    // Create a new relationship
+                  if (!rel) {  // Create a new hasMember relationship
                     rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, parentObj, node.object, hasMemberType.name, "");
                     rel.setModified();
                     myMetis.addRelationship(rel);
@@ -735,7 +710,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('575 group, node', parentgroup, node);
                   if (debug) console.log('576 context', context);
                   node.group = parentgroup.key;
-                  const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes);
+                  const subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
                   if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
                 }
               } else { // The node is NOT moved into a group, possibly OUT OF a group
@@ -917,8 +892,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('910 myGoModel', myDiagram.model.linkDataArray);
           if (debug) console.log('911 myMetis', myMetis);
         }
+        const jsnModelview = new jsn.jsnModelView(myModelview);
+        let data = JSON.parse(JSON.stringify(jsnModelview));
+        context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       }
-        break;
+        return;
       case "SelectionDeleting": {
         if (debug) console.log('727 myMetis', myMetis);
         const deletedFlag = true;
@@ -1112,7 +1090,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           part.scale = node.scale;
           if (part.size === "") {
             if (part.isGroup) {
-              part.size = "300 200";
+              part.size = "200 100";
             } else {
               part.size = "160 70";
             }
@@ -1677,6 +1655,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('1458 data', data);
         context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
+    } else {
+      const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      let data = { metis: jsnMetis }
+      data = JSON.parse(JSON.stringify(data));
+      myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
     if (debug) console.log('1704 myMetis', myMetis);
   }

@@ -757,6 +757,7 @@ export function addHasMemberRelship(node: any, modifiedRelshipViews: any, myMeti
                 if (debug) console.log('746 link', link);
               } 
               if (debug) console.log('749 relview', relview);
+              break;
             }
           }
         }

@@ -729,71 +729,6 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
     return myNode;
 }
 
-export function addHasMemberRelship(node: any, modifiedRelshipViews: any, myMetis: akm.cxMetis, myModelview: akm.cxModelView, myDiagram: any) {
-    const myGoModel = myMetis.gojsModel;
-    const toObjview = node.objectview;
-    const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-    const toObj = node.object;
-    const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
-    if (debug) console.log('726 toObj, hasMemberRels', toObj, hasMemberRels);
-    let found = false;
-    for (let i=0; i<hasMemberRels?.length; i++) {
-      let relview = null;
-      const hasMemberRel = hasMemberRels[i];
-      if (hasMemberRel) {
-        let relviews = hasMemberRel.relshipviews;
-        for (let j=0; j<relviews?.length; j++) {
-          const rview = relviews[j];
-          if (rview) { 
-            if (rview.toObjview.id === toObjview.id) {
-              rview.markedAsDeleted = false;
-              if (!relview) {
-                relview = rview;  
-                // Add link
-                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                link.loadLinkContent(myGoModel);
-                myGoModel.addLink(link);
-                myDiagram.model.addLinkData(link);
-                if (debug) console.log('746 link', link);
-              } 
-              if (debug) console.log('749 relview', relview);
-              break;
-            }
-          }
-        }
-      }
-      if (!relview) {
-        relview = new akm.cxRelationshipView(utils.createGuid(), hasMemberRel.name, hasMemberRel, "");
-        if (debug) console.log('756 relview', relview);
-        relview.toObjview = toObjview;
-        const fromGroup = hasMemberRel.fromObject;  // group
-        const objviews = myModelview.findObjectViewsByObject(fromGroup);
-        if (objviews) {
-          for (let j=0; j<objviews.length; j++) {
-            const fromObjview = objviews[j];   // group
-            if (fromObjview) {
-              relview.fromObjview = fromObjview;
-              if (debug) console.log('765 relview', relview);
-              hasMemberRel.addRelationshipView(relview);
-              myModelview.addRelationshipView(relview);
-              myMetis.addRelationshipView(relview);     
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              if (debug) console.log('770 jsnRelview', jsnRelview);
-              modifiedRelshipViews.push(jsnRelview);
-              // Add link
-              let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-              link.loadLinkContent(myGoModel);
-              myGoModel.addLink(link);
-              myDiagram.model.addLinkData(link);
-              if (debug) console.log('780 relview, link', relview, link);
-            }
-          }
-        }
-      }                    
-    }
-    if (debug) console.log('786 myGoModel', myGoModel);
-}
-
 // Callback function initiated when a node is pasted
 export function onClipboardPasted(selection: any, context: any) {
     // First handle the objects
@@ -954,33 +889,6 @@ export function scaleNodeLocation(group: any, node: any): any  {
     return loc;
 }
 
-// export function handleMembersInGroup(refloc: string, group: any, context: any): any {
-//     const myGoModel = context.myGoModel;
-//     const myModelview = context.myModelview;
-//     const myDiagram = context.myDiagram;
-//     const groupNode = myDiagram.findNodeForKey(group.key);
-//     // Handle members in group
-//     const nodes = getNodesInGroup(groupNode, myGoModel, myModelview.objectviews);
-//     for (let i=0; i<nodes.length; i++) {
-//         const n = nodes[i];
-//         if (n) {
-//             n.group = group.key;
-//             const fromScale = group.scale1;
-//             let scale = group.scale1 * group.memberscale;
-//             n.scale1 = scale.toString();
-//             const toScale = scale;
-//             const scaleFactor = toScale / fromScale;
-//             const nodeloc = scaleNodeLocation2(refloc, n, scaleFactor);
-//             const loc = nodeloc.x + " " + nodeloc.y;
-//             n.loc = loc;
-//             const oview = n.objectview;
-//             oview.loc = loc;
-//             if (debug) console.log('474 oview', oview);
-//             myDiagram.model?.setDataProperty(n.data, "loc", loc);
-//         }
-//     }
-// }
-
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {
     const myMetis = context.myMetis;
     const myModel = context.myModel;
@@ -1133,9 +1041,8 @@ export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myO
 export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[], 
                                   fromLocs: any, toLocs: any): any[] {
     let fromScale = Number(groupNode.scale1);
-    let toScale = Number(groupNode.scale1) * Number(groupNode.typeview.memberscale);
+    let toScale = Number(groupNode.scale1) * Number(groupNode.objectview.memberscale);
     let scaleFactor = toScale / fromScale;
-    if (debug) console.log('1082 myObjectviews, fromLocs, toLocs', myObjectviews, fromLocs, toLocs);
     // First handle the group itself
     const size = groupNode.size.split(" ");
     const sx = parseInt(size[0]);
@@ -1144,15 +1051,11 @@ export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, m
     const sizeY = sy * scaleFactor;
     const newSize = sizeX + " " + sizeY;
     groupNode.size = newSize;
-    if (debug) console.log('1091 groupNode, newSize', groupNode, newSize);
     const nodes = getNodesInGroup(groupNode, myGoModel, myObjectviews);
     let refloc = groupNode.loc;
-    if (debug) console.log('1094 groupNode, nodes, scaleFactor, refloc', groupNode, nodes, scaleFactor, refloc);
-    // let fromScale, toScale;
     for (let i=0; i<nodes.length; i++) {
         const n = nodes[i];
         if (n) {
-            // const oview = n.objectview;
             let fromnode;
             for (let j=0; j<fromLocs?.length; j++) {
                 const fromNode = fromLocs[j];
@@ -1174,10 +1077,7 @@ export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, m
                 }
             }
             scaleFactor = toScale / fromScale;
-            if (debug) console.log('1121 n, refloc, tonode, scaleFactor', n, refloc, fromnode, tonode, scaleFactor);
-            // n.group = groupNode.key;
             const nodeloc = scaleNodeLocation2(n, refloc, tonode, scaleFactor);
-            if (debug) console.log('1124 n, nodeloc', n, nodeloc);
             if (nodeloc) {
                 let loc = nodeloc.x + " " + nodeloc.y;
                 n.loc = loc;
@@ -1189,12 +1089,9 @@ export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, m
                     nod.scale1 = toScale.toString();
                     toNode.loc = loc;
                 }
-                if (debug) console.log('1136 n, loc', n, loc);
             }
-
         }
     }
-    if (debug) console.log('1141 myGoModel, toLocs', myGoModel, toLocs);
     return nodes;
 }
 
@@ -1226,7 +1123,7 @@ export function scaleSubnodes(node: any, nodes: any[]): any[] {
         for (let i=0; i<nodes?.length; i++) {
           const n = nodes[i];
           if (n.group === node.id) {
-            n.scale = node.scale * node.typeview.memberscale;
+            n.scale = node.scale * node.objectview.memberscale;
             subnodes.push(n);
             // const nods = scaleSubnodes(n, nodes);
           }
@@ -2236,6 +2133,71 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
     myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     if (debug) console.log('1808 myMetis', myMetis);
+}
+
+export function addHasMemberRelship(node: any, modifiedRelshipViews: any, myMetis: akm.cxMetis, myModelview: akm.cxModelView, myDiagram: any) {
+    const myGoModel = myMetis.gojsModel;
+    const toObjview = node.objectview;
+    const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
+    const toObj = node.object;
+    const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
+    if (debug) console.log('726 toObj, hasMemberRels', toObj, hasMemberRels);
+    let found = false;
+    for (let i=0; i<hasMemberRels?.length; i++) {
+      let relview = null;
+      const hasMemberRel = hasMemberRels[i];
+      if (hasMemberRel) {
+        let relviews = hasMemberRel.relshipviews;
+        for (let j=0; j<relviews?.length; j++) {
+          const rview = relviews[j];
+          if (rview) { 
+            if (rview.toObjview.id === toObjview.id) {
+              rview.markedAsDeleted = false;
+              if (!relview) {
+                relview = rview;  
+                // Add link
+                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                link.loadLinkContent(myGoModel);
+                myGoModel.addLink(link);
+                myDiagram.model.addLinkData(link);
+                if (debug) console.log('746 link', link);
+              } 
+              if (debug) console.log('749 relview', relview);
+              break;
+            }
+          }
+        }
+      }
+      if (!relview) {
+        relview = new akm.cxRelationshipView(utils.createGuid(), hasMemberRel.name, hasMemberRel, "");
+        if (debug) console.log('756 relview', relview);
+        relview.toObjview = toObjview;
+        const fromGroup = hasMemberRel.fromObject;  // group
+        const objviews = myModelview.findObjectViewsByObject(fromGroup);
+        if (objviews) {
+          for (let j=0; j<objviews.length; j++) {
+            const fromObjview = objviews[j];   // group
+            if (fromObjview) {
+              relview.fromObjview = fromObjview;
+              if (debug) console.log('765 relview', relview);
+              hasMemberRel.addRelationshipView(relview);
+              myModelview.addRelationshipView(relview);
+              myMetis.addRelationshipView(relview);     
+              const jsnRelview = new jsn.jsnRelshipView(relview);
+              if (debug) console.log('770 jsnRelview', jsnRelview);
+              modifiedRelshipViews.push(jsnRelview);
+              // Add link
+              let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+              link.loadLinkContent(myGoModel);
+              myGoModel.addLink(link);
+              myDiagram.model.addLinkData(link);
+              if (debug) console.log('780 relview, link', relview, link);
+            }
+          }
+        }
+      }                    
+    }
+    if (debug) console.log('786 myGoModel', myGoModel);
 }
 
 // Other functions

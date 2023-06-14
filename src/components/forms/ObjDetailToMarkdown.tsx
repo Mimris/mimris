@@ -1,5 +1,8 @@
+// ts-nocheck
+
 import React from 'react';
 const debug = false;
+
 interface MdFocusObjectProps {
   title: string;
   curRelatedObjsRels: any[];
@@ -14,7 +17,7 @@ interface MdFocusObjectProps {
   markdownString: string;
 }
 
-const ObjDetailToMarkdown: React.FC<MdFocusObjectProps> = ({
+const ObjDetailToMarkdown = ({
   title,
   curRelatedObjsRels,
   curmodelview,
@@ -27,7 +30,6 @@ const ObjDetailToMarkdown: React.FC<MdFocusObjectProps> = ({
   setObjview,
   markdownString,
 }: MdFocusObjectProps) => {
-
   console.log('29 curRelatedObjsRels', curRelatedObjsRels);
   // markdownString += `### ${title}\n\n`;
   markdownString += Array.isArray(curRelatedObjsRels)
@@ -38,11 +40,11 @@ const ObjDetailToMarkdown: React.FC<MdFocusObjectProps> = ({
         .join('\n\n');
 
       const objectType = curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name;
-      
+
 
       return `## Object: ${objrel.name} (${objectType} )\n\n${properties}\n\n --- \n\n`;
-          // return `1. ${objrel.name} \n\n${properties} \n\n2. Object: ${objrel.name} (${objectType} )\n\n --- \n\n`;
-      })
+      // return `1. ${objrel.name} \n\n${properties} \n\n2. Object: ${objrel.name} (${objectType} )\n\n --- \n\n`;
+    })
       .join('')
     : '';
   if (debug) console.log('43 markdownString', markdownString);

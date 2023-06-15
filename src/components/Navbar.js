@@ -11,11 +11,11 @@ const Navbar = (props) => {
 	const [betaversion, setBetaversion] = useState(false);
 	const href = betaversion
 		? (process.env.NODE_ENV === 'development')
-			? "http://localhost:3000/about"
-			: "https://akmmclient-main-git-main23-snorres.vercel.app/modelling"
+			? "http://localhost:3000/modelling"
+			: "https://akmmclient-main-git-main23-snorres.vercel.app/"
 		: (process.env.NODE_ENV === 'development')
 			? "http://localhost:3000/modelling"
-			: "https://akmmclient-main.vercel.app/modelling";
+			: "https://akmmclient-main.vercel.app/";
 
 	const handleLinkClick = (event) => {
 		// event.preventDefault(); // prevents the link from navigating away

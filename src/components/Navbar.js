@@ -1,40 +1,49 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
 import { FaUser, FaEnvelope } from 'react-icons/fa';
+// import { set } from 'immer/dist/internal';
 
 const debug = false;
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
 	if (debug) console.log('8 Navbar currentRoute', currentRoute, props);
-	const [betaversion, setBetaversion] = useState(false);
-	const href = betaversion
-		? (process.env.NODE_ENV === 'development')
-			? "http://localhost:3000/modelling"
-			: "https://akmmclient-main-git-main23-snorres.vercel.app/"
-		: (process.env.NODE_ENV === 'development')
-			? "http://localhost:3000/modelling"
-			: "https://akmmclient-main.vercel.app/";
 
-	const handleLinkClick = (event) => {
-		// event.preventDefault(); // prevents the link from navigating away
-		setBetaversion(!betaversion); // sets betaversion to true
-	};
+	const target = "";
+
+	const LinkDiv = (router.pathname === "https://akmmclient-main.vercel.app/modelling")
+		?
+
+		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
+			<strong>AKM Modeller </strong>
+			<span clallName="d-flex justify-content-between">
+				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>final</span>
+				<Link href="https://akmmclient-main-git-main23-snorres.vercel.app/modelling" target={target}>
+					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>&gt; </span>
+				</Link>
+			</span>
+		</span>
+		:
+		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
+			<strong>AKM Modeller </strong>
+			<span clallName="d-flex justify-content-between" >
+				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>final</span>
+				<Link href="https://akmmclient-main.vercel.app/modelling" target={target}>
+					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>&gt; </span>
+				</Link>
+			</span>
+		</span>
+
 
 	return (
-		<nav className="navbar navbar-expand-sm d-flex justify-content-between bg-ligth my-0 py-0">
-			<div className="d-flex  w-50 mx-0 ">
-				<div className="d-flex justify-content-between" style={{ width: "692px" }}>
-					<a className="navbar-brand navbar-left mr-4" href="#">
-						<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo" />
-					</a>
-					<span className="fs-3 text-warning" style={{ fontsize: "30%", maxWidth: "30%", minWidth: "280px", marginTop: "5px" }}>
-						<Link href={href} onClick={handleLinkClick}>
-							<strong>AKM Modeller </strong>
-							<small className="border border-primary px-2 rounded "> {betaversion ? "beta" : "final"} </small>
-						</Link>
-					</span>
+		<nav className="navbar navbar-expand-sm d-flex justify-content-between my-0 py-0">
+			<a className="navbar-brand navbar-left mr-4" href="#">
+				<img src="images/equinor-logo.svg" width="100px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
+			</a>
+			<div className="d-flex justify-content-between ">
+				<div className="d-flex " >
+					{LinkDiv}
 				</div>
 				<div className="collapse navbar-collapse mt-1" id="nav-toggler-metis">
 					<ul className="navbar-nav bg-light">
@@ -82,10 +91,11 @@ const Navbar = (props) => {
 					</button>
 				</div>
 			</div>
-			<a className="navbar-brand ml-auto" href="http://www.kavca.no">
-				<img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo" />
+			<a className="navbar-brand " href="http://www.kavca.no">
+				<img src="images/Kavca-logo2.png" width="22" height="24" className="" alt="Kavca logo" />
 				<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
 			</a>
+
 			<style jsx>{`
 		  nav {
 			height: 50px;

@@ -12,7 +12,7 @@ const Navbar = (props) => {
 
 	const target = "";
 
-	const LinkDiv = (router.pathname === "https://akmmclient-main.vercel.app/modelling")
+	const LinkDiv = (router.pathname !== "https://akmmclient-main-git-main23-snorres.vercel.app/modelling")
 		?
 		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "380px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>

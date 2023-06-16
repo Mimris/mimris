@@ -822,11 +822,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
         let fromArrow = relview.fromArrow;
-        if (fromArrow = 'None') fromArrow = "";
+        if (fromArrow === "None") fromArrow = "";
         let toArrow = relview.toArrow;
-        if (toArrow = 'None') toArrow = "";
-        myDiagram.model.setDataProperty(data, 'fromArrow', relview.fromArrow);
-        myDiagram.model.setDataProperty(data, 'toArrow', relview.toArrow);
+        if (toArrow === "None") toArrow = "";
+        myDiagram.model.setDataProperty(data, 'fromArrow', fromArrow);
+        myDiagram.model.setDataProperty(data, 'toArrow', toArrow);
         myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
       }
@@ -1207,7 +1207,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'fromArrow') {
               let fromArrow = relview[prop];
-              if (relview[prop] === 'None') fromArrow = "";
+              if (relview[prop] === "") fromArrow = reltypeview.data[prop];
+              if (fromArrow === "None") fromArrow = "";
               myDiagram.model.setDataProperty(data, prop, fromArrow);           
             }          
             if (prop === 'fromArrowColor' && relview[prop] !== "") 
@@ -1215,7 +1216,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (prop === 'toArrow') {
                 let toArrow = relview[prop];
                 if (relview[prop] === "") toArrow = reltypeview.data[prop];
-                if (relview[prop] === 'None') toArrow = "";
+                if (toArrow === "None") toArrow = "";
                 myDiagram.model.setDataProperty(data, prop, toArrow);           
             }          
             if (prop === 'toArrowColor' && relview[prop] !== "") 
@@ -1267,10 +1268,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           if (prop === 'abstract') continue;
           if (prop === 'category') continue;
           if (prop === 'class') continue;
-          if (prop === 'fromArrow') 
-            if (selObj[prop] === 'None') selObj[prop] = "";
-          if (prop === 'toArrow') 
-            if (selObj[prop] === 'None') selObj[prop] = "";
           typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
@@ -1300,10 +1297,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           if (prop === 'abstract') continue;
           if (prop === 'category') continue;
           if (prop === 'class') continue;
-          if (prop === 'fromArrow') 
-            if (selObj[prop] === 'None') selObj[prop] = "";
-          if (prop === 'toArrow') 
-            if (selObj[prop] === 'None') selObj[prop] = "";
           objtypeview[prop] = selObj[prop];
           objtypeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
@@ -1345,17 +1338,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
 
             if (prop === 'fromArrow') {
               let fromArrow = typeview[prop];
-              if (typeview[prop] === 'None') fromArrow = "";
+              if (fromArrow === "None") fromArrow = "";
               myDiagram.model.setDataProperty(data, prop, fromArrow);           
             }          
             if (prop === 'toArrow') {
               let toArrow = typeview[prop];
-              if (typeview[prop] === 'None') toArrow = "";
+              if (toArrow === "None") toArrow = "";
               myDiagram.model.setDataProperty(data, prop, toArrow);           
             if (prop === 'memberscale') {
                 let scale = typeview[prop];
-                if (typeview[prop] === 'None') scale = "";
-                myDiagram.model.setDataProperty(data, prop, toArrow);           
+                if (typeview[prop] === 'None') scale = "1";
+                myDiagram.model.setDataProperty(data, prop, scale);           
             } else {          
               typeview[prop] = selObj[prop];
               typeview.data[prop] = selObj[prop];

@@ -8880,7 +8880,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromArrow = fromArrow;
     }
     getFromArrow(): string {
-        if (this.fromArrow == undefined)
+        if (this.fromArrow == undefined )
             return "";
         return this.fromArrow;
     }

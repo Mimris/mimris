@@ -572,10 +572,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       for (let j = 0; j < rviews?.length; j++) {
                         const rview = rviews[j];
                         rview.markedAsDeleted = true;
-                        const link = myGoModel.findLinkByViewId(rview.id);
-                        if (link) {
-                          myDiagram.model.removeLinkData(link);
-                        }
+                        uic.deleteLinkByViewId(rview.id, myDiagram);
                         uic.deleteRelationshipView(rview, myModelview, myMetis);
                         uic.deleteRelationship(r, myModelview, myMetis);
                       }
@@ -586,10 +583,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       for (let j = 0; j < rviews?.length; j++) {
                         const rview = rviews[j];
                         rview.markedAsDeleted = true;
-                        const link = myGoModel.findLinkByViewId(rview.id);
-                        if (link) {
-                          myDiagram.model.removeLinkData(link);
-                        }
+                        uic.deleteLinkByViewId(rview.id, myDiagram);
                         uic.deleteRelationshipView(rview, myModelview, myMetis);
                       }
                       done = true;
@@ -608,17 +602,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                     // Found the correct relationship
                     rel = r;
-                    // Find the corresponding relationship view if it exists and mark it as deleted
+                    // Find the corresponding relationship view if it exists and delete it
                     const relviews = myModelview.getRelviewsByFromAndToObjviews(parentgroup.objectview, node.objectview);
                     for (let j = 0; j < relviews?.length; j++) {
                       const relview = relviews[j];
                       relview.markedAsDeleted = true;
-                      // Delete the gojs link
-                      const link = myGoModel.findLinkByViewId(relview.id);
-                      if (link) {
-                        link.markedAsDeleted = true;
-                        myDiagram.model.removeLinkData(link);
-                      }
+                      uic.deleteLinkByViewId(relview.id, myDiagram);
+                      uic.deleteRelationshipView(relview, myModelview, myMetis);
                     }
                     break;
                   }
@@ -739,7 +729,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                   }
                   // Handle hasMember relationships                 
-                  uic.addHasMemberRelship(node, modifiedRelshipViews, myMetis, myModelview, myDiagram);
+                  uic.addHasMemberRelship(node, myMetis, myModelview, myDiagram);
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
                   if (count < 0) { // The reference node
@@ -763,7 +753,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   node.scale1 = Number(toScale.valueOf());
                   myDiagram.model.setDataProperty(n, "scale", node.scale1);
                   // Handle hasMember relationships                 
-                  uic.addHasMemberRelship(node, modifiedRelshipViews, myMetis, myModelview, myDiagram);
+                  uic.addHasMemberRelship(node, myMetis, myModelview, myDiagram);
                 }
               }
               node.size = data.size;
@@ -821,7 +811,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview.size = node.size;
               if (debug) console.log('706 node, objview', node, objview);
               if (node.group) {
-                const grp = myGoModel.findNode(node.group);
+                let grp = myGoModel.findNode(node.group);
                 objview.group = grp?.objectview.id;
               } else {
                 objview.group = "";

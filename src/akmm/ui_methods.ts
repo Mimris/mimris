@@ -587,25 +587,19 @@ export function executeMethod(context: any) {
 }
 
 function execMethod(object: akm.cxObject, context: any) {
-    if (debug) console.log("462: Calling execMethod '" + context.action + "': on " + object.name);
     const myDiagram = context.myDiagram;
-    const myMetis = context.myMetis;
-    if (debug) console.log('465 myMetis', myMetis);
-    const gojsModel = myMetis.gojsModel;
-    const node = gojsModel.findNodeByObjectId(object.id);
-    if (debug) console.log('468 node', node);
-    const gjsNode = myDiagram.findNodeForKey(node?.key);
-    switch(context.action) {
-        case 'Highlight':
-            if (gjsNode) gjsNode.isHighlighted = true;
-            break;
-        case 'Select':
-            if (gjsNode) gjsNode.isSelected = true;
-            if (debug) console.log('605 gjsNode', gjsNode, myDiagram);
-            break;
-        case 'generateosduId':
-            context.myObject = object;
-            generateosduId(context);
-            break;
+    const nodes = myDiagram.nodes;
+    for (let it = nodes.iterator; it?.next();) {
+        const node = it.value;
+        if (node.data.object.id == object.id) {
+            switch(context.action) {
+                case 'Highlight':
+                    node.isHighlighted = true;
+                    break;
+                case 'Select':
+                    node.isSelected = true;
+                    break;
+            }
+        }
     }
 }

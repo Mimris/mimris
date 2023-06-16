@@ -207,6 +207,7 @@ export function traverse(object: akm.cxObject, context: any) {
     const myMetis        = context.myMetis;
     const myMetamodel    = context.myMetamodel;
     const method         = context.args.method;
+    if (!method) return;
     const objects        = context.objects;
     const relships       = context.relships;
     const reldir         = method["reldir"];   // Either 'in' or 'out'
@@ -588,6 +589,7 @@ export function executeMethod(context: any) {
 
 function execMethod(object: akm.cxObject, context: any) {
     const myDiagram = context.myDiagram;
+    myDiagram.startTransaction('execMethod');
     const nodes = myDiagram.nodes;
     for (let it = nodes.iterator; it?.next();) {
         const node = it.value;
@@ -602,4 +604,5 @@ function execMethod(object: akm.cxObject, context: any) {
             }
         }
     }
+    myDiagram.commitTransaction('execMethod');
 }

@@ -14,7 +14,6 @@ const Navbar = (props) => {
 
 	const LinkDiv = (router.pathname === "https://akmmclient-main.vercel.app/modelling")
 		?
-
 		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
 			<span clallName="d-flex justify-content-between">
@@ -34,7 +33,6 @@ const Navbar = (props) => {
 				</Link>
 			</span>
 		</span>
-
 
 	return (
 		<nav className="navbar navbar-expand-sm d-flex justify-content-between my-0 py-0">

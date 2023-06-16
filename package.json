@@ -1,6 +1,6 @@
 {
   "name": "akmm",
-  "version": "1.0.0",
+  "version": "3.6.1",
   "main": "dist/index.js",
   "license": "",
   "scripts": {

@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 
 import { setFocusModel } from "../../actions/actions";
 import { i } from "./SvgLetters";

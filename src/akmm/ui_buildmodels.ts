@@ -341,6 +341,10 @@ let includeNoType = false;
       for (let i = 0; i < lng; i++) {
         let includeRelview = false;
         let relview = relviews[i];
+        if (relview?.fromArrow === 'None') 
+          relview.fromArrow = '';
+        if (relview?.toArrow === 'None') 
+          relview.toArrow = '';
         let fromObjview = relview.fromObjview;
         if (!modelview.findObjectView(fromObjview.id)) 
           continue;
@@ -556,6 +560,10 @@ let includeNoType = false;
                 reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
             if (!reltype.toObjtype) 
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
+            if (reltype.fromArrow === 'None')
+                reltype.fromArrow = '';
+            if (reltype.toArrow === 'None')
+                reltype.toArrow = '';
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
             if (debug) console.log('530 reltype, link', reltype, link);

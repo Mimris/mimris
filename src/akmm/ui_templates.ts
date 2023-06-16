@@ -2276,7 +2276,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 function(d) { return setDashed(d); }),
             ),
             // the "from" arrowhead
-            $(go.Shape, { fromArrow: ""},
+            $(go.Shape, { fromArrow: "None"},
             { scale: 1.3, fill: "" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
@@ -2284,7 +2284,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // the "to" arrowhead
-            $(go.Shape, { toArrow: ""},  
+            $(go.Shape, { toArrow: "None"},  
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
@@ -2370,7 +2370,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 function(d) { return setDashed(d); }),
             ),
             // the "from" arrowhead
-            $(go.Shape, { fromArrow: ""},
+            $(go.Shape, { fromArrow: "None"},
             { scale: 1.3, fill: "" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
@@ -2378,7 +2378,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // the "to" arrowhead
-            $(go.Shape, { toArrow: ""},  
+            $(go.Shape, { toArrow: "None"},  
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),

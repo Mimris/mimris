@@ -1061,16 +1061,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               objview.viewkind = 'Container';
               let template = n.template;
               switch (template) {
-                case 'textAndIcon':
-                  template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
-                  break;
                 case 'textAndGeometry':
                   template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
                   break;
                 case 'textAndFigure':
                   template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
                   break;
-              }
+                case 'textAndIcon':
+                default:
+                  template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
+                  break;
+                }
               objview.template = template;
               objview.isGroup = true;
               objview.size = "200 100";
@@ -1080,7 +1081,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              alert("You need to a Reload to see the change!");
+              alert("You need to do a Reload to see the change!");
             },
             function (o: any) {
               const node = o.part.data;
@@ -2496,11 +2497,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               const links = uic.addMissingRelationshipViews(modelview, myMetis);
-              if (debug) console.log('2092 links', links);
+              myDiagram.startTransaction('Add missing relationship views');
               for (let i = 0; i < links.length; i++) {
                 const link = links[i];
                 myDiagram.model.addLinkData(link);
               }
+              myDiagram.commitTransaction('Add missing relationship views');
               return;
             },
             function (o: any) {

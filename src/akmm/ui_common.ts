@@ -1922,6 +1922,8 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
 }
 
 export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
+    const myDiagram = myMetis.myDiagram;
+    const myGoModel = myMetis.gojsModel;
     const objviews = modelview.objectviews;
     const links = new Array();
     const modifiedRelshipViews = new Array();
@@ -2009,24 +2011,25 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             if (debug) console.log('1682 relview', relview);
             modelview.addRelationshipView(relview);
             // Add link
-            const myGoModel = myMetis.gojsModel;
             let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
             link.loadLinkContent(myGoModel);
             myGoModel.addLink(link);
             links.push(link);
-            if (debug) console.log('1690 relview, link', relview, link);
-            // Prepare and do the dispatch
+            myDiagram.startTransaction('addLinkData')
+            myDiagram.model.addLinkData(link);
+            myDiagram.commitTransaction('addLinkData')
+            // Prepare dispatch
             const jsnRelview = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelview);
         }
       }
     }
+    // Dispatch
     modifiedRelshipViews.map(mn => {
-      let data = mn;
-      data = JSON.parse(JSON.stringify(data));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-    })
-    if (debug) console.log('1702 myMetis', myMetis);
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    });
     return links;
 }
 
@@ -2135,14 +2138,13 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
     if (debug) console.log('1808 myMetis', myMetis);
 }
 
-export function addHasMemberRelship(node: any, modifiedRelshipViews: any, myMetis: akm.cxMetis, myModelview: akm.cxModelView, myDiagram: any) {
+export function addHasMemberRelship(node: any, myMetis: akm.cxMetis, myModelview: akm.cxModelView, myDiagram: any) {
     const myGoModel = myMetis.gojsModel;
     const toObjview = node.objectview;
     const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
     const toObj = node.object;
     const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
     if (debug) console.log('726 toObj, hasMemberRels', toObj, hasMemberRels);
-    let found = false;
     for (let i=0; i<hasMemberRels?.length; i++) {
       let relview = null;
       const hasMemberRel = hasMemberRels[i];
@@ -2159,10 +2161,10 @@ export function addHasMemberRelship(node: any, modifiedRelshipViews: any, myMeti
                 let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
                 link.loadLinkContent(myGoModel);
                 myGoModel.addLink(link);
+                myDiagram.startTransaction('AddLink');
                 myDiagram.model.addLinkData(link);
-                if (debug) console.log('746 link', link);
+                myDiagram.commitTransaction('AddLink');
               } 
-              if (debug) console.log('749 relview', relview);
               break;
             }
           }
@@ -2183,21 +2185,18 @@ export function addHasMemberRelship(node: any, modifiedRelshipViews: any, myMeti
               hasMemberRel.addRelationshipView(relview);
               myModelview.addRelationshipView(relview);
               myMetis.addRelationshipView(relview);     
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              if (debug) console.log('770 jsnRelview', jsnRelview);
-              modifiedRelshipViews.push(jsnRelview);
               // Add link
+              myDiagram.startTransaction('AddLink');
               let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
               link.loadLinkContent(myGoModel);
               myGoModel.addLink(link);
               myDiagram.model.addLinkData(link);
-              if (debug) console.log('780 relview, link', relview, link);
+              myDiagram.commitTransaction('AddLink');
             }
           }
         }
       }                    
     }
-    if (debug) console.log('786 myGoModel', myGoModel);
 }
 
 // Other functions
@@ -3348,6 +3347,16 @@ function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {
     }
 }
 
+export function getNodeByViewId(viewId: string, diagram: any): any {
+    const nodes = diagram.nodes;
+    for (let it = nodes.iterator; it?.next();) {
+        const node = it.value;
+        if (node.data.objectview.id == viewId) 
+            return node;
+    }
+    return null;
+}
+
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {
@@ -3402,16 +3411,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                     diagram.model.setDataProperty(data, prop, relview[prop]);
                     if (debug) console.log('2904 updateLink', prop, viewdata[prop], relview[prop]);
                 }
-                if (prop === 'toArrow') {
-                    if (relview[prop] === "")
-                        viewdata[prop] = "OpenTriangle";
-                    else if (relview[prop] === "None")
-                        viewdata[prop] = "";
-                } else if (prop === 'fromArrow') {
-                    if (viewdata[prop] === 'None') {
-                        viewdata[prop] = "";
-                    }
-                } else if (prop === 'strokewidth') {
+                if (prop === 'strokewidth') {
                     if (relview[prop] === "" || !relview[prop])
                     relview[prop] === "1";
                 } else if (prop === 'fromArrowColor') {
@@ -3445,6 +3445,19 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
         }
     }
 } 
+
+export function deleteLinkByViewId(viewId: string, diagram: any) {
+    const links = diagram.links;
+    for (let it = links.iterator; it?.next();) {
+        const link = it.value;
+        if (link.data.relshipview.id == viewId) {
+            diagram.startTransaction('DeleteLink');
+            diagram.model.removeLinkData(link.data);
+            diagram.commitTransaction('DeleteLink');
+            break;
+        }
+    }
+}
 
 function propIsColor(prop: string): boolean {
     switch(prop) {

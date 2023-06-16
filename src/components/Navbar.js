@@ -5,46 +5,50 @@ import { FaUser, FaEnvelope } from 'react-icons/fa';
 
 
 const Navbar = (props) => {
-	
+
 	const router = useRouter();
 	const currentRoute = router.pathname;
 	// console.log(currentRoute);
-	
-// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
-// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
-// navbar-expand{-sm|-md|-lg|-xl}
+
+	// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
+	// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
+	// navbar-expand{-sm|-md|-lg|-xl}
 
 	return (
-	<nav className="navbar navbar-expand-sm d-flex justify-content-between bg-white py-0"
-			// variant="pils" defaultactiveKey="/"
+		<nav className="navbar navbar-expand-sm d-flex justify-content-between bg-white py-0"
+		// variant="pils" defaultactiveKey="/"
 		>
-		<div className="d-flex  w-50 mx-0 ">
-			<div className="d-flex justify-content-between" style={{width: "692px"}}>
-				<a className="navbar-brand navbar-left mr-4" href="#">
-					<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
-					{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
-					{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
-				</a>
-				{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-				<span className="fs-3 text-warning" style={{ fontsize: "30%", maxWidth: "30%", minWidth: "220px", marginTop: "5px"}}>
-					<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}><strong> AKM Modeller</strong></Link>
-				</span>
-			</div>
-			<div className="collapse navbar-collapse " id="nav-toggler-metis">
-				<ul className="navbar-nav bg-light">
-					<li className="nav-item">
-						<Link href="/"className={currentRoute === "/" ? "active" : "non-active"}>Home</Link>
-					</li>			
-					<li className="nav-item ">
-						<Link href="/project" className={currentRoute === "/project" ? "active" : "non-active"}>Project</Link>
-					</li>
-					<li className="nav-item ">
-						<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</Link>
-					</li>
-					{/* <li className="nav-item">
+			<div className="d-flex  justify-content-between mx-0 ">
+				<div className="d-flex justify-content-between" style={{ width: "692px" }}>
+					<a className="navbar-brand navbar-left mr-4" href="#">
+						<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo" />
+						{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
+						{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
+					</a>
+					{/* <span ><strong>OrgEngine Teambuilder</strong> */}
+					<span clallName="d-flex justify-content-between" style={{ width: "320px" }}>
+						<span classname="p-0 m-0" ><strong> AKM Modeller</strong></span>
+						<span className="text-secondary p-1 rounded " style={{ fontSize: 10 }}>v.: released</span>
+						<Link href="https://akmmclient-main-git-main23-snorres.vercel.app/modelling" >
+							<span className="border border-secondary text-secondary rounded m-0" style={{ fontSize: 10 }}>beta &gt; </span>
+						</Link>
+					</span>
+				</div>
+				<div className="collapse navbar-collapse " id="nav-toggler-metis">
+					<ul className="navbar-nav bg-light">
+						<li className="nav-item">
+							<Link href="/" className={currentRoute === "/" ? "active" : "non-active"}>Home</Link>
+						</li>
+						<li className="nav-item ">
+							<Link href="/project" className={currentRoute === "/project" ? "active" : "non-active"}>Project</Link>
+						</li>
+						<li className="nav-item ">
+							<Link href="/modelling" className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</Link>
+						</li>
+						{/* <li className="nav-item">
 						<Link href="/table" className={currentRoute === "/table" ? "active" : "non-active"}>Tables</Link>
 					</li> */}
-					{/* <li className="nav-item dropdown">
+						{/* <li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             			</a>
@@ -63,59 +67,59 @@ const Navbar = (props) => {
 							</form>
 						</div>
 					</li> */}
-					{/* <li className="nav-item">
+						{/* <li className="nav-item">
 						<Link href="/videos"className={currentRoute === "/videos" ? "active" : "non-active"}>Videos
 						</Link>
 					</li> */}
-					<li className="nav-item">
-						<Link href="/helpblog" className={currentRoute === "/helpblog" ? "active" : "non-active"} >Help</Link> 
-					</li>
-					<li className="nav-item">
-						<Link href="/about" className={currentRoute === "/about" ? "active" : "non-active"}>About</Link>
-					</li>
-					<li className="nav-item" style={{minWidth: "120px"}}>				
-						<a className={currentRoute === "/Modelling" ? "active" : "non-active"} 
-							href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
-							target="_blank"
-						> 
-							<FaEnvelope style={{ width: "30px",  verticalAlign: "middle" }} />More info
-						</a>
-					</li> 
-					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
+						<li className="nav-item">
+							<Link href="/helpblog" className={currentRoute === "/helpblog" ? "active" : "non-active"} >Help</Link>
+						</li>
+						<li className="nav-item">
+							<Link href="/about" className={currentRoute === "/about" ? "active" : "non-active"}>About</Link>
+						</li>
+						<li className="nav-item" style={{ minWidth: "120px" }}>
+							<a className={currentRoute === "/Modelling" ? "active" : "non-active"}
+								href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
+								target="_blank"
+							>
+								<FaEnvelope style={{ width: "30px", verticalAlign: "middle" }} />More info
+							</a>
+						</li>
+						{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link nav-login dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false" href="mailto:snorres@gmail.com?subject=More info about how to progress with AKM Modeller and access to more templates and examples. & body=Hi, Please send me more info about: xxxxxx.   My Name is: xxxxxx, Email: xxxxx, Phone: 99999999.   ">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} /> */}
-							{/* <span className="username"> {props?.user?.name}</span> </a> */}
-							{/* <span className="username"> E-mail us</span> </a> */}
+						{/* <span className="username"> {props?.user?.name}</span> </a> */}
+						{/* <span className="username"> E-mail us</span> </a> */}
 						{/* <div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4"> */}
-							{/* <a className="dropdown-item" href="/login">Login</a>
+						{/* <a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 							<a className="dropdown-item" href="/settings">Settings</a> */}
 						{/* </div> */}
-					{/* </li> */}
-				</ul>
+						{/* </li> */}
+					</ul>
+				</div>
+				<div className='buttons' aria-expanded="false">
+					<button className="navbar-toggler navbar-light"
+						type="button"
+						data-toggle="collapse"
+						data-target="#nav-toggler-metis"
+						aria-controls="nav-toggler-metis"
+						aria-expanded="false"
+						aria-label="Toggle navigation"
+					>
+						<span className="navbar-toggler-icon "></span>
+					</button>
+				</div>
+				{/* <div><pre>{props}</pre></div> */}
 			</div>
-			<div className='buttons' aria-expanded="false">
-				<button className="navbar-toggler navbar-light"
-					type="button"
-					data-toggle="collapse"
-					data-target="#nav-toggler-metis"
-					aria-controls="nav-toggler-metis"
-					aria-expanded="false"
-					aria-label="Toggle navigation"
-				>
-					<span className="navbar-toggler-icon "></span>
-				</button>
-			</div>
-			{/* <div><pre>{props}</pre></div> */}
-		</div>
-		<a className="navbar-brand ml-auto" href="http://www.kavca.no">
-			<img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo"/>
-			<span className="fw-bold fs-4" style={{color: "#0083e2"}}>avca AS</span>
-			{/* <img src="images/Equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
-			{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
-			{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
-		</a>
+			<a className="navbar-brand ml-auto" href="http://www.kavca.no">
+				<img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo" />
+				<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
+				{/* <img src="images/Equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
+				{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
+				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
+			</a>
 			<style jsx>{`
                 nav {
 					height: 35px;
@@ -149,8 +153,9 @@ const Navbar = (props) => {
                     background: #ddd;
                   }
             `}</style>
-	</nav>
-)};
+		</nav>
+	)
+};
 
 export default Navbar;
 

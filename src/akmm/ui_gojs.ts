@@ -1106,10 +1106,12 @@ export class goRelshipTypeLink extends goLink {
                         const data: any = typeview.getData();
                         this.addData(data);
                         this.setName(this.reltype.getName());
-                        if (!this.strokwidth)
+                        if (!this.strokewidth)
                             this.strokewidth = '1';
                         if (!this.strokecolor)
                             this.strokecolor = 'black';
+                        if (this.fromArrow === ' ' || this.fromArrow === 'None')
+                            this.fromArrow = '';
                         return true;
                     }
                 }

@@ -514,8 +514,12 @@ let includeNoType = false;
             // end added 2023-04-24 sf
 
             if (includeObjtype) {
-              if (!objtype.typeview) 
-                objtype.typeview = objtype.newDefaultTypeView('Object');
+              let typeview = objtype.typeview as akm.cxObjectTypeView;
+              if (!typeview) {
+                typeview = objtype.newDefaultTypeView('Object');
+                if (typeview['fromArrow'] === ' ')
+                  objtype.typeview['fromArrow'] = '';
+              }
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
               node.loadNodeContent(metamodel);
               node.strokecolor = strokecolor;

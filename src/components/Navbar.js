@@ -14,22 +14,22 @@ const Navbar = (props) => {
 
 	const LinkDiv = (router.pathname === "https://akmmclient-main.vercel.app/modelling")
 		?
-		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
+		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "380px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
 			<span clallName="d-flex justify-content-between">
-				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>final</span>
+				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>v.: beta</span>
 				<Link href="https://akmmclient-main-git-main23-snorres.vercel.app/modelling" target={target}>
-					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>&gt; </span>
+					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>tested &gt; </span>
 				</Link>
 			</span>
 		</span>
 		:
-		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
+		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "320px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
 			<span clallName="d-flex justify-content-between" >
-				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>final</span>
+				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>v.: released</span>
 				<Link href="https://akmmclient-main.vercel.app/modelling" target={target}>
-					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>&gt; </span>
+					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>beta &gt; </span>
 				</Link>
 			</span>
 		</span>

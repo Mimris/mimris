@@ -1695,7 +1695,7 @@ export function clearRelationshipPoints(modelview: akm.cxModelView, myMetis: akm
         const relviews = modelview.relshipviews;
         if (relviews) {
             relviews.map(relview => {
-                relview.points = null;
+                relview.points = [];
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 modifiedRelshipViews.push(jsnRelview);
                 const myGoModel = myMetis.gojsModel;

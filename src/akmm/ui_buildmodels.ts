@@ -345,6 +345,8 @@ let includeNoType = false;
           relview.fromArrow = '';
         if (relview?.toArrow === 'None' || relview?.toArrow === ' ') 
           relview.toArrow = '';
+        if (relview.points === "") 
+          relview.points = [];
         let fromObjview = relview.fromObjview;
         if (!modelview.findObjectView(fromObjview.id)) 
           continue;

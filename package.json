@@ -121,6 +121,7 @@
   "description": "",
   "optionalDependencies": {
     "bufferutil": "^4.0.1",
+    "fsevents": "^2.3.2",
     "utf-8-validate": "^5.0.2"
   },
   "proxy": "https://cat-fact.herokuapp.com/"

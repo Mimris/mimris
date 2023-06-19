@@ -3647,7 +3647,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3666,7 +3666,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3685,7 +3685,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3704,7 +3704,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3723,7 +3723,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3742,7 +3742,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3761,7 +3761,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3780,7 +3780,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3799,7 +3799,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3818,7 +3818,7 @@
                   "toArrow": "OpenTriangle",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 }
@@ -3873,7 +3873,7 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -3892,7 +3892,7 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": false
                 }

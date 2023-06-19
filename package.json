@@ -58,6 +58,7 @@
     "micro-cors": "^0.1.1",
     "next": "latest",
     "next-redux-wrapper": "6.0.2",
+    "node": "^20.2.0",
     "phoenix": "^1.5.7",
     "printf": "^0.6.0",
     "promise-polyfill": "8.1.3",

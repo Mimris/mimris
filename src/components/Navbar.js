@@ -28,7 +28,7 @@ const Navbar = (props) => {
 			<strong>AKM Modeller </strong>
 			<span clallName="d-flex justify-content-between" >
 				<span className="text-secondary px-1 rounded " style={{ fontSize: 10 }}>v.: released</span>
-				<Link href="https://akmmclient-main-aavw690s5-snorres.vercel.app/" target={target}>
+				<Link href="https://akmmclient-1jnvawxc7-snorres.vercel.app/modelling" target={target}>
 					<span className="border border-secondary text-secondary  pt-0 mt-0 rounded me-2" style={{ fontSize: 10 }}>beta &gt; </span>
 				</Link>
 			</span>

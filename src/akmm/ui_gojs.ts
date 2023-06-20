@@ -492,7 +492,7 @@ export class goObjectNode extends goNode {
                 this.figure = this.typeview?.figure;
             if (!this.figure)
                 this.figure = "";
-            }
+        }
     }
     // Methods
     getObjectViewId(viewid: string): string {

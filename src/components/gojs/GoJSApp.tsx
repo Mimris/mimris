@@ -460,6 +460,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const myFromNode = {
             "key": it.key.data.key,
             "name": it.key.data.name,
+            "group": it.key.data.group,
             "loc": new String(loc),
             "scale": new String(scale),
           }
@@ -481,6 +482,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myToNode = {
               "key": n.data.key,
               "name": n.data.name,
+              "group": n.data.group,
               "loc": new String(n.data.loc),
               "scale": new String(n.data.scale1)
             }
@@ -521,7 +523,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myModelview = context.myModelview;
             const myObjectviews = myModelview?.objectviews;
             // The object to move
-            let fromloc, fromNode;
+            let fromObject = data.object;
+            fromObject = myModel.findObject(fromObject.id);
+            let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {
               const fnode = myFromNodes[j];
               if (fnode.key === data.key) {
@@ -556,6 +560,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const parentObj = parentgroup.object;
                   let rel = null;
                   let fromObj = null;
+                  let toObj = null;
                   // Check if a relationship of type 'hasMember' exists between the parent (group) 
                   // and the (current) node
                   let done = false;
@@ -566,6 +571,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // between the parent group (parentObj) and the node 
                     const r = inputRels[i]; // The hasMember relationship
                     fromObj = r.fromObject;
+                    toObj = r.toObject;
                     if (fromObj.id !== parentObj.id) { // The wrong fromObject, delete the hasMember relationship
                       // This is not the right hasMember relationship - delete it, the view and the link
                       const rviews = r.relshipviews;
@@ -576,7 +582,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                         uic.deleteRelationshipView(rview, myModelview, myMetis);
                         uic.deleteRelationship(r, myModelview, myMetis);
                       }
-                    } else { // The correct hasMember relationship
+                    } else { // The hasMember relationship already exists
                       // Delete the view but keep the relationship
                       rel = r;
                       const rviews = rel.relshipviews;
@@ -615,7 +621,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
                   // There is no existing hasMember relationship between the parent group and the node
                   if (!rel) {  // Create a new hasMember relationship
-                    rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, parentObj, node.object, hasMemberType.name, "");
+                    rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, fromObj, toObj, constants.types.AKM_HAS_MEMBER, hasMemberType.description);
                     rel.setModified();
                     myMetis.addRelationship(rel);
                     myModel?.addRelationship(rel);
@@ -667,13 +673,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // Scale the group members
                   subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
                 }
-                if (!debug) console.log('680 subNodes', subNodes);
+                if (debug) console.log('680 subNodes', subNodes);
               } else { // The node is NOT moved into a group, possibly OUT OF a group
+                const toObject = node.object;        
                 node.group = "";
                 let fromScale = fromNode.scale;
                 let toScale = node.getMyScale(myGoModel); // 1;
                 let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
                 myDiagram.model.setDataProperty(node.data, "group", node.group);
+                let hasMemberRel;
                 if (node.isGroup) { // The node moved is a group 
                   // Scale the group members          
                   node.group = "";
@@ -728,8 +736,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                     }
                   }
-                  // Handle hasMember relationships                 
-                  uic.addHasMemberRelship(node, myMetis, myModelview, myDiagram);
+                  // Handle hasMember relationships    
+                  hasMemberRel = uic.hasMemberRelship(node, myMetis);
+                  if (!hasMemberRel) {   
+                    hasMemberRel = uic.addHasMemberRelship(fromObject, toObject, myMetis);
+                    myModel.addRelationship(hasMemberRel);
+                  }
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
                   if (count < 0) { // The reference node
@@ -752,35 +764,55 @@ class GoJSApp extends React.Component<{}, AppState> {
                   node.objectview.group = "";
                   node.scale1 = Number(toScale.valueOf());
                   myDiagram.model.setDataProperty(n, "scale", node.scale1);
-                  // Handle hasMember relationships                 
-                  uic.addHasMemberRelship(node, myMetis, myModelview, myDiagram);
+                  // Handle hasMember relationships     
+                  let rel = uic.hasMemberRelship(node, myMetis);  
+                  if (rel) {
+                      rel = myModel.findRelationship(rel.id);
+                      if (rel) {
+                        myModel.addRelationship(rel);
+                        let relviews = rel.relshipviews;
+                        if (!relviews || relviews?.length == 0) {
+                          let relview = uic.addHasMemberRelshipView(rel, myModelview);
+                          if (relview) {
+                              rel.addRelationshipView(relview);
+                              uic.setLinkProperties(relview, myMetis, myDiagram);
+                              myModelview.addRelationshipView(relview);
+                          }
+                        } else if (relviews?.length == 1) {
+                          let relview = relviews[0];
+                          if (fromNode.group !== toNode.group) 
+                            uic.setLinkProperties(relview, myMetis, myDiagram);
+                            myModelview.addRelationshipView(relview);
+                        }
+                      }
+                  }
                 }
               }
               node.size = data.size;
               // Handle relview scaling
               let n = myDiagram.findNodeForKey(node.key);
               if (n) {
-                for (let lnks = n?.findLinksConnected(); lnks?.next();) {
-                  let link = lnks?.value;
+                n.findLinksConnected().each(function (link) {
                   if (link) {
                     let relview = link.data.relshipview;
+                    relview = myModelview.findRelationshipView(relview.id);
                     if (relview) {
+                      relview.loc = link.data.loc;
                       // Handle relview scaling
                       if (group) {
                         const grpScale = group.scale1;
                         const grpMemberscale = group.memberscale;
                         const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
                         relview.textscale = textscale;
-                        uic.setLinkProperties(link, relview, myDiagram);
                       } else {
                         relview.textscale = "1";
-                        uic.setLinkProperties(link, relview, myDiagram);
                       }
                       // Handle relview points
                       relview.points = link.points;
+                      myModelview.addRelationshipView(relview);
                     }
                   }
-                }
+                });
               }
               if (n && n.data && n.data.group !== node.group) {
                 try {
@@ -828,11 +860,26 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           myDiagram.requestUpdate();
         }
+        const nodes = myDiagram.nodes;
+        for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const objview = node.data.objectview;
+            const objviews = myModelview.objectviews;
+            for (let i = 0; i < objviews.length; i++) {
+                const objectview = objviews[i];
+                if (objectview.id == objview.id) {
+                    objectview.loc = node.data.loc;
+                    objectview.scale1 = node.data.scale1;
+                    myModelview.addObjectView(objectview);
+                }
+            }
+        }
+        uic.purgeDuplicatedRelshipViews(myModelview, myMetis, myDiagram);
         const jsnModelview = new jsn.jsnModelView(myModelview);
         let data = JSON.parse(JSON.stringify(jsnModelview));
         context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       }
-        break;
+        return;
       case "SelectionDeleting": {
         if (debug) console.log('727 myMetis', myMetis);
         const deletedFlag = true;
@@ -1363,7 +1410,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview.textscale = textscale;
               }
               const link = myDiagram.findLinkForKey(data.key);
-              uic.setLinkProperties(link, relview, myDiagram);
+              uic.setLinkProperties(relview, myMetis, myDiagram);
               relview.template = data.template;
               relview.arrowscale = data.arrowscale;
               relview.strokecolor = data.strokecolor;

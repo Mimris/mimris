@@ -8019,6 +8019,17 @@ export class cxRelationship extends cxInstance {
     getRelationshipViews(): cxRelationshipView[] | null {
         return this.relshipviews;
     }
+    getPurgedRelationshipViews(): cxRelationshipView[] | null {
+        // Remove relationship views that are marked as deleted
+        const relshipViews = this.relshipviews;
+        for (let i=0; i<relshipViews?.length; i++) {
+            const relview = relshipViews[i];
+            if (relview.markedAsDeleted) {
+                relshipViews.splice(i, 1);
+            }
+        }
+        return relshipViews;
+    }
     getRelationshipType(): cxRelationshipType | null {
         return this.type as cxRelationshipType;
     }

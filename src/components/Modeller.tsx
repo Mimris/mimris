@@ -522,7 +522,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <button className="btn bg-light text-success ms-2 pt-1 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Toggle Context & Focus pane!"
-              onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button>
+              onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button> {/*  show Context ---------------------------------------------------   */}
           </div>
         </div>
         <div className="modeller--workarea-objects m-0 p-0" >
@@ -554,6 +554,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               </div>
               {footerButtonsDiv}
             </Col>
+            {/* show Context ------------------------------------------------------------------------------ */}
             <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd" }}>
               {(visibleContext) ? <ReportModule props={props} /> : <></>}
             </Col>

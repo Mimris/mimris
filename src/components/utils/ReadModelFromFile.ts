@@ -152,7 +152,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         console.log('100 ReadModelFromFile', data)
 
-        if (!debug) console.log('187 ReadModelFromFile 1', data.phData.metis)
+        if (!debug) console.log('187 ReadModelFromFile 1', data.phData?.metis)
 
         // -------------map over objecttypes in modelff and add typeName from objecttypes
         function addTypenameFromObjectTypes(objecttypes, objects) { // obecttypes and objects is imported from file

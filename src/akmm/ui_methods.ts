@@ -7,6 +7,7 @@ const debug = false;
 // import * as go from 'gojs';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
+import * as uid from '../akmm/ui_diagram';
 import * as jsn from './ui_json';
 // import * as uic from '../akmm/ui_common';
 // import * as gen from '../akmm/ui_generateTypes';
@@ -21,6 +22,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         return;
     const objectviews = [];
     const myDiagram = myMetis.myDiagram;
+    const node = uid.getNodeByViewId(objview.id, myDiagram);
     const modifiedObjectViews = new Array();
     const modifiedRelshipViews = new Array();
     let object = objview.object;
@@ -58,7 +60,6 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     const toObjtypeview = toObjtype.typeview;
                     const toTypeviewData = toObjtypeview.data;
                     const toObjviews = toObj.objectviews;
-                    if (debug) console.log('57 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
                     // Find toObj in modelview
                     const objviews = modelview.findObjectViewsByObject(toObj);
                     let toObjview;
@@ -70,17 +71,16 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             }
                             if (toObjtype.isContainer())
                                 oview.viewkind = constants.viewkinds.CONT;
-                            if (debug) console.log('1625 Create relship views to objviews', object, objviews);
                             toObjview = oview;
                             const jsnObjview = new jsn.jsnObjectView(toObjview);
                             modifiedObjectViews.push(jsnObjview);
-                            }
+                        }
                         // Create relship views and links to the found objviews if they do not exist
                         let relviews;
                         if (useinp) {
                             relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
                             if (relviews.length == 0) i++;
-                        } else {
+                        } else { // output rels
                             relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
                             if (relviews?.length == 0) i++;
                         }
@@ -90,24 +90,21 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     } else {
                         cnt++;
                         // Create an objectview of toObj and then a node
-                        // Then create a relship view and a link from object to toObj
-                        if (debug) console.log('86 Create an object view and a relship view', object);
                         const id1 = utils.createGuid();
                         toObjview = new akm.cxObjectView(id1, toObj.name, toObj, "");
                         toObj.addObjectView(toObjview);
                         modelview.addObjectView(toObjview);
                         myMetis.addObjectView(toObjview);
-                        if (debug) console.log('92 toObjview', toObj, toObjview);
                         const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
                         if (toObjviews) {
-                        const oview = toObjviews[0];
-                        for (let prop in toTypeviewData) {
-                            if (oview[prop] !== "") {
-                                toObjview[prop] = oview[prop];
-                                myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
-                            } else
-                                myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
-                        }
+                            const oview = toObjviews[0];
+                            for (let prop in toTypeviewData) {
+                                if (oview[prop] !== "") {
+                                    toObjview[prop] = oview[prop];
+                                    myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
+                                } else
+                                    myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
+                            }
                         } else {
                             for (let prop in toTypeviewData) {
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
@@ -129,6 +126,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     }
                     if (toObjview)
                         objectviews.push(toObjview);
+                    // The objectview has been created
+                    // Now create a relship view and a link from object to toObj
                     const oviewFrom = useinp ? toObjview : objview;
                     const oviewTo = useinp ? objview : toObjview;
                     const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
@@ -142,12 +141,15 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         myMetis.addRelationshipView(relview);
                         const jsnRelView = new jsn.jsnRelshipView(relview);
                         modifiedRelshipViews.push(jsnRelView);
-                        if (debug) console.log('137 relview', relview);
+                        myDiagram.startTransaction("add relship view");
                         const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
                         goLink.loadLinkContent(goModel);
+                        goLink.fromNode = uid.getNodeByViewId(oviewFrom.id, myDiagram);
+                        goLink.from = goLink.fromNode?.key;
+                        if (debug) console.log('147 node, goLink', node, goLink);
                         goModel.addLink(goLink);
                         myDiagram.model.addLinkData(goLink);
-                        if (debug) console.log('142 goModel', goModel); 
+                        myDiagram.commitTransaction("add relship view");
                     }                   
                 }
             }
@@ -164,7 +166,6 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
     });
-    if (debug) console.log('156 objectviews', objectviews);
     if (noLevels > 1) {
         noLevels--;
         for (let i=0; i<objectviews?.length; i++) {

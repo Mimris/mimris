@@ -583,10 +583,8 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const objview = node?.objectview;
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
-    if (debug) console.log('222 objview', objview);
     ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
-    if (debug) console.log('225 gjsNode', gjsNode);
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;
 }
@@ -779,6 +777,32 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     }
     if (debug) console.log('655 reltypeNames', reltypeNames);
     return reltypeNames;
+}
+
+export function getNodeByViewId(viewId: string, myDiagram: any): any {
+    let node = null;
+    const it = myDiagram.nodes;
+    for (let it = myDiagram.nodes; it.next();) {
+        const n = it.value;
+        if (n.data.objectview.id === viewId) {
+            node = n.data;
+            break;
+        }
+    }
+    return node;
+}
+
+export function getLinkByViewId(viewId: string, myDiagram: any): any {
+    let link = null;
+    const it = myDiagram.links;
+    for (let it = myDiagram.links; it.next();) {
+        const l = it.value;
+        if (l.data.relshipview.id === viewId) {
+            link = l.data;
+            break;
+        }
+    }
+    return link;
 }
 
 function askForMetamodel(context: any) {

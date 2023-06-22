@@ -497,8 +497,8 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             reltypeview.applyRelationshipViewParameters(relview);
             reltypeview.setRelshipKind(reltype.relshipkind);
             reltype.setModified();
-            // myTargetMetamodel?.addRelationshipTypeView(reltypeview);
-            // myMetis.addRelationshipTypeView(reltypeview);
+            myTargetMetamodel?.addRelationshipTypeView(reltypeview);
+            myMetis.addRelationshipTypeView(reltypeview);
             if (debug) console.log('442 reltype, reltypeview', reltype, reltypeview);
         }
         if (debug) console.log('443 reltype, reltypeview, relview', reltype, reltypeview, relview);
@@ -1013,8 +1013,8 @@ export function generateTargetMetamodel2(context: any) {
     if (currentNode) {
         if (debug) console.log('744 currentNode, myGoModel', currentNode, context.myGoModel);
         currentNode = context.myGoModel.findNode(currentNode.key);
-        objectviews = currentNode.getGroupMembers2(context.myGoModel);
-        relshipviews = currentNode.getGroupLinkMembers2(context.myGoModel);
+        objectviews = currentNode?.getGroupMembers2(context.myGoModel);
+        relshipviews = currentNode?.getGroupLinkMembers2(context.myGoModel);
     }
     if (debug) console.log('749 objviews, relviews', objectviews, relshipviews, context);
     generateMetamodel(objectviews, relshipviews, context);

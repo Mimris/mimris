@@ -540,7 +540,7 @@ export function generateRelshipType2(object: akm.cxObject, fromType: akm.cxObjec
             const guid = utils.createGuid();
             const name = reltype.name + '_' + reltype.getRelshipKind();
             reltypeview = new akm.cxRelationshipTypeView(guid, name, reltype, "");
-            // reltypeview.applyRelationshipViewParameters(relview);
+            reltypeview.applyRelationshipViewParameters(relview);
             reltypeview.setRelshipKind(reltype.relshipkind);
             reltype.typeview = reltypeview;
             reltype.setModified();
@@ -1410,6 +1410,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         if (debug) console.log('1385 Generate Relationship Type', reltype, jsnRelshipType);
                         const relTypeview = reltype.typeview;
                         if (relTypeview) {
+                            relTypeview.applyRelationshipViewParameters(relview);
                             myMetis.addRelationshipTypeView(relTypeview);
                             reltype.setDefaultTypeView(relTypeview);
                             const jsnRelTypeview = new jsn.jsnRelshipTypeView(relTypeview);

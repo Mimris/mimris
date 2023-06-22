@@ -159,7 +159,7 @@ export function handleSelectDropdownChange(selected, context) {
     }
     case "Connect to Selected": {
       const myMetamodel = context.myMetamodel;
-      let nodeFrom = modalContext.args.nodeFrom;
+      const nodeFrom = modalContext.args.nodeFrom;
       const nodesTo  = modalContext.args.nodesTo;
       const links = [];
       for (let i=0; i<nodesTo.length; i++) {
@@ -1185,7 +1185,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         const link = myDiagram.findLinkForKey(sel.data.key);
         if (debug) console.log('977 link', link, sel.data);
-        if (link) {         
+        if (link && relview) {         
           const data = link.data;
           if (debug) console.log('979 data, relview', data, relview);
           for (let prop in reltypeview?.data) {
@@ -1427,6 +1427,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('1138 objFrom, objfromView: ', objFrom, objfromView);
 
       // Go through each link and identify its toNode
+      let modifiedRelships = new Array();
+      let modifiedRelshipViews = new Array();
       for (let i=0; i<links.length; i++) {
         let link = links[i];
         // link = myDiagram.findLinkForKey(link.key);
@@ -1451,16 +1453,24 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myModelview.addRelationshipView(relview); 
           if (debug) console.log('1162 myModelview, relview', myModelview, relview);
           myMetis.addRelationshipView(relview); 
+          const jsnRelship = new jsn.jsnRelationship(rel);
+          modifiedRelships.push(jsnRelship);
+          const jsnRelview = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelview);
         }
       }
+      modifiedRelships.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      })
+      modifiedRelshipViews.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      })
     }
     break;
   }
-  // Dispatch metis
-  // const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-  // let data = {metis: jsnMetis}
-  // data = JSON.parse(JSON.stringify(data));
-  // if (debug) console.log('1323 myMetis, data', myMetis, data);
-  // myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   myDiagram.clearSelection();
 }

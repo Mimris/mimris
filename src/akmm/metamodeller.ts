@@ -8916,8 +8916,8 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             case 'Generalization':
-                this.setFromArrow(' ');
-                this.setFromArrowColor(' ');
+                this.setFromArrow('');
+                this.setFromArrowColor('');
                 this.textcolor = 'black';
                 break;
             default:

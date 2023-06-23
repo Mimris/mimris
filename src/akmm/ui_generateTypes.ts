@@ -1567,7 +1567,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     modifiedObjectTypes.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+        myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
     });
     modifiedObjTypeViews?.map(mn => {
         let data = (mn) && mn
@@ -1583,7 +1583,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     modifiedRelshipTypes?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
       });
       modifiedRelTypeViews?.map(mn => {
         let data = (mn) && mn

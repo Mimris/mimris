@@ -2881,21 +2881,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 alert("Inherited Relationship types are included!");
               }
-              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-              let data = { metis: jsnMetis }
-              data = JSON.parse(JSON.stringify(data));
-              if (debug) console.log('2398 jsnMetis', jsnMetis, metis);
-              e.diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-
-              // const jsnModelview = new jsn.jsnModelView(modelview);
-              // if (debug) console.log('3236 jsnModelview', jsnModelview);
-              // const modifiedModelviews = new Array();
-              // modifiedModelviews.push(jsnModelview);
-              // modifiedModelviews.map(mn => {
-              //   let data = mn;
-              //   data = JSON.parse(JSON.stringify(data));
-              //   e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-              // })
+              // Dispatch
+              const jsnModelview = new jsn.jsnModelView(modelview);
+              if (debug) console.log('3236 jsnModelview', jsnModelview);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
             },
             function (o: any) {
               return true;

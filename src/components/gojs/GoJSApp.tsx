@@ -880,6 +880,21 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
             }
         }
+        const links = myDiagram.links;
+        for (let it = links.iterator; it?.next();) {
+            const link = it.value;
+            const rview = link.data.relshipview;
+            const points = link.data.points;
+            const relviews = myModelview.relshipviews;
+            for (let i = 0; i < relviews?.length; i++) {
+              const relview = relviews[i];
+              if (relview.id === rview.id) {
+                relview.points = points;
+                myModelview.addRelationshipView(relview);
+              }
+            }
+        }
+        
         uic.purgeDuplicatedRelshipViews(myModelview, myMetis, myDiagram);
         const jsnModelview = new jsn.jsnModelView(myModelview);
         let data = JSON.parse(JSON.stringify(jsnModelview));
@@ -1044,6 +1059,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (myNode) {
                 if (debug) console.log('870 delete node', data, myNode);
                 uic.deleteNode(myNode, deletedFlag, context);
+                const object = myNode.object;
+                const jsnObject = new jsn.jsnObject(object);
+                modifiedObjects.push(jsnObject);
+                const objview = myNode.objectview;
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(jsnObjview);                
                 if (debug) console.log('872 delete node', data, myNode);
               }
             }
@@ -1076,8 +1097,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('933 myMetis', myMetis);
       }
         if (debug) console.log('935 Deletion completed', myMetis);
-
-        return;
+        break;
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
           if (debug) console.log('1149 n.data', n.data, n);
@@ -1660,7 +1680,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (debug) console.log('1704 myMetis', myMetis);
   }
-
+ 
   public render() {
     const selectedData = this.state.selectedData;
     if (debug) console.log('1483 selectedData', selectedData, this.props);

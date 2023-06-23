@@ -169,7 +169,7 @@ const page = (props: any) => {
 
   myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
   // myModel = myMetis?.currentModel;
-  myModel = myMetis?.findModel(curmod.id);
+  myModel = myMetis?.findModel(curmod?.id);
 
   myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
   myMetamodel = myModel?.metamodel;

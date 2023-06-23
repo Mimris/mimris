@@ -246,8 +246,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (debug) console.log('236 gojsMetamodel', gojsMetamodel);
     let modifiedObjectTypes = new Array();
-    let modifiedTypeViews = new Array();
-    let modifiedTypeGeos = new Array();
+    let modifiedObjectTypeViews = new Array();
+    let modifiedObjectTypeGeos = new Array();
     let modifiedRelshipTypes = new Array();
     let modifiedRelshipTypeViews = new Array();
     let modifiedObjects = new Array();
@@ -275,10 +275,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       "askForRelshipName": myModelview?.askForRelshipName,
       "includeInheritedReltypes": myModelview?.includeInheritedReltypes,
       "handleOpenModal": this.handleOpenModal,
+      "modifiedObjects": [],
       "modifiedRelships": [],
+      "modifiedObjectViews": [],
       "modifiedRelshipViews": [],
+      "modifiedObjectTypes": [],
       "modifiedRelshipTypes": [],
+      "modifiedObjectTypeViews": [],
       "modifiedRelshipTypeViews": [],
+      "modifiedObjectTypeGeos": [],
     }
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
@@ -513,7 +518,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               objtypeGeo.setSize(data.size);
               objtypeGeo.setModified();
               const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
-              modifiedTypeGeos.push(jsnObjtypeGeo);
+              modifiedObjectTypeGeos.push(jsnObjtypeGeo);
             }
           }
           else // Object
@@ -740,7 +745,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   hasMemberRel = uic.hasMemberRelship(node, myMetis);
                   if (!hasMemberRel) {   
                     hasMemberRel = uic.addHasMemberRelship(fromObject, toObject, myMetis);
-                    myModel.addRelationship(hasMemberRel);
+                    if (hasMemberRel)
+                      myModel.addRelationship(hasMemberRel);
                   }
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
@@ -865,9 +871,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             const node = it.value;
             const objview = node.data.objectview;
             const objviews = myModelview.objectviews;
-            for (let i = 0; i < objviews.length; i++) {
+            for (let i = 0; i < objviews?.length; i++) {
                 const objectview = objviews[i];
-                if (objectview.id == objview.id) {
+                if (objectview?.id == objview?.id) {
                     objectview.loc = node.data.loc;
                     objectview.scale1 = node.data.scale1;
                     myModelview.addObjectView(objectview);
@@ -946,11 +952,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                       for (let i = 0; i < rels.length; i++) {
                         const rel = rels[i];
                         rel.markedAsDeleted = deletedFlag;
+                        const jsnRel = new jsn.jsnRelationship(rel);
+                        modifiedRelships.push(jsnRel);
                       }
                     }
                   }
                   // Check if reltype comes from or goes to a systemtype
-                  // If so, ask if you really wants to delete
+                  // If so, ask if you really want to delete
                   // const fromObjtype = reltype.fromObjtype;
                   // const toObjtype   = reltype.toObjtype;
                   // if (debug) console.log('777 fromObjtype, toObjtype', fromObjtype, toObjtype);
@@ -967,7 +975,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                   let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
                   if (reltypeview) {
                     reltypeview.markedAsDeleted = deletedFlag;
-                  }
+                    const jsnReltypeView = new jsn.jsnRelshipTypeView(reltypeview);
+                    modifiedRelshipTypeViews.push(jsnReltypeView);
+              }
                 }
               }
             }
@@ -992,13 +1002,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                         const obj = objects[i];
                         obj.type = defObjType;
                         obj.typeview = defObjType.typeview;
-                        // const jsnObj = new jsn.jsnObject(obj);
-                        // modifiedObjects.push(jsnObj);
+                        const jsnObj = new jsn.jsnObject(obj);
+                        modifiedObjects.push(jsnObj);
                       }
                     } else { // delete the corresponding objects
                       for (let i = 0; i < objects.length; i++) {
                         const obj = objects[i];
                         obj.markedAsDeleted = deletedFlag;
+                        const jsnObj = new jsn.jsnObject(obj);
+                        modifiedObjects.push(jsnObj);
                       }
                     }
                   }
@@ -1006,10 +1018,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                   let objtypeview = objtype.typeview as akm.cxObjectTypeView;
                   if (objtypeview) {
                     objtypeview.markedAsDeleted = deletedFlag;
-                  }
+                    const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
+                    modifiedObjectTypeViews.push(jsnObjtypeview);
+              }
                   const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
                   if (geo) {
                     geo.markedAsDeleted = deletedFlag;
+                    const jsnObjtypegeo = new jsn.jsnObjectTypegeo(geo);
+                    modifiedObjectTypeGeos.push(jsnObjtypegeo);
                   }
                 }
               }
@@ -1048,7 +1064,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (!myMetis.deleteViewsOnly) {
                   const relship = relview.relship;
                   relship.markedAsDeleted = deletedFlag;
+                  const jsnRelship = new jsn.jsnRelationship(relship);
+                  modifiedRelships.push(jsnRelship);
                 }
+                const jsnRelshipView = new jsn.jsnRelshipView(relview);
+                modifiedRelshipViews.push(jsnRelshipView);
               }
             }
           }
@@ -1057,12 +1077,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
         if (debug) console.log('935 Deletion completed', myMetis);
 
-        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-        if (debug) console.log('938 jsnMetis', jsnMetis);
-        let data = { metis: jsnMetis }
-        data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('941 PhData', data);
-        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
         return;
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
@@ -1094,15 +1108,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               modifiedObjectTypes.push(jsnObjtype);
 
               const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
-              if (debug) console.log('931 modifiedTypeViews', jsnObjtypeView);
-              modifiedTypeViews.push(jsnObjtypeView);
+              if (debug) console.log('931 modifiedObjectTypeViews', jsnObjtypeView);
+              modifiedObjectTypeViews.push(jsnObjtypeView);
 
               const loc = part.loc;
               const size = part.size;
               const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
               const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
-              if (debug) console.log('938 modifiedTypeGeos', jsnObjtypeGeo);
-              modifiedTypeGeos.push(jsnObjtypeGeo);
+              if (debug) console.log('938 modifiedObjectTypeGeos', jsnObjtypeGeo);
+              modifiedObjectTypeGeos.push(jsnObjtypeGeo);
             }
           } else // object
           {
@@ -1586,16 +1600,16 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
 
-      if (debug) console.log('1420 modifiedTypeViews', modifiedTypeViews);
-      modifiedTypeViews?.map(mn => {
+      if (debug) console.log('1420 modifiedObjectTypeViews', modifiedObjectTypeViews);
+      modifiedObjectTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
         if (debug) console.log('1425 data', data);
       })
 
-      if (debug) console.log('1428 modifiedTypeGeos', modifiedTypeGeos);
-      modifiedTypeGeos?.map(mn => {
+      if (debug) console.log('1428 modifiedObjectTypeGeos', modifiedObjectTypeGeos);
+      modifiedObjectTypeGeos?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })

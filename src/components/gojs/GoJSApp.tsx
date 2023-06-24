@@ -1087,7 +1087,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('888 myLink, data', myLink, data);
               uic.deleteLink(data, deletedFlag, context);
               const relview = data.relshipview;
-              if (relview && relview.category === constants.gojs.C_RELATIONSHIP) {
+              if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
                 relview.markedAsDeleted = deletedFlag;
                 relview.relship = myMetis.findRelationship(relview.relship.id);
                 if (!myMetis.deleteViewsOnly) {

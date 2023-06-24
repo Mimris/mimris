@@ -749,7 +749,7 @@ export function onClipboardPasted(selection: any, context: any) {
         if (debug) console.log('805 onClipboardPasted', selected);
         if (selected.category === 'Relationship') {
             let link = selected;
-            const relview = createRelationship(link, context);
+            createRelationship(link, context);
         }
     }
 
@@ -1236,7 +1236,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myMetis   = args.context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
     const myModel  = args.context.myModel;
-    // const myModelview = myGoModel.modelView;
     const myModelview = myMetis.currentModelview;
     let data       = args.data;
     const typename = args.typename;
@@ -1280,7 +1279,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relship.relshipkind = reltype.relshipkind;
         relshipview.setFromArrow2(rel?.relshipkind);
         relshipview.setToArrow2(rel?.relshipkind);
-        relship.addRelationshipView(relshipview);
         relship.fromPortid = data.fromPort;
         relship.toPortid = data.toPort;
         relshipview.fromPortid = data.fromPort;
@@ -1306,6 +1304,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         let link = myGoModel.findLink(data.key);
         uid.resetToTypeview(link, myMetis, myDiagram); 
 
+        relship.addRelationshipView(relshipview);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
         myModel.addRelationship(relship);
@@ -2155,6 +2154,9 @@ export function hasMemberRelship(node: any, myMetis: akm.cxMetis): akm.cxRelatio
 
 export function addHasMemberRelship(fromObj: akm.cxObject, toObj: akm.cxObject, myMetis: akm.cxMetis): akm.cxRelationship {
     const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
+    if (!hasMemberType) {
+        return null;
+    }
     let hasMemberRel = new akm.cxRelationship(utils.createGuid(), hasMemberType, fromObj, toObj, constants.types.AKM_HAS_MEMBER, hasMemberType.description);
     return hasMemberRel;
 }

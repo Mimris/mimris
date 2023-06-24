@@ -784,7 +784,7 @@ export function getNodeByViewId(viewId: string, myDiagram: any): any {
     const it = myDiagram.nodes;
     for (let it = myDiagram.nodes; it.next();) {
         const n = it.value;
-        if (n.data.objectview.id === viewId) {
+        if (n.data.objectview?.id === viewId) {
             node = n.data;
             break;
         }
@@ -797,7 +797,7 @@ export function getLinkByViewId(viewId: string, myDiagram: any): any {
     const it = myDiagram.links;
     for (let it = myDiagram.links; it.next();) {
         const l = it.value;
-        if (l.data.relshipview.id === viewId) {
+        if (l.data.relshipview?.id === viewId) {
             link = l.data;
             break;
         }

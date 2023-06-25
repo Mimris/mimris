@@ -6465,8 +6465,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
                 this.setFromArrowColor('white');
                 break;
             case 'Generalization':
-                this.setFromArrow(' ');
-                this.setFromArrowColor(' ');
+                this.setFromArrow('');
+                this.setFromArrowColor('');
                 break;
             default:
                 break;
@@ -6534,6 +6534,7 @@ export class cxModel extends cxMetaObject {
     ports: cxPort[] | null;
     modelviews: cxModelView[] | null;
     args1: any[];
+    args2: any[];
     constructor(id: string, name: string, metamodel: cxMetaModel | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
@@ -6559,6 +6560,7 @@ export class cxModel extends cxMetaObject {
         this.ports = null;
         this.modelviews = null;
         this.args1 = [];
+        this.args2 = [];
     }
     // setModelType(modeltype: string) {
     //     this.modeltype = modeltype;
@@ -6858,6 +6860,8 @@ export class cxModel extends cxMetaObject {
         return null;
     }
     findObjectByTypeAndName(objtype: cxObjectType, objname: string): cxObject | null {
+        if (!objtype)
+            return null;
         let objects = this.getObjects();
         if (!objects)
             return null;

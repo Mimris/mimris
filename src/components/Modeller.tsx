@@ -45,7 +45,7 @@ const Modeller = (props: any) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
   const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
-
+  const [projectName, setProjectName] = useState(props.metis.name); // the value to be displayed
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
@@ -177,36 +177,36 @@ const Modeller = (props: any) => {
     : []
   const selmodviews = modelviews
 
-  if (debug) console.log('126 Modeller', mmodel, focusModelview, selmods, selmodviews);
+  if (debug) console.log('180 Modeller', mmodel, focusModelview, selmods, selmodviews);
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
   const handleProjectChange = (event) => { // Editing project name
-    if (!debug) console.log('69 Modeller: handleProjectChange', e);
-    setInputValue(event.tartet.value)
+    if (!debug) console.log('186 Modeller: handleProjectChange', event);
+    setProjectName(event.target.value);
   }
   const handleProjectBlur = () => { // finish editing project name
-    if (!debug) console.log('69 Modeller: handleProjectChange', displayValue);
+    if (!debug) console.log('190 Modeller: handleProjectChange', displayValue);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
   }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
-    if (debug) console.log('19 Selector', JSON.parse(event.value).name);
+    if (debug) console.log('196 Selector', JSON.parse(event.value).name);
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const selObj = models.find((obj: any) => obj.id === id)
-    if (debug) console.log('86 Selector', selObj);
+    if (debug) console.log('200 Selector', selObj);
     let data
     if (selObj && selObj.name !== 'Select ' + props.selName + '...') {
-      if (debug) console.log('161 Selector', selObj.name);
+      if (debug) console.log('203 Selector', selObj.name);
       data = { id: id, name: name }
       dispatch({ type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]
       const data2 = { id: mv.id, name: mv.name }
       dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-      if (debug) console.log('169 Selector', data, data2);
+      if (debug) console.log('209 Selector', data, data2);
       // const timer = setTimeout(() => {
       //   GenGojsModel(props, dispatch);
       // }, 1000);
@@ -246,7 +246,7 @@ const Modeller = (props: any) => {
           className=" px-2"
           style={{ width: '300px' }}
           type="text"
-          value={props.metis.name}
+          value={projectName}
           onChange={handleProjectChange}
           onBlur={handleProjectBlur}
         />

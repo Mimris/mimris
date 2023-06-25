@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 // import { loadData, loadDataGithub, loadDataModelList } from '../actions/actions'
 import Link from 'next/link';
-import { useRouter } from "next/router";
+import { Router, useRouter } from "next/router";
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -43,7 +43,7 @@ const page = (props: any) => {
   }
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
-
+  const router = useRouter();
   if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
   // const [visible, setVisible] = useState(false)
@@ -74,6 +74,7 @@ const page = (props: any) => {
 
   useEffect(() => {
     if (debug) console.log('76 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
+  
     // let data = {}
     const getQuery = async () => {
       try {
@@ -96,14 +97,20 @@ const page = (props: any) => {
                 }
               }
             }
+          } else {
+            const timer = setTimeout(() => {
+              setRefresh(!refresh)
+            }, 100);
           }
         }
       } catch (error) {
         console.log('modelling 80 ', error)
       }
     }
-    getQuery()
+    if (!debug) console.log('modelling 106a ', router)
 
+    getQuery()
+    
     setMount(true)
   }, [])
 
@@ -112,7 +119,6 @@ const page = (props: any) => {
       <SetContext className='setContext w-100' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%", maxWidth: "240px" }} />
       <div className="context-bar--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc" }}>
         <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
-
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>

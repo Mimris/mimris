@@ -45,7 +45,7 @@ const Modeller = (props: any) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
   const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
-
+  const [projectName, setProjectName] = useState(props.metis.name); // the value to be displayed
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
@@ -177,36 +177,36 @@ const Modeller = (props: any) => {
     : []
   const selmodviews = modelviews
 
-  if (debug) console.log('126 Modeller', mmodel, focusModelview, selmods, selmodviews);
+  if (debug) console.log('180 Modeller', mmodel, focusModelview, selmods, selmodviews);
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
   const handleProjectChange = (event) => { // Editing project name
-    if (!debug) console.log('69 Modeller: handleProjectChange', e);
-    setInputValue(event.tartet.value)
+    if (!debug) console.log('186 Modeller: handleProjectChange', event);
+    setProjectName(event.target.value);
   }
   const handleProjectBlur = () => { // finish editing project name
-    if (!debug) console.log('69 Modeller: handleProjectChange', displayValue);
+    if (!debug) console.log('190 Modeller: handleProjectChange', displayValue);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
   }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
-    if (debug) console.log('19 Selector', JSON.parse(event.value).name);
+    if (debug) console.log('196 Selector', JSON.parse(event.value).name);
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const selObj = models.find((obj: any) => obj.id === id)
-    if (debug) console.log('86 Selector', selObj);
+    if (debug) console.log('200 Selector', selObj);
     let data
     if (selObj && selObj.name !== 'Select ' + props.selName + '...') {
-      if (debug) console.log('161 Selector', selObj.name);
+      if (debug) console.log('203 Selector', selObj.name);
       data = { id: id, name: name }
       dispatch({ type: 'SET_FOCUS_MODEL', data: data })
       const mv = selObj.modelviews[0]
       const data2 = { id: mv.id, name: mv.name }
       dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-      if (debug) console.log('169 Selector', data, data2);
+      if (debug) console.log('209 Selector', data, data2);
       // const timer = setTimeout(() => {
       //   GenGojsModel(props, dispatch);
       // }, 1000);
@@ -246,7 +246,7 @@ const Modeller = (props: any) => {
           className=" px-2"
           style={{ width: '300px' }}
           type="text"
-          value={props.metis.name}
+          value={projectName}
           onChange={handleProjectChange}
           onBlur={handleProjectBlur}
         />
@@ -476,23 +476,23 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
 
   const footerButtonsDiv =
-    <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area">
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" >export2Svg </span>
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" > {refresh ? 'save2memory' : 'save2memory'} </span>
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" > {refresh ? 'getMemory' : 'getmemory'} </span>
+    <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>export2Svg </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span>
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
-      <button className="btn bg-secondary mt-1 py-0 mx-1 px-2 "
-        data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide modified object/relship-views"
+      <button className="btn bg-secondary mt-1 py-0 mx-2 px-2 "
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide modified object/relship-views" style={{ fontSize: "12px" }}
         onClick={() => {
           dispatch({ type: 'SET_USER_SHOWMODIFIED', data: !showModified });
           dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showModified) ? ' Hide modified' : 'Show modified'}
       </button>
       <button className="btn bg-secondary mt-1 py-0 mx-1 px-2"
-        data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views"
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" style={{ fontSize: "12px" }}
         onClick={() => {
           dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted });
           dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
@@ -522,7 +522,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <button className="btn bg-light text-success ms-2 pt-1 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Toggle Context & Focus pane!"
-              onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button>
+              onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button> {/*  show Context ---------------------------------------------------   */}
           </div>
         </div>
         <div className="modeller--workarea-objects m-0 p-0" >
@@ -554,6 +554,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               </div>
               {footerButtonsDiv}
             </Col>
+            {/* show Context ------------------------------------------------------------------------------ */}
             <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd" }}>
               {(visibleContext) ? <ReportModule props={props} /> : <></>}
             </Col>

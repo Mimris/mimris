@@ -2,11 +2,14 @@
 // import SelectContext from '../components/SelectContext'
 // Todo:  change name to ViewContext
 import { useState } from 'react'
+import Link from 'next/link';
 const SetContext = (props: any) =>  {
  
   const phFocus = props.ph?.phFocus;
   const phData = props.ph?.phData;
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
+  const org = (phFocus?.focusProj?.org) && phFocus.focusProj?.org;
+  const projectNumber = (phFocus?.focusProj?.projectNumber) && phFocus.focusProj?.projectNumber;
 
   //  dconsole.log('11 SetContext: phFocus', props.ph.phFocus.focusObject?.name, phFocus.focusObject?.name, props);
   const [toggle, setToggle] = useState(true);
@@ -28,7 +31,8 @@ const SetContext = (props: any) =>  {
     <div className="context-list d-flex justify-content-around align-items-center flex-grow-1"> Context 2:
       <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
       <span className="context-item"> Repo: <strong>{repo}</strong> </span> |
-      <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> |
+      {/* <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> | */}
+      <span> Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {phFocus.focusProj.name}</Link>}</span> |
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
       <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
       <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>

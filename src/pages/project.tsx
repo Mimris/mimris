@@ -54,12 +54,14 @@ const page = (props: any) => {
   const [branch, setBranch] = useState(props.phFocus.focusProj.branch)
   const [focus, setFocus] = useState(props.phFocus.focusProj.focus)
   const [ghtype, setGhtype] = useState(props.phFocus.focusProj.ghtype)
+  const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
 
 
-  console.log('39 project', org, repo, path, file, branch, props.phFocus.focusProj.org)
+  console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
+  const projectUrl = `https://api.github.com/repos/${org}/${repo}/projects/${projectNumber}`
 
   const [issues, setIssues] = useState([]);
   const [collabs, setCollabs] = useState([]);
@@ -102,6 +104,7 @@ const page = (props: any) => {
           setFile(props.phFocus.focusProj.file)
           setBranch(props.phFocus.focusProj.branch)
           setFocus(props.phFocus.focusProj.focus)
+          setProjectNumber(props.phFocus.focusProj.projectNumber)
           setGhtype(props.phFocus.focusProj.ghtype)
           const timer = setTimeout(() => {
             setRefresh(!refresh)
@@ -125,11 +128,11 @@ const page = (props: any) => {
 
   useEffect(() => { // when the page loads, set the focus
     console.log('61 project', query, query?.repo)
-    const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus }
+    const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus, projectNumber: query.projectNumber, ghtype: query.ghtype  }
     console.log('65 project', data);
     (query.repo) && dispatch({ type: 'SET_FOCUS_PROJ', data });
 
-    const { org, repo, path, file, branch, focus, ghtype } = query;
+    const { org, repo, path, file, branch, focus, ghtype, projectNumber } = query;
     console.log('69 project', org, repo, path, file, branch)
     dispatch({ type: 'LOAD_DATAGITHUB', data: query });
     const timer = setTimeout(() => {
@@ -243,6 +246,10 @@ const page = (props: any) => {
               <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
                 <h6 className='text-muted pt-2'>Links to Github :</h6>
                 <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                  <div className='text-muted'>Repository :</div>
+                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+                </div>
+                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
                   <div className='text-muted'>GitHub Docs :</div>
                   {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
                 </div>
@@ -252,21 +259,15 @@ const page = (props: any) => {
                 </div>
                 <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
                   <div className='text-muted'>Project Canban for this repo:</div>
-                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects`} target="_blank"> {org}/{repo} project</Link>}
+                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
                 </div>
                 <h6 className='text-muted pt-2'>Other GitHub links :</h6>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to the top of github (org) */}
+                {/* <div className='bg-light px-2 m-1 w-100'> 
                   <div className='text-muted'>GitHub :</div>
                   {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
-                  {/* {(org && repo && path) 
-                      ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`} target="_blank"> {org}</Link>
-                      : <Link className='text-primary ' href={`https:/github.com/kavca/.github/`} target="_blank">Kavca</Link>} */}
-                </div>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                  <div className='text-muted'>Repository :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-                </div>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                </div> */}
+
+                {/* <div className='bg-light px-2 m-1 w-100'> 
                   <div className='text-muted'>Path :</div>
                   {(repo)
                     ? (path)
@@ -274,7 +275,7 @@ const page = (props: any) => {
                       : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
                     : <></>
                   }
-                </div>
+                </div> */}
               </div>
               {/* List the modelling params and link to modelling page */}
               <div className=" main m-1 fs-6" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>

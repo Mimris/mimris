@@ -46,6 +46,7 @@ const Modeller = (props: any) => {
   const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
   const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
   const [projectName, setProjectName] = useState(props.metis.name); // the value to be displayed
+  const [mvName, setMvName] = useState(); // the value to be displayed
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
@@ -189,7 +190,17 @@ const Modeller = (props: any) => {
   const handleProjectBlur = () => { // finish editing project name
     if (!debug) console.log('190 Modeller: handleProjectChange', displayValue);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
+    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
+  }
+  const handleModelviewChange = (event) => { // Editing project name
+    if (!debug) console.log('186 Modeller: handleProjectChange', event);
+    setMvName(event.target.value);
+  }
+  const handleModelviewBlur = () => { // finish editing project name
+    if (!debug) console.log('190 Modeller: handleProjectChange', displayValue);
+    dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: displayValue } }); // update project name
+    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: displayValue, name: displayValue } }); // set focus project
   }
 
   const handleSelectModelChange = (event: any) => { // Setting focus model
@@ -403,6 +414,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             className={classnames({ active: activeTab == strindex })}
             onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
           >
+          {/* <input
+            className="form-control form-control-sm"
+            // style={{ width: '300px' }}
+            type="text"
+            value={data.name}
+            onChange={handleModelviewChange}
+            onBlur={handleModelviewBlur}
+          /> */}
             {mv.name}
           </NavLink>
         </NavItem>

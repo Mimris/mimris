@@ -8,6 +8,7 @@ function ProjectDetailsForm(props) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
 
+  const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj.projectNumber);
   const [id, setId] = useState(props.props.phFocus?.focusProj.id);
   const [name, setName] = useState(props.props.phFocus?.focusProj.name); 
   const [org, setOrg] = useState(props.props.phFocus?.focusProj.org || props.props.phFocus.focusOrg.name);
@@ -38,7 +39,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch);
   const handleSubmit = (event) => {
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
-    const data = { id: idnew, name: namenew, org, repo, path, file, branch };
+    const data = { id: idnew, name: namenew, org, repo, path, file, branch, projectNumber };
     dispatch({ type: 'SET_FOCUS_PROJ', data });
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
@@ -49,52 +50,63 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch);
 
   return (
     <>  
-
-     <div>id: {idnew}</div>
-     <div>name: {namenew}</div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Organisation:</label>
-          <input className='rounded bg-white'
-            type="text"
-            value={org}
-            onChange={(e) => setOrg(e.target.value)}
-          /> 
-        </div>
-        <div>
-          <label>Repo:</label>
-          <input className='rounded bg-white'
-            type="text"
-            value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
-            onChange={(e) => setRepo(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Path:</label>
-          <input className='rounded bg-white'
-            type="text"
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>File:</label>
-          <input className='rounded bg-white'
-            type="text"
-            value={file}
-            onChange={(e) => setFile(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Branch:</label>
-          <input className='rounded bg-white'
-            type="text"
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
-          />
-        </div>
-        <button type="submit">Save</button>
-      </form>
+      <div>Project:</div>
+      <div>id: {idnew}</div>
+      <div>name: {namenew}</div>
+      <hr />
+      <div>GitHub Repository:</div>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>Project Number (github):</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={projectNumber}
+              onChange={(e) => setProjectNumber(e.target.value)}
+            /> 
+            <div> --- </div>
+          </div>
+          <div>
+            <label>Organisation:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={org}
+              onChange={(e) => setOrg(e.target.value)}
+            /> 
+          </div>
+          <div>
+            <label>Repo:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
+              onChange={(e) => setRepo(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Path:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={path}
+              onChange={(e) => setPath(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>File:</label>
+            <input className='rounded bg-white'
+              type="text"
+              value={file}
+              onChange={(e) => setFile(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Branch:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+            />
+          </div>
+          <button type="submit">Save</button>
+        </form>
     </>
   );
 }

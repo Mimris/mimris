@@ -632,7 +632,6 @@ const page = (props: any) => {
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
-
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
@@ -670,7 +669,6 @@ const page = (props: any) => {
             {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
           </span>
         </div>
-
         <div className="diagramtabs pb-0" >
           <div className="modellingContent mt-1">
             {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}

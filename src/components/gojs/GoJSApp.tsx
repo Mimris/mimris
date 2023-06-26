@@ -1278,8 +1278,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const jsnObjview = new jsn.jsnObjectView(objview);
           uic.addItemToList(modifiedObjectViews, jsnObjview);
         }
-        if (debug) console.log('1032 node, objview', node, objview);
-      }
+        if (debug) console.log('1032 node, objview', node, objview);      }
         break;
       case 'ClipboardChanged': {
         const nodes = e.subject;

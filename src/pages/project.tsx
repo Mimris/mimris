@@ -154,9 +154,9 @@ const page = (props: any) => {
   //   toggleRefresh(); // refresh the page
   // }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
     async function fetchData() { // fetch issues
-      if (query.repo?.length > 0) {
+  //     if (query.repo?.length > 0) {
         // try {
         const { data } = await axios.get(issueUrl);
         setIssues(data);
@@ -165,13 +165,13 @@ const page = (props: any) => {
         // } catch (err) {
         //   setError(err);
         // }
-      }
+      // }
     }
     fetchData(); // call the function 
-    if (error) {
-      alert(error.response.data.message) // alert the error message
-    }
-  }, [query.repo !== '' && query.repo !== undefined]);
+  //   if (error) {
+  //     alert(error.response.data.message) // alert the error message
+  //   }
+  // }, [query.repo !== '' && query.repo !== undefined]);
 
 
   // useEffect(() => {

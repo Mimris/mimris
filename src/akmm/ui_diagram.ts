@@ -1094,7 +1094,7 @@ function deleteMetamodel2(context: any) {
                 const rel = relships[i];
                 rel.generatedTypeId = "";
             }
-            const jsnModel = new jsn.jsnModel(generatedFromModel, false);
+            const jsnModel = new jsn.jsnModel(generatedFromModel, true);
             let data = JSON.parse(JSON.stringify(jsnModel));
             myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
         }       

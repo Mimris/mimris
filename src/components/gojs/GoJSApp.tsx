@@ -884,6 +884,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = links.iterator; it?.next();) {
             const link = it.value;
             const rview = link.data.relshipview;
+            if (!rview) continue;
             const relviews = myModelview.relshipviews;
             for (let i = 0; i < relviews?.length; i++) {
               const relview = relviews[i];
@@ -1530,14 +1531,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('1546 lnk, reltype', lnk, reltype);
               myDiagram.model.setDataProperty(lnk.data, 'name', reltype.name);
             }
-          }
-          // Handle relationships
-          if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
-            data.category = 'Relationship';
-            context.handleOpenModal = this.handleOpenModal;
-            // Creation is done in a callback function (uic.createRelshipCallback)
-            if (debug) console.log('1555 data, context', data, context);
-            uic.createRelationship(data, context);
           }
           myDiagram.requestUpdate();
         }

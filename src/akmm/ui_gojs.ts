@@ -31,6 +31,7 @@ export class goModel {
     layer: string;
     visible: boolean;
     args1: any[];
+    args2: any[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
         this.key = key;
         this.name = name;
@@ -45,6 +46,7 @@ export class goModel {
         this.layer = this.model?.layer;
         this.visible = this.layer !== 'Admin';
         this.args1 = this.model?.args1;
+        this.args2 = this.model?.args2;
         if (debug) console.log('41 constants', constants, this);
     }
     // Methods

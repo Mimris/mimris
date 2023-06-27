@@ -986,6 +986,7 @@ export class jsnModel {
     markedAsDeleted:        boolean;
     modified:               boolean;
     args1:                  any[];
+    args2:                  any[];
     constructor(model: akm.cxModel, includeViews: boolean) {
         this.id              = model.id;
         this.name            = model.name;
@@ -1005,6 +1006,7 @@ export class jsnModel {
         this.markedAsDeleted = model.markedAsDeleted;
         this.modified        = model.modified;
         this.args1           = model.args1;
+        this.args2           = model.args2;
         // Code
         if (model.description)
             this.description = model.description;

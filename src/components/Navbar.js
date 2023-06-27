@@ -8,7 +8,7 @@ const debug = false;
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	if (!debug) console.log('8 Navbar currentRoute', currentRoute, props);
+	if (!debug) console.log('11 Navbar currentRoute', currentRoute, props);
 
 	const target = "";
 

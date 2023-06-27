@@ -114,9 +114,10 @@ const page = (props: any) => {
   }, [activeTab])
 
   useEffect(() => {
-    if (!debug) useEfflog('117 Modelling useEffect 2 [curmodview?.objectviews.length]', props);
+    if (!debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
     GenGojsModel(props, dispatch);
   }, [curmodview?.objectviews.length])
+
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (!debug) useEfflog('122 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',
@@ -136,19 +137,19 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
 
-  useEffect(() => {
-    if (!debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
-    setRefresh(!refresh)
-  }, [memoryAkmmUser])
+  // useEffect(() => {
+  //   if (!debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
+  //   setRefresh(!refresh)
+  // }, [memoryAkmmUser])
 
-  useEffect(() => {
-    if (!debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
-    GenGojsModel(props, dispatch);
-    const timer = setTimeout(() => {
-      setRefresh(!refresh)
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [props.phFocus?.focusRefresh?.id])
+  // useEffect(() => {
+  //   if (!debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+  //   GenGojsModel(props, dispatch);
+  //   const timer = setTimeout(() => {
+  //     setRefresh(!refresh)
+  //   }, 200);
+  //   return () => clearTimeout(timer);
+  // }, [props.phFocus?.focusRefresh?.id])
 
   const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
   const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
@@ -338,6 +339,9 @@ const page = (props: any) => {
     function handleSaveAllToFile() {
       const projectname = props.phData.metis.name
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+      const data = `${projectname}_PR`
+      console.log('343 handleSaveAllToFile', data)
+      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
     }
 
     const toggleTab = tab => {
@@ -628,7 +632,6 @@ const page = (props: any) => {
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
-
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
@@ -666,7 +669,6 @@ const page = (props: any) => {
             {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
           </span>
         </div>
-
         <div className="diagramtabs pb-0" >
           <div className="modellingContent mt-1">
             {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}

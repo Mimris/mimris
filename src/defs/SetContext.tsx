@@ -2,11 +2,15 @@
 // import SelectContext from '../components/SelectContext'
 // Todo:  change name to ViewContext
 import { useState } from 'react'
+import Link from 'next/link';
+
 const SetContext = (props: any) =>  {
  
   const phFocus = props.ph?.phFocus;
   const phData = props.ph?.phData;
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
+  const org = (phFocus?.focusProj?.org) && phFocus.focusProj?.org;
+  const projectNumber = (phFocus?.focusProj?.projectNumber) && phFocus.focusProj?.projectNumber;
 
   //  dconsole.log('11 SetContext: phFocus', props.ph.phFocus.focusObject?.name, phFocus.focusObject?.name, props);
   const [toggle, setToggle] = useState(true);
@@ -16,21 +20,21 @@ const SetContext = (props: any) =>  {
   }
 
   const contextRepoDiv = 
-    <div className="context-list d-flex justify-content-between flex-grow-1 px-1"> Context :
-      <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
-      <span className="context-item"> Repo: <strong>{repo}</strong> </span> |
-      <span className="context-item"> Proj: <strong>{phData?.metis?.name}</strong> </span> |
+    <div className="context-list d-flex justify-content-around flex-grow-1 px-1"> Context :
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Modelview: <strong>{ phFocus?.focusModelview?.name }</strong> </span> |
-      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
-      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
+      <span className="context-item "> Modelview: <strong>{ phFocus?.focusModelview?.name } </strong> </span> 
+      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
+      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span> |
     </div>
 
   const contextModelDiv = 
-    <div className="context-list d-flex justify-content-between align-items-center flex-grow-1"> Context 2:
+    <div className="context-list d-flex justify-content-around align-items-center flex-grow-1"> Context 2:
+      <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
+      <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <strong>{repo}</strong> </Link></span> |
+      <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <strong>{phFocus.focusProj.name}</strong></Link>}</span> |
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
-      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span>
+      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
+      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
   </div>
 
   const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}

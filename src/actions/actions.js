@@ -1,53 +1,55 @@
-import { 
-  FAILURE, 
-  LOAD_DATA, 
-  LOAD_DATA_SUCCESS, 
+import {
+  FAILURE,
+  LOAD_DATA,
+  LOAD_DATA_SUCCESS,
   LOAD_DATAGITHUB,
-  LOAD_DATAGITHUB_SUCCESS, 
-  LOAD_DATAMODELLIST, 
-  LOAD_DATAMODELLIST_SUCCESS, 
-  LOAD_DATAMODEL, 
-  LOAD_DATAMODEL_SUCCESS, 
+  LOAD_DATAGITHUB_SUCCESS,
+  LOAD_DATAMODELLIST,
+  LOAD_DATAMODELLIST_SUCCESS,
+  LOAD_DATAMODEL,
+  LOAD_DATAMODEL_SUCCESS,
   LOAD_TOSTORE_DATA,
-  LOAD_TOSTORE_PHDATA, 
+  LOAD_TOSTORE_PHDATA,
   LOAD_TOSTORE_PHFOCUS,
-  LOAD_TOSTORE_PHUSER, 
+  LOAD_TOSTORE_PHUSER,
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_PHFOCUS,
-  SET_FOCUS_USER, 
+  SET_FOCUS_USER,
   SET_FOCUS_TAB,
-  SET_FOCUS_MODEL, 
+  SET_FOCUS_MODEL,
   SET_FOCUS_MODELVIEW,
   SET_FOCUS_TARGETMETAMODEL,
-  SET_FOCUS_TARGETMODEL, 
+  SET_FOCUS_TARGETMODEL,
   SET_FOCUS_TARGETMODELVIEW,
-  SET_FOCUS_OBJECT, 
-  SET_FOCUS_OBJECTVIEW, 
-  SET_FOCUS_RELSHIP, 
-  SET_FOCUS_RELSHIPVIEW, 
-  SET_FOCUS_OBJECTTYPE, 
-  SET_FOCUS_RELSHIPTYPE, 
-  SET_FOCUS_PROJ, 
-  SET_FOCUS_ORG, 
-  SET_FOCUS_ROLE, 
-  SET_FOCUS_COLLECTION, 
-  SET_FOCUS_TASK, 
-  SET_FOCUS_SOURCE, 
-  SET_FOCUS_REFRESH, 
+  SET_FOCUS_OBJECT,
+  SET_FOCUS_OBJECTVIEW,
+  SET_FOCUS_RELSHIP,
+  SET_FOCUS_RELSHIPVIEW,
+  SET_FOCUS_OBJECTTYPE,
+  SET_FOCUS_RELSHIPTYPE,
+  SET_FOCUS_PROJ,
+  SET_FOCUS_ORG,
+  SET_FOCUS_ROLE,
+  SET_FOCUS_COLLECTION,
+  SET_FOCUS_TASK,
+  SET_FOCUS_SOURCE,
+  SET_FOCUS_REFRESH,
   SET_USER_SHOWDELETED,
+  SET_USER_SHOWMODIFIED,
+  SET_VISIBLE_CONTEXT,
 
   SET_MYMETIS_MODEL,
   SET_MYMETIS_PARAMETER,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
 
-  SET_GOJS_MODEL, 
+  SET_GOJS_MODEL,
   SET_GOJS_TARGETMODEL,
   SET_GOJS_MODELOBJECTS,
   SET_GOJS_METAMODEL,
-  SET_GOJS_METAMODELPALETTE, 
+  SET_GOJS_METAMODELPALETTE,
   SET_GOJS_METAMODELMODEL,
   SET_GOJS_TARGETMETAMODEL,
 
@@ -131,7 +133,7 @@ export const loadDataGithubSuccess = (data) => {
 
 export const loadDataModel = (data) => {
   return { type: LOAD_DATAMODEL },
-  data
+    data
 }
 
 export const loadDataModelSuccess = (data) => {
@@ -159,7 +161,7 @@ export const loadToStorePhdata = (data) => {
 }
 
 export const loadToStorePhfocus = (data) => {
-  // console.log('21---actions | setFocusPhfocus ', data);
+  console.log('21---actions | setFocusPhfocus ', data);
   return {
     type: LOAD_TOSTORE_PHFOCUS,
     data: JSON.parse(data.value)
@@ -398,6 +400,13 @@ export const setUserShowDeleted = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const setUserShowModified = (data) => {
+  // console.log('action-type-data', data);
+  return {
+    type: SET_USER_SHOWMODIFIED,
+    data: JSON.parse(data.value)
+  }
+}
 
 export const update_project_properties = (data) => {
   // console.log('76 actions update_model_properties', data.payload);
@@ -581,6 +590,14 @@ export const edit_object_properties = (data) => {
   // console.log('76 action-object-edit-data', data.payload);
   return {
     type: EDIT_OBJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+
+export const setVisibleContext = (data) => {
+  console.log('590 action-type-data', data);
+  return {
+    type: SET_VISIBLE_CONTEXT,
     data: JSON.parse(data.value)
   }
 }

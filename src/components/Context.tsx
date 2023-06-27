@@ -1,50 +1,165 @@
-
-import React, { useContext } from 'react'
+// This is a React component that displays details of a selected object in a tabbed interface.
+// It allows the user to edit the object's properties and view related objects.
+import React, { useRef,useContext, useState, useEffect } from 'react'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
-import Selector from './utils/Selector'
 
+import {ObjDetailTable} from './forms/ObjDetailTable';
+import ObjectDetails from './forms/ObjectDetails';
+
+import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
+import Selector from './utils/Selector'
+import 'react-tabs/style/react-tabs.css';
+
+const debug = false
 
 const Context = (props) => {
+    if (debug) console.log('20 context', props, props.props)
+    // let props.= useSelector((props.any) => props. // Selecting the whole redux store
+    const ph = props.props
 
-    let state = useSelector((state:any) => state) // Selecting the whole redux store
-    if (!state.phData?.metis?.models) return <></>
+    if (!ph.phData?.metis?.models) return <></>
     const dispatch = useDispatch()
+    const [selectedId, setSelectedId] = useState(null);
+    const [value, setValue] = useState("");
+    // const [visibleContext, setVisibleContext] = useState(true);
+    const [formValues, setFormValues] = useState({});
+    const [formValuesObjectview, setFormValuesObjectview] = useState({});
+    const [formValuesObjecttype, setFormValuesObjecttype] = useState({});
+    const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
 
-    // set timeout to allow for redux store to be updated
-    // setTimeout(() => {
-    //   if (debug) console.log('17 SelectContext', state);
-    // }, 1000);
-    
-    // if (debug) console.log('15 state', state);
+    // if no props.then exit
+    const metamodels = useSelector(metamodels => ph.phData?.metis?.metamodels)  // selecting the models array
+    const focusModel = useSelector(focusModel => ph.phFocus?.focusModel) 
+    const focusUser = useSelector(focusUser => ph.phUser?.focusUser)
+    const focusModelview = useSelector(focusModelview => ph.phFocus?.focusModelview)
+    const focusObjectview = useSelector(focusObjectview => ph.phFocus?.focusObjectview)
+    const focusObject = useSelector(focusObject => ph.phFocus?.focusObject)
   
-   
-
-  
-    // if no state then exit
-    const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
-    const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
-    const focusUser = useSelector(focusUser => state.phUser?.focusUser)
-    const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
-    const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array
+    const models = useSelector(models =>  ph.phData?.metis?.models)  // selecting the models array
   
     // const [model, setModel] = useState(focusModel)
-    // if (debug) console.log('23 focusModel', focusModel, models);
+    if (debug) console.log('47 Context', focusObject, focusModel, models);
     
     const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
     const objects = curmodel?.objects //.map((o: any) => o)
-    // const objectviews = curmodel?.objectviews //.map((o: any) => o)
-    
-    // find object with type
-    const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews || []
+    const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
+    const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
+    const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
+    if (debug) console.log('51 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+    const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
     // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
+
+    let curobject = objects?.find(o => o.id === focusObject?.id) 
+    if (debug) console.log('81 curobject', curobject)
+
+    useEffect(() => {
+      setFormValues(curobject);
+      setFormValuesObjectview(curobjectview);
+      setFormValuesObjecttype(curobjecttype);
+      setFormValuesObjecttypeview(curobjtypeview);
+    }, [curobject]);
     
+  
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormValues({ ...formValues, [name]: value });
+    };
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      console.log('70 Context ',formValues, e);
+      if (formValues) {
+      const modifiedFields = {};
+      for (const key in formValues) { 
+        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+          modifiedFields[key] = formValues[key];
+        }
+      }
+
+      const objData = { id: formValues['id'], ...modifiedFields };
+      const objvData = { id: focusObjectview.id, name: formValues['name']};
+      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
+      dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
+      
+      if (modifiedFields['name']) {
+        const focobjData = { id: focusObject.id, name: modifiedFields['name'] };
+        const focobjvData = { id: focusObjectview.id, name: formValues['name']};
+        dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: focobjvData })
+        dispatch({ type: 'SET_FOCUS_OBJECT', data: focobjData })
+      }
+        
+        // dispatch(submitForm(formValues));
+        console.log('83 Context ',formValues, objData, objvData);
+      }
+    };
+
+    const handleSubmitObjectview = (e) => {
+      e.preventDefault();
+      console.log('70 Context ',formValues, e);
+      if (formValues) {
+      const modifiedFields = {};
+      for (const key in formValues) { 
+        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+          modifiedFields[key] = formValues[key];
+        }
+      }
+      // const objData = { id: formValues['id'], ...modifiedFields };
+      const objvData = modifiedFields
+      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
+      }
+    };
+
+    const handleSubmitObjecttype = (e) => {
+      e.preventDefault();
+      console.log('70 Context ',formValues, e);
+      if (formValues) {
+      const modifiedFields = {};
+      for (const key in formValues) { 
+        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+          modifiedFields[key] = formValues[key];
+        }
+      }
+      // const objData = { id: formValues['id'], ...modifiedFields };
+      const objtData = modifiedFields
+      dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data: objtData })
+      }
+    };
+    const handleSubmitObjecttypeview = (e) => {
+      e.preventDefault();
+      console.log('70 Context ',formValues, e);
+      if (formValues) {
+      const modifiedFields = {};
+      for (const key in formValues) { 
+        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+          modifiedFields[key] = formValues[key];
+        }
+      }
+      // const objData = { id: formValues['id'], ...modifiedFields };
+      const otvData = modifiedFields
+      dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data: otvData })
+      }
+    };
+
+    useEffect(() => {
+      if (selectedId) {
+        setSelectedId(null);
+      }
+    }, []);
+    
+    // const MDEditor = dynamic(
+    //   () => import("@uiw/react-md-editor"),
+    //   { ssr: false }
+    // );
+
     // remove duplicate objects
-    const uniqueovs = objectviews?.filter((ov, index, self) =>
+    const uniqueovs = curobjectviews?.filter((ov, index, self) =>
       index === self.findIndex((t) => (
         t.place === ov.place && t.id === ov.id
       ))
     ) || []
+
     const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
     
     // find object with type
@@ -56,33 +171,281 @@ const Context = (props) => {
       // if (debug) console.log('43 SelectContext', mmod.objecttypes.name, o, type);
       return type
     }
+    
+    // if (!curobject) curobject = curmodelview
+    const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) &&  ({id: cmv.id, name: cmv.name}))
+    if (debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
+    // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
+    // find parent object
 
-    const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Role')
-    const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')
-    const selorgs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Organisation')
-    // const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
-    const selobjviews = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) != null)
-    const selPers = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Person')
-    const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
-    const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
 
+   
+    const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+    if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
+    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
+    let parentobject =  objects?.find(o => o.id === parentobjectview?.objectRef)
+    parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
+    if (debug) console.log('58 Context', parentobjectview);
+    if (debug) console.log('58 Context', parentobject);
+
+    // functions to find objects and objectviews etc ----------------------------------------------------------------------
+    function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
+      return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
+    }
+  
+    function findObjectsForObjectviews(objectviews: any[], objects: any[]): any[] {
+      return objectviews?.map((objectview) => objects.find((object) => object.id === objectview.objectRef)) || [];
+    }
+
+    function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmodel: any): any[] {
+      return objectviews?.map((objectview) => {
+        const object = objects.find((object) => object.id === objectview.objectRef)
+        const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
+        const objecttype = metamodel.objecttypes.find((ot) => ot.id === object?.typeRef)
+        return objecttype
+      }) || [];
+    }
+
+    function findRelationshipsForObjectviews(objectviews: any[], relationships: any[]): any[] {
+      return objectviews?.map((objectview) => relationships.find((relationship) => relationship.id === objectview.relationshipRef)) || [];
+    }
+
+    function findTypeviewForcurrentObjecttype(objecttype: any, objecttypeviews: any[]): any[] {
+      return objecttypeviews?.find((tv) => tv.typeRef === objecttype?.id) || [];
+    }
+
+    // function findToobjectsForCurobject(curobject: any, currelationships: any[]): any[] {
+    //   return currelationships?.map((relship) => relship.toobjectRef === curobject.id ? relship.fromobjectRef : null) || [];
+    // }
+
+    // function findFromobjectsForCurobject(curobject: any, currelationships: any[]): any[] {
+    //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
+    // }
+  
+    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview?.objectviews; 
+    let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
+    if (debug) console.log('227 Context',  curobjectview, curmodelview?.objectviews);
+    if (debug) console.log('228 Context', objectviewChildren);
+    if (debug) console.log('229 Context', objectChildren);
+
+    // find related objects
+    const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
+    const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
+    if (debug) console.log('211 Context', curRelatedFromObectRels, curRelatedToObectRels);
+
+    const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
+    if (debug) console.log('216 Context', curobjecttype);
+    const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews) 
+    if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
+    
+ 
+
+    const setObjview = (o) => {
+      let ovdata =  (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
+      let odata = (o) ? {id: o.id, name: o.name} : {id: '', name: 'no object selected'}
+      if (debug) console.log('246 setObjview', ovdata, odata )
+      dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })
+      dispatch({ type: 'SET_FOCUS_OBJECT', data: odata })
+    }
+
+
+    const includedKeysAllTypeview = (curobjtypeview) && Object.keys(curobjtypeview).reduce((a, b) => a.concat(b), [])
+    const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
+    const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
+    const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
+    const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+    const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key));
+
+    const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
+    'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
+
+    const objectPropertiesMore = (curobject) && Object.keys(curobject).filter(key => includedKeysMore.includes(key));
+
+    // const ovChildrenProperties = ovChildrenPropertiesList.reduce((a, b) => a.concat(b), [])
+    // const objectProperties = Object.entries(curobject);
+
+    const [activeTab, setActiveTab] = useState(0);
+
+    const [activeTab2, setActiveTab2] = useState(0);
+
+    const tabsDiv = (
+      <Tabs  onSelect={index => setActiveTab(index)}>
+
+        <TabList>
+          <Tab>Details</Tab>
+          <Tab >Additional info</Tab>
+          <Tab>Objectview props</Tab>
+          <Tab>Objecttype props</Tab>
+          <Tab>Typeview props</Tab>
+          {/* <Tab><FaPlaneArrival />Main</Tab>
+          <Tab ><FaCompass /></Tab> */}
+        </TabList>
+        <TabPanel className="main-properties" > {/* Main properties */}
+          {/* <h4 className="px-2">{curobject?.name}                              
+            <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name || ('Modelview')})
+            { (curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
+            </span>
+          </h4>       */}
+          <ObjectDetails
+            curmodel={curmodel}
+            curmodelview={curmodelview}
+            curmm={curmm}
+            curobject={curobject}
+            objectPropertiesMain={objectPropertiesMain}
+            formValues={formValues}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            curobjModelviews={curobjModelviews}
+            setObjview={setObjview}
+            parentobject={parentobject}
+          />
+          <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
+            <TabList>
+              <Tab>Children</Tab>
+              <Tab>Relationship from and to Objects</Tab>
+              <Tab>Viewed in Modelview</Tab>
+            </TabList>
+            <TabPanel> {/* Children */}
+              <ObjDetailTable
+                title="Children"
+                curRelatedObjsRels={objectChildren}
+                curmodelview={curmodelview}
+                curmetamodel={curmm}
+                selectedId={selectedId}
+                setSelectedId={setSelectedId}
+                curobject={curobject}
+                objects={objects}
+                includedKeys={includedKeysMain}
+                setObjview={setObjview}
+              />
+            </TabPanel>
+            <TabPanel>  {/* Relationship from/to Objects */}
+              <ObjDetailTable
+                title="Related From"
+                curRelatedObjsRels={curRelatedFromObectRels}
+                curmodelview={curmodelview}
+                curmetamodel={curmm}
+                selectedId={selectedId}
+                setSelectedId={setSelectedId}
+                curobject={curobject}
+                objects={objects}
+                includedKeys={includedKeysMain}
+                setObjview={setObjview}
+              />
+              <ObjDetailTable
+                title="Related To"
+                curRelatedObjsRels={curRelatedToObectRels}
+                curmodelview={curmodelview}
+                curmetamodel={curmm}
+                selectedId={selectedId}
+                setSelectedId={setSelectedId}
+                curobject={curobject}
+                objects={objects}
+                includedKeys={includedKeysMain}
+                setObjview={setObjview}
+              /> 
+            </TabPanel>
+            <TabPanel> {/* Modelviews */}
+              <table className='w-100'>
+                <thead className="thead">
+                  <tr className="tr">
+                    <th className="th">Current object shown in:</th>
+                    <th className="th">Value <span style={{float: "right"}}>🟢 = Modelview</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {curobjModelviews.map(comv =>  (
+                    <tr className="tr" key={comv.id}>
+                      <td className="td">Modelview</td>
+                    {(comv.id === curmodelview?.id) 
+                      ? <td className="td">{comv.name} <span style={{float: "right"}}>🟢</span></td> 
+                      : <td className="td">{comv.name}</td>}
+                    </tr>
+                  ))}
+                </tbody>
+              </table> 
+            </TabPanel>
+          </Tabs>
+        </TabPanel>
+        <TabPanel className='additional-properties' style={{ overflow: 'auto' }}> 
+          {/* <div className="Context-tabs" style={{ overflow: 'auto', maxHeight: '700px' }}> */}
+          <ObjectDetails 
+              curmodel={curmodel}
+              curmodelview={curmodelview}
+              curmm={curmm}
+              curobject={curobject}
+              objectPropertiesMain={objectPropertiesMore}
+              formValues={formValues}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              curobjModelviews={curobjModelviews}
+              setObjview={setObjview}
+              parentobject={parentobject}
+            />
+        {/* </div> */}
+        </TabPanel>
+        <TabPanel className='objectview'> 
+        <ObjectDetails
+            curmodel={curmodel}
+            curmodelview={curmodelview}
+            curmm={curmm}
+            curobject={curobjectview}
+            objectPropertiesMain={includedKeysAllExept}
+            formValues={formValuesObjectview}
+            handleChange={handleChange}
+            handleSubmit={handleSubmitObjectview}
+            curobjModelviews={curobjModelviews}
+            setObjview={setObjview}
+            parentobject={parentobject}
+          />
+        </TabPanel>
+        <TabPanel  className='objectype'> 
+          <ObjectDetails
+              curmodel={curmodel}
+              curmodelview={curmodelview}
+              curmm={curmm}
+              curobject={curobjecttype}
+              objectPropertiesMain={includedKeysAllObjType}
+              formValues={formValuesObjecttype}
+              handleChange={handleChange}
+              handleSubmit={handleSubmitObjecttype}
+              curobjModelviews={curobjModelviews}
+              setObjview={setObjview}
+              parentobject={parentobject}
+            />
+        </TabPanel>
+        <TabPanel  className='typeview'> 
+        <ObjectDetails
+            curmodel={curmodel}
+            curmodelview={curmodelview}
+            curmm={curmm}
+            curobject={curobjtypeview}
+            objectPropertiesMain={includedKeysAllTypeview}
+            formValues={formValuesObjecttypeview}
+            handleChange={handleChange}
+            handleSubmit={handleSubmitObjecttypeview}
+            curobjModelviews={curobjModelviews}
+            setObjview={setObjview}
+            parentobject={parentobject}
+          />
+        </TabPanel>
+
+      </Tabs>
+    )
 
     return (
-        <div className="select bg-light pt-0 ">
-        <Selector key='Tab' type='SET_FOCUS_TAB' selArray={seltasks} selName='Tab' focustype='focusTab' />
-        <Selector key='Task' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
-        <Selector key='Role'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
-        {/* <Selector key='Tab'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' /> */}
-        {/* <Selector key={selName}  type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg'  /> */}
-        {/* <Selector key={selName} ' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' focus={state.phFocus.focusOrg.name} /> */}
-        {/* <Selector key={selName}  type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' /> */}
-        {/* <Selector type='SET_FOCUS_PROJ' selArray={seloprojs} selName='Projects' focustype='focusProj' /> */}
-        <Selector key='Objectview'  type='SET_FOCUS_OBJECTVIEW' selArray={selobjviews} selName='Object(view)' focustype='focusObjectview'/>
-        {/* <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
-        {/* <h6>Model repository (Firebase) </h6> */}
-        <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
-      </div>
+      <>
+        <div className="context m-0 " style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
+          <div className="context-tabs border border-dark rounded bg-white mx-1" style={{ height: 'auto',   borderTop: 'none' }}>
+            {tabsDiv} 
+            {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
+          </div>
+        </div>
+
+        {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
+      </>
     )
+
 
 }
 export default Context  

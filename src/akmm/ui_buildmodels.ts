@@ -15,8 +15,8 @@ let includeNoType = false;
   export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('16 metamodel', metamodel);
     let inheritedTypenames, typenames;
-    const modelRef = metamodel.generatedFromModelRef;
-    let model = metis.findModel(modelRef);
+    const modelRef = metamodel?.generatedFromModelRef;
+    let model = metis?.findModel(modelRef);
     if (metamodel) {
       const mmtypenames = [];
       const objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
@@ -131,13 +131,15 @@ let includeNoType = false;
 
   export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: boolean = false): gjs.goModel {
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
+    if (debug) console.log('134 ui_buildmodels objects', objects);
     if (objects) {
-      objects.sort(utils.compare);
+      // objects.sort(utils.compare);
     }
     const nodeArray = new Array();
     for (let i=0; i<objects?.length; i++) {
       let includeObject = false;
       const obj = objects[i];
+      if (debug) console.log('142 obj', obj);
       const objtype = obj?.getObjectType();
       if (!objtype) continue; // added 2022-09-29 sf 
       if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
@@ -188,12 +190,17 @@ let includeNoType = false;
           if (debug) console.log('188 node', node);
       }
     }
+    // const linkArray = new Array();
+    // for (let i=0; i<linkArray.length; i++) {
+    //   const link = linkArray[i];
+
+    // }
     if (debug) console.log('191 Object palette', nodeArray);
     return nodeArray;
   }
 
   export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, 
-                               includeDeleted: boolean, includeNoObject: boolean): gjs.goModel {
+                               includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
     if (debug) console.log('197 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
@@ -250,6 +257,21 @@ let includeNoType = false;
               }
             }
           }
+          // added 2023-04-23 sf
+          if (showModified) {
+            if (debug) console.log('255 ui_buildmodels ', showModified, objview.modified, objview);
+            if (objview.modified) {
+              if (objview.object?.modified) {
+                objview.strokecolor = "green";
+                objview.strokewidth = 2;
+                includeObjview = true;
+              } else {
+                // objview.strokecolor = "pink";
+                includeObjview = true;
+              }
+            }
+          }
+          // end added 2023-04-23 sf
           if (includeNoObject) {
             if (!objview.object) {
               objview.strokecolor = "blue";
@@ -319,6 +341,12 @@ let includeNoType = false;
       for (let i = 0; i < lng; i++) {
         let includeRelview = false;
         let relview = relviews[i];
+        if (relview?.fromArrow === 'None' || relview?.fromArrow === ' ') 
+          relview.fromArrow = '';
+        if (relview?.toArrow === 'None' || relview?.toArrow === ' ') 
+          relview.toArrow = '';
+        if (relview.points === "") 
+          relview.points = [];
         let fromObjview = relview.fromObjview;
         if (!modelview.findObjectView(fromObjview.id)) 
           continue;
@@ -411,7 +439,7 @@ let includeNoType = false;
 
   export function buildGoMetaPalette() {
     if (debug) console.log('415 buildGoMetaPalette');
-    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
+    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), 'myMetaPalette', null);
     const nodeArray = new Array();
     const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);
@@ -427,7 +455,7 @@ let includeNoType = false;
     return myGoMetaPalette;
   }
 
-  export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean): gjs.goModel | undefined {
+  export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean, showModified: boolean): gjs.goModel | undefined {
     if (!metamodel)
       return;
     if (debug) console.log('435 metamodel', metamodel);
@@ -472,6 +500,21 @@ let includeNoType = false;
                 }
               }
             }
+
+            // added 2023-04-24 sf
+            if (showModified) {
+              console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
+              if (objtype.modified) {
+                  objtype.strokecolor = "green";
+                  includeObjtype = true;
+                } else {
+                  objtype.strokewidth = 2;
+                  // objview.strokecolor = "pink";
+                  includeObjtype = true;
+              }
+            }
+            // end added 2023-04-24 sf
+
             if (includeObjtype) {
               if (!objtype.typeview) 
                 objtype.typeview = objtype.newDefaultTypeView('Object');
@@ -494,10 +537,8 @@ let includeNoType = false;
           let reltype = relshiptypes[i];
           if (reltype.name === 'isRelatedTo')
             reltype.name = 'generic';
-          if (reltype.name === 'contains') {
-            if (reltype.fromObjtype === reltype.toObjtype)
-              reltype.markedAsDeleted = true;
-          }
+          if (reltype.fromArrow === " ")
+            reltype.fromArrow = "";
           let strokecolor = reltype.typeview?.strokecolor;
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 
@@ -523,6 +564,10 @@ let includeNoType = false;
                 reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
             if (!reltype.toObjtype) 
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
+            if (reltype.typeview.fromArrow === ' ' || reltype.typeview.fromArrow === 'None')
+                reltype.typeview.fromArrow = '';
+            if (reltype.typeview.toArrow === ' ' || reltype.typeview.toArrow === 'None')
+                reltype.typeview.toArrow = '';
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
             if (debug) console.log('530 reltype, link', reltype, link);

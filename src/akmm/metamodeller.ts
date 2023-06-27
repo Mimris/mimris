@@ -93,7 +93,7 @@ export class cxMetis {
         this.objecttypes = [portType];
     }
     importData(importedData: any, includeDeleted: boolean) {
-        if (debug) console.log('79 importedData', importedData);
+        if (debug) console.log('79 importedData', importedData, includeDeleted);
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
@@ -301,9 +301,9 @@ export class cxMetis {
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
-                if (includeDeleted || !item.markedAsDeleted) { 
+                if (item && (includeDeleted || !item.markedAsDeleted)) { 
                     const metamodel = (item) && new cxMetaModel(item.id, item.name, item.description);
-                    metamodel.markedAsDeleted = item.markedAsDeleted;
+                    metamodel.markedAsDeleted = item?.markedAsDeleted;
                     metamodel.layout = item.layout;
                     metamodel.routing = item.routing;
                     metamodel.linkcurve = item.linkcurve;
@@ -411,7 +411,7 @@ export class cxMetis {
                     }
                     metamodel.relshiptypeviews = [];
                     items = item.relshiptypeviews;
-                    items.sort(utils.compare);
+                    if (items) items.sort(utils.compare);
                     if (debug) console.log('421 items', items);
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
@@ -484,12 +484,13 @@ export class cxMetis {
                             if (objs && objs.length) {
                                 for (let i = 0; i < objs.length; i++) {
                                     const item = objs[i];
+                                    if (!item) continue;
                                     if (includeDeleted || !item.markedAsDeleted) { 
                                         const obj = new cxObject(item.id, item.name, null, item.description);
+                                        if (!obj) continue;
                                         for (let k in item) {
                                             obj[k] = item[k];
                                         }
-                                        if (!obj) continue;
                                         model.addObject(obj);
                                         this.addObject(obj);
                                     }
@@ -499,9 +500,12 @@ export class cxMetis {
                             if (rels && rels.length) {
                                 for (let i = 0; i < rels.length; i++) {
                                     const item = rels[i];
-                                    if (includeDeleted || !item.markedAsDeleted) { 
+                                    if (item && (includeDeleted || !item.markedAsDeleted)) { 
                                         const rel = new cxRelationship(item.id, null, null, null, item.name, item.description);
                                         if (!rel) continue;
+                                        for (let k in item) {
+                                            rel[k] = item[k];
+                                        }
                                         model.addRelationship(rel);
                                         this.addRelationship(rel);
                                     }
@@ -558,7 +562,7 @@ export class cxMetis {
                                         if (views && views.length) {
                                             for (let i = 0; i < views.length; i++) {
                                                 const item = views[i];
-                                                if (includeDeleted || !item.markedAsDeleted) { 
+                                                if (item && (includeDeleted || !item.markedAsDeleted)) { 
                                                     const rel = new cxRelationshipView(item.id, item.name, null, item.description);
                                                     if (!rel) continue;
                                                     mv.addRelationshipView(rel);
@@ -746,9 +750,9 @@ export class cxMetis {
         if (debug) console.log('736 relshiptypes0', relshiptypes0);
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
-                if (debug) console.log('371 reltype0', reltype0);
-                if (reltype0) {
-                    let reltype = this.findRelationshipType(reltype0.id);
+                let reltype = this.findRelationshipType(reltype0?.id);
+                if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
+                        && reltype.name !== constants.types.AKM_IS) {                
                     if (!reltype) {
                         this.addRelationshipType(reltype0);
                     }
@@ -1044,7 +1048,7 @@ export class cxMetis {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
                 if (debug) console.log('833 model', model);
-                if (objects && objects.length) {
+                if (objects && objects.length > 0) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
                     });
@@ -1097,31 +1101,31 @@ export class cxMetis {
         }
     }
     importRelship(item: any, model: cxModel | null) {
-        if (model) {
-            const rel = this.findRelationship(item.id);
+        if (!item) return; // sf 2023-05-09
+        const rel = this.findRelationship(item.id);
+        if (rel) {
+            const reltype = this.findRelationshipType(item.typeRef);
             if (debug) console.log('948 item, rel', item, rel);
-            if (rel && item.typeRef) {
-                const reltype = this.findRelationshipType(item.typeRef);
-                const fromObj = this.findObject(item.fromobjectRef);
-                const toObj = this.findObject(item.toobjectRef);
-                if (reltype && fromObj && toObj) {
-                    rel.setType(reltype);
-                    rel.setFromObject(fromObj);
-                    rel.setToObject(toObj);
-                    fromObj.addOutputrel(rel);
-                    toObj.addInputrel(rel);
-                    rel.fromPortid      = item.fromPortid;
-                    rel.toPortid        = item.toPortid;
-                    rel.relshipkind     = item.relshipkind;
-                    rel.cardinality     = item.cardinality;
-                    rel.cardinalityFrom = item.cardinalityFrom;
-                    rel.cardinalityTo   = item.cardinalityTo;
-                    rel.markedAsDeleted = item.markedAsDeleted;
-                    rel.generatedTypeId = item.generatedTypeId;
+            const fromObj = this.findObject(item.fromobjectRef);
+            const toObj = this.findObject(item.toobjectRef);
+            if (reltype && fromObj && toObj) {
+                rel.setType(reltype);
+                rel.setFromObject(fromObj);
+                rel.setToObject(toObj);
+                fromObj.addOutputrel(rel);
+                toObj.addInputrel(rel);
+                rel.fromPortid      = item.fromPortid;
+                rel.toPortid        = item.toPortid;
+                rel.relshipkind     = item.relshipkind;
+                rel.cardinality     = item.cardinality;
+                rel.cardinalityFrom = item.cardinalityFrom;
+                rel.cardinalityTo   = item.cardinalityTo;
+                rel.markedAsDeleted = item.markedAsDeleted;
+                rel.generatedTypeId = item.generatedTypeId;
+                if (debug) console.log('966 fromObj, toObj, rel', fromObj, toObj, rel);                
+                if (model)
                     model.addRelationship(rel);
-                    if (debug) console.log('966 fromObj, toObj, rel', fromObj, toObj, rel);
-                }
-            } else if (rel) {
+            } else {
                 rel.typeName = item.typeName;
             } 
         }
@@ -1147,7 +1151,7 @@ export class cxMetis {
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
-                objectviews.forEach(objview => {
+                objectviews?.forEach(objview => {
                     if (objview && objview.id) {
                         this.importObjectView(objview, modelview);
                         if (debug) console.log('630 model', model);
@@ -1155,7 +1159,7 @@ export class cxMetis {
                 });
                 const relshipviews: any[] = item.relshipviews;
                 if (debug) console.log('978 relshipviews', relshipviews);
-                relshipviews.forEach(relview => {
+                relshipviews?.forEach(relview => { // sf added ? 2021-05-09
                     if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });
@@ -1182,7 +1186,7 @@ export class cxMetis {
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
-                    objview.isCollapsed = item.isCollapsed;
+                    objview.isCollapsed = true; //item.isCollapsed;
                     objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('1188 objview', objview);
@@ -3316,7 +3320,6 @@ export class cxMethodType extends cxMetaObject {
 // -------------------------------------------------------------
 
 export class cxMetaModel extends cxMetaObject {
-    isEKA:       boolean;
     metamodels:  cxMetaModel[] | null;
     viewstyle:   cxViewStyle | null;
     viewstyles:  cxViewStyle[] | null;
@@ -3366,7 +3369,6 @@ export class cxMetaModel extends cxMetaObject {
             this.datatypes = null;
             this.categories = null;
             this.generatedFromModelRef = "";
-            this.isEKA = false;
             this.layout = "ForceDirected";
             this.routing = "Normal";
             this.linkcurve = "None";  
@@ -3909,11 +3911,12 @@ export class cxMetaModel extends cxMetaObject {
     addRelationshipType0(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
         if (relType.category === constants.gojs.C_RELSHIPTYPE) {
-            if (this.relshiptypes0 == null)
-                this.relshiptypes0 = new Array();
-            if (!this.findRelationshipType0(relType.id)) 
-                this.relshiptypes0.push(relType);
-            else {
+            if (relType.name !== constants.types.AKM_RELSHIP_TYPE && relType.name !== constants.types.AKM__IS) {
+                if (this.relshiptypes0 == null)
+                    this.relshiptypes0 = new Array();
+                if (!this.findRelationshipType0(relType.id)) 
+                    this.relshiptypes0.push(relType);
+            } else {
                 const types = this.relshiptypes0;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
@@ -4622,12 +4625,6 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
-    setIsEKA(flag: boolean) {
-        this.isEKA = flag;
-    }
-    getIsEKA(): boolean {
-        return this.isEKA;
-    }
     setLayout(layout: string) {
         this.layout = layout;
     }
@@ -5059,10 +5056,7 @@ export class cxType extends cxMetaObject {
 
 export class cxObjectType extends cxType {
     typeid: string;
-    leftPorts: cxPort[] | null;
-    rightPorts: cxPort[] | null;
-    topPorts: cxPort[] | null;
-    bottomPorts: cxPort[] | null;
+    ports: cxPort[] | null;
     fromObjtype: cxObjectType | null;
     toObjtype: cxObjectType | null;
     objtypegeos: cxObjtypeGeo[] | null;
@@ -5077,10 +5071,7 @@ export class cxObjectType extends cxType {
         this.typeid = constants.types.OBJECTTYPE_ID;
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
-        this.leftPorts = null;
-        this.rightPorts = [];
-        this.topPorts = [];
-        this.bottomPorts = [];
+        this.ports = null;
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -5159,30 +5150,11 @@ export class cxObjectType extends cxType {
         }
         return reltypes;
     }
-    addPort(port: cxPort, side: string) {
+    addPort(port: cxPort) {
         let ports;
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                if (!this.leftPorts)
-                    this.leftPorts = new Array();
-                ports = this.leftPorts;
-                break;
-            case constants.gojs.C_RIGHT:
-                if (!this.rightPorts)
-                    this.rightPorts = new Array();
-                ports = this.rightPorts;
-                break;
-            case constants.gojs.C_TOP:
-                if (!this.topPorts)
-                    this.topPorts = new Array();
-                ports = this.topPorts;
-                break;
-            case constants.gojs.C_BOTTOM:
-                if (!this.bottomPorts)
-                    this.bottomPorts = new Array();
-                ports = this.bottomPorts;
-                break;
-        }
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
         const len = ports.length;
         for (let i=0; i<len; i++) {
             const p = ports[i];
@@ -5193,22 +5165,11 @@ export class cxObjectType extends cxType {
             ports.push(port);
         }
     }
-    getPort(portid: string, side: string): cxPort | null {
-        let ports;
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                ports = this.leftPorts;
-                break;
-            case constants.gojs.C_RIGHT:
-                ports = this.rightPorts;
-                break;
-            case constants.gojs.C_TOP:
-                ports = this.topPorts;
-                break;
-            case constants.gojs.C_BOTTOM:
-                ports = this.bottomPorts;
-                break;
-        }
+    getPorts() {
+        return this.ports;
+    }
+    getPort(portid: string): cxPort | null {
+        let ports = this.ports;
         const len = ports.length;
         for (let i=0; i<len; i++) {
             const p = ports[i];
@@ -5219,17 +5180,15 @@ export class cxObjectType extends cxType {
         return null;
     }
     getPortsBySide(side: string): cxPort[] | null {   
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                return this.leftPorts;
-            case constants.gojs.C_RIGHT:
-                return this.rightPorts;
-            case constants.gojs.C_TOP:
-                return this.topPorts;
-            case constants.gojs.C_BOTTOM:
-                return this.bottomPorts;
+        const ports = [];
+        const len = this.ports.length;
+        for (let i=0; i<len; i++) {
+            const p = this.ports[i];
+            if (p.side === side) {
+                ports.push(p);
+            }
         }
-        return null;
+        return ports;
     }
     getPortByNameAndSide(name: string, side: string): cxPort | null {
         let ports = this.getPortsBySide(side);
@@ -5924,13 +5883,14 @@ export class cxViewStyle extends cxMetaObject {
 }
 
 export class cxObjtypeviewData {
-    abstract: boolean;
-    arrowscale: string;
+    // abstract: boolean;
     memberscale: string;
+    arrowscale: string;
     viewkind: string;
     template: string;
     figure: string;
     geometry: string;
+    icon: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -5938,15 +5898,15 @@ export class cxObjtypeviewData {
     strokewidth: string;
     textcolor: string;
     textscale: string;
-    icon: string;
     constructor() {
-        this.abstract = false;
+        // this.abstract = false;
         this.memberscale = "1";
         this.arrowscale = "1.3";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.figure = "";
         this.geometry = "";
+        this.icon = "";
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "black";
@@ -5954,7 +5914,6 @@ export class cxObjtypeviewData {
         this.strokewidth = "";
         this.textcolor = "black";
         this.textscale = "";
-        this.icon = "";
     }
 }
 
@@ -5962,11 +5921,13 @@ export class cxObjectTypeView extends cxMetaObject {
     // type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
-    template: string;
-    figure: string;
     arrowscale: string;
     memberscale: string;
+    viewkind: string;
+    template: string;
+    figure: string;
     geometry: string;
+    icon: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -5974,8 +5935,6 @@ export class cxObjectTypeView extends cxMetaObject {
     strokewidth: string;
     textcolor: string;
     textscale: string;
-    viewkind: string;
-    icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
@@ -6052,7 +6011,7 @@ export class cxObjectTypeView extends cxMetaObject {
         // this.setIsGroup(viewkind);
     }
     getViewKind(): string {
-        if (utils.objExists(this.data.viewkind))
+        if (this.data.viewkind)
             return this.data.viewkind;
         else
             return constants.viewkinds.OBJ;
@@ -6103,10 +6062,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.figure = figure;
     }
     getFigure(): string {
-        if (this.data.figure)
-            return this.data.figure;
-        else if (this.figure)
+        if (this.figure)
             return this.figure;
+        else if (this.data.figure)
+            return this.data.figure;
         return "";
     }
     setGeometry(geometry: string) {
@@ -6114,10 +6073,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.geometry = geometry;
     }
     getGeometry(): string {
-        if (this.data.geometry)
-            return this.data.geometry;
-        else if (this.geometry)
+        if (this.geometry)
             return this.geometry;
+        else if (this.data.geometry)
+            return this.data.geometry;
         return "";
     }
     setFillcolor(fillcolor: string) {
@@ -6125,10 +6084,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.fillcolor = fillcolor;
     }
     getFillcolor(): string {
-        if (this.data.fillcolor)
-            return this.data.fillcolor;
-        else if (this.fillcolor)
+        if (this.fillcolor)
             return this.fillcolor;
+        else if (this.data.fillcolor)
+            return this.data.fillcolor;
         return "white";
     }
     setFillcolor2(fillcolor: string) {
@@ -6136,10 +6095,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.fillcolor2 = fillcolor;
     }
     getFillcolor2(): string {
-        if (this.data.fillcolor2)
-            return this.data.fillcolor2;
-        else if (this.fillcolor2)
+        if (this.fillcolor2)
             return this.fillcolor2;
+        else if (this.data.fillcolor2)
+            return this.data.fillcolor2;
         return "white";
     }
     setTextcolor(color: string) {
@@ -6147,21 +6106,23 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textcolor = color;
     }
     getTextcolor(): string {
-        if (this.data.textcolor)
-            return this.data.textcolor;
-        else if (this.textcolor)
+        if (this.textcolor)
             return this.textcolor;
+        else if (this.data.textcolor)
+            return this.data.textcolor;
         return "black";
     }
     setTextscale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.data.textscale = scale;
         this.textscale = scale;
     }
     getTextscale(): string {
-        if (this.data.textscale)
-            return this.data.textscale;
-        else if (this.textscale)
+        if (this.textscale)
             return this.textscale;
+        else if (this.data.textscale)
+            return this.data.textscale;
         return "1";
     }
     setStrokecolor(strokecolor: string) {
@@ -6169,10 +6130,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor = strokecolor;
     }
     getStrokecolor(): string {
-        if (this.data.strokecolor)
-            return this.data.strokecolor;
-        else if (this.strokecolor)
+        if (this.strokecolor)
             return this.strokecolor;
+        else if (this.data.strokecolor)
+            return this.data.strokecolor;
         return "black";
     }
     setStrokecolor2(strokecolor: string) {
@@ -6180,10 +6141,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor2 = strokecolor;
     }
     getStrokecolor2(): string {
-        if (this.data.strokecolor2)
-            return this.data.strokecolor2;
-        else if (this.strokecolor2)
+        if (this.strokecolor2)
             return this.strokecolor2;
+        else if (this.data.strokecolor2)
+            return this.data.strokecolor2;
         return "black";
     }
     setStrokewidth(strokewidth: string) {
@@ -6191,10 +6152,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.strokewidth = strokewidth;
     }
     getStrokewidth(): string {
-        if (this.data.strokewidth)
-            return this.data.strokewidth;
-        else if (this.strokewidth)
+        if (this.strokewidth)
             return this.strokewidth;
+        else if (this.data.strokewidth)
+            return this.data.strokewidth;
         return "2";
     }
     setMemberscale(memberscale: string) {
@@ -6202,32 +6163,21 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.memberscale = memberscale;
     }
     getMemberscale(): string {
-        if (this.data.memberscale)
-            return this.data.memberscale;
-        else if (this.memberscale)
+        if (this.memberscale)
             return this.memberscale;
+        else if (this.data.memberscale)
+            return this.data.memberscale;
         return "1"; // Default  1
     }
-    // setTextscale(textscale: string) {
-    //     this.textscale = textscale;
-    //     this.data.textscale = textscale;
-    // }
-    // getTextscale(): string {
-    //     if (this.data.textscale)
-    //         return this.data.textscale;
-    //     else if (this.textscale)
-    //         return this.textscale;
-    //     return "1"; // Default  1
-    // }
     setArrowscale(arrowscale: string) {
         this.arrowscale = arrowscale;
         this.data.arrowscale = arrowscale;
     }
     getArrowscale(): string {
-        if (this.data.arrowscale)
-            return this.data.arrowscale;
-        else if (this.arrowscale)
+        if (this.arrowscale)
             return this.arrowscale;
+        else if (this.data.arrowscale)
+            return this.data.arrowscale;
         return "1.3"; // Default  1
     }
     setIcon(icon: string) { 
@@ -6235,10 +6185,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.icon = icon;
     }
     getIcon(): string {
-        if (this.data.icon)
-            return this.data.icon;
-        else if (this.icon)
+        if (this.icon)
             return this.icon;
+        else if (this.data.icon)
+            return this.data.icon;
         return "";
     }
 }
@@ -6417,6 +6367,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
             return "black";
     }
     setTextscale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.data.textscale = scale;
         this.textscale = scale;
     }
@@ -6513,8 +6465,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
                 this.setFromArrowColor('white');
                 break;
             case 'Generalization':
-                this.setFromArrow(' ');
-                this.setFromArrowColor(' ');
+                this.setFromArrow('');
+                this.setFromArrowColor('');
                 break;
             default:
                 break;
@@ -6582,6 +6534,7 @@ export class cxModel extends cxMetaObject {
     ports: cxPort[] | null;
     modelviews: cxModelView[] | null;
     args1: any[];
+    args2: any[];
     constructor(id: string, name: string, metamodel: cxMetaModel | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
@@ -6607,6 +6560,7 @@ export class cxModel extends cxMetaObject {
         this.ports = null;
         this.modelviews = null;
         this.args1 = [];
+        this.args2 = [];
     }
     // setModelType(modeltype: string) {
     //     this.modeltype = modeltype;
@@ -6906,6 +6860,8 @@ export class cxModel extends cxMetaObject {
         return null;
     }
     findObjectByTypeAndName(objtype: cxObjectType, objname: string): cxObject | null {
+        if (!objtype)
+            return null;
         let objects = this.getObjects();
         if (!objects)
             return null;
@@ -7135,7 +7091,7 @@ export class cxInstance extends cxMetaObject {
         const typeprops = this.type?.getProperties(true);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
-        if (this.type.name === 'Method') {
+        if (this.type?.name === 'Method') {
             const mtdtype = this["methodtype"];
             if (mtdtype) {
                 const metamodel = metis.currentMetamodel;
@@ -7146,8 +7102,8 @@ export class cxInstance extends cxMetaObject {
               }
             }
         }
-        let properties = typeprops.concat(mtdprops);  
-        properties = properties.filter(function (p) {
+        let properties = typeprops?.concat(mtdprops);  
+        properties = properties?.filter(function (p) {
             return p != null;
         });
         this.allProperties = properties;      
@@ -7500,6 +7456,36 @@ export class cxInstance extends cxMetaObject {
         }
         return relships;
     }
+    getInputRelshipsByType(reltype: cxRelationshipType): cxRelationship[] | null {
+        let relships = new Array();
+        if (this.inputrels) {
+            for (let i = 0; i < this.inputrels.length; i++) {
+                let rel = this.inputrels[i];
+                if (rel && !rel.markedAsDeleted) {
+                    let type = rel.type;
+                    if (type && type.id === reltype?.id) //sf added ?
+                    relships.push(rel);
+                }
+            }
+        }
+        return relships;
+
+    }
+    getOutputRelshipsByType(reltype: cxRelationshipType): cxRelationship[] | null {
+        let relships = new Array();
+        if (this.outputrels) {
+            for (let i = 0; i < this.outputrels.length; i++) {
+                let rel = this.outputrels[i];
+                if (rel && !rel.markedAsDeleted) {
+                    let type = rel.type;
+                    if (type && type.id === reltype.id) 
+                    relships.push(rel);
+                }
+            }
+        }
+        return relships;
+
+    }
     addJsonValue(item_key: string, item_value: string) {
         if (!this.valueset)
             this.valueset = new Array();
@@ -7518,21 +7504,14 @@ export class cxInstance extends cxMetaObject {
 }
 
 export class cxObject extends cxInstance {
-    leftPorts: cxPort[] | null;
-    rightPorts: cxPort[] | null;
-    topPorts: cxPort[] | null;
-    bottomPorts: cxPort[] | null;
+    ports: cxPort[] | null;
     objectviews: cxObjectView[] | null;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
-        this.leftPorts = [];
-        this.rightPorts = [];
-        this.topPorts = [];
-        this.bottomPorts = [];
+        this.ports = [];
         this.objectviews = null;
-
         // Handle properties
         const props = this.type?.properties;
         for (let i=0; i<props?.length; i++) {
@@ -7542,51 +7521,15 @@ export class cxObject extends cxInstance {
         } 
         if (debug) console.log('4600 obj', this);   
         // Handle ports
-        const leftPorts = this.type?.leftPorts;
-        if (leftPorts) {
-            this.leftPorts = new Array();
-            for (let i=0; i<leftPorts.length; i++) {
-                const port = leftPorts[i];
+        const ports = this.type?.ports;
+        if (ports) {
+            this.ports = new Array();
+            for (let i=0; i<ports.length; i++) {
+                const port = ports[i];
                 if (port) {
                     const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
                     portInst.color = port.color;
-                    this.leftPorts.push(portInst);
-                }
-            }
-        }
-        const rightPorts = this.type?.rightPorts;
-        if (rightPorts) {
-            this.rightPorts = new Array();
-            for (let i=0; i<rightPorts.length; i++) {
-                const port = rightPorts[i];
-                if (port) {
-                    const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
-                    portInst.color = port.color;
-                    this.rightPorts.push(portInst);
-                }
-            }
-        }
-        const topPorts = this.type?.topPorts;
-        if (topPorts) {
-            this.topPorts = new Array();
-            for (let i=0; i<topPorts.length; i++) {
-                const port = topPorts[i];
-                if (port) {
-                    const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
-                    portInst.color = port.color;
-                    this.topPorts.push(portInst);
-                }
-            }
-        }
-        const bottomPorts = this.type?.bottomPorts;
-        if (bottomPorts) {
-            this.bottomPorts = new Array();
-            for (let i=0; i<bottomPorts.length; i++) {
-                const port = bottomPorts[i];
-                if (port) {
-                    const portInst = new cxPort(utils.createGuid(), port.name, port.description, port.side);
-                    portInst.color = port.color;
-                    this.bottomPorts.push(portInst);
+                    this.ports.push(portInst);
                 }
             }
         }
@@ -7875,78 +7818,63 @@ export class cxObject extends cxInstance {
     addPort(side: string, name: string): cxPort {
         const port = new cxPort(utils.createGuid(), name, "", side);
         port.color = constants.gojs.C_PORT_COLOR;
-        if (side === constants.gojs.C_LEFT) {
-            this.leftPorts.push(port);
-        } else if (side === constants.gojs.C_RIGHT) {
-            this.rightPorts.push(port);
-        } else if (side === constants.gojs.C_TOP) {
-            this.topPorts.push(port);
-        } else if (side === constants.gojs.C_BOTTOM) {
-            this.bottomPorts.push(port);
-        }
+        this.ports.push(port);
         return port;
     }
     deletePort(side: string, name: string) {
-        if (side === constants.gojs.C_LEFT) {
-            this.leftPorts = this.leftPorts.filter(p => p.name !== name);
-        } else if (side === constants.gojs.C_RIGHT) {
-            this.rightPorts = this.rightPorts.filter(p => p.name !== name);
-        } else if (side === constants.gojs.C_TOP) {
-            this.topPorts = this.topPorts.filter(p => p.name !== name);
-        } else if (side === constants.gojs.C_BOTTOM) {
-            this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
-        }
+        this.ports = this.ports.filter(p => p.name !== name && p.side !== side);
     }
     deleteSidePorts(side: string) {
-        if (side === constants.gojs.C_LEFT) {
-            this.leftPorts = [];
-        } else if (side === constants.gojs.C_RIGHT) {
-            this.rightPorts = [];
-        } else if (side === constants.gojs.C_TOP) {
-            this.topPorts = [];
-        } else if (side === constants.gojs.C_BOTTOM) {
-            this.bottomPorts = [];
-        }
+        this.ports = this.ports.filter(p => p.side !== side);
     }
     getPort(side: string, name: string): cxPort {
         let port = null;
-        if (side === constants.gojs.C_LEFT) {
-            if (this.leftPorts) {
-                port = this.leftPorts?.find(p => p.name === name);
-            }
-        } else if (side === constants.gojs.C_RIGHT) {
-            if (this.leftPorts) {
-                port = this.rightPorts?.find(p => p.name === name);
-            }
-        } else if (side === constants.gojs.C_TOP) {
-            if (this.topPorts) {
-                port = this.topPorts?.find(p => p.name === name);
-            }
-        } else if (side === constants.gojs.C_BOTTOM) {
-            if (this.bottomPorts) {
-                port = this.bottomPorts?.find(p => p.name === name);
+        for (let i=0; i<this.ports?.length; i++) {
+            const p = this.ports[i];
+            if ((p.side === side) && (p.name === name)) {
+                port = p;
+                break;
             }
         }
         return port;
     }
     getPorts(): cxPort[] {
-        const ports = this.leftPorts.concat(this.rightPorts).concat(this.topPorts).concat(this.bottomPorts);
-        return ports;
+        return this.ports;
     }
     getLeftPorts(): cxPort[] {
-        const ports = this.leftPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_LEFT)
+                ports.push(port);
+        }
         return ports;
     }
     getRightPorts(): cxPort[] {
-        const ports = this.rightPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_RIGHT)
+                ports.push(port);
+        }
         return ports;
     }
     getTopPorts(): cxPort[] {
-        const ports = this.topPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_TOP)
+                ports.push(port);
+        }
         return ports;
     }
     getBottomPorts(): cxPort[] {
-        const ports = this.bottomPorts;
+        const ports = [];
+        for (let i=0; i<this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_BOTTOM)
+                ports.push(port);
+        }
         return ports;
     }
     getRelsConnectedToPort(portId: string): cxRelationship[] {
@@ -8010,6 +7938,7 @@ export class cxRelationship extends cxInstance {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_RELATIONSHIPS;  // Firestore collection
         this.category = constants.gojs.C_RELATIONSHIP;
+        this.relshipviews = null;
         this.fromObject = fromObj as cxObject;
         this.toObject = toObj as cxObject;
         this.cardinality = "";
@@ -8025,6 +7954,13 @@ export class cxRelationship extends cxInstance {
             this.cardinalityFrom = this.getCardinalityFrom();
             this.cardinalityTo = this.getCardinalityTo();
         }
+        // Handle properties
+        const props = this.type?.properties;
+        for (let i=0; i<props?.length; i++) {
+          const prop = props[i];
+          if (prop.name === 'id') continue;
+          if (prop) this[prop.name] = "";
+        } 
         toObj?.addInputrel(this);
         fromObj?.addOutputrel(this);
     }
@@ -8086,6 +8022,17 @@ export class cxRelationship extends cxInstance {
     }
     getRelationshipViews(): cxRelationshipView[] | null {
         return this.relshipviews;
+    }
+    getPurgedRelationshipViews(): cxRelationshipView[] | null {
+        // Remove relationship views that are marked as deleted
+        const relshipViews = this.relshipviews;
+        for (let i=0; i<relshipViews?.length; i++) {
+            const relview = relshipViews[i];
+            if (relview.markedAsDeleted) {
+                relshipViews.splice(i, 1);
+            }
+        }
+        return relshipViews;
     }
     getRelationshipType(): cxRelationshipType | null {
         return this.type as cxRelationshipType;
@@ -8445,7 +8392,7 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
     }
-    findObjectViewsByObj(obj: cxObject): cxObjectView[] | null {
+    findObjectViewsByObject(obj: cxObject): cxObjectView[] | null {
         const objviews = new Array();
         let oviews = this.objectviews;
         if (!oviews) 
@@ -8541,6 +8488,25 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
         return null;
+    }
+    getRelviewsByFromAndToObjviews(fromView: cxObjectView, toView: cxObjectView): cxRelationshipView[] {    
+        const relviews = new Array();
+        if (fromView && toView) {
+            let rviews = this.relshipviews;
+            if (!rviews)
+                return null;
+            for (let i=0; i<rviews.length; i++) {
+                const rv:cxRelationshipView = rviews[i];
+                if (rv?.markedAsDeleted)
+                    continue;
+                if (rv?.fromObjview?.id === fromView.id) {  
+                    if (rv?.toObjview?.id === toView.id) {
+                        relviews.push(rv);
+                    }
+                }
+            }
+        }
+        return relviews;
     }
 }
 
@@ -8855,7 +8821,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.routing = "";
         this.curve = "";
         this.corner = "";
-        this.points = null;
+        this.points = [];
     }
     // Methods
     getRelationship(): cxRelationship | null {
@@ -8916,6 +8882,8 @@ export class cxRelationshipView extends cxMetaObject {
         return this.textscale;
     }
     setArrowScale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
         this.arrowscale = scale;
     }
     getArrowScale(): string {
@@ -8927,7 +8895,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromArrow = fromArrow;
     }
     getFromArrow(): string {
-        if (this.fromArrow == undefined)
+        if (this.fromArrow == undefined )
             return "";
         return this.fromArrow;
     }
@@ -8952,8 +8920,8 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             case 'Generalization':
-                this.setFromArrow(' ');
-                this.setFromArrowColor(' ');
+                this.setFromArrow('');
+                this.setFromArrowColor('');
                 this.textcolor = 'black';
                 break;
             default:

@@ -568,10 +568,7 @@ export class jsnObjectType {
     properties:     jsnProperty[];
     attributes:     jsnAttribute[];
     methods:        jsnMethod[];
-    leftPorts:      jsnPort[] | null;
-    rightPorts:     jsnPort[] | null;
-    topPorts:       jsnPort[] | null;
-    bottomPorts:    jsnPort[] | null;
+    ports:          jsnPort[];
     markedAsDeleted: boolean;
     modified:       boolean;
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
@@ -586,10 +583,7 @@ export class jsnObjectType {
         this.properties     = [];
         this.attributes     = [];
         this.methods        = [];
-        this.leftPorts      = [];
-        this.rightPorts     = [];
-        this.topPorts       = [];
-        this.bottomPorts    = [];
+        this.ports          = [];
         this.markedAsDeleted = objtype.markedAsDeleted;
         this.modified       = objtype.modified;
         // Code
@@ -605,41 +599,11 @@ export class jsnObjectType {
             const attr = attrs[i];
             this.addAttribute(attr);            
         }
-        let side = constants.gojs.C_LEFT;
-        let ports = objtype.getPortsBySide(side);
-        if (debug) console.log('608 side ports', side, ports);
+        const ports = objtype.getPorts();
         cnt = ports?.length;
         for (let i = 0; i < cnt; i++) {
             const port = ports[i];
-            const jPort = new jsnPort(port);
-            this.addPort(jPort, side);            
-            if (debug) console.log('613 side port, jPort, this', side, port, jPort, this);
-        }
-        side = constants.gojs.C_RIGHT;
-        ports = objtype.getPortsBySide(side);
-        cnt = ports?.length;
-        for (let i = 0; i < cnt; i++) {
-            const port = ports[i];
-            const jPort = new jsnPort(port);
-            this.addPort(jPort, side);            
-        }
-        side = constants.gojs.C_TOP;
-        ports = objtype.getPortsBySide(side);
-        cnt = ports?.length;
-        for (let i = 0; i < cnt; i++) {
-            const port = ports[i];
-            const jPort = new jsnPort(port);
-            this.addPort(jPort, side);            
-        }
-        side = constants.gojs.C_BOTTOM;
-        ports = objtype.getPortsBySide(side);
-        cnt = ports?.length;
-        for (let i = 0; i < cnt; i++) {
-            const port = ports[i];
-            if (debug) console.log('636 port, this', port, this);
-            const jPort = new jsnPort(port);
-            if (debug) console.log('638 objtype, this', objtype, this);
-            this.addPort(jPort, side);            
+            this.addPort(port);
         }
         const mtds = objtype.getMethods();
         cnt = mtds?.length;
@@ -672,79 +636,31 @@ export class jsnObjectType {
             this.attributes.push(jAttr);
         }
     }
-    addPort(port: jsnPort, side: string) {
+    addPort(port: jsnPort) {
         let ports, len;
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                if (!this.leftPorts)
-                    this.leftPorts = new Array();
-                ports = this.leftPorts;
-                len = ports?.length;
-                for (let i=0; i<len; i++) {
-                    const p = ports[i];
-                    if (p.id === port.id) {
-                        // Port is already in list
-                        return;
-                    }
-                }
-                this.leftPorts.push(port);
-                break;
-            case constants.gojs.C_RIGHT:
-                if (!this.rightPorts)
-                    this.rightPorts = new Array();
-                ports = this.rightPorts;
-                len = ports?.length;
-                for (let i=0; i<len; i++) {
-                    const p = ports[i];
-                    if (p.id === port.id) {
-                        // Port is already in list
-                        return;
-                    }
-                }
-                this.rightPorts.push(port);
-                break;
-            case constants.gojs.C_TOP:
-                if (!this.topPorts)
-                    this.topPorts = new Array();
-                ports = this.topPorts;
-                len = ports?.length;
-                for (let i=0; i<len; i++) {
-                    const p = ports[i];
-                    if (p.id === port.id) {
-                        // Port is already in list
-                        return;
-                    }
-                }
-                this.topPorts.push(port);
-                break;
-            case constants.gojs.C_BOTTOM:
-                if (!this.bottomPorts)
-                    this.bottomPorts = new Array();
-                ports = this.bottomPorts;
-                len = ports?.length;
-                for (let i=0; i<len; i++) {
-                    const p = ports[i];
-                    if (p.id === port.id) {
-                        // Port is already in list
-                        return;
-                    }
-                }
-                this.bottomPorts.push(port);
-                break;
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
+        len = ports?.length;
+        for (let i=0; i<len; i++) {
+            const p = ports[i];
+            if (p.id === port.id) {
+                // Port is already in list
+                return;
+            }
+            ports.push(port);
         }
     }
     getPortsBySide(side: string): jsnPort[] | null {   
-        switch (side) {
-            case constants.gojs.C_LEFT:
-                return this.leftPorts;
-            case constants.gojs.C_RIGHT:
-                return this.rightPorts;
-            case constants.gojs.C_TOP:
-                return this.topPorts;
-            case constants.gojs.C_BOTTOM:
-                return this.bottomPorts;
+        const ports = [];
+        const len = this.ports.length;
+        for (let i=0; i<len; i++) {
+            const p = this.ports[i];
+            if (p.side === side) {
+                ports.push(p);
+            }
         }
-        return null;
+        return ports;   
     }
 }
 export class jsnRelationshipType {
@@ -1070,6 +986,7 @@ export class jsnModel {
     markedAsDeleted:        boolean;
     modified:               boolean;
     args1:                  any[];
+    args2:                  any[];
     constructor(model: akm.cxModel, includeViews: boolean) {
         this.id              = model.id;
         this.name            = model.name;
@@ -1089,6 +1006,7 @@ export class jsnModel {
         this.markedAsDeleted = model.markedAsDeleted;
         this.modified        = model.modified;
         this.args1           = model.args1;
+        this.args2           = model.args2;
         // Code
         if (model.description)
             this.description = model.description;
@@ -1213,6 +1131,20 @@ export class jsnExportModel {
         }
     }
 }
+export class jsnPort {
+    id:          string;
+    name:        string;
+    description: string;
+    side:        string;
+    color:       string;
+    constructor(port: akm.cxPort) {
+        this.id      = port.id;
+        this.name    = port.name;
+        this.side    = port.side;
+        this.color   = port.color;
+        this.description = port.description;
+    }
+}
 export class jsnObject {
     id:              string;
     name:            string;
@@ -1224,10 +1156,7 @@ export class jsnObject {
     typeName:        string;
     typeDescription: string;
     propertyValues:  any[];
-    leftPorts:       jsnPort[] | null;
-    rightPorts:      jsnPort[] | null;
-    topPorts:        jsnPort[] | null;
-    bottomPorts:     jsnPort[] | null;
+    ports:           jsnPort[] | null;
     markedAsDeleted: boolean;
     generatedTypeId: string;
     modified:        boolean;
@@ -1241,10 +1170,7 @@ export class jsnObject {
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";
         this.propertyValues  = [];
-        this.leftPorts       = null;
-        this.rightPorts      = null;
-        this.topPorts        = null;
-        this.bottomPorts     = null;
+        this.ports           = [];
         this.markedAsDeleted = object.markedAsDeleted;
         this.generatedTypeId = object.generatedTypeId;
         this.modified        = object.modified;
@@ -1275,10 +1201,7 @@ export class jsnObject {
                 case 'inputrels':
                 case 'outputrels':
                 case 'objectviews':
-                case 'leftPorts':
-                case 'rightPorts':
-                case 'topPorts':
-                case 'bottomPorts':
+                case 'ports':
                     continue;
                 break;
             }
@@ -1298,43 +1221,16 @@ export class jsnObject {
         if (debug) console.log('888 this', this);
 
         // Handle ports
-        const leftPorts = object.leftPorts;
-        if (leftPorts) {
-            this.leftPorts = [];
-            for (let i=0; i<leftPorts.length; i++) {
-                const port = leftPorts[i];
+        const ports = object.ports;
+        if (ports) {
+            this.ports = [];
+            for (let i=0; i<ports.length; i++) {
+                const port = ports[i];
                 const gPort = new jsnPort(port);
-                this.leftPorts.push(gPort);
+                this.ports.push(gPort);
             }
         }
-        const rightPorts = object.rightPorts;
-        if (rightPorts) {
-            this.rightPorts = [];
-            for (let i=0; i<rightPorts.length; i++) {
-                const port = rightPorts[i];
-                const gPort = new jsnPort(port);
-                this.rightPorts.push(gPort);
-            }
-        }
-        const topPorts = object.topPorts;
-        if (topPorts) {
-            this.topPorts = [];
-            for (let i=0; i<topPorts.length; i++) {
-                const port = topPorts[i];
-                const gPort = new jsnPort(port);
-                this.topPorts.push(gPort);
-            }
-        }
-        const bottomPorts = object.bottomPorts;
-        if (bottomPorts) {
-            this.bottomPorts = [];
-            for (let i=0; i<bottomPorts.length; i++) {
-                const port = bottomPorts[i];
-                const gPort = new jsnPort(port);
-                this.bottomPorts.push(gPort);
-            }
-        }
-    }
+    // Handle property values    }
     // addPropertyValue(val: akm.cxPropertyValue) {
     //     if (!val)
     //         return;
@@ -1351,6 +1247,7 @@ export class jsnObject {
     //     }
     //     this.propertyValues.push(gPropval);
     // }
+    }
 }
 /*
 export class jsnExportTypeDefinition {
@@ -1461,7 +1358,7 @@ export class jsnRelationship {
         this.relshipkind     = relship.relshipkind;
         this.fromobjectRef   = relship.fromObject ? relship.fromObject.id : "";
         this.toobjectRef     = relship.toObject ? relship.toObject.id : "";
-        this.typeRef         = "";
+        this.typeRef         = relship.type ? relship.type.id : "";
         this.propvalues      = [];
         this.cardinality     = relship.cardinality;
         this.cardinalityFrom = relship.cardinalityFrom;
@@ -1474,22 +1371,15 @@ export class jsnRelationship {
         this.generatedTypeId = relship.generatedTypeId;
         this.modified        = relship.modified;
         // Code
-        if (relship) {
-            if (relship.description)
-                this.description = relship.description;
-            const type = relship.type;
-            if (type)
-                this.typeRef = type.id;
-            const fromObj = relship.fromObject;
-            const toObj = relship.toObject;
-            const values = relship.valueset;
-            if (values) {
-                const cnt = values.length;
-                for (let i = 0; i < cnt; i++) {
-                    const val = values[i];
-                    this.addPropertyValue(val);
-                }
-            }
+        const properties = relship.allProperties;
+        if (debug) console.log('879 relship, properties', relship, properties);
+        for (let i=0; i<properties?.length; i++) {
+          const prop = properties[i];
+          if (!prop) continue;
+          const propname = prop.name;
+          const value = relship.getStringValue2(propname);
+          if (debug) console.log('885 propname, value', propname, value);
+          this[propname] = value;                      
         }
     }
     addPropertyValue(val: akm.cxPropertyValue) {
@@ -1497,21 +1387,6 @@ export class jsnRelationship {
             const gPropval = new jsnPropertyValue(val);
             this.propvalues.push(gPropval);
         }
-    }
-}
-
-export class jsnPort {
-    id:          string;
-    name:        string;
-    description: string;
-    side:        string;
-    color:       string;
-    constructor(port: akm.cxPort) {
-        this.id      = port.id;
-        this.name    = port.name;
-        this.side    = port.side;
-        this.color   = port.color;
-        this.description = port.description;
     }
 }
 

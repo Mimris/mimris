@@ -31,13 +31,14 @@ const arrowheads = ['None',
                     'Circle', 'Block'];
 
 const colornames = ['black', 'white', 
-                    'red', 'pink', 
+                    'red', 'darkred', 'pink', 
                     'green', 'lightgreen', 'darkgreen', 'seagreen',
                     'blue', 'lightblue', 'darkblue', 'skyblue', 
                     'grey', 'lightgrey', 'darkgrey',
                     'yellow', 'lightyellow', 'yellowgreen', 'orange', 
                     'brown', 'purple', 
-                    'violet', 'turquoise'
+                    'violet', 'turquoise',
+                    'transparent'
                    ];
 
 const strokewidths = ['1', '2', '3', '4', '5'];
@@ -70,8 +71,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
+    let inst, inst1, instview, instview1, type, type1, typeview, objtypeview, reltypeview;
     let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
+    let typename = "";
+    let typedescription = "";
     if (debug) console.log('75 selObj', selObj);
     switch(category) {
       case constants.gojs.C_OBJECT:
@@ -79,12 +82,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst1 = myMetis.findObject(inst?.id);   
         if (inst1) inst = inst1;
         instview = selObj.objectview;
-        instview = myMetis.findObjectView(instview?.id);
+        instview1 = myMetis.findObjectView(instview?.id);
+        if (instview1) instview = instview1;
         type = selObj.objecttype;
         type1 = myMetis.findObjectType(type?.id);
         if (type1) type = type1;
         objtypeview = type?.typeview;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        typeview = objtypeview;
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = selObj.objecttype;
@@ -92,18 +97,26 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (type1) type = type1;
         objtypeview = type?.typeview;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        typeview = objtypeview;
         break;
       case constants.gojs.C_RELATIONSHIP:
         inst = selObj.relship;
         inst1 = myMetis.findRelationship(inst?.id);   
         if (inst1) inst = inst1;
+        currentType = inst.type;
+        chosenType = currentType;
+        chosenInst = inst;
+        typename = currentType?.name;
+        typedescription = currentType?.description;
         instview = selObj.relshipview;
-        instview = myMetis.findRelationshipView(instview?.id);
+        instview1 = myMetis.findRelationshipView(instview?.id);
+        if (instview1) instview = instview1;
         type = selObj.relshiptype;
         type1 = myMetis.findRelationshipType(type?.id);
         if (type1) type = type1;
         reltypeview = type?.typeview;
         reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+        typeview = reltypeview;
         if (debug) console.log('119 inst, instview, type, reltypeview', inst, instview, type, reltypeview);
         break;
       case constants.gojs.C_RELSHIPTYPE:
@@ -112,13 +125,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (type1) type = type1;
         reltypeview = type?.typeview;
         reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+        typeview = reltypeview;
         break;       
     }
-    if (debug) console.log('123 inst, type', inst, type);
+    if (debug) console.log('123 inst, type, typeview', inst, type, typeview);
     if (debug) console.log('121 selObj, this.props, inst, type', selObj, this.props, inst, type);
     // Set chosenType
-    let typename = "";
-    let typedescription = "";
     let includeInherited = false;
     let includeConnected = false;
     let tabIndex = 0;
@@ -244,6 +256,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       else if (category === constants.gojs.C_RELATIONSHIP) {
         let flag = false;
         const typeProps = type?.getProperties(flag);
+        properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
         properties = typeProps;
       }
       else if (category === constants.gojs.C_RELSHIPTYPE) {
@@ -271,39 +284,49 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let useStrokeColor = false;
     let useItem = false;
     let isLabel = false;
+    let test = null;
     const what = modalContext?.what;
     if (debug) console.log('273 what', what);
     // For each 'what' set correct item 
     switch (what) {
       case "editObjectType":
         item = type;
+        test = item;
         break;
       case "editObject":
         item = chosenInst;
         if (type?.name === constants.types.AKM_LABEL)
           isLabel = true;
+        test = item;
         break;
       case "editRelationshipType":
         item = type;
+        test = item;
         break;
       case "editRelationship":
         item = inst;
+        test = item;
         break;
       case "editModelview":
         item = modelview;
+        test = item;
         break;
       case "editObjectview":
       case "editRelshipview":
       case "editTypeview":
         chosenType = null;
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
-          item = reltypeview?.data;
+          item = instview;
+          // item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
           item = reltypeview?.data;
+          item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECT) {
-          item = objtypeview?.data;
+          item = instview;
+          // item = objtypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
           item = objtypeview?.data;
+          item = objtypeview;
         }
         if (!item) item = inst;
         hideNameAndDescr = true;
@@ -313,13 +336,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             useFillColor = true;
         } else if (what === "editRelshipview")
           useStrokeColor = true;
+        test = typeview?.data;
         break;
       default:
         item = inst;
         break;
     }
-    if (debug) console.log('321 myMetis', myMetis);
-    if (debug) console.log('322 item, inst, selObj, chosenInst, type', item, inst, selObj, chosenInst, type);
+    if (debug) console.log('327 instview, objtypeview, reltypeview', instview, objtypeview, reltypeview);
+    if (debug) console.log('328 myMetis', myMetis);
+    if (debug) console.log('329 item, inst, selObj, chosenInst, type', item, inst, selObj, chosenInst, type);
 
     if (false) {
     // // Check if item has pointer properties
@@ -340,9 +365,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // }
     // if (debug) console.log('278 pvalues', pvalues);
     }
-    
-    for (let k in item) {
-      if (debug) console.log('345 k in item/chosenInst', k);
+    if (debug) console.log('346 item', item);
+    for (let k in test) {
+        if (debug) console.log('348 k in item/chosenInst', k);
       // Filter some system attributes
       {
         if (k === 'abstract') {
@@ -465,7 +490,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             } 
-          }
+          } 
           if (k === 'fs_collection') 
             continue;
           if (k === 'dash') {
@@ -495,7 +520,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               } else if (reltypeview) {
                 val = reltypeview.data[k];
               }
-              val = selObj[k];
               break;
             case 'editObjectview':
             case 'editRelshipview':
@@ -510,7 +534,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               if (k === 'typeDescription') {
                 if (chosenInst)  // Object
-                  val = chosenInst.type.description;
+                  val = chosenInst.type?.description;
                 else // Object type
                   val = selObj[k];
                 break;
@@ -580,17 +604,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   if (debug) console.log('547 item, prop, val', item, prop, val);
                 }
                 // Handle connected objects
-                const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-                if (debug) console.log('570 prop, chosenInst, objs', prop, chosenInst, objs);
-                if (objs?.length > 1)
-                  val = '';
-                for (let i=0; i<objs?.length; i++) {
-                  const obj = objs[i];
-                  if (obj) {
-                    if (i == 0)
-                      val = obj.name;
-                    else
-                      val += ' | ' + obj.name;
+                if (inst.category === constants.gojs.C_OBJECT) {
+                  const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+                  if (debug) console.log('570 prop, chosenInst, objs', prop, chosenInst, objs);
+                  if (objs?.length > 1)
+                    val = '';
+                  for (let i=0; i<objs?.length; i++) {
+                    const obj = objs[i];
+                    if (obj) {
+                      if (i == 0)
+                        val = obj.name;
+                      else
+                        val += ' | ' + obj.name;
+                    }
                   }
                 }
               }
@@ -608,7 +634,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             (useStrokeColor && k === 'strokecolor2')
           ) {
             if (val === "" && what === "editObjectview") {
-              val = instview.typeview.fillcolor;
+              val = typeview.fillcolor;
             }
             if (debug) console.log('507 instview, val', instview, val);
 

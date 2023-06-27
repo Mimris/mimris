@@ -14,7 +14,9 @@ export let viewkinds = {
 	CONT:   "Container",
 	TREE:   "Tree",
 	IMAGE:  "Image",
-	REL:    "Relationship"
+	REL:    "Relationship",
+     POOL:   "Pool",
+     LANE:   "Lane",
 };
 
 // Define Relationship kinds
@@ -125,6 +127,7 @@ export let types = {
           AKM_COLLECTION        : "Collection",
           AKM_CONTAINER         : "Container",
           AKM_ENTITY_TYPE       : "EntityType",
+          AKM_RELSHIP_TYPE      : "RelshipType",
           AKM_INFORMATION       : "Information",
           AKM_PORT              : "Port",
           AKM_ROLE              : "Role",
@@ -153,6 +156,7 @@ export let types = {
           AKM_HAS_PORT          : "hasPort",
           AKM_HAS_PROPERTY      : "has",
           AKM_HAS_PROPERTIES    : "hasContent",
+          AKM_RELATIONSHIP_TYPE : "relationshipType",
           AKM_IS                : "Is",
           AKM_IS_OF_DATATYPE    : "isOf",
           AKM_IS_DEFAULTVALUE   : "isDefault",
@@ -202,6 +206,10 @@ export let types = {
           _EKA_PART         : "_part",
 
 };
+
+export let props = {
+          DRAFT               : "proposedType"
+}
   
 // Define Firestore constants
 

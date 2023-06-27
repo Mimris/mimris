@@ -7421,6 +7421,9 @@
         "showDeleted": false,
         "zoomToFocus": false
       }
+    },
+    "appSkin": {
+      "visibleContext": true
     }
   },
   "phSource": "AKM-INIT-Startup.json",

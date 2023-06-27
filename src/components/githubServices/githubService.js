@@ -64,7 +64,7 @@ export function searchGithub(searchText, path, filename, branch='main', searchty
     console.log('50 searcGithub issues', searchText);
     query = `${searchText}/issues`
   }
-  console.log('50 searcGithub ', query);
+  if (debug) console.log('50 searcGithub ', query);
   return axios.get(
     `${query}`,
     axiosConfigRaw2
@@ -84,8 +84,8 @@ export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-m
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches/SnorreFossland-patch-2
   // https://raw.githubusercontent.com/Kavca/kavca-akm-models/21387823876733/StudyDementia/Study-Dementia-Project%20(2).json
   const query = `${ownerRepo}`;
-  console.log('36 searchRepos', ownerRepo, 'p', path);
-  console.log('37 searchRepos https://api.github.com/', query);
+  if (debug) console.log('36 searchRepos', ownerRepo, 'p', path);
+  if (debug) console.log('37 searchRepos https://api.github.com/', query);
   return axios.get(
     `repos/${query}/branches`,
     axiosConfig
@@ -95,7 +95,7 @@ export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-m
 export function searchModels(searchText, path) {
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches
   const query = `${searchText}`;
-  console.log('48 searchRepos https://api.github.com/', query);
+  if (debug) console.log('48 searchRepos https://api.github.com/', query);
   return axios.get(
     `${query}`,
     axiosConfig
@@ -104,7 +104,7 @@ export function searchModels(searchText, path) {
 export function searchModelRaw(searchText, sha) {
   // https://raw.githubusercontent.com/Kavca/equinor-osdu-akmpoc/main/
   const query = `repos/${searchText}/commits/${sha}`;
-  console.log('68 searchRepos', query);
+  if (debug) console.log('68 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig
@@ -116,7 +116,7 @@ export function searchModel(searchText, path) {
 
   const query = `${searchText}`;
   // const query =  `${searchText}/${path}`;
-  console.log('44 searchRepos', query);
+  if (debug) console.log('44 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig

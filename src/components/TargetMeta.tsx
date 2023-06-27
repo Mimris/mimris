@@ -19,18 +19,18 @@ const TargetMeta = (props) => {
   let targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
   const targetmodel = models?.find((m: any) => m?.id === model?.targetModelRef)
   // console.log('16', props, targetmodel?.name, model.targetModelRef);
-  
-  
+
+
   const gojstypes = props.gojsTargetMetamodel
-  
+
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(false)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
-  
+
   // const [refresh, setRefresh] = useState(true)
   // function toggleRefresh() { setRefresh(!refresh); }
-  
-  useEffect(() => { 
+
+  useEffect(() => {
     if (debug) console.log('35 TargetMeta useEffect', model?.targetMetamodelRef, 'targetmm', targetmetamodel?.id, targetmetamodel?.name);
     // GenGojsModel(props, dispatch);
     // targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
@@ -41,21 +41,21 @@ const TargetMeta = (props) => {
       if (debug) console.log('41 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
     } else {
       if (debug) console.log('43 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
-      dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: {id: targetmetamodel?.id, name: targetmetamodel?.name} })
+      dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: { id: targetmetamodel?.id, name: targetmetamodel?.name } })
     }
     // const timer = setTimeout(() => {
-      //   setRefresh(!refresh)
-      // }, 3000);
-      // return () => clearTimeout(timer);
-    }, [(targetmetamodel !== undefined && targetmetamodel.id !== "")]);
-    
+    //   setRefresh(!refresh)
+    // }, 3000);
+    // return () => clearTimeout(timer);
+  }, [(targetmetamodel !== undefined && targetmetamodel?.id !== "")]);
+
 
   /**  * Get the state and metie from the store,  */
   // const gojstypes = props.phFocus.gojsMetamodel
   // console.log('18 Palette', gojstypes, props);
   // console.log('24 TargetMeta', gojstypes);
   if (debug) console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
-  
+
   // const toglRefreshid = () => {
   //   console.log('53 togRefreshid', props);
   //   if (visiblePalette) {
@@ -78,12 +78,12 @@ const TargetMeta = (props) => {
       dispatch={props.dispatch}
     />
 
-  const targetmmnamediv = (targetmetamodel) ? <span>{targetmetamodel?.name}</span> : <span>No target metamodel</span> 
+  const targetmmnamediv = (targetmetamodel) ? <span>{targetmetamodel?.name}</span> : <span>No target metamodel</span>
   const targetmnamediv = (targetmodel) ? <span>Target model: {targetmodel?.name}</span> : <span>No target model</span>
 
   const palette =
     <>
-      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-2 mr-2 " style={{ textAlign: "left", backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
         onClick={togglePalette}> {visiblePalette ? <span>-&gt; Target Metamodel</span> : <span>&lt;-</span>}
       </button>
       {/* <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
@@ -92,10 +92,10 @@ const TargetMeta = (props) => {
       </button> */}
       {visiblePalette
         ? <>
-            <div className="mmname bg-light mb-4 mx-1 px-1" style={{fontSize: "10px"}}>{targetmmnamediv}</div>
-            <div className="m-1"> {gojsapp} </div>
-            <div className="mmname bg-light mb-4 mx-1 px-1" style={{fontSize: "10px"}}>{targetmnamediv}</div>
-          </>
+          <div className="mmname bg-light mb-4 mx-1 px-1" style={{ fontSize: "10px" }}>{targetmmnamediv}</div>
+          <div className="m-1"> {gojsapp} </div>
+          <div className="mmname bg-light mb-4 mx-1 px-1" style={{ fontSize: "10px" }}>{targetmnamediv}</div>
+        </>
         : <div className="btn-vertical m-0  pl-2 " style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", paddingLeft: "4px", fontSize: "12px" }}><span> T a r g e t </span></div>
       }
     </>
@@ -103,7 +103,7 @@ const TargetMeta = (props) => {
   return (
     <>
       {/* {refresh ? <> {palette} </> : <>{palette}</>} */}
-      {palette} 
+      {palette}
       <style jsx>{`
         // .diagram-component {
         //   height: 101%;

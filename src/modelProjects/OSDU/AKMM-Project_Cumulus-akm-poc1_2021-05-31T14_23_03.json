@@ -23596,7 +23596,7 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": "",
+                  "points": [],
                   "markedAsDeleted": false,
                   "modified": true
                 }

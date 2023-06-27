@@ -7,44 +7,12 @@ import GenGojsModel from "../components/GenGojsModel";
 
 const debug = false
 
-export default function GithubParams(props) {
+export default function GithubParams(props) {  // props = props.phFocus
 
-  const dispatch = useDispatch()
+  if (debug) console.log('5 GithubParams',  props)
 
-  const [refresh, setRefresh] = useState(true);
+  if (!props.phFocus) return <div>no props.phFocus</div>
 
-  if (debug) console.log('5 GithubParams', props)
-      // list query params
-      const query = props.query
-      const ph = props.ph
-      const org = query.org || ph.phFocus?.focusProj.org
-      const repo = query.repo || ph.phFocus?.focusProj.repo
-      const path = query.path || ph.phFocus?.focusProj.path
-      const file = query.file || ph.phFocus?.focusProj.file
-      const branch = query.branch || ph.phFocus?.focusProj.branch
-      const focus = query.focus || ph.phFocus?.focusProj.focus
-      const ghtype = query.ghtype
-
-  // function setFocusProject(props) {
-  //     if (debug) console.log('27 modelling genGojsArrays', props.ph)
-  //     dispatch({ type: 'SET_FOCUS_PROJ', data: {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch} })
-  //   }
-    
-  useEffect(() => {
-    if (query.repo) {
-      if (debug) console.log('33 modelling dispatchGithub', query, props)  
-      dispatch({type: 'LOAD_DATAGITHUB', data: query })
-      const timer = setTimeout(() => {
-        const data = {id: org+repo+path+file, name: repo} 
-        dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-        const org1 = {id: org, name: org}
-        dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-        const repo1 = {id: 'role', name: ''}
-        dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [])
 
   return (
     <Container className=' p-1' style={{backgroundColor: "#cdd"}}>
@@ -59,11 +27,11 @@ export default function GithubParams(props) {
         </Row>
         <div className="border " style={{background: "#ef"}}><strong>
           <Row key={1} className='flex justify-content-between'>
-            <Col key={1} className='bg-white m-1' >{org} </Col>
-            <Col key={2} className='bg-white m-1' >{repo} </Col>
-            <Col key={3} className='bg-white m-1' >{path} </Col>
-            <Col key={4} className='bg-white m-1' >{file} </Col>
-            <Col key={5} className='bg-white m-1' >{branch} </Col>
+            <Col key={1} className='bg-white m-1' >{props.phFocus.focusProj?.org} </Col>
+            <Col key={2} className='bg-white m-1' >{props.phFocus.focusProj?.repo} </Col>
+            <Col key={3} className='bg-white m-1' >{props.phFocus.focusProj?.path} </Col>
+            <Col key={4} className='bg-white m-1' >{props.phFocus.focusProj?.file} </Col>
+            <Col key={5} className='bg-white m-1' >{props.phFocus.focusProj?.branch} </Col>
           </Row></strong>
         </div>
         {/* <div className="d-flex justify-content-center ">

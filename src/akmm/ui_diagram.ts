@@ -514,7 +514,7 @@ export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
 }    
 
 export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const n = myDiagram.findNodeForKey(inst.key);
+    const n = myDiagram.findNodeForKey(inst?.key);
     if (n) {
         const oview = myMetis.findObjectView(inst.objectview.id);
         const otview = oview.typeview;
@@ -534,7 +534,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
             myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
     }
-    const ll = myDiagram.findLinkForKey(inst.key);
+    const ll = myDiagram.findLinkForKey(inst?.key);
     if (ll) {
         if (debug) console.log('463 inst', inst);
         const rview = myMetis.findRelationshipView(inst.relshipview.id);
@@ -583,10 +583,8 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const objview = node?.objectview;
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
-    if (debug) console.log('222 objview', objview);
     ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
-    if (debug) console.log('225 gjsNode', gjsNode);
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;
 }
@@ -779,6 +777,32 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     }
     if (debug) console.log('655 reltypeNames', reltypeNames);
     return reltypeNames;
+}
+
+export function getNodeByViewId(viewId: string, myDiagram: any): any {
+    let node = null;
+    const it = myDiagram.nodes;
+    for (let it = myDiagram.nodes; it.next();) {
+        const n = it.value;
+        if (n.data.objectview?.id === viewId) {
+            node = n.data;
+            break;
+        }
+    }
+    return node;
+}
+
+export function getLinkByViewId(viewId: string, myDiagram: any): any {
+    let link = null;
+    const it = myDiagram.links;
+    for (let it = myDiagram.links; it.next();) {
+        const l = it.value;
+        if (l.data.relshipview?.id === viewId) {
+            link = l.data;
+            break;
+        }
+    }
+    return link;
 }
 
 function askForMetamodel(context: any) {
@@ -1070,13 +1094,15 @@ function deleteMetamodel2(context: any) {
                 const rel = relships[i];
                 rel.generatedTypeId = "";
             }
-            const jsnModel = new jsn.jsnModel(generatedFromModel, false);
+            const jsnModel = new jsn.jsnModel(generatedFromModel, true);
             let data = JSON.parse(JSON.stringify(jsnModel));
             myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
         }       
     }
-    const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-    let data = JSON.parse(JSON.stringify(jsnMetamodel));
+    // const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+    // let data = JSON.parse(JSON.stringify(jsnMetamodel));
+    let data = {id: metamodel.id, markedAsDeleted: true};
+    if (!debug) console.log('1105 data', data, metamodel.name);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
     uic.purgeMetaDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
@@ -1275,12 +1301,14 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     if (debug) console.log('372 model, myMetis', model, myMetis);
     const modifiedModels = new Array();
     model.markedAsDeleted = true;
-    const jsnModel = new jsn.jsnModel(model, true);
-    if (debug) console.log('376 jsnModel', jsnModel);
-    modifiedModels.push(jsnModel);
+    // const jsnModel = new jsn.jsnModel(model, true);
+    // if (debug) console.log('376 jsnModel', jsnModel);
+    // modifiedModels.push(jsnModel);
     modifiedModels.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
+        // let data = mn;
+        // data = JSON.parse(JSON.stringify(data));
+        let data = {id: model.id, markedAsDeleted: true};
+        if (!debug) console.log('1311 data', data);
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     alert("The model '" + model.name + "' has been deleted!");

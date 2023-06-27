@@ -1,0 +1,158 @@
+Create a model of objects and relationships between objects for the given topic,
+illustrating the connections between various components. 
+Each object is related to an objecttypeview, which can have an icon, figure, or geometry, 
+as well as fillcolor and strokecolor attributes. 
+Write the answer in json format
+
+Topic: Oil and Gas Exploration. Generate the roles with UUID’s and description.
+
+{
+    "metamodels": [
+        {
+            "id": "62801c8f-b53b-42a3-a5d9-4e5c9a11bfda",
+            "name": "AKM-IRTV-POPS_MM",
+            "description": "A metamodel combining IRTV and POPS and Process modeling",
+            "metamodelRefs": [],
+            "viewstyles": [
+                {
+                    "id": "79a79dd1-7a65-497f-ddcb-c5699fda856c",
+                    "name": "AKM-IRTV_MM_Viewstyle",
+                    "description": "",
+                    "markedAsDeleted": false,
+                    "modified": false
+                }
+            ],
+            "geometries": [],
+            "objecttypes": [
+                {
+                    "id": "82248290-0846-41b3-80c7-696001377391",
+                    "name": "Activity",
+                    "abstract": false,
+                    "viewkind": "Object",
+                    "typename": "Object type",
+                    "typedescription": "",
+                    "typeviewRef": "f1876182-6a1e-4884-ae0e-e7fbf976ec6e",
+                    "description": "",
+                    "markedAsDeleted": false,
+                    "modified": true
+                }
+            ],
+            "relshiptypes": [
+                {
+                    "id": "f46856b9-3041-41bd-239b-3db729390a73",
+                    "name": "performs",
+                    "relshipkind": "Association",
+                    "viewkind": "",
+                    "fromobjtypeRef": "0006897b-07c2-4824-683f-2c10146e1a4a",
+                    "toobjtypeRef": "a7661dac-4deb-4668-81f3-0248d46f1c7e",
+                    "typeviewRef": "8172280b-c0d3-4131-5f05-bb7db46a3389",
+                    "description": "",
+                    "nameFrom": "",
+                    "nameTo": "",
+                    "markedAsDeleted": false,
+                    "modified": false
+                }
+            ],
+            "objecttypeviews": [
+                {
+                    "id": "aae8cf3c-5d2d-4883-da86-13115e0496a8",
+                    "name": "Information",
+                    "description": "The Information Type Object represent all kind of data and information and concepts.",
+                    "typeRef": "05ea3e5c-e9a1-43f5-31a4-042acc4dbdbb",
+                    "viewkind": "Object",
+                    "template": "textAndIcon",
+                    "figure": "",
+                    "geometry": "",
+                    "fillcolor": "#f2f2f2",
+                    "strokecolor": "black",
+                    "strokewidth": "1",
+                    "textcolor": "black",
+                    "textscale": "1",
+                    "memberscale": "1",
+                    "icon": "./../images/info.svg",
+                    "markedAsDeleted": false,
+                    "modified": false
+                }
+            ],
+            "relshiptypeviews": [
+                {
+                    "id": "285f5483-5ca8-458e-c707-06a28c3c08a8",
+                    "name": "285f5483-5ca8-458e-c707-06a28c3c08a8",
+                    "description": "",
+                    "typeRef": "a9e9cecf-cd81-45b9-dcee-b3b52fafce89",
+                    "template": "linkTemplate1",
+                    "strokecolor": "black",
+                    "strokewidth": "1",
+                    "textcolor": "black",
+                    "textscale": "1",
+                    "dash": "None",
+                    "fromArrow": " ",
+                    "toArrow": "Triangle",
+                    "fromArrowColor": " ",
+                    "toArrowColor": "white",
+                    "markedAsDeleted": false,
+                    "modified": false
+                }
+            ],
+            "includeInheritedReltypes": true,
+            "markedAsDeleted": false,
+            "modified": false
+        }
+    ],
+    "models": [
+        {
+            "id": "3920e6dc-d5ae-421d-e3e1-e53824a34e98",
+            "name": "Concept-model_CM",
+            "description": "",
+            "metamodelRef": "62801c8f-b53b-42a3-a5d9-4e5c9a11bfda",
+            "includeSystemtypes": true,
+            "includeRelshipkind": false,
+            "objects": [
+                {
+                    "id": "cbaee009-d8fc-4be1-eef5-425ad65c7c43",
+                    "name": "Information",
+                    "description": "",
+                    "abstract": false,
+                    "viewkind": "",
+                    "typeRef": "05ea3e5c-e9a1-43f5-31a4-042acc4dbdbb",
+                    "typeName": "Information",
+                    "typeDescription": "",
+                    "propertyValues": [],
+                    "ports": [],
+                    "markedAsDeleted": false,
+                    "generatedTypeId": "",
+                    "modified": false,
+                    "nameId": "Information",
+                    "category": "Object",
+                    "sourceUri": "",
+                    "relshipkind": "Association",
+                    "valueset": null,
+                    "copiedFromId": "",
+                    "proposedType": ""
+                }
+            ],
+            "relships": [
+                {
+                    "id": "c4084fa7-7ff9-45f5-3155-f3251c6936e2",
+                    "name": "performs",
+                    "description": "",
+                    "relshipkind": "Association",
+                    "fromobjectRef": "9b0526c6-c51b-4591-cf37-8d629c50120a",
+                    "toobjectRef": "51b75fda-f339-47d1-e8aa-cfd9ff53a251",
+                    "typeRef": "f46856b9-3041-41bd-239b-3db729390a73",
+                    "propvalues": [],
+                    "cardinality": "n-n",
+                    "cardinalityFrom": "",
+                    "cardinalityTo": "",
+                    "nameFrom": "",
+                    "nameTo": "",
+                    "fromPortid": "",
+                    "toPortid": "",
+                    "markedAsDeleted": false,
+                    "generatedTypeId": "",
+                    "modified": true
+                }
+            ],
+        }
+    ]
+}

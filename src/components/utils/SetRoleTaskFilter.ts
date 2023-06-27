@@ -6,9 +6,10 @@ import { Dispatch } from "redux";
 const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
-    if (!debug) console.log('9 genRoleTasks', curtask)
+    if (currole !== "Modeller1") { currole = "Modeller1" }
+    if (debug) console.log('9 genRoleTasks', curtask)
     if (debug) console.log("10 genRoleTasks", currole, curtask, curtasks, curtypes, mmodel);
-    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
+    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0.length, mmodel.objecttypes);
     let datarole, oTypes, oTypes0; 
     if (!mmodel) return 
 
@@ -33,24 +34,6 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
             name: "Modeller 1",
             tasks: [
                 {
-                    id: "Process",
-                    name: "Process Modelling",
-                    description: "Modelling with AKM-IRTV-POPS Process objects",
-                    workOnTypes: [
-                    "Container",   
-                    "Information",
-                    "Label",
-                    "Process",
-                    "Activity",
-                    "ParrallelGate",
-                    "ExclusiveGate",
-                    "InclusiveGate",
-                    "Gateway",
-                    "Start",
-                    "End",
-                    ]
-                },
-                {
                     id: "AKM-IRTV-POPS_MM",
                     name: "IRTV-POPS Modelling",
                     description: "Modeling with AKM-IRTV-POPS objects",
@@ -65,21 +48,35 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     "Organisation",
                     "Process",
                     "System",   
-                    "EntityType",
+                    "Actor",
+                    ]
+                },
+                {
+                    id: "Process",
+                    name: "Process Modelling",
+                    description: "Modelling with AKM-IRTV-POPS Process objects",
+                    workOnTypes: [  
+                    "Process",
+                    "Activity",
+                    "ParrallelGate",
+                    "ExclusiveGate",
+                    "InclusiveGate",
+                    "Gateway",
+                    "Start",
+                    "End",
+                    "Label",
                     ]
                 },
                 {
                     id: "IRTV",
                     name: "IRTV Modelling",
                     description: "Model IRTV objects",
-                    workOnTypes: [
-                    "Container",   
+                    workOnTypes: [ 
                     "Information",
                     "Role",
                     "Task",
                     "View",
                     "Label",  
-                    "EntityType",
                     ]
                 },
                 {
@@ -93,54 +90,40 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     name: "New-types",
                     workOnTypes:  [
                         "Container",    
-                            ...oTypes?.map((t: { name: any; }) => 
-                                (t.name !== "Container") &&
-                                (t.name !=="Information") &&
-                                (t.name !=="Role") &&
-                                (t.name !=="Task") &&
-                                (t.name !=="View") &&
-                                (t.name !=="Label") &&
-                                (t.name !=="Product") &&
-                                (t.name !=="Organisation") &&
-                                (t.name !=="Process") &&
-                                (t.name !=="System") &&
-                                (t.name !=="Activity") &&
-                                (t.name !=="ParallelGate") &&
-                                (t.name !=="ExclusiveGate") &&
-                                (t.name !=="InclusiveGate") &&
-                                (t.name !=="Gateway") &&
-                                (t.name !=="Start") &&
-                                (t.name !=="End") &&
-                                (t.name !=="EntityType") &&
-                                (t.name !=="Property") &&
-                                t.name).filter(Boolean)
-                    ]
-                },
-                {
-                    id: "AKM-CORE+_MM",
-                    name: "AKM-CORE+_MM",
-                    description: "AKM-CORE+_MM modelling",
-                    workOnTypes: [
-                        "Container",   
-                        "Property",
-                        "Datatype",
-                        "Value",
-                        "Method",
-                        "MethodType",
-                        "ViewFormat",
-                        "InputPattern",
-                        "FieldType",
-                        "RelshipType",
-                        "EntityType",
-                        "Generic",
+                        ...oTypes?.map((t: { name: any; }) => 
+                            (t.name !== "Container") &&
+                            // (t.name !=="Information") &&
+                            (t.name !=="Role") &&
+                            (t.name !=="Task") &&
+                            (t.name !=="View") &&
+                            (t.name !=="Label") &&
+                            (t.name !=="Product") &&
+                            (t.name !=="Organisation") &&
+                            (t.name !=="Process") &&
+                            (t.name !=="System") &&
+                            (t.name !=="Activity") &&
+                            (t.name !=="ParallelGate") &&
+                            (t.name !=="ExclusiveGate") &&
+                            (t.name !=="InclusiveGate") &&
+                            (t.name !=="Gateway") &&
+                            (t.name !=="Start") &&
+                            (t.name !=="End") &&
+                            (t.name !=="EntityType") &&
+                            (t.name !=="Property") &&
+                            // (t.name !=="Generic") &&
+                            t.name).filter(Boolean),
+                            "Role",
+                            "Information",
+                        "Task",
+                        "View",
+                        "Label",
                     ]
                 },
                 {
                     id: "Property",
                     name: "Property Modelling",
                     description: "Create New Entity using objecttype: EntityType and add properties",
-                    workOnTypes: [
-                        "Container",   
+                    workOnTypes: [ 
                         "EntityType",
                         "Property",
                         "Datatype",
@@ -152,74 +135,11 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                         "Unittype"
                     ]
                 },
-                {
-                    id: "IRTV+New-types",  
-                    name: "IRTV + New types",
-                    description: "Modelling",
-                    workOnTypes: [
-                        "Container",
-                        "Information",
-                        "Role",
-                        "Task",
-                        "View",
-                        "Label",
-                        "Property",
-                        "Generic",
-                        "EntityType",
-                        ...oTypesSorted?.map((t: { name: any; }) => 
-                            (t.name !== "Container") &&
-                            (t.name !== "EntityType") &&
-                            (t.name !== "Information") &&
-                            (t.name !== "Role") &&
-                            (t.name !== "Task") &&
-                            (t.name !== "View") &&
-                            (t.name !== "Label") &&
-                            (t.name !== "Property") &&
-                            (t.name !== "Generic") &&
-                            (t.name !== "Datatype") &&
-                            (t.name !== "InputPattern") &&
-                            (t.name !== "FieldType") &&
-                            (t.name !== "Unittype") &&
-                            (t.name !== "Value") &&
-                            (t.name !== "ViewFormat") &&
-                            (t.name !== "Method") &&
-                            (t.name !== "MethodType") &&
-                            (t.name !== "View") &&
-                            (t.name !== "RelshipType") &&
-                            (t.name !== "ExclusiveGate") &&
-                            (t.name !== "Process") &&
-                            (t.name !== "Function") &&
-                            (t.name !== "Activity") &&
-                            (t.name !== "Start") &&
-                            (t.name !== "End") &&
-                            (t.name !== "ExclusiveGate") &&
-                            (t.name !== "InclusiveGate") &&
-                            (t.name !== "ParallelGate")
-                            && t.name).filter(Boolean),
-                            "Process",
-                            "Function",
-                            "Activity",
-                            "Start",
-                            "End",
-                            "ExclusiveGate",
-                            "InclusiveGate",
-                            "ParallelGate",
-                            "Datatype",
-                            "InputPattern",
-                            "FieldType",
-                            "Unittype",
-                            "Value",
-                            "ViewFormat",
-                            "Method",
-                            "MethodType",
-                            "RelshipType"
-                    ]
-                },
             ]
         }
     }
 
-    if (!debug) console.log("238 genRoleTasks", curtask, mmodel.name);
+    if (debug) console.log("238 genRoleTasks", curtask, mmodel.name);
     // found??? is the task object not only id and name
     const foundRole = datarole?.focusRole // hardcode for now
 
@@ -233,8 +153,8 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const foundAllTask =  datarole.focusRole.tasks.find(t => t.id.includes("All-types") && [{id: t.id, name: t.name}]) || null
     const foundNewTask =  datarole.focusRole.tasks.find(t => t.id.includes("New-types") && [{id: t.id, name: t.name}]) || null
 
-    if (!debug) console.log("267 genRoleTasks",  (mmodel.name.includes("POPS")), foundPOPSTask)
-    if (!debug) console.log("269 genRoleTasks",  foundNewTask?.id, foundMMTask?.id, foundIRTVTask?.id, foundPOPSTask?.id, foundProcessTask?.id, foundPropertyTask?.id, foundAllTask?.id)
+    if (debug) console.log("267 genRoleTasks",  (mmodel.name.includes("POPS")), foundPOPSTask)
+    if (debug) console.log("269 genRoleTasks",  foundNewTask?.id, foundMMTask?.id, foundIRTVTask?.id, foundPOPSTask?.id, foundProcessTask?.id, foundPropertyTask?.id, foundAllTask?.id)
 
     // first check if there is new task, if so, use that first and add others thats not null, else use other tasks with the task with the Metamodel name first
     const foundTasks = (foundNewTask.workOnTypes.length > 1) 
@@ -243,11 +163,11 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     
         if (debug) console.log("273 genRoleTasks",  foundTasks )
  
-    if (!debug) console.log("276 genRoleTasks", curtask)
+    if (debug) console.log("276 genRoleTasks", curtask)
     // curtask = {id: "Property", name: "Property Modelling"}
-    if (!debug) console.log("279 genRoleTasks", curtask)
-    if (!debug) console.log("280 genRoleTasks", datarole.focusRole?.tasks.find(t =>  (t.id === curtask?.id) && t))
-    if (!debug) console.log("281 genRoleTasks", foundRole?.tasks.find(t => t.id ===  mmodel.name && t))
+    if (debug) console.log("279 genRoleTasks", curtask)
+    if (debug) console.log("280 genRoleTasks", datarole.focusRole?.tasks.find(t =>  (t.id === curtask?.id) && t))
+    if (debug) console.log("281 genRoleTasks", foundRole?.tasks.find(t => t.id ===  mmodel.name && t))
     
     const foundTask = (curtask)
         ? (curtask?.id === 'Metamodelling') 
@@ -259,7 +179,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
                     ? foundRole?.tasks.find(t => t.id ===  mmodel.name && t)
                     : foundAllTask
     
-    if (!debug) console.log("288 genRoleTasks", foundTask, foundTasks)
+    if (debug) console.log("288 genRoleTasks", foundTask, foundTasks)
     if (debug) console.log("289 genRoleTasks",foundTask, foundMMTask, foundIRTVTask, foundPOPSTask, foundPropertyTask, foundAllTask, foundNewTask);
     
     if (oTypes.length > 0) dispatch({ type: 'SET_FOCUS_ROLE', data: foundRole })

@@ -537,6 +537,8 @@ let includeNoType = false;
           let reltype = relshiptypes[i];
           if (reltype.name === 'isRelatedTo')
             reltype.name = 'generic';
+          if (reltype.fromArrow === " ")
+            reltype.fromArrow = "";
           let strokecolor = reltype.typeview?.strokecolor;
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 

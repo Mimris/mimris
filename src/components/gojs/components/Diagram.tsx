@@ -460,21 +460,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let selection = e.diagram.selection
               if (debug) console.log('420 selection', selection);
               const myFromNodes = [];
+              const myFromLinks = [];
               for (let it = selection.iterator; it?.next();) {
                 let n = it.value;
-                if (!(n instanceof go.Node)) continue;
-                if (n) {
+                if (n instanceof go.Node) {
                   if (debug) console.log('425 n.data', n.data);
                   addFromNode(myFromNodes, n);
+                } else if (n instanceof go.Link) {
+                  if (debug) console.log('428 n.data', n.data);
+                  addFromLink(myFromLinks, n);
                 }
               }
               if (debug) console.log('430 myFromNodes', myFromNodes);
               const myModel = myMetis.currentModel;
               myModel.args1 = myFromNodes;
+              myModel.args2 = myFromLinks;
               selection = [];
               e.diagram.selection.each(function (sel) {
                 const key = sel.data.key;
                 sel.data.fromNode = getFromNode(myFromNodes, key);
+                sel.data.linkNode = getFromLink(myFromLinks, key);
                 if (debug) console.log('457 sel.data', sel.data);
                 selection.push(sel.data);
               });
@@ -3155,6 +3160,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       for (let i = 0; i < myFromNodes.length; i++) {
         if (myFromNodes[i].key === key) {
           return myFromNodes[i];
+        }
+      }
+      return null;
+    }
+
+    function addFromLink(myFromLinks: any, l: any) {
+      const myFromLink = {
+        "key": l.data.key,
+        "name": l.data.name,
+        "relid": l.data.relship.id,
+        "relviewid":l.data.relshipview.id,
+        "scale": new String(l.scale),
+        "template": l.data.template,
+        "strokecolor": l.data.strokecolor,
+        "strokewidth": l.data.strokewidth,
+        "textcolor": l.data.textcolor,
+        "strokewidth": l.data.strokewidth,
+        "textscale": l.data.textscale,
+        "arrowscale": l.data.arrowscale,
+        "fromArrow": l.data.fromArrow,
+        "toArrow": l.data.toArrow,
+        "fromArrowColor": l.data.fromArrowColor,
+        "toArrowColor": l.data.toArrowColor,
+        "arrowscale": l.data.arrowscale,
+        "arrowscale": l.data.arrowscale,
+        "arrowscale": l.data.arrowscale,
+        "dash": l.data.dash,
+        "routing": l.data.routing,
+        "corner": l.data.corner,
+        "curve": l.data.curve,
+      }
+      myFromLinks.push(myFromLink);
+    }
+    function getFromLink(myFromLinks: any, key: string) {
+      for (let i = 0; i < myFromLinks.length; i++) {
+        if (myFromLinks[i].key === key) {
+          return myFromLinks[i];
         }
       }
       return null;

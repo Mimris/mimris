@@ -365,6 +365,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         return;
     }
     const myMetis           = context.myMetis;
+    const myDiagram         = context.myDiagram;
     const myTargetMetamodel = context.myTargetMetamodel;
 
     if (debug) console.log('327 myTargetMetamodel', myTargetMetamodel);
@@ -475,7 +476,9 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     myTargetMetamodel?.addRelationshipType(reltype);
     myMetis.addRelationshipType(reltype);
     currentRel.generatedTypeId = reltype.id;
-    if (debug) console.log('400 currentRel, reltype', currentRel, reltype);
+    const jsnRelship = new jsn.jsnRelationship(currentRel);
+    const data = JSON.parse(JSON.stringify(jsnRelship));
+    myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
 
     if (reltype) { // Create/Modify the relationship typeview
         reltypeview = reltype.typeview;
@@ -540,12 +543,12 @@ export function generateRelshipType2(object: akm.cxObject, fromType: akm.cxObjec
             const guid = utils.createGuid();
             const name = reltype.name + '_' + reltype.getRelshipKind();
             reltypeview = new akm.cxRelationshipTypeView(guid, name, reltype, "");
-            reltypeview.applyRelationshipViewParameters(relview);
-            reltypeview.setRelshipKind(reltype.relshipkind);
-            reltype.typeview = reltypeview;
+            if (reltypeview) {
+                reltype.typeview = reltypeview;
+                myTargetMetamodel?.addRelationshipTypeView(reltypeview);
+                myMetis.addRelationshipTypeView(reltypeview);
+            }
             reltype.setModified();
-            myTargetMetamodel?.addRelationshipTypeView(reltypeview);
-            myMetis.addRelationshipTypeView(reltypeview);
         }
     }
 
@@ -1389,12 +1392,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 if (fromObj?.isOfSystemType(metaObject) && 
                     toObj?.isOfSystemType(metaObject)) {
                     let reltype = metamodel.findRelationshipTypeByNames(rel.name, fromObj.name, toObj.name);
-                    if (reltype) {
-                        if (debug) console.log('1371 rel, metamodel.reltype, typeview', rel.name, reltype, reltype?.typeview); 
-                    } else {
-                        reltype = myMetis.findRelationshipTypeByNames(rel.name, fromObj.name, toObj.name);
-                        if (debug) console.log('1374 rel, myMetis.reltype, typeview', rel.name, reltype, reltype?.typeview); 
-                    } 
                     if (!reltype) {
                         reltype = generateRelshipType(rel, relview, context);
                         if (debug) console.log('1378 rel, generated.reltype, typeview', rel.name, reltype, reltype?.typeview); 
@@ -1562,8 +1559,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     modifiedMetamodels.push(jsnMetamodel);
     myMetis.addMetamodel(metamodel);
 
-    // Dispatch metis
-
+    // Do the dispatches
     modifiedObjectTypes.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
@@ -1573,28 +1569,27 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-      });
+    });
     modifiedTypeGeos?.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-    })
-
+    });
     modifiedRelshipTypes?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         myMetis.myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-      });
-      modifiedRelTypeViews?.map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-      });
-      modifiedMetamodels.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-      })
+    });
+    modifiedRelTypeViews?.map(mn => {
+    let data = (mn) && mn
+    data = JSON.parse(JSON.stringify(data));
+    myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+    });
+    modifiedMetamodels.map(mn => {
+    let data = mn;
+    data = JSON.parse(JSON.stringify(data));
+    myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
+    });
     alert("Target metamodel has been successfully generated!");
     return metamodel;
 }

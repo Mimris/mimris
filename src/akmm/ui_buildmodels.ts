@@ -653,6 +653,7 @@ let includeNoType = false;
         if (!project) {
           project = new akm.cxObject(utils.createGuid(), myMetis.name, projectType, myMetis.description);
           project.metisId = myMetis.id;
+          project.allowGenerateCurrentMetamodel = myMetis.allowGenerateCurrentMetamodel;
           adminModel.addObject(project);
           myMetis.addObject(project);
           projectview = new akm.cxObjectView(utils.createGuid(), project.name, project, '');

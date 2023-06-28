@@ -884,8 +884,10 @@ export function askForTargetMetamodel(context: any) {
         const mm = metamodels[i];
         if (mm.name === constants.admin.AKM_ADMIN_MM)
             continue;
-        if (mm.id === myMetamodel.id)
-            continue;
+        if (!myMetis.allowGenerateCurrentMetamodel) {
+            if (mm.id === myMetamodel.id)
+                continue;
+        }
         mmlist.push(mm.nameId);
     }
       if (debug) console.log('724', mmlist, modalContext, context);

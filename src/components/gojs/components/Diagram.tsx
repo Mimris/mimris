@@ -2203,10 +2203,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (projectDescr?.length > 0) {
                 myMetis.description = projectDescr;
               }
+              if (confirm("Allow generate current metamodel: (OK = Yes))"))
+                myMetis.allowGenerateCurrentMetamodel =  true;
+              else
+                myMetis.allowGenerateCurrentMetamodel = false;
+              if (debug) console.log('myMetis.allowGenerateCurrentMetamodel', myMetis.allowGenerateCurrentMetamodel);
               const project = {
                 // "id":           myMetis.id, // ToDo: add id to project
                 "name": myMetis.name,
-                "description": myMetis.description
+                "description": myMetis.description,
+                "allowGenerateCurrentMetamodel": myMetis.allowGenerateCurrentMetamodel
               }
               const modifiedProjects = new Array();  // metis-objektet i phData
               modifiedProjects.push(project);

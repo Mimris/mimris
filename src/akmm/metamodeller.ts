@@ -47,7 +47,7 @@ export class cxMetis {
     relships:           cxRelationship[] | null = null;
     objectviews:        cxObjectView[] | null = null;
     relshipviews:       cxRelationshipView[] | null = null;
-    // ports:              cxPort[] | null = null;
+    allowGenerateCurrentMetamodel: boolean = false;
     gojsModel:          gjs.goModel | null = null;
     currentProject:     cxProject | null = null;
     currentMetamodel:   cxMetaModel | null = null;
@@ -294,6 +294,7 @@ export class cxMetis {
         }
     }
     initImport(importedData: any, includeDeleted: boolean) {
+        this.allowGenerateCurrentMetamodel = importedData.allowGenerateCurrentMetamodel;
         // Import metamodels
         if (debug) console.log('304 importedData', importedData);
         const metamodels = (importedData) && importedData.metamodels;

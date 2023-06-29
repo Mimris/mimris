@@ -1301,12 +1301,7 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     if (debug) console.log('372 model, myMetis', model, myMetis);
     const modifiedModels = new Array();
     model.markedAsDeleted = true;
-    // const jsnModel = new jsn.jsnModel(model, true);
-    // if (debug) console.log('376 jsnModel', jsnModel);
-    // modifiedModels.push(jsnModel);
     modifiedModels.map(mn => {
-        // let data = mn;
-        // data = JSON.parse(JSON.stringify(data));
         let data = {id: model.id, markedAsDeleted: true};
         if (!debug) console.log('1311 data', data);
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });

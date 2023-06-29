@@ -1344,7 +1344,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (prop === 'toArrow') {
               let toArrow = typeview[prop];
               if (toArrow === "None") toArrow = "";
-              myDiagram.model.setDataProperty(data, prop, toArrow);           
+              myDiagram.model.setDataProperty(data, prop, toArrow);  
+            }         
             if (prop === 'memberscale') {
                 let scale = typeview[prop];
                 if (typeview[prop] === 'None') scale = "1";
@@ -1365,7 +1366,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             let data = mn;
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
-          }
         }
       }
       if (selObj.category === constants.gojs.C_RELATIONSHIP) {

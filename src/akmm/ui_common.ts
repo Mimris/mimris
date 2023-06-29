@@ -2619,7 +2619,7 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     const jsnMetis = new jsn.jsnExportMetis(metis, true);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
-    if (!debug) console.log('2622 jsnMetis', jsnMetis, metis);
+    if (debug) console.log('2622 jsnMetis', jsnMetis, metis);
     diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 

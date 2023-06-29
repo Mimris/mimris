@@ -12,6 +12,7 @@ export class jsnExportMetis {
     description:                string;
     metamodels:                 jsnMetaModel[];
     models:                     jsnModel[];
+    allowGenerateCurrentMetamodel: boolean;
     pasteViewsOnly:             boolean;
     deleteViewsOnly:            boolean;
     currentMetamodelRef:        string;
@@ -24,18 +25,19 @@ export class jsnExportMetis {
     currentTaskModelRef:        string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.name                       = metis.name;
-        this.description                = metis.description;
-        this.metamodels                 = [];
-        this.models                     = [];
-        this.currentMetamodelRef        = "";
-        this.currentModelRef            = "";
-        this.currentModelviewRef        = "";
-        this.currentTemplateModelRef    = "";
-        this.currentTargetMetamodelRef  = "";
-        this.currentTargetModelRef      = "";
-        this.currentTargetModelviewRef  = "";
-        this.currentTaskModelRef        = "";
+        this.name                           = metis.name;
+        this.description                    = metis.description;
+        this.allowGenerateCurrentMetamodel  = metis.allowGenerateCurrentMetamodel;
+        this.metamodels                     = [];
+        this.models                         = [];
+        this.currentMetamodelRef            = "";
+        this.currentModelRef                = "";
+        this.currentModelviewRef            = "";
+        this.currentTemplateModelRef        = "";
+        this.currentTargetMetamodelRef      = "";
+        this.currentTargetModelRef          = "";
+        this.currentTargetModelviewRef      = "";
+        this.currentTaskModelRef            = "";
         // Code
         if (metis) {
             jsnMetis = metis;

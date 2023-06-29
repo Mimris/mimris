@@ -78,12 +78,13 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
+
+    if (!debug) console.log('82 project useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
     const getQueryParams = async () => {
       try {
 
-        if (debug) console.log('76 modelling useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
         // let data = {}
-        if (debug) console.log('68 modelling', props.phFocus.focusProj.file)
+        if (debug) console.log('68 project', props.phFocus.focusProj.file)
         if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
           if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
             if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
@@ -106,6 +107,7 @@ const page = (props: any) => {
           setFocus(props.phFocus.focusProj.focus)
           setProjectNumber(props.phFocus.focusProj.projectNumber)
           setGhtype(props.phFocus.focusProj.ghtype)
+          setProjectNumber(props.phFocus.focusProj.projectNumber)
           const timer = setTimeout(() => {
             setRefresh(!refresh)
           }
@@ -117,13 +119,10 @@ const page = (props: any) => {
         setError(err);
       }
     }
-
     // if (!query.repo) {
     getQueryParams();
     // }
-
-
-  }, [query.repo === undefined])
+  }, [query.repo === ''])
 
 
   useEffect(() => { // when the page loads, set the focus
@@ -144,34 +143,34 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
     GenGojsModel(props, dispatch);
-    const timer = setTimeout(() => {
-      toggleRefresh()
-    }, 200);
-    return () => clearTimeout(timer);
+    // const timer = setTimeout(() => {
+    //   toggleRefresh()
+    // }, 200);
+    // return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
 
   // useEffect(() => {
   //   toggleRefresh(); // refresh the page
   // }, []);
 
-  // useEffect(() => {
+  useEffect(() => {
     async function fetchData() { // fetch issues
-  //     if (query.repo?.length > 0) {
-        // try {
+      if (query.repo?.length > 0) {
+        try {
         const { data } = await axios.get(issueUrl);
         setIssues(data);
         console.log('55 issues', data)
-
-        // } catch (err) {
-        //   setError(err);
-        // }
-      // }
+        } catch (err) {
+          setError(err);
+        }
+      }
     }
     fetchData(); // call the function 
-  //   if (error) {
-  //     alert(error.response.data.message) // alert the error message
-  //   }
-  // }, [query.repo !== '' && query.repo !== undefined]);
+    if (error) {
+      alert(error.response.data.message) // alert the error message
+    }
+  // }, [query.repo]);
+  }, [query.repo !== '' && query.repo !== undefined]);
 
 
   // useEffect(() => {
@@ -194,7 +193,7 @@ const page = (props: any) => {
 
   // }, [props.phFocus.focusProj.org]);
 
-  const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}`
+  const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}&projectNumber=${projectNumber}&focus=${focus}&ghtype=${ghtype}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
   const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
   // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
@@ -276,33 +275,8 @@ const page = (props: any) => {
                     : <></>
                   }
                 </div> */}
-              </div>
-              {/* List the modelling params and link to modelling page */}
-              <div className=" main m-1 fs-6" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
-                {projectParamsDiv}
-                {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
-                <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
-                  <button className='rounded mt-2 px-2 '>
-                    <Link className='text-primary ' href="/modelling">Start Modelling</Link>
-                  </button>
-                  <ProjectDetailsModal props={props} />
-                  {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
-                </div>
-                <div className="rounded bg-light m-2 p-2">
-                  <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>
-                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{generatedUrl} </span>
-                </div>
-                <div className="rounded bg-light m-2 p-2">
-                  <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>
-                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{akmIrtvPopsMetamodelUrl} </span>
-                  {/* make a link to a new window with akmIrtvPopsMetamodelUrl */}
-                  <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
-                </div>
-                {projectFormDiv}
-              </div>
-              {/* Listing GitHub Issues */}
-              <div className="aside-right fs-4
-                6 " style={{ minWidth: "20rem" }}>
+               {/* Listing GitHub Issues */}
+              <div >
                 <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
                 {(issues.length > 0) && issues.map((issue) => (
                   <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
@@ -316,8 +290,32 @@ const page = (props: any) => {
                   </div>
                 ))}
               </div>
+              </div>
+              {/* List the modelling params and link to modelling page */}
+              <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                {projectParamsDiv}
+                {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
+                <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
+                  <button className='rounded mt-2 px-2 '>
+                    <Link className='text-primary ' href="/modelling">Start Modelling</Link>
+                  </button>
+                  <ProjectDetailsModal props={props} />
+                  {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
+                </div>
+                <div className="rounded bg-light m-2 p-2">
+                  <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>
+                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{generatedUrl} </span>
+                </div>
+                {/* <div className="rounded bg-light m-2 p-2">
+                  <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>
+                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{akmIrtvPopsMetamodelUrl} </span>
+                  <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
+                </div> */}
+                {projectFormDiv}
+              </div>
             </div>
-
+            {/* <div className="aside-right  " style={{ minWidth: "2rem" }} >
+            </div> */}
             <div className="footer">
               <Footer />
             </div>
@@ -331,7 +329,7 @@ const page = (props: any) => {
           .aside-right { grid-area: aside-right;}
           .workplace-focus {
             display: grid;
-            grid-template-columns: auto 2fr 1fr;
+            grid-template-columns: 1fr 2fr auto;
             grid-template-areas:
               "focusarea focusarea focusarea"
               "aside-left main aside-right"

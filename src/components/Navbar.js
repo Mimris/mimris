@@ -8,7 +8,7 @@ const debug = false;
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	if (!debug) console.log('11 Navbar currentRoute', currentRoute, props);
+	if (debug) console.log('11 Navbar currentRoute', currentRoute, props);
 
 	const target = "";
 
@@ -16,7 +16,7 @@ const Navbar = (props) => {
 		?
 		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
-			<span clallName="d-flex justify-content-between">
+			<span className="d-flex justify-content-between">
 				<span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: beta</span>
 				<Link href="https://akmmclient-main-git-main23-snorres.vercel.app/modelling" target={target}>
 					<span className="bg-light border border-light text-secondary pt-0 mt-0 rounded" style={{ fontSize: 8 }}>released</span>
@@ -26,7 +26,7 @@ const Navbar = (props) => {
 		:
 		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
-			<span clallName="d-flex justify-content-between" >
+			<span className="d-flex justify-content-between" >
 				<span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: released</span>
 				<Link href="https://akmmclient-1jnvawxc7-snorres.vercel.app/modelling" target={target}>
 					<span className="bg-light border border-light text-secondary  pt-0 mt-0 rounded" style={{ fontSize: 8 }}>beta</span>

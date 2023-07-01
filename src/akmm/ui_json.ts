@@ -1278,7 +1278,7 @@ export class jsnTypeDefinition {
         // Code
         // let typeRef     = object.getType().id;
         const proptypes   = new Array();
-        const rels: akm.cxRelationship[] = typedef.findOutputRelships(glb.myModel, undefined);
+        const rels: akm.cxRelationship[] = typedef.getOutputRelships(glb.myModel, undefined);
         if (utils.isArrayEmpty(rels)) {
             return;
         } else {
@@ -1316,7 +1316,7 @@ export class jsnPropertyDefinition {
         this.datatype    = "";
         this.datatypeRef = "";
         // Then find datatype if it exists
-        const rels = proptype.findOutputRelships(glb.myModel);
+        const rels = proptype.getOutputRelships(glb.myModel);
         if (utils.isArrayEmpty(rels)) {
             return;
         } else {

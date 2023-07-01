@@ -247,7 +247,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                             alignment: go.Spot.Left,
                             scale: 1.2,
                         },
-                        // new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
+                            new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
                         ),  
                     $(go.TextBlock, // group title located at the left
                         { 

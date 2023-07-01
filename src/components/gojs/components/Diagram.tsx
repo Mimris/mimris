@@ -1193,35 +1193,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                let object = node.object;
-                if (!object) return;
-                object = myMetis.findObject(object.id);
-                const objects = new Array();
-                objects.push(object);
-                const relships = new Array();
+                let objectview = node.objectview as akm.cxObjectView;
+                const objectviews = new Array();
+                objectviews.push(objectview);
+                const relshipviews = new Array();
                 const method = new akm.cxMethod(utils.createGuid(), 'selectConnected', "");
                 method["reltype"] = '';
-                method['reldir'] = '';
+                method['reldir'] = 'out';
                 method["typecondition"] = null;
                 method["valuecondition"] = null;
                 method["preaction"] = "";
                 method["postaction"] = "Select";
                 method["propname"] = "";
+                method["level"] = 1;
+                method["noObjects"] = 0;
                 const args = {
                   "method": method
                 }
                 const context = {
                   "myMetis": myMetis,
                   "myModel": myMetis.currentModel,
+                  "myModelview": myMetis.currentModelview,
                   "myDiagram": myDiagram,
-                  "myObject": object,
                   "args": args,
-                  "objects": objects,
-                  "relships": relships,
+                  "objectviews": objectviews,
+                  "relshipviews": relshipviews,
+                  "currentObjectview": objectview,
                 }
-                method["reldir"] = "in";
-                ui_mtd.executeMethod(context);
-                method["reldir"] = 'out';
+                method["reldir"] = '';
                 ui_mtd.executeMethod(context);
               }
             },

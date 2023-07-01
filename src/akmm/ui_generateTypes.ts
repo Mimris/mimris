@@ -587,7 +587,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
     if (debug) console.log('475 datatype', datatype, myTargetMetamodel);
     if (datatype) {
         // Handle all aspects of the datatype
-        const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
+        const rels = object.getOutputRelships(myModel, constants.relkinds.REL);
         if (rels) {
             if (debug) console.log('480 rels', rels);
             let values  = new Array();
@@ -708,7 +708,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
 //     const myMetis  = context.myMetis;
 //     const myModel  = context.myModel;
 //     const myTargetMetamodel = context.myTargetMetamodel;
-//     const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
+//     const rels = object.getOutputRelships(myModel, constants.relkinds.REL);
 //     for (let i=0; i<rels?.length; i++) {
 //         let rel = rels[i];
 //         if (rel.getName() === constants.types.AKM_POINTS_TO) {
@@ -973,7 +973,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
 
 function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist: any, rellist:any) {
     if (!obj) return;
-    const relships = obj.findOutputRelships(model, constants.relkinds.GEN);
+    const relships = obj.getOutputRelships(model, constants.relkinds.GEN);
     if (relships?.length) {
         for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];
@@ -1435,7 +1435,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 continue;
             const rtypename = obj.name;
             // Find fromObject and toObject
-            const rels = obj.findOutputRelships(model, constants.relkinds.REL);
+            const rels = obj.getOutputRelships(model, constants.relkinds.REL);
             let fromObj, toObj, fromObjType, toObjType;
             for (let i=0; i<rels.length; i++) {
                 const rel = rels[i];
@@ -1598,7 +1598,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
 function getAllPropertytypes(obj: akm.cxObject, proptypes: any[], myModel: akm.cxModel): any[] {
     // Check if obj inherits another obj
-    const genrels = obj?.findOutputRelships(myModel, constants.relkinds.GEN);
+    const genrels = obj?.getOutputRelships(myModel, constants.relkinds.GEN);
     if (genrels) {
         for (let i=0; i<genrels.length; i++) {
             const rel = genrels[i];
@@ -1613,7 +1613,7 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any[], myModel: akm.c
 }
 
 function getPropertyTypes(obj: akm.cxObject, proptypes: any[], myModel: akm.cxModel): any[] {
-    const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
+    const rels = obj?.getOutputRelships(myModel, constants.relkinds.REL);
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         const toObj = rel?.getToObject();
@@ -1658,7 +1658,7 @@ function getPropertyTypes(obj: akm.cxObject, proptypes: any[], myModel: akm.cxMo
 
 function getInheritedProperties(obj: akm.cxObject, properties: any[], myModel: akm.cxModel): any[] {
     // Check if obj inherits another obj
-    const genrels = obj?.findOutputRelships(myModel, constants.relkinds.GEN);
+    const genrels = obj?.getOutputRelships(myModel, constants.relkinds.GEN);
     if (genrels) {
         for (let i=0; i<genrels.length; i++) {
             const rel = genrels[i];
@@ -1722,7 +1722,7 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any[], co
             const p = myMetis.findProperty(prop.id);
             prop = p ? p : prop;
             // Find datatype connected to current property
-            let rels = proptype.findOutputRelships(myModel, constants.relkinds.REL);
+            let rels = proptype.getOutputRelships(myModel, constants.relkinds.REL);
             if (debug) console.log('1233 rels', rels);
             if (prop && rels) {
                 for (let i=0; i < rels.length; i++) {
@@ -1753,7 +1753,7 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any[], co
                 }                           
             }
             // Find method connected to current property
-            rels = proptype.findOutputRelships(myModel, constants.relkinds.REL);
+            rels = proptype.getOutputRelships(myModel, constants.relkinds.REL);
             if (debug) console.log('1264 rels', rels);
             if (prop && rels) {
                 for (let i=0; i < rels.length; i++) {

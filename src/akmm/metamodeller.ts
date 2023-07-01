@@ -1187,7 +1187,7 @@ export class cxMetis {
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
-                    objview.isCollapsed = true; //item.isCollapsed;
+                    objview.isCollapsed = item.isCollapsed;
                     objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('1188 objview', objview);
@@ -1229,6 +1229,8 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
+                    fromobjview.addOutputRelview(relview);
+                    toobjview.addInputRelview(relview);
                     relview.template = item.template;
                     relview.arrowscale = item.arrowscale;
                     relview.strokecolor = item.strokecolor;
@@ -7409,7 +7411,7 @@ export class cxInstance extends cxMetaObject {
         if (debug) console.log('4769 inst', propname, value, this);
         return value;
     }
-    findInputRelships(model: cxModel, rkind: string): cxRelationship[] | null {
+    getInputRelships(model: cxModel, rkind: string): cxRelationship[] | null {
         const rels = model.relships;
         if (!rels) return null;
         const relships = new Array();
@@ -7433,7 +7435,7 @@ export class cxInstance extends cxMetaObject {
         }
         return relships;
     }
-    findOutputRelships(model: cxModel, rkind: string): cxRelationship[] | null {
+    getOutputRelships(model: cxModel, rkind: string): cxRelationship[] | null {
         const rels = model.relships;
         if (!rels) return null;
         const relships = new Array();
@@ -7577,7 +7579,7 @@ export class cxObject extends cxInstance {
     }
     getInheritanceObjects(model: cxModel): cxObject[] | null {
         const objlist = [];
-        const relships = this.findOutputRelships(model, constants.relkinds.GEN);
+        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
         if (relships?.length) {
             for (let i=0; i<relships?.length; i++) {
                 const rel = relships[i];
@@ -7594,7 +7596,7 @@ export class cxObject extends cxInstance {
     getInheritedObjectTypes(model: cxModel): cxType[] | null {
         const typelist = [];
         // Handle Is relationships from the object
-        const relships = this.findOutputRelships(model, constants.relkinds.GEN);
+        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
         for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];
             if (rel) {
@@ -8516,6 +8518,8 @@ export class cxObjectView extends cxMetaObject {
     fs_collection: string;
     object: cxObject | null;
     objectRef: string;
+    inputrelviews: cxRelationshipView[] | null;
+    outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
     group: string;
@@ -8548,6 +8552,8 @@ export class cxObjectView extends cxMetaObject {
         this.category = constants.gojs.C_OBJECTVIEW;
         this.object = object;
         this.objectRef = "";
+        this.inputrelviews = null;
+        this.outputrelviews = null;
         this.typeview = object?.type?.typeview as cxObjectTypeView;              
         this.typeviewRef = this.typeview?.id;
         this.group = "";
@@ -8589,6 +8595,64 @@ export class cxObjectView extends cxMetaObject {
         if (obj) {
             return obj.getType();
         }
+    }
+    addInputRelview(relview: cxRelationshipView) {
+        if (!this.inputrelviews)
+            this.inputrelviews = new Array();
+        const len = this.inputrelviews.length;
+        for (let i=0; i<len; i++) {
+            const rv = this.inputrelviews[i];
+            if (rv.id === relview.id) {
+                // Relationship view is already in list
+                return;
+            }
+        }
+        this.inputrelviews.push(relview);
+    }
+    removeInputRelview(relview: cxRelationshipView) {
+        if (!this.inputrelviews)
+            return;
+        const relviews = new Array();
+        const len = this.inputrelviews.length;
+        for (let i=0; i<len; i++) {
+            const rv = this.inputrelviews[i];
+            if (rv.id !== relview.id) {
+                relviews.push(relview);
+            }
+        }
+        this.inputrelviews = relviews;
+    }
+    addOutputRelview(relview: cxRelationshipView) {
+        if (!this.outputrelviews)
+            this.outputrelviews = new Array();
+        const len = this.outputrelviews.length;
+        for (let i=0; i<len; i++) {
+            const rv = this.outputrelviews[i];
+            if (rv.id === relview.id) {
+                // Relationship is already in list
+                return;
+            }
+        }
+        this.outputrelviews.push(relview);
+    }
+    removeOutputRelview(relview: cxRelationshipView) {
+        if (!this.outputrelviews)
+            return;
+        const relviews = new Array();
+        const len = this.outputrelviews.length;
+        for (let i=0; i<len; i++) {
+            const rv = this.outputrelviews[i];
+            if (rv.id !== relview.id) {
+                relviews.push(rv);
+            }
+        }
+        this.outputrelviews = relviews;
+    }
+    getInputRelviews(): cxRelationshipView[] | null {
+        return this.inputrelviews;
+    }
+    getOutputRelviews(): cxRelationshipView[] | null {
+        return this.outputrelviews;
     }
     setTypeView(typeview: cxObjectTypeView) {
         if (typeview) {

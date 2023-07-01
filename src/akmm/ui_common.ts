@@ -941,7 +941,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
             let nodeObjview = node.objectview;
             if (nodeObjview) {
                 nodeObjview.setGroup("");
-                let rels = nodeObj.findInputRelships(myModel, constants.RELKINDS.COMP);
+                let rels = nodeObj.getInputRelships(myModel, constants.RELKINDS.COMP);
                 if (rels) {
                     for (let i = 0; i < rels.length; i++) {
                         let rel = rels[i];

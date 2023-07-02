@@ -1473,5 +1473,4 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     break;
   }
-  myDiagram.clearSelection();
 }

@@ -175,7 +175,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
     }
 }
 
-function conditionIsFulfilled(object, context): boolean {
+function conditionIsFulfilled(object: akm.cxObject, context: any): boolean {
     let retval = true;
     const myMetis = context.myMetis;
     const myMetamodel    = context.myMetamodel;
@@ -689,7 +689,17 @@ export function askForMethod(context: any) {
 }
 
 export function executeMethod(context: any) {
-    if (context.currentObject) {
+    if (context.currentObjectview) {
+        let objectviews = context.objectviews;
+        if (!context.objectviews) 
+            context.objectviews = [];
+        if (!context.relshipviews) 
+            context.relshipviews = [];
+        if (objectviews?.length > 50)
+            return;
+        traverseViews(context.currentObjectview, context);
+    }
+    else if (context.currentObject) {
         let objects = context.objects;
         if (!context.objects) 
             context.objects = [];
@@ -698,16 +708,6 @@ export function executeMethod(context: any) {
         if (objects?.length > 50)
             return;
         traverse(context.currentObject, context);
-    } else if (context.currentObjectview) {
-        const objectview = context.currentObjectview;
-        let objectviews = context.objectviews;
-        if (!context.objectviews) 
-            context.objectviews = [];
-        if (!context.relshipviews) 
-            context.relshipviews = [];
-        if (objectviews?.length > 50)
-            return;
-        traverseViews(objectview, context);
     }
 }
 

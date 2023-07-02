@@ -1273,12 +1273,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                let object = node.object;
-                let objectview = node.objectview;
-                if (!object) return;
+                let object = node.object as akm.cxObject;
                 object = myMetis.findObject(object.id);
-                const objects = new Array();
-                objects.push(object);
+                let objectview = node.objectview as akm.cxObjectView;
+                objectview = myMetis.findObjectView(objectview.id);
+                const objectviews = new Array();
+                objectviews.push(objectview);
+                const relshipviews = new Array();
                 const args = {
                   "method": ""
                 }
@@ -1286,9 +1287,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myMetis": myMetis,
                   "myMetamodel": myMetis.currentMetamodel,
                   "myCurrentModelview": myMetis.currentModelview,
-                  "currentObjectview": objectview,
                   "currentObject": object,
-                  "objects": objects,
+                  "currentObjectview": objectview,
+                  "objectviews": objectviews,
+                  "relshipviews": relshipviews,
                   "myDiagram": myDiagram,
                   "case": "Execute Method",
                   "title": "Select Method",

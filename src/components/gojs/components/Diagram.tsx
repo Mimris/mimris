@@ -1199,7 +1199,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const relshipviews = new Array();
                 const method = new akm.cxMethod(utils.createGuid(), 'selectConnected', "");
                 method["reltype"] = '';
-                method['reldir'] = 'out';
+                method["reldir"] = '';
                 method["typecondition"] = null;
                 method["valuecondition"] = null;
                 method["preaction"] = "";
@@ -1220,7 +1220,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "relshipviews": relshipviews,
                   "currentObjectview": objectview,
                 }
-                method["reldir"] = '';
                 ui_mtd.executeMethod(context);
               }
             },
@@ -1287,8 +1286,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myMetis": myMetis,
                   "myMetamodel": myMetis.currentMetamodel,
                   "myCurrentModelview": myMetis.currentModelview,
-                  "myObjectview": objectview,
-                  "myObject": object,
+                  "currentObjectview": objectview,
+                  "currentObject": object,
                   "objects": objects,
                   "myDiagram": myDiagram,
                   "case": "Execute Method",

@@ -2302,7 +2302,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'groupLayout') retVal = false;
     // if (k === 'id') retVal = false;
     if (k === 'inputrels') retVal = false;
-    if (k === 'isCollapsed') retVal = false;
+    if (k === 'isExpanded') retVal = false;
     if (k === 'isGroup') retVal = false;
     if (k === 'isMetamodel') retVal = false;
     if (k === 'isTemplate') retVal = false;

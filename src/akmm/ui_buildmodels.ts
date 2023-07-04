@@ -213,6 +213,7 @@ let includeNoType = false;
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       if (debug) console.log('208 modelview, objviews:', modelview, objviews);
+      const focusObjview = modelview?.focusObjectview;
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -227,6 +228,11 @@ let includeNoType = false;
           objview.markedAsDeleted = true;
           if (!objview.textcolor)
             objview.textcolor = "black";
+        }
+        if (false) {
+          if (objview.id === focusObjview?.id) {
+            objview.isSelected = true;
+          }
         }
         let objtype;
         objtype = obj?.type;
@@ -302,6 +308,10 @@ let includeNoType = false;
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           node.scale = objview.scale1;
+          // if (objview.isCollapsed || !objview.isCollapsed) {
+          //   objview.isExpanded = !objview.isCollapsed;
+          // }
+          // node.isExpanded = objview.isExpanded;
           if (debug) console.log('285 node', node);
           if (node.template === "")
             node.template = 'textAndIcon';

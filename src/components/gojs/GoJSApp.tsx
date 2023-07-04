@@ -1229,7 +1229,30 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
-        console.log('1090 selected', data, sel);
+        if (false) {
+          const expanded = sel.isSubGraphExpanded;
+          const nodes = myDiagram.nodes;
+          for (let it = nodes.iterator; it?.next();) {
+              const node = it.value;
+              let objview = node.data.objectview;
+              if (node.key === sel.key) {
+                node.isSelected = true;
+                // if (objviewisExpanded)
+                //   objview.isExpanded = expanded;
+              } else
+                node.isSelected = false;
+          }
+          console.log('1243 selected', data, sel);
+          let focusObjview = myModelview.focusObjectview;
+          if (focusObjview) {
+            focusObjview.isSelected = sel.isSelected;
+            const fov = { 
+                id: focusObjview.id, 
+                isSelected: sel.isSelected,
+                // isExpanded: expanded,
+            };
+          }
+        }
         if (data.objectview?.id) {
           const payload = data // JSON.parse(JSON.stringify(data));
           const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
@@ -1589,6 +1612,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "BackgroundSingleClicked": {
         if (debug) console.log('1615 BackgroundSingleClicked', e, e.diagram);
+        uid.clearFocus(myModelview); 
       }
         break;
       case "BackgroundDoubleClicked": {

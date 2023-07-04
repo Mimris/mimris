@@ -361,22 +361,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "description": "",
               "relshipkind": constants.relkinds.REL,
             },
-            // "clickCreatingTool.archetypeNodeData": {
-            //   "key": utils.createGuid(),
-            //   "category": "Object",
-            //   "name": "Generic",
-            //   "description": "",
-            //   "fillcolor": "grey",
-            //   "strokecolor": "black",
-            //   "strokewidth": "6",
-            //   "icon": "default.png"
-            // },
-            // // allow Ctrl-G to call groupSelection()
-            // "commandHandler.archetypeGroupData": {
-            //   text: "Group",
-            //   isGroup: true,
-            //   color: "blue"
-            // },
             "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,

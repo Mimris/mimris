@@ -420,7 +420,8 @@ export class goObjectNode extends goNode {
     textscale: string;
     icon: string;
     isGroup: boolean | "";
-    isCollapsed: boolean | "";
+    isExpanded: boolean | "";
+    isSelected: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
@@ -450,7 +451,8 @@ export class goObjectNode extends goNode {
         this.isGroup        = objview.isGroup;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
-        this.isCollapsed    = objview.isCollapsed;
+        this.isExpanded    = objview.isExpanded;
+        this.isSelected    = objview.isSelected;
         this.groupLayout    = "Tree";
         this.group          = objview.group;
         this.parent         = "";
@@ -538,7 +540,7 @@ export class goObjectNode extends goNode {
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 this.setScale(this.objectview.getScale())
-                this.isCollapsed = this.objectview.isCollapsed;
+                this.isExpanded = this.objectview.isExpanded;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
             }

@@ -12,6 +12,17 @@ const printf = require('printf');
 
 const $ = go.GraphObject.make;
 
+export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
+    if (modelview) {
+        modelview.focusObjectView = objview;
+    }
+}
+export function clearFocus(modelview: akm.cxModelView) {
+    if (modelview) {
+        modelview.focusObjectView = null;
+    }
+}
+
 export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     const mmname = prompt("Enter Metamodel name");
     if (mmname == null || mmname == "") {

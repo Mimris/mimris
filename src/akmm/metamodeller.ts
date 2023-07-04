@@ -1187,7 +1187,11 @@ export class cxMetis {
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
-                    objview.isCollapsed = item.isCollapsed;
+                    if (item.isExpanded == undefined) {
+                        if (item.isCollapsed !== undefined)
+                            objview.isExpanded = !item.isCollapsed;
+                    }
+                    objview.isSelected = item.isSelected;
                     objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('1188 objview', objview);
@@ -8188,6 +8192,7 @@ export class cxModelView extends cxMetaObject {
     relshiptypeviews: cxRelationshipTypeView[] | null;
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
+    focusObjectview: cxObjectView | null;
     scale: string;
     memberscale: string;
     layout: string;
@@ -8211,6 +8216,7 @@ export class cxModelView extends cxMetaObject {
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
+        this.focusObjectview = null;
         this.scale = "1";
         this.memberscale = constants.params.MEMBERSCALE;
         this.layout = "Tree";
@@ -8247,6 +8253,12 @@ export class cxModelView extends cxMetaObject {
     }
     getModel(): cxModel {
         return this.model;
+    }
+    setFocusObjectview(objview: cxObjectView) {
+        this.focusObjectview = objview;
+    }
+    getFocusObjectview(): cxObjectView {
+        return this.focusObjectview;
     }
     setViewStyle(vstyle: cxViewStyle) {
         this.viewstyle = vstyle;
@@ -8526,7 +8538,8 @@ export class cxObjectView extends cxMetaObject {
     isGroup: boolean;
     groupLayout: string;
     parent: string;
-    isCollapsed: boolean;
+    isExpanded: boolean;
+    isSelected: boolean;
     visible: boolean;
     text: string;
     loc: string;
@@ -8560,7 +8573,8 @@ export class cxObjectView extends cxMetaObject {
         this.isGroup = false;
         this.groupLayout = "";
         this.parent = "";
-        this.isCollapsed = false;
+        this.isExpanded = true;
+        this.isSelected = false;
         this.text = "";
         this.visible = true;
         this.viewkind = "";

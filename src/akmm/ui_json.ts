@@ -1513,7 +1513,8 @@ export class jsnObjectView {
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
-    isCollapsed:     boolean;
+    isExpanded:     boolean;
+    isSelected:      boolean;
     loc:             string;
     size:            string;
     scale:           number;
@@ -1542,7 +1543,8 @@ export class jsnObjectView {
         this.group           = objview?.group;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
-        this.isCollapsed     = objview?.isCollapsed;
+        this.isExpanded     = objview?.isExpanded;
+        this.isSelected     = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
         this.figure          = objview?.figure;

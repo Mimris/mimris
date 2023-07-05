@@ -317,9 +317,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('295 TextEdited', data);
               const objtype = myMetis.findObjectType(data.objecttype?.id);
               if (objtype) {
-                const jsnObjType = new jsn.jsnObjectType(objtype, true);
-                modifiedObjectTypes.push(jsnObjType);
-                if (debug) console.log('300 TextEdited', jsnObjType);
+                let data = {id: objtype.id, name: text};
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data });
               }
             }
           } else { // Object           
@@ -506,7 +505,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Relationship' || data.category === 'Relationship type')
             continue;
           const typename = data.type;
-          if (typename === "Object type") // Object type
+          // Object type
+          if (typename === "Object type") 
           {
             const objtype = myMetis.findObjectType(data.objecttype.id);
             if (objtype) {
@@ -518,7 +518,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               objtypeGeo.setSize(data.size);
               objtypeGeo.setModified();
               const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
-              modifiedObjectTypeGeos.push(jsnObjtypeGeo);
+              const geo = JSON.parse(JSON.stringify(jsnObjtypeGeo));
+              context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', geo });
             }
           }
           else // Object
@@ -1001,7 +1002,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                     reltypeview.markedAsDeleted = deletedFlag;
                     const jsnReltypeView = new jsn.jsnRelshipTypeView(reltypeview);
                     modifiedRelshipTypeViews.push(jsnReltypeView);
-              }
+                  }
+                  const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
+                  modifiedRelshipTypes.push(jsnReltype);
                 }
               }
             }
@@ -1038,19 +1041,21 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                     }
                   }
-                  objtype.markedAsDeleted = deletedFlag;
                   let objtypeview = objtype.typeview as akm.cxObjectTypeView;
                   if (objtypeview) {
                     objtypeview.markedAsDeleted = deletedFlag;
                     const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
                     modifiedObjectTypeViews.push(jsnObjtypeview);
-              }
+                  }
                   const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
                   if (geo) {
                     geo.markedAsDeleted = deletedFlag;
                     const jsnObjtypegeo = new jsn.jsnObjectTypegeo(geo);
                     modifiedObjectTypeGeos.push(jsnObjtypegeo);
                   }
+                  objtype.markedAsDeleted = deletedFlag;
+                  const jsnObjtype = new jsn.jsnObjectType(objtype);
+                  modifiedObjectTypes.push(jsnObjtype);
                 }
               }
             }
@@ -1229,6 +1234,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
+        console.log('1237 selected', data, sel);
         if (false) {
           const expanded = sel.isSubGraphExpanded;
           const nodes = myDiagram.nodes;
@@ -1242,7 +1248,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               } else
                 node.isSelected = false;
           }
-          console.log('1243 selected', data, sel);
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {
             focusObjview.isSelected = sel.isSelected;

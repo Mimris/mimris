@@ -1110,13 +1110,16 @@ function deleteMetamodel2(context: any) {
             myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
         }       
     }
-    // const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-    // let data = JSON.parse(JSON.stringify(jsnMetamodel));
-    let data = {id: metamodel.id, markedAsDeleted: true};
-    if (!debug) console.log('1105 data', data, metamodel.name);
-    myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    if (myMetis.currentTargetMetamodel?.id === metamodel.id) {
+        myMetis.currentTargetMetamodel = null;
+        myMetis.currentTargetMetamodelRef = "";
+    }
     uic.purgeMetaDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = { metis: jsnMetis }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 function clearMetamodel2(context: any) {
@@ -1314,7 +1317,6 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     model.markedAsDeleted = true;
     modifiedModels.map(mn => {
         let data = {id: model.id, markedAsDeleted: true};
-        if (!debug) console.log('1311 data', data);
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     alert("The model '" + model.name + "' has been deleted!");

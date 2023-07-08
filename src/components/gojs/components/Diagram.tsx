@@ -1615,21 +1615,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     if (prop === 'abstract') continue;
                     if (prop === 'class') continue;
                     if (prop === 'relshipkind') continue;
-                    currentRelshipView[prop] = "";
+                    currentRelshipView[prop] = defaultTypeview[prop];
                     myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
                   }
                   link.typeview = defaultTypeview;
                   myDiagram.requestUpdate();
-
                   const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
-                  if (debug) console.log('798 jsnRelView', jsnRelView);
-                  const modifiedRelshipViews = new Array();
-                  modifiedRelshipViews.push(jsnRelView);
-                  modifiedRelshipViews.map(mn => {
-                    let data = mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                  })
+                  let data = JSON.parse(JSON.stringify(jsnRelView));
+                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                 }
               }
             },
@@ -2187,11 +2180,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (projectDescr?.length > 0) {
                 myMetis.description = projectDescr;
               }
-              if (confirm("Allow generate current metamodel: (OK = Yes))"))
-                myMetis.allowGenerateCurrentMetamodel =  true;
-              else
-                myMetis.allowGenerateCurrentMetamodel = false;
-              if (debug) console.log('myMetis.allowGenerateCurrentMetamodel', myMetis.allowGenerateCurrentMetamodel);
+
+              const myMetamodel = myMetis.currentMetamodel;
+              const objtype = myMetamodel.findObjectTypeByName("Datatype");
+              if (objtype) {
+                if (confirm("Allow generate current metamodel: (OK = Yes))"))
+                  myMetis.allowGenerateCurrentMetamodel =  true;
+                else
+                  myMetis.allowGenerateCurrentMetamodel = false;
+                if (debug) console.log('myMetis.allowGenerateCurrentMetamodel', myMetis.allowGenerateCurrentMetamodel);
+              }
               const project = {
                 // "id":           myMetis.id, // ToDo: add id to project
                 "name": myMetis.name,

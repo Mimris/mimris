@@ -1876,8 +1876,16 @@ export class jsnImportMetis {
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);
         reltypeview.setDash(item.dash);
+        reltypeview.setTextcolor(item.textcolor);
+        reltypeview.setTextscale(item.textscale);
+        reltypeview.setArrowscale(item.arrowscale);
         reltypeview.setFromArrow(item.fromarrow);
         reltypeview.setToArrow(item.toarrow);
+        reltypeview.setFromArrowColor(item.fromArrowColor);
+        reltypeview.setToArrowColor(item.toArrowColor);
+        reltypeview.setRouting(item.routing);
+        reltypeview.setCorner(item.corner);
+        reltypeview.setCurve(item.curve);
         jsnMetis.addRelationshipTypeView(reltypeview);
         metamodel.addRelationshipTypeView(reltypeview);
         if (debug) console.log("1794 Importing reltypeview: " + item.id + ", " + item.name);

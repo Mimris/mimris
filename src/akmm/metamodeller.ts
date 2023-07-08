@@ -5715,6 +5715,24 @@ export class cxRelationshipType extends cxObjectType {
         }
         return count;
     }
+    fixObjectTypeRefs() {
+        if (!this.fromObjtype) {
+            if (this.fromobjtypeRef) {
+                const objtype = this.metis.getObjectTypeById(this.fromobjtypeRef);
+                if (objtype) {
+                    this.fromObjtype = objtype;
+                }
+            }
+        }
+        if (!this.toObjtype) {
+            if (this.toobjtypeRef) {
+                const objtype = this.metis.getObjectTypeById(this.toobjtypeRef);
+                if (objtype) {
+                    this.toObjtype = objtype;
+                }
+            }
+        }
+    }
 }
 
 export class cxProperty extends cxMetaObject {
@@ -6384,6 +6402,20 @@ export class cxRelationshipTypeView extends cxMetaObject {
             return this.textscale;
         else if (this.data.textscale)
             return this.data.textscale;
+        else
+            return "1";
+    }
+    setArrowscale(scale: string) {
+        if (scale == undefined || scale == "" || scale == null)
+            scale = "1";
+        this.data.arrowscale = scale;
+        this.arrowscale = scale;
+    }
+    getArrowscale(): string {
+        if (this.arrowscale)
+            return this.arrowscale;
+        else if (this.data.arrowscale)
+            return this.data.arrowscale;
         else
             return "1";
     }

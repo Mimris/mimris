@@ -802,7 +802,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 n.findLinksConnected().each(function (link) {
                   if (link) {
                     let relview = link.data.relshipview;
-                    relview = myModelview.findRelationshipView(relview.id);
+                    relview = myModelview.findRelationshipView(relview?.id);
                     if (relview) {
                       relview.loc = link.data.loc;
                       // Handle relview scaling

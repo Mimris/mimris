@@ -450,37 +450,39 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         {
             if (debug) console.log('384 relname, fromtype, totype: ', relname, fromtype, totype);
             reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, currentRel.description);
-            if (debug) console.log('386 reltype: ', reltype);
-            const names = relname.split("/");
-            if (names.length > 1) {
-                reltype.nameFrom = names[0];
-                reltype.nameTo   = names[1];
-            }
-            { // Handle special attributes
-                reltype.relshipkind = relship.relshipkind;
-                reltype.cardinality = relship.cardinality;
+            if (reltype) {
+                const names = relname.split("/");
+                if (names.length > 1) {
+                    reltype.nameFrom = names[0];
+                    reltype.nameTo   = names[1];
+                }
+                { // Handle special attributes
+                    reltype.relshipkind = relship.relshipkind;
+                    reltype.cardinality = relship.cardinality;
+                }
             }
         }
     }
-    { // Handle the properties
-        let props = currentRel.type?.getProperties(true);
-        if (props !== undefined && props !== null && props.length > 0)
-            reltype.properties = props;
-        else
-            reltype.properties = new Array();
-        for (let i=0; i<props?.length; i++) {
-            const prop = props[i];
-            reltype.properties.push(prop);
+    if (reltype) {
+        { // Handle the properties
+            let props = currentRel.type?.getProperties(true);
+            if (props !== undefined && props !== null && props.length > 0)
+                reltype.properties = props;
+            else
+                reltype.properties = new Array();
+            for (let i=0; i<props?.length; i++) {
+                const prop = props[i];
+                reltype.properties.push(prop);
+            }
         }
-    }
-    myTargetMetamodel?.addRelationshipType(reltype);
-    myMetis.addRelationshipType(reltype);
-    currentRel.generatedTypeId = reltype.id;
-    const jsnRelship = new jsn.jsnRelationship(currentRel);
-    const data = JSON.parse(JSON.stringify(jsnRelship));
-    myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        myTargetMetamodel?.addRelationshipType(reltype);
+        myMetis.addRelationshipType(reltype);
+        currentRel.generatedTypeId = reltype.id;
+        const jsnRelship = new jsn.jsnRelationship(currentRel);
+        const data = JSON.parse(JSON.stringify(jsnRelship));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
 
-    if (reltype) { // Create/Modify the relationship typeview
+        // Create/Modify the relationship typeview
         reltypeview = reltype.typeview;
         if (debug) console.log('421 reltype, typeview: ', reltype, reltype.typeview);    
         if (!reltypeview) {
@@ -657,16 +659,16 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     }
                     if (debug) console.log('616 datatype', datatype);
                 }
-            // Handle input pattern
-            if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
-                const toObj = rel.getToObject();
-                if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
-                    let valueObj = toObj;
-                    if (valueObj.pattern)
-                        datatype.setInputPattern(valueObj.pattern);
+                // Handle input pattern
+                if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
+                    const toObj = rel.getToObject();
+                    if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
+                        let valueObj = toObj;
+                        if (valueObj.pattern)
+                            datatype.setInputPattern(valueObj.pattern);
+                    }
                 }
-            }
-            // Handle view format
+                // Handle view format
                 if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
@@ -894,100 +896,6 @@ export function askForTargetMetamodel(context: any) {
     }
       if (debug) console.log('724', mmlist, modalContext, context);
       myDiagram.handleOpenModal(mmlist, modalContext);
-}
-
-function buildTemporaryModelView(context: any): akm.cxModelView {
-    const modelview = context.myCurrentModelview;
-    const model = context.myModel;
-    let objlist = [];
-    let rellist = [];
-    let objectviews = modelview.objectviews;
-    for (let i=0; i<objectviews?.length; i++) {
-        const objview = objectviews[i];
-        let obj = objview.object as akm.cxObject;
-        if (debug) console.log('822 model, obj, objview', model, obj, objview);
-        if (obj) {
-            obj = model.findObject(obj.id);
-            objlist.push(obj);
-            addToObjAndRelLists(model, obj, objlist, rellist);
-        }
-    }
-    let uniquelist = [...new Set(objlist)];
-    objlist = uniquelist;
-    let relshipviews = modelview.relshipviews;
-    for (let i=0; i<relshipviews?.length; i++) {
-        const relview = relshipviews[i];
-        if (debug) console.log('830 relview', relview);
-        const rel = relview.relship;
-        if (rel) {
-            rel.fromObject = relview.fromObjview.object;
-            rel.toObject = relview.toObjview.object;
-            rellist.push(rel);
-        }
-    }
-    if (debug) console.log('841 rellist', rellist);
-    uniquelist = [...new Set(rellist)];
-    rellist = uniquelist;
-    if (debug) console.log('844 objlist, rellist', objlist, rellist);
-    // Build tempModelview
-    const tempModelview = new akm.cxModelView(utils.createGuid(), '_TEMPVIEW', model, 'Temporary modelview');
-    // First handle the objects
-    for (let i=0; i<objlist.length; i++) {
-        const obj = objlist[i];
-        if (!obj) continue;
-        const noObjviews = obj.objectviews?.length;
-        let objview;
-        if (noObjviews>0)
-            objview = obj.objectviews[0];
-        else
-            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
-        obj.addObjectView(objview);
-        tempModelview.addObjectView(objview);
-    }
-    // Then handle the relationships
-    for (let i=0; i<rellist.length; i++) {
-        const rel = rellist[i];
-        if (!rel) continue;
-        const fromObj = rel.fromObject;
-        const toObj   = rel.toObject;
-        if (fromObj && toObj) { // changed
-            const noRelviews = rel.relshipviews?.length;
-            let relview;
-            if (noRelviews>0) {
-                relview = rel.relshipviews[0];
-                relview.category = constants.gojs.C_RELSHIPVIEW;
-                if (debug) console.log('862 relview', relview);
-            } else {
-                relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
-                if (debug) console.log('865 relview', relview);
-            }
-            const fromObjview = fromObj?.objectviews[0];
-            const toObjview = toObj?.objectviews[0];
-            relview.setFromObjectView(fromObjview);
-            relview.setToObjectView(toObjview);
-            tempModelview.addRelationshipView(relview);
-            if (debug) console.log('877 relview', relview);
-        }
-    }
-    if (debug) console.log('880 tempModelview', tempModelview);
-    return tempModelview;
-}
-
-function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist: any, rellist:any) {
-    if (!obj) return;
-    const relships = obj.getOutputRelships(model, constants.relkinds.GEN);
-    if (relships?.length) {
-        for (let i=0; i<relships?.length; i++) {
-            const rel = relships[i];
-            if (rel) {
-                const toObj = rel.toObject;
-                if (toObj) {
-                    objlist.push(toObj);
-                    rellist.push(rel);
-                }
-            }
-        }
-    }    
 }
 
 export function generateTargetMetamodel2(context: any) {
@@ -1621,6 +1529,182 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     });
     alert("Target targetMetamodel has been successfully generated!");
     return targetMetamodel;
+}
+
+export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, myDiagram: any) {
+    const name = object.name;
+    let myMetamodel = myMetis.findMetamodelByName(name);
+    let entityType = null;
+    if (!myMetamodel) {
+        myMetamodel = new akm.cxMetaModel(utils.createGuid(), object.name, object.description);
+        myMetis.addMetamodel(myMetamodel);
+        // Add inherited object types
+        const element = myMetis.findObjectTypeByName(constants.types.AKM_ELEMENT);
+        myMetamodel.addObjectType(element);
+        const container = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+        myMetamodel.addObjectType(container);
+        const generic = myMetis.findObjectTypeByName(constants.types.AKM_GENERIC);
+        myMetamodel.addObjectType(generic);
+        const label = myMetis.findObjectTypeByName(constants.types.AKM_LABEL);
+        myMetamodel.addObjectType(label);
+        entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+        myMetamodel.addObjectType(entityType);
+        // Add inherited relationship types
+        let reltypes = myMetis.findRelationshipTypesBetweenTypes1(element, element);
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            myMetamodel.addRelationshipType(reltype);
+        }
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(label, element);
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            myMetamodel.addRelationshipType(reltype);
+        }
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(generic, element);
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            myMetamodel.addRelationshipType(reltype);
+        }
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(container, element);
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            myMetamodel.addRelationshipType(reltype);
+        }
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(entityType, element);
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            myMetamodel.addRelationshipType(reltype);
+        }
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(entityType, entityType);
+        for (let i=0; i<reltypes?.length; i++) {
+            const reltype = reltypes[i];
+            if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE)
+                continue;
+            myMetamodel.addRelationshipType(reltype);
+        }
+    } else {
+        myMetamodel.description = object.description;
+    }
+    // Do the configuration
+    const isType = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
+    const containsType = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+    const obj = myMetis.findObject(object.id);
+    const relships = obj.getOutputRelshipsByType(containsType);
+    for (let i=0; i<relships?.length; i++) {
+        const relship = relships[i];
+        const target = relship.toObject;
+        const targetObjectType = myMetis.findObjectTypeByName(target.name);
+        if (targetObjectType) {
+            myMetamodel.addObjectType(targetObjectType);
+            myMetamodel.addObjectType0(targetObjectType);
+            // Get or create Is relationship type to Entity Type
+            let reltype = myMetis.findRelationshipTypeByName1(isType.name, targetObjectType, entityType);           
+            if (!reltype) {
+                reltype = new akm.cxRelationshipType(utils.createGuid(), isType.name, targetObjectType, entityType, isType.description);
+            }
+            if (reltype) {
+                myMetamodel.addRelationshipType(reltype);   
+                myMetis.addRelationshipType(reltype);        
+            }
+        }
+    }
+    // Do the dispatches
+    const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
+    myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });
+}
+
+function buildTemporaryModelView(context: any): akm.cxModelView {
+    const modelview = context.myCurrentModelview;
+    const model = context.myModel;
+    let objlist = [];
+    let rellist = [];
+    let objectviews = modelview.objectviews;
+    for (let i=0; i<objectviews?.length; i++) {
+        const objview = objectviews[i];
+        let obj = objview.object as akm.cxObject;
+        if (debug) console.log('822 model, obj, objview', model, obj, objview);
+        if (obj) {
+            obj = model.findObject(obj.id);
+            objlist.push(obj);
+            addToObjAndRelLists(model, obj, objlist, rellist);
+        }
+    }
+    let uniquelist = [...new Set(objlist)];
+    objlist = uniquelist;
+    let relshipviews = modelview.relshipviews;
+    for (let i=0; i<relshipviews?.length; i++) {
+        const relview = relshipviews[i];
+        if (debug) console.log('830 relview', relview);
+        const rel = relview.relship;
+        if (rel) {
+            rel.fromObject = relview.fromObjview.object;
+            rel.toObject = relview.toObjview.object;
+            rellist.push(rel);
+        }
+    }
+    if (debug) console.log('841 rellist', rellist);
+    uniquelist = [...new Set(rellist)];
+    rellist = uniquelist;
+    if (debug) console.log('844 objlist, rellist', objlist, rellist);
+    // Build tempModelview
+    const tempModelview = new akm.cxModelView(utils.createGuid(), '_TEMPVIEW', model, 'Temporary modelview');
+    // First handle the objects
+    for (let i=0; i<objlist.length; i++) {
+        const obj = objlist[i];
+        if (!obj) continue;
+        const noObjviews = obj.objectviews?.length;
+        let objview;
+        if (noObjviews>0)
+            objview = obj.objectviews[0];
+        else
+            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+        obj.addObjectView(objview);
+        tempModelview.addObjectView(objview);
+    }
+    // Then handle the relationships
+    for (let i=0; i<rellist.length; i++) {
+        const rel = rellist[i];
+        if (!rel) continue;
+        const fromObj = rel.fromObject;
+        const toObj   = rel.toObject;
+        if (fromObj && toObj) { // changed
+            const noRelviews = rel.relshipviews?.length;
+            let relview;
+            if (noRelviews>0) {
+                relview = rel.relshipviews[0];
+                relview.category = constants.gojs.C_RELSHIPVIEW;
+                if (debug) console.log('862 relview', relview);
+            } else {
+                relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+                if (debug) console.log('865 relview', relview);
+            }
+            const fromObjview = fromObj?.objectviews[0];
+            const toObjview = toObj?.objectviews[0];
+            relview.setFromObjectView(fromObjview);
+            relview.setToObjectView(toObjview);
+            tempModelview.addRelationshipView(relview);
+            if (debug) console.log('877 relview', relview);
+        }
+    }
+    if (debug) console.log('880 tempModelview', tempModelview);
+    return tempModelview;
+}
+
+function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist: any, rellist:any) {
+    if (!obj) return;
+    const relships = obj.getOutputRelships(model, constants.relkinds.GEN);
+    if (relships?.length) {
+        for (let i=0; i<relships?.length; i++) {
+            const rel = relships[i];
+            if (rel) {
+                const toObj = rel.toObject;
+                if (toObj) {
+                    objlist.push(toObj);
+                    rellist.push(rel);
+                }
+            }
+        }
+    }    
 }
 
 function getAllPropertytypes(obj: akm.cxObject, proptypes: any[], myModel: akm.cxModel): any[] {

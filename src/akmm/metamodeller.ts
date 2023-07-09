@@ -1231,6 +1231,8 @@ export class cxMetis {
                     relview.setRelationship(relship);
                     const fromobjview = modelview.findObjectView(item.fromobjviewRef) as cxObjectView;
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
+                    if (!fromobjview || !toobjview) 
+                        return;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
                     fromobjview.addOutputRelview(relview);
@@ -2631,6 +2633,35 @@ export class cxMetis {
         }
         return reltypes;
     }
+    findRelationshipTypesBetweenTypes1(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
+        if (!fromType || !toType)
+            return null;
+        let reltypes = new Array();
+        let types = this.getRelationshipTypes();
+        if (!types) {
+            return null;
+        } else {
+            let i = 0;
+            let reltype;
+            for (i = 0; i < types.length; i++) {
+                reltype = types[i];
+                const rtname = reltype.name;
+                if (reltype) {
+                    if (reltype.isDeleted()) continue;
+                    if (debug) console.log('2651 fromType', fromType);
+                    if (debug) console.log('2652 reltype', reltype.name);
+                    if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
+                        if (debug) console.log('2655 reltype', reltype.name, fromType.name);
+                        if (reltype.isAllowedToType(toType, this.objecttypes, this.relshiptypes)) {
+                            if (debug) console.log('2657 reltype', reltype.name, toType.name);
+                            reltypes.push(reltype); 
+                        }
+                    }                    
+                }
+            }
+        }
+        return reltypes;
+    }
     findRelationshipTypeView(id: string): cxRelationshipTypeView | null {
         let relshiptypeviews = this.relshiptypeviews;
         if (!relshiptypeviews) {
@@ -3363,31 +3394,31 @@ export class cxMetaModel extends cxMetaObject {
     }
     // Methods
     clearContent() {
-            this.metamodels = null;
+            this.metamodels = [];
             this.viewstyle  = null; // Current viewstyle
             this.viewstyles = [];
             this.geometries = [];
-            this.containers = null;
-            this.properties = null;
-            this.methods = null;
-            this.methodtypes = null;
-            this.enumerations = null;
-            this.units = null;
-            this.datatypes = null;
-            this.categories = null;
+            this.containers = [];
+            this.properties = [];
+            this.methods = [];
+            this.methodtypes = [];
+            this.enumerations = [];
+            this.units = [];
+            this.datatypes = [];
+            this.categories = [];
             this.generatedFromModelRef = "";
             this.layout = "ForceDirected";
             this.routing = "Normal";
             this.linkcurve = "None";  
             this.includeInheritedReltypes = false;
             this.includeSystemtypes = false;
-            this.objecttypes  = null;
-            this.objecttypes0 = null;
-            this.objtypegeos  = null;
-            this.objecttypeviews = null;
-            this.relshiptypes  = null;
-            this.relshiptypes0 = null;
-            this.relshiptypeviews = null;
+            this.objecttypes  = [];
+            this.objecttypes0 = [];
+            this.objtypegeos  = [];
+            this.objecttypeviews = [];
+            this.relshiptypes  = [];
+            this.relshiptypes0 = [];
+            this.relshiptypeviews = [];
             
     }
     getLoc(type: cxObjectType): string {

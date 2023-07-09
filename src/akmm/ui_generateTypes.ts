@@ -1595,7 +1595,7 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
         const relship = relships[i];
         const target = relship.toObject;
         const targetObjectType = myMetis.findObjectTypeByName(target.name);
-        if (targetObjectType) {
+        if (targetObjectType && targetObjectType.name !== constants.types.AKM_METAMODEL) {
             myMetamodel.addObjectType(targetObjectType);
             myMetamodel.addObjectType0(targetObjectType);
             // Get or create Is relationship type to Entity Type
@@ -1607,6 +1607,10 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
                 myMetamodel.addRelationshipType(reltype);   
                 myMetis.addRelationshipType(reltype);        
             }
+        }
+        if (target && target.type.name === constants.types.AKM_METAMODEL) {
+            const subMetamodel = myMetis.findMetamodelByName(target.name);
+            myMetamodel.addMetamodel(subMetamodel);
         }
     }
     // Handle relationships between the object types
@@ -1621,7 +1625,6 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
             myMetamodel.addRelationshipType(reltype);
         }
     }
-
     // Do the dispatches
     const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });

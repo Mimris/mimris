@@ -1589,6 +1589,7 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
     const isType = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
     const containsType = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
     const obj = myMetis.findObject(object.id);
+    // Handle contains relationships
     const relships = obj.getOutputRelshipsByType(containsType);
     for (let i=0; i<relships?.length; i++) {
         const relship = relships[i];
@@ -1608,6 +1609,19 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
             }
         }
     }
+    // Handle relationships between the object types
+    const objtypes = myMetamodel.objecttypes0;
+    for (let i=0; i<objtypes?.length; i++) {
+        const objtype = objtypes[i];
+        const reltypes = objtype.getOutputReltypes();
+        for (let j=0; j<reltypes?.length; j++) {
+            const reltype = reltypes[j];
+            if (reltype.name === constants.types.AKM_IS)
+                continue;
+            myMetamodel.addRelationshipType(reltype);
+        }
+    }
+
     // Do the dispatches
     const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });

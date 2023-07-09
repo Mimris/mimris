@@ -5182,7 +5182,11 @@ export class cxObjectType extends cxType {
         const len = this.outputreltypes.length;
         for (let i=0; i<len; i++) {
             const rtype = this.outputreltypes[i];
-            if (rtype.relshipkind === kind) {
+            if (kind) {
+                if (rtype.relshipkind === kind) {
+                    reltypes.push(rtype);
+                }
+            } else {
                 reltypes.push(rtype);
             }
         }

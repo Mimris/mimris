@@ -106,10 +106,14 @@ export function uncapitalizeFirstLetter(string) {
 export function removeArrayDuplicates(array: any): any {
     const uniqueSet = new Set(array); 
     const uniqueArray = [...uniqueSet];
-    // array.filter((item, index) => array.indexOf(item) === index);
-    // array.reduce((unique, item) => 
-    //     unique.includes(item) ? unique : [...unique, item], []);
     return uniqueArray;
+}
+
+export function removeArrayDuplicatesById(array: any): any {
+    let unique = [
+        ...new Map(array.map((item) => [item["id"], item])).values(),
+    ];
+    return unique;
 }
 
 export function compare(a: any, b: any) {

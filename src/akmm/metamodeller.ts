@@ -4682,17 +4682,17 @@ export class cxMetaModel extends cxMetaObject {
             let submeta = submetamodels[i];
             if (submeta.isDeleted()) continue;
             this.objecttypes = this.objecttypes.concat(submeta.objecttypes);
-            // utils.removeArrayDuplicates(this.objecttypes);
+            utils.removeArrayDuplicatesById(this.objecttypes);
             this.objecttypes0 = this.objecttypes0.concat(submeta.objecttypes0);
-            // utils.removeArrayDuplicates(this.getObjectTypes0);
+            utils.removeArrayDuplicatesById(this.objecttypes0);
             this.relshiptypes = this.relshiptypes.concat(submeta.relshiptypes);
-            // utils.removeArrayDuplicates(this.relshiptypes);
+            utils.removeArrayDuplicatesById(this.relshiptypes);
             this.relshiptypes0 = this.relshiptypes0.concat(submeta.relshiptypes0);
-            // utils.removeArrayDuplicates(this.relshiptypes0);
+            utils.removeArrayDuplicatesById(this.relshiptypes0);
             this.objecttypeviews = this.objecttypeviews.concat(submeta.objecttypeviews);
-            // utils.removeArrayDuplicates(this.objecttypeviews);
+            utils.removeArrayDuplicatesById(this.objecttypeviews);
             this.relshiptypeviews = this.relshiptypeviews.concat(submeta.relshiptypeviews);
-            // utils.removeArrayDuplicates(this.relshiptypeviews);
+            utils.removeArrayDuplicatesById(this.relshiptypeviews);
         }
     }
 }

@@ -3671,7 +3671,7 @@ export class cxMetaModel extends cxMetaObject {
     }
     addMetamodel(metamodel: cxMetaModel) {
         // Check if input is of correct category and not already in list (TBD)
-        if (metamodel.category === constants.gojs.C_METAMODEL) {
+        if (metamodel?.category === constants.gojs.C_METAMODEL) {
             if (this.metamodels == null)
                 this.metamodels = new Array();
             if (!this.findSubMetamodel(metamodel.id))
@@ -4674,6 +4674,26 @@ export class cxMetaModel extends cxMetaObject {
     }
     getRouting(): string {
         return this.routing;
+    }
+    embedSubMetamodels() {
+        let submetamodels = this.metamodels;
+        if (!submetamodels) return;
+        for (let i = 0; i < submetamodels.length; i++) {
+            let submeta = submetamodels[i];
+            if (submeta.isDeleted()) continue;
+            this.objecttypes = this.objecttypes.concat(submeta.objecttypes);
+            // utils.removeArrayDuplicates(this.objecttypes);
+            this.objecttypes0 = this.objecttypes0.concat(submeta.objecttypes0);
+            // utils.removeArrayDuplicates(this.getObjectTypes0);
+            this.relshiptypes = this.relshiptypes.concat(submeta.relshiptypes);
+            // utils.removeArrayDuplicates(this.relshiptypes);
+            this.relshiptypes0 = this.relshiptypes0.concat(submeta.relshiptypes0);
+            // utils.removeArrayDuplicates(this.relshiptypes0);
+            this.objecttypeviews = this.objecttypeviews.concat(submeta.objecttypeviews);
+            // utils.removeArrayDuplicates(this.objecttypeviews);
+            this.relshiptypeviews = this.relshiptypeviews.concat(submeta.relshiptypeviews);
+            // utils.removeArrayDuplicates(this.relshiptypeviews);
+        }
     }
 }
 

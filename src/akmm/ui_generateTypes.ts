@@ -1335,9 +1335,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         myMetis.addRelationshipType(reltype);
                         targetMetamodel.addRelationshipType(reltype);
                         if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
-                            && reltype.name !== constants.types.AKM_IS
-                        )
+                                          && reltype.name !== constants.types.AKM_IS) {
                             targetMetamodel.addRelationshipType0(reltype);
+                        }
                         if (debug) console.log('1385 Generate Relationship Type', reltype, jsnRelshipType);
                         const relTypeview = reltype.typeview;
                         if (relTypeview) {
@@ -1612,6 +1612,7 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
             const subMetamodel = myMetis.findMetamodelByName(target.name);
             myMetamodel.addMetamodel(subMetamodel);
         }
+        myMetamodel.embedSubMetamodels();
     }
     // Handle relationships between the object types
     const objtypes = myMetamodel.objecttypes0;

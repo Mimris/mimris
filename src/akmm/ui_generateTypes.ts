@@ -1594,6 +1594,9 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
     for (let i=0; i<relships?.length; i++) {
         const relship = relships[i];
         const target = relship.toObject;
+        if (target.type.name === constants.types.AKM_METAMODEL) {
+            configureMetamodel(target, myMetis, myDiagram);
+        }
         const targetObjectType = myMetis.findObjectTypeByName(target.name);
         if (targetObjectType && targetObjectType.name !== constants.types.AKM_METAMODEL) {
             myMetamodel.addObjectType(targetObjectType);

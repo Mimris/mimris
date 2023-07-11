@@ -722,14 +722,16 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     let n = myDiagram.findNodeForKey(node.key);
     let links = n.findLinksOutOf();
     if (debug) console.log('596 links', links);
-    for (let it = links?.iterator; it?.next();) {
-        let lv = it.value;
-        const ltypename = lv.data.name;
-        linktypeNames.push(ltypename);
+    if (links.count > 0) {
+        for (let it = links?.iterator; it?.next();) {
+            let lv = it.value;
+            const ltypename = lv.data.name;
+            linktypeNames.push(ltypename);
+        }
+        if (debug) console.log('603 linktypeNames', linktypeNames);
+        let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
+        linktypeNames = uniqueSet;
     }
-    if (debug) console.log('603 linktypeNames', linktypeNames);
-    let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
-    linktypeNames = uniqueSet;
     let reltypeNames = [];
     const myMetamodel = myMetis.currentMetamodel;
     if (debug) console.log('608 myMetamodel', myMetamodel);
@@ -748,9 +750,9 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             objtypenames.push(n.data.objecttype.name);
         }
     }
-    uniqueSet = utils.removeArrayDuplicates(objtypenames);
+    let uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;
-    uniqueSet = utils.removeArrayDuplicates(objtypes);
+    uniqueSet = utils.removeArrayDuplicatesById(objtypes);
     objtypes = uniqueSet;
     if (debug) console.log('626 objtypenames, objtypes', objtypenames, objtypes);
     if (debug) console.log('627 myMetis', myMetis);

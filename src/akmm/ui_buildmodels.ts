@@ -469,7 +469,7 @@ let includeNoType = false;
     if (!metamodel)
       return;
     if (debug) console.log('435 metamodel', metamodel);
-    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
+    metamodel.objecttypes = utils.removeArrayDuplicatesById(metamodel?.objecttypes, "id");
     if (metamodel.objecttypes) {
       if (debug) console.log('438 metamodel', metamodel);
       const myGoMetamodel = new gjs.goModel(utils.createGuid(), "myMetamodel", null);
@@ -538,7 +538,7 @@ let includeNoType = false;
           }
         }
       }
-      // metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
+      // metamodel.relshiptypes = utils.removeArrayDuplicatesById(metamodel?.relshiptypes, "id");
       let relshiptypes = metamodel.relshiptypes;
       if (debug) console.log('491 relshiptypes', relshiptypes);
       if (relshiptypes) {

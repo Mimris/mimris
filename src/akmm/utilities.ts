@@ -111,9 +111,9 @@ export function removeArrayDuplicates(array: any): any {
 }
 
 // Remove duplicate objects by id
-export function removeArrayDuplicatesById(array: any): any {
+export function removeArrayDuplicatesById(array: any, id: string): any {
     let unique = [
-        ...new Map(array.map((item) => [item["id"], item])).values(),
+        ...new Map(array.map((item) => [item[id], item])).values(),
     ];
     return unique;
 }

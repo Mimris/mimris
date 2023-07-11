@@ -752,7 +752,7 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     }
     let uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;
-    uniqueSet = utils.removeArrayDuplicatesById(objtypes);
+    uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
     if (debug) console.log('626 objtypenames, objtypes', objtypenames, objtypes);
     if (debug) console.log('627 myMetis', myMetis);

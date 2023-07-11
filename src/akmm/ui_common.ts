@@ -807,7 +807,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     const nh = parseInt(nodeSize[1]);
     const myNode = nod;
     let nodes = model.nodes;
-    let uniqueSet = utils.removeArrayDuplicates(nodes);
+    let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
     nodes = uniqueSet;
     if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
     // Go through all the groups
@@ -850,7 +850,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         }
     }
     if (debug) console.log('847 groups', groups);
-    uniqueSet = utils.removeArrayDuplicates(groups);
+    uniqueSet = utils.removeArrayDuplicatesById(groups, "groupId");
     groups = uniqueSet;
 
     groups.sort(function(a, b) {

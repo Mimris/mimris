@@ -4679,20 +4679,21 @@ export class cxMetaModel extends cxMetaObject {
         let submetamodels = this.metamodels;
         if (!submetamodels) return;
         for (let i = 0; i < submetamodels.length; i++) {
+            const id = "id";
             let submeta = submetamodels[i];
             if (submeta.isDeleted()) continue;
             this.objecttypes = this.objecttypes.concat(submeta.objecttypes);
-            utils.removeArrayDuplicatesById(this.objecttypes);
+            utils.removeArrayDuplicatesById(this.objecttypes, id);
             this.objecttypes0 = this.objecttypes0.concat(submeta.objecttypes0);
-            utils.removeArrayDuplicatesById(this.objecttypes0);
+            utils.removeArrayDuplicatesById(this.objecttypes0, id);
             this.relshiptypes = this.relshiptypes.concat(submeta.relshiptypes);
-            utils.removeArrayDuplicatesById(this.relshiptypes);
+            utils.removeArrayDuplicatesById(this.relshiptypes, id);
             this.relshiptypes0 = this.relshiptypes0.concat(submeta.relshiptypes0);
-            utils.removeArrayDuplicatesById(this.relshiptypes0);
+            utils.removeArrayDuplicatesById(this.relshiptypes0, id);
             this.objecttypeviews = this.objecttypeviews.concat(submeta.objecttypeviews);
-            utils.removeArrayDuplicatesById(this.objecttypeviews);
+            utils.removeArrayDuplicatesById(this.objecttypeviews, id);
             this.relshiptypeviews = this.relshiptypeviews.concat(submeta.relshiptypeviews);
-            utils.removeArrayDuplicatesById(this.relshiptypeviews);
+            utils.removeArrayDuplicatesById(this.relshiptypeviews, id);
         }
     }
 }

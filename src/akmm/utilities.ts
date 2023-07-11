@@ -103,12 +103,14 @@ export function uncapitalizeFirstLetter(string) {
     return string?.charAt(0).toLowerCase() + string?.slice(1);
 }
 
+// Remove duplicate values
 export function removeArrayDuplicates(array: any): any {
     const uniqueSet = new Set(array); 
     const uniqueArray = [...uniqueSet];
     return uniqueArray;
 }
 
+// Remove duplicate objects by id
 export function removeArrayDuplicatesById(array: any): any {
     let unique = [
         ...new Map(array.map((item) => [item["id"], item])).values(),

@@ -1314,7 +1314,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
         break;
       case 'ClipboardPasted': {
-        // First remember the from locs
+        // First remember the FROM locs
         const myFromNodes = myMetis.currentModel.args1;
         if (debug) console.log('1306 myMetis, myGoModel, myFromNodes', myMetis, myGoModel, myFromNodes);
         // Then do the paste
@@ -1324,6 +1324,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const myToNodes = [];
         if (debug) console.log('1312 myFromNodes', myFromNodes);
         let refloc, cnt = 0;
+        let deltaX = 0, deltaY = 0;
         let objviews = [], nodes = [];
         const it = selection.iterator;
         while (it.next()) {
@@ -1341,7 +1342,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const node = new gjs.goObjectNode(key, objview);
             node.group = "";
             nodes.push(node);
-            // Now remember the to locs
+            // Now remember the TO locs
             const scale = node.getMyScale(myGoModel);
             const myToNode = {
               "key": key,
@@ -1363,6 +1364,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             myToNodes.push(myToNode);
             objview.loc = myToNode.loc.valueOf();
+            if (deltaX == 0) deltaX = myToNode.loc.valueOf().x - refloc.x;  
             objview.size = myToNode.size.valueOf();
             objviews.push(objview);
             node.loc = objview.loc;
@@ -1415,6 +1417,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (nodeloc) {
               const loc = nodeloc.x + " " + nodeloc.y;
               myToNode.loc = new String(loc);
+              deltaX = nodeloc.x - refloc[0];
+              deltaY = nodeloc.y - refloc[1];
             }
             {
               node.loc = myToNode.loc.valueOf();
@@ -1449,23 +1453,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         // Then handle the relationships
         const myFromLinks = myMetis.currentModel.args2;        
-        const myToLinks = myFromLinks;
         const it1 = selection.iterator;
         while (it1.next()) {
-          const data = it1.value.data;
-          if (data.category === constants.gojs.C_RELATIONSHIP) {
+          const link = it1.value.data;
+          if (link.category === constants.gojs.C_RELATIONSHIP) {
             context.pasted = true;
-            const myPoints = [];
-            // Find fromLink
-            for (let i = 0; i < myFromLinks?.length; i++) {
-              const myLink = myFromLinks[i]; // instance of go.Link
-              if (myLink.key.substr(0, 36) === data.key.substr(0, 36)) {
-                data.points = myLink.points;
-                console.log('1463 data', data);
-              }
-            }
-
-            let relview = uic.pasteRelationship(data, pastedNodes, context);
+            let relview = uic.pasteRelationship(link, pastedNodes, context);
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);
@@ -1479,29 +1472,26 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview.textscale = textscale;
               }
               // Handle points
-              const link = myDiagram.findLinkForKey(data.key);
-              if (link) {
-                const points = [];
-                for (let it = link.points.iterator; it?.next();) {
-                  const point = it.value;
-                  if (debug) console.log('1603 point', point.x, point.y);
-                  points.push(point.x)
-                  points.push(point.y)
-                }
-                relview.points = points;
+              const points = [];
+              for (let it = link.points.iterator; it?.next();) {
+                const point = it.value;
+                if (debug) console.log('1603 point', point.x, point.y);
+                points.push(point.x)
+                points.push(point.y)
               }
               // Handle view attributes
-              relview.template = data.template;
-              relview.arrowscale = data.arrowscale;
-              relview.strokecolor = data.strokecolor;
-              relview.strokewidth = data.strokewidth;
-              relview.textcolor = data.textcolor;
-              relview.textscale = data.textscale;
-              relview.dash = data.dash;
-              relview.fromArrow = data.fromArrow;
-              relview.toArrow = data.toArrow;
-              relview.fromArrowColor = data.fromArrowColor;
-              relview.toArrowColor = data.toArrowColor;
+              relview.points = points;
+              relview.template = link.template;
+              relview.arrowscale = link.arrowscale;
+              relview.strokecolor = link.strokecolor;
+              relview.strokewidth = link.strokewidth;
+              relview.textcolor = link.textcolor;
+              relview.textscale = link.textscale;
+              relview.dash = link.dash;
+              relview.fromArrow = link.fromArrow;
+              relview.toArrow = link.toArrow;
+              relview.fromArrowColor = link.fromArrowColor;
+              relview.toArrowColor = link.toArrowColor;
               // Prepate dispatch
               const jsnRelview = new jsn.jsnRelshipView(relview);
               modifiedRelshipViews.push(jsnRelview);

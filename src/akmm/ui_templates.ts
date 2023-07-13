@@ -2260,6 +2260,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 toShortLength: 3, 
                 relinkableFrom: true, 
                 relinkableTo: true, 
+                adjusting: go.Link.End,
                 reshapable: true,
                 resegmentable: true  
             },
@@ -2365,6 +2366,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 routing: go.Link.AvoidsNodes,
                 curve: go.Link.JumpGap,
                 corner: 10,
+                adjusting: go.Link.End,
                 reshapable: true, 
                 relinkableFrom: true, 
                 relinkableTo: true, 

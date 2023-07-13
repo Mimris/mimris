@@ -1412,6 +1412,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         relshipview.setFromObjectView(fromObjview);
         relshipview.setToObjectView(toObjview);
         relshipview.setModified();
+        relshipview.setPoints(data.points);
         relship.addRelationshipView(relshipview);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);

@@ -3178,6 +3178,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         "routing": l.data.routing,
         "corner": l.data.corner,
         "curve": l.data.curve,
+        "points": l.data.points,
       }
       myFromLinks.push(myFromLink);
     }

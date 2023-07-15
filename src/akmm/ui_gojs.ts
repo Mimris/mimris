@@ -917,8 +917,8 @@ export class goRelshipLink extends goLink {
     getFromNode(): goNode | null {
         return this.fromNode;
     }
-    setFromNode(from: string) {
-        this.from = from;
+    setFromNode(node: goNode) {
+        this.fromNode = node;
     }
     getToNode(): goNode | null {
         return this.toNode;
@@ -935,8 +935,8 @@ export class goRelshipLink extends goLink {
     getToPort(): string {
         return this.toPort;
     }
-    setToNode(to: string) {
-        this.to = to;
+    setToNode(node: goNode) {
+        this.toNode = node;
     }
     getRelshipKind(): string {
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;

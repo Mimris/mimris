@@ -27,6 +27,10 @@ go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
         );
   });
 
+export function getMinSize(): go.Size {
+    return new go.Size(200, 100);
+}
+
 export function getRouting(r: string): any {
     switch(r) {
     case 'Normal':
@@ -2473,7 +2477,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Auto",
             {
                 resizable: true,
-                minSize: new go.Size(300, 200),
+                minSize: getMinSize(),
                 contextMenu: contextMenu,
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
@@ -2543,12 +2547,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Container0", groupTemplate0);
         addGroupTemplateName('Container0');
 
-
     const groupTemplate1 =
         $(go.Group, "Auto",
             {
                 resizable: true,
-                minSize: new go.Size(300, 200),
+                minSize: getMinSize(),
                 contextMenu: contextMenu,
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
@@ -2583,7 +2586,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Auto",
             {
                 resizable: true,
-                minSize: new go.Size(300, 200),
+                minSize: getMinSize(),
                 contextMenu: contextMenu,
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
@@ -2619,6 +2622,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 resizable: true, 
+                minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
@@ -2662,6 +2666,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 resizable: true, 
+                minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
@@ -2702,6 +2707,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 resizable: true, 
+                minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
@@ -2744,6 +2750,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 resizable: true, 
+                minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
@@ -2782,6 +2789,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 resizable: true, 
+                minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
@@ -2818,6 +2826,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 resizable: true, 
+                minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,

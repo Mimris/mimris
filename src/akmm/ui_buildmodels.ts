@@ -432,11 +432,6 @@ let includeNoType = false;
         }
         if (debug) console.log('397 myGoModel', myGoModel);
       }
-      // modifiedRelviews.map(mn => {
-      //   let data = mn;
-      //   props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      // })
-      // if (debug) console.log('403 modifiedRelviews', modifiedRelviews);
     }
     modelview.relshipviews = relshipviews;
     if (debug) console.log('406 buildGoModel - myGoModel', myGoModel);

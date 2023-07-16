@@ -76,13 +76,13 @@ export class goModel {
         this.nodes = oldNodes;
     }
     addLink(link: goLink) {
-        let oldLinks: goLink[] = new Array();
+        let links: goLink[] = new Array();
         for (let i = 0; i < this.links.length; i++) {
             let lnk = this.links[i] as goLink;
-            oldLinks.push(lnk);
+            if (lnk.key !== link.key)
+                links.push(lnk);
         }
-        oldLinks.push(link as goLink);
-        this.links = oldLinks;
+        this.links = links;
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {
         const retval: goObjectNode | null = null;

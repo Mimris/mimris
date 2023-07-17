@@ -76,13 +76,13 @@ export class goModel {
         this.nodes = oldNodes;
     }
     addLink(link: goLink) {
-        let oldLinks: goLink[] = new Array();
+        let links: goLink[] = new Array();
         for (let i = 0; i < this.links.length; i++) {
             let lnk = this.links[i] as goLink;
-            oldLinks.push(lnk);
+            if (lnk.key !== link.key)
+                links.push(lnk);
         }
-        oldLinks.push(link as goLink);
-        this.links = oldLinks;
+        this.links = links;
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
@@ -420,7 +420,8 @@ export class goObjectNode extends goNode {
     textscale: string;
     icon: string;
     isGroup: boolean | "";
-    isCollapsed: boolean | "";
+    isExpanded: boolean | "";
+    isSelected: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
@@ -450,7 +451,8 @@ export class goObjectNode extends goNode {
         this.isGroup        = objview.isGroup;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
-        this.isCollapsed    = objview.isCollapsed;
+        this.isExpanded    = objview.isExpanded;
+        this.isSelected    = objview.isSelected;
         this.groupLayout    = "Tree";
         this.group          = objview.group;
         this.parent         = "";
@@ -538,7 +540,7 @@ export class goObjectNode extends goNode {
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 this.setScale(this.objectview.getScale())
-                this.isCollapsed = this.objectview.isCollapsed;
+                this.isExpanded = this.objectview.isExpanded;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
             }
@@ -915,8 +917,8 @@ export class goRelshipLink extends goLink {
     getFromNode(): goNode | null {
         return this.fromNode;
     }
-    setFromNode(from: string) {
-        this.from = from;
+    setFromNode(node: goNode) {
+        this.fromNode = node;
     }
     getToNode(): goNode | null {
         return this.toNode;
@@ -933,8 +935,8 @@ export class goRelshipLink extends goLink {
     getToPort(): string {
         return this.toPort;
     }
-    setToNode(to: string) {
-        this.to = to;
+    setToNode(node: goNode) {
+        this.toNode = node;
     }
     getRelshipKind(): string {
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;

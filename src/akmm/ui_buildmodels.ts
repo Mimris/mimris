@@ -213,6 +213,7 @@ let includeNoType = false;
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       if (debug) console.log('208 modelview, objviews:', modelview, objviews);
+      const focusObjview = modelview?.focusObjectview;
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -227,6 +228,11 @@ let includeNoType = false;
           objview.markedAsDeleted = true;
           if (!objview.textcolor)
             objview.textcolor = "black";
+        }
+        if (false) {
+          if (objview.id === focusObjview?.id) {
+            objview.isSelected = true;
+          }
         }
         let objtype;
         objtype = obj?.type;
@@ -302,6 +308,10 @@ let includeNoType = false;
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           node.scale = objview.scale1;
+          // if (objview.isCollapsed || !objview.isCollapsed) {
+          //   objview.isExpanded = !objview.isCollapsed;
+          // }
+          // node.isExpanded = objview.isExpanded;
           if (debug) console.log('285 node', node);
           if (node.template === "")
             node.template = 'textAndIcon';
@@ -422,11 +432,6 @@ let includeNoType = false;
         }
         if (debug) console.log('397 myGoModel', myGoModel);
       }
-      // modifiedRelviews.map(mn => {
-      //   let data = mn;
-      //   props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      // })
-      // if (debug) console.log('403 modifiedRelviews', modifiedRelviews);
     }
     modelview.relshipviews = relshipviews;
     if (debug) console.log('406 buildGoModel - myGoModel', myGoModel);
@@ -459,7 +464,7 @@ let includeNoType = false;
     if (!metamodel)
       return;
     if (debug) console.log('435 metamodel', metamodel);
-    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
+    metamodel.objecttypes = utils.removeArrayDuplicatesById(metamodel?.objecttypes, "id");
     if (metamodel.objecttypes) {
       if (debug) console.log('438 metamodel', metamodel);
       const myGoMetamodel = new gjs.goModel(utils.createGuid(), "myMetamodel", null);
@@ -528,7 +533,7 @@ let includeNoType = false;
           }
         }
       }
-      // metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
+      // metamodel.relshiptypes = utils.removeArrayDuplicatesById(metamodel?.relshiptypes, "id");
       let relshiptypes = metamodel.relshiptypes;
       if (debug) console.log('491 relshiptypes', relshiptypes);
       if (relshiptypes) {

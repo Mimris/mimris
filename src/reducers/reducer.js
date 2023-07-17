@@ -1376,7 +1376,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_OBJECTTYPEGEOS_PROPERTIES:
-      if (debug) console.log('501 UPDATE_OBJECTTYPEGEOS_PROPERTIES', action);
+      if (!debug) console.log('501 UPDATE_OBJECTTYPEGEOS_PROPERTIES', action);
       const curmod = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmm = state.phData?.metis?.metamodels?.find(m => m.id === curmod.metamodelRef)
       const curmmindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmod.metamodelRef)
@@ -1384,7 +1384,7 @@ function reducer(state = InitialState, action) {
       const otlength = curmm?.objtypegeos?.length
       let otindex = curmm?.objtypegeos?.findIndex(ot => ot.id === otcur?.id)
       if (otindex < 0) { otindex = otlength }
-      return {
+      let retval_UPDATE_OBJECTTYPEGEOS_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -1408,6 +1408,9 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (!debug) console.log('1411 retval', retval_UPDATE_OBJECTTYPEGEOS_PROPERTIES);
+      return retval_UPDATE_OBJECTTYPEGEOS_PROPERTIES;
+
     case UPDATE_DATATYPE_PROPERTIES:
       if (debug) console.log('1621 UPDATE_DATATYPE_PROPERTIES', action);
       let curmoddtot2 = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)

@@ -103,13 +103,19 @@ export function uncapitalizeFirstLetter(string) {
     return string?.charAt(0).toLowerCase() + string?.slice(1);
 }
 
+// Remove duplicate values
 export function removeArrayDuplicates(array: any): any {
     const uniqueSet = new Set(array); 
     const uniqueArray = [...uniqueSet];
-    // array.filter((item, index) => array.indexOf(item) === index);
-    // array.reduce((unique, item) => 
-    //     unique.includes(item) ? unique : [...unique, item], []);
     return uniqueArray;
+}
+
+// Remove duplicate objects by id
+export function removeArrayDuplicatesById(array: any, id: string): any {
+    let unique = [
+        ...new Map(array.map((item) => [item[id], item])).values(),
+    ];
+    return unique;
 }
 
 export function compare(a: any, b: any) {

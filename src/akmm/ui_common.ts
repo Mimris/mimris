@@ -4,7 +4,6 @@ const debug = false;
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as uid from './ui_diagram';
-import * as uic from './ui_common';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
 const constants = require('./constants');
@@ -807,7 +806,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     const nh = parseInt(nodeSize[1]);
     const myNode = nod;
     let nodes = model.nodes;
-    let uniqueSet = utils.removeArrayDuplicates(nodes);
+    let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
     nodes = uniqueSet;
     if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
     // Go through all the groups
@@ -850,7 +849,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         }
     }
     if (debug) console.log('847 groups', groups);
-    uniqueSet = utils.removeArrayDuplicates(groups);
+    uniqueSet = utils.removeArrayDuplicatesById(groups, "groupId");
     groups = uniqueSet;
 
     groups.sort(function(a, b) {
@@ -941,7 +940,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
             let nodeObjview = node.objectview;
             if (nodeObjview) {
                 nodeObjview.setGroup("");
-                let rels = nodeObj.findInputRelships(myModel, constants.RELKINDS.COMP);
+                let rels = nodeObj.getInputRelships(myModel, constants.RELKINDS.COMP);
                 if (rels) {
                     for (let i = 0; i < rels.length; i++) {
                         let rel = rels[i];
@@ -1412,6 +1411,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         relshipview.setFromObjectView(fromObjview);
         relshipview.setToObjectView(toObjview);
         relshipview.setModified();
+        relshipview.setPoints(data.points);
         relship.addRelationshipView(relshipview);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
@@ -1819,6 +1819,7 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
         if (fromNode && toNode) {
             const myDiagram = context.myDiagram;
             const myMetis = context.myMetis;
+            const myModelview = context.myModelview;
             const myGoModel = context.myGoModel;
             const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
             if (debug) console.log('1801 lnk, link', lnk, link);
@@ -1840,11 +1841,14 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     // After relink   
                     link.category = lnk.category;
                     link.name = name;        
-                    link.setFromNode(lnk.from);
                     rel.fromPortid = lnk.fromPort;
                     rel.toPortid = lnk.toPort;
                     relview.fromPortid = lnk.fromPort;
                     relview.toPortid = lnk.toPort;
+                    link.from = lnk.from;
+                    link.to = lnk.to;
+                    link.fromNode = fromNode
+                    link.toNode = toNode;
                     link.fromPort = lnk.fromPort;
                     link.toPort = lnk.toPort;
                     const fromObjView = fromNode.objectview;
@@ -1852,7 +1856,6 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     relview.fromPortid = lnk.fromPort;
                     relview.toPortid = lnk.toPort;
                     rel.fromObject = myMetis.findObject(fromObjView.object.id);  
-                    link.setToNode(lnk.to);
                     const toObjView = toNode.objectview;
                     relview.toObjview = toObjView;
                     rel.toObject = myMetis.findObject(toObjView.object.id); 
@@ -1863,8 +1866,12 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     if (debug) console.log('1840 fromobj2, toObj2', fromObj2, toObj2);  
                     const myLink = myDiagram.findLinkForKey(link.key);
                     myLink.category = link.template;
-                    uic.setLinkProperties(relview, myMetis, myDiagram);
+                    setLinkProperties(relview, myMetis, myDiagram);
                     // Do the dispatches          
+                    const jsnFromObj = new jsn.jsnObject(fromObj2);
+                    context.modifiedObjects.push(jsnFromObj);
+                    const jsnToObj = new jsn.jsnObject(toObj2);
+                    context.modifiedObjects.push(jsnToObj);
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     context.modifiedRelshipViews.push(jsnRelview);
                     const jsnRel = new jsn.jsnRelationship(rel);
@@ -2177,19 +2184,18 @@ export function setLinkProperties(relview: akm.cxRelationshipView, myMetis: akm.
     const fromObjview = relview.fromObjview;
     const toObjview = relview.toObjview;
     if (fromObjview && toObjview) {
-        let link = uid.getLinkByViewId(relview.id, myDiagram);
-        if (!link) {
+        let link = myGoModel.findLinkByViewId(relview.id);
+        if (!link)
             link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-            link.loadLinkContent(myGoModel);
-            link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-            link.from = link.fromNode?.key;
-            link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-            link.to = link.toNode?.key;
-            myGoModel.addLink(link);
-            myDiagram.startTransaction('add link')
-            myDiagram.model.addLinkData(link);
-            myDiagram.commitTransaction('add link');
-        }
+        link.loadLinkContent(myGoModel);
+        link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+        link.from = link.fromNode?.key;
+        link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+        link.to = link.toNode?.key;
+        myGoModel.addLink(link);
+        myDiagram.startTransaction('add link')
+        myDiagram.model.addLinkData(link);
+        myDiagram.commitTransaction('add link');        
     }
 }
 
@@ -2302,7 +2308,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'groupLayout') retVal = false;
     // if (k === 'id') retVal = false;
     if (k === 'inputrels') retVal = false;
-    if (k === 'isCollapsed') retVal = false;
+    if (k === 'isExpanded') retVal = false;
     if (k === 'isGroup') retVal = false;
     if (k === 'isMetamodel') retVal = false;
     if (k === 'isTemplate') retVal = false;

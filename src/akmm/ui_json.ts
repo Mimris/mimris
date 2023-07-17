@@ -1278,7 +1278,7 @@ export class jsnTypeDefinition {
         // Code
         // let typeRef     = object.getType().id;
         const proptypes   = new Array();
-        const rels: akm.cxRelationship[] = typedef.findOutputRelships(glb.myModel, undefined);
+        const rels: akm.cxRelationship[] = typedef.getOutputRelships(glb.myModel, undefined);
         if (utils.isArrayEmpty(rels)) {
             return;
         } else {
@@ -1316,7 +1316,7 @@ export class jsnPropertyDefinition {
         this.datatype    = "";
         this.datatypeRef = "";
         // Then find datatype if it exists
-        const rels = proptype.findOutputRelships(glb.myModel);
+        const rels = proptype.getOutputRelships(glb.myModel);
         if (utils.isArrayEmpty(rels)) {
             return;
         } else {
@@ -1513,7 +1513,8 @@ export class jsnObjectView {
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
-    isCollapsed:     boolean;
+    isExpanded:     boolean;
+    isSelected:      boolean;
     loc:             string;
     size:            string;
     scale:           number;
@@ -1542,7 +1543,8 @@ export class jsnObjectView {
         this.group           = objview?.group;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
-        this.isCollapsed     = objview?.isCollapsed;
+        this.isExpanded     = objview?.isExpanded;
+        this.isSelected     = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
         this.figure          = objview?.figure;
@@ -1874,8 +1876,16 @@ export class jsnImportMetis {
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);
         reltypeview.setDash(item.dash);
+        reltypeview.setTextcolor(item.textcolor);
+        reltypeview.setTextscale(item.textscale);
+        reltypeview.setArrowscale(item.arrowscale);
         reltypeview.setFromArrow(item.fromarrow);
         reltypeview.setToArrow(item.toarrow);
+        reltypeview.setFromArrowColor(item.fromArrowColor);
+        reltypeview.setToArrowColor(item.toArrowColor);
+        reltypeview.setRouting(item.routing);
+        reltypeview.setCorner(item.corner);
+        reltypeview.setCurve(item.curve);
         jsnMetis.addRelationshipTypeView(reltypeview);
         metamodel.addRelationshipTypeView(reltypeview);
         if (debug) console.log("1794 Importing reltypeview: " + item.id + ", " + item.name);

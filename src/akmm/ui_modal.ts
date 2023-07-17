@@ -1093,6 +1093,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const myMetamodel = modalContext.context.myMetamodel;
         const selectedValue = modalContext.selected?.value;
         const mtd = myMetamodel.findMethodByName(selectedValue); 
+        mtd.level = 0;
         if (debug) console.log('910 method, modalContext: ', mtd, modalContext);
         const context = modalContext.context;
         context.args.method = mtd;
@@ -1472,5 +1473,4 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     break;
   }
-  myDiagram.clearSelection();
 }

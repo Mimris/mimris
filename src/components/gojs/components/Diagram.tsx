@@ -361,22 +361,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "description": "",
               "relshipkind": constants.relkinds.REL,
             },
-            // "clickCreatingTool.archetypeNodeData": {
-            //   "key": utils.createGuid(),
-            //   "category": "Object",
-            //   "name": "Generic",
-            //   "description": "",
-            //   "fillcolor": "grey",
-            //   "strokecolor": "black",
-            //   "strokewidth": "6",
-            //   "icon": "default.png"
-            // },
-            // // allow Ctrl-G to call groupSelection()
-            // "commandHandler.archetypeGroupData": {
-            //   text: "Group",
-            //   isGroup: true,
-            //   color: "blue"
-            // },
             "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
@@ -873,17 +857,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
-              if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
-              const node = e.diagram.selection.first().data;
-              myMetis.currentNode = node;
-              gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+              const node = myDiagram.selection.first().data;
+              const object = node.object as akm.cxObject;
+              gen.configureMetamodel(object, myMetis, myDiagram);
+              alert('The metamodel ' + object.name + ' has been generated');
             },
             function (o: any) {
               if (debug) console.log('1991 myMetis', myMetis);
               if (myMetis.modelType == 'Modelling') {
                 const obj = o.part.data.object;
                 const objtype = obj?.type;
-                if (objtype?.name === constants.types.AKM_CONTAINER)
+                if (objtype?.name === constants.types.AKM_METAMODEL)
                   return true;
               } else
                 return false;
@@ -1193,35 +1177,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                let object = node.object;
-                if (!object) return;
-                object = myMetis.findObject(object.id);
-                const objects = new Array();
-                objects.push(object);
-                const relships = new Array();
+                let objectview = node.objectview as akm.cxObjectView;
+                const objectviews = new Array();
+                objectviews.push(objectview);
+                const relshipviews = new Array();
                 const method = new akm.cxMethod(utils.createGuid(), 'selectConnected', "");
                 method["reltype"] = '';
-                method['reldir'] = '';
+                method["reldir"] = '';
                 method["typecondition"] = null;
                 method["valuecondition"] = null;
                 method["preaction"] = "";
                 method["postaction"] = "Select";
                 method["propname"] = "";
+                method["level"] = 1;
+                method["noObjects"] = 0;
                 const args = {
                   "method": method
                 }
                 const context = {
                   "myMetis": myMetis,
                   "myModel": myMetis.currentModel,
+                  "myModelview": myMetis.currentModelview,
                   "myDiagram": myDiagram,
-                  "myObject": object,
                   "args": args,
-                  "objects": objects,
-                  "relships": relships,
+                  "objectviews": objectviews,
+                  "relshipviews": relshipviews,
+                  "currentObjectview": objectview,
                 }
-                method["reldir"] = "in";
-                ui_mtd.executeMethod(context);
-                method["reldir"] = 'out';
                 ui_mtd.executeMethod(context);
               }
             },
@@ -1275,12 +1257,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                let object = node.object;
-                let objectview = node.objectview;
-                if (!object) return;
+                let object = node.object as akm.cxObject;
                 object = myMetis.findObject(object.id);
-                const objects = new Array();
-                objects.push(object);
+                let objectview = node.objectview as akm.cxObjectView;
+                objectview = myMetis.findObjectView(objectview.id);
+                const objectviews = new Array();
+                objectviews.push(objectview);
+                const relshipviews = new Array();
                 const args = {
                   "method": ""
                 }
@@ -1288,9 +1271,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myMetis": myMetis,
                   "myMetamodel": myMetis.currentMetamodel,
                   "myCurrentModelview": myMetis.currentModelview,
-                  "myObjectview": objectview,
-                  "myObject": object,
-                  "objects": objects,
+                  "currentObject": object,
+                  "currentObjectview": objectview,
+                  "objectviews": objectviews,
+                  "relshipviews": relshipviews,
                   "myDiagram": myDiagram,
                   "case": "Execute Method",
                   "title": "Select Method",
@@ -1631,21 +1615,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     if (prop === 'abstract') continue;
                     if (prop === 'class') continue;
                     if (prop === 'relshipkind') continue;
-                    currentRelshipView[prop] = "";
+                    currentRelshipView[prop] = defaultTypeview[prop];
                     myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
                   }
                   link.typeview = defaultTypeview;
                   myDiagram.requestUpdate();
-
                   const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
-                  if (debug) console.log('798 jsnRelView', jsnRelView);
-                  const modifiedRelshipViews = new Array();
-                  modifiedRelshipViews.push(jsnRelView);
-                  modifiedRelshipViews.map(mn => {
-                    let data = mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                  })
+                  let data = JSON.parse(JSON.stringify(jsnRelView));
+                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                 }
               }
             },
@@ -2203,11 +2180,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (projectDescr?.length > 0) {
                 myMetis.description = projectDescr;
               }
-              if (confirm("Allow generate current metamodel: (OK = Yes))"))
-                myMetis.allowGenerateCurrentMetamodel =  true;
-              else
-                myMetis.allowGenerateCurrentMetamodel = false;
-              if (debug) console.log('myMetis.allowGenerateCurrentMetamodel', myMetis.allowGenerateCurrentMetamodel);
+
+              const myMetamodel = myMetis.currentMetamodel;
+              const objtype = myMetamodel.findObjectTypeByName("Datatype");
+              if (objtype) {
+                if (confirm("Allow generate current metamodel: (OK = Yes))"))
+                  myMetis.allowGenerateCurrentMetamodel =  true;
+                else
+                  myMetis.allowGenerateCurrentMetamodel = false;
+                if (debug) console.log('myMetis.allowGenerateCurrentMetamodel', myMetis.allowGenerateCurrentMetamodel);
+              }
               const project = {
                 // "id":           myMetis.id, // ToDo: add id to project
                 "name": myMetis.name,
@@ -3196,6 +3178,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         "routing": l.data.routing,
         "corner": l.data.corner,
         "curve": l.data.curve,
+        "points": l.data.points,
       }
       myFromLinks.push(myFromLink);
     }

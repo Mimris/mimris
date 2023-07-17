@@ -12,6 +12,17 @@ const printf = require('printf');
 
 const $ = go.GraphObject.make;
 
+export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
+    if (modelview) {
+        modelview.focusObjectView = objview;
+    }
+}
+export function clearFocus(modelview: akm.cxModelView) {
+    if (modelview) {
+        modelview.focusObjectView = null;
+    }
+}
+
 export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     const mmname = prompt("Enter Metamodel name");
     if (mmname == null || mmname == "") {
@@ -711,14 +722,16 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     let n = myDiagram.findNodeForKey(node.key);
     let links = n.findLinksOutOf();
     if (debug) console.log('596 links', links);
-    for (let it = links?.iterator; it?.next();) {
-        let lv = it.value;
-        const ltypename = lv.data.name;
-        linktypeNames.push(ltypename);
+    if (links.count > 0) {
+        for (let it = links?.iterator; it?.next();) {
+            let lv = it.value;
+            const ltypename = lv.data.name;
+            linktypeNames.push(ltypename);
+        }
+        if (debug) console.log('603 linktypeNames', linktypeNames);
+        let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
+        linktypeNames = uniqueSet;
     }
-    if (debug) console.log('603 linktypeNames', linktypeNames);
-    let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
-    linktypeNames = uniqueSet;
     let reltypeNames = [];
     const myMetamodel = myMetis.currentMetamodel;
     if (debug) console.log('608 myMetamodel', myMetamodel);
@@ -737,9 +750,9 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             objtypenames.push(n.data.objecttype.name);
         }
     }
-    uniqueSet = utils.removeArrayDuplicates(objtypenames);
+    let uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;
-    uniqueSet = utils.removeArrayDuplicates(objtypes);
+    uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
     if (debug) console.log('626 objtypenames, objtypes', objtypenames, objtypes);
     if (debug) console.log('627 myMetis', myMetis);
@@ -1099,13 +1112,16 @@ function deleteMetamodel2(context: any) {
             myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
         }       
     }
-    // const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-    // let data = JSON.parse(JSON.stringify(jsnMetamodel));
-    let data = {id: metamodel.id, markedAsDeleted: true};
-    if (!debug) console.log('1105 data', data, metamodel.name);
-    myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    if (myMetis.currentTargetMetamodel?.id === metamodel.id) {
+        myMetis.currentTargetMetamodel = null;
+        myMetis.currentTargetMetamodelRef = "";
+    }
     uic.purgeMetaDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = { metis: jsnMetis }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 function clearMetamodel2(context: any) {
@@ -1303,7 +1319,6 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     model.markedAsDeleted = true;
     modifiedModels.map(mn => {
         let data = {id: model.id, markedAsDeleted: true};
-        if (!debug) console.log('1311 data', data);
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     alert("The model '" + model.name + "' has been deleted!");

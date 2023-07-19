@@ -8,34 +8,28 @@ const debug = false;
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	if (debug) console.log('11 Navbar currentRoute', currentRoute, props);
+	if (!debug) console.log('11 Navbar currentRoute', router, currentRoute, props);
 
 	const target = "";
 
-	const LinkDiv = (router.pathname === "https://akmmclient.vercel.app/modelling")
-	?
-	<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "2px" }}>
-		<strong>AKM Modeller </strong>
-		<span className="d-flex justify-content-between">
-			{/* <span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: beta</span> */}
-			<Link href="https://akmmclient-beta.vercel.app/modelling" target={target} style={{width: "280px"}} >
-				<span className="bg-light border border-light text-secondary rounded ms-2 mb-2" style={{ fontSize: 10 }}>Goto Beta v.</span>
-			</Link>
+	const LinkDiv = 
+		<span className="fs-3 d-flex justify-content-between " style={{ fontsize: "30%", minWidth: "300px", marginTop: "2px" }}>
+			<strong>AKM Modeller </strong>
+			<span className="d-flex">
+				<Link href="https://akmmclient.vercel.app/modelling" target={target} style={{width: "50px"}}>
+	 				<span className="bg-light border border-light text-secondary rounded ms-2 mb-2" style={{ fontSize: 10 }}>Final v.</span>
+				</Link>
+				<Link href="https://akmmclient-beta.vercel.app/modelling" target={target} style={{width: "70px"}} >
+					<span className="bg-light border border-light text-secondary rounded ms-0 mb-2" style={{ fontSize: 10 }}>Beta v.</span>
+				</Link>
+			</span>
 		</span>
-	</span>
-	:
-	<span className="fs-4 d-flex align-items-center no-wrap 
-	 " style={{ fontsize: "50%", minWidth: "380px", marginTop: "8px" }}>
-		<strong>AKM Modeller </strong>
-			<Link href="https://akmmclient.vercel.app/modelling" target={target} style={{width: "280px"}}>
-				<span className="bg-light border border-light text-secondary rounded ms-2 mb-2" style={{ fontSize: 10 }}>Goto Final v.</span>
-			</Link>
-	</span>
+
 
 	return (
 		<nav className="navbar navbar-expand-sm d-flex justify-content-between my-0 py-0">
 			<a className="navbar-brand navbar-left mr-4" href="#">
-				<img src="images/equinor-logo.svg" width="100px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
+				<img src="images/equinor-logo.svg" width="100px" height="400px" className="d-inline-block align-top" alt="Equinor logo" />
 			</a>
 			<div className="d-flex justify-content-between ">
 				<div className="d-flex " >

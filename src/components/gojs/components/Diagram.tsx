@@ -146,6 +146,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectContextClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SubGraphExpanded', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SubGraphCollapsed', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 

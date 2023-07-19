@@ -1186,6 +1186,7 @@ export class cxMetis {
                     objview.setTextscale(item.textscale);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
+                    objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
                     if (item.isExpanded == undefined) {
@@ -8807,6 +8808,14 @@ export class cxObjectView extends cxMetaObject {
         if (utils.objExists(this.groupLayout))
             return this.groupLayout;
         return "";
+    }
+    setGroupIsExpanded(flag: boolean) {
+        this.isExpanded = flag;
+    }
+    getGroupIsExpanded(): boolean {
+        if (utils.objExists(this.isExpanded))
+            return this.isExpanded;
+        return false;
     }
     getParentModelView(model: cxModel): cxModelView | null {
         const mviews = model.modelviews;

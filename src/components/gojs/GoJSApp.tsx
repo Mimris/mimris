@@ -1495,7 +1495,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               relview.toArrow = link.toArrow;
               relview.fromArrowColor = link.fromArrowColor;
               relview.toArrowColor = link.toArrowColor;
-              // Prepate dispatch
+              // Prepare dispatch
               const jsnRelview = new jsn.jsnRelshipView(relview);
               modifiedRelshipViews.push(jsnRelview);
               const jsnRelship = new jsn.jsnRelationship(relview.relship);
@@ -1629,6 +1629,17 @@ class GoJSApp extends React.Component<{}, AppState> {
           modifiedRelshipViews.push(jsnRelview);
         }
         break;
+      }
+      case "SubGraphCollapsed":
+      case "SubGraphExpanded": {
+          e.subject.each(function (n) {
+              const data = n.data;
+              const objview = data?.objectview;
+              objview.isExpanded = data.isExpanded;
+              const jsnObjview = new jsn.jsnObjectView(objview);
+              modifiedObjectViews.push(jsnObjview);
+          });
+          break;
       }
       case "BackgroundSingleClicked": {
         if (debug) console.log('1615 BackgroundSingleClicked', e, e.diagram);

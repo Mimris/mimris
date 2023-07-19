@@ -194,6 +194,14 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.07.19</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - ExportSVG button for saving current modelview as SVG-file<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2023.02.10</CardTitle>
               <CardText >
                     &bull; New features:<br />

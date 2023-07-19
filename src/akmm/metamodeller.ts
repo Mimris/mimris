@@ -74,6 +74,7 @@ export class cxMetis {
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
     pasted:             boolean = false;
+    relinkedRelview:    cxRelationshipView | null = null;
     modelType:          string = "";
     adminModel:         cxModel;
     showAdminModel:     boolean;

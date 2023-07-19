@@ -215,6 +215,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
+    myMetis.relinked = false;
     if (debug) console.log('208 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
@@ -254,10 +255,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     let modifiedRelships = new Array();
     let modifiedObjectViews = new Array();
     let modifiedRelshipViews = new Array();
-    let selectedObjectViews = new Array();
-    let selectedRelshipViews = new Array();
-    let selectedObjectTypes = new Array();
-    let selectedRelationshipTypes = new Array();
     let done = false;
     let pasted = false;
 
@@ -421,10 +418,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const relview = relviews[i];
                   relview.name = text;
                   const jsnRelview = new jsn.jsnRelshipView(relview);
-                  if (debug) console.log('407 jsnRelview', jsnRelview);
                   modifiedRelshipViews.push(jsnRelview);
                   const jsnRel = new jsn.jsnRelationship(rel);
-                  if (debug) console.log('418 jsnRel', jsnRel);
                   modifiedRelships.push(jsnRel);
                   // Dispatches
                   modifiedRelships.map(mn => {
@@ -777,18 +772,25 @@ class GoJSApp extends React.Component<{}, AppState> {
                       if (rel) {
                         myModel.addRelationship(rel);
                         let relviews = rel.relshipviews;
+                        // Check if the hasMember relationship has views
                         if (!relviews || relviews?.length == 0) {
+                          // No views, create a new view
                           let relview = uic.addHasMemberRelshipView(rel, myModelview);
                           if (relview) {
                               rel.addRelationshipView(relview);
                               uic.setLinkProperties(relview, myMetis, myDiagram);
                               myModelview.addRelationshipView(relview);
+                              const jsnRelview = new jsn.jsnRelshipView(relview);
+                              modifiedRelshipViews.push(jsnRelview);
+                              const jsnRel = new jsn.jsnRelationship(rel);
+                              modifiedRelships.push(jsnRel);
                           }
                         } else if (relviews?.length == 1) {
                           let relview = relviews[0];
-                          if (fromNode.group !== toNode.group) 
-                            uic.setLinkProperties(relview, myMetis, myDiagram);
-                            myModelview.addRelationshipView(relview);
+                          uic.setLinkProperties(relview, myMetis, myDiagram);
+                          myModelview.addRelationshipView(relview);
+                          const jsnRelview = new jsn.jsnRelshipView(relview);
+                          modifiedRelshipViews.push(jsnRelview);
                         }
                       }
                   }
@@ -890,7 +892,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const relview = relviews[i];
               if (relview.id === rview.id) {
                   const points = [];
-                  for (let it = link.data.points.iterator; it?.next();) {
+                  for (let it = link.points.iterator; it?.next();) {
                     const point = it.value;
                     if (debug) console.log('1603 point', point.x, point.y);
                     points.push(point.x)
@@ -908,8 +910,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         let data = JSON.parse(JSON.stringify(jsnModelview));
         context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-      }
         return;
+      }
       case "SelectionDeleting": {
         if (debug) console.log('727 myMetis', myMetis);
         const deletedFlag = true;
@@ -1101,16 +1103,16 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const jsnRelship = new jsn.jsnRelationship(relship);
                   modifiedRelships.push(jsnRelship);
                 }
-                const jsnRelshipView = new jsn.jsnRelshipView(relview);
-                modifiedRelshipViews.push(jsnRelshipView);
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                modifiedRelshipViews.push(jsnRelview);
               }
             }
           }
         }
         if (debug) console.log('933 myMetis', myMetis);
-      }
         if (debug) console.log('935 Deletion completed', myMetis);
         break;
+      }
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
           if (debug) console.log('1149 n.data', n.data, n);
@@ -1211,8 +1213,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('972 myGoModel', myGoModel, myMetis);
           node.updateTargetBindings();
         })
-      }
         break;
+      }
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
         const node = sel.data;
@@ -1228,8 +1230,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('990 myMetis', myMetis);
             break;
         }
-      }
         break;
+      }
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
@@ -1271,15 +1273,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!(n instanceof go.Node)) continue;
           if (debug) console.log('1079 n', n.data);
         }
-      }
         break;
+      }
       case "ObjectContextClicked": { // right clicked
         const sel = e.subject.part;
         const data = sel.data;
         // dispatch to focusCollection here ???
         // console.log('1086 selected', data, sel);
-      }
         break;
+      }
       case "PartResized": {
         const part = e.subject.part;
         const data = e.subject.part.data;
@@ -1306,13 +1308,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           const jsnObjview = new jsn.jsnObjectView(objview);
           uic.addItemToList(modifiedObjectViews, jsnObjview);
         }
-        if (debug) console.log('1032 node, objview', node, objview);      }
+        if (debug) console.log('1032 node, objview', node, objview);
         break;
+      }
       case 'ClipboardChanged': {
         const nodes = e.subject;
         if (debug) console.log('nodes', nodes);
-      }
         break;
+      }
       case 'ClipboardPasted': {
         // First remember the FROM locs
         const myFromNodes = myMetis.currentModel.args1;
@@ -1502,8 +1505,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         if (debug) console.log('1491 ClipboardPasted', modifiedRelshipViews, modifiedRelships, myMetis);
         myDiagram.requestUpdate();
-      }
         break;
+      }
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
@@ -1569,13 +1572,24 @@ class GoJSApp extends React.Component<{}, AppState> {
           uic.createRelationship(data, context);
         }
         myDiagram.requestUpdate();
-      }
         break;
+      }
       case "LinkRelinked": {
-        const link = e.subject;
-        const fromNode = link.fromNode?.data;
-        const toNode = link.toNode?.data;
-        if (debug) console.log('1574 link, fromNode, toNode', link, fromNode, toNode);
+        let link = e.subject;
+        const key = link.key;
+        let fromNode = link.fromNode?.data;
+        let toNode = link.toNode?.data;
+
+        let points = [];
+        for (let it = link.points.iterator; it?.next();) {
+          const point = it.value;
+          points.push(point.x)
+          points.push(point.y)
+        }
+
+        let relview = link.data?.relshipview;
+        relview.points = points;
+        myMetis.relinkedRelview = relview;
         const newLink = e.subject.data;
         newLink.category = constants.gojs.C_RELATIONSHIP;
         if (fromNode.category === constants.gojs.C_OBJECTTYPE)
@@ -1587,12 +1601,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.modifiedRelshipTypes = modifiedRelshipTypes;
         context.modifiedRelshipTypeViews = modifiedRelshipTypeViews;
         uic.onLinkRelinked(newLink, fromNode, toNode, context);
-        if (debug) console.log('1586 LinkRelinked', modifiedRelshipViews);
-        if (debug) console.log('1587 LinkRelinked', modifiedRelships);
-        if (debug) console.log('1588 LinkRelinked', modifiedRelshipTypes);
+        // modifiedRelshipViews = context.modifiedRelshipViews;
+        // modifiedRelships = context.modifiedRelships;
+        // modifiedRelshipTypes = context.modifiedRelshipTypes;
+        // modifiedRelshipTypeViews = context.modifiedRelshipTypeViews;
         myDiagram.requestUpdate();
-      }
         break;
+      }
       case "LinkReshaped": {
         let link = e.subject;
         link = myDiagram.findLinkForKey(link.key);
@@ -1613,20 +1628,37 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
           modifiedRelshipViews.push(jsnRelview);
         }
-      }
         break;
+      }
       case "BackgroundSingleClicked": {
         if (debug) console.log('1615 BackgroundSingleClicked', e, e.diagram);
         uid.clearFocus(myModelview); 
-      }
+        // const relview = myMetis.relinkedRelview;
+        // if (relview) {
+        //   const link = uid.getLinkByViewId(relview.id, myDiagram);
+        //   if (link) {
+        //     relview.points = link.points;
+        //     const jsnRelview = new jsn.jsnRelshipView(relview);
+        //     modifiedRelshipViews.push(jsnRelview);
+        //     myMetis.relinkedRelview = null;
+        //   }
+        // }
         break;
+      }
       case "BackgroundDoubleClicked": {
         if (debug) console.log('1619 BackgroundDoubleClicked', e, e.diagram);
-      }
         break;
-      default:
+      }
+      case "ModelChanged": {
+        // if (e.isTransactionFinished) {
+          console.log("Transaction Finished");
+        // }
+      }
+
+      default: {
         if (debug) console.log('1399 GoJSApp event name: ', name);
         break;
+      }
     }
     // Dispatches
     if (true) {

@@ -329,7 +329,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     {
       myDiagram =
         $(go.Diagram,
-          {
+          { 
             initialContentAlignment: go.Spot.Center,       // center the content
             initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": function () {
@@ -339,11 +339,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
             // "initialAutoScale": go.Diagram.UniformToFill,
+
             // "undoManager.isEnabled": true,  // must be set to allow for model change listening
             // "undoManager.maxHistoryLength": 100,  // uncomment disable undo/redo functionality
 
-            "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
-            "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
+            // "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
+            // "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
 
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             // 'draggingTool.horizontalGuidelineColor': 'blue',

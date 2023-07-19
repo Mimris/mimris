@@ -13,26 +13,24 @@ const Navbar = (props) => {
 	const target = "";
 
 
-	const LinkDiv = (router.pathname !== "https://akmmclient.vercel.app/modelling")
+	const LinkDiv = (router.pathname === "https://akmmclient.vercel.app/modelling")
 		?
-		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
+		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "2px" }}>
 			<strong>AKM Modeller </strong>
 			<span className="d-flex justify-content-between">
 				{/* <span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: beta</span> */}
-				<Link href="https://akmmclient-beta.vercel.app/modelling" target={target}>
-					<span className="bg-light border border-light text-secondary pt-0 mt-0 rounded" style={{ fontSize: 8 }}>Goto Beta v.</span>
+				<Link href="https://akmmclient-beta.vercel.app/modelling" target={target}> style={{width: "280px"}}>
+					<span className="bg-light border border-light text-secondary rounded ms-2 mb-2" style={{ fontSize: 10 }}>Goto Beta v.</span>
 				</Link>
 			</span>
 		</span>
 		:
-		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
+		<span className="fs-4 d-flex align-items-center no-wrap 
+		 " style={{ fontsize: "50%", minWidth: "380px", marginTop: "8px" }}>
 			<strong>AKM Modeller </strong>
-			<span className="d-flex justify-content-between" >
-				{/* <span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: released</span> */}
-				<Link href="https://akmmclient.vercel.app/modelling" target={target}>
-					<span className="bg-light border border-light text-secondary  pt-0 mt-0 rounded" style={{ fontSize: 8 }}>Goto Final v.</span>
+				<Link href="https://akmmclient.vercel.app/modelling" target={target} style={{width: "280px"}}>
+					<span className="bg-light border border-light text-secondary rounded ms-2 mb-2" style={{ fontSize: 10 }}>Goto Final v.</span>
 				</Link>
-			</span>
 		</span>
 
 	return (
@@ -41,7 +39,7 @@ const Navbar = (props) => {
 				<img src="images/equinor-logo.svg" width="100px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 			</a>
 			<div className="d-flex justify-content-between ">
-				<div className="d-flex " >
+				<div className="d-flex justify-content-between">
 					{LinkDiv}
 				</div>
 				<div className="collapse navbar-collapse mt-1" id="nav-toggler-metis">

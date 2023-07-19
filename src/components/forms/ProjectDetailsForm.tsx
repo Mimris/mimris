@@ -18,6 +18,7 @@ function ProjectDetailsForm(props) {
   const [branch, setBranch] = useState(props.props.phFocus?.focusProj.branch);
 
 
+
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
     

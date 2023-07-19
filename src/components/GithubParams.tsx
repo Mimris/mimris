@@ -15,23 +15,25 @@ export default function GithubParams(props) {  // props = props.phFocus
 
 
   return (
-    <Container className=' p-1' style={{backgroundColor: "#cdd"}}>
+    <Container className=' p-1 ' style={{backgroundColor: "#cdd"}}>
         <h4 className='text-primary fs-6'>You have loaded a model from the following repo on GitHub :</h4>
-      <Container className='project my-1 py-2 ' style={{background: "#dee"}}>
-        <Row className="bg-secondary my-1 p-1 text-light flex justify-content-between" >
+      <Container className='project my-1 py-2 px-1' style={{background: "#dee"}}>
+        <Row className="bg-secondary my-1 p-1 text-light" >
           <Col>Org</Col>
           <Col>Repository</Col>
-          <Col>Path</Col>
+          <Col style={{maxWidth: "100px"}}>Path </Col>
           <Col>Modelfile</Col>
-          <Col>Branch</Col>
+          <Col style={{maxWidth: "100px"}}>Branch</Col>
+          <Col style={{maxWidth: "60px"}}>ProjNo</Col>
         </Row>
         <div className="border " style={{background: "#ef"}}><strong>
-          <Row key={1} className='flex justify-content-between'>
+          <Row key={1} className=''>
             <Col key={1} className='bg-white m-1' >{props.phFocus.focusProj?.org} </Col>
             <Col key={2} className='bg-white m-1' >{props.phFocus.focusProj?.repo} </Col>
-            <Col key={3} className='bg-white m-1' >{props.phFocus.focusProj?.path} </Col>
+            <Col key={3} className='bg-white m-1' style={{maxWidth: "100px"}}>{props.phFocus.focusProj?.path} </Col>
             <Col key={4} className='bg-white m-1' >{props.phFocus.focusProj?.file} </Col>
-            <Col key={5} className='bg-white m-1' >{props.phFocus.focusProj?.branch} </Col>
+            <Col key={5} className='bg-white m-1' style={{maxWidth: "100px"}}>{props.phFocus.focusProj?.branch} </Col>
+            <Col key={6} className='bg-white m-1' style={{maxWidth: "50px"}}>{props.phFocus.focusProj?.projectNumber} </Col>
           </Row></strong>
         </div>
         {/* <div className="d-flex justify-content-center ">

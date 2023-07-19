@@ -12,14 +12,15 @@ const Navbar = (props) => {
 
 	const target = "";
 
-	const LinkDiv = (router.pathname !== "https://akmmclient-main-git-main23-snorres.vercel.app/modelling")
+
+	const LinkDiv = (router.pathname !== "https://akmmclient.vercel.app/modelling")
 		?
 		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
 			<span className="d-flex justify-content-between">
-				<span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: beta</span>
-				<Link href="https://akmmclient-main-git-main23-snorres.vercel.app/modelling" target={target}>
-					<span className="bg-light border border-light text-secondary pt-0 mt-0 rounded" style={{ fontSize: 8 }}>released</span>
+				{/* <span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: beta</span> */}
+				<Link href="https://akmmclient-beta.vercel.app/modelling" target={target}>
+					<span className="bg-light border border-light text-secondary pt-0 mt-0 rounded" style={{ fontSize: 8 }}>Goto Beta v.</span>
 				</Link>
 			</span>
 		</span>
@@ -27,9 +28,9 @@ const Navbar = (props) => {
 		<span className="fs-3 " style={{ fontsize: "30%", minWidth: "280px", marginTop: "5px" }}>
 			<strong>AKM Modeller </strong>
 			<span className="d-flex justify-content-between" >
-				<span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: released</span>
-				<Link href="https://akmmclient-1jnvawxc7-snorres.vercel.app/modelling" target={target}>
-					<span className="bg-light border border-light text-secondary  pt-0 mt-0 rounded" style={{ fontSize: 8 }}>beta</span>
+				{/* <span className="text-secondary px-1 rounded " style={{ fontSize: 8 }}>v.: released</span> */}
+				<Link href="https://akmmclient.vercel.app/modelling" target={target}>
+					<span className="bg-light border border-light text-secondary  pt-0 mt-0 rounded" style={{ fontSize: 8 }}>Goto Final v.</span>
 				</Link>
 			</span>
 		</span>

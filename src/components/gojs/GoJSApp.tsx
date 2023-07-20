@@ -1237,25 +1237,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = sel.data;
         console.log('1237 selected', data, sel);
         if (false) {
-          const expanded = sel.isSubGraphExpanded;
-          const nodes = myDiagram.nodes;
-          for (let it = nodes.iterator; it?.next();) {
-              const node = it.value;
-              let objview = node.data.objectview;
-              if (node.key === sel.key) {
-                node.isSelected = true;
-                // if (objviewisExpanded)
-                //   objview.isExpanded = expanded;
-              } else
-                node.isSelected = false;
-          }
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {
             focusObjview.isSelected = sel.isSelected;
             const fov = { 
                 id: focusObjview.id, 
                 isSelected: sel.isSelected,
-                // isExpanded: expanded,
             };
           }
         }

@@ -79,7 +79,7 @@ const page = (props: any) => {
 
   useEffect(() => {
 
-    if (!debug) console.log('82 project useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('82 project useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
     const getQueryParams = async () => {
       try {
 

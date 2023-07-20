@@ -152,7 +152,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         console.log('100 ReadModelFromFile', data)
 
-        if (!debug) console.log('187 ReadModelFromFile 1', data.phData?.metis)
+        if (debug) console.log('187 ReadModelFromFile 1', data.phData?.metis)
 
         // -------------map over objecttypes in modelff and add typeName from objecttypes
         function addTypenameFromObjectTypes(objecttypes, objects) { // obecttypes and objects is imported from file
@@ -279,7 +279,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         // ---------------------  check type of import --------------------- Todo: this can be removed
 
         if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
-            if (!debug) console.log('248 ReadModelFromFile _MV found', data)
+            if (debug) console.log('248 ReadModelFromFile _MV found', data)
 
             if (!impObjects) { //|| !impRelships) {
                 const r = window.confirm("This Modelview import has no Objects and/or Relships. Click OK to cancel?")
@@ -339,7 +339,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 }
             }
         }
-        if (!debug) console.log('333 ReadModelFromFile', data, importedfile.phData.metis.models, importedfile.phData.metis.metamodels)
+        if (debug) console.log('333 ReadModelFromFile', data, importedfile.phData.metis.models, importedfile.phData.metis.metamodels)
 
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)

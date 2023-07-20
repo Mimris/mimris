@@ -184,21 +184,21 @@ const Modeller = (props: any) => {
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
   const handleProjectChange = (event) => { // Editing project name
-    if (!debug) console.log('186 Modeller: handleProjectChange', event);
+    if (debug) console.log('186 Modeller: handleProjectChange', event);
     setProjectName(event.target.value);
   }
   const handleProjectBlur = () => { // finish editing project name
-    if (!debug) console.log('190 Modeller: handleProjectChange', displayValue);
+    if (debug) console.log('190 Modeller: handleProjectChange', displayValue);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
   }
   const handleModelviewChange = (event) => { // Editing project name
-    if (!debug) console.log('186 Modeller: handleProjectChange', event);
+    if (debug) console.log('186 Modeller: handleProjectChange', event);
     setMvName(event.target.value);
   }
   const handleModelviewBlur = () => { // finish editing project name
-    if (!debug) console.log('190 Modeller: handleProjectChange', displayValue);
+    if (debug) console.log('190 Modeller: handleProjectChange', displayValue);
     dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: displayValue, name: displayValue } }); // set focus project
   }

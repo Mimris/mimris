@@ -2265,7 +2265,6 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 relinkableFrom: true, 
                 relinkableTo: true, 
                 adjusting: go.Link.Stretch,
-                // adjusting: go.Link.End,
                 reshapable: true,
                 resegmentable: true  
             },

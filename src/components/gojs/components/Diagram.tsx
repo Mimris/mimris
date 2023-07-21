@@ -136,6 +136,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
+      diagram.addDiagramListener('InitialLayoutCompleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LayoutCompleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkReshaped', this.props.onDiagramEvent);
@@ -2710,8 +2712,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
               let layout = myGoModel.modelView?.layout;
-              if (myMetis.modelType === 'Metamodelling')
-                layout = myGoModel.metamodel?.layout;
+              if (myMetis.modelType === 'Metamodelling') {
+                const myMetamodel = myMetis.currentMetamodel;
+                layout = myMetamodel.layout;
+              }
               setLayout(myDiagram, layout);
             },
             function (o: any) {
@@ -3218,6 +3222,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           myDiagram.layout.isOngoing = false;
           break;
       }
+      myDiagram.layoutDiagram();
     }
 
     // this DiagramEvent handler is called during the linking or relinking transactions

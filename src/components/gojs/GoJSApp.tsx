@@ -766,26 +766,27 @@ class GoJSApp extends React.Component<{}, AppState> {
                   node.scale1 = Number(toScale.valueOf());
                   myDiagram.model.setDataProperty(n, "scale", node.scale1);
                   // Handle hasMember relationships     
-                  let rel = uic.hasMemberRelship(node, myMetis);  
-                  if (rel) {
-                      rel = myModel.findRelationship(rel.id);
-                      if (rel) {
-                        myModel.addRelationship(rel);
-                        let relviews = rel.relshipviews;
+                  let hasMemberRel = uic.hasMemberRelship(node, myMetis);  
+                  if (hasMemberRel) {
+                      hasMemberRel = myModel.findRelationship(hasMemberRel.id);
+                      if (hasMemberRel) {
+                        myModel.addRelationship(hasMemberRel);
                         // Check if the hasMember relationship has views
+                        let relviews = hasMemberRel.relshipviews;
                         if (!relviews || relviews?.length == 0) {
                           // No views, create a new view
-                          let relview = uic.addHasMemberRelshipView(rel, myModelview);
+                          let relview = uic.addHasMemberRelshipView(hasMemberRel, myModelview);
                           if (relview) {
-                              rel.addRelationshipView(relview);
+                              hasMemberRel.addRelationshipView(relview);
                               uic.setLinkProperties(relview, myMetis, myDiagram);
                               myModelview.addRelationshipView(relview);
+                              // Prepare dispatch
                               const jsnRelview = new jsn.jsnRelshipView(relview);
                               modifiedRelshipViews.push(jsnRelview);
-                              const jsnRel = new jsn.jsnRelationship(rel);
+                              const jsnRel = new jsn.jsnRelationship(hasMemberRel);
                               modifiedRelships.push(jsnRel);
                           }
-                        } else if (relviews?.length == 1) {
+                        } else if (relviews?.length == 1) { // There is one view
                           let relview = relviews[0];
                           uic.setLinkProperties(relview, myMetis, myDiagram);
                           myModelview.addRelationshipView(relview);

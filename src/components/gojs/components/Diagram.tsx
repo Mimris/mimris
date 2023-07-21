@@ -2710,9 +2710,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Do Layout",
             function (e: any, obj: any) {
-              const myGoModel = myMetis.gojsModel;
-              let layout = myGoModel.modelView?.layout;
-              if (myMetis.modelType === 'Metamodelling') {
+              let layout = "";
+              if (myMetis.modelType === 'Modelling') {
+                const myGoModel = myMetis.gojsModel;
+                layout = myGoModel.modelView?.layout;
+              } else if (myMetis.modelType === 'Metamodelling') {
                 const myMetamodel = myMetis.currentMetamodel;
                 layout = myMetamodel.layout;
               }
@@ -2720,6 +2722,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               return true;
+            }),
+          makeButton("Save Diagram",
+            function (e: any, obj: any) {
+              const myMetamodel = myMetis.currentMetamodel;
+              const nodes = myDiagram.nodes;
+              const objtypegeos = [];
+              for (let it = nodes.iterator; it?.next();) {
+                const node = it.value;
+                const data = node.data;
+                const objtype = data.objecttype;
+                if (objtype) {
+                  const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, "", "");
+                  objtypeGeo.setLoc(data.loc);
+                  objtypeGeo.setSize(data.size);
+                  objtypeGeo.setModified();
+                  objtypegeos.push(objtypeGeo);
+                  const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
+                  const geo = JSON.parse(JSON.stringify(jsnObjtypeGeo));
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', geo });
+                }
+                // UPDATE_METAMODEL_PROPERTIES
+                const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
+                e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', jsnMetamodel });
+              }
+              myMetamodel.objtypegeos = objtypegeos;
+              if (!debug) console.log('3120 objtypegeos, myMetamodel', objtypegeos, myMetamodel);
+          },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') 
+                return true;
+              return false;
             }),
           makeButton("Set Link Routing",
             function (e: any, obj: any) {

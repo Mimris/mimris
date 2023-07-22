@@ -502,6 +502,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Object type
           if (typename === "Object type") 
           {
+            const objtypegeos = context.myMetamodel.purgeObjtypeGeos();
+            context.myMetamodel.objtypegeos = objtypegeos;
             const objtype = myMetis.findObjectType(data.objecttype.id);
             if (objtype) {
               let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
@@ -515,7 +517,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               const geo = JSON.parse(JSON.stringify(jsnObjtypeGeo));
               context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', geo });
             }
-          }
+            if (debug) console.log('520 myMetamodel', context.myMetamodel);
+            const jsnMetamodel = new jsn.jsnMetaModel(context.myMetamodel);
+            const dt = JSON.parse(JSON.stringify(jsnMetamodel));
+            context.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', dt });
+        }
           else // Object
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.

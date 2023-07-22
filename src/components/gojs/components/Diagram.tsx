@@ -2723,7 +2723,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Save Diagram",
+          makeButton("Save Layout",
             function (e: any, obj: any) {
               const myMetamodel = myMetis.currentMetamodel;
               const nodes = myDiagram.nodes;
@@ -2738,17 +2738,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   objtypeGeo.setSize(data.size);
                   objtypeGeo.setModified();
                   objtypegeos.push(objtypeGeo);
-                  const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
-                  const geo = JSON.parse(JSON.stringify(jsnObjtypeGeo));
-                  e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', geo });
                 }
-                // UPDATE_METAMODEL_PROPERTIES
-                const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
-                e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', jsnMetamodel });
               }
               myMetamodel.objtypegeos = objtypegeos;
-              if (!debug) console.log('3120 objtypegeos, myMetamodel', objtypegeos, myMetamodel);
-          },
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+            },
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling') 
                 return true;

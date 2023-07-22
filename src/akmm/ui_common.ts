@@ -3260,7 +3260,11 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
                 metamodels.splice(i, 1);
                 msg += "A corrupt metamodel has been removed\n";
                 i--;
+            } else {
+                // Purge objtypegeos
+                mm.objtypegeos = mm.purgeObjtypeGeos();
             }
+
         }
     }    
 

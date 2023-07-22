@@ -715,6 +715,7 @@ export class cxMetis {
                 if (objtypegeo) 
                     this.importObjectTypegeo(objtypegeo, metamodel);
             });
+            metamodel.purgeObjtypeGeos();
         }
         if (debug) console.log('703 this', this);
         let objecttypeviews: any[] = item.objecttypeviews;
@@ -4223,6 +4224,7 @@ export class cxMetaModel extends cxMetaObject {
         return null;
     }
     findObjtypeGeoByType(type: cxObjectType): cxObjtypeGeo | null {
+        if (!type) return null;
         let geos = this.getObjtypeGeos();
         if (!geos) return null;
         for (let i = 0; i < geos.length; i++) {
@@ -4676,6 +4678,30 @@ export class cxMetaModel extends cxMetaObject {
     }
     getRouting(): string {
         return this.routing;
+    }
+    purgeObjtypeGeos(): cxObjtypeGeo[] | null {
+        const newobjtypeGeos = [];
+        const objtypeGeos = this.objtypegeos;
+        if (!objtypeGeos) return;
+        for (let i = 0; i < objtypeGeos.length; i++) {
+            const objtypeGeo = objtypeGeos[i];
+            if (objtypeGeo.isDeleted()) continue;  
+            if (newobjtypeGeos?.length === 0) {
+                newobjtypeGeos.push(objtypeGeo);
+                continue;
+            }
+            let found = false;
+            for (let j = 0; j < newobjtypeGeos?.length; j++) {   
+                const objtypeGeo2 = newobjtypeGeos[j];
+                if (objtypeGeo2?.type?.id === objtypeGeo?.type?.id) {
+                    found = true;
+                    continue;
+                }
+            }
+            if (!found) newobjtypeGeos.push(objtypeGeo);
+        }    
+        if (debug) console.log("purgeObjtypeGeos: " + newobjtypeGeos);  
+        return newobjtypeGeos;     
     }
     embedSubMetamodels() {
         let submetamodels = this.metamodels;

@@ -1496,36 +1496,36 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case 'LayoutCompleted': {
-        const nodes = myDiagram.nodes;
-        for (let it = nodes.iterator; it?.next();) {
-            const node = it.value;
-            const objectview = node.data.objectview;
-            if (objectview) {
-              objectview.loc = node.data.loc;
-              const jsnObjview = new jsn.jsnObjectView(objectview);
-              modifiedObjectViews.push(jsnObjview);              
-              myModelview.addObjectView(objectview);
-            } else {
-              const typeview = node.data.typeview;
-            }
-        }
-        const links = myDiagram.links;
-        for (let it = links.iterator; it?.next();) {
-          const link = it.value;
-          const relview = link.data.relshipview;
-          if (!relview) continue;
-          const points = [];
-          for (let it = link.points.iterator; it?.next();) {
-            const point = it.value;
-            if (debug) console.log('1603 point', point.x, point.y);
-            points.push(point.x)
-            points.push(point.y)
-          }
-          relview.points = points;
-          const jsnRelview = new jsn.jsnRelshipView(relview);
-          modifiedRelshipViews.push(jsnRelview);
-          myModelview.addRelationshipView(relview);
-        }
+        // const nodes = myDiagram.nodes;
+        // for (let it = nodes.iterator; it?.next();) {
+        //     const node = it.value;
+        //     const objectview = node.data.objectview;
+        //     if (objectview) {
+        //       objectview.loc = node.data.loc;
+        //       const jsnObjview = new jsn.jsnObjectView(objectview);
+        //       modifiedObjectViews.push(jsnObjview);              
+        //       myModelview.addObjectView(objectview);
+        //     } else {
+        //       const typeview = node.data.typeview;
+        //     }
+        // }
+        // const links = myDiagram.links;
+        // for (let it = links.iterator; it?.next();) {
+        //   const link = it.value;
+        //   const relview = link.data.relshipview;
+        //   if (!relview) continue;
+        //   const points = [];
+        //   for (let it = link.points.iterator; it?.next();) {
+        //     const point = it.value;
+        //     if (debug) console.log('1603 point', point.x, point.y);
+        //     points.push(point.x)
+        //     points.push(point.y)
+        //   }
+        //   relview.points = points;
+        //   const jsnRelview = new jsn.jsnRelshipView(relview);
+        //   modifiedRelshipViews.push(jsnRelview);
+        //   myModelview.addRelationshipView(relview);
+        // }
         break;
       }        
       case 'LinkDrawn': {

@@ -136,6 +136,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
+      diagram.addDiagramListener('InitialLayoutCompleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LayoutCompleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkReshaped', this.props.onDiagramEvent);
@@ -2708,14 +2710,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Do Layout",
             function (e: any, obj: any) {
-              const myGoModel = myMetis.gojsModel;
-              let layout = myGoModel.modelView?.layout;
-              if (myMetis.modelType === 'Metamodelling')
-                layout = myGoModel.metamodel?.layout;
+              let layout = "";
+              if (myMetis.modelType === 'Modelling') {
+                const myGoModel = myMetis.gojsModel;
+                layout = myGoModel.modelView?.layout;
+              } else if (myMetis.modelType === 'Metamodelling') {
+                const myMetamodel = myMetis.currentMetamodel;
+                layout = myMetamodel.layout;
+              }
               setLayout(myDiagram, layout);
             },
             function (o: any) {
               return true;
+            }),
+          makeButton("Save Layout",
+            function (e: any, obj: any) {
+              const myMetamodel = myMetis.currentMetamodel;
+              const nodes = myDiagram.nodes;
+              const objtypegeos = [];
+              for (let it = nodes.iterator; it?.next();) {
+                const node = it.value;
+                const data = node.data;
+                const objtype = data.objecttype;
+                if (objtype) {
+                  const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, "", "");
+                  objtypeGeo.setLoc(data.loc);
+                  objtypeGeo.setSize(data.size);
+                  objtypeGeo.setModified();
+                  objtypegeos.push(objtypeGeo);
+                }
+              }
+              myMetamodel.objtypegeos = objtypegeos;
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') 
+                return true;
+              return false;
             }),
           makeButton("Set Link Routing",
             function (e: any, obj: any) {
@@ -3218,6 +3252,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           myDiagram.layout.isOngoing = false;
           break;
       }
+      myDiagram.layoutDiagram();
     }
 
     // this DiagramEvent handler is called during the linking or relinking transactions

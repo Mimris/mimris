@@ -250,6 +250,14 @@ export class jsnMetaModel {
                 this.addObjectType0(objtype, includeViews);
             }
         }
+        const objtypegeos = metamodel.getObjtypeGeos();
+        if (objtypegeos) {
+            const cnt = objtypegeos.length;
+            for (let i = 0; i < cnt; i++) {
+                const objtypegeo = objtypegeos[i];
+                this.addObjtypeGeo(objtypegeo);
+            }
+        }
         const reltypes = metamodel.getRelshipTypes();
         if (reltypes) {
             if (debug) console.log('195 reltypes', reltypes);

@@ -828,7 +828,7 @@ function askForMetamodel(context: any) {
     if (debug) console.log('756 allMetaModels', allMetaModels, myMetamodel);
     for (let i=0; i<allMetaModels.length; i++) {
         const metaModel = allMetaModels[i];
-        if (!metaModel)
+        if (!metaModel || !metaModel.id)
             continue;
         if (metaModel.markedAsDeleted)
             continue;

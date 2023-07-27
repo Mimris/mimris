@@ -2186,55 +2186,29 @@ export function setLinkProperties(relview: akm.cxRelationshipView, myMetis: akm.
     const fromObjview = relview.fromObjview;
     const toObjview = relview.toObjview;
     if (fromObjview && toObjview) {
-        let link = myGoModel.findLinkByViewId(relview.id);
-        if (!link)
-            link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-        link.loadLinkContent(myGoModel);
-        link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-        link.from = link.fromNode?.key;
-        link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-        link.to = link.toNode?.key;
-        myGoModel.addLink(link);
-        myDiagram.startTransaction('add link')
-        myDiagram.model.addLinkData(link);
-        myDiagram.commitTransaction('add link');        
-    }
-
-
-    if (false) {
-    const myGoModel = myMetis.gojsModel;
-    const links = myDiagram.links;
-    let link = null;
-    for (let it = links.iterator; it?.next();) {
-        const lnk = it.value;
-        if (lnk.data.relshipview.id === relview.id) {
-            link = lnk.data;
-            break;
-        }    
-    }    
-    if (link) {
-        link = myGoModel.findLink(link.key);
-        if (link) {
-            myGoModel.addLink(link);
+        const links = myDiagram.links;
+        let found = false;
+        let link = null as gjs.goRelshipLink;
+        for (let it = links.iterator; it?.next();) {
+            const lnk = it.value;
+            if (lnk.data.relshipview.id === relview.id) {
+                link = myGoModel.findLinkByViewId(relview.id);
+                found = true;
+                break;
+            }    
+        }   
+        let newlink = null; 
+        if (!found) {
+            newlink = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+            link = newlink;
             link.loadLinkContent(myGoModel);
-        }
-    } else {
-        // Add link
-        const fromObjview = relview.fromObjview;
-        const toObjview = relview.toObjview;
-        if (fromObjview && toObjview) {
-            link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
             link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
             link.from = link.fromNode?.key;
             link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
             link.to = link.toNode?.key;
-            link.loadLinkContent(myGoModel);
             myGoModel.addLink(link);
-            myDiagram.startTransaction('add link')
             myDiagram.model.addLinkData(link);
-            myDiagram.commitTransaction('add link');
         }
-    }
     }
 }
 
@@ -3286,7 +3260,11 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
                 metamodels.splice(i, 1);
                 msg += "A corrupt metamodel has been removed\n";
                 i--;
+            } else {
+                // Purge objtypegeos
+                mm.objtypegeos = mm.purgeObjtypeGeos();
             }
+
         }
     }    
 

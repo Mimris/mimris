@@ -2732,22 +2732,23 @@ export function purgeDuplicatedRelshipViews(modelview: akm.cxModelView, metis: a
     const newRelshipviews = new Array();
     for (let i=0; i<relshipviews?.length; i++) {
         const relshipview = relshipviews[i];
-        const fromObjview = relshipview.fromObjview;
-        const toObjview = relshipview.toObjview;
+        if (relshipview.markedAsDeleted) 
+            continue;
+        const relship = relshipview.relship;
+        let found = false;
         for (let j=0; j<relshipviews2?.length; j++) {
             const relshipview2 = relshipviews2[j];
-            if (relshipview2.markedAsDeleted) {
-                // setLinkProperties(relshipview2, metis, diagram);
+            if (relshipview2.markedAsDeleted) 
                 continue;
-            }
-            const fromObjview2 = relshipview2.fromObjview;
-            const toObjview2 = relshipview2.toObjview;
-            if (fromObjview.id === fromObjview2.id && toObjview.id === toObjview2.id) {
-                if (relshipview.id === relshipview2.id) {
+            const relship2 = relshipview2.relship;
+            if (relship2.id === relship.id) {
+                if (!found) {
+                    found = true;
                     newRelshipviews.push(relshipview);
-                    continue;
+                } else {
+                    relshipview2.markedAsDeleted = true;
+                    newRelshipviews.push(relshipview);
                 }
-                relshipview2.markedAsDeleted = true;
             }
         }
     }

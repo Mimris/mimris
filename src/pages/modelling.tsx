@@ -107,7 +107,7 @@ const page = (props: any) => {
         console.log('modelling 80 ', error)
       }
     }
-    if (!debug) console.log('modelling 106a ', router)
+    if (debug) console.log('modelling 106a ', router)
 
     getQuery()
     

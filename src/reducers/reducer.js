@@ -255,7 +255,7 @@ function reducer(state = InitialState, action) {
         ...state,
         phData: action.data
       }
-      if (!debug) console.log('235 LOAD_TOSTORE_PHDATA', retval_LOAD_TOSTORE_PHDATA);
+      if (debug) console.log('235 LOAD_TOSTORE_PHDATA', retval_LOAD_TOSTORE_PHDATA);
       return retval_LOAD_TOSTORE_PHDATA;
     case LOAD_TOSTORE_PHFOCUS:
       if (debug) console.log('183 LOAD_TOSTORE_PHFOCUS', action);
@@ -675,7 +675,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_MODEL_PROPERTIES:
-      if (!debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
+      if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
       return {
         ...state,
         phData: {
@@ -770,7 +770,7 @@ function reducer(state = InitialState, action) {
           },
         }
       }
-      if (!debug) console.log('773 retval_UPDATE_OBJECT_PROPERTIES', retval_UPDATE_OBJECT_PROPERTIES)
+      if (debug) console.log('773 retval_UPDATE_OBJECT_PROPERTIES', retval_UPDATE_OBJECT_PROPERTIES)
       return retval_UPDATE_OBJECT_PROPERTIES
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
@@ -924,11 +924,11 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_METAMODEL_PROPERTIES:
-      if (!debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
+      if (debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       // const action_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === action.data.id) //incoming action meta model
       let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === action?.data?.id)  // current metamodel index
-      if (!debug) console.log('1009 UPDATE_METAMODEL_PROPERTIES', curmmindex_mm);
+      if (debug) console.log('1009 UPDATE_METAMODEL_PROPERTIES', curmmindex_mm);
 
       if (curmmindex_mm < 0) curmmindex_mm = state.phData.metis.metamodels.length
       return {
@@ -1376,7 +1376,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_OBJECTTYPEGEOS_PROPERTIES:
-      if (!debug) console.log('501 UPDATE_OBJECTTYPEGEOS_PROPERTIES', action);
+      if (debug) console.log('501 UPDATE_OBJECTTYPEGEOS_PROPERTIES', action);
       const curmod = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmm = state.phData?.metis?.metamodels?.find(m => m.id === curmod.metamodelRef)
       const curmmindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmod.metamodelRef)
@@ -1408,7 +1408,7 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-      if (!debug) console.log('1411 retval', retval_UPDATE_OBJECTTYPEGEOS_PROPERTIES);
+      if (debug) console.log('1411 retval', retval_UPDATE_OBJECTTYPEGEOS_PROPERTIES);
       return retval_UPDATE_OBJECTTYPEGEOS_PROPERTIES;
 
     case UPDATE_DATATYPE_PROPERTIES:

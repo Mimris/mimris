@@ -31,15 +31,28 @@ function FormField(props) {
 function FocusParametersForm(props) {
   const [focusModel, setFocusModel] = useState(props.phFocus?.focusModel?.id);
   const [focusModelview, setFocusModelview] = useState(props.phFocus?.focusModelview?.id);
+  const [focusObject, setFocusObject] = useState(props.phFocus?.focusObject?.id);
+  const [focusObjectview, setFocusObjectview] = useState(props.phFocus?.focusObjectview?.id);
+  const [focusOrg, setFocusOrg] = useState(props.phFocus?.focusOrg?.id);
+  const [focusProj, setFocusProj] = useState(props.phFocus?.focusProj?.id);
+  const [focusRole, setFocusRole] = useState(props.phFocus?.focusRole?.id);
+  const [focusTask, setFocusTask] = useState(props.phFocus?.focusTask?.id);
+  const [focusIssue, setFocusIssue] = useState(props.phFocus?.focusIssue?.id);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const dispatch = useDispatch();
-console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
+  console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
   const models = props.models;
   const curmod = models.find((model) => model.id === focusModel);
   const modelOptions = models.map((model) => ({ id: model.id, name: model.name }));
   const modelviews = curmod?.modelviews;
-    const modelviewOptions = modelviews?.map((modelview) => ({ id: modelview.id, name: modelview.name }));
+  const modelviewOptions = modelviews?.map((modelview) => ({ id: modelview.id, name: modelview.name }));
+  const objects = curmod?.objects;
+  const objectOptions = objects?.map((object) => ({ id: object.id, name: object.name }));
+  const objectviews = curmod?.objectviews;
+  const objectviewOptions = objectviews?.map((objectview) => ({ id: objectview.id, name: objectview.name }));
+
   console.log('30 FocusParametersForm: ', props, focusModel, focusModelview, models, curmod, modelviews);
 
   function handleEdit(fieldName, fieldValue) {
@@ -49,6 +62,27 @@ console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
         break;
       case 'focusModelview':
         setFocusModelview(fieldValue);
+        break;
+      case 'focusObject':
+        setFocusObject(fieldValue);
+        break;
+      case 'focusObjectview':
+        setFocusObjectview(fieldValue);
+        break;
+      case 'focusOrg':
+        setFocusOrg(fieldValue);
+        break;
+      case 'focusProj':
+        setFocusProj(fieldValue);
+        break;
+      case 'focusRole':
+        setFocusRole(fieldValue);
+        break;
+      case 'focusTask':
+        setFocusTask(fieldValue);
+        break;
+      case 'focusIssue':
+        setFocusIssue(fieldValue);
         break;
       default:
         break;
@@ -63,6 +97,27 @@ console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
         break;
       case 'focusModelview':
         fieldValue = focusModelview;
+        break;
+      case 'focusObject':
+        fieldValue = focusObject;
+        break;
+      case 'focusObjectview':
+        fieldValue = focusObjectview;
+        break;
+      case 'focusOrg':
+        fieldValue = focusOrg;
+        break;
+      case 'focusProj':
+        fieldValue = focusProj;
+        break;
+      case 'focusRole':
+        fieldValue = focusRole;
+        break;
+      case 'focusTask':
+        fieldValue = focusTask;
+        break;
+      case 'focusIssue':
+        fieldValue = focusIssue;
         break;
       default:
         break;
@@ -85,9 +140,37 @@ console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
         <h4>Current Context / Focus:</h4>
         <FormField label="Model" id="focusModel" value={focusModel} handleEdit={handleEdit} handleSave={handleSave} options={modelOptions} />
         <FormField label="Modelview" id="focusModelview" value={focusModelview} handleEdit={handleEdit} handleSave={handleSave} options={modelviewOptions} />
+        <FormField label="Object" id="focusObject" value={focusObject} handleEdit={handleEdit} handleSave={handleSave} options={objectOptions} />
+        <FormField label="Objectview" id="focusObjectview" value={focusObjectview} handleEdit={handleEdit} handleSave={handleSave} options={objectviewOptions} />
+        <FormField label="Org" id="focusOrg" value={focusOrg} handleEdit={handleEdit} handleSave={handleSave} />
+        <FormField label="Proj" id="focusProj" value={focusProj} handleEdit={handleEdit} handleSave={handleSave} />
+        <FormField label="Role" id="focusRole" value={focusRole} handleEdit={handleEdit} handleSave={handleSave} />
+        <FormField label="Task" id="focusTask" value={focusTask} handleEdit={handleEdit} handleSave={handleSave} />
+        <FormField label="Issue" id="focusIssue" value={focusIssue} handleEdit={handleEdit} handleSave={handleSave} />
+
       </div>
+      {/* <div>Context Focus:</div>
+
+        value='{focusModel?.name}
+
+        value={focusModelview?.name}
+
+        value={focusObject?.name}
+
+        value={focusObjectview?.name}
+
+        value={focusOrg?.name}
+
+        value={focusProj?.name}
+
+        value={focusRole?.name}
+
+        value={focusTask?.name}
+
+        value={focusIssue?.name}
+      </div> */}
     </form>
-  );
+  );      
 }
 
 export default FocusParametersForm;

@@ -17,8 +17,8 @@ function ProjectDetailsForm(props) {
   const [file, setFile] = useState(props.props.phFocus?.focusProj.file);
   const [branch, setBranch] = useState(props.props.phFocus?.focusProj.branch);
 
-  const [focusModel, setFocusModel] = useState(props.props.phFocus?.focusModel.name);
-  const [focusModelview, setFocusModelview] = useState(props.props.phFocus?.focusModelview.name);
+  const [focusModel, setFocusModel] = useState(props.props.phFocus?.focusModel);
+  const [focusModelview, setFocusModelview] = useState(props.props.phFocus?.focusModelview);
   const [focusObject, setFocusObject] = useState(props.props.phFocus?.focusObject);
   const [focusObjectview, setFocusObjectview] = useState(props.props.phFocus?.focusObjectview);
   const [focusOrg, setFocusOrg] = useState(props.props.phFocus?.focusOrg);
@@ -48,7 +48,8 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
     const data = { id: idnew, name: namenew, org, repo, path, file, branch, projectNumber };
-    const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, foucsIssue: foucsIssue }
+    // Todo: has to set id but show name in the list  ( look at Context button)
+    const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
     
     dispatch({ type: 'SET_FOCUS_PROJ', data });
     const timer = setTimeout(() => {
@@ -125,15 +126,15 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Model:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={focusModel}
+                    value={focusModel?.name}
                     onChange={(e) => setFocusModel(e.target.value)}
                   /> 
                 </div>
                 <div>
-                  <label>Modelview:</label>
+                  <label>Modelview:</label> 
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
+                    value={focusModelview?.name}
                     onChange={(e) => setFocusModelview(e.target.value)}
                   />
                 </div>
@@ -141,7 +142,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Object:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={path}
+                    value={focusObject?.name}
                     onChange={(e) => setFocusObject(e.target.value)}
                   />
                 </div>
@@ -149,7 +150,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Objectview:</label>
                   <input className='rounded bg-white'
                     type="text"
-                    value={file}
+                    value={focusObjectview?.name}
                     onChange={(e) => setFocusObjectview(e.target.value)}
                   />
                 </div>
@@ -157,7 +158,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Org:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={branch}
+                    value={focusOrg?.name}
                     onChange={(e) => setFocusOrg(e.target.value)}
                   />
                 </div>
@@ -165,7 +166,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Project:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={branch}
+                    value={focusProj?.name}
                     onChange={(e) => setFocusProj(e.target.value)}
                   />
                 </div>
@@ -173,7 +174,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Role:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={branch}
+                    value={focusRole?.name}
                     onChange={(e) => setFocusRole(e.target.value)}
                   />
                 </div>
@@ -181,7 +182,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Task:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={branch}
+                    value={focusTask?.name}
                     onChange={(e) => setFocusTask(e.target.value)}
                   />
                 </div>
@@ -189,7 +190,7 @@ console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, 
                   <label>Issue:</label>
                   <input className='rounded bg-white px-1'
                     type="text"
-                    value={branch}
+                    value={focusIssue?.name}
                     onChange={(e) => setFocusIssue(e.target.value)}
                   />
                 </div>

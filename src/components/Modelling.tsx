@@ -103,24 +103,24 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    if (!debug) useEfflog('106 Modelling useEffect 1 []', props);
+    if (debug) useEfflog('106 Modelling useEffect 1 []', props);
     GenGojsModel(props, dispatch);
     setMount(true)
   }, [])
 
   useEffect(() => {
-    if (!debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
+    if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
     GenGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
-    if (!debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
+    if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
     GenGojsModel(props, dispatch);
   }, [curmodview?.objectviews.length])
 
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (!debug) useEfflog('122 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',
+    if (debug) useEfflog('122 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',
       props.phFocus.focusModel?.name,
       props.phFocus.focusModelview?.name,
       props.phFocus?.focusRefresh?.name,
@@ -138,12 +138,12 @@ const page = (props: any) => {
   }, [props.phFocus?.focusModelview?.id])
 
   // useEffect(() => {
-  //   if (!debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
+  //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
   //   setRefresh(!refresh)
   // }, [memoryAkmmUser])
 
   // useEffect(() => {
-  //   if (!debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+  //   if (debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
   //   GenGojsModel(props, dispatch);
   //   const timer = setTimeout(() => {
   //     setRefresh(!refresh)
@@ -243,7 +243,7 @@ const page = (props: any) => {
   //   // set the myMetis object etc. from the props;
 
 
-  //   if (!debug) console.log('241 Modelling myModel', myMetis, myModel);
+  //   if (debug) console.log('241 Modelling myModel', myMetis, myModel);
   //   myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
   //   myMetamodel = myModel?.metamodel;
   //   myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
@@ -254,7 +254,7 @@ const page = (props: any) => {
   //   myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
   //   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
-  //   if (!debug) console.log('178 Modelling myMetamodel', myModelview, myMetamodel, myGoModel);
+  //   if (debug) console.log('178 Modelling myMetamodel', myModelview, myMetamodel, myGoModel);
   //   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
   //   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
   //   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel

@@ -158,6 +158,7 @@ export let types = {
           AKM_HAS_PORT          : "hasPort",
           AKM_HAS_PROPERTY      : "has",
           AKM_HAS_PROPERTIES    : "hasContent",
+          AKM_HAS_VIEWSTYLE     : "has",
           AKM_RELATIONSHIP_TYPE : "relationshipType",
           AKM_IS                : "Is",
           AKM_IS_OF_DATATYPE    : "isOf",

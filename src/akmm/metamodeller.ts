@@ -3567,6 +3567,14 @@ export class cxMetaModel extends cxMetaObject {
     getDatatypes(): cxDatatype[] | null {
         return this.datatypes;
     }
+    getCurrentViewstyle(): cxViewStyle | null {
+        return this.viewstyle;
+    }
+    setCurrentViewstyle(viewstyle: cxViewStyle) {
+        this.viewstyle = viewstyle;
+        if (!this.findViewStyle(viewstyle.id))
+            this.addViewStyle(viewstyle);
+    }
     getViewStyles(): cxViewStyle[] | null {
         return this.viewstyles;
     }

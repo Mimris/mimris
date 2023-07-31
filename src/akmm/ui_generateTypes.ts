@@ -4,6 +4,7 @@ const debug = false;
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';
+import { has } from 'immer/dist/internal';
 const constants = require('./constants');
 
 export function askForMetamodel(context: any, create: boolean) {
@@ -1632,6 +1633,30 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
             myMetamodel.addRelationshipType(reltype);
         }
     }
+    if (false) {
+    // Handle viewstyles
+    // Handle hasViewstyle relationships
+    const hasViewstyleType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_VIEWSTYLE); 
+    const viewstyles = [];
+    const rels = obj.getOutputRelshipsByType(hasViewstyleType);
+    for (let i=0; i<relships?.length; i++) {
+        const relship = rels[i];
+        if (!relship || !relship.toObject)
+            continue;
+        if (relship.toObject?.type?.name === constants.types.AKM_VIEWSTYLE) {
+            viewstyles.push(relship.toObject);
+        }
+    }
+    if (viewstyles.length === 1) {
+        const viewstyleobj = myMetis.findObject(viewstyle.id);
+        if (viewstyleobj) {
+            const guid = utils.createGuid();
+            const viewstyle = new akm.cxViewstyle(guid, viewstyleobj.name, viewstyleobj.description);
+            myMetamodel.addViewstyle(viewstyle);
+        }
+    }
+    }
+
     // Do the dispatches
     const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });

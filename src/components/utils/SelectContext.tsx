@@ -26,7 +26,7 @@ const SelectContext = (props: any) => {
 
   return (models) && (
     < >
-      <button className="btn-sm mt-0 pb-0 pt-0 mr-2" style={{height: "24px"}} color="link" onClick={toggle}>{buttonLabel}
+      <button className="btn-sm mt-0 pb-0 pt-0 mr-2 border border-rounded " style={{height: "24px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>
       <Modal isOpen={modal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>

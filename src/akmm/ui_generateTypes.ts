@@ -1530,7 +1530,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     data = JSON.parse(JSON.stringify(data));
     myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
     });
-    alert("Target targetMetamodel has been successfully generated!");
+    alert("The metamodel " + targetMetamodel.name + " has been successfully generated!");
     return targetMetamodel;
 }
 

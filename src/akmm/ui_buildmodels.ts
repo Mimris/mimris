@@ -723,21 +723,22 @@ let includeNoType = false;
 
                     // Refer to metamodel
                     let mMeta = m.metamodel;
-                    let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
-                    if (mmRef) {
-                      const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
-                      adminModel.addRelationship(relToMM);
-                      myMetis.addRelationship(relToMM);
+                    if (mMeta) {
+                      let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
+                      if (mmRef) {
+                        const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
+                        adminModel.addRelationship(relToMM);
+                        myMetis.addRelationship(relToMM);
 
-                      // Create relshipview from Model to Metamodel
-                      const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
-                      rvToMMv.setFromObjectView(mObjview);
-                      rvToMMv.setToObjectView(mmObjview);
-                      relToMM.addRelationshipView(rvToMMv);
-                      rvToMMv.strokecolor = 'blue';
-                      adminModelview.addRelationshipView(rvToMMv);
-                      myMetis.addRelationshipView(rvToMMv);
-
+                        // Create relshipview from Model to Metamodel
+                        const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
+                        rvToMMv.setFromObjectView(mObjview);
+                        rvToMMv.setToObjectView(mmObjview);
+                        relToMM.addRelationshipView(rvToMMv);
+                        rvToMMv.strokecolor = 'blue';
+                        adminModelview.addRelationshipView(rvToMMv);
+                        myMetis.addRelationshipView(rvToMMv);
+                      }
                     }
 
                     // Add relship from Project object to Model object

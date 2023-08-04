@@ -2062,8 +2062,7 @@
               "datatypeRef": "",
               "allowedValues": [
                 "Object",
-                "Container",
-                "Subprocess"
+                "Container"
               ],
               "defaultValue": "Object",
               "value": "",
@@ -7928,8 +7927,7 @@
               "datatypeRef": "",
               "allowedValues": [
                 "Object",
-                "Container",
-                "Subprocess"
+                "Container"
               ],
               "defaultValue": "Object",
               "value": "",
@@ -10880,8 +10878,7 @@
               "datatypeRef": "",
               "allowedValues": [
                 "Object",
-                "Container",
-                "Subprocess"
+                "Container"
               ],
               "defaultValue": "Object",
               "value": "",

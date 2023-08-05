@@ -2370,7 +2370,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 routing: go.Link.AvoidsNodes,
                 curve: go.Link.JumpGap,
                 corner: 10,
-                adjusting: go.Link.End,
+                adjusting: go.Link.Stretch,
                 reshapable: true, 
                 relinkableFrom: true, 
                 relinkableTo: true, 

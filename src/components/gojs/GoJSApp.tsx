@@ -1604,36 +1604,36 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "LinkRelinked": {
-        if (false) {
-        let link = e.subject;
-        const key = link.key;
-        let fromNode = link.fromNode?.data;
-        let toNode = link.toNode?.data;
-
-        let points = [];
-        for (let it = link.points.iterator; it?.next();) {
-          const point = it.value;
-          points.push(point.x)
-          points.push(point.y)
+          let link = e.subject;
+          const key = link.key;
+          let fromNode = link.fromNode?.data;
+          let toNode = link.toNode?.data;
+          let relview = link.data?.relshipview;
+  
+          if (false) {
+            let points = [];
+            for (let it = link.points.iterator; it?.next();) {
+              const point = it.value;
+              points.push(point.x)
+              points.push(point.y)
+            }
+            relview.points = points;
+            myMetis.relinkedRelview = relview;
+          }
+          const newLink = e.subject.data;
+          newLink.category = constants.gojs.C_RELATIONSHIP;
+          if (fromNode.category === constants.gojs.C_OBJECTTYPE)
+            newLink.category = constants.gojs.C_RELSHIPTYPE;
+          myDiagram.model.setDataProperty(newLink, "name", newLink.name);
+          if (debug) console.log('1580 newLink', newLink);
+          context.modifiedRelshipViews = modifiedRelshipViews;
+          context.modifiedRelships = modifiedRelships;
+          context.modifiedRelshipTypes = modifiedRelshipTypes;
+          context.modifiedRelshipTypeViews = modifiedRelshipTypeViews;
+          uic.onLinkRelinked(newLink, fromNode, toNode, context);
+          myDiagram.requestUpdate();          
+          break;
         }
-        let relview = link.data?.relshipview;
-        relview.points = points;
-        myMetis.relinkedRelview = relview;
-        const newLink = e.subject.data;
-        newLink.category = constants.gojs.C_RELATIONSHIP;
-        if (fromNode.category === constants.gojs.C_OBJECTTYPE)
-          newLink.category = constants.gojs.C_RELSHIPTYPE;
-        myDiagram.model.setDataProperty(newLink, "name", newLink.name);
-        if (debug) console.log('1580 newLink', newLink);
-        context.modifiedRelshipViews = modifiedRelshipViews;
-        context.modifiedRelships = modifiedRelships;
-        context.modifiedRelshipTypes = modifiedRelshipTypes;
-        context.modifiedRelshipTypeViews = modifiedRelshipTypeViews;
-        uic.onLinkRelinked(newLink, fromNode, toNode, context);
-        myDiagram.requestUpdate();
-        }
-        break;
-      }
       case "LinkReshaped": {
         let link = e.subject;
         link = myDiagram.findLinkForKey(link.key);

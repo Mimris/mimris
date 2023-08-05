@@ -1821,7 +1821,15 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
             const myDiagram = context.myDiagram;
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;
-            const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
+            let link;
+            const links = myDiagram.links;
+            for (let it = links.iterator; it?.next();) {
+                const l = it.value;
+                if (l.key === lnk.key) {
+                    link = l.data;
+                    break;
+                }
+            }
             if (debug) console.log('1801 lnk, link', lnk, link);
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView

@@ -498,9 +498,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = sel.data;
           if (data.category === 'Relationship' || data.category === 'Relationship type')
             continue;
-          const typename = data.type;
           // Object type
-          if (typename === "Object type") 
+          if (data.category === 'Object type') 
           {
             const objtypegeos = context.myMetamodel.purgeObjtypeGeos();
             context.myMetamodel.objtypegeos = objtypegeos;
@@ -522,7 +521,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const dt = JSON.parse(JSON.stringify(jsnMetamodel));
             context.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', dt });
         }
-          else // Object
+          else if (data.category === 'Object') // Object
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);

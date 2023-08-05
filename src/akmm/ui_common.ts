@@ -1820,7 +1820,6 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
         if (fromNode && toNode) {
             const myDiagram = context.myDiagram;
             const myMetis = context.myMetis;
-            const myModelview = context.myModelview;
             const myGoModel = context.myGoModel;
             const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
             if (debug) console.log('1801 lnk, link', lnk, link);
@@ -1869,14 +1868,14 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     myLink.category = link.template;
                     setLinkProperties(relview, myMetis, myDiagram);
                     // Do the dispatches          
-                    const jsnFromObj = new jsn.jsnObject(fromObj2);
-                    context.modifiedObjects.push(jsnFromObj);
-                    const jsnToObj = new jsn.jsnObject(toObj2);
-                    context.modifiedObjects.push(jsnToObj);
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     context.modifiedRelshipViews.push(jsnRelview);
                     const jsnRel = new jsn.jsnRelationship(rel);
                     context.modifiedRelships.push(jsnRel);
+                    const jsnFromObj = new jsn.jsnObject(fromObj2);
+                    context.modifiedObjects.push(jsnFromObj);
+                    const jsnToObj = new jsn.jsnObject(toObj2);
+                    context.modifiedObjects.push(jsnToObj);
                 }
             }
         }

@@ -1880,10 +1880,14 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     context.modifiedRelshipViews.push(jsnRelview);
                     const jsnRel = new jsn.jsnRelationship(rel);
                     context.modifiedRelships.push(jsnRel);
-                    const jsnFromObj = new jsn.jsnObject(fromObj2);
-                    context.modifiedObjects.push(jsnFromObj);
-                    const jsnToObj = new jsn.jsnObject(toObj2);
-                    context.modifiedObjects.push(jsnToObj);
+                    const jsnFromObj1 = new jsn.jsnObject(fromObj1);
+                    context.modifiedObjects.push(jsnFromObj1);
+                    const jsnToObj1 = new jsn.jsnObject(toObj1);
+                    context.modifiedObjects.push(jsnToObj1);
+                    const jsnFromObj2 = new jsn.jsnObject(fromObj2);
+                    context.modifiedObjects.push(jsnFromObj2);
+                    const jsnToObj2 = new jsn.jsnObject(toObj2);
+                    context.modifiedObjects.push(jsnToObj2);
                 }
             }
         }

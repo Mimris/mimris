@@ -507,7 +507,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             const rel = rels[i];
             let child;
             if (reltype) {
-                if (rel?.type?.id !== reltype?.id)
+                if (rel?.type?.name !== reltype?.name)
                     continue;
             }
             if (useinp) 
@@ -517,7 +517,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             if (debug) console.log('403 child', child);
             if (child) {
                 if (objtype) {
-                    if (child.type.id === objtype.id)
+                    if (child.type.name === objtype.name)
                         objects.push(child);
                 } else
                     objects.push(child);

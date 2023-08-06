@@ -5,7 +5,7 @@ export const iconList = () => [
            {value:"https://img.icons8.com/clouds/2x/services.png", label: "Services"},
            {value:"https://img.icons8.com/color/2x/important-property.png", label: "Important-property"},
            {value:"https://img.icons8.com/color/2x/urgent-property.png", label: "Urgent-property"},
-           {value:"https://img.icons8.com/color/2x/add-property-1.png", label: "Property"},
+           {value:"property.png", label: "Property"},
            {value:"https://img.icons8.com/color/2x/information.png", label: "Info"},
            {value:"https://img.icons8.com/color/2x/admin-settings-male.png", label: "Role"},
            {value:"https://img.icons8.com/color/2x/task.png", label: "Task"},
@@ -18,6 +18,7 @@ export const iconList = () => [
            {value:"https://img.icons8.com/color/2x/variable.png", label: "Datavalue"},
            {value:"https://img.icons8.com/color/2x/person-male.png", label: "Person"},
            {value:"https://img.icons8.com/color/search", label: "Search"},
+           {value:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8tdMMXVFIxC5Y3pR2vyXFVBQHM0p-RS1sqiwgNzmUXq9RF9UlQPi3L339hm_UygYEjdQ&usqp=CAU", label: "Method"},
            {value:"analyse.png", label: "Analyse.png"},
            {value:"automated.jfif", label: "Inclusive.png"},
            {value:"book.png", label: "Book.png"},
@@ -70,7 +71,7 @@ export const selectIcons = (curitem, p, iconvalue, register, handleChangesicon) 
             <option value="https://img.icons8.com/clouds/2x/services.png">Services</option>
             <option value="https://img.icons8.com/color/2x/important-property.png">Important-property</option>
             <option value="https://img.icons8.com/color/2x/urgent-property.png">Urgent-property</option>
-            <option value="https://img.icons8.com/color/2x/add-property-1.png">Property</option>
+            <option value="property1.png">Property.png</option>
             <option value="https://img.icons8.com/color/2x/information.png">Info</option>
             <option value="https://img.icons8.com/color/2x/admin-settings-male.png">Role</option>
             <option value="https://img.icons8.com/color/2x/task.png">Task</option>

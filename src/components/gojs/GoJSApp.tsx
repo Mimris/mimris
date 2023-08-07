@@ -1632,7 +1632,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           uic.onLinkRelinked(newLink, fromNode, toNode, context);
           myDiagram.requestUpdate();          
           break;
-        }
+      }
       case "LinkReshaped": {
         let link = e.subject;
         link = myDiagram.findLinkForKey(link.key);

@@ -363,7 +363,7 @@ export function traverseViews(objview: akm.cxObjectView, context: any): boolean 
             let relview = relviews[i];
             if (!relview) continue;
              // Check if reltype is specified
-            if (reltype && (relview.relship?.type?.id !== reltype?.id))
+            if (reltype && (relview.relship?.type?.name !== reltypename))
                 continue;
             // Check if this is a 'new' relview
             for (let i=0; i<relviews.length; i++) {

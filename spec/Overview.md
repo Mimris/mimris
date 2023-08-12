@@ -1,5 +1,12 @@
 # AKM Modeller
 
+    From ChatGPT:
+    The Active Knowledge Modelling (AKM) methodology is the foundation for a more agile approach to solutions based on adaptive design methods and evolutionary IT infrastructures. Using AKM methods project workers and service providers can adapt, extend, and reconfigure solutions and services for innovative cyclic design and sustainable life-cycle support and knowledge reuse and management. 
+
+    The AKM methodology is based on adaptive design methods and evolutionary IT infrastructures. The AKM models are new solution components extending traditional ICT systems to involve practitioners and pragmatic enterprise knowledge models and workspaces.
+
+    The AKM approach has been applied by manufacturing industries and consultants to implement pragmatic and powerful design platforms
+
 ## Scope and Requirements
 
 ### Target audience

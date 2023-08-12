@@ -32,3 +32,9 @@
     Open Source maintenance. 
     - GitHub Enterprise 
 
+    Continuous updating of Software Libraries
+    Latest versions of:
+    - Nextjs 
+    - Redux
+     
+

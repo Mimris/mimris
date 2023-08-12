@@ -3689,6 +3689,27 @@ export class cxMetaModel extends cxMetaObject {
                 this.metamodels.push(metamodel);
         }
     }
+    addMetamodelContent(metamodel: cxMetaModel) {
+        // 
+        if (this.metamodels == null)
+            this.metamodels = new Array();
+        const objtypes = metamodel.getObjectTypes();
+        if (objtypes) {
+            for (let i = 0; i < objtypes.length; i++) {
+                const objtype = objtypes[i];
+                if (!this.findObjectType(objtype.id))
+                    this.objecttypes.push(objtype);
+            }
+        }
+        const reltypes = metamodel.getRelshipTypes();
+        if (reltypes) {
+            for (let i = 0; i < reltypes.length; i++) {
+                const reltype = reltypes[i];
+                if (!this.findRelationshipType(reltype.id))
+                    this.relshiptypes.push(reltype);
+            }
+        }               
+    }
     addDatatype(datatype: cxDatatype) {
         // Check if input is of correct category and not already in list (TBD)
         if (datatype.category === constants.gojs.C_DATATYPE) {

@@ -883,20 +883,47 @@ export function askForTargetMetamodel(context: any) {
         myDiagram:      myDiagram,
         context:        context,
       } 
-      const metamodels = myMetis.metamodels;
+
       let mmlist = [];
-      for (let i=0; i<metamodels.length; i++) {
-        const mm = metamodels[i];
-        if (!mm.id)
-            continue;
-        if (mm.name === constants.admin.AKM_ADMIN_MM)
-            continue;
-        if (!myMetis.allowGenerateCurrentMetamodel) {
-            if (mm.id === myMetamodel.id)
-                continue;
+      const objectviews = myModelview.objectviews;
+      for (let i=0; i<objectviews.length; i++) {
+        const objectview = objectviews[i] as akm.cxObjectView;
+        const object = objectview.object as akm.cxObject;
+        const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+        if (object.type.name === constants.types.AKM_METAMODEL) {
+            const relviews = objectview.getInputRelviews();
+            for (let j=0; j<relviews?.length; j++) {
+                const relview = relviews[j];
+                const rel = relview.relship;
+                if (rel.type.name === constants.types.AKM_CONTAINS) {
+                    const fromObj = rel.fromObject;
+                    if (fromObj.type.name === constants.types.AKM_METAMODEL) {
+                        if (mmlist == null || mmlist.length == 0) 
+                            mmlist.push(fromObj.name);
+                    }
+                    break;
+                }
+            }
+            if (mmlist == null || mmlist.length == 0) {
+                mmlist.push(object.name);
+            }
         }
-        mmlist.push(mm.nameId);
-    }
+      }
+      if (mmlist == null || mmlist.length == 0) {
+        const metamodels = myMetis.metamodels;
+        for (let i=0; i<metamodels.length; i++) {
+            const mm = metamodels[i];
+            if (!mm.id)
+                continue;
+            if (mm.name === constants.admin.AKM_ADMIN_MM)
+                continue;
+            if (!myMetis.allowGenerateCurrentMetamodel) {
+                if (mm.id === myMetamodel.id)
+                    continue;
+            }
+            mmlist.push(mm.nameId);
+        }
+      }
       if (debug) console.log('724', mmlist, modalContext, context);
       myDiagram.handleOpenModal(mmlist, modalContext);
 }
@@ -1188,6 +1215,23 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // Adding system types completed
     // ---
     let metaObject;
+    {   // Add metamodels
+        for (let i=0; i <= objectviews.length; i++) {
+            const objview = objectviews[i];
+            if (!objview /*|| objview.markedAsDeleted*/) 
+                continue;
+            let obj = objview.object;
+            if (!obj /*|| obj.markedAsDeleted*/) 
+                continue;
+            if (obj.isOfType('Metamodel')) {
+                const metamodel = myMetis.findMetamodelByName(obj.name);
+                if (metamodel) {
+                    targetMetamodel.addMetamodelContent(metamodel);
+                    if (debug) console.log('1150 targetMetamodel, obj', targetMetamodel, obj);
+                }
+            }
+        }
+    }
     { // Add or generate objecttypes
         const metaObjects = ['EntityType'];
         // const metaObjects = ['Role', 'Task', 'View', 'Information'];
@@ -1469,6 +1513,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }            
     }
+    targetMetamodel.embedSubMetamodels();
     targetMetamodel.includeInheritedReltypes = model.includeSystemtypes;
     myMetis.currentTargetMetamodel = targetMetamodel;
     myMetis.currentTargetModel = model;
@@ -1535,7 +1580,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 }
 
 export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, myDiagram: any) {
-    const name = object.name;
+    const name = object.name; // Name of metamodel
+    const myModelview = myMetis.currentModelview as akm.cxModelView;
     let myMetamodel = myMetis.findMetamodelByName(name);
     let entityType = null;
     if (!myMetamodel) {
@@ -1630,7 +1676,29 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
             const reltype = reltypes[j];
             if (reltype.name === constants.types.AKM_IS)
                 continue;
-            myMetamodel.addRelationshipType(reltype);
+                myMetamodel.addRelationshipType(reltype);
+                myMetamodel.addRelationshipType0(reltype);
+            }
+    }
+    // Handle relationships between the object types across sub-metamodels
+    const objviews = myModelview?.objectviews;
+    for (let i=0; i<objviews?.length; i++) {
+        const fromObjview = objviews[i];
+        const relviews = fromObjview.getOutputRelviews();
+        for (let j=0; j<relviews?.length; j++) {
+            const relview = relviews[j];
+            const toObjview = relview.toObjview;
+            for (let j=0; j<objviews?.length; j++) {
+                const oview = objviews[j];
+                if (toObjview.id === oview.id) {
+                    const rel = relview.relship;
+                    const reltype = rel.type;
+                    if (reltype.name === constants.types.AKM_IS)
+                        continue;
+                    myMetamodel.addRelationshipType(reltype);
+                    myMetamodel.addRelationshipType0(reltype);
+                }
+            }
         }
     }
     if (false) {

@@ -3281,7 +3281,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
 
     // repairRelationshipTypes(myMetis);
     purgeUnusedRelshiptypes(myMetis);
-    repairRelationshipTypeViews(myMetis);
+    repairRelationshipTypeViews(myMetis, myDiagram);
     if (debug) console.log('2852 myMetis', myMetis);
 
     // Dispatch metis
@@ -3371,7 +3371,7 @@ export function repairRelationshipTypes(myMetis: akm.cxMetis) {
     }
 }
 
-export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
+export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any) {
     // Create an empty list of relationship type views
     // For each metamodel: go through each reltype and get the reltypeview
     // Store the combination of metamodel, reltype and reltypeview in a list
@@ -3418,6 +3418,22 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
             }
         }
     }
+    // Go through reltypeviews and fix some bugs
+    let modifiedRelshipTypeViews = new Array();
+    for (let i=0; i<reltypeviews?.length; i++) {
+        const reltypeview = reltypeviews[i];
+        if (reltypeview.fromArrow === " ") reltypeview.fromArrow = "";
+        if (reltypeview.toArrow === " ")   reltypeview.toArrow = "";
+        if (reltypeview.fromArrowColor === " ") reltypeview.fromArrowColor = "";
+        if (reltypeview.toArrowColor === " ")   reltypeview.toArrowColor = "";
+        modifiedRelshipTypeViews.push(reltypeview);
+    }
+    modifiedRelshipTypeViews?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+    })
+
     if (debug) console.log('2896 myMetis', myMetis);
     // Create a list of all reltypes
     // Go through all metamodels and check each reltype

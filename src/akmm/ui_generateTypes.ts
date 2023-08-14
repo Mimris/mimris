@@ -842,6 +842,30 @@ export function generateUnit(object: akm.cxObject, context: any) {
 }
 
 export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const nodes = myDiagram.nodes;
+    for (let it = nodes.iterator; it?.next();) {
+        const node = it.value;
+        const object = node.data.object;
+        const objtype = node.data.objecttype;
+        const modifiedMetamodels = new Array();
+        if (objtype.name === constants.types.AKM_METAMODEL) {
+            const mmname = object.name;
+            const mmodel = myMetis.findMetamodelByName(mmname);
+            if (!mmodel) {
+                const metamodel = new akm.cxMetaModel(utils.createGuid(), mmname, object.description);
+                myMetis.addMetamodel(metamodel);
+                const jsnMetamodel = new jsn.jsnMetaModel(metamodel);
+                modifiedMetamodels.push(jsnMetamodel);
+            }
+        }
+        modifiedMetamodels.map(mn => {
+            let data = mn;
+            if (debug) console.log('40 data', data);
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+        });
+    }
+    
     if (confirm('Do you want to EXCLUDE system types?')) {
         myMetis.currentModel.includeSystemtypes = false;
     } else {
@@ -898,14 +922,27 @@ export function askForTargetMetamodel(context: any) {
                 if (rel.type.name === constants.types.AKM_CONTAINS) {
                     const fromObj = rel.fromObject;
                     if (fromObj.type.name === constants.types.AKM_METAMODEL) {
-                        if (mmlist == null || mmlist.length == 0) 
+                        if (mmlist == null || mmlist.length == 0) { 
+                            // let mm = myMetis.findMetamodelByName(fromObj.name);
+                            // if (!mm) {
+                            //     mm = new akm.cxMetaModel(utils.createGuid(), fromObj.name, fromObj.description);
+                            //     myMetis.addMetamodel(mm);
+                            //     const jsnMetamodel = new jsn.jsnMetaModel(mm, true);
+                            //     let data = jsnMetamodel;
+                            //     data = JSON.parse(JSON.stringify(data));
+                            //     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+                            // }
                             mmlist.push(fromObj.name);
+                        }
                     }
                     break;
                 }
             }
             if (mmlist == null || mmlist.length == 0) {
                 mmlist.push(object.name);
+            } else {
+                let uniqueSet = utils.removeArrayDuplicates(mmlist);
+                mmlist = uniqueSet;
             }
         }
       }
@@ -1216,7 +1253,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // ---
     let metaObject;
     {   // Add metamodels
-        for (let i=0; i <= objectviews.length; i++) {
+        for (let i=0; i <= objectviews?.length; i++) {
             const objview = objectviews[i];
             if (!objview /*|| objview.markedAsDeleted*/) 
                 continue;
@@ -1226,6 +1263,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (obj.isOfType('Metamodel')) {
                 const metamodel = myMetis.findMetamodelByName(obj.name);
                 if (metamodel) {
+                    configureMetamodel(obj, myMetis, myDiagram);
                     targetMetamodel.addMetamodelContent(metamodel);
                     if (debug) console.log('1150 targetMetamodel, obj', targetMetamodel, obj);
                 }
@@ -1724,7 +1762,6 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
         }
     }
     }
-
     // Do the dispatches
     const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });

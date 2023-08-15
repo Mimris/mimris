@@ -2328,7 +2328,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
             makeButton("Open/Close All Groups",
             function (e: any, obj: any) {
-              const open = confirm("Open (Yes or OK) or Close all Groups?", "true");
+              const open = confirm("Open (OK) or Close all Groups?", "true");
               uid.openCloseAllGroups(myDiagram, open);
             },
             function (o: any) {

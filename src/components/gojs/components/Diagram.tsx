@@ -2326,6 +2326,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return true;
             }),
+            makeButton("Open/Close All Groups",
+            function (e: any, obj: any) {
+              const open = confirm("Open (OK) or Close all Groups?", "true");
+              uid.openCloseAllGroups(myDiagram, open);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Update Project from AdminModel",
             function (e: any, obj: any) {
               let adminModel = myMetis.adminModel;

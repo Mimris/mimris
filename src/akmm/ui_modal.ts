@@ -384,7 +384,7 @@ export function handleSelectDropdownChange(selected, context) {
       const metamodelName = (selectedOption) && selectedOption;
       const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
       // myMetis.currentTargetMetamodel = targetMetamodel;
-      myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
+      myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
       if (debug) console.log('253 Diagram', targetMetamodel, myMetis);
       let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
       mmdata = JSON.parse(JSON.stringify(mmdata));

@@ -23,6 +23,26 @@ export function clearFocus(modelview: akm.cxModelView) {
     }
 }
 
+export function openCloseAllGroups(myDiagram: any, open: boolean) {
+    const nodes = myDiagram.nodes;
+    const modifiedObjectViews = [];
+    for (let it = nodes.iterator; it?.next();) {
+        const node = it.value;
+        if (node.data.isGroup) {
+            node.isSubGraphExpanded = open;
+            const objview = node.data.objectview;
+            objview.isExpanded = open;
+            const jsnObjview = new jsn.jsnObjectView(objview, true);
+            modifiedObjectViews.push(jsnObjview);
+        }
+    }
+    modifiedObjectViews.map(ov => {
+        let data = ov;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    });
+}
+
 export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     const mmname = prompt("Enter Metamodel name");
     if (mmname == null || mmname == "") {

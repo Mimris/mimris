@@ -79,12 +79,11 @@ const page = (props: any) => {
     const getQuery = async () => {
       try {
         const queryParam = await query
-        if (!queryParam.repo) {
+        // if (!queryParam.repo) {
           if (debug) console.log('68 modelling', props.phFocus.focusProj.file)
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+          if ((window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") { // if page is refreshed
             if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-              if ((window.confirm("Do you want to recover your last modelling edits? \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-                if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+                if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
                   const locStore = (memoryLocState[0])
                   if (locStore) {
                     dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
@@ -96,13 +95,14 @@ const page = (props: any) => {
                   }, 100);
                 }
               }
-            }
-          } else {
-            const timer = setTimeout(() => {
-              setRefresh(!refresh)
-            }, 100);
-          }
-        }
+           } else {
+            // if ((window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+            // if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+            // const timer = setTimeout(() => {
+            //   setRefresh(!refresh)
+            // }, 100);
+           }
+        // }
       } catch (error) {
         console.log('modelling 80 ', error)
       }

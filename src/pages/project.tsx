@@ -77,44 +77,47 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }
 
-  useEffect(() => {
+  useEffect(() => {  // if no query params, then load from memoryLocState
 
     if (debug) console.log('82 project useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
     const getQueryParams = async () => {
       try {
 
-        // let data = {}
-        if (debug) console.log('68 project', props.phFocus.focusProj.file)
-        if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
-          if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-            if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-              if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-                const locStore = (memoryLocState[0])
-                if (locStore) {
-                  dispatchLocalStore(locStore)
-                  // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-                  // console.log('modelling 73 ', data)
+        if ((window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") { // if page is refreshed
+          console.log('Page is refreshed');
+        
+          // let data = {}
+          if (debug) console.log('68 project', props.phFocus.focusProj.file)
+          // if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+            if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+              // if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+                if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+                  const locStore = (memoryLocState[0])
+                  if (locStore) {
+                    dispatchLocalStore(locStore)
+                    // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+                    // console.log('modelling 73 ', data)
+                  }
                 }
-              }
+              // }
+            // }
+          } else {
+            setOrg(props.phFocus.focusProj.org)
+            setRepo(props.phFocus.focusProj.repo)
+            setPath(props.phFocus.focusProj.path)
+            setFile(props.phFocus.focusProj.file)
+            setBranch(props.phFocus.focusProj.branch)
+            setFocus(props.phFocus.focusProj.focus)
+            setProjectNumber(props.phFocus.focusProj.projectNumber)
+            setGhtype(props.phFocus.focusProj.ghtype)
+            setProjectNumber(props.phFocus.focusProj.projectNumber)
+            const timer = setTimeout(() => {
+              setRefresh(!refresh)
             }
+              , 100);
+            return () => clearTimeout(timer);
           }
-        } else {
-          setOrg(props.phFocus.focusProj.org)
-          setRepo(props.phFocus.focusProj.repo)
-          setPath(props.phFocus.focusProj.path)
-          setFile(props.phFocus.focusProj.file)
-          setBranch(props.phFocus.focusProj.branch)
-          setFocus(props.phFocus.focusProj.focus)
-          setProjectNumber(props.phFocus.focusProj.projectNumber)
-          setGhtype(props.phFocus.focusProj.ghtype)
-          setProjectNumber(props.phFocus.focusProj.projectNumber)
-          const timer = setTimeout(() => {
-            setRefresh(!refresh)
-          }
-            , 100);
-          return () => clearTimeout(timer);
         }
-
       } catch (err) {
         setError(err);
       }

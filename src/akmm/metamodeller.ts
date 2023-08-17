@@ -6421,6 +6421,9 @@ export class cxRelationshipTypeView extends cxMetaObject {
                 if (prop === 'toArrow')        data[prop] = relview[prop];
                 if (prop === 'fromArrowColor') data[prop] = relview[prop];
                 if (prop === 'toArrowColor')   data[prop] = relview[prop];
+                if (prop === 'routing')        data[prop] = relview[prop];
+                if (prop === 'corner')         data[prop] = relview[prop];
+                if (prop === 'curve')          data[prop] = relview[prop];
             }
             if (debug) console.log('5883 data', data);
             for (prop in data) {

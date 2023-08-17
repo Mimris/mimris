@@ -54,3 +54,14 @@ The User interface is mainly a single-page web-app where the user/modeller can b
     - Focus
     - Help
     - About
+
+
+### Development activities
+
+### Test
+
+### Deployment
+
+### Maintenance 
+
+### Marketing

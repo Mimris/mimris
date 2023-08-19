@@ -1,66 +1,160 @@
 import { useSelector } from 'react-redux';
-// import { connect, useSelector, useDispatch } from 'react-redux';
-import Selector from './utils/Selector'
+import { useState } from 'react';
+import Selector from './utils/Selector';
+import ReactMarkdown from 'react-markdown';
 
-const Tasks = () => {
-  const state = useSelector((state: any) => state) // Selecting the whole redux store
-  // console.log('5 Tasks:', state);
+function Tasks() {
+  const state = useSelector((state: any) => state);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [minimized, setMinimized] = useState(false);
+  const [maximized, setMaximized] = useState(false);
 
-  const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
-  const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
-  const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
-  const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
+  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
+  const models = useSelector(state => state.phData?.metis?.models);
+  const focusModel = useSelector(state => state.phFocus?.focusModel);
+  const focusModelview = useSelector(state => state.phFocus.focusModelview);
+  const focusTask = useSelector(state => state.phFocus.focusTask);
 
-  // const [model, setModel] = useState(focusModel)
-  // console.log('16 Sel', models, focusModel, state);
-
-  const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
-  const mothermodel = models?.find ((mom: any) => mom?.targetMetamodelRef === curmodel?.metamodelRef)
-  console.log('19 Tasks', models, curmodel, mothermodel)
-  const mothermodelviews = mothermodel?.modelviews
-  const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const objects = mothermodel?.objects //.map((o: any) => o)
-  // const objects = curmodel?.objects //.map((o: any) => o)
-  const taskmodelview = mothermodelviews?.find(mv => mv.name === 'Usecase1')
-  // const objectviews = curmodel?.objectviews //.map((o: any) => o)
-  // find object with type
-
-  const objectviews2 = taskmodelview?.objectviews
-  
-  const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-
-  console.log('27 Tasks',  modelviews, mothermodelviews, objectviews2, objectviews);
-
+  const curmodel = models?.find(m => m?.id === focusModel?.id);
+  const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
+  // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
+  // set mothermodel to generatedRef in cur metamodel
+  const mothermodel = models?.find(m => m?.id === curmetamodel?.generatedFromModelRef);
+  const mothermodelviews = mothermodel?.modelviews;
+  const modelviews = curmodel?.modelviews;
+  const motherobjects = mothermodel?.objects;
+  const taskmodelview = mothermodelviews?.find(mv => mv.name === '01-HealthRecords');
+  const objectviews2 = taskmodelview?.objectviews;
+  const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews;
   const uniqueovs = objectviews2?.filter((ov, index, self) =>
-    index === self.findIndex((t) => (
-      t.place === ov.place && t.id === ov.id
-    ))
-  )
+    index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
+  );
+  const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, motherobjects, ov) === 'Task');
+  const tasksDiv = seltasks?.map(t => (
+    <li key={t.id} className="li bg-light" onClick={() => setSelectedTask(t)}>
+      {t.name} {t.description}
+    </li>
+  ));
 
-  console.log('39 Tasks :', modelviews);
+  const taskobj = motherobjects?.find(o => o.id === (taskmodelview.objectviews.find(ov => ov.id === focusTask?.id)?.objectRef));
+  console.log('40 Tasks', curmodel.metamodelRef, metamodels, curmetamodel.generatedFromModelRef, mothermodel, taskobj, models);
 
-  // find object with type
-  const type = (metamodels, model, objects, curov) => {
-    return metamodels?.find(mm => mm.id === (model.metamodelRef))
-      .objecttypes?.find(ot => ot.id === objects?.find(o => o.id === curov.objectRef)?.typeRef)?.name
+  const handleMinimize = () => {
+    setMinimized(true);
+    setMaximized(false);
+  };
+
+  const handleMaximize = () => {
+    setMinimized(false);
+    setMaximized(true);
+  };
+
+  const handleRestore = () => {
+    setMinimized(false);
+    setMaximized(false);
+  };
+
+  if (minimized) {
+    return (
+      <div className="minimized-task" onClick={handleRestore}>
+        <h2>{focusTask?.name}</h2>
+      </div>
+    );
   }
 
-  const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, objects, ov) === 'Task')
-  const tasksDiv = seltasks?.map((t: any) => 
-    <li key={t.id} className="li bg-light">
-    {t.name} {t.description}
-    </li>
-    )
-  // console.log('43', tasksDiv);
-  
+  if (maximized) {
+    return (
+      <div className="maximized-task">
+        <div className="header">
+          <h2>{focusTask?.name}</h2>
+          <div className="buttons">
+            <button onClick={handleMinimize}>-</button>
+            <button onClick={handleRestore}>+</button>
+          </div>
+        </div>
+        <div className="content">
+          <ReactMarkdown>{taskobj?.description}</ReactMarkdown>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="tasklist ">
-      <ul>
-        {tasksDiv}
-      </ul>
+    <div className="tasklist">
+      <ul>{tasksDiv}</ul>
       <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /><br />
+      {focusTask && (
+        <div className="selected-task">
+          <div className="header">
+            <h2>{focusTask.name}</h2>
+            <div className="buttons">
+              <button onClick={handleMinimize}>-</button>
+              <button onClick={handleMaximize}>+</button>
+            </div>
+          </div>
+          <ReactMarkdown>{taskobj?.description}</ReactMarkdown>
+        </div>
+      )}
+      <style jsx>{`
+        .tasklist {
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          padding: 0;
+          margin: 0;
+        }
+        .selected-task {
+          font-size: 10px;
+          background-color: #f0f0f0;
+          border: 1px solid #ccc;
+          padding: 10px;
+          margin-top: 10px;
+        }
+        .li {
+          list-style-type: none;
+          padding: 5px;
+          margin: 0;
+        }
+        .li:hover {
+          background-color: #ddd;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .buttons {
+          display: flex;
+          gap: 5px;
+        }
+        .minimized-task {
+          position: fixed;
+          bottom: 0;
+          right: 0;
+          background-color: #f0f0f0;
+          border: 1px solid #ccc;
+          padding: 5px;
+          cursor: pointer;
+        }
+        .maximized-task {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #fff;
+          border: 1px solid #ccc;
+          padding: 10px;
+        }
+      `}
+      </style>
     </div>
   );
+}
+
+function type(metamodels, model, motherobjects, curov) {
+  return metamodels?.find(mm => mm.id === model?.metamodelRef)
+    ?.objecttypes?.find(ot => ot.id === motherobjects?.find(o => o.id === curov.objectRef)?.typeRef)?.name;
 }
 
 export default Tasks;

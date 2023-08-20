@@ -1,5 +1,5 @@
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
 
@@ -8,6 +8,7 @@ function Tasks() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const [maximized, setMaximized] = useState(false);
+  const dispatch = useDispatch();
 
   const metamodels = useSelector(state => state.phData?.metis?.metamodels);
   const models = useSelector(state => state.phData?.metis?.models);
@@ -30,25 +31,18 @@ function Tasks() {
   const uniqueovs = objectviews2?.filter((ov, index, self) =>
     index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
   );
-  const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, motherobjects, ov) === 'Task');
-  const tasksDiv = seltasks?.map(t => (
-    <li key={t.id} className="li bg-light" onClick={() => setSelectedTask(t)}>
-      {t.name} {t.description}
-    </li>
-  ));
 
-  const taskobj = motherobjects?.find(o => o.id === (taskmodelview.objectviews.find(ov => ov.id === focusTask?.id)?.objectRef));
-  console.log('40 Tasks', curmodel.metamodelRef, metamodels, curmetamodel.generatedFromModelRef, mothermodel, taskobj, models);
+  // useEffect(() => {
+  // }, []);
+
+  console.log('40 Tasks', curmodel.metamodelRef, metamodels, curmetamodel.generatedFromModelRef, mothermodel, models);
+
+  const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, motherobjects, ov) === 'Task');
 
   const handleMinimize = () => {
     setMinimized(true);
     setMaximized(false);
   };
-
-  // const handleMaximize = () => {
-  //   setMinimized(false);
-  //   setMaximized(true);
-  // };
 
   const handleRestore = () => {
     setMinimized(false);
@@ -67,51 +61,85 @@ function Tasks() {
     );
   }
 
-  // if (maximized) {
-  //   return (
-  //     <div className="maximized-task">
-  //         <h2 className="mr-auto">{focusTask?.name}</h2>
-  //         <div className="buttons flex-d align-items-end ml-auto">
-  //           <button onClick={handleMinimize}>-&gt;</button>
-  //           {/* <button onClick={handleRestore}>+</button> */}
-  //         </div>
-  //       <div className="content">
-  //         <ReactMarkdown>{taskobj?.description}</ReactMarkdown>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const basicTask1 = `
+    - From the Palette, drag the object type
+      you want to create into the canvas.
+    - Click on the name to edit.
+    - Double-click on the object to open 
+      the properties panel, where you can edit 
+      Name, description etc.
+`;
+  const basicTask2= `
 
+    - Click on the edge of an Object and 
+      drag the cursor to another object.
+    - Click on the name of the Relationship to edit.
+    - Right-Click or Double-click on the 
+      relationship to open the properties panel, 
+      where you can edit Name, description etc.
+`;
+  const basicTask3 = `
+    - Open the Object panel to the left. Drag one 
+      or more objects into the canvas.
+      (Note: if you change name or other properties 
+      of the object, all other objectviews of the 
+      same object will also be changed)
+`;
+
+  const tasksDiv =  (seltasks) 
+    ? seltasks?.map(t => { 
+      const taskobj = motherobjects?.find(o => o.id === (taskmodelview.objectviews.find(ov => ov.id === t?.id)?.objectRef));
+      console.log('91 taskobj', taskobj, t);
+      return (
+          <li key={t.id} className="li bg-transparent" onClick={() => setSelectedTask(t)}>
+            <hr className="m-0"/>
+            <details >
+              <summary>{t?.name}</summary>
+              <button className="checkbox" onClick={() => dispatch({ type: 'SET_FOCUS_TASK', data: t })}>Set Focus: </button>
+              {focusTask && (
+                <div className="selected-task bg-transparent">
+                  <ReactMarkdown>{taskobj?.description}</ReactMarkdown>
+              </div>
+            )}
+            </details>
+          </li>)
+    })
+    : <div>No generated task for this model</div>
   return (
     <div className="tasklist">
-      {/* <ul>{tasksDiv}</ul> */}
       <div className="header">
-        <div>Modelling Tasks</div>
+        <div>Modelling Guide with suggested Tasks</div>
         <div className="buttons">
               <button onClick={handleMinimize}>-&gt;</button>
               {/* <button onClick={handleMaximize}>+</button> */}
         </div>
       </div>
-      <div className="">
-          <div>Role: {focusRole.name}</div><div> Task: {focusTask.name}</div>
+      <div className="flex-d w-100">
+      <div>Role: <span className="font-weight-bold text-success bg-white p-1">{focusRole.name}</span></div>
+      <div>Task: <span className="font-weight-bold text-success bg-white p-1">{focusTask.name}</span></div>
+          <hr className="m-0"/>
       </div>
-      <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
-      {focusTask && (
-        <div className="selected-task bg-light">
-          <ReactMarkdown>{taskobj?.description}</ReactMarkdown>
-        </div>
-      )}
+      {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /> */}
+      <div className="task">
+        <div className="bg-light"> Default Tasks: </div> 
+        <details>
+          <summary>Create a new Object:</summary>
+          <ReactMarkdown>{basicTask1}</ReactMarkdown>
+        </details>            
+        <hr className="m-0"/>
+        <details>
+          <summary>Create a new Relatinship:</summary>
+          <ReactMarkdown>{basicTask2}</ReactMarkdown>
+        </details>            
+        <hr className="m-0"/>
+        <details>
+          <summary>Make a new Objectview of existing object</summary>
+          <ReactMarkdown>{basicTask3}</ReactMarkdown>
+        </details>
+        <hr className="my-2 p-0 border-light"/>
+      </div>     <div className="bg-light"> Generated Tasks: </div> 
+      <ul>{tasksDiv}</ul>
       <style jsx>{`
-        .taskarea {
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
-          align-items: flex-start;
-
-          overflow: auto;
-          padding: 0;
-          margin: 0;
-        }
         .tasklist {
           width: 100%;
           height: 100%;
@@ -139,6 +167,9 @@ function Tasks() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          background-color: #f0f0f0;
+          padding: 5px;
+          min-width: 400px;
         }
         .mr-auto {
           margin-right: auto;
@@ -167,6 +198,29 @@ function Tasks() {
           background-color: #fff;
           border: 1px solid #ccc;
           padding: 10px;
+        }
+        li button.checkbox {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          margin-left: auto;
+          background-color: #fff;
+          border: 1px solid #ccc;
+          border-radius: 3px;
+        }
+        
+        li button.checkbox::before {
+          content: "";
+          display: block;
+          width: 10px;
+          height: 10px;
+          margin: 4px auto;
+          border-radius: 2px;
+          background-color: #ccc;
+        }
+        
+        li button.checkbox:checked::before {
+          background-color: #007bff;
         }
       `}
       </style>

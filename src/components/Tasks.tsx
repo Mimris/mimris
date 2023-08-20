@@ -61,92 +61,186 @@ function Tasks() {
     );
   }
 
-  const basicTask1 = `
-    - From the Palette, drag the object type
-      you want to create into the canvas.
-    - Click on the name to edit.
-    - Double-click on the object to open 
-      the properties panel, where you can edit 
-      Name, description etc.
-`;
-  const basicTask2= `
 
-    - Click on the edge of an Object and 
-      drag the cursor to another object.
-    - Click on the name of the Relationship to edit.
-    - Right-Click or Double-click on the 
-      relationship to open the properties panel, 
-      where you can edit Name, description etc.
-`;
-  const basicTask3 = `
-    - Open the Object panel to the left. Drag one 
-      or more objects into the canvas.
-      (Note: if you change name or other properties 
-      of the object, all other objectviews of the 
-      same object will also be changed)
-`;
+    let taskEntries: string = '';
+    const tasksDiv = seltasks ? (
+      <ul>
+      {seltasks.map((t) => {
+        const taskObj = motherobjects?.find(
+          (o) =>
+            o.id ===
+            uniqueovs.find((ov) => ov.id === t?.id)?.objectRef
+        );
+        console.log("91 taskobj", taskObj, t);
+    
+        const taskEntriesArr = Object.entries(taskObj || {})
+          .filter(([key]) => !['id', 'description'].includes(key))
+          .map(([key, value]) => `- **${key}:** ${value}\n`);
+          
+        taskEntries = taskEntriesArr.join('');
+        
+        const taskEntriesDiv = (
+          <details>
+            <summary>Task Properties:</summary>
+            <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
+          </details>
+        )
 
-  const tasksDiv =  (seltasks) 
-    ? seltasks?.map(t => { 
-      const taskobj = motherobjects?.find(o => o.id === (taskmodelview.objectviews.find(ov => ov.id === t?.id)?.objectRef));
-      console.log('91 taskobj', taskobj, t);
-      return (
-          <li key={t.id} className="li bg-transparent" onClick={() => setSelectedTask(t)}>
-            <hr className="m-0"/>
-            <details >
-              <summary>{t?.name}</summary>
-              <button className="checkbox" onClick={() => dispatch({ type: 'SET_FOCUS_TASK', data: t })}>Set Focus: </button>
-              {focusTask && (
-                <div className="selected-task bg-transparent">
-                  <ReactMarkdown>{taskobj?.description}</ReactMarkdown>
-              </div>
-            )}
-            </details>
-          </li>)
-    })
-    : <div>No generated task for this model</div>
-  return (
-    <div className="tasklist">
-      <div className="header">
-        <div>Modelling Guide with suggested Tasks</div>
-        <div className="buttons">
-              <button onClick={handleMinimize}>-&gt;</button>
-              {/* <button onClick={handleMaximize}>+</button> */}
+        console.log('104 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
+    
+        return (
+          <>
+            <li key={t.id} className="li bg-transparent border-secondary p-1 border border-success" onClick={() => setSelectedTask(t)}>
+              {/* <hr className="m-0" /> */}
+              <details>
+                <summary>{t?.name}</summary>
+                <button
+                  className="checkbox" 
+                  onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t })}
+                  style={{
+                    float: "right",
+                    border: "1px solid #ccc",
+                    borderRadius: "3px",
+                    backgroundColor: "#fff",
+                    // width: "20px",
+                    // height: "20px",
+                    marginTop: "-25px",
+                    marginLeft: "auto",
+                    paddingRight: "2px",
+                    paddingLeft: "2px",
+                    display: "inline-block",
+                    position: "relative",
+                  }}
+                >Select
+                </button>
+                {taskObj && (
+                           // make a border and some space for the task entries
+
+                  <div className="selected-task bg-transparent border border-light p-1">
+                    <div className="bg-light">
+                      {taskEntriesDiv}
+                    </div>
+                    <div className="bg-light">
+                      <details><summary>Description:</summary>
+                        <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
+                      </details>
+                    </div>
+                  </div>
+                )}
+              </details>
+            </li>
+          </>
+        );
+      })}
+    </ul>
+    ) : (
+      <div>No generated task for this model</div>
+    );
+
+
+    const basicTask1 = `
+      - From the Palette, drag the object type
+        you want to create into the canvas.
+      - Click on the name to edit.
+      - Double-click on the object to open 
+        the properties panel, where you can edit 
+        Name, description etc.
+    `;
+    const basicTask2= `
+
+      - Click on the edge of an Object and 
+        drag the cursor to another object.
+      - Click on the name of the Relationship to edit.
+      - Right-Click or Double-click on the 
+        relationship to open the properties panel, 
+        where you can edit Name, description etc.
+    `;
+    const basicTask3 = `
+      - Open the Object panel to the left. Drag one 
+        or more objects into the canvas.
+        (Note: if you change name or other properties 
+        of the object, all other objectviews of the 
+        same object will also be changed)
+    `;
+
+    return (
+      <>
+      <div className="tasklist">
+        <div className="header">
+          <div>Modelling Guide with suggested Tasks</div>
+          <div className="buttons">
+            <button onClick={handleMinimize}>-&gt;</button>
+            {/* <button onClick={handleMaximize}>+</button> */}
+          </div>
         </div>
+        <div className="flex-d w-100">
+          <div>
+            Role:{" "}
+            <span className="font-weight-bold text-success bg-white p-1">
+              {focusRole.name}
+            </span>
+          </div>
+          <div>
+            Task:{" "}
+            <span className="font-weight-bold text-success bg-white p-1">
+              {focusTask.name}
+            </span>
+          </div>
+          <hr className="m-0" />
+        </div>
+        {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /> */}
+        <div className="task">
+          <div className="bg-light"> Default Tasks: </div>
+          <details>
+            <summary>Create a new Object:</summary>
+            <ReactMarkdown>{basicTask1}</ReactMarkdown>
+          </details>
+          <hr className="m-0" />
+          <details>
+            <summary>Create a new Relatinship:</summary>
+            <ReactMarkdown>{basicTask2}</ReactMarkdown>
+          </details>
+          <hr className="m-0" />
+          <details>
+            <summary>Make a new Objectview of existing object</summary>
+            <ReactMarkdown>{basicTask3}</ReactMarkdown>
+          </details>
+          <hr className="my-2 p-0 border-light" />
+        </div>
+        <div className="bg-light"> Generated Tasks: </div>
+        {tasksDiv}
       </div>
-      <div className="flex-d w-100">
-      <div>Role: <span className="font-weight-bold text-success bg-white p-1">{focusRole.name}</span></div>
-      <div>Task: <span className="font-weight-bold text-success bg-white p-1">{focusTask.name}</span></div>
-          <hr className="m-0"/>
-      </div>
-      {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /> */}
-      <div className="task">
-        <div className="bg-light"> Default Tasks: </div> 
-        <details>
-          <summary>Create a new Object:</summary>
-          <ReactMarkdown>{basicTask1}</ReactMarkdown>
-        </details>            
-        <hr className="m-0"/>
-        <details>
-          <summary>Create a new Relatinship:</summary>
-          <ReactMarkdown>{basicTask2}</ReactMarkdown>
-        </details>            
-        <hr className="m-0"/>
-        <details>
-          <summary>Make a new Objectview of existing object</summary>
-          <ReactMarkdown>{basicTask3}</ReactMarkdown>
-        </details>
-        <hr className="my-2 p-0 border-light"/>
-      </div>     <div className="bg-light"> Generated Tasks: </div> 
-      <ul>{tasksDiv}</ul>
       <style jsx>{`
-        .tasklist {
-          width: 100%;
-          height: 100%;
-          overflow: auto;
-          padding: 0;
-          margin: 0;
-        }
+          .tasklist {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding: 0;
+            margin: 0;
+          }
+          .selected-task {
+            font-size: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            min-width: 400px;
+          }
+          .li {
+            list-style-type: none;
+            padding: 5px;
+            margin: 0;
+          }
+          .li:hover {
+            background-color: #ddd;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 5px;
+          }
         .selected-task {
           font-size: 10px;
           background-color: #f0f0f0;
@@ -224,8 +318,8 @@ function Tasks() {
         }
       `}
       </style>
-    </div>
-  );
+      </>
+    );
 }
 
 function type(metamodels, model, motherobjects, curov) {

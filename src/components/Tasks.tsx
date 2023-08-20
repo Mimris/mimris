@@ -67,16 +67,16 @@ function Tasks() {
     - Click on the name to edit.
     - Double-click on the object to open 
       the properties panel, where you can edit 
-      Name, description etc.
+      name, description etc.
 `;
   const basicTask2= `
 
     - Click on the edge of an Object and 
       drag the cursor to another object.
-    - Click on the name of the Relationship to edit.
-    - Right-Click or Double-click on the 
-      relationship to open the properties panel, 
-      where you can edit Name, description etc.
+    - Click on the name of the relationship to edit.
+    - Right-click the relationship to open 
+      the properties panel, where you can edit 
+      name, description etc.
 `;
   const basicTask3 = `
     - Open the Object panel to the left. Drag one 
@@ -88,7 +88,7 @@ function Tasks() {
 
   const tasksDiv =  (seltasks) 
     ? seltasks?.map(t => { 
-      const taskobj = motherobjects?.find(o => o.id === (taskmodelview.objectviews.find(ov => ov.id === t?.id)?.objectRef));
+      const taskobj = motherobjects?.find(o => o.id === (taskmodelview?.objectviews?.find(ov => ov.id === t?.id)?.objectRef));
       console.log('91 taskobj', taskobj, t);
       return (
           <li key={t.id} className="li bg-transparent" onClick={() => setSelectedTask(t)}>
@@ -128,7 +128,7 @@ function Tasks() {
         </details>            
         <hr className="m-0"/>
         <details>
-          <summary>Create a new Relatinship:</summary>
+          <summary>Create a new Relationship:</summary>
           <ReactMarkdown>{basicTask2}</ReactMarkdown>
         </details>            
         <hr className="m-0"/>

@@ -71,7 +71,7 @@ function Tasks() {
 `;
   const basicTask2= `
 
-    - Click on the edge of an Object and 
+    - Click on the edge of an object and 
       drag the cursor to another object.
     - Click on the name of the relationship to edit.
     - Right-click the relationship to open 

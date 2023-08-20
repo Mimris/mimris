@@ -12,7 +12,8 @@ import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import Context from "../components/Context"
 import SelectContext from '../components/utils/SelectContext'
-import TasksHelp from '../components/TasksHelp'
+import Tasks from '../components/Tasks'
+// import TasksHelp from '../components/TasksHelp'
 import useLocalStorage from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
 import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
@@ -133,17 +134,19 @@ const page = (props: any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             {/* {videoDiv} */}
-            {contextDiv}
-            <div className="workplace d-flex" >
-              {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>} */}
-              {/* <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
-                <TasksHelp />
-              </div> */}
-              <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
-                <Modelling />
-              </div>
-              <div className="contextarea">
+            <div className="wp" >
+              {contextDiv}
+              <div className="workplace d-flex" >
+                {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>} */}
+                <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
+                  {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
+                  <Modelling />
+                </div>
+                {/* <div className="contextarea">
+                </div> */}
+                <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }} >
+                    <Tasks />
+                </div>
               </div>
             </div>
             <div className="footer">
@@ -166,8 +169,8 @@ const page = (props: any) => {
      min-height: 101%;
      grid-gap: 0px;
      grid-template-areas:
-     "header"
-     "workplace"
+     "header "
+     "workplace tasksarea"
      "footer";
    }
    .workplace {
@@ -175,8 +178,8 @@ const page = (props: any) => {
      display: grid ;
      grid-template-columns: auto 1fr;
      grid-template-areas:
-     "contextarea contextarea"
-     "tasksarea workarea";
+     "contextarea"
+     "workarea ";
    }
 
    .contextarea {

@@ -255,7 +255,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             if (oindex && (oindex < 0)) { oindex = olength } // oindex = -1, i.e.  not fond, which means adding a new object
 
             // ---------------------  replace existing with the imported (overwrite) ---------------------
-            let rindex = props.phData.metis.models[mindex].relships.findIndex(r => (r) && r.id === impRelships[0]?.id)
+            let rindex = impRelships ? props.phData.metis.models[mindex].relships.findIndex(r => (r) && r.id === impRelships[0]?.id) : null;
             const rlength = props.phData.metis.models[mindex].relships.length
             if (rindex && (rindex < 0)) { rindex = rlength } // rindex = -1, i.e.  not fond, which means adding a new relationship
             //  if relationship already exist in props.phData.metis.models[mindex].relships, then remove it from props.phData.metis.models[mindex].relships 
@@ -313,7 +313,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             // find current model index
             let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
             // check if imported file has objects and relships
-            if (data.phData.metis.models[0]?.objects && data.phData.metis.models[0]?.relships) {
+            if (data.phData?.metis?.models[0]?.objects && data.phData.metis.models[0]?.relships) {
                 data = {
                     phData: {
                         ...props.phData,

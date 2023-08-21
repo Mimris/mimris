@@ -35,7 +35,7 @@ function Tasks() {
   // useEffect(() => {
   // }, []);
 
-  console.log('40 Tasks', curmodel.metamodelRef, metamodels, curmetamodel.generatedFromModelRef, mothermodel, models);
+  console.log('40 Tasks', curmodel?.metamodelRef, metamodels, curmetamodel?.generatedFromModelRef, mothermodel, models);
 
   const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, motherobjects, ov) === 'Task');
 

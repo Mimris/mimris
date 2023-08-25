@@ -409,9 +409,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 text = prompt('Enter name');
                 data.name = text;
               }
-              const rel = relview.relship;
+              let rel = relview.relship as akm.cxRelationship;
               if (rel) {
-                rel.name = text;
+                rel = myModel.findRelationship(rel.id);
+                rel.name = rel.type.name;
+                const draftProp = constants.props.DRAFT;
+                rel.setStringValue2(draftProp, text);
                 const relviews = rel.relshipviews;
                 if (debug) console.log('394 rel, relviews', rel, relviews);
                 for (let i = 0; i < relviews.length; i++) {

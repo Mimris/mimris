@@ -14,12 +14,17 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const Context = (props) => {
-    if (debug) console.log('20 context', props, props.props)
+    if (!debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
-    const ph = props.props
-
-    if (!ph.phData?.metis?.models) return <></>
     const dispatch = useDispatch()
+
+    const ph = props.props.props || props.props
+    const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
+    const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
+    console.log('25 Context', ph, reportType, modelInFocusId, ph?.phData);
+
+    if (!ph?.phData?.metis?.models) return <></>
+
     const [selectedId, setSelectedId] = useState(null);
     const [value, setValue] = useState("");
     // const [visibleContext, setVisibleContext] = useState(true);
@@ -28,20 +33,24 @@ const Context = (props) => {
     const [formValuesObjecttype, setFormValuesObjecttype] = useState({});
     const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
 
-    // if no props.then exit
-    const metamodels = useSelector(metamodels => ph.phData?.metis?.metamodels)  // selecting the models array
-    const focusModel = useSelector(focusModel => ph.phFocus?.focusModel) 
-    const focusUser = useSelector(focusUser => ph.phUser?.focusUser)
-    const focusModelview = useSelector(focusModelview => ph.phFocus?.focusModelview)
-    const focusObjectview = useSelector(focusObjectview => ph.phFocus?.focusObjectview)
-    const focusObject = useSelector(focusObject => ph.phFocus?.focusObject)
-  
     const models = useSelector(models =>  ph.phData?.metis?.models)  // selecting the models array
+
+    const metamodels = useSelector(metamodels => ph.phData?.metis?.metamodels)  // selecting the models array
+
+    const focusModel =  (reportType === 'task') ?  models.find(m => m.id === modelInFocusId) : useSelector(focusModel => ph?.phFocus.focusModel)    // selecting the models array current model or task model (generated from model)
+    const focusUser = useSelector(focusUser => ph.phUser?.focusUser)
+    const focusModelview =  (reportType === 'task') ? focusModel.modelviews[0] : useSelector(focusModelview => ph.phFocus?.focusModelview) // if task we use the first modelview (it should be generated with the generatedFrom)
+    const focusObjectview = (reportType === 'task') ? useSelector(focusTask => ph.phFocus?.focusTask) : useSelector(focusObjectview => ph.phFocus?.focusObjectview)
+    const focusObject = (reportType === 'task') ? focusModel.objects.find(o => o.id === useSelector(focusTask => ph.phFocus?.focusTask).objectRef) : useSelector(focusObject => ph.phFocus?.focusObject)
+    const focusTask = useSelector(focusTask => ph.phFocus?.focusTask)
+
   
     // const [model, setModel] = useState(focusModel)
-    if (debug) console.log('47 Context', focusObject, focusModel, models);
+    if (!debug) console.log('47 Context', focusObject, focusModel, models);
     
-    const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
+    const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
+
+    // const curmodel = modelInFocus
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
     const objects = curmodel?.objects //.map((o: any) => o)
     const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
@@ -49,10 +58,9 @@ const Context = (props) => {
     const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
     if (debug) console.log('51 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
     const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
-    // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
+    if (!debug) console.log('59 Context', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
-    let curobject = objects?.find(o => o.id === focusObject?.id) 
-    if (debug) console.log('81 curobject', curobject)
+    const curobject = objects?.find(o => o.id === focusObject?.id) 
 
     useEffect(() => {
       setFormValues(curobject);
@@ -61,7 +69,6 @@ const Context = (props) => {
       setFormValuesObjecttypeview(curobjtypeview);
     }, [curobject]);
     
-  
     const handleChange = (e) => {
       const { name, value } = e.target;
       setFormValues({ ...formValues, [name]: value });
@@ -433,19 +440,14 @@ const Context = (props) => {
       </Tabs>
     )
 
+  
+
     return (
-      <>
         <div className="context m-0 " style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
-          <div className="context-tabs border border-dark rounded bg-white mx-1" style={{ height: 'auto',   borderTop: 'none' }}>
+          <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto',   borderTop: 'none' }}>
             {tabsDiv} 
-            {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>
         </div>
-
-        {/* <hr style={{ backgroundColor: "#ccc", padding: "2px", marginTop: "2px", marginBottom: "0px" }} /> */}
-      </>
     )
-
-
 }
-export default Context  
+export default Context

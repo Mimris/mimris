@@ -17,7 +17,7 @@ export const ObjDetailTable = (props) => {
       setObjview
     } = props;
   
-    if (debug) console.log('20 ObjDetailTable: ', title, curRelatedObjsRels, curmodelview, curmetamodel, curobject, objects);
+    if (!debug) console.log('20 ObjDetailTable: ', title, curRelatedObjsRels, curmodelview, curmetamodel, curobject, objects);
   
     return curRelatedObjsRels && (
       <table className="table w-100">

@@ -3,12 +3,29 @@ import { useEffect, useState } from 'react';
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
 
-function Tasks() {
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+
+import ReportModule from "./ReportModule";
+import {ObjDetailTable} from './forms/ObjDetailTable';
+
+const debug = false;
+
+function Tasks(props) {
+
+  console.log('16 Tasks props', props);
   const state = useSelector((state: any) => state);
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const [maximized, setMaximized] = useState(false);
   const dispatch = useDispatch();
+
+  const [showModal, setShowModal] = useState(false);
+
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+
+  const [formValues, setFormValues] = useState({});
 
   const metamodels = useSelector(state => state.phData?.metis?.metamodels);
   const models = useSelector(state => state.phData?.metis?.models);
@@ -35,7 +52,7 @@ function Tasks() {
   // useEffect(() => {
   // }, []);
 
-  console.log('40 Tasks', curmodel?.metamodelRef, metamodels, curmetamodel?.generatedFromModelRef, mothermodel, models);
+  if (debug) console.log('40 Tasks', curmodel.metamodelRef, metamodels, curmetamodel.generatedFromModelRef, mothermodel, models);
 
   const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, motherobjects, ov) === 'Task');
 
@@ -63,6 +80,7 @@ function Tasks() {
 
 
     let taskEntries: string = '';
+
     const tasksDiv = seltasks ? (
       <ul>
       {seltasks.map((t) => {
@@ -71,13 +89,17 @@ function Tasks() {
             o.id ===
             uniqueovs.find((ov) => ov.id === t?.id)?.objectRef
         );
-        console.log("91 taskobj", taskObj, t);
+        if (debug) console.log("91 taskobj", taskObj, t);
+        const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
     
         const taskEntriesArr = Object.entries(taskObj || {})
           .filter(([key]) => !['id', 'description'].includes(key))
           .map(([key, value]) => `- **${key}:** ${value}\n`);
           
         taskEntries = taskEntriesArr.join('');
+        const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+
+        const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
         
         const taskEntriesDiv = (
           <details>
@@ -86,12 +108,13 @@ function Tasks() {
           </details>
         )
 
-        console.log('104 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
+        if (debug) console.log('104 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
     
         return (
           <>
             <li key={t.id} className="li bg-transparent border-secondary p-1 border border-success" onClick={() => setSelectedTask(t)}>
               {/* <hr className="m-0" /> */}
+              
               <details>
                 <summary>{t?.name}</summary>
                 <button
@@ -113,6 +136,7 @@ function Tasks() {
                   }}
                 >Select
                 </button>
+                            <div className="bg-transparent ms-1">{taskObj?.description?.slice(0, 42)}</div>
                 {taskObj && (
                            // make a border and some space for the task entries
 
@@ -170,6 +194,10 @@ function Tasks() {
           <div>Modelling Guide with suggested Tasks</div>
           <div className="buttons">
             <button onClick={handleMinimize}>-&gt;</button>
+            <button className="btn bg-light text-success ms-2 pt-1 btn-sm"
+              data-toggle="tooltip" data-placement="top" data-bs-html="true"
+              title="Toggle Context & Focus Modal!"
+              onClick={handleShowModal} style={{ scale: "0.9" }} >✵</button> 
             {/* <button onClick={handleMaximize}>+</button> */}
           </div>
         </div>
@@ -207,8 +235,22 @@ function Tasks() {
           </details>
           <hr className="my-2 p-0 border-light" />
         </div>
-        <div className="bg-light"> Generated Tasks: </div>
+        <div className="bg-transparent"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
+
         {tasksDiv}
+        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
+            <Modal.Header closeButton>
+              <Modal.Title>Report Module</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="bg-transparent">
+              <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
       </div>
       <style jsx>{`
           .tasklist {

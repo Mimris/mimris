@@ -19,6 +19,14 @@ import ReportModule from "./ReportModule";
 import { gojs } from "../akmm/constants";
 
 
+
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+
+
+
+
+
 // import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
@@ -36,6 +44,11 @@ const Modeller = (props: any) => {
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();
+
+  const [showModal, setShowModal] = useState(false);
+
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
 
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
@@ -72,7 +85,7 @@ const Modeller = (props: any) => {
 
   const toggleShowContext = () => {
     // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
-    setVisibleContext(!visibleContext)
+    // setVisibleContext(!visibleContext)
     SaveAkmmUser({ ...memoryAkmmUser, visibleContext }, locStateKey = 'akmmUser')
     // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
     console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
@@ -540,8 +553,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </span> */}
             <button className="btn bg-light text-success ms-2 pt-1 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Toggle Context & Focus pane!"
-              onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button> {/*  show Context ---------------------------------------------------   */}
+              title="Toggle Context & Focus Modal!"
+              onClick={handleShowModal} style={{ scale: "0.9" }} >✵</button>  {/* show Context ---------------------------------------------------   */}
+              {/*  onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button>  */}
           </div>
         </div>
         <div className="modeller--workarea-objects m-0 p-0" >
@@ -575,10 +589,25 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </Col>
             {/* show Context ------------------------------------------------------------------------------ */}
             <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd" }}>
-              {(visibleContext) ? <ReportModule props={props} /> : <></>}
+              {/* {(visibleContext) ? <ReportModule props={props} /> : <></>} */}
             </Col>
           </Row>
         </div>
+
+          <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#acc" }} >
+            <Modal.Header closeButton>
+              <Modal.Title>Report Module</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="bg-transparent">
+              <ReportModule props={props} reportType="object" modelInFocusId={props.phFocus.focusModel.id} />
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
       </div >
       : // metamodelling
       <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}

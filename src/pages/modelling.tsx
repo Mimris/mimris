@@ -145,7 +145,7 @@ const page = (props: any) => {
                 {/* <div className="contextarea">
                 </div> */}
                 <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }} >
-                    <Tasks />
+                    <Tasks props={props}/>
                 </div>
               </div>
             </div>

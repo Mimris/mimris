@@ -415,8 +415,10 @@ let includeNoType = false;
           modifiedRelviews.push(jsnRelview);
     
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+          const name = link.name;
           if (debug) console.log('382 modelview, link:', modelview, link);
           link.loadLinkContent(myGoModel);
+          link.name = name;
           // link.corner = relview.corner ? relview.corner : "0";
           link.curve = relview.curve ? relview.curve : "None";
           link.routing = relview.routing ? relview.routing : "Normal";

@@ -318,7 +318,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    */
 
   private initDiagram(): go.Diagram {
-    go.Diagram.licenseKey = "73f944e5b16131b700ca0d2b113f69ee1bb37b609e861ea35e5141a3ef5f68402bc9ec7e03d48f95d4ff4ffd1d74c6db8ec66d7cc34d0639e039da8c16e782aee13773b1150b42ddf40a71c18bea2cf5ac7071f295e023abd87e8dfae2a1c79d55bcf7d44cc80eb92e7d0463057cab4fe4a9da2cfe57c44c797d9ef2aaefaf1baa6d65949de5548bf0516edd";
+    go.Diagram.licenseKey = "73f944e5b16131b700ca0d2b113f69ef1bb37a619ed11ff55e5141f3ef586c102b9dec7a598099d0d4ac1ef41a7d978c89cc6b2f96440c32e330da8847e282fbb23574b7165a148ca00675919aad2df4f47b63e2c4e027a4da2adcf3f9b8c09d5feaecdd57c90a";
     if (debug) console.log('282 this', this);
     this.diagramRef.current?.clear();
     const $ = go.GraphObject.make;

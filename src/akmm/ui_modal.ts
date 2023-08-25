@@ -813,6 +813,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (typeof(rel[k]) === 'function')  continue;
         if (debug) console.log('794 prop', k);
         if (!uic.isPropIncluded(k, type))  continue;
+        if (k === constants.props.DRAFT) {
+          myDiagram.model.setDataProperty(data, 'name', rel[k]);
+        }
         myDiagram.model.setDataProperty(data, k, relship[k]);
         if (debug) console.log('797 data, k, relship[k]', data, k, relship[k]);
       }

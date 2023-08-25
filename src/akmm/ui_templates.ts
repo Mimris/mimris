@@ -165,7 +165,7 @@ function makeGeoIcon() {
         {
             name: "Picture",
             column: 2, 
-            margin: new go.Margin(5, 0, 5, 0),
+            margin: new go.Margin(2, 0, 0, 0),
             desiredSize: new go.Size(25, 25),
             alignment: go.Spot.Right,
         },
@@ -178,7 +178,7 @@ function makeGeometry() {
         new go.Binding("fill", "fillcolor2"), 
         {     
             column: 2, 
-            margin: new go.Margin(5, 0, 5, 0),
+            margin: new go.Margin(2, 0, 0, 0),
             desiredSize: new go.Size(20, 20),
             alignment: go.Spot.Right,
         }
@@ -191,7 +191,7 @@ function makeFigure() {
         new go.Binding("fill", "fillcolor2"), 
         {     
             column: 2, 
-            margin: new go.Margin(5, 0, 5, 0),
+            margin: new go.Margin(2, 0, 0, 0),
             desiredSize: new go.Size(20, 20),
             alignment: go.Spot.Right,
         }
@@ -346,8 +346,9 @@ export function groupTop2(contextMenu: any, notation: string) {
                         column: 1, 
                         stretch: go.GraphObject.Horizontal,
                         alignment: go.Spot.Left,
-                        margin: new go.Margin(0, 0, 0, 5), 
+                        margin: new go.Margin(-2, 0, -2, 5), 
                         font: "Bold 14pt Sans-Serif",
+                        // font: "Bold 12pt Sans-Serif",
                         editable: true, 
                         isMultiline: false,
                         // name: "name",
@@ -364,7 +365,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     fill: "rgba(128,128,128,0.33)",
                     stroke: "black",
                     opacity: 0.75,
-                    margin: new go.Margin(2, 10, 5, 10),
+                    margin: new go.Margin(2, 6, 5, 6),
                     cursor: "move",
             },
                 new go.Binding("fill", "fillcolor2"),
@@ -377,7 +378,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     stretch: go.GraphObject.Horizontal,
                     isMultiline: false,
                     minSize: new go.Size(10, 2),
-                    margin: new go.Margin(0, 0, 3, 10), 
+                    margin: new go.Margin(0, 0, 0, 0), 
                     cursor: "move", 
                 },
                 new go.Binding("text", "typename"),
@@ -2545,7 +2546,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         )); 
 
         groupTemplateMap.add("Container0", groupTemplate0);
-        addGroupTemplateName('Container0');
+        // addGroupTemplateName('Container0');
 
     const groupTemplate1 =
         $(go.Group, "Auto",

@@ -490,7 +490,7 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
-                if (!this.geometry)
+            if (!this.geometry)
                 this.geometry = this.typeview?.geometry;
             if (!this.figure)
                 this.figure = this.typeview?.figure;
@@ -795,6 +795,7 @@ export class goRelshipLink extends goLink {
     relship:            akm.cxRelationship | null;
     relshiptype:        akm.cxObjectType | akm.cxRelationshipType | null;
     typename:           string;
+    typedescription:    string;
     typeview:           akm.cxRelationshipTypeView | null;
     template:           string;
     fromNode:           goNode | null;
@@ -829,6 +830,7 @@ export class goRelshipLink extends goLink {
         this.relship         = null;
         this.relshiptype     = null;
         this.typename        = "";
+        this.typedescription = "";
         this.typeview        = null;
         this.fromNode        = null;
         this.toNode          = null;
@@ -836,6 +838,7 @@ export class goRelshipLink extends goLink {
         this.to              = "";
         this.fromPort        = relview?.fromPortid;
         this.toPort          = relview?.toPortid;
+        this.typename        = "";
         this.template        = relview?.template;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
@@ -861,11 +864,12 @@ export class goRelshipLink extends goLink {
             const relship = relview.getRelationship();
             if (relship) {
                 this.relship = relship;
-                this.relshiptype = relship.type;
-                // this.typename    = this.relshiptype.getName();
+                this.name = relship.getName();
                 const reltype = relship.getType() as akm.cxRelationshipType;
                 if (reltype) {
+                    this.relshiptype = relship.type;
                     this.typename = reltype.getName();
+                    this.typedescription = this.relshiptype.getDescription();
                     this.name = this.relship.name;
                     if (this.name.length == 0)
                         this.name = this.typename;
@@ -883,6 +887,11 @@ export class goRelshipLink extends goLink {
                             this.name = value;
                         }
                     }
+                } else {
+                    this.reltype = null;
+                    this.typename = "";
+                    this.typedescription = "";
+                    //this.type = "";
                 }
             }
             this.typeview = relview.getTypeView();

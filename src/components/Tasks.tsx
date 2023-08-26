@@ -78,7 +78,6 @@ function Tasks(props) {
     );
   }
 
-
     let taskEntries: string = '';
 
     const tasksDiv = seltasks ? (

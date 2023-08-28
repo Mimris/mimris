@@ -726,7 +726,7 @@ let includeNoType = false;
                     // Refer to metamodel
                     let mMeta = m.metamodel;
                     if (mMeta) {
-                      let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
+                      let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta?.name);
                       if (mmRef) {
                         const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
                         adminModel.addRelationship(relToMM);

@@ -86,7 +86,10 @@ const Palette = (props: any) => {
     setTypes(objecttypes.map((t: any) => t?.name));
   
     setFilteredNewtypesNodeDataArray(buildFilter(focusRole, focusTask, metamodelList, types, mmodel));  // build the palette for current metamodel
-    console.log('85 Palette useEffect 1', focusRole, focusTask, metamodelList, types, mmodel);
+
+    const seltypes =  metamodels[0]?.objecttypes.map((t: any) => t?.name);
+    setFilteredOtNodeDataArray(buildFilter(seltypes, metamodels[0]));  // build the palette for current metamodel
+    console.log('85 Palette useEffect 1', focusRole, focusTask, metamodelList, seltypes, metamodels[0]);
   
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
@@ -154,7 +157,7 @@ const Palette = (props: any) => {
 
   const otDiv = (
     <>
-      <label className='label-field px-1'>Modelling tasks:</label>
+      <label className='label-field px-1'>Additional Metamodels:</label>
       <select
         className='select-field mx-1 text-secondary'
         style={{ width: "96%" }}
@@ -163,7 +166,7 @@ const Palette = (props: any) => {
       >
         {/* <option value="" key="-1" disabled hidden> */}
         <option value="" key="-1" >
-          Select Modellingtask
+          Select Metamodel
         </option>
         {metamodelList?.map((t, i) => (
           <option key={i} value={i}>
@@ -197,7 +200,7 @@ const Palette = (props: any) => {
           } */}
       {/* { (filteredOtNodeDataArray?.length > 0 ) */}
       <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" style={(filteredNewtypesNodeDataArray?.length === 0) ? { height: "80vh" } : { height: "45vh" }} >
-        <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{(filteredOtNodeDataArray.length === 1) ? 'Basic Object' : task?.name}</div>
+        {/* <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{(filteredOtNodeDataArray.length === 1) ? 'Basic Object' : 'Additional Metamodels:'}</div> */}
         <div className="modellingtask bg-light w-100" >
           {otDiv}
         </div>

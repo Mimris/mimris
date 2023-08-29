@@ -25,7 +25,7 @@ const ReportModule = (props, reportType, modelInFocusId) => {
   if (!debug) console.log('20 ReportModule', props, reportType, ph, ph?.phData?.metis?.models)
 
   if (!ph?.phData?.metis?.models) return <>No models</>
-  if (!props.modelInFocusId) return <>No model in focus</>
+  if (!modelInFocusId) return <>No model in focus</>
 
   const [activeTab, setActiveTab] = useState(0);
 

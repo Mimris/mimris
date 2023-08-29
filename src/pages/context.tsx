@@ -38,7 +38,7 @@ const page = (props) => {
                                 <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > refresh </span>
                             </div>
                             <div className="container">
-                             <ReportModule props={props}  refresh={refresh}/>
+                             <ReportModule props={props}  reportType="object" modelInFocusId={props.phData.metis.models[0]} />
                             </div>
                         </div>
                     {/* </div> */}

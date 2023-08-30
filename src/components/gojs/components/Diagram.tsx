@@ -1095,6 +1095,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
+            makeButton("Open Group",
+            function (e: any, obj: any) {
+              const n = e.diagram.selection.first();
+              n.isSubGraphExpanded = true;
+              const node = n.data;
+              node.isExpanded = true;
+              const objview = node.objectview;
+              objview.isExpanded = true;
+              const jsnObjview = new jsn.jsnObjectView(objview, true);
+              const data = JSON.parse(JSON.stringify(jsnObjview));
+              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Container') {
+                  if (objview.isExpanded === false)
+                    return true;
+                }
+              }
+              return false;
+            }),
           makeButton("----------"),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
@@ -2326,7 +2349,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return true;
             }),
-            makeButton("Open/Close All Groups",
+          makeButton("Open/Close All Groups",
             function (e: any, obj: any) {
               const open = confirm("Open (OK) or Close all Groups?", "true");
               uid.openCloseAllGroups(myDiagram, open);

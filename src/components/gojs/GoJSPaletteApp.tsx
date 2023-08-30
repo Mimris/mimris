@@ -42,7 +42,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
 
-
   constructor(props: object) {
     super(props);
     if (debug) console.log('47 GoJSPaletteApp', props.nodeDataArray);

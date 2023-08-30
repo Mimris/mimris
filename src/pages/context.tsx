@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useContext } from 'react'
 import Link from 'next/link'
 import { connect, useDispatch, useSelector } from 'react-redux'
@@ -38,7 +39,7 @@ const page = (props) => {
                                 <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > refresh </span>
                             </div>
                             <div className="container">
-                             <ReportModule props={props}  refresh={refresh}/>
+                                <ReportModule props={props} reportType="object" modelInFocusId={props.phData.metis.models[0].id} />
                             </div>
                         </div>
                     {/* </div> */}
@@ -46,6 +47,7 @@ const page = (props) => {
             </Layout>
         </>
     )
+
 
 }
 

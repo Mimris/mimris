@@ -1,7 +1,9 @@
+// @ts-nocheck
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
+import { wrapper } from '../store'; // import RootState type
 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
@@ -13,8 +15,13 @@ const debug = false;
 
 function Tasks(props) {
 
-  console.log('16 Tasks props', props);
-  const state = useSelector((state: any) => state);
+  console.log('16 Tasks props', props.props.phData);
+
+
+  // ...
+
+  const state = useSelector((state) => state); // use RootState type
+  console.log('18 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const [maximized, setMaximized] = useState(false);
@@ -77,7 +84,6 @@ function Tasks(props) {
       </div>
     );
   }
-
 
     let taskEntries: string = '';
 

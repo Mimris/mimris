@@ -15,13 +15,10 @@ const debug = false;
 
 function Tasks(props) {
 
-  console.log('16 Tasks props', props.props.phData);
-
-
-  // ...
+  if (debug) console.log('18 Tasks props', props.props.phData);
 
   const state = useSelector((state) => state); // use RootState type
-  console.log('18 Tasks state', state);
+  if (debug) console.log('24 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const [maximized, setMaximized] = useState(false);
@@ -49,19 +46,15 @@ function Tasks(props) {
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
-  const taskmodelview = mothermodelviews?.find(mv => mv.name === '01-HealthRecords'); //Todo: we have to find the modelview that contains the tasks
-  const objectviews = taskmodelview?.objectviews;
   const objectviews2 = mothermodelviews?.flatMap(mv => mv.objectviews);
+
   const uniqueovs = objectviews2?.filter((ov, index, self) =>
     index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
   );
+  
+  const seltasks = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef).typeName === 'Task' && ov);
+  if (!debug) console.log('63 Tasks', uniqueovs, seltasks);
 
-  // useEffect(() => {
-  // }, []);
-
-  if (debug) console.log('40 Tasks', curmodel.metamodelRef, metamodels, curmetamodel.generatedFromModelRef, mothermodel, models);
-
-  const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, motherobjects, ov) === 'Task');
 
   const handleMinimize = () => {
     setMinimized(true);
@@ -79,128 +72,135 @@ function Tasks(props) {
         {/* <h2>{focusTask?.name}</h2> */}
         <div className="buttons">
             {/* <button onClick={handleMinimize}>-</button> */}
-            <button className="bg-light" onClick={handleRestore}>&lt;-</button>
-          </div>
+            <button className="btn bg-light text-success ms-1 p-1 btn-sm"
+             onClick={handleRestore}>&lt;-</button>
+            {/* <button onClick={handleMaximize}>+</button> */}    
+        </div>
+        <button className="btn bg-light text-success ms-0 px-2 btn-sm"
+            data-toggle="tooltip" data-placement="top" data-bs-html="true"
+            title="Toggle Context & Focus Modal!"
+            onClick={handleShowModal} style={{ scale: "0.9" }} >
+        ✵
+        </button> 
       </div>
     );
   }
 
-    let taskEntries: string = '';
+  let taskEntries: string = '';
 
-    const tasksDiv = seltasks ? (
-      <ul>
-      {seltasks.map((t) => {
-        const taskObj = motherobjects?.find(
-          (o) =>
-            o.id ===
-            uniqueovs.find((ov) => ov.id === t?.id)?.objectRef
-        );
-        if (debug) console.log("91 taskobj", taskObj, t);
-        const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
-    
-        const taskEntriesArr = Object.entries(taskObj || {})
-          .filter(([key]) => !['id', 'description'].includes(key))
-          .map(([key, value]) => `- **${key}:** ${value}\n`);
-          
-        taskEntries = taskEntriesArr.join('');
-        const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
-
-        const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
+  const tasksDiv = seltasks ? (
+    <ul>
+    {seltasks.map((t) => {
+      const taskObj = motherobjects?.find(
+        (o) =>
+          o.id ===
+          uniqueovs.find((ov) => ov.id === t?.id)?.objectRef
+      );
+      if (debug) console.log("91 taskobj", taskObj, t);
+      const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
+  
+      const taskEntriesArr = Object.entries(taskObj || {})
+        .filter(([key]) => !['id', 'description'].includes(key))
+        .map(([key, value]) => `- **${key}:** ${value}\n`);
         
-        const taskEntriesDiv = (
-          <details>
-            <summary>Task Properties:</summary>
-            <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
-          </details>
-        )
+      taskEntries = taskEntriesArr.join('');
+      const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
 
-        if (debug) console.log('104 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
-    
-        return (
-          <>
-            <li key={t.id} className="li bg-transparent border-secondary p-1 border border-success" onClick={() => setSelectedTask(t)}>
-              {/* <hr className="m-0" /> */}
-              
-              <details>
-                <summary>{t?.name}</summary>
-                <button
-                  className="checkbox" 
-                  onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t })}
-                  style={{
-                    float: "right",
-                    border: "1px solid #ccc",
-                    borderRadius: "3px",
-                    backgroundColor: "#fff",
-                    // width: "20px",
-                    // height: "20px",
-                    marginTop: "-25px",
-                    marginLeft: "auto",
-                    paddingRight: "2px",
-                    paddingLeft: "2px",
-                    display: "inline-block",
-                    position: "relative",
-                  }}
-                >Select
-                </button>
-                            <div className="bg-transparent ms-1">{taskObj?.description?.slice(0, 42)}</div>
-                {taskObj && (
-                           // make a border and some space for the task entries
+      const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
+      
+      const taskEntriesDiv = (
+        <details>
+          <summary>Task Properties:</summary>
+          <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
+        </details>
+      )
 
-                  <div className="selected-task bg-transparent border border-light p-1">
-                    <div className="bg-light">
-                      {taskEntriesDiv}
-                    </div>
-                    <div className="bg-light">
-                      <details><summary>Description:</summary>
-                        <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
-                      </details>
-                    </div>
+      if (debug) console.log('104 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
+  
+      return (
+        <>
+          <li key={t.id} className="li bg-transparent border-secondary p-1 border border-success" onClick={() => setSelectedTask(t)}>
+            {/* <hr className="m-0" /> */}       
+            <details>
+              <summary>{t?.name}</summary>
+              <button
+                className="checkbox" 
+                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t })}
+                style={{
+                  float: "right",
+                  border: "1px solid #ccc",
+                  borderRadius: "3px",
+                  backgroundColor: "#fff",
+                  // width: "20px",
+                  // height: "20px",
+                  marginTop: "-25px",
+                  marginLeft: "auto",
+                  paddingRight: "2px",
+                  paddingLeft: "2px",
+                  display: "inline-block",
+                  position: "relative",
+                }}
+              >Select
+              </button>
+              <div className="bg-transparent ms-1">{taskObj?.description?.slice(0, 42)}</div>
+              {taskObj && (
+                        // make a border and some space for the task entries
+
+                <div className="selected-task bg-transparent border border-light p-1">
+                  <div className="bg-light">
+                    {taskEntriesDiv}
                   </div>
-                )}
-              </details>
-            </li>
-          </>
-        );
-      })}
-    </ul>
-    ) : (
-      <div>No generated task for this model</div>
-    );
+                  <div className="bg-light">
+                    <details><summary>Description:</summary>
+                      <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
+                    </details>
+                  </div>
+                </div>
+              )}
+            </details>
+          </li>
+        </>
+      );
+    })}
+  </ul>
+  ) : (
+    <div>No generated task for this model</div>
+  );
 
 
-    const basicTask1 = `
-      - From the Palette, drag the object type
-        you want to create into the canvas.
-      - Click on the name to edit.
-      - Double-click on the object to open 
-        the properties panel, where you can edit 
-        Name, description etc.
-    `;
-    const basicTask2= `
+  const basicTask1 = `
+    - From the Palette, drag the object type
+      you want to create into the canvas.
+    - Click on the name to edit.
+    - Double-click on the object to open 
+      the properties panel, where you can edit 
+      Name, description etc.
+  `;
+  const basicTask2= `
 
-      - Click on the edge of an Object and 
-        drag the cursor to another object.
-      - Click on the name of the Relationship to edit.
-      - Right-Click or Double-click on the 
-        relationship to open the properties panel, 
-        where you can edit Name, description etc.
-    `;
-    const basicTask3 = `
-      - Open the Object panel to the left. Drag one 
-        or more objects into the canvas.
-        (Note: if you change name or other properties 
-        of the object, all other objectviews of the 
-        same object will also be changed)
-    `;
+    - Click on the edge of an Object and 
+      drag the cursor to another object.
+    - Click on the name of the Relationship to edit.
+    - Right-Click or Double-click on the 
+      relationship to open the properties panel, 
+      where you can edit Name, description etc.
+  `;
+  const basicTask3 = `
+    - Open the Object panel to the left. Drag one 
+      or more objects into the canvas.
+      (Note: if you change name or other properties 
+      of the object, all other objectviews of the 
+      same object will also be changed)
+  `;
 
-    return (
-      <>
+  return (
+    <>
       <div className="tasklist">
         <div className="header">
           <div>Modelling Guide with suggested Tasks</div>
           <div className="buttons">
-            <button onClick={handleMinimize}>-&gt;</button>
-            <button className="btn bg-light text-success ms-2 pt-1 btn-sm"
+            <button className="btn bg-light text-success ms-1 p-1 btn-sm" onClick={handleMinimize}>-&gt;</button>
+            <button className="btn bg-light text-success ms-0 pt-1 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Toggle Context & Focus Modal!"
               onClick={handleShowModal} style={{ scale: "0.9" }} >✵</button> 
@@ -366,13 +366,15 @@ function Tasks(props) {
         }
       `}
       </style>
-      </>
-    );
+    </>
+  );
 }
 
 function type(metamodels, model, motherobjects, curov) {
-  return metamodels?.find(mm => mm.id === model?.metamodelRef)
+  const retval = metamodels?.find(mm => mm.id === model?.metamodelRef)
     ?.objecttypes?.find(ot => ot.id === motherobjects?.find(o => o.id === curov.objectRef)?.typeRef)?.name;
+    if (debug) console.log('377 Tasks ', retval);
+    return retval;
 }
 
 export default Tasks;

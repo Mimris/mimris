@@ -1663,9 +1663,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           e.subject.each(function (n) {
               const data = n.data;
               const objview = data?.objectview;
-              objview.isExpanded = data.isExpanded;
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              modifiedObjectViews.push(jsnObjview);
+              if (objview) {
+                objview.isExpanded = data.isExpanded;
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(jsnObjview);
+            }
           });
           break;
       }

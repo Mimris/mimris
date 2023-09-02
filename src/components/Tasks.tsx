@@ -124,8 +124,8 @@ function Tasks(props) {
             <details>
               <summary>{t?.name}</summary>
               <button
-                className="checkbox" 
-                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t })}
+                className="btn btn-sm checkbox bg-transparent text-success" 
+                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t }) && handleShowModal()}
                 style={{
                   float: "right",
                   border: "1px solid #ccc",
@@ -135,17 +135,13 @@ function Tasks(props) {
                   // height: "20px",
                   marginTop: "-25px",
                   marginLeft: "auto",
-                  paddingRight: "2px",
-                  paddingLeft: "2px",
                   display: "inline-block",
                   position: "relative",
                 }}
               >Select
               </button>
-              <div className="bg-transparent ms-1">{taskObj?.description?.slice(0, 42)}</div>
+              <div className="bg-transparent ms-1">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
               {taskObj && (
-                        // make a border and some space for the task entries
-
                 <div className="selected-task bg-transparent border border-light p-1">
                   <div className="bg-light">
                     {taskEntriesDiv}

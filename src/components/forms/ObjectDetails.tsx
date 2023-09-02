@@ -38,7 +38,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       }
     };
 
-  if (debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (!debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
   if (debug) console.log('44 ObjectForm', formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>

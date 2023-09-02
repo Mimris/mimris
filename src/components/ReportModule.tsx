@@ -14,18 +14,18 @@ const debug = false
 
 const ReportModule = (props, reportType, modelInFocusId) => {
 
+  if (!debug) console.log('18 ReportModule', props, props.reportType, props.modelInFocusId)
+  
+  const ph = props.props.props || props.props 
+  if (debug) console.log('20 ReportModule', props, reportType, ph, ph?.phData?.metis?.models)
 
-  if (!debug) console.log('18 ReportModule', props, reportType, props.modelInFocusId)
+  if (!ph?.phData?.metis?.models) return <>No models</>
+  if (!props.modelInFocusId) return <>No model in focus</>
 
   const dispatch = useDispatch()
   const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
   function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
-  const ph = props.props.props || props.props 
-  if (!debug) console.log('20 ReportModule', props, reportType, ph, ph?.phData?.metis?.models)
-
-  if (!ph?.phData?.metis?.models) return <>No models</>
-  if (!modelInFocusId) return <>No model in focus</>
 
   const [activeTab, setActiveTab] = useState(0);
 

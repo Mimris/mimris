@@ -740,7 +740,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_OBJECT_PROPERTIES:
-
+      if (!debug) console.log('743 UPDATE_OBJECT_PROPERTIES', action);
       const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
       let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
       const curObjectLength = curModel?.objects?.length;
@@ -774,7 +774,7 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_OBJECT_PROPERTIES
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      if (debug) console.log('794 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      if (!debug) console.log('777 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
       const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
       let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview?.id); // current objectview index
       const curObjectviewsLength = curModelview?.objectviews?.length

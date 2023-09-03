@@ -13,7 +13,7 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const Context = (props) => {
+const Context = (props, edit) => {
     if (!debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
@@ -306,6 +306,7 @@ const Context = (props) => {
             formValues={formValues}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
+            edit={false}
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}

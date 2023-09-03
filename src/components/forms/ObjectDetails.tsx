@@ -20,7 +20,7 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
   );
 };
 
-const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit }) => {
+const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit, edit }) => {
   const textareaRef = useRef(null);
   // const [value, setValue] = useState("");
 
@@ -169,9 +169,11 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
         })}
         </div>
         <div className="row m-1 pt-1">
+          {(edit !== false) && ( 
           <button type="submit" className="btn btn-sm btn-primary" style={{ float: 'right' }}>
             Submit
           </button>
+          )}
         </div>
       </div>
       <style jsx>{`
@@ -239,6 +241,7 @@ const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropert
       <div className="object-details--content " >
       {/* <div className="object-details--content " style={{ overflow: 'auto', maxHeight: '700px' }}> */}
         <div className="col">
+          (edit)
             <ObjectForm
               objectPropertiesMain={objectPropertiesMain}
               formValues={formValues}

@@ -26,7 +26,12 @@ function Tasks(props) {
 
   const [showModal, setShowModal] = useState(false);
 
-  const handleShowModal = () => setShowModal(true);
+  const handleShowModal = () => {
+    if (minimized) {
+      setMinimized(true);
+    }
+    setShowModal(true);
+  };
   const handleCloseModal = () => setShowModal(false);
 
   const [formValues, setFormValues] = useState({});
@@ -53,7 +58,7 @@ function Tasks(props) {
   );
   
   const seltasks = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef).typeName === 'Task' && ov);
-  if (!debug) console.log('63 Tasks', uniqueovs, seltasks);
+  if (!debug) console.log('63 Tasks', uniqueovs, seltasks, showModal);
 
 
   const handleMinimize = () => {
@@ -61,27 +66,52 @@ function Tasks(props) {
     setMaximized(false);
   };
 
-  const handleRestore = () => {
+  const handleMaximize = () => {
     setMinimized(false);
-    setMaximized(false);
+    setMaximized(true);
   };
 
   if (minimized) {
     return (
-      <div className="minimized-task" onClick={handleRestore}>
-        {/* <h2>{focusTask?.name}</h2> */}
-        <div className="buttons">
-            {/* <button onClick={handleMinimize}>-</button> */}
-            <button className="btn bg-light text-success ms-1 p-1 btn-sm"
-             onClick={handleRestore}>&lt;-</button>
-            {/* <button onClick={handleMaximize}>+</button> */}    
+      <div className="minimized-task " >
+        <div className="buttons position-absolute end-0">
+          <button
+            className="btn text-success me-0 px-2 py-0 btn-sm"
+            data-toggle="tooltip"
+            data-placement="top"
+            data-bs-html="true"
+            title="Toggle Context & Focus Modal for current task!"
+            onClick={handleShowModal}
+            style={{ scale: "0.9", backgroundColor: "lightyellow" }}
+          >
+            ✵
+          </button>
+
+          <button 
+            className="btn text-success me-2 px-2 py-0 btn-sm" 
+            data-toggle="tooltip"
+            data-placement="top"
+            data-bs-html="true"
+            title="Minimize"
+            onClick={handleMaximize}
+            style={{ scale: "0.9", backgroundColor: "lightyellow", relativePosition: "-116" }}
+          >
+            &lt;-
+          </button>
         </div>
-        <button className="btn bg-light text-success ms-0 px-2 btn-sm"
-            data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title="Toggle Context & Focus Modal!"
-            onClick={handleShowModal} style={{ scale: "0.9" }} >
-        ✵
-        </button> 
+        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
+            <Modal.Header closeButton>
+              <Modal.Title>Report Module</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="bg-transparent">
+              <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
       </div>
     );
   }
@@ -125,7 +155,7 @@ function Tasks(props) {
               <summary>{t?.name}</summary>
               <button
                 className="btn btn-sm checkbox bg-transparent text-success" 
-                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t }) && handleShowModal()}
+                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t }) } // && handleShowModal()}
                 style={{
                   float: "right",
                   border: "1px solid #ccc",
@@ -138,7 +168,7 @@ function Tasks(props) {
                   display: "inline-block",
                   position: "relative",
                 }}
-              >Select
+              >Set Focus
               </button>
               <div className="bg-transparent ms-1">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
               {taskObj && (
@@ -192,14 +222,15 @@ function Tasks(props) {
   return (
     <>
       <div className="tasklist">
-        <div className="header">
-          <div>Modelling Guide with suggested Tasks</div>
+        <div className="header m-0 p-0">
+          <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
           <div className="buttons">
-            <button className="btn bg-light text-success ms-1 p-1 btn-sm" onClick={handleMinimize}>-&gt;</button>
-            <button className="btn bg-light text-success ms-0 pt-1 btn-sm"
+            <button className="btn text-success ms-1 mt-1 pt-1 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Toggle Context & Focus Modal!"
-              onClick={handleShowModal} style={{ scale: "0.9" }} >✵</button> 
+              onClick={handleShowModal} style={{ scale: "0.9", backgroundColor: "lightyellow" }} >✵
+            </button> 
+            <button className="btn text-success m-1 ms-0 py-0 btn-sm" onClick={handleMinimize} style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
             {/* <button onClick={handleMaximize}>+</button> */}
           </div>
         </div>
@@ -245,7 +276,7 @@ function Tasks(props) {
               <Modal.Title>Report Module</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-transparent">
-              <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
+              <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>

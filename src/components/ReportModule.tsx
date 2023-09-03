@@ -12,7 +12,7 @@ import MarkdownEditor from './forms/MarkdownEditor';
 
 const debug = false
 
-const ReportModule = (props, reportType, modelInFocusId) => {
+const ReportModule = (props, reportType, edit, modelInFocusId) => {
 
   if (!debug) console.log('18 ReportModule', props, props.reportType, props.modelInFocusId)
   
@@ -44,7 +44,7 @@ const ReportModule = (props, reportType, modelInFocusId) => {
                 <Tab ><FaCompass /></Tab> */}
           </TabList>
           <TabPanel className='p-1 border border-dark' >
-            <Context props={props}  />
+            <Context props={props} edit={edit} />
           </TabPanel>
           <TabPanel className='p-1 border border-dark' >
             <MarkdownEditor props={props} />

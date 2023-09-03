@@ -599,7 +599,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               <Modal.Title>Report Module</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-transparent">
-              <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel.id} />
+              <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel.id} edit={true}/>
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>

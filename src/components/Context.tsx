@@ -306,10 +306,10 @@ const Context = (props, edit) => {
             formValues={formValues}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
-            edit={false}
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}
+            edit={props.edit}
           />
           <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
             <TabList>

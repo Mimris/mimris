@@ -271,7 +271,7 @@ function Tasks(props) {
         <div className="bg-transparent"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
 
         {tasksDiv}
-        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
+        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
             <Modal.Header closeButton>
               <Modal.Title>Report Module</Modal.Title>
             </Modal.Header>

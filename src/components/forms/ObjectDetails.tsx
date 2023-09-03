@@ -38,7 +38,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       }
     };
 
-  if (!debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (!debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject, edit);
   if (debug) console.log('44 ObjectForm', formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>
@@ -169,7 +169,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
         })}
         </div>
         <div className="row m-1 pt-1">
-          {(edit !== false) && ( 
+          {(edit === true) && ( 
           <button type="submit" className="btn btn-sm btn-primary" style={{ float: 'right' }}>
             Submit
           </button>
@@ -233,21 +233,21 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
   );
 };
 
-const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject }) => {
-  console.log('233 ObjectDetails ', curobject, formValues);
+const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject, edit}) => {
+  console.log('237 ObjectDetails ', curobject, formValues, edit);
   return (
     <div className='object-details' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />
       <div className="object-details--content " >
       {/* <div className="object-details--content " style={{ overflow: 'auto', maxHeight: '700px' }}> */}
         <div className="col">
-          (edit)
             <ObjectForm
               objectPropertiesMain={objectPropertiesMain}
               formValues={formValues}
               curobject={curobject}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
+              edit={edit}
             />
           </div>
       </div>

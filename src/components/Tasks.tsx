@@ -57,7 +57,7 @@ function Tasks(props) {
     index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
   );
   
-  const seltasks = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef).typeName === 'Task' && ov);
+  const seltasks = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
   if (!debug) console.log('63 Tasks', uniqueovs, seltasks, showModal);
 
 

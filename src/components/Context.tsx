@@ -393,6 +393,7 @@ const Context = (props, edit) => {
               curobjModelviews={curobjModelviews}
               setObjview={setObjview}
               parentobject={parentobject}
+              edit={props.edit}
             />
         {/* </div> */}
         </TabPanel>
@@ -409,6 +410,7 @@ const Context = (props, edit) => {
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}
+            edit={props.edit}
           />
         </TabPanel>
         <TabPanel  className='objectype'> 
@@ -424,6 +426,7 @@ const Context = (props, edit) => {
               curobjModelviews={curobjModelviews}
               setObjview={setObjview}
               parentobject={parentobject}
+              edit={props.edit}
             />
         </TabPanel>
         <TabPanel  className='typeview'> 
@@ -439,6 +442,7 @@ const Context = (props, edit) => {
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}
+            edit={props.edit}
           />
         </TabPanel>
 

@@ -2587,6 +2587,36 @@ export class cxMetis {
         }
         return null;
     }
+    findRelationshipTypeByName3(name: string, fromObjType: cxObjectType, toObjType: cxObjectType, entityType: cxObjectType): cxRelationshipType | null {
+        // Includes check inheritance
+        const types = this.getRelationshipTypes();
+        if (debug) console.log('2171 types', types.length, types);
+        if (!types) {
+            return null;
+        } else {
+            let reltype: cxRelationshipType | null = null;
+            for (let i=0; i<types.length; i++) {
+                reltype = types[i];
+                if (debug) console.log('2178 reltype', reltype, fromObjType, toObjType);
+                if (reltype.isDeleted()) continue;
+                if (reltype.getName() === name) {
+                    if ((fromObjType.id === entityType.id) ||
+                        reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
+                            if ((toObjType.id === entityType.id) ||
+                            reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes))
+                                return reltype; 
+                    }
+                    if ((toObjType.id === entityType.id) ||
+                        reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
+                            if ((fromObjType.id === entityType.id) ||
+                            reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes))
+                                return reltype; 
+                    }
+                }
+            }
+        }
+        return null;
+    }
     findRelationshipTypeByNames(reltypeName: string, fromtypeName: string, totypeName: string) {
         let types = this.getRelshipTypes();
         if (!types) return null;

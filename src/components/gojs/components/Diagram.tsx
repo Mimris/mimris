@@ -1032,7 +1032,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Convert to Group",
             function (e: any, obj: any) {
-              const allowPorts = confirm("Allow Ports?");
+              const noPorts = confirm("No Ports (OK) or Allow Ports?");
+              const allowPorts = !noPorts;
               const n = e.diagram.selection.first().data;
               let objview = n.objectview;
               objview = myMetis.findObjectView(objview.id);
@@ -1541,18 +1542,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const myModelview = myMetis.currentModelview;
               let includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
-              if (debug) console.log('1440 link, myGoModel', link, myGoModel);
-              if (debug) console.log('1441 link.relshiptype', link.relshiptype);
               const myMetamodel = myMetis.currentMetamodel;
-              const relshipType = link.relshiptype as akm.cxRelationshipType;
-              let fromType = relshipType.fromObjtype as akm.cxObjectType;
+              let fromType = link.fromNode.objecttype as akm.cxObjectType;
               fromType = myMetamodel.findObjectType(fromType.id);
-              let toType = relshipType.toObjtype as akm.cxObjectType;
+              let toType = link.toNode.objecttype as akm.cxObjectType;
               toType = myMetamodel.findObjectType(toType.id);
-              if (debug) console.log('1449 link, fromType, toType', link, fromType, toType);
               const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               link.choices = [];
-              if (debug) console.log('1456 reltypes, fromType, toType', reltypes, fromType, toType);
               if (reltypes) {
                 for (let i = 0; i < reltypes.length; i++) {
                   const rtype = reltypes[i];
@@ -1576,7 +1572,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(link.choices, modalContext);
-              if (debug) console.log('1478 myMetis', myMetis);
             },
             function (o) {
               const link = o.part.data;
@@ -1633,24 +1628,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   link.typeview = defaultTypeview;
                   myDiagram.requestUpdate();
                   const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
-                  let data = JSON.parse(JSON.stringify(jsnRelView));
-                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                  const modifiedRelviews = new Array();
+                  modifiedRelviews.push(jsnRelView);
+                  modifiedRelviews.map(mn => {
+                    let data = mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                  })
                 }
               }
             },
             function (o: any) {
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP) {
-                // const currentRelship = link.relship;
-                // const currentRelshipView = link.relshipview;
-                // if (currentRelship && currentRelshipView) {
-                //   const reltype = currentRelship.type;
-                //   const typeView = link.typeview;
-                //   const defaultTypeview = reltype.typeview;
-                //   if (typeView && (typeView.id !== defaultTypeview.id)) {
-                //     return true;
-                //   }
-                // }
+                const currentRelship = link.relship;
+                const currentRelshipView = link.relshipview;
+                if (currentRelship && currentRelshipView) {
+                  const reltype = currentRelship.type;
+                  const typeView = link.typeview;
+                  const defaultTypeview = reltype.typeview;
+                  if (typeView && (typeView.id !== defaultTypeview.id)) {
+                    return true;
+                  }
+                }
                 return true;
               }
               else if (link.category === constants.gojs.C_RELSHIPTYPE) {
@@ -2425,7 +2425,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Add Metamodel",
             function (e: any, obj: any) {
-              uid.addMetamodel(myMetis, myDiagram);
+              const isSubMetamodel = false;
+              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
             },
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling') {
@@ -2438,6 +2439,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   return true;
                 else
                   return false;
+              }
+            }),
+          makeButton("Add Sub-Metamodel",
+            function (e: any, obj: any) {
+              const isSubMetamodel = true;
+              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') {
+                return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              } else {
+                  return true;
               }
             }),
           makeButton("Delete Metamodel",

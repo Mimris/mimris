@@ -102,19 +102,19 @@ const Palette = (props: any) => {
   // if (!metamodels) return null;
 
   const buildFilter = (role, task, metamodelList, types, metamodel) => {
-    if (!debug) console.log('102 Palette useEffect 1', role, task, metamodelList, types, metamodel);
+    if (debug) console.log('102 Palette useEffect 1', role, task, metamodelList, types, metamodel);
     // setTypes(metamodel?.objecttypes.map((t: any) => t?.name));
       return buildFilterOtNodeDataArray(types, metamodel);
   };
 
 
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
-    if (!debug) console.log('108 ', types, mmodel);
+    if (debug) console.log('108 ', types, mmodel);
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
 
-    if (!debug) console.log('113 ', types, curMyMetamodel, curPalette?.nodes);
+    if (debug) console.log('113 ', types, curMyMetamodel, curPalette?.nodes);
 
     if (types?.length > 0) {
       const otsArr = types.map(wot =>
@@ -123,7 +123,7 @@ const Palette = (props: any) => {
           return i?.name === wot && i;
         })
       ).filter(Boolean);
-      if (!debug) console.log('122 ', otsArr);
+      if (debug) console.log('122 ', otsArr);
       return otsArr
     } else { return ndarr }
   };

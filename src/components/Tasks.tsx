@@ -15,13 +15,13 @@ const debug = false;
 
 function Tasks(props) {
 
-  console.log('16 Tasks props', props.props.phData);
+  if (debug) console.log('16 Tasks props', props.props.phData);
 
 
   // ...
 
   const state = useSelector((state) => state); // use RootState type
-  console.log('18 Tasks state', state);
+  if (debug) console.log('18 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const [maximized, setMaximized] = useState(false);

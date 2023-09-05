@@ -97,7 +97,7 @@ export function replaceCurrentMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     askForMetamodel(context);
 }
 
-export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any, isSubMetamodel: boolean) {
     // Select metamodel among all metamodels (except the current)
     const args = {
         "metamodel":          "", 
@@ -108,6 +108,7 @@ export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
         "myCurrentMetamodel": myMetis.currentMetamodel,
         "myCurrentModel":     myMetis.currentModel,
         "myDiagram":          myDiagram,
+        "isSubMetamodel":     isSubMetamodel,
         "case":               "Add Metamodel",
         "title":              "Select Metamodel to Add",
         "dispatch":           myDiagram.dispatch,
@@ -970,46 +971,48 @@ function addMetamodel2(context: any) {
     const metamodel = context.args.metamodel;
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
+    const isSubMetamodel = context.isSubMetamodel;
     if (debug) console.log('271 currentMetamodel, metamodel', currentMetamodel, metamodel);
-
-    const objecttypes = metamodel.objecttypes;
-    for (let i=0; i<objecttypes?.length; i++) {
-        const objecttype = objecttypes[i];
-        if (!objecttype) continue;
-        if (currentMetamodel.findObjectType(objecttype.id)) 
-            continue;
-        else 
-            currentMetamodel.addObjectType(objecttype);
+    if (isSubMetamodel) {
+        currentMetamodel.addSubMetamodel(metamodel);
+    } else {
+        const objecttypes = metamodel.objecttypes;
+        for (let i=0; i<objecttypes?.length; i++) {
+            const objecttype = objecttypes[i];
+            if (!objecttype) continue;
+            if (currentMetamodel.findObjectType(objecttype.id)) 
+                continue;
+            else 
+                currentMetamodel.addObjectType(objecttype);
+        }
+        const relshiptypes = metamodel.relshiptypes;
+        for (let i=0; i<relshiptypes?.length; i++) {
+            const relshiptype = relshiptypes[i];
+            if (!relshiptype) continue;
+            if (currentMetamodel.findRelationshipType(relshiptype.id)) 
+                continue;
+            else 
+                currentMetamodel.addRelationshipType(relshiptype);
+        }
+        const objecttypes0 = metamodel.objecttypes0;
+        for (let i=0; i<objecttypes0?.length; i++) {
+            const objecttype = objecttypes0[i];
+            if (!objecttype) continue;
+            if (currentMetamodel.findObjectType0(objecttype.id)) 
+                continue;
+            else 
+                currentMetamodel.addObjectType0(objecttype);
+        }
+        const relshiptypes0 = metamodel.relshiptypes0;
+        for (let i=0; i<relshiptypes0?.length; i++) {
+            const relshiptype = relshiptypes0[i];
+            if (!relshiptype) continue;
+            if (currentMetamodel.findRelationshipType0(relshiptype.id)) 
+                continue;
+            else 
+                currentMetamodel.addRelationshipType0(relshiptype);
+        }
     }
-    const relshiptypes = metamodel.relshiptypes;
-    if (debug) console.log('894 relshiptypes', relshiptypes);
-    for (let i=0; i<relshiptypes?.length; i++) {
-        const relshiptype = relshiptypes[i];
-        if (!relshiptype) continue;
-        if (currentMetamodel.findRelationshipType(relshiptype.id)) 
-            continue;
-        else 
-            currentMetamodel.addRelationshipType(relshiptype);
-    }
-    const objecttypes0 = metamodel.objecttypes0;
-    for (let i=0; i<objecttypes0?.length; i++) {
-        const objecttype = objecttypes0[i];
-        if (!objecttype) continue;
-        if (currentMetamodel.findObjectType0(objecttype.id)) 
-            continue;
-        else 
-            currentMetamodel.addObjectType0(objecttype);
-    }
-    const relshiptypes0 = metamodel.relshiptypes0;
-    for (let i=0; i<relshiptypes0?.length; i++) {
-        const relshiptype = relshiptypes0[i];
-        if (!relshiptype) continue;
-        if (currentMetamodel.findRelationshipType0(relshiptype.id)) 
-            continue;
-        else 
-            currentMetamodel.addRelationshipType0(relshiptype);
-    }
-    // currentMetamodel.addSubMetamodel(metamodel);
     const jsnMetamodel = new jsn.jsnMetaModel(currentMetamodel, true);
     if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
     const modifiedMetamodels = new Array();

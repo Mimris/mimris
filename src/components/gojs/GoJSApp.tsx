@@ -97,6 +97,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   public handleSelectDropdownChange = (selected: any) => {
     if (debug) console.log('94 handleSelectDropdownChange');
     const myMetis = this.state.myMetis;
+    const modalContext = this.state.modalContext;
     const context = {
       "myMetis": myMetis,
       "myMetamodel": myMetis.currentMetamodel,
@@ -104,7 +105,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModelview": myMetis.currentModelview,
       "myGoModel": myMetis.gojsModel,
       "myDiagram": myMetis.myDiagram,
-      "modalContext": this.state.modalContext
+      "modalContext": modalContext
     }
     uim.handleSelectDropdownChange(selected, context);
   }
@@ -433,7 +434,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   modifiedRelshipViews.map(mn => {
                     let data = mn;
                     data = JSON.parse(JSON.stringify(data));
-                    if (debug) console.log('1314 data', data);
                     (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                   })              
                 }

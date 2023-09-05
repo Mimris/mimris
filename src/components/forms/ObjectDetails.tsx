@@ -20,7 +20,7 @@ const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview
   );
 };
 
-const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit }) => {
+const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange, handleSubmit, edit }) => {
   const textareaRef = useRef(null);
   // const [value, setValue] = useState("");
 
@@ -38,7 +38,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
       }
     };
 
-  if (debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject);
+  if (!debug) console.log('42 ObjectForm', objectPropertiesMain, formValues, curobject, edit);
   if (debug) console.log('44 ObjectForm', formValues, curobject);
   return (formValues) && (
     <form onSubmit={handleSubmit}>
@@ -169,9 +169,11 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
         })}
         </div>
         <div className="row m-1 pt-1">
+          {(edit === true) && ( 
           <button type="submit" className="btn btn-sm btn-primary" style={{ float: 'right' }}>
             Submit
           </button>
+          )}
         </div>
       </div>
       <style jsx>{`
@@ -231,8 +233,8 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
   );
 };
 
-const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject }) => {
-  console.log('233 ObjectDetails ', curobject, formValues);
+const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject, edit}) => {
+  console.log('237 ObjectDetails ', curobject, formValues, edit);
   return (
     <div className='object-details' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />
@@ -245,6 +247,7 @@ const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropert
               curobject={curobject}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
+              edit={edit}
             />
           </div>
       </div>

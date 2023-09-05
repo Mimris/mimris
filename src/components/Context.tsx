@@ -13,7 +13,7 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const Context = (props) => {
+const Context = (props, edit) => {
     if (!debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
@@ -21,7 +21,7 @@ const Context = (props) => {
     const ph = props.props.props || props.props
     const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
     const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
-    console.log('25 Context', ph, reportType, modelInFocusId, ph?.phData);
+    console.log('25 Context:', ph, reportType, modelInFocusId, ph?.phData);
 
     if (!ph?.phData?.metis?.models) return <></>
 
@@ -46,9 +46,11 @@ const Context = (props) => {
 
   
     // const [model, setModel] = useState(focusModel)
-    if (!debug) console.log('47 Context', focusObject, focusModel, models);
+    if (!debug) console.log('47 Context:', focusObject, focusModel, models);
     
     const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
+
+    if (!debug) console.log('53 Context:', curmodel)
 
     // const curmodel = modelInFocus
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
@@ -56,9 +58,9 @@ const Context = (props) => {
     const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
     const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
     const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-    if (debug) console.log('51 Context', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+    if (debug) console.log('51 Context:', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
     const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
-    if (!debug) console.log('59 Context', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
+    if (debug) console.log('59 Context:', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
     const curobject = objects?.find(o => o.id === focusObject?.id) 
 
@@ -71,12 +73,13 @@ const Context = (props) => {
     
     const handleChange = (e) => {
       const { name, value } = e.target;
+      console.log('76 Context :',name, value, e);
       setFormValues({ ...formValues, [name]: value });
     };
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      console.log('79 Context ',formValues, e);
+      console.log('79 Context :',formValues, e);
       if (formValues) {
       const modifiedFields = {};
       for (const key in formValues) { 
@@ -85,20 +88,21 @@ const Context = (props) => {
         }
       }
 
-      const objData = { id: formValues['id'], ...modifiedFields };
-      const objvData = { id: focusObjectview.id, name: formValues['name']};
-      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
+      const objData = { id: formValues['id'], ...modifiedFields , modifiedDate: new Date().toISOString()};
+      const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString()};
+      console.log('93 Context :',objData, objvData);
+      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData }) 
       dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
       
-      if (modifiedFields['name']) {
-        const focobjData = { id: focusObject.id, name: modifiedFields['name'] };
-        const focobjvData = { id: focusObjectview.id, name: formValues['name']};
-        dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: focobjvData })
-        dispatch({ type: 'SET_FOCUS_OBJECT', data: focobjData })
-      }
+      // if (modifiedFields['name']) {
+      //   const focobjData = { id: focusObject.id, name: modifiedFields['name'] };
+      //   const focobjvData = { id: focusObjectview.id, name: formValues['name']};
+        // dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: focobjvData })
+        // dispatch({ type: 'SET_FOCUS_OBJECT', data: focobjData })
+      // }
         
         // dispatch(submitForm(formValues));
-        console.log('83 Context ',formValues, objData, objvData);
+        console.log('105 Context ',formValues, objData, objvData);
       }
     };
 
@@ -305,6 +309,7 @@ const Context = (props) => {
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}
+            edit={props.edit}
           />
           <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
             <TabList>
@@ -388,6 +393,7 @@ const Context = (props) => {
               curobjModelviews={curobjModelviews}
               setObjview={setObjview}
               parentobject={parentobject}
+              edit={props.edit}
             />
         {/* </div> */}
         </TabPanel>
@@ -404,6 +410,7 @@ const Context = (props) => {
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}
+            edit={props.edit}
           />
         </TabPanel>
         <TabPanel  className='objectype'> 
@@ -419,6 +426,7 @@ const Context = (props) => {
               curobjModelviews={curobjModelviews}
               setObjview={setObjview}
               parentobject={parentobject}
+              edit={props.edit}
             />
         </TabPanel>
         <TabPanel  className='typeview'> 
@@ -434,6 +442,7 @@ const Context = (props) => {
             curobjModelviews={curobjModelviews}
             setObjview={setObjview}
             parentobject={parentobject}
+            edit={props.edit}
           />
         </TabPanel>
 

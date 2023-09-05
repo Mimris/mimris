@@ -23,8 +23,9 @@ const SetContext = (props: any) =>  {
     <div className="context-list d-flex justify-content-around flex-grow-1 px-1"> Context :
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
       <span className="context-item "> Modelview: <strong>{ phFocus?.focusModelview?.name } </strong> </span> 
-      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
       <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span> |
+      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
+      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
     </div>
 
   const contextModelDiv = 
@@ -33,8 +34,8 @@ const SetContext = (props: any) =>  {
       <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <strong>{repo}</strong> </Link></span> |
       <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <strong>{phFocus.focusProj.name}</strong></Link>}</span> |
       <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
-      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
+      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
+
   </div>
 
   const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}

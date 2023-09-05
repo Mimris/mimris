@@ -2,14 +2,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-// import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
-// import classnames from 'classnames';
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-// import { setGojsModelObjects } from "../actions/actions";
-// import Selector from './utils/Selector'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
-// import { KnownTypeNamesRule } from "graphql";
-// import { setMyMetisParameter } from "../actions/actions";
 
 import * as uib from '../akmm/ui_buildmodels';
 import { gojs } from "../akmm/constants";
@@ -89,7 +83,7 @@ const Palette = (props: any) => {
 
     const seltypes =  metamodels[0]?.objecttypes.map((t: any) => t?.name);
     setFilteredOtNodeDataArray(buildFilter(seltypes, metamodels[0]));  // build the palette for current metamodel
-    console.log('85 Palette useEffect 1', focusRole, focusTask, metamodelList, seltypes, metamodels[0]);
+    if (debug) console.log('85 Palette useEffect 1', focusRole, focusTask, metamodelList, seltypes, metamodels[0]);
   
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
@@ -130,61 +124,52 @@ const Palette = (props: any) => {
 
   if (debug) console.log('127 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
-  function getModellingTask(selectedIndex) { // set the modellingtask and refresh the palette
-    if (debug) console.log('130 Palette setModellingTask', selectedIndex);
-    const taskObj = metamodelList[selectedIndex];
-    if (debug) console.log('132 Palette setModellingTask', taskObj, metamodelList);
-    setTask(taskObj);
-    const curmm = { id: taskObj?.id, name: taskObj?.name };
-    // find the metamodel
-    const curmmodel = metamodels?.find((m: any) => m?.id === curmm?.id);
-    console.log('137 Palette setModellingTask', types, curmm, curmmodel);
-    const thistypes = curmmodel.objecttypes.map((t: any) => t?.name);
-    const filteredNodeDataArray = buildFilter(role, task, metamodelList, thistypes, curmmodel);
-    console.log('140 getModellingTask :', role, task, metamodelList, thistypes, curmmodel);
-    console.log('141 getModellingTask filteredNodeDataArray:', filteredNodeDataArray);
+function getModellingTask(selectedIndex) {
+  const taskObj = metamodelList[selectedIndex];
+  setTask(taskObj);
+
+  const curmm = { id: taskObj?.id, name: taskObj?.name };
+  const curmmodel = metamodels?.find((m: any) => m?.id === curmm?.id);
+  const thistypes = curmmodel?.objecttypes?.map((t: any) => t?.name) || [];
+
+  const filteredNodeDataArray = buildFilter(role, task, metamodelList, thistypes, curmmodel);
+
+  const timer = setTimeout(() => {
     setFilteredOtNodeDataArray(filteredNodeDataArray);
-    const timer = setTimeout(() => {
-      setRefreshPalette(!refreshPalette);
-      console.log('145 Palette setModellingTask', metamodelList, thistypes, filteredNodeDataArray, filteredOtNodeDataArray);
-    }, 200);
-    return () => { clearTimeout(timer); };
-  }
+    setRefreshPalette(!refreshPalette);
+  }, 200);
 
-  if (debug) console.log('150 filteredOtNodeDataArray', filteredOtNodeDataArray, ndarr)
+  return () => clearTimeout(timer);
+}
 
-  if (debug) console.log('152 Palette', props.phFocus?.focusRole, 'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'metamodelList', metamodelList, 'types', types, 'filteredOtNodeDataArray', filteredOtNodeDataArray);
-
-  const otDiv = (
-    <>
-      <label className='label-field px-1'>Additional Metamodels:</label>
-      <select
-        className='select-field mx-1 text-secondary'
-        style={{ width: "96%" }}
-        value={metamodelList?.findIndex(t => t.id === task.id)}
-        onChange={(e) => getModellingTask(e.target.value)}
-      >
-        {/* <option value="" key="-1" disabled hidden> */}
-        <option value="" key="-1" >
-          Select Metamodel
+const otDiv = (
+  <>
+    <label className="label-field px-1">Additional Metamodels:</label>
+    <select
+      className="select-field mx-1 text-secondary"
+      style={{ width: "96%" }}
+      value={metamodelList?.findIndex((t) => t.id === task.id)}
+      onChange={(e) => getModellingTask(e.target.value)}
+    >
+      <option value="" key="-1">
+        Select Metamodel
+      </option>
+      {metamodelList?.map((t, i) => (
+        <option key={i} value={i}>
+          {t?.name}
         </option>
-        {metamodelList?.map((t, i) => (
-          <option key={i} value={i}>
-            {t?.name}
-          </option>
-        ))}
-      </select>
-    </>
-  );
+      ))}
+    </select>
+  </>
+);
 
   const gojsappPaletteDiv = (mmodel) &&
     <>
       <div className="metamodel-pad mt-0 p-1  bg-white" style={{ height: "39vh" }}>
         <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</div>
         <div className="modellingtask bg-light w-100" >
-          {/* {otDiv} */}
         </div>
-        {/* filteredNewtypesNodeDataArray */}
+        {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
           nodeDataArray={filteredNewtypesNodeDataArray}
           linkDataArray={[]}
@@ -196,15 +181,11 @@ const Palette = (props: any) => {
           diagramStyle={{ height: "36vh" }}
         />
       </div>
-      {/*   : <div className="metamodel-pad mt-0 p-1 pt-0 bg-white" style={{height: "0vh"}}></div> 
-          } */}
-      {/* { (filteredOtNodeDataArray?.length > 0 ) */}
       <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" style={(filteredNewtypesNodeDataArray?.length === 0) ? { height: "80vh" } : { height: "45vh" }} >
-        {/* <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{(filteredOtNodeDataArray.length === 1) ? 'Basic Object' : 'Additional Metamodels:'}</div> */}
         <div className="modellingtask bg-light w-100" >
           {otDiv}
         </div>
-        {/* filteredOtNodeDataArray */}
+        {/* Lower palette with selected metamodel or first metamodel */}
         <GoJSPaletteApp
           nodeDataArray={filteredOtNodeDataArray}
           linkDataArray={[]}
@@ -214,13 +195,8 @@ const Palette = (props: any) => {
           phFocus={props.phFocus}
           dispatch={props.dispatch}
           diagramStyle={{ height: "39vh" }}
-        // diagramStyle={(filteredNewtypesNodeDataArray?.length === 0) ? {height: "75vh"} : {height: "40vh"}}
         />
       </div>
-      {/* : <div className="metamodel-pad mt-0 p-1 pt-0 bg-light" style={{height: "82vh"}}></div> 
-          } */}
-      {/* </TabPanel> */}
-      {/* </Tabs>    */}
     </>
 
   const palette = // this is the left pane with the palette and toggle for refreshing
@@ -228,11 +204,7 @@ const Palette = (props: any) => {
       <button className="btn-sm " style={{ backgroundColor: "#8bc", outline: "0", borderStyle: "none" }}
         onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette: Src Metamodel</span> : <span> -&gt;</span>}
       </button>
-
-      {/* <span>{props.focusMetamodel?.name}</span> */}
       <div>
-        {/* <div style={{ minWidth: "140px" }}> */}
-
         {visiblePalette
           ? (refreshPalette)
             ? <>{gojsappPaletteDiv}</> // these two lines needs to be different to refresh the palette
@@ -243,7 +215,6 @@ const Palette = (props: any) => {
     </>
 
   if (debug) clog('265 Palette', props);
-  // return  isRendered && (
   return (
     <>
       {palette}

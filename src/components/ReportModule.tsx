@@ -12,20 +12,20 @@ import MarkdownEditor from './forms/MarkdownEditor';
 
 const debug = false
 
-const ReportModule = (props, reportType, modelInFocusId) => {
+const ReportModule = (props, reportType, modelInFocusId, edit) => {
 
+  if (!debug) console.log('18 ReportModule', props, props.reportType, props.modelInFocusId)
+  
+  const ph = props.props.props || props.props 
+  if (debug) console.log('20 ReportModule', props, reportType, ph, ph?.phData?.metis?.models)
 
-  if (!debug) console.log('18 ReportModule', props, reportType, props.modelInFocusId)
+  if (!ph?.phData?.metis?.models) return <>No models</>
+  if (!props.modelInFocusId) return <>No model in focus</>
 
   const dispatch = useDispatch()
   const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
   function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
-  const ph = props.props.props || props.props 
-  if (!debug) console.log('20 ReportModule', props, reportType, ph, ph?.phData?.metis?.models)
-
-  if (!ph?.phData?.metis?.models) return <>No models</>
-  if (!modelInFocusId) return <>No model in focus</>
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -44,7 +44,7 @@ const ReportModule = (props, reportType, modelInFocusId) => {
                 <Tab ><FaCompass /></Tab> */}
           </TabList>
           <TabPanel className='p-1 border border-dark' >
-            <Context props={props}  />
+            <Context props={props} edit={props.edit} />
           </TabPanel>
           <TabPanel className='p-1 border border-dark' >
             <MarkdownEditor props={props} />

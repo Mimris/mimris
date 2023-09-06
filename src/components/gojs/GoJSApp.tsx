@@ -412,11 +412,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               let rel = relview.relship as akm.cxRelationship;
               if (rel) {
                 rel = myModel.findRelationship(rel.id);
-                rel.name = rel.type.name;
+                // rel.name = rel.type.name;
                 const draftProp = constants.props.DRAFT;
                 rel.setStringValue2(draftProp, text);
                 const relviews = rel.relshipviews;
-                if (debug) console.log('394 rel, relviews', rel, relviews);
+                if (!debug) console.log('419 rel, relviews', rel, relviews);
                 for (let i = 0; i < relviews.length; i++) {
                   const relview = relviews[i];
                   relview.name = text;
@@ -428,12 +428,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   modifiedRelships.map(mn => {
                     let data = mn;
                     data = JSON.parse(JSON.stringify(data));
+                    if (!debug) console.log('431 data', data);
                     (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
                   })      
                   modifiedRelshipViews.map(mn => {
                     let data = mn;
                     data = JSON.parse(JSON.stringify(data));
-                    if (debug) console.log('1314 data', data);
+                    if (!debug) console.log('437 data', data);
                     (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                   })              
                 }

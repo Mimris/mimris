@@ -2399,11 +2399,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
-              if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
               gen.generateTargetMetamodel(obj, myMetis, myDiagram);
             },
             function (o: any) {
-              if (debug) console.log('1991 myMetis', myMetis);
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               else if (uic.isGenericMetamodel(myMetis)) {

@@ -413,7 +413,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               let rel = relview.relship as akm.cxRelationship;
               if (rel) {
                 rel = myModel.findRelationship(rel.id);
-                rel.name = rel.type.name;
+                if (rel) rel.name = text;
+                // rel.name = rel.type.name;
                 const draftProp = constants.props.DRAFT;
                 rel.setStringValue2(draftProp, text);
                 const relviews = rel.relshipviews;

@@ -1140,7 +1140,8 @@ export function createRelationship(data: any, context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; 
-    const myMetamodel = myMetis.currentMetamodel;
+    const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+    let   myMetamodel = myMetis.currentMetamodel;
     const myModelview = context.myModelview;
     const fromNode = myGoModel.findNode(data.from);
     if (debug) console.log('980 myMetis', myMetis);
@@ -1156,20 +1157,40 @@ export function createRelationship(data: any, context: any) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetamodel.findObjectType(fromType?.id);
-        if (debug) console.log('994 fromType', fromType);
+        toType   = myMetamodel.findObjectType(toType?.id);
         if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
+        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (fromType) {
             fromType.allObjecttypes = myMetamodel.objecttypes;
             fromType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        toType   = myMetamodel.findObjectType(toType?.id);
-        if (debug) console.log('1001 toType', toType);
-        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (toType) {
             toType.allObjecttypes = myMetamodel.objecttypes;
             toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        if (debug) console.log('1007 includeInherited', myModelview.includeInheritedReltypes);
+        let metamodel = myMetamodel 
+        const submetamodels = myMetamodel.metamodels;
+        if (!fromType) {
+            for (let i=0; i<submetamodels.length; i++) {
+                let mmodel = submetamodels[i];
+                fromType = mmodel.findObjectType(fromNode?.object?.typeRef);
+                if (fromType) {
+                    metamodel = mmodel;
+                    break;
+                }
+            }
+        }
+        if (!toType) {
+            for (let i=0; i<submetamodels.length; i++) {
+                let mmodel = submetamodels[i];
+                toType   = mmodel.findObjectType(toNode?.object?.typeRef);
+                if (toType) { 
+                    metamodel = mmodel;
+                    break;
+                }
+            }
+        }
+        myMetamodel = metamodel;
         if (fromType && toType) {
             const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
             let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;
@@ -1177,8 +1198,13 @@ export function createRelationship(data: any, context: any) {
             if (myModelview.includeInheritedReltypes) {
                 includeInherited = true;
             }
-            const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            if (debug) console.log('1017 fromType, toType, reltypes', fromType, toType, reltypes);
+            let reltypes;
+            if (metamodel) {
+                reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+            } else {
+                reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+            }
+
             if (reltypes) {
                 const choices1: string[] = [];
                 if (defText.length > 0) choices1.push(defText);
@@ -1211,6 +1237,7 @@ export function createRelationship(data: any, context: any) {
                     title: "Select Relationship Type",
                     case: "Create Relationship",
                     myDiagram: myDiagram,
+                    myMetamodel: metamodel,
                     context: context,
                     data: data,
                     typename: defText,
@@ -1248,7 +1275,8 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const objTo    = nodeTo.data.object;
     const portTo   = args.toPort;
     const context  = args.context;
-    let reltype  = data.relshiptype;
+    const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+    let reltype    = data.relshiptype;
     if (debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
     reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
     if (debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
@@ -1675,14 +1703,14 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
         if (!relview.arrowscale)
             relview.arrowscale = "1.3";
         const typeview = relview.typeview;
-        // if (typeview) {
-        //     const viewdata = typeview.data;
-        //     for (let prop in viewdata) {
-        //         if (relview[prop] === viewdata[prop]) {
-        //             relview[prop] = "";
-        //         }
-        //     }
-        // }
+        if (typeview) {
+            const viewdata = typeview.data;
+            for (let prop in viewdata) {
+                if (relview[prop] === viewdata[prop]) {
+                    relview[prop] = "";
+                }
+            }
+        }
         if (relview.strokewidth === "") {
             relview.strokewidth = "1";
         }
@@ -1742,7 +1770,9 @@ export function createLink(data: any, context: any): any {
         const toPort = data.toPort;
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
+        const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
         if (debug) console.log('1746 createLink', data.relshiptype.name, fromType, toType);
+        // reltype = myMetis.findRelationshipTypeByName3(data.relshiptype.name, fromType, toType, entityType);
         reltype = myMetis.findRelationshipTypeByName2(data.relshiptype.name, fromType, toType);
         const typename = reltype?.name;
         if (debug) console.log('1749 reltype', reltype);

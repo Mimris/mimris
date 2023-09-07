@@ -97,6 +97,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   public handleSelectDropdownChange = (selected: any) => {
     if (debug) console.log('94 handleSelectDropdownChange');
     const myMetis = this.state.myMetis;
+    const modalContext = this.state.modalContext;
     const context = {
       "myMetis": myMetis,
       "myMetamodel": myMetis.currentMetamodel,
@@ -104,7 +105,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModelview": myMetis.currentModelview,
       "myGoModel": myMetis.gojsModel,
       "myDiagram": myMetis.myDiagram,
-      "modalContext": this.state.modalContext
+      "modalContext": modalContext
     }
     uim.handleSelectDropdownChange(selected, context);
   }
@@ -412,11 +413,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               let rel = relview.relship as akm.cxRelationship;
               if (rel) {
                 rel = myModel.findRelationship(rel.id);
+                if (rel) rel.name = text;
                 // rel.name = rel.type.name;
                 const draftProp = constants.props.DRAFT;
                 rel.setStringValue2(draftProp, text);
                 const relviews = rel.relshipviews;
-                if (!debug) console.log('419 rel, relviews', rel, relviews);
+                if (debug) console.log('394 rel, relviews', rel, relviews);
                 for (let i = 0; i < relviews.length; i++) {
                   const relview = relviews[i];
                   relview.name = text;
@@ -428,13 +430,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   modifiedRelships.map(mn => {
                     let data = mn;
                     data = JSON.parse(JSON.stringify(data));
-                    if (!debug) console.log('431 data', data);
                     (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
                   })      
                   modifiedRelshipViews.map(mn => {
                     let data = mn;
                     data = JSON.parse(JSON.stringify(data));
-                    if (!debug) console.log('437 data', data);
                     (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                   })              
                 }

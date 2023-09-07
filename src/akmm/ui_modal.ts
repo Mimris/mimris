@@ -1234,13 +1234,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           let data = mn;
           myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
-        const jsnReltypeview = new jsn.jsnRelshipTypeView(reltypeview);
-        if (debug) console.log('1013 data, gqlReltypeview', link, data, jsnReltypeview);
-        modifiedRelTypeviews.push(jsnReltypeview);
-        modifiedRelTypeviews.map(mn => {
-          let data = mn;
-          myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-        })
       });
       break;
     }

@@ -117,7 +117,7 @@ const Palette = (props: any) => {
           return i?.name === wot && i;
         })
       ).filter(Boolean);
-      if (!debug) console.log('122 ', otsArr);
+      if (debug) console.log('122 ', otsArr);
       return otsArr
     } else { return ndarr }
   };

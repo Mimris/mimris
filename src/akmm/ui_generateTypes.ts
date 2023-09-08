@@ -914,7 +914,7 @@ export function askForTargetMetamodel(context: any) {
         const objectview = objectviews[i] as akm.cxObjectView;
         const object = objectview.object as akm.cxObject;
         const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-        if (object.type.name === constants.types.AKM_METAMODEL) {
+        if (object?.type.name === constants.types.AKM_METAMODEL) {
             const relviews = objectview.getInputRelviews();
             for (let j=0; j<relviews?.length; j++) {
                 const relview = relviews[j];
@@ -923,15 +923,6 @@ export function askForTargetMetamodel(context: any) {
                     const fromObj = rel.fromObject;
                     if (fromObj.type.name === constants.types.AKM_METAMODEL) {
                         if (mmlist == null || mmlist.length == 0) { 
-                            // let mm = myMetis.findMetamodelByName(fromObj.name);
-                            // if (!mm) {
-                            //     mm = new akm.cxMetaModel(utils.createGuid(), fromObj.name, fromObj.description);
-                            //     myMetis.addMetamodel(mm);
-                            //     const jsnMetamodel = new jsn.jsnMetaModel(mm, true);
-                            //     let data = jsnMetamodel;
-                            //     data = JSON.parse(JSON.stringify(data));
-                            //     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-                            // }
                             mmlist.push(fromObj.name);
                         }
                     }

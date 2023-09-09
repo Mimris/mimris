@@ -138,7 +138,7 @@ const page = (props: any) => {
               {contextDiv}
             <div className="workplace d-flex" style={{ zIndex: 1 }}>
               {/* make issues  */}
-              <div className="issuesarea " style={{ backgroundColor: "#fed", borderRadius: "5px 5px 5px 5px" }} >
+              <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
                  <Issues props={props}/>
               </div>
               {/* <div className="d-flex" > */}

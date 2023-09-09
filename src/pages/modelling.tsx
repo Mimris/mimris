@@ -18,6 +18,7 @@ import useLocalStorage from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
 import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
 import GenGojsModel from "../components/GenGojsModel";
+import Issues from "../components/Issues";
 
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
@@ -116,10 +117,10 @@ const page = (props: any) => {
   }, [])
 
   const contextDiv = ( // the top context area (green)
-    <div className="context-bar d-flex" style={{ backgroundColor: "#cdd", width: "99%", maxHeight: "24px" }}>
-      <SetContext className='setContext w-100' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%", maxWidth: "240px" }} />
+    <div className="context-bar d-flex ps-4 pe-5" style={{ backgroundColor: "#cdd", width: "100%", maxHeight: "24px"}}>
+      <SetContext className='setContext w-100' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%"}} />
       <div className="context-bar--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc" }}>
-        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
+        <SelectContext className='ContextModal mr-1' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
@@ -134,9 +135,13 @@ const page = (props: any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             {/* {videoDiv} */}
-            <div className="wp" >
               {contextDiv}
-              <div className="workplace d-flex" >
+            <div className="workplace d-flex" style={{ zIndex: 1 }}>
+              {/* make issues  */}
+              <div className="issuesarea " style={{ backgroundColor: "#fed", borderRadius: "5px 5px 5px 5px" }} >
+                 <Issues props={props}/>
+              </div>
+              {/* <div className="d-flex" > */}
                 {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>} */}
                 <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                   {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
@@ -144,10 +149,10 @@ const page = (props: any) => {
                 </div>
                 {/* <div className="contextarea">
                 </div> */}
+              {/* </div> */}
                 <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }} >
                     <Tasks props={props}/>
                 </div>
-              </div>
             </div>
             <div className="footer">
               <Footer />
@@ -163,53 +168,63 @@ const page = (props: any) => {
       {/* {modellingDiv} */}
       {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
       <style jsx>{`
-   .wrapper {
-     display: grid;
-     height: 101%;
-     min-height: 101%;
-     grid-gap: 0px;
-     grid-template-areas:
-     "header "
-     "workplace tasksarea"
-     "footer";
-   }
-   .workplace {
-     grid-area: workplace;
-     display: grid ;
-     grid-template-columns: auto 1fr;
-     grid-template-areas:
-     "contextarea"
-     "workarea ";
-   }
+  //  .wp {
+  //    display: grid;
+  //    height: 101%;
+  //    min-height: 101%;
+  //    grid-gap: 0px;
+  //    grid-template-areas:
+  //    "header "
+  //    "issuesarea workplace tasksarea"
+  //    "footer";
+  //  }
+  //  .workplace {
+  //    grid-area: workplace;
+  //    display: grid ;
+  //    grid-template-columns: auto 1fr;
+  //    grid-template-areas:
+  //    "contextarea"
+  //    "workarea ";
+  //  }
 
-   .contextarea {
-     background-color: #e8e8e8;
-   }
-   .tasksarea {
-     grid-area: tasksarea;
-     padding: 0px;
-     margin-right: 0px;
-     padding-right: 3px;
-     border: 2px;
-     border-radius: 5px 5px 5px 5px;
-     border-width: 2px;
-     background-color: #ffe;
-   }
-   .workarea {
-     grid-area: workarea;
-     border-radius: 5px 5px 0px 0px;
-     grid-template-columns: auto;
-     grid-template-areas:
-     "workpad";
-   }
-     .workpad {
-       grid-area: workpad;
-       display: grid;
-       border-radius: 5px 5px 0px 0px;      
-     }
-   p {
-     color: white;
-   }
+  //  .contextarea {
+  //    background-color: #e8e8e8;
+  //  }
+  //   .issuesarea {
+  //     grid-area: issuesarea;
+  //     padding: 0px;
+  //     margin-right: 0px;
+  //     padding-right: 3px;
+  //     border: 2px;
+  //     border-radius: 5px 5px 5px 5px;
+  //     border-width: 2px;
+  //     background-color: #ffe;
+  //   }
+  //  .tasksarea {
+  //    grid-area: tasksarea;
+  //    padding: 0px;
+  //    margin-right: 0px;
+  //    padding-right: 3px;
+  //    border: 2px;
+  //    border-radius: 5px 5px 5px 5px;
+  //    border-width: 2px;
+  //    background-color: #ffe;
+  //  }
+  //  .workarea {
+  //    grid-area: workarea;
+  //    border-radius: 5px 5px 0px 0px;
+  //    grid-template-columns: auto;
+  //    grid-template-areas:
+  //    "workpad";
+  //  }
+  //    .workpad {
+  //      grid-area: workpad;
+  //      display: grid;
+  //      border-radius: 5px 5px 0px 0px;      
+  //    }
+  //  p {
+  //    color: white;
+  //  }
   `}</style>
     </>)
 }

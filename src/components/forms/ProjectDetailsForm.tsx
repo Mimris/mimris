@@ -11,7 +11,7 @@ function ProjectDetailsForm(props) {
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj.projectNumber);
   const [id, setId] = useState(props.props.phFocus?.focusProj.id);
   const [name, setName] = useState(props.props.phFocus?.focusProj.name); 
-  const [org, setOrg] = useState(props.props.phFocus?.focusProj.org || props.props.phFocus.focusOrg.name);
+  const [org, setOrg] = useState(props.props.phFocus?.focusProj?.org || props.props.phFocus?.focusOrg.name);
   const [repo, setRepo] = useState(props.props.phFocus?.focusProj.repo);
   const [path, setPath] = useState(props.props.phFocus?.focusProj.path);
   const [file, setFile] = useState(props.props.phFocus?.focusProj.file);

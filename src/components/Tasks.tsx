@@ -20,7 +20,7 @@ function Tasks(props) {
   const state = useSelector((state) => state); // use RootState type
   if (debug) console.log('24 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(true);
   const [maximized, setMaximized] = useState(false);
   const dispatch = useDispatch();
 
@@ -73,28 +73,27 @@ function Tasks(props) {
 
   if (minimized) {
     return (
-      <div className="minimized-task " >
-        <div className="buttons position-absolute end-0">
+      <div className="minimized-task not-visible">
+        <div className="buttons position-absolute end-0"  style={{ scale: "0.7",marginTop: "-30px" }}>
           <button
-            className="btn text-success me-0 px-2 py-0 btn-sm"
+            className="btn text-success ps-1 pe-1 py-0 btn-sm"
             data-toggle="tooltip"
             data-placement="top"
             data-bs-html="true"
             title="Toggle Context & Focus Modal for current task!"
             onClick={handleShowModal}
-            style={{ scale: "0.9", backgroundColor: "lightyellow" }}
+            style={{ backgroundColor: "lightyellow" }}
           >
             ✵
           </button>
-
           <button 
-            className="btn text-success me-2 px-2 py-0 btn-sm" 
+            className="btn text-success me-0 px-1 py-0 btn-sm" 
             data-toggle="tooltip"
             data-placement="top"
             data-bs-html="true"
             title="Minimize"
             onClick={handleMaximize}
-            style={{ scale: "0.9", backgroundColor: "lightyellow", relativePosition: "-116" }}
+            style={{ backgroundColor: "lightyellow"}}
           >
             &lt;-
           </button>
@@ -111,7 +110,7 @@ function Tasks(props) {
                 Close
               </Button>
             </Modal.Footer>
-          </Modal>
+        </Modal>
       </div>
     );
   }
@@ -155,7 +154,7 @@ function Tasks(props) {
               <summary>{t?.name}</summary>
               <button
                 className="btn btn-sm checkbox bg-transparent text-success" 
-                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: t }) } // && handleShowModal()}
+                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: t.id, name: t.name }}) } // && handleShowModal()}
                 style={{
                   float: "right",
                   border: "1px solid #ccc",
@@ -221,20 +220,25 @@ function Tasks(props) {
 
   return (
     <>
-      <div className="tasklist">
+      <div className="tasklist" >
         <div className="header m-0 p-0">
           <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
-          <div className="buttons">
-            <button className="btn text-success ms-1 mt-1 pt-1 btn-sm"
+          <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
+            <button 
+              className="btn text-success mt-0 pe-2 py-0 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Toggle Context & Focus Modal!"
-              onClick={handleShowModal} style={{ scale: "0.9", backgroundColor: "lightyellow" }} >✵
+              onClick={handleShowModal} 
+              style={{ backgroundColor: "lightyellow"}} >✵
             </button> 
-            <button className="btn text-success m-1 ms-0 py-0 btn-sm" onClick={handleMinimize} style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
+            <button 
+              className="btn text-success me-0 px-1 py-0 btn-sm" 
+              onClick={handleMinimize} 
+              style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
             {/* <button onClick={handleMaximize}>+</button> */}
           </div>
         </div>
-        <div className="flex-d w-100">
+        <div className="flex-d">
           <div>
             Role:{" "}
             <span className="font-weight-bold text-success bg-white p-1">

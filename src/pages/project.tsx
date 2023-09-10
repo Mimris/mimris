@@ -122,9 +122,7 @@ const page = (props: any) => {
         setError(err);
       }
     }
-    // if (!query.repo) {
     getQueryParams();
-    // }
   }, [query.repo === ''])
 
 
@@ -146,15 +144,8 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
     GenGojsModel(props, dispatch);
-    // const timer = setTimeout(() => {
-    //   toggleRefresh()
-    // }, 200);
-    // return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
 
-  // useEffect(() => {
-  //   toggleRefresh(); // refresh the page
-  // }, []);
 
   useEffect(() => {
     async function fetchData() { // fetch issues
@@ -174,27 +165,6 @@ const page = (props: any) => {
     }
   // }, [query.repo]);
   }, [query.repo !== '' && query.repo !== undefined]);
-
-
-  // useEffect(() => {
-  //   if (debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
-  //   if (!props.phFocus.focusProj.org) {
-  //    prompt('Click OK to set focus project')
-  //   }
-
-  //   // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
-  //   // if (!ghtype) ghtype = prompt("ghtype?");
-  //   if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
-  //   // dispatch({type: 'SET_FOCUS_PROJ', data: {org: org, repo: repo, path: path, file: file, branch: branch, focus: focus, ghtype: ghtype} })
-  //   const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
-  //   if (debug) console.log('65 GithubParams', data)
-  //   dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-  //   const org1 = {id: org, name: org}
-  //   dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-  //   const repo1 = {id: 'role', name: ''}
-  //   dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-
-  // }, [props.phFocus.focusProj.org]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}&projectNumber=${projectNumber}&focus=${focus}&ghtype=${ghtype}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json

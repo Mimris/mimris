@@ -25,7 +25,7 @@ function ProjectDetailsModal(props) {
 
   return (
     <>
-      <button className=" rounded mt-2 px-2 text-primary"   onClick={toggle}>Edit Project Details
+      <button className="button rounded mt-2 px-2 text-primary"   onClick={toggle}>Edit Project Details
       </button>
       <Modal isOpen={showModal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>

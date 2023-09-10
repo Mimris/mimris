@@ -130,7 +130,7 @@ const page = (props: any) => {
     ? <div>
       <Layout user={props.phUser?.focusUser} >
         <div id="index" >
-          <div className="wrapper" >
+          <div className="wrapper"  >
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}

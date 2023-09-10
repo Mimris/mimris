@@ -14,7 +14,7 @@ function ProjectDetailsForm(props) {
   const [org, setOrg] = useState(props.props.phFocus?.focusProj?.org || props.props.phFocus?.focusOrg.name);
   const [repo, setRepo] = useState(props.props.phFocus?.focusProj.repo);
   const [path, setPath] = useState(props.props.phFocus?.focusProj.path);
-  const [file, setFile] = useState(props.props.phFocus?.focusProj.file);
+  const [file, setFile] = useState(props.props.phFocus?.focusProj.file || props.props.phSource+'.json');
   const [branch, setBranch] = useState(props.props.phFocus?.focusProj.branch);
 
   const [focusModel, setFocusModel] = useState(props.props.phFocus?.focusModel);

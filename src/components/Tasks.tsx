@@ -220,9 +220,12 @@ function Tasks(props) {
 
   return (
     <>
-      <div className="tasklist" >
+      <div className="tasklist p-1" 
+        style={{ backgroundColor: "lightyellow", width: "25rem", 
+        position: "absolute", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
+      >
         <div className="header m-0 p-0">
-          <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
+            <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
           <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
             <button 
               className="btn text-success mt-0 pe-2 py-0 btn-sm"

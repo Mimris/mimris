@@ -638,7 +638,7 @@ const page = (props: any) => {
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
       <>
-        <div className="header-buttons float-end" style={{ transform: "scale(0.7)", transformOrigin: "center", backgroundColor: "#ddd" }}>
+        <div className="header-buttons float-end mt-0" style={{ scale: "0.8", minHeight: "32px",  backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
           <span className="buttonrow mr-4 d-flex justify-content-end" style={{ maxHeight: "9px", minHeight: "30px" }}>
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
@@ -652,14 +652,14 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
-            <span className="pt" style={{ transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
-            <span className= "bg-success border border-secondary rounded" style={{ minWidth: "220px", maxHeight: "22px", backgroundColor: "#fff" }}>
-              <span className="  " style={{ minWidth: "220px", maxHeight: "22px", backgroundColor: "#fff" }}>
+            <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
+            <span className= "d-flex justify-content-between align-items-center  border border-solid border-dark m-2 mb-2 mt-0" style={{backgroundColor: "#ccc", minHeight: "32px"}} >
+              <span className="pt-1" style={{ transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
+              <span className="input" style={{ minWidth: "220px", maxHeight: "32px", backgroundColor: "#fff" }}>
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
               </span>
                 <button
-                  className="btn-secondary ml-2 mr-2 mb-3 "
+                  className="btn btn-sm bg-light text-primary mx-1 px-1 py-0 mt-0 pt-1"
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"
                   title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
                   onClick={handleSaveAllToFile}>Save
@@ -667,9 +667,9 @@ const page = (props: any) => {
             </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-            <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+            <span className="btn px-2 py-0 ps-auto mt-0 pt-1 bg-light text-secondary float-right" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
             {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
-            <ProjectDetailsModal props={props} />
+            {/* <ProjectDetailsModal props={props} /> */}
           </span>
         </div>
         <div className="diagramtabs pb-0" >

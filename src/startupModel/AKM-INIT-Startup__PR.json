@@ -14509,6 +14509,10 @@
     "focusTask": {
       "id": "AKM-IRTV-POPS_MM",
       "name": "IRTV-POPS Modelling"
+    },
+    "focusIssue": {
+      "id": "9",
+      "name": "Make SELL-A-CAR model work as a complete example for a metamodel cycle "
     }
   },
   "phSource": "AKM-INIT-Startup__.json",

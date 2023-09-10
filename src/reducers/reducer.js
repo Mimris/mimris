@@ -38,6 +38,8 @@ import {
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
   SET_FOCUS_REFRESH,
+  SET_FOCUS_ISSUE,
+
   SET_USER_SHOWDELETED,
   SET_USER_SHOWMODIFIED,
 
@@ -510,6 +512,15 @@ function reducer(state = InitialState, action) {
           // focusProj: focusProj,
           // focusRole: focusRole,
           // focusCollection: focusCollection
+        }
+      }
+    case SET_FOCUS_ISSUE:
+      if (debug) console.log('519 SET_FOCUS_ISSUE', action);
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusIssue: action.data
         }
       }
     case SET_FOCUS_SOURCE:

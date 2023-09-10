@@ -530,7 +530,7 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allObjecttypes = myMetamodel.objecttypes;
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
-      const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+      const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
       if (debug) console.log('535 reltype', reltype, fromType, toType);
       if (debug) console.log('536 reltype ids', context.modalContext.nodeFrom.data.objectview.id,  context.modalContext.nodeTo.data.objectview.id );
       if (debug) console.log('536 reltype names', context.modalContext.nodeFrom.data.objectview.name, context.modalContext.typename, context.modalContext.nodeTo.data.objectview.name );

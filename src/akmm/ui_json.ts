@@ -175,6 +175,7 @@ export class jsnMetaModel {
     name:               string;
     description:        string;
     metamodelRefs:      string[];
+    subMetamodelRefs:   string[];
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
     objecttypes:        jsnObjectType[];
@@ -202,6 +203,7 @@ export class jsnMetaModel {
         this.name = metamodel.name;
         this.description = (metamodel.description) ? metamodel.description : "";
         this.metamodelRefs = [];
+        this.subMetamodelRefs = [];
         this.viewstyles = [];
         this.geometries = [];
         this.objecttypes = [];
@@ -226,12 +228,20 @@ export class jsnMetaModel {
         this.modified = false;
 
         // Code
-        const subMetamodels = metamodel.getSubMetamodels();
+        let metamodels = metamodel.getContainedMetamodels();
+        if (metamodels) {
+            const cnt = metamodels.length;
+            for (let i = 0; i < cnt; i++) {
+                const metamodel = metamodels[i];
+                this.metamodelRefs.push(metamodel.id);
+            }
+        }
+        let subMetamodels = metamodel.getSubMetamodels();
         if (subMetamodels) {
             const cnt = subMetamodels.length;
             for (let i = 0; i < cnt; i++) {
                 const metamodel = subMetamodels[i];
-                this.metamodelRefs.push(metamodel.id);
+                this.subMetamodelRefs.push(metamodel.id);
             }
         }
         const objtypes = metamodel.getObjectTypes();

@@ -1168,8 +1168,8 @@ export function createRelationship(data: any, context: any) {
             toType.allObjecttypes = myMetamodel.objecttypes;
             toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        let metamodel = myMetamodel 
-        const submetamodels = myMetamodel.metamodels;
+        let metamodel = myMetamodel;
+        const submetamodels = myMetamodel.submetamodels;
         if (!fromType) {
             for (let i=0; i<submetamodels.length; i++) {
                 let mmodel = submetamodels[i];
@@ -1261,7 +1261,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myDiagram = args.context.myDiagram;
     const myGoModel = args.context.myGoModel;
     const myMetis   = args.context.myMetis; 
-    const myMetamodel = myMetis.currentMetamodel;
+    const myMetamodel = args.metamodel;
     const myModel  = args.context.myModel;
     const myModelview = myMetis.currentModelview;
     let data       = args.data;

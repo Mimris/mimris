@@ -100,7 +100,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modalContext = this.state.modalContext;
     const context = {
       "myMetis": myMetis,
-      "myMetamodel": myMetis.currentMetamodel,
+      "myMetamodel": modalContext.myMetamodel,
       "myModel": myMetis.currentModel,
       "myModelview": myMetis.currentModelview,
       "myGoModel": myMetis.gojsModel,
@@ -128,6 +128,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     const args = {
       data: modalContext.data,
+      metamodel: modalContext.myMetamodel,
       typename: typename,
       fromType: modalContext.fromType,
       toType: modalContext.toType,

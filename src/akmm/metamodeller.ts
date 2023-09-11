@@ -633,13 +633,24 @@ export class cxMetis {
             return;
         metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
         metamodel.includeSystemtypes = item.includeSystemtypes;
-        let submetamodelRefs = item.metamodelRefs;
-        if (submetamodelRefs && submetamodelRefs.length) {
-            submetamodelRefs.forEach(submetamodelRef => {
-                if (submetamodelRef) {
-                    const submetamodel = this.findMetamodel(submetamodelRef);
-                    if (submetamodel) {
-                        metamodel.addMetamodel(submetamodel);
+        let containedMetamodelRefs = item.metamodelRefs;
+        if (containedMetamodelRefs && containedMetamodelRefs.length) {
+            containedMetamodelRefs.forEach(containedMetamodelRef => {
+                if (containedMetamodelRef) {
+                    const containedMetamodel = this.findMetamodel(containedMetamodelRef);
+                    if (containedMetamodel) {
+                        metamodel.addMetamodel(containedMetamodel);
+                    }
+                }
+            });
+        }
+        let subMetamodelRefs = item.subMetamodelRefs;
+        if (subMetamodelRefs && subMetamodelRefs.length) {
+            subMetamodelRefs.forEach(subMetamodelRef => {
+                if (subMetamodelRef) {
+                    const subMetamodel = this.findMetamodel(subMetamodelRef);
+                    if (subMetamodel) {
+                        metamodel.addSubMetamodel(subMetamodel);
                     }
                 }
             });
@@ -2755,7 +2766,7 @@ export class cxMetis {
         return null;
     }
     findSubMetamodel(id: string): cxModel | null {
-        let metamodels = this.getMetamodels();
+        let metamodels = this.getSubMetamodels();
         if (!metamodels) {
             return null;
         } else {
@@ -3392,6 +3403,7 @@ export class cxMethodType extends cxMetaObject {
 
 export class cxMetaModel extends cxMetaObject {
     metamodels:  cxMetaModel[] | null;
+    submetamodels:  cxMetaModel[] | null;
     viewstyle:   cxViewStyle | null;
     viewstyles:  cxViewStyle[] | null;
     geometries:  cxGeometry[] | null;
@@ -3427,32 +3439,32 @@ export class cxMetaModel extends cxMetaObject {
     }
     // Methods
     clearContent() {
-            this.metamodels = [];
-            this.viewstyle  = null; // Current viewstyle
-            this.viewstyles = [];
-            this.geometries = [];
-            this.containers = [];
-            this.properties = [];
-            this.methods = [];
-            this.methodtypes = [];
-            this.enumerations = [];
-            this.units = [];
-            this.datatypes = [];
-            this.categories = [];
-            this.generatedFromModelRef = "";
-            this.layout = "ForceDirected";
-            this.routing = "Normal";
-            this.linkcurve = "None";  
-            this.includeInheritedReltypes = false;
-            this.includeSystemtypes = false;
-            this.objecttypes  = [];
-            this.objecttypes0 = [];
-            this.objtypegeos  = [];
-            this.objecttypeviews = [];
-            this.relshiptypes  = [];
-            this.relshiptypes0 = [];
-            this.relshiptypeviews = [];
-            
+        this.metamodels = [];
+        this.submetamodels  = [];
+        this.viewstyle  = null; // Current viewstyle
+        this.viewstyles = [];
+        this.geometries = [];
+        this.containers = [];
+        this.properties = [];
+        this.methods    = [];
+        this.methodtypes    = [];
+        this.enumerations   = [];
+        this.units      = [];
+        this.datatypes  = [];
+        this.categories = [];
+        this.generatedFromModelRef = "";
+        this.layout     = "ForceDirected";
+        this.routing    = "Normal";
+        this.linkcurve  = "None";  
+        this.includeInheritedReltypes   = false;
+        this.includeSystemtypes         = false;
+        this.objecttypes  = [];
+        this.objecttypes0 = [];
+        this.objtypegeos  = [];
+        this.objecttypeviews = [];
+        this.relshiptypes  = [];
+        this.relshiptypes0 = [];
+        this.relshiptypeviews = [];
     }
     getLoc(type: cxObjectType): string {
         let retval = "";
@@ -3591,6 +3603,15 @@ export class cxMetaModel extends cxMetaObject {
             result += "    description: " + item.description + "<br>";
         return result;
     }
+    getMetamodels() : cxMetaModel[] | null {
+        return this.metamodels;
+    }
+    getContainedMetamodels() : cxMetaModel[] | null {
+        return this.metamodels;
+    }
+    getSubMetamodels() : cxMetaModel[] | null {
+        return this.submetamodels;
+    }
     getCategories(): cxUnitCategory[] | null {
         return this.categories;
     }
@@ -3701,9 +3722,6 @@ export class cxMetaModel extends cxMetaObject {
     getRelshipTypeViews(): cxRelationshipTypeView[] | null {
         return this.relshiptypeviews;
     }
-    getSubMetamodels(): cxMetaModel[] | null {
-        return this.metamodels;
-    }
     getMetaContainers(): any[] | null {
         return this.containers;
     }
@@ -3715,8 +3733,26 @@ export class cxMetaModel extends cxMetaObject {
         if (metamodel?.category === constants.gojs.C_METAMODEL) {
             if (this.metamodels == null)
                 this.metamodels = new Array();
-            if (!this.findSubMetamodel(metamodel.id))
+            if (!this.findMetamodel(metamodel.id))
                 this.metamodels.push(metamodel);
+        }
+    }
+    addContainedMetamodel(metamodel: cxMetaModel) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (metamodel?.category === constants.gojs.C_METAMODEL) {
+            if (this.metamodels == null)
+                this.metamodels = new Array();
+            if (!this.findContainedMetamodel(metamodel.id))
+                this.metamodels.push(metamodel);
+        }
+    }
+    addSubMetamodel(metamodel: cxMetaModel) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (metamodel?.category === constants.gojs.C_METAMODEL) {
+            if (this.submetamodels == null)
+                this.submetamodels = new Array();
+            if (!this.findSubMetamodel(metamodel.id))
+                this.submetamodels.push(metamodel);
         }
     }
     addMetamodelContent(metamodel: cxMetaModel) {
@@ -4061,10 +4097,10 @@ export class cxMetaModel extends cxMetaObject {
     addSubMetamodel(metamodel: cxMetaModel) {
         // Check if input is of correct category and not already in list (TBD)
         if (metamodel.category === constants.gojs.C_METAMODEL) {
-            if (this.metamodels == null)
-                this.metamodels = new Array();
+            if (this.submetamodels == null)
+                this.submetamodels = new Array();
             if (!this.findSubMetamodel(metamodel.id))
-                this.metamodels.push(metamodel);
+                this.submetamodels.push(metamodel);
         }
     }
     addMetaContainer(container: cxMetaContainer) {
@@ -4606,8 +4642,34 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
+    findMetamodel(id: string): cxMetaModel | null {
+        let metamodels = this.metamodels;
+        if (!metamodels) return null;
+        let i = 0;
+        let mm = null;
+        for (i = 0; i < metamodels.length; i++) {
+            mm = metamodels[i];
+            if (mm.isDeleted()) continue;
+            if (mm.id === id)
+                return mm;
+        }
+        return null;
+    }
+    findContainedMetamodel(id: string): cxMetaModel | null {
+        let metamodels = this.metamodels;
+        if (!metamodels) return null;
+        let i = 0;
+        let mm = null;
+        for (i = 0; i < metamodels.length; i++) {
+            mm = metamodels[i];
+            if (mm.isDeleted()) continue;
+            if (mm.id === id)
+                return mm;
+        }
+        return null;
+    }
     findSubMetamodel(id: string): cxMetaModel | null {
-        let submetamodels = this.getSubMetamodels();
+        let submetamodels = this.submetamodels;
         if (!submetamodels) return null;
         let i = 0;
         let submeta = null;
@@ -4762,24 +4824,24 @@ export class cxMetaModel extends cxMetaObject {
         if (debug) console.log("purgeObjtypeGeos: " + newobjtypeGeos);  
         return newobjtypeGeos;     
     }
-    embedSubMetamodels() {
-        let submetamodels = this.metamodels;
-        if (!submetamodels) return;
-        for (let i = 0; i < submetamodels.length; i++) {
+    embedContainedMetamodels() {
+        let metamodels = this.metamodels;
+        if (!metamodels) return;
+        for (let i = 0; i < metamodels.length; i++) {
             const id = "id";
-            let submeta = submetamodels[i];
-            if (submeta.isDeleted()) continue;
-            this.objecttypes = this.objecttypes.concat(submeta.objecttypes);
+            let mm = metamodels[i];
+            if (mm.isDeleted()) continue;
+            this.objecttypes = this.objecttypes.concat(mm.objecttypes);
             utils.removeArrayDuplicatesById(this.objecttypes, id);
-            this.objecttypes0 = this.objecttypes0.concat(submeta.objecttypes0);
+            this.objecttypes0 = this.objecttypes0.concat(mm.objecttypes0);
             utils.removeArrayDuplicatesById(this.objecttypes0, id);
-            this.relshiptypes = this.relshiptypes.concat(submeta.relshiptypes);
+            this.relshiptypes = this.relshiptypes.concat(mm.relshiptypes);
             utils.removeArrayDuplicatesById(this.relshiptypes, id);
-            this.relshiptypes0 = this.relshiptypes0.concat(submeta.relshiptypes0);
+            this.relshiptypes0 = this.relshiptypes0.concat(mm.relshiptypes0);
             utils.removeArrayDuplicatesById(this.relshiptypes0, id);
-            this.objecttypeviews = this.objecttypeviews.concat(submeta.objecttypeviews);
+            this.objecttypeviews = this.objecttypeviews.concat(mm.objecttypeviews);
             utils.removeArrayDuplicatesById(this.objecttypeviews, id);
-            this.relshiptypeviews = this.relshiptypeviews.concat(submeta.relshiptypeviews);
+            this.relshiptypeviews = this.relshiptypeviews.concat(mm.relshiptypeviews);
             utils.removeArrayDuplicatesById(this.relshiptypeviews, id);
         }
     }

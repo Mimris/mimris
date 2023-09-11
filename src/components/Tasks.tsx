@@ -27,10 +27,12 @@ function Tasks(props) {
   const [showModal, setShowModal] = useState(false);
 
   const containerRef = useRef(null);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      const modal = modalRef.current;
+      if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
         setMinimized(true);
       }
     };
@@ -186,7 +188,7 @@ function Tasks(props) {
                   }}
                   >Set Focus
                 </button>
-                <div className="bg-white ms-0 me-0 mt-1 px-2">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
+                <div className="bg-light ms-0 me-0 mt-1 px-2">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
                   <div className="selected-task bg-transparent border border-light p-1">
                     {/* <div className="bg-light">
                       {taskEntriesDiv}

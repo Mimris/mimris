@@ -3,31 +3,50 @@ import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { Modal, Button } from 'react-bootstrap';
 import { set } from 'immer/dist/internal';
-import ProjectDetailsModal from './modals/ProjectDetailsModal';
+// import ProjectDetailsModal from './modals/ProjectDetailsModal';
+import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 
 // import { fetchIssues } from '../api/github';
 
 const debug = false;
 
-const Issues = (props) => {
+const Project = (props) => {
 
-  if (!debug) console.log('18 Tasks props', props.props.phData, props);
+  if (debug) console.log('18 Tasks props', props.props.phData, props);
 
   const dispatch = useDispatch();
   
 
   const [minimized, setMinimized] = useState(true);
-  const [maximized, setMaximized] = useState(true);
+  // const [maximized, setMaximized] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const containerRef = useRef(null);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      const container = containerRef.current;
+      const modal = modalRef.current;
+      const modalContent = modal && (modal.querySelector) && modal.querySelector(".project-modal");
+
+      console.log('33 modalContent', modalContent)
+      // if (modalContent && modalContent.contains(event.target)) {
+      //   return;
+      // }
+      if (modal && (modal.contains) && !modal.contains(event.target) && (modalContent && modalContent.contains(event.target))) {
+          setModalOpen(false);
+          setMinimized(true);   
+      }
+      if (container &&  (container.contains) && !container.contains(event.target) && (modalContent && !modalContent.contains(event.target)) ) {
+        setModalOpen(false);
         setMinimized(true);
       }
     };
+    
+  
     document.addEventListener("mousedown", handleClickOutside);
+  
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -35,12 +54,12 @@ const Issues = (props) => {
 
   const handleMinimize = () => {
       setMinimized(true);
-      setMaximized(false);
+      // setMaximized(false);
   };
 
   const handleMaximize = () => {
       setMinimized(false);
-      setMaximized(true);
+      // setMaximized(true);
   };
 
   const [org, setOrg] = useState(props.props.phFocus.focusProj.org)
@@ -53,7 +72,7 @@ const Issues = (props) => {
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
 
 
-  console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
+  if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -66,23 +85,27 @@ const Issues = (props) => {
     try {
       const res = await fetch(issueUrl);
       const data = await res.json();
-      console.log('54 issues', data)
+      if (debug) console.log('54 issues', data)
       if (data.length === 0 ) { // if there is an error
         console.error('Error fetching issues:', data.message);
         setIssues( [{ number: 'Error', title: 'Error fetching issues:'}]);
       }
-      console.log('58 issues', data)
+      if (debug) console.log('58 issues', data)
       setIssues(data);
     } catch (error) {
       console.error('Error fetching issues:', error);
     }
-    console.log('59 issues', issues)
+    if (debug) console.log('59 issues', issues)
   };
 
   useEffect(() => {
       fetchIssues();
   }, []);
 
+  const handleSubmit = (details) => {
+    props.onSubmit(details);
+    handleCloseModal();
+  };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -94,8 +117,19 @@ const Issues = (props) => {
   };
   const handleCloseModal = () => setShowModal(false);
 
+  const [showProjectModal, setShowProjectModal] = useState(false);
+
+  const handleShowProjectModal = () => {
+    if (minimized) {
+      setMinimized(false);
+    }
+    setShowProjectModal(true);
+  };
+  const handleCloseProjectModal = () => setShowProjectModal(false);
+
+
   const modalDiv = (
-    <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee" }} >
+    <Modal show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee" }} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
@@ -126,6 +160,18 @@ const Issues = (props) => {
         </Button>
       </Modal.Footer>
     </Modal>
+  )
+
+  const projectModalDiv = (
+    <Modal show={showProjectModal} onHide={handleCloseProjectModal} className="project-modal"   >
+    <Modal.Header closeButton>Set Context: </Modal.Header>
+    <Modal.Body >
+    <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+    </Modal.Body>
+    <Modal.Footer>
+      <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+    </Modal.Footer>
+  </Modal>
   )
 
   if (minimized) {
@@ -163,8 +209,6 @@ const Issues = (props) => {
   }
 
     return (
-      <>
-
         <div className="project p-1" 
           ref={containerRef}
           style={{height: "100%", width: "25rem", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px",
@@ -174,7 +218,10 @@ const Issues = (props) => {
           <div className="header m-0 p-0 d-flex justify-content-between align-items-center" style={{backgroundColor: "#eee", minWidth: "8rem"}}>
             <div className="ps-2 text-success font-weight-bold fs-6" >Project </div>
                   <div className="ms-auto mb-2 position-relative end-0">
-                  <ProjectDetailsModal props={props.props} />
+                    <button className="button rounded mt-2 px-2 text-primary" 
+                      onClick={handleShowProjectModal} >
+                      Edit Project Details
+                    </button>
                   </div>
                 <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
                   <button
@@ -261,16 +308,14 @@ const Issues = (props) => {
                   <div className='text-muted'>Link to GitHub:</div>
                   {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
               </div>
-              {modalDiv}
           </div>
+          {modalDiv}
+          {projectModalDiv}
         </div>
-        <style jsx>{`
-        `}</style>
-      </>
     );
   
 
   return null;
 };
 
-export default Issues;
+export default Project;

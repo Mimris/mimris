@@ -1201,7 +1201,8 @@ export function createRelationship(data: any, context: any) {
             let reltypes;
             if (metamodel) {
                 reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            } else {
+            } 
+            if (reltypes.length == 0) {
                 reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             }
 
@@ -1278,7 +1279,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
     let reltype    = data.relshiptype;
     if (debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
-    reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+    reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
     if (debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
     if (!reltype) {
         alert("Relationship type given does not exist! 1")

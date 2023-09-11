@@ -12,15 +12,16 @@ import MarkdownEditor from './forms/MarkdownEditor';
 
 const debug = false
 
-const ReportModule = (props, reportType, modelInFocusId, edit) => {
+const ReportModule = (props) => {
 
-  if (!debug) console.log('18 ReportModule', props, props.reportType, props.modelInFocusId)
+  if (!debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
   
   const ph = props.props.props || props.props 
-  if (debug) console.log('20 ReportModule', props, reportType, ph, ph?.phData?.metis?.models)
+  if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
 
   if (!ph?.phData?.metis?.models) return <>No models</>
-  if (!props.modelInFocusId) return <>No model in focus</>
+  if (!props.modelInFocusId) return <>No objects</> 
+
 
   const dispatch = useDispatch()
   const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
@@ -44,7 +45,7 @@ const ReportModule = (props, reportType, modelInFocusId, edit) => {
                 <Tab ><FaCompass /></Tab> */}
           </TabList>
           <TabPanel className='p-1 border border-dark' >
-            <Context props={props} edit={props.edit} />
+            <Context props={props} />
           </TabPanel>
           <TabPanel className='p-1 border border-dark' >
             <MarkdownEditor props={props} />
@@ -61,7 +62,7 @@ const ReportModule = (props, reportType, modelInFocusId, edit) => {
   )
 
   let bgr: String = '#ddd'
-  if (reportType === 'task') {
+  if (props.reportType === 'task') {
     bgr = '#cdd'
   } 
 
@@ -79,7 +80,7 @@ const ReportModule = (props, reportType, modelInFocusId, edit) => {
     </>
 
   return (
-    (reportType === 'task') ? // task modal
+    (props.reportType === 'task') ? // task modal
     // <div style={{ backgroundColor: '#faa' }}>
       <div className="report-module pe-1 bg-transparent" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}

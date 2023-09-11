@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useSelector, useDispatch} from 'react-redux';
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
 import { wrapper } from '../store'; // import RootState type
@@ -15,7 +15,7 @@ const debug = false;
 
 function Tasks(props) {
 
-  if (debug) console.log('18 Tasks props', props.props.phData);
+  if (debug) console.log('18 Tasks props', props, props.props.phData);
 
   const state = useSelector((state) => state); // use RootState type
   if (debug) console.log('24 Tasks state', state);
@@ -25,6 +25,20 @@ function Tasks(props) {
   const dispatch = useDispatch();
 
   const [showModal, setShowModal] = useState(false);
+
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setMinimized(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleShowModal = () => {
     if (minimized) {
@@ -51,14 +65,9 @@ function Tasks(props) {
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
-  const objectviews2 = mothermodelviews?.flatMap(mv => mv.objectviews);
 
-  const uniqueovs = objectviews2?.filter((ov, index, self) =>
-    index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
-  );
-  
-  const seltasks = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
-  if (!debug) console.log('63 Tasks', uniqueovs, seltasks, showModal);
+
+
 
 
   const handleMinimize = () => {
@@ -74,7 +83,7 @@ function Tasks(props) {
   if (minimized) {
     return (
       <div className="minimized-task not-visible">
-        <div className="buttons position-absolute end-0"  style={{ scale: "0.7",marginTop: "-30px" }}>
+        <div className="buttons position-absolute end-0"  style={{ scale: "0.7",marginTop: "-28px" }}>
           <button
             className="btn text-success ps-1 pe-1 py-0 btn-sm"
             data-toggle="tooltip"
@@ -100,7 +109,7 @@ function Tasks(props) {
         </div>
         <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
             <Modal.Header closeButton>
-              <Modal.Title>Report Module</Modal.Title>
+              <Modal.Title>Focus details:</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-transparent">
               <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
@@ -116,81 +125,120 @@ function Tasks(props) {
   }
 
   let taskEntries: string = '';
+  let uniqueovs: any[] = [];
 
-  const tasksDiv = seltasks ? (
-    <ul>
-    {seltasks.map((t) => {
-      const taskObj = motherobjects?.find(
-        (o) =>
-          o.id ===
-          uniqueovs.find((ov) => ov.id === t?.id)?.objectRef
-      );
-      if (debug) console.log("91 taskobj", taskObj, t);
-      const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
-  
-      const taskEntriesArr = Object.entries(taskObj || {})
-        .filter(([key]) => !['id', 'description'].includes(key))
-        .map(([key, value]) => `- **${key}:** ${value}\n`);
+  const mvtasks = (seltasks) =>  (seltasks?.length > 0) ? (
+    <>
+      {/* <h6 className="bg-transparent">Modelview Tasks: {modelviews.name}</h6> */}
+      <ul>
+      {seltasks.map((taskObj) => {
+          if (debug) console.log("91 taskobj", taskObj);
+          // const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
+          
+          const taskEntriesArr = Object.entries(taskObj || {})
+          .filter(([key]) => !['id', 'description'].includes(key))
+          .map(([key, value]) => `- **${key}:** ${value}\n`);
+          
+          taskEntries = taskEntriesArr.join('');
+          const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+          
+          const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
+
+          if (debug) console.log('140 taskEntries', taskEntries)
+          
+          const taskEntriesDiv = (
+            <>
+              <details>
+                <summary>Task Properties:</summary>
+                <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
+              </details>
+            </>
+        )
         
-      taskEntries = taskEntriesArr.join('');
-      const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+        if (debug) console.log('147 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
 
-      const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
-      
-      const taskEntriesDiv = (
-        <details>
-          <summary>Task Properties:</summary>
-          <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
-        </details>
-      )
-
-      if (debug) console.log('104 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
-  
-      return (
-        <>
-          <li key={t.id} className="li bg-transparent border-secondary p-1 border border-success" onClick={() => setSelectedTask(t)}>
-            {/* <hr className="m-0" /> */}       
-            <details>
-              <summary>{t?.name}</summary>
-              <button
-                className="btn btn-sm checkbox bg-transparent text-success" 
-                onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: t.id, name: t.name }}) } // && handleShowModal()}
-                style={{
-                  float: "right",
-                  border: "1px solid #ccc",
-                  borderRadius: "3px",
-                  backgroundColor: "#fff",
-                  // width: "20px",
-                  // height: "20px",
-                  marginTop: "-25px",
-                  marginLeft: "auto",
-                  display: "inline-block",
-                  position: "relative",
-                }}
-              >Set Focus
-              </button>
-              <div className="bg-transparent ms-1">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
-              {taskObj && (
-                <div className="selected-task bg-transparent border border-light p-1">
-                  <div className="bg-light">
-                    {taskEntriesDiv}
-                  </div>
-                  <div className="bg-light">
-                    <details><summary>Description:</summary>
-                      <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
-                    </details>
-                  </div>
-                </div>
-              )}
-            </details>
-          </li>
-        </>
-      );
-    })}
-  </ul>
+        // find parent objectview (group) of taskObj
+        const parentobjectview = mothermodelviews?.find(mv => mv?.objectviews?.find(ov => ov?.objectRef === taskObj?.id));
+        
+        return (
+          <>
+            <li key={taskObj.id} className="li bg-transparent border-secondary p-1 me-1" onClick={() => setSelectedTask(taskObj)}>
+              {/* <hr className="m-0" /> */}       
+              
+              <details>
+                <summary>{taskObj?.name}</summary>
+                <button
+                  className="btn btn-sm bg-light text-success" 
+                  onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
+                  style={{
+                    float: "right",
+                    border: "1px solid #ccc",
+                    borderRadius: "5px",
+                    backgroundColor: "#fff",
+                    // width: "20px",
+                    // height: "20px",
+                    marginTop: "-26px",
+                    marginRight: "-36px",
+                    marginLeft: "auto",
+                    display: "inline-block",
+                    position: "relative",
+                    scale: "0.7",
+                  }}
+                  >Set Focus
+                </button>
+                <div className="bg-white ms-0 me-0 mt-1 px-2">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
+                  <div className="selected-task bg-transparent border border-light p-1">
+                    {/* <div className="bg-light">
+                      {taskEntriesDiv}
+                    </div> */}
+                    {/* <div className="bg-light">
+                      <details><summary>Description:</summary>
+                        <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
+                      </details>
+                    </div> */}
+                  </div>         
+              </details>
+            </li>
+          </>
+        );
+      })}
+      </ul>
+    </>
   ) : (
     <div>No generated task for this model</div>
   );
+
+  const tasksDiv = mothermodelviews?.map((mv) => {
+    // const objectviews2 = mothermodelviews?.flatMap(mv => mv.objectviews);
+    const objectviews2 = mv?.objectviews;
+    //   uniqueovs = objectviews2?.filter((ov, index, self) =>
+    //   index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
+    // );
+    console.log('202 Tasks',  uniqueovs, objectviews2, mv);
+    // const seltaskObjviews = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
+    const seltaskObjs = motherobjects?.filter(o => objectviews2.find(ov => o.id === ov.objectRef));
+    const seltasks = seltaskObjs?.filter(o => o.typeName === 'Task');
+    if (debug) console.log('203 Tasks', seltasks, seltaskObjs);
+    
+  
+    if (seltasks.length > 0) {
+      return (
+        <>
+          <hr className="my-0"/>
+          <details className="m-2"><summary className="bg-transparent">{mv.name}</summary> 
+          <ul>
+            {mvtasks(seltasks)}
+          </ul>
+          </details> 
+        </>
+      );
+      } else {
+        return (<> </>)
+      }
+    }
+  );
+
+
 
 
   const basicTask1 = `
@@ -220,7 +268,8 @@ function Tasks(props) {
 
   return (
     <>
-      <div className="tasklist p-1" 
+      <div className="tasklist p-1 " 
+        ref={containerRef}
         style={{ backgroundColor: "lightyellow", width: "25rem", 
         position: "absolute", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
       >
@@ -275,12 +324,14 @@ function Tasks(props) {
           </details>
           <hr className="my-2 p-0 border-light" />
         </div>
-        <div className="bg-transparent"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
+        <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
+        <div className="bg-transparent m-1"> 
+          {tasksDiv} 
+        </div>
 
-        {tasksDiv}
         <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
             <Modal.Header closeButton>
-              <Modal.Title>Report Module</Modal.Title>
+              <Modal.Title>Focus details ::</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-transparent">
               <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />

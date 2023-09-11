@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { Modal, Button } from 'react-bootstrap';
@@ -18,6 +18,20 @@ const Issues = (props) => {
 
   const [minimized, setMinimized] = useState(true);
   const [maximized, setMaximized] = useState(true);
+
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setMinimized(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleMinimize = () => {
       setMinimized(true);
@@ -116,6 +130,7 @@ const Issues = (props) => {
 
   if (minimized) {
     return (
+
         <div className="minimized-task " >
           <div className="buttons position-absolute start-0" style={{ scale: "0.7", marginTop: "-26px"}}>
             <button
@@ -149,7 +164,9 @@ const Issues = (props) => {
 
     return (
       <>
+
         <div className="project p-1" 
+          ref={containerRef}
           style={{height: "100%", width: "25rem", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px",
           position: "absolute", top: "50%", left: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
         >

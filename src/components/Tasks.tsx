@@ -7,6 +7,7 @@ import { wrapper } from '../store'; // import RootState type
 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import taskIcon from "/public/images/task.png";
 
 import ReportModule from "./ReportModule";
 import {ObjDetailTable} from './forms/ObjDetailTable';
@@ -15,6 +16,8 @@ const debug = false;
 
 function Tasks(props) {
 
+
+  console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props, props.props.phData);
 
   const state = useSelector((state) => state); // use RootState type
@@ -85,7 +88,7 @@ function Tasks(props) {
   if (minimized) {
     return (
       <div className="minimized-task not-visible">
-        <div className="buttons position-absolute end-0"  style={{ scale: "0.7",marginTop: "-28px" }}>
+        <div className="buttons position-absolute me-3 end-0"  style={{ scale: "0.7",marginTop: "-28px" }}>
           <button
             className="btn text-success ps-1 pe-1 py-0 btn-sm"
             data-toggle="tooltip"
@@ -129,13 +132,16 @@ function Tasks(props) {
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
 
-  const mvtasks = (seltasks) =>  (seltasks?.length > 0) ? (
+  const mvtasks = (seltasks, mv) =>  (seltasks?.length > 0) ? (
     <>
       {/* <h6 className="bg-transparent">Modelview Tasks: {modelviews.name}</h6> */}
       <ul>
-      {seltasks.map((taskObj) => {
+      {
+      seltasks.map((taskObj) => {
           if (debug) console.log("91 taskobj", taskObj);
           // const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
+          // find parent container of taskObj
+
           
           const taskEntriesArr = Object.entries(taskObj || {})
           .filter(([key]) => !['id', 'description'].includes(key))
@@ -160,50 +166,52 @@ function Tasks(props) {
         if (debug) console.log('147 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
 
         // find parent objectview (group) of taskObj
-        const parentobjectview = mothermodelviews?.find(mv => mv?.objectviews?.find(ov => ov?.objectRef === taskObj?.id));
-        
+        const taskObjView = mv?.objectviews?.find(ov => ov?.objectRef === taskObj?.id);
+        const parent = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group);
+        const grandparent = mv?.objectviews?.find(ov => ov?.id === parent?.group);
+        console.log('151 Tasks',  parent, taskObj, taskObj.group, parent.name, parent.description, parent?.group, grandparent?.name);
+
         return (
           <>
-            <li key={taskObj.id} className="li bg-transparent border-secondary p-1 me-1" onClick={() => setSelectedTask(taskObj)}>
+            <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
               {/* <hr className="m-0" /> */}       
-              
-              <details>
-                <summary>{taskObj?.name}</summary>
-                <button
-                  className="btn btn-sm bg-light text-success" 
-                  onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
-                  style={{
-                    float: "right",
-                    border: "1px solid #ccc",
-                    borderRadius: "5px",
-                    backgroundColor: "#fff",
-                    // width: "20px",
-                    // height: "20px",
-                    marginTop: "-26px",
-                    marginRight: "-36px",
-                    marginLeft: "auto",
-                    display: "inline-block",
-                    position: "relative",
-                    scale: "0.7",
-                  }}
-                  >Set Focus
-                </button>
+              {(grandparent) && <div>- {grandparent?.name} / {grandparent?.description}</div>}
+              {(parent) && <div>- {parent?.name} / {parent?.description}</div>} 
+              <details className="m-0 p-1 border">
+                <summary className="text-success d-flex align-items-center">
+                  <img src='/images/Arrow-down.png' alt="Details Arrow" title="Details Arrow" width="16" height="16" />
+                  <img src='/images/Task.png' alt="Details Arrow" title="Details Arrow" width="16" height="16" />
+                  <span className="ms-2">{taskObj?.name}</span>
+                  {/* <img className="ms-auto" src={taskIcon} alt="Task Icon" title="Task Icon" width="16" height="16" /> */}
+                  <button
+                    className="btn btn-sm bg-light text-success ms-auto me-0 px-1 py-0" 
+                    onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
+                    style={{
+                      border: "1px solid #ccc",
+                      borderRadius: "5px",
+                      backgroundColor: "#fff",
+                      scale: "0.7",
+                    }}
+                  >
+                    Set Focus
+                  </button>
+                </summary>
                 <div className="bg-light ms-0 me-0 mt-1 px-2">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
                   <div className="selected-task bg-transparent border border-light p-1">
-                    {/* <div className="bg-light">
-                      {taskEntriesDiv}
-                    </div> */}
-                    {/* <div className="bg-light">
-                      <details><summary>Description:</summary>
-                        <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
-                      </details>
-                    </div> */}
-                  </div>         
+                  {/* <div className="bg-light">
+                    {taskEntriesDiv}
+                  </div> */}
+                  {/* <div className="bg-light">
+                    <details><summary>Description:</summary>
+                      <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
+                    </details>
+                  </div> */}
+                </div>         
               </details>
             </li>
           </>
-        );
-      })}
+        )}
+      )}
       </ul>
     </>
   ) : (
@@ -229,7 +237,7 @@ function Tasks(props) {
           <hr className="my-0"/>
           <details className="m-2"><summary className="bg-transparent">{mv.name}</summary> 
           <ul>
-            {mvtasks(seltasks)}
+            {mvtasks(seltasks, mv)}
           </ul>
           </details> 
         </>
@@ -309,22 +317,24 @@ function Tasks(props) {
         </div>
         {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /> */}
         <div className="task">
-          <div className="bg-light"> Default Tasks: </div>
           <details>
-            <summary>Create a new Object:</summary>
-            <ReactMarkdown>{basicTask1}</ReactMarkdown>
-          </details>
-          <hr className="m-0" />
-          <details>
-            <summary>Create a new Relatinship:</summary>
-            <ReactMarkdown>{basicTask2}</ReactMarkdown>
-          </details>
-          <hr className="m-0" />
-          <details>
-            <summary>Make a new Objectview of existing object</summary>
-            <ReactMarkdown>{basicTask3}</ReactMarkdown>
-          </details>
-          <hr className="my-2 p-0 border-light" />
+            <summary className="bg-light px-1"> Default Modelling Tasks: </summary>
+              <details className="mx-2">
+                <summary>Create a new Object:</summary>
+                <ReactMarkdown>{basicTask1}</ReactMarkdown>
+              </details>
+              <hr className="m-0" />
+              <details className="mx-2">
+                <summary>Create a new Relatinship:</summary>
+                <ReactMarkdown>{basicTask2}</ReactMarkdown>
+              </details>
+              <hr className="m-0" />
+              <details className="mx-2">
+                <summary>Make a new Objectview of existing object</summary>
+                <ReactMarkdown>{basicTask3}</ReactMarkdown>
+              </details>
+            </details>
+          <hr className="my-1 p-0 border-light" />
         </div>
         <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
         <div className="bg-transparent m-1"> 

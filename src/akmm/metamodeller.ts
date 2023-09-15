@@ -2681,23 +2681,27 @@ export class cxMetis {
         if (!fromType || !toType)
             return null;
         let reltypes = new Array();
-        let types = this.getRelationshipTypes();
-        if (!types) {
+        let rtypes = this.getRelationshipTypes();
+        if (!rtypes) {
             return null;
         } else {
             let i = 0;
             let reltype;
-            for (i = 0; i < types.length; i++) {
-                reltype = types[i];
+            for (i = 0; i < rtypes.length; i++) {
+                reltype = rtypes[i];
                 const rtname = reltype.name;
                 if (reltype) {
                     if (reltype.isDeleted()) continue;
-                    if (debug) console.log('2651 fromType', fromType);
-                    if (debug) console.log('2652 reltype', reltype.name);
-                    if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
-                        if (debug) console.log('2655 reltype', reltype.name, fromType.name);
-                        if (reltype.isAllowedToType(toType, this.objecttypes, this.relshiptypes)) {
-                            if (debug) console.log('2657 reltype', reltype.name, toType.name);
+                    let fromObjtype = reltype.getFromObjType();
+                    if (!fromObjtype) {
+                        fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
+                    }
+                    let toObjtype = reltype.getToObjType();
+                    if (!toObjtype) {
+                        toObjtype = this.findObjectType(reltype.toobjtypeRef);
+                    }
+                    if (reltype.isAllowedFromType(fromObjtype, this.objecttypes, this.relshiptypes)) {
+                        if (reltype.isAllowedToType(toObjtype, this.objecttypes, this.relshiptypes)) {
                             reltypes.push(reltype); 
                         }
                     }                    
@@ -5605,26 +5609,21 @@ export class cxObjectType extends cxType {
     }
     inherits(type: cxObjectType, allReltypes: cxRelationshipType[]): boolean {   
         // Check if this (objecttype) inherits from type
-        if (debug) console.log('3781 this.name, type.name', this.name, type.name);
         let retval = false;
         this.allRelationshiptypes = allReltypes;
         if (this.id === type.id) {
             return true;
         } else {
             const types = this.findRelatedObjectTypes(constants.relkinds.GEN);
-            if (debug) console.log('3788 this, objtypes', this, types);
             if (types) {
                 for (let i = 0; i < types.length; i++) {
-                    if (debug) console.log('3791 this, objtype', this, type);
                     const supertype = types[i];
                     if (supertype) {
                         if (this.id === supertype.id)
                             continue;
                         if (supertype.id === type.id) {
-                            if (debug) console.log('3795 Found supertype', supertype.name);
                             return true;
                         } else {
-                            if (debug) console.log('3798 find supertype of', supertype, type);
                             retval = supertype.inherits(type, allReltypes);
                             if (retval)
                                 return true;
@@ -5880,7 +5879,6 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedFromType(objtype: cxObjectType, allObjtypes: cxObjectType[], allReltypes: cxRelationshipType[]): boolean {
         if (objtype && this.fromObjtype) {
-            if (debug) console.log('3666 objtype', objtype.name, this.fromObjtype.name);
             if (objtype.inherits(this.fromObjtype, allReltypes)) {
                 if (debug) console.log('3668 inherits, true');
                     return true;

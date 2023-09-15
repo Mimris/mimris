@@ -27,7 +27,7 @@ function ProjectDetailsModal(props) {
     <>
       <button className="button rounded mt-2 px-2 text-primary"   onClick={toggle}>Edit Project Details
       </button>
-      <Modal isOpen={showModal} toggle={toggle}  >
+      <Modal className="project-modal" isOpen={showModal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
         <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />

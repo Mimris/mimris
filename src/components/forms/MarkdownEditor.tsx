@@ -35,7 +35,7 @@ function MarkdownEditor({ props }) {
   const focusObject = useSelector(state => props.phFocus?.focusObject)
 
   const models = useSelector(state => props.phData?.metis?.models)  // selecting the models array
-  const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
+  const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
   const objects = curmodel?.objects //.map((o: any) => o)
   const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
@@ -73,21 +73,21 @@ function MarkdownEditor({ props }) {
 
   const title = 'children'
 
-  let orgLength = props.phFocus.focusProj?.org?.length || 0;
-  let repoLength = props.phFocus.focusProj?.repo?.length || 0;
-  let pathLength = props.phFocus.focusProj?.path?.length || 0;
-  let fileLength = props.phFocus.focusProj?.file?.length || 0;
-  let branchLength = props.phFocus.focusProj?.branch?.length || 0;
+  let orgLength = props.props.phFocus.focusProj?.org?.length || 0;
+  let repoLength = props.props.phFocus.focusProj?.repo?.length || 0;
+  let pathLength = props.props.phFocus.focusProj?.path?.length || 0;
+  let fileLength = props.props.phFocus.focusProj?.file?.length || 0;
+  let branchLength = props.props.phFocus.focusProj?.branch?.length || 0;
 
-  let userLength = props.phFocus.focusUser?.name.length || 0;
+  let userLength = props.props.phFocus.focusUser?.name.length || 0;
   let dateLength = new Date().toLocaleDateString().length;
   let timeLength = new Date().toLocaleTimeString().length;
 
   const handleAddObjectHeader = () => {
-    setMdHeaderString(` ${props.phFocus.focusProj?.name} \n\n --- \n\n`);
+    setMdHeaderString(` ${props.props.phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
-  const fileName = `${props.phFocus.focusProj?.name}_${props.phFocus.focusModel?.name}_${props.phFocus.focusModelview?.name}`.replace(/ /g, '-');
+  const fileName = `${props.props.phFocus.focusProj?.name}_${props.props.phFocus.focusModel?.name}_${props.props.phFocus.focusModelview?.name}`.replace(/ /g, '-');
   const svgFileName = `${fileName}.svg`
   const pngFileName = `${fileName}.png`
   const mdFileName = `${fileName}.md`
@@ -97,19 +97,19 @@ function MarkdownEditor({ props }) {
 
 
   let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
-  Project file: ${props.phFocus.focusProj?.file}
+  Project file: ${props.props.phFocus.focusProj?.file}
 
   <details>
   <summary>More about the project ... </summary>
   <nobr>
     | ***Organisation:*** | ***Repository:*** | ***Path:*** | ***Project file:*** | ***Branch:*** |
     |  ${"-".repeat(orgLength + 4)} | ${"-".repeat(repoLength + 4)} | ${"-".repeat(pathLength + 4)} | ${"-".repeat(fileLength + 4)} | ${"-".repeat(branchLength + 4)} |
-    |  "${props.phFocus.focusProj?.org?.padEnd(2)}"  |  "${props.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${props.phFocus.focusProj?.path}"  |  "${props.phFocus.focusProj?.file}"  |  "${props.phFocus.focusProj?.branch}"  |
+    |  "${props.props.phFocus.focusProj?.org?.padEnd(2)}"  |  "${props.props.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${props.props.phFocus.focusProj?.path}"  |  "${props.props.phFocus.focusProj?.file}"  |  "${props.props.phFocus.focusProj?.branch}"  |
     </nobr>
     <nobr> --- \n\n
     | user | date${" ".repeat(dateLength - 4)} | time${" ".repeat(timeLength - 4)} |
     | ${"-".repeat(userLength + 2)} | ${"-".repeat(dateLength + 2)} | ${"-".repeat(timeLength + 2)} |
-    | "${props.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
+    | "${props.props.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
     </nobr>
   </details>
   `

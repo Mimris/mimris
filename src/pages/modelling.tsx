@@ -18,7 +18,7 @@ import useLocalStorage from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
 import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
 import GenGojsModel from "../components/GenGojsModel";
-import Issues from "../components/Issues";
+import Issues from "../components/Project";
 
 // import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'

@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
   import useLocalStorage  from '../../hooks/use-local-storage'
   import { SaveModelToLocState } from "../utils/SaveModelToLocState";
 
+const debug = false;
+
 function ProjectDetailsForm(props) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
@@ -31,7 +33,7 @@ function ProjectDetailsForm(props) {
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
 
     
-console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, focusModelview, focusObject, focusObjectview, focusOrg, focusProj, focusRole, focusTask, focusIssue);
+if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, focusModelview, focusObject, focusObjectview, focusOrg, focusProj, focusRole, focusTask, focusIssue);
 
   useEffect(() => {
     // setOrg(props.phFocus?.focusOrg.org);

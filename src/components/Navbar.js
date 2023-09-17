@@ -27,15 +27,15 @@ const Navbar = (props) => {
 		</span>
 
 	return (
-		<nav className="navbar navbar-expand-sm d-flex justify-content-between my-0 py-0">
+		<nav className="navbar navbar-expand-sm d-flex justify-content-between m-0 p-0">
 			<a className="navbar-brand navbar-left mr-4" href="#">
 				<img src="images/equinor-logo.svg" width="100px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 			</a>
-			<div className="d-flex justify-content-between ">
-				<div className="d-flex justify-content-between">
+			<div className="d-flex justify-content-center w-100">
+				<div className="">
 					{LinkDiv}
 				</div>
-				<div className="collapse navbar-collapse mt-1" id="nav-toggler-metis">
+				<div className="collapse navbar-collapse " id="nav-toggler-metis">
 					<ul className="navbar-nav bg-light">
 						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
 							<Link href="/">Home</Link>

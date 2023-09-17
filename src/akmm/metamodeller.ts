@@ -747,7 +747,7 @@ export class cxMetis {
                     const reltypes = metamodel.relshiptypes;
                     if (debug) console.log('376 reltypes', reltypes); 
                     reltypes.forEach(rtype => {
-                        if (rtype.id === reltype.id) {
+                        if (rtype.id === reltype?.id) {
                             rtype.fromObjtype = reltype.fromObjtype;
                             rtype.fromobjtypeRef = reltype.fromobjtypeRef;
                             rtype.toObjtype = reltype.toObjtype;
@@ -1837,7 +1837,7 @@ export class cxMetis {
                 let rel = this.relships[i];
                 if (rel && !rel.markedAsDeleted) {
                     let type = rel.type;
-                    if (type && type.id === reltype.id) 
+                    if (type && type.id === reltype?.id) 
                     relships.push(rel);
                 }
             }
@@ -4036,7 +4036,7 @@ export class cxMetaModel extends cxMetaObject {
                 const types = this.relshiptypes;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
-                    if (type.id === relType.id) {
+                    if (type.id === reltype?.id) {
                         types[i] = relType;
                         break;
                     }
@@ -4056,7 +4056,7 @@ export class cxMetaModel extends cxMetaObject {
                 const types = this.relshiptypes0;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
-                    if (type.id === relType.id) {
+                    if (type.id === reltype?.id) {
                         types[i] = relType;
                         break;
                     }
@@ -5299,7 +5299,7 @@ export class cxObjectType extends cxType {
         const len = this.inputreltypes.length;
         for (let i=0; i<len; i++) {
             const rtype = this.inputreltypes[i];
-            if (rtype.id === reltype.id) {
+            if (rtype.id === reltype?.id) {
                 // Relationship type is already in list
                 return;
             }
@@ -5325,7 +5325,7 @@ export class cxObjectType extends cxType {
         const len = this.outputreltypes.length;
         for (let i=0; i<len; i++) {
             const rtype = this.outputreltypes[i];
-            if (rtype.id === reltype.id) {
+            if (rtype.id === reltype?.id) {
                 // Relationship type is already in list
                 return;
             }
@@ -6918,7 +6918,7 @@ export class cxModel extends cxMetaObject {
                 let rel = this.relships[i];
                 if (rel && !rel.markedAsDeleted) {
                     let type = rel.getType();
-                    if (type && type.getId() === reltype.getId()) 
+                    if (type && type.getId() === reltype?.getId()) 
                     relships.push(rel);
                 }
             }
@@ -7157,7 +7157,7 @@ export class cxModel extends cxMetaObject {
                         let relFromObj = rel.getFromObject();
                         let relToObj = rel.getToObject();
                         if (relFromObj && relToObj) {
-                            if (rtype.id === reltype.id) {
+                            if (rtype.id === reltype?.id) {
                                 if (relFromObj.id === fromObj.id) {
                                     if (relToObj.id === toObj.id) {
                                         if (!fromPort && !toPort)
@@ -7186,7 +7186,7 @@ export class cxModel extends cxMetaObject {
                         let relFromObj = rel.getFromObject();
                         let relToObj = rel.getToObject();
                         if (relFromObj && relToObj) {
-                            if (rtype.id === reltype.id) {
+                            if (rtype.id === reltype?.id) {
                                 if (relFromObj.id === fromObj.id) {
                                     if (relToObj.id === toObj.id) {
                                         if (!fromPort && !toPort)
@@ -7216,7 +7216,7 @@ export class cxModel extends cxMetaObject {
                     let relFromObj = rel.getFromObject();
                     let relToObj = rel.getToObject();
                     if (relFromObj && relToObj) {
-                        if (rtype.id === reltype.id) {
+                        if (rtype.id === reltype?.id) {
                             if (relFromObj.id === fromObj.id) {
                                 if (relToObj.id === toObj.id) {
                                     return rel;
@@ -7237,7 +7237,7 @@ export class cxModel extends cxMetaObject {
             for (let i = 0; i < len; i++) {
                 const rel = relships[i];
                 const rtype = rel.type;
-                if (rtype && rtype.id === reltype.id) {
+                if (rtype && rtype.id === reltype?.id) {
                     let relFromObj = rel.getFromObject();
                     let relToObj = rel.getToObject();
                     if (relFromObj && relToObj) {
@@ -7725,7 +7725,7 @@ export class cxInstance extends cxMetaObject {
                 let rel = this.outputrels[i];
                 if (rel && !rel.markedAsDeleted) {
                     let type = rel.type;
-                    if (type && type.id === reltype.id) 
+                    if (type && type.id === reltype?.id) 
                     relships.push(rel);
                 }
             }

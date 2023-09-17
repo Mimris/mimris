@@ -20,31 +20,39 @@ const Project = (props) => {
   const [minimized, setMinimized] = useState(true);
   // const [maximized, setMaximized] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
+  const projectModalRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       const container = containerRef.current;
       const modal = modalRef.current;
-      const modalContent = modal && (modal.querySelector) && modal.querySelector(".project-modal");
+      const projectModal = projectModalRef.current;
 
-      console.log('33 modalContent', modalContent)
-      // if (modalContent && modalContent.contains(event.target)) {
-      //   return;
+      console.log('33 modalContent', container, projectModal,
+      (container && container.contains(event.target)) ,
+      (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
+      )
+  
+      // if (!(container && container.contains(event.target)) &&
+      //   !(projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) )) {
+
+      //   console.log('42 modalContent', container, projectModal,
+      //   (container && container.contains(event.target)) ,
+      //   (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
+      //   )
+      //   // setTimeout(() => {
+      //     // setModalOpen(false);
+      //     // setProjectModalOpen(false);
+      //     setMinimized(true)
+      //   // }, 100)
+ 
       // }
-      if (modal && (modal.contains) && !modal.contains(event.target) && (modalContent && modalContent.contains(event.target))) {
-          setModalOpen(false);
-          setMinimized(true);   
-      }
-      if (container &&  (container.contains) && !container.contains(event.target) && (modalContent && !modalContent.contains(event.target)) ) {
-        setModalOpen(false);
-        setMinimized(true);
-      }
     };
     
-  
     document.addEventListener("mousedown", handleClickOutside);
   
     return () => {
@@ -109,6 +117,7 @@ const Project = (props) => {
 
   const [showModal, setShowModal] = useState(false);
 
+
   const handleShowModal = () => {
     if (minimized) {
       setMinimized(true);
@@ -121,7 +130,7 @@ const Project = (props) => {
 
   const handleShowProjectModal = () => {
     if (minimized) {
-      setMinimized(false);
+      setMinimized(true);
     }
     setShowProjectModal(true);
   };
@@ -129,7 +138,7 @@ const Project = (props) => {
 
 
   const modalDiv = (
-    <Modal show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee" }} >
+    <Modal show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
@@ -155,7 +164,7 @@ const Project = (props) => {
         {/* <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} /> */}
       </Modal.Body>˝
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleCloseModal}>
+        <Button variant="secondary" onClick={ handleCloseModal}>
           Close
         </Button>
       </Modal.Footer>
@@ -163,16 +172,17 @@ const Project = (props) => {
   )
 
   const projectModalDiv = (
-    <Modal show={showProjectModal} onHide={handleCloseProjectModal} className="project-modal"   >
-    <Modal.Header closeButton>Set Context: </Modal.Header>
-    <Modal.Body >
-    <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
-    </Modal.Body>
-    <Modal.Footer>
-      <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
-    </Modal.Footer>
-  </Modal>
-  )
+      <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
+        className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
+      <Modal.Header closeButton>Set Context: </Modal.Header>
+      <Modal.Body >
+        <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+      </Modal.Footer>
+    </Modal>
+  );
 
   if (minimized) {
     return (

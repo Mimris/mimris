@@ -2537,7 +2537,9 @@ export class cxMetis {
         }
         return reltypes;
     }
-    findRelationshipTypeByName(name: string): cxRelationshipType | null {
+    findRelationshipTypeByName(name: string): cxRelationshipType | null { 
+        // Returns the first with the given name
+        // Does not include inheritance
         const types = this.getRelationshipTypes();
         if (!types) {
             return null;
@@ -2555,6 +2557,7 @@ export class cxMetis {
         return null;
     }
     findRelationshipTypeByName1(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
+        // Does not include inheritance
         const types = this.getRelationshipTypes();
         if (!types) {
             return null;
@@ -2574,6 +2577,7 @@ export class cxMetis {
         return null;
     }
     findRelationshipTypeByName2(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
+        // Does include inheritance
         const types = this.getRelationshipTypes();
         if (debug) console.log('2171 types', types.length, types);
         if (!types) {
@@ -2582,14 +2586,11 @@ export class cxMetis {
             let reltype: cxRelationshipType | null = null;
             for (let i=0; i<types.length; i++) {
                 reltype = types[i];
-                if (debug) console.log('2178 reltype', reltype, fromObjType, toObjType);
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    if (debug) console.log('2181 reltype', reltype, fromObjType, toObjType);
-                    if (reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
-                        if (debug) console.log('2183 reltype', reltype.name, fromObjType.name);
-                        if (reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
-                            if (debug) console.log('2185 reltype', reltype.name, toObjType.name);
+                    this.fixObjectTypeRefs(reltype);
+                    if (reltype.isAllowedFromType(fromObjType, true)) {
+                        if (reltype.isAllowedToType(toObjType, true)) {
                             return reltype; 
                         }
                     }
@@ -2611,16 +2612,17 @@ export class cxMetis {
                 if (debug) console.log('2178 reltype', reltype, fromObjType, toObjType);
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
+                    this.fixObjectTypeRefs(reltype);
                     if ((fromObjType.id === entityType.id) ||
-                        reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
+                        reltype.isAllowedFromType(fromObjType, true)) {
                             if ((toObjType.id === entityType.id) ||
-                            reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes))
+                            reltype.isAllowedToType(toObjType, true))
                                 return reltype; 
                     }
                     if ((toObjType.id === entityType.id) ||
-                        reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
+                        reltype.isAllowedToType(toObjType, true)) {
                             if ((fromObjType.id === entityType.id) ||
-                            reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes))
+                            reltype.isAllowedFromType(fromObjType, true))
                                 return reltype; 
                     }
                 }
@@ -2646,66 +2648,86 @@ export class cxMetis {
         }
         return null;
     }
-    findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
+    findRelationshipTypesBetweenTypes0(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
+        let reltypes = new Array();
+        let rtypes = this.getRelationshipTypes();
+        for (let i=0; i<rtypes.length; i++) {
+            let reltype = rtypes[i];
+            if (reltype.getRelshipKind() !== constants.relkinds.GEN && 
+            reltype.name !== constants.types.AKM_IS) {
+                continue;
+            } 
+            if (reltype.isDeleted()) continue;
+
+            let fromObjtype = reltype.getFromObjType();
+            if (!fromObjtype) {
+                fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
+            }
+            if (!fromType.inherits(fromObjtype)) 
+                continue;
+            let toObjtype = reltype.getToObjType();
+            if (!fromObjtype) {
+                toObjtype = this.findObjectType(reltype.toobjtypeRef);
+            }
+            if (!toObjtype.inherits(toObjtype)) 
+                continue;
+            reltypes.push(reltype);            
+        }
+        return reltypes;
+    }
+    findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType, includeGen: boolean): cxRelationshipType[] | null {
         if (!fromType || !toType)
             return null;
-        let reltypes = new Array();
         let types = this.getRelationshipTypes();
-        if (!types) {
-            return null;
-        } else {
-            let i = 0;
-            let reltype;
-            for (i = 0; i < types.length; i++) {
-                reltype = types[i];
-                const rtname = reltype.name;
-                if (reltype) {
-                    if (reltype.isDeleted()) continue;
-                    if (debug) console.log('1528 fromType', fromType);
-                    if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
-                        if (debug) console.log('1530 reltype', reltype.name);
-                        if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
-                            if (debug) console.log('1556 reltype', reltype.name, fromType.name);
-                            if (reltype.isAllowedToType(toType, this.objecttypes, this.relshiptypes)) {
-                                if (debug) console.log('1558 reltype', reltype.name, toType.name);
+        if (!types) return null;
+        for (let i=0; i<types.length; i++) {
+            let reltype = types[i];
+            this.fixObjectTypeRefs(reltype);
+        }
+        let reltypes = new Array();
+        for (let i = 0; i < types.length; i++) {
+            let reltype = types[i];
+            if (reltype) {
+                if (reltype.isDeleted()) continue;
+                if (reltype.getRelshipKind() !== constants.relkinds.GEN && 
+                    reltype.name !== constants.types.AKM_IS) {
+                        if (reltype.isAllowedFromType(fromType, includeGen)) {
+                            if (reltype.isAllowedToType(toType, includeGen)) {
                                 reltypes.push(reltype); 
                             }
                         }
-                    }
                 }
             }
         }
         return reltypes;
     }
-    findRelationshipTypesBetweenTypes1(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
+    findRelationshipTypesBetweenTypes1(fromType: cxObjectType, toType: cxObjectType, includeGen): cxRelationshipType[] | null {
         if (!fromType || !toType)
             return null;
-        let reltypes = new Array();
         let rtypes = this.getRelationshipTypes();
-        if (!rtypes) {
-            return null;
-        } else {
-            let i = 0;
-            let reltype;
-            for (i = 0; i < rtypes.length; i++) {
-                reltype = rtypes[i];
-                const rtname = reltype.name;
-                if (reltype) {
-                    if (reltype.isDeleted()) continue;
-                    let fromObjtype = reltype.getFromObjType();
-                    if (!fromObjtype) {
-                        fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
-                    }
-                    let toObjtype = reltype.getToObjType();
-                    if (!toObjtype) {
-                        toObjtype = this.findObjectType(reltype.toobjtypeRef);
-                    }
-                    if (reltype.isAllowedFromType(fromObjtype, this.objecttypes, this.relshiptypes)) {
-                        if (reltype.isAllowedToType(toObjtype, this.objecttypes, this.relshiptypes)) {
-                            reltypes.push(reltype); 
-                        }
-                    }                    
+        if (!rtypes) return null;
+        for (let i=0; i<rtypes.length; i++) {
+            let reltype = rtypes[i];
+            this.fixObjectTypeRefs(reltype);
+        }
+        for (let i = 0; i < rtypes.length; i++) {
+            let reltype = rtypes[i];
+            if (reltype) {
+                if (reltype.isDeleted()) continue;
+                let fromObjtype = reltype.getFromObjType();
+                if (!fromObjtype) {
+                    fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
                 }
+                let toObjtype = reltype.getToObjType();
+                if (!toObjtype) {
+                    toObjtype = this.findObjectType(reltype.toobjtypeRef);
+                }
+                this.fixObjectTypeRefs(reltype);
+                if (reltype.isAllowedFromType(fromObjtype, includeGen)) {
+                    if (reltype.isAllowedToType(toObjtype, includeGen)) {
+                        reltypes.push(reltype); 
+                    }
+                }                    
             }
         }
         return reltypes;
@@ -2920,6 +2942,24 @@ export class cxMetis {
             return true;
         }
         return false;
+    }
+    fixObjectTypeRefs(reltype) {
+        if (!reltype.fromObjtype) {
+            if (reltype.fromobjtypeRef) {
+                const objtype = this.findObjectType(reltype.fromobjtypeRef);
+                if (objtype) {
+                    reltype.fromObjtype = objtype;
+                }
+            }
+        }
+        if (!reltype.toObjtype) {
+            if (reltype.toobjtypeRef) {
+                const objtype = this.findObjectType(reltype.toobjtypeRef);
+                if (objtype) {
+                    reltype.toObjtype = objtype;
+                }
+            }
+        }
     }
 }
 
@@ -4491,10 +4531,9 @@ export class cxMetaModel extends cxMetaObject {
                 let reltype = types[i] as cxRelationshipType;
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    if (debug) console.log('3735 this.objecttypes, this.relshiptypes', this.objecttypes, this.relshiptypes);
-                    if (reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
+                    if (reltype.isAllowedFromType(fromObjType, true)) {
                         if (debug) console.log('3737 reltype', reltype, fromObjType, toObjType);
-                        if (reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
+                        if (reltype.isAllowedToType(toObjType, true)) {
                             if (debug) console.log('3739 reltype', reltype, fromObjType, toObjType);
                             return reltype;
                         }
@@ -4552,7 +4591,8 @@ export class cxMetaModel extends cxMetaObject {
         return null;
     }
     findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType, includeGen: boolean): cxRelationshipType[] | null {
-        if (!fromType || !toType) return null;
+        if (!fromType || !toType) 
+            return null;
         const types = this.getRelshipTypes();
         if (debug) console.log('2939 reltypes, objtypes', types, this.objecttypes);
         if (!types) return null;
@@ -4562,74 +4602,16 @@ export class cxMetaModel extends cxMetaObject {
         for (i = 0; i < types.length; i++) {
             reltype = types[i];
             if (reltype.isDeleted()) continue;
-            if (!reltype.fromObjtype) {
-                const objtype = this.findObjectType(reltype.fromobjtypeRef);
-                if (objtype)
-                    reltype.fromObjtype = objtype;
-                else
-                    continue;
-            }
-            if (!reltype.toObjtype) {
-                const objtype = this.findObjectType(reltype.toobjtypeRef);
-                if (objtype)
-                    reltype.toObjtype = objtype;
-                else
-                    continue;
-            }
-            if (includeGen) {
-                if (debug) console.log('2948 reltype, fromType', reltype, fromType);
-                if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
-                    if (debug) console.log('2950 reltype, toType', reltype, toType);
-                    if (reltype.isAllowedToType(toType, this.objecttypes, this.relshiptypes)) {
-                        reltypes.push(reltype);
-                    }
-                }
-            } else
-                if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
-                    if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
-                        if (reltype.isAllowedToType(toType)) {
-                            reltypes.push(reltype);
-                        }
-                    }
-                }
-        }
-        return reltypes;
-    }
-    findRelationshipTypes0BetweenTypes(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
-        if (!fromType || !toType) return null;
-        const types = this.getRelshipTypes0();
-        if (debug) console.log('2939 reltypes, objtypes', types, this.objecttypes);
-        if (!types) return null;
-        const reltypes = new Array();
-        let i = 0;
-        let reltype = null;
-        for (i = 0; i < types.length; i++) {
-            reltype = types[i];
-            if (reltype.isDeleted()) continue;
-            if (!reltype.fromObjtype) {
-                const objtype = this.findObjectType(reltype.fromobjtypeRef);
-                if (objtype)
-                    reltype.fromObjtype = objtype;
-                else
-                    continue;
-            }
-            if (!reltype.toObjtype) {
-                const objtype = this.findObjectType(reltype.toobjtypeRef);
-                if (objtype)
-                    reltype.toObjtype = objtype;
-                else
-                    continue;
-            }
-            if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
-                if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
-                    if (reltype.isAllowedToType(toType)) {
-                        reltypes.push(reltype);
-                    }
+            if (reltype.relshipkind === constants.relkinds.GEN) continue;
+            if (reltype.isAllowedFromType(fromType, includeGen)) {
+                if (reltype.isAllowedToType(toType, includeGen)) {
+                    reltypes.push(reltype);
                 }
             }
         }
         return reltypes;
     }
+    
     findRelationshipTypeView(id: string): cxRelationshipTypeView | null {
         if (!this.relshiptypeviews) return null;
         let i = 0;
@@ -5607,26 +5589,23 @@ export class cxObjectType extends cxType {
         }
         return supertypes;
     }
-    inherits(type: cxObjectType, allReltypes: cxRelationshipType[]): boolean {   
+    inherits(type: cxObjectType): boolean {   
         // Check if this (objecttype) inherits from type
         let retval = false;
-        this.allRelationshiptypes = allReltypes;
         if (this.id === type.id) {
             return true;
         } else {
-            const types = this.findRelatedObjectTypes(constants.relkinds.GEN);
-            if (types) {
-                for (let i = 0; i < types.length; i++) {
-                    const supertype = types[i];
+            const reltypes = this.getOutputReltypes(constants.relkinds.GEN);
+            if (reltypes) {
+                for (let i = 0; i < reltypes.length; i++) {                    
+                    const reltype = reltypes[i];
+                    const supertype = reltype?.toObjtype;
                     if (supertype) {
-                        if (this.id === supertype.id)
-                            continue;
                         if (supertype.id === type.id) {
-                            return true;
+                            retval = true;
+                            break;
                         } else {
-                            retval = supertype.inherits(type, allReltypes);
-                            if (retval)
-                                return true;
+                            retval = supertype.inherits(type);
                         }
                     }
                 }
@@ -5683,7 +5662,7 @@ export class cxObjectType extends cxType {
         if (otypes && otypes.length > 0) {
             for (let j = 0; j < otypes.length; j++) {
                 const otype = otypes[j];
-                if (objtype.inherits(otype, this.allRelationshiptypes)) {
+                if (objtype.inherits(otype)) {
                     const rtype: cxRelationshipType | null = this.findRelshipTypeByKind1(relkind, otype, this.allRelationshiptypes);
                     if (rtype)
                         return rtype;
@@ -5694,7 +5673,7 @@ export class cxObjectType extends cxType {
                         for (let j = 0; j < otypes1.length; j++) {
                             const otype1 = otypes1[j];
                             const rtype1: cxRelationshipType | null = this.findRelshipTypeByKind2(relkind, otype1);
-                            if (utils.objExists(rtype1))
+                            if (rtype1)
                                 return rtype1;
                         }
                     }
@@ -5877,20 +5856,25 @@ export class cxRelationshipType extends cxObjectType {
             retval = false;
         return retval;
     }
-    isAllowedFromType(objtype: cxObjectType, allObjtypes: cxObjectType[], allReltypes: cxRelationshipType[]): boolean {
+    isAllowedFromType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.fromObjtype) {
-            if (objtype.inherits(this.fromObjtype, allReltypes)) {
-                if (debug) console.log('3668 inherits, true');
+            if (!includeGen) {
+                if (this.fromObjtype.id === objtype.id) 
                     return true;
+            } else if (objtype.inherits(this.fromObjtype)) {
+                return true;
             }
         }
         return false;
     }
-    isAllowedToType(objtype: cxObjectType, allObjtypes: cxObjectType[], allReltypes: cxRelationshipType[]): boolean {
+    isAllowedToType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.toObjtype) {
-            if (debug) console.log('3340 objtype', objtype.name, this.toObjtype.name);
-            if (objtype.inherits(this.toObjtype, allReltypes))
+            if (!includeGen) {
+                if (this.toObjtype.id === objtype.id) 
+                    return true;
+            } else if (objtype.inherits(this.toObjtype)) {
                 return true;
+            }
         }
         return false;
     }
@@ -5917,24 +5901,6 @@ export class cxRelationshipType extends cxObjectType {
             }
         }
         return count;
-    }
-    fixObjectTypeRefs() {
-        if (!this.fromObjtype) {
-            if (this.fromobjtypeRef) {
-                const objtype = this.metis.getObjectTypeById(this.fromobjtypeRef);
-                if (objtype) {
-                    this.fromObjtype = objtype;
-                }
-            }
-        }
-        if (!this.toObjtype) {
-            if (this.toobjtypeRef) {
-                const objtype = this.metis.getObjectTypeById(this.toobjtypeRef);
-                if (objtype) {
-                    this.toObjtype = objtype;
-                }
-            }
-        }
     }
 }
 

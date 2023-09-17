@@ -805,8 +805,8 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     if (reltypeNames.length > 0) {
         uniqueSet = utils.removeArrayDuplicates(reltypeNames);
         reltypeNames = uniqueSet;
-        let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
-        reltypeNames = difference;
+        // let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
+        // reltypeNames = difference;
         reltypeNames.sort();
     }
     if (debug) console.log('655 reltypeNames', reltypeNames);

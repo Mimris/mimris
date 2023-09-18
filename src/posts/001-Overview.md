@@ -1,7 +1,7 @@
 ---
 title: 'Overview'
 date: 'Oct 18, 2021'
-excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It is based on the AKM Modeller Core, which includes model and metamodel definitions, and a graphical user interface. It is available for Windows, macOS and Linux.'
+excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It is based on the AKM Modeller Core, which includes model and metamodel definitions, and a graphical user interface.'
 cover_image: 'images/posts/overview/image001.png'
 ---
 

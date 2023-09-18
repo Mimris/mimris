@@ -122,7 +122,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 export function handleSelectDropdownChange(selected, context) {
   if (debug) console.log('122 selected, context:', selected, context);
   const myDiagram = context.myDiagram;
-  const myMetis = context.myMetis;
+  const myMetis = context.myMetis as akm.cxMetis;
   const myMetamodel = context.myMetamodel;
   const myGoModel = context.myGoModel;
   const myModel = context.myModel;
@@ -172,7 +172,7 @@ export function handleSelectDropdownChange(selected, context) {
             continue;
           toType = myMetis.findObjectType(toType.id);
           const typename = (selectedOption) && selectedOption;
-          const reltype  = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+          const reltype  = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
           if (debug) console.log('166 fromType, toType, reltype', fromType, toType, reltype);
           // create a link data between the actual nodes
           let linkdata = {
@@ -1440,7 +1440,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         objTo = myMetis.findObject(objTo.id);
         let toType = nodeTo.data.objecttype;
         toType = myMetis.findObjectType(toType.id);
-        const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+        const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
         if (reltype) {
           const rel = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
           myModel.addRelationship(rel); 

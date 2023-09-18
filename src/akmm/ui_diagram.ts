@@ -785,7 +785,7 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
         let toType = objtypes[i];
         toType = myMetis.findObjectType(toType.id);
         if (debug) console.log('632 fromType, toType', fromType, toType);
-        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+        const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
         if (i == 0) {
             // First time
             reltypes = rtypes;

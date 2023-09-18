@@ -217,12 +217,13 @@ What remains now is the generation of the metamodel a last time and do the testi
 Traversal methods are methods that is executed (started) on objects.
 You may for example, build a method that can be started on a Product, traverses the hierarchical structure the product consists of, and calls an action on each of the nodes it traverses. 
 
- 
+  
+![image018](https://github.com/SnorreFossland/akmmclient/assets/31763773/4ac12ac4-99d6-4f72-a8b6-a028a0e0d5f9)
 
 The dialog below shows an example that defines a method that starts on a Product object, follows the consistsOf relationships until it finds Assembly objects and will, if the condition (cost>20) is met, executes an action, that in this example is to do a Select. Ref the definition below. 
 
- 
-![image018](https://github.com/SnorreFossland/akmmclient/assets/31763773/4ac12ac4-99d6-4f72-a8b6-a028a0e0d5f9)
+
+ ![image019](https://github.com/SnorreFossland/akmmclient/assets/31763773/2726fcdf-578c-47b1-97eb-b60678bc842d)
 
 The relevant parameters in the dialog are:
 -	reltype that contains the name of the relationship type to follow. If empty – all relationships will be followed.
@@ -246,21 +247,19 @@ The first metamodel is a simplified version of our previous product metamodel (s
 Note the new object of type Metamodel (PROD_MM) that has contains relationships to the object types in the metamodel.
 
 
- ![image019](https://github.com/SnorreFossland/akmmclient/assets/31763773/2726fcdf-578c-47b1-97eb-b60678bc842d)
-
+![image020](https://github.com/SnorreFossland/akmmclient/assets/31763773/402e62e9-e3f5-4b98-ae15-974e8692af66)
 
 The second metamodel is a simple organization metamodel as shown below.
 Also here note the object of type Metamodel (ORG_MM) that has contains relationships to the object types in this metamodel. 
 
 
-
+![image021](https://github.com/SnorreFossland/akmmclient/assets/31763773/ff58673f-47ca-4673-9f56-a227aa5bc539)
 
 You don’t need to do “New Metamodel” to create the metamodels in these cases. You just click on the background and do “Generate Metamodel” and the correct choice is shown in the dialog. 
 
 Now we want to combine the two metamodels into one. We do that by creating a new modelview that looks like the following: 
 
-
-![image020](https://github.com/SnorreFossland/akmmclient/assets/31763773/402e62e9-e3f5-4b98-ae15-974e8692af66)
+![image022](https://github.com/SnorreFossland/akmmclient/assets/31763773/1b2aef67-2c6b-4f0b-b4ee-3bf67143e7a0)
 
 
 Then we click on the background, choose “Generate Metamodel” and get the choice “ORG-PROD_MM”. Only the top metamodel is shown in the popup dialog. 
@@ -270,9 +269,5 @@ The “ORG_MM” and “PROD_MM” are registered as sub-metamodels in “ORG-PR
 When we combine metamodels there is a need to add relationship types that relate object types in the two sub-metamodels. 
 This can be done as shown below where OrganisationUnit and Product are related. It is important that the two objects are objectviews of the corresponding objects in the modelviews they are defined.  
 
-
-![image021](https://github.com/SnorreFossland/akmmclient/assets/31763773/ff58673f-47ca-4673-9f56-a227aa5bc539)
-
-![image022](https://github.com/SnorreFossland/akmmclient/assets/31763773/1b2aef67-2c6b-4f0b-b4ee-3bf67143e7a0)
 
 ![image023](https://github.com/SnorreFossland/akmmclient/assets/31763773/02eef7ab-b9f1-4b0e-a806-8a79ab6f3ca2)

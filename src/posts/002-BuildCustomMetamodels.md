@@ -21,9 +21,14 @@ Out of the box AKMM also includes some example metamodels and models.
 # The core metamodel
 
 The core metamodel (AKM-CORE+_MM) that allows you to build your own metamodel is shown below. 
- 
+
+
+ ![image001](https://github.com/SnorreFossland/akmmclient/assets/31763773/ec40dd6f-0ddf-4c6e-981a-def7e9be73f1)
+
 
 In the center of this model we find “EntityType” which is used to define custom object types. And between EntityTypes you can draw relationships of type “relationshipType” to define custom relationship types. Ref the diagram below. 
+
+![image002](https://github.com/SnorreFossland/akmmclient/assets/31763773/029bfb9d-9b6c-46db-91a5-8744cfea6dbe)
 
  
 # Properties and Datatypes 
@@ -31,14 +36,18 @@ In the center of this model we find “EntityType” which is used to define cus
 Both object types and relationship types may have properties as part of its definition. 
 The diagram below shows that an EntityType may have properties and a that a “Property” is of  a “Datatype”. The default datatype is “string”.  
 
- 
+
+![Uploading image003.png…]()
+
 
 One can specify default value and allowed values, and one can also specify how the corresponding field in a dialog box looks and behaves, using “ViewFormat”, “FieldType” and “InputPattern”.  
 
 To define the properties of relationship types, an object type named “RelshipType” has been introduced. The name of RelshipType is the name of a relationship type that might have been defined elsewhere. 
 The RelshipType has two relationships: the “from” and “to” relationships that each points to the from and to object types of the relationship type.
 
-	 
+
+![Uploading image004.png…]()
+
 
 In this way one can specify properties on relationship types as well as on object types. 
 
@@ -46,7 +55,9 @@ In this way one can specify properties on relationship types as well as on objec
 
 There are two types of properties, those that are given as input by users, and those whose values are the result of a calculation via a property “Method”. Ref the model below.
 
- 
+
+ ![Uploading image005.png…]()
+
 
 The model says that Property is an EntityType, and as such the Property may have a Method attached. The purpose of the Method is to calculate the property value.
 The Method is of a “MethodType”, telling that there are alternative ways to do the calculation. 
@@ -71,7 +82,9 @@ An object typeview defines the default visualization of an object of the given t
 
 Typeviews for objects are specified using the dialog below.
 
- 
+
+ ![Uploading image006.png…]()
+
 
 The two first fields are related to groups and specify the scale of member objects and the scale of the arrows of member relationships.
 The other fields are related to objects as such.  
@@ -79,7 +92,13 @@ The viewkind is either “Object” or “Container”. Container means a group 
 The template specifies what kind of graphic symbol to use when objects of the given type are shown. A commonly used template when viewkind is “Object”, is “textAndIcon” as the example below shows.
 
 
+![Uploading image007.png…]()
+
+
 Other examples are “textAndFigure” and “textAndGeometry” where textAndFigure allows the user to choose from a list of predefined geometrical figures. The example figure below is “Gear”:
+
+
+![Uploading image008.png…]()
 
 
 The textAndGeometry allows the user to specify a geometrical figure in a format as used in SVG symbols.
@@ -87,7 +106,9 @@ And there are several other templates to choose from.
 	
 The different color fields in the typeview applies to different parts of the symbol as can be seen in this variant of the Gear example:
 
- 
+
+ ![Uploading image009.png…]()
+
 
 The fillcolor is the same, but fillcolor2 is different. Both strokecolors are different - the stokecolor is red and strokecolor2 is blue. And the textcolor is different. 
 
@@ -109,7 +130,9 @@ These are the three EnityTypes in column 1 in the diagram below.
 -	We add colors and symbols to the EnityTypes (column 4). 
 This is done by doing Edit Objectview.
 
- 
+
+ ![Uploading image010.png…]()
+
 
 Now is the time to generate a metamodel and test to see if it actually works.
 
@@ -125,7 +148,9 @@ Then switch to your new model and start testing.
 
 Build a test model e.g. like the following:
 
- 
+
+ ![Uploading image011.png…]()
+
 
 Make sure that your model covers all alternatives as the one above.
 
@@ -135,7 +160,9 @@ When you have got your object and relationship types defined, you may want to ad
 
 Let us say that you want all the types to have the properties weight and cost, and we start by adding the properties to Component. 
 
- 
+
+ ![Uploading image012.png…]()
+
 
 Then do a new Generate Metamodel and choose the same metamodel as last time. 
 Go back to your model and do Edit Properties on the Component objects. You will see that they have got two new properties, i.e. weight and cost.
@@ -147,15 +174,21 @@ You can do the same on Assembly and Product if you like, and they will all have 
 But to demonstrate another capability of the AKM Modeller, we will now introduce Methods in the model.
 Add an object of type Method as shown below:
 
- 
+
+ ![Uploading image013.png…]()
+
 
 Do Edit Object on the CalculateCost object and click on the methodtype field. You get the following dialog:
 
- 
+
+ ![Uploading image014.png…]()
+
 
 Choose CalculateValue and a new field (expression) will appear. Fill in the expression “weight*0.4”. See below. 
 
- 		
+
+ ![Uploading image015.png…]()
+
 
 
 Close the dialog and do “Generate Metamodel” again, and then go to your test model.
@@ -164,7 +197,9 @@ Open the Component objects and enter weight values if you haven’t already done
 
 The next step is to add weight and cost to the Assembly and Product types. This means to go back to your metamodel and do the additions as shown below:
 
- 
+
+ ![Uploading image016.png…]()
+
 
 The property dialog for AggregateCost is shown below. The methodtype is now AggregateValue.  Note the four new fields (parameters) that appear when you choose AggregateValue.
 The additional parameters are:
@@ -173,7 +208,8 @@ The additional parameters are:
 -	objtype contains the name of the object type to check for. If not given the object type will not be checked.
 -	expression contains expression to calculate on each object
 
- 
+ ![Uploading image017.png…]()
+
 
 The only difference between AggregateCost and AggregateWeight is the expression field that contains the name of the property to use in the calculation.
 
@@ -190,6 +226,7 @@ You may for example, build a method that can be started on a Product, traverses 
 The dialog below shows an example that defines a method that starts on a Product object, follows the consistsOf relationships until it finds Assembly objects and will, if the condition (cost>20) is met, executes an action, that in this example is to do a Select. Ref the definition below. 
 
  
+![Uploading image018.png…]()
 
 
 
@@ -214,16 +251,23 @@ The example below has two small metamodels that can be combined to a larger one.
 The first metamodel is a simplified version of our previous product metamodel (shown below). 
 Note the new object of type Metamodel (PROD_MM) that has contains relationships to the object types in the metamodel.
 
- 
+
+ ![Uploading image019.png…]()
+
 
 The second metamodel is a simple organization metamodel as shown below.
 Also here note the object of type Metamodel (ORG_MM) that has contains relationships to the object types in this metamodel. 
 
- 
+
+ ![Uploading image020.png…]()
+
 
 You don’t need to do “New Metamodel” to create the metamodels in these cases. You just click on the background and do “Generate Metamodel” and the correct choice is shown in the dialog. 
 
 Now we want to combine the two metamodels into one. We do that by creating a new modelview that looks like the following: 
+
+
+![Uploading image021.png…]()
 
 	 
 
@@ -234,6 +278,8 @@ The “ORG_MM” and “PROD_MM” are registered as sub-metamodels in “ORG-PR
 When we combine metamodels there is a need to add relationship types that relate object types in the two sub-metamodels. 
 This can be done as shown below where OrganisationUnit and Product are related. It is important that the two objects are objectviews of the corresponding objects in the modelviews they are defined.  
 
-  
+  ![Uploading image022.png…]()
 
+
+![Uploading image023.png…]()
 

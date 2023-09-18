@@ -1199,7 +1199,16 @@ export function createRelationship(data: any, context: any) {
             if (metamodel.id === metamodel2.id) {
                 reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             } else {
-                reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+                const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+                for (let i=0; i<rtypes.length; i++) {
+                    const rtype = rtypes[i];
+                    if (rtype.name === 'generic') {
+                        reltypes.push(rtype);
+                    }
+                    if (rtype.name === 'refersTo') {
+                        reltypes.push(rtype);
+                    }
+                }
             }
 
             if (reltypes) {

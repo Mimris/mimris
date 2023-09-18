@@ -5858,22 +5858,24 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedFromType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.fromObjtype) {
-            if (!includeGen) {
-                if (this.fromObjtype.id === objtype.id) 
-                    return true;
-            } else if (objtype.inherits(this.fromObjtype)) {
+            if (this.fromObjtype.id === objtype.id) 
                 return true;
+            if (includeGen) {
+                if (objtype.inherits(this.fromObjtype)) {
+                    return true;
+                }
             }
         }
         return false;
     }
     isAllowedToType(objtype: cxObjectType, includeGen: boolean): boolean {
-        if (objtype && this.toObjtype) {
-            if (!includeGen) {
-                if (this.toObjtype.id === objtype.id) 
-                    return true;
-            } else if (objtype.inherits(this.toObjtype)) {
+        if (objtype && this.fromObjtype) {
+            if (this.toObjtype.id === objtype.id) 
                 return true;
+            if (includeGen) {
+                if (objtype.inherits(this.toObjtype)) {
+                    return true;
+                }
             }
         }
         return false;

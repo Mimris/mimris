@@ -14,7 +14,7 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const Context = (props, edit) => {
-    if (!debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
+    if (debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
 
@@ -46,12 +46,12 @@ const Context = (props, edit) => {
 
   
     // const [model, setModel] = useState(focusModel)
-    if (!debug) console.log('47 Context:', focusObject, focusModel, focusTask, models);
+    if (debug) console.log('47 Context:', focusObject, focusModel, focusTask, models);
     
     // const curmodel = modelInFocus
     const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
 
-    if (!debug) console.log('53 Context:', curmodel, curmodel.objects)
+    if (debug) console.log('53 Context:', curmodel, curmodel.objects)
 
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
     const objects = curmodel?.objects //.map((o: any) => o)

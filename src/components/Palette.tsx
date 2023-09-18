@@ -44,10 +44,12 @@ const Palette = (props: any) => {
 
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
-  const metamodelList = metamodels.map((m: any) => ({ id: m?.id, name: m?.name }));
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
-  if (debug) console.log('47', props, mmodel?.name, model?.metamodelRef);
+  const mmodelRefs = mmodel?.metamodelRefs;
+  // const metamodelList = metamodels.map((m: any) => mmodelRefs.find(mmr => (mmr === m.id) && ({ id: m?.id, name: m?.name })));
+  const metamodelList = metamodels.map((m: any) => ({ id: m?.id, name: m?.name }));
+  if (debug) console.log('47', props, modelRefs);
 
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel = props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];

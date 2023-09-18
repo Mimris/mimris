@@ -28,6 +28,12 @@ function Tasks(props) {
   const dispatch = useDispatch();
 
   const [showModal, setShowModal] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleOpen = () => {
+    setIsOpen(!isOpen);
+  };
+ 
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
@@ -137,11 +143,12 @@ function Tasks(props) {
       {/* <h6 className="bg-transparent">Modelview Tasks: {modelviews.name}</h6> */}
       <ul>
       {
+
       seltasks.map((taskObj) => {
           if (debug) console.log("91 taskobj", taskObj);
           // const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
           // find parent container of taskObj
-
+    
           
           const taskEntriesArr = Object.entries(taskObj || {})
           .filter(([key]) => !['id', 'description'].includes(key))
@@ -165,26 +172,18 @@ function Tasks(props) {
         
         if (debug) console.log('147 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
 
-        // find parent objectview (group) of taskObj
-        const taskObjView = mv?.objectviews?.find(ov => ov?.objectRef === taskObj?.id);
-        const parent = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group);
-        const grandparent = mv?.objectviews?.find(ov => ov?.id === parent?.group);
-        console.log('151 Tasks',  parent, taskObj, taskObj.group, parent.name, parent.description, parent?.group, grandparent?.name);
-
         return (
           <>
             <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
               {/* <hr className="m-0" /> */}       
-              {(grandparent) && <div>- {grandparent?.name} / {grandparent?.description}</div>}
-              {(parent) && <div>- {parent?.name} / {parent?.description}</div>} 
-              <details className="m-0 p-1 border">
-                <summary className="text-success d-flex align-items-center">
-                  <img src='/images/Arrow-down.png' alt="Details Arrow" title="Details Arrow" width="16" height="16" />
-                  <img src='/images/Task.png' alt="Details Arrow" title="Details Arrow" width="16" height="16" />
+              <details className="m-1 p-0 border">
+                <summary className="text-success d-flex align-items-center" onClick={toggleOpen}>
+                  <img className="ms-2"  src='/images/Task.png' alt="Details Arrow" title="Details Arrow" width="12" height="16" />
                   <span className="ms-2">{taskObj?.name}</span>
-                  {/* <img className="ms-auto" src={taskIcon} alt="Task Icon" title="Task Icon" width="16" height="16" /> */}
+                  <span className="d-flex m-0 ms-auto align-items-center">
+                  <img className="bg-secondary" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />
                   <button
-                    className="btn btn-sm bg-light text-success ms-auto me-0 px-1 py-0" 
+                    className="btn btn-sm bg-light text-success mx-0 px-1 " 
                     onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
                     style={{
                       border: "1px solid #ccc",
@@ -192,9 +191,10 @@ function Tasks(props) {
                       backgroundColor: "#fff",
                       scale: "0.7",
                     }}
-                  >
+                    >
                     Set Focus
                   </button>
+                    </span>
                 </summary>
                 <div className="bg-light ms-0 me-0 mt-1 px-2">{taskObj?.description}</div> {/*} .slice(0, 48)} . . . </div> */}
                   <div className="selected-task bg-transparent border border-light p-1">
@@ -214,9 +214,9 @@ function Tasks(props) {
       )}
       </ul>
     </>
-  ) : (
+    ) : (
     <div>No generated task for this model</div>
-  );
+    );
 
   const tasksDiv = mothermodelviews?.map((mv) => {
     // const objectviews2 = mothermodelviews?.flatMap(mv => mv.objectviews);
@@ -229,13 +229,43 @@ function Tasks(props) {
     const seltaskObjs = motherobjects?.filter(o => objectviews2.find(ov => o.id === ov.objectRef));
     const seltasks = seltaskObjs?.filter(o => o.typeName === 'Task');
     if (debug) console.log('203 Tasks', seltasks, seltaskObjs);
+
+
     
   
     if (seltasks.length > 0) {
+
+      // find parent objectview (group) of taskObj
+      const taskObjView = mv?.objectviews?.find(ov => ov?.objectRef === seltasks[0].id);
+      const parent = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group) || null;
+      const parentObj = motherobjects.find(o => o.id === parent?.objectRef) || null;
+      const grandParent = mv?.objectviews?.find(ov => ov?.id === parent?.group) || null;
+      const grandParentObj = motherobjects.find(o => o.id === grandParent?.objectRef) || null;
+      console.log('248 Tasks', seltasks[0], parent, grandParentObj);
+
       return (
         <>
           <hr className="my-0"/>
-          <details className="m-2"><summary className="bg-transparent">{mv.name}</summary> 
+
+          <details className="m-2"><summary className="bg-transparent">{mv.name}</summary>        
+          {(grandParentObj) && 
+            <details>
+              <summary className="text-success d-flex align-items-center">
+                <span className=""> -- {grandParentObj?.name}</span>
+                {(grandParentObj?.description !== "") && <img className="bg-secondary ms-auto" src='/images/info.svg' alt="Details Arrow" title="Details Arrow" width="12" height="16" />}
+              </summary>
+              <ReactMarkdown className="bg-light py-0 px-2" >{grandParentObj.description}</ReactMarkdown>
+            </details>
+          }
+          {(parentObj) &&  
+            <details>
+              <summary className="text-success d-flex align-items-center">
+                <span className="ms-2"> - {parentObj?.name}</span>
+                {(parentObj?.description !== "") && <img className="bg-secondary ms-auto" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
+              </summary> 
+              <ReactMarkdown className="bg-light px-2" >{parentObj.description}</ReactMarkdown>
+            </details>
+          }
           <ul>
             {mvtasks(seltasks, mv)}
           </ul>
@@ -252,7 +282,7 @@ function Tasks(props) {
 
 
   const basicTask1 = `
-    - From the Palette, drag the object type
+    - From the Palette on left side, drag the object type
       you want to create into the canvas.
     - Click on the name to edit.
     - Double-click on the object to open 
@@ -260,7 +290,6 @@ function Tasks(props) {
       Name, description etc.
   `;
   const basicTask2= `
-
     - Click on the edge of an Object and 
       drag the cursor to another object.
     - Click on the name of the Relationship to edit.

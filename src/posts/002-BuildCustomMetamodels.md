@@ -2,7 +2,7 @@
 title: 'Build custom metamodels in AKMM'
 date: 'Sept 18, 2023'
 excerpt: 'Describing how to build a new or add to existing Metamodel'
-cover_image: '[images/posts/overview/image001.png](https://github.com/SnorreFossland/akmmclient/assets/31763773/029bfb9d-9b6c-46db-91a5-8744cfea6dbe)'
+cover_image: 'https://github.com/SnorreFossland/akmmclient/assets/31763773/029bfb9d-9b6c-46db-91a5-8744cfea6dbe)'
 ---
 
 # AKMM – Build custom metamodels
@@ -53,8 +53,6 @@ In this way one can specify properties on relationship types as well as on objec
 There are two types of properties, those that are given as input by users, and those whose values are the result of a calculation via a property “Method”. Ref the model below.
 
 ![image005](https://github.com/SnorreFossland/akmmclient/assets/31763773/beffe28d-a4a8-4cc4-9c4d-fc11848e4ef8)
-
-
 
 
 The model says that Property is an EntityType, and as such the Property may have a Method attached. The purpose of the Method is to calculate the property value.

@@ -2,11 +2,11 @@ import Link from 'next/link'
 
 
 export default function Post({ post }) {
-  // console.log('4 Post', post)
+  console.log('5 Post', post)
   return (
     <>
     <div className='card'>
-      <Link href={`/helpblog/${post.slug}`} target="AKMM Help"><img src={post.frontmatter.cover_image} alt='' />Help </Link>
+      <Link href={`/helpblog/${post.slug}`} target="AKMM Help"><img src={post.frontmatter.cover_image } alt='' />Help </Link>
       <div className='post-date'>Posted on {post.frontmatter.date}</div>
       <h3>{post.frontmatter.title}</h3>
       <p>{post.frontmatter.excerpt}</p>

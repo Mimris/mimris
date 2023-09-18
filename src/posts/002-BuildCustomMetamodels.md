@@ -2,7 +2,7 @@
 title: 'Build custom metamodels in AKMM'
 date: 'Sept 18, 2023'
 excerpt: 'Describing how to build a new or add to existing Metamodel'
-cover_image: 'images/posts/overview/image001.png'
+cover_image: '[images/posts/overview/image001.png](https://github.com/SnorreFossland/akmmclient/assets/31763773/029bfb9d-9b6c-46db-91a5-8744cfea6dbe)'
 ---
 
 # AKMM – Build custom metamodels

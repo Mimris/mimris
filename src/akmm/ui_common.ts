@@ -1202,6 +1202,7 @@ export function createRelationship(data: any, context: any) {
                 const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
                 for (let i=0; i<rtypes.length; i++) {
                     const rtype = rtypes[i];
+                    this.fixObjectTypeRefs(rtype);
                     if (rtype.name === 'generic') {
                         reltypes.push(rtype);
                     }

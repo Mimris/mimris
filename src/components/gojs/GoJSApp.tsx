@@ -423,6 +423,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 for (let i = 0; i < relviews.length; i++) {
                   const relview = relviews[i];
                   relview.name = text;
+                  if (text === 'Is') {
+                    rel.relshipkind = 'Generalization';
+                    relview.toArrow = 'Triangle';
+                    data.toArrow = 'Triangle';
+                  }
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   modifiedRelshipViews.push(jsnRelview);
                   const jsnRel = new jsn.jsnRelationship(rel);

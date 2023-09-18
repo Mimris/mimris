@@ -1504,6 +1504,7 @@ export class cxMetis {
             if (this.relshiptypes == null)
                 this.relshiptypes = new Array();
             if (!this.findRelationshipType(reltype.id)) {
+                this.fixObjectTypeRefs(reltype);
                 this.relshiptypes.push(reltype);
                 if (debug) console.log('1438 Add reltype', reltype);
             }
@@ -4077,11 +4078,11 @@ export class cxMetaModel extends cxMetaObject {
             if (!this.findRelationshipType(relType.id)) {
                 this.relshiptypes.push(relType);
                 if (debug) console.log('3757 Add reltype', relType);
-            } else if (reltype) {
+            } else if (relType) {
                 const types = this.relshiptypes;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
-                    if (type.id === reltype?.id) {
+                    if (type.id === relType?.id) {
                         types[i] = relType;
                         break;
                     }
@@ -4602,6 +4603,12 @@ export class cxMetaModel extends cxMetaObject {
         let reltype = null;
         for (i = 0; i < types.length; i++) {
             reltype = types[i];
+            const fromObjType = reltype.getFromObjType();
+            const toObjType = reltype.getToObjType();
+            if (fromObjType.id === toObjType.id) {
+                reltypes.push(reltype);
+                continue;
+            }
             if (reltype.isDeleted()) continue;
             if (reltype.relshipkind === constants.relkinds.GEN) continue;
             if (reltype.isAllowedFromType(fromType, includeGen)) {

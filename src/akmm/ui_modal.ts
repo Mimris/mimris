@@ -534,7 +534,7 @@ export function handleSelectDropdownChange(selected, context) {
         }
       }
       if (reltype) {
-        const reltypeview = reltype.typeview;
+        let reltypeview = reltype.typeview;
         if (reltypeview) {
           const modifiedLinkTypeViews = new Array();
           const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
@@ -810,6 +810,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       let relview = link.data.relshipview;
       relview = myMetis.findRelationshipView(relview.id);
+      if (relship.name === 'Is') {
+        // relview['fromArrow'] = 'None';
+        // relview['toArrow'] = 'Triangle';
+        relship.relshipkind = 'Generalization';
+      }
       if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);

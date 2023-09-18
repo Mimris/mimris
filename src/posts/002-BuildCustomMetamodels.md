@@ -28,8 +28,7 @@ The core metamodel (AKM-CORE+_MM) that allows you to build your own metamodel is
 
 In the center of this model we find “EntityType” which is used to define custom object types. And between EntityTypes you can draw relationships of type “relationshipType” to define custom relationship types. Ref the diagram below. 
 
-![image002](https://github.com/SnorreFossland/akmmclient/assets/31763773/029bfb9d-9b6c-46db-91a5-8744cfea6dbe)
-
+![image002](https://raw.githubusercontent.com/SnorreFossland/akmmclient/main/assets/002-BuildCustomMetamodels/268569186-ec40dd6f-0ddf-4c6e-981a-def7e9be73f1.png)
  
 # Properties and Datatypes 
 

@@ -96,7 +96,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.markedAsDeleted = object.markedAsDeleted;
             myTargetMetamodel?.addObjectType(objtype);
         }
-    } else // Check if the types has not been generated, but exists anyway
+    } else // Check if the type has not been generated, but exists anyway
     {        
         objtype = myMetis.findObjectTypeByName(currentObj.name);
         if (objtype) {
@@ -1314,7 +1314,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 break;
             }
         }
-        if (debug) console.log('1268 metaObject, objectviews', metaObject, objectviews);
         if (objectviews) {
             if (debug) console.log('1270 objectviews', objectviews);
             for (let i=0; i<objectviews.length; i++) {
@@ -1344,7 +1343,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 const  typenames = []; 
                 if (obj.name === obj.type.name)
                     typenames.push(obj.type.name);
-                    typenames.push(metaObject);
+                typenames.push(metaObject);
                 for (let i=0; i<typenames.length; i++) {
                     const type = myMetamodel.findObjectTypeByName(typenames[i]);
                     if (type && obj && obj.type) {
@@ -1353,9 +1352,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         // Check if obj inherits one of the specified types - otherwise do not generate type
                         let objtype;
                         if (
-                            // (obj.type.inherits(type, type.allRelationshiptypes))
-                            // ||
-                            // (obj.isOfSystemType(metaObject))
                             (obj.type.name === metaObject)
                         ) {
                             objtype = generateObjectType(obj, objview, context);
@@ -1650,32 +1646,32 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
         const label = myMetis.findObjectTypeByName(constants.types.AKM_LABEL);
         myMetamodel.addObjectType(label);
         // Add inherited relationship types
-        let reltypes = myMetis.findRelationshipTypesBetweenTypes1(element, element);
+        let reltypes = myMetis.findRelationshipTypesBetweenTypes1(element, element, false);
         for (let i=0; i<reltypes?.length; i++) {
             const reltype = reltypes[i];
             myMetamodel.addRelationshipType(reltype);
         }
-        reltypes = myMetis.findRelationshipTypesBetweenTypes1(label, element);
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(label, element, false);
         for (let i=0; i<reltypes?.length; i++) {
             const reltype = reltypes[i];
             myMetamodel.addRelationshipType(reltype);
         }
-        reltypes = myMetis.findRelationshipTypesBetweenTypes1(generic, element);
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(generic, element, false);
         for (let i=0; i<reltypes?.length; i++) {
             const reltype = reltypes[i];
             myMetamodel.addRelationshipType(reltype);
         }
-        reltypes = myMetis.findRelationshipTypesBetweenTypes1(container, element);
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(container, element, false);
         for (let i=0; i<reltypes?.length; i++) {
             const reltype = reltypes[i];
             myMetamodel.addRelationshipType(reltype);
         }
-        reltypes = myMetis.findRelationshipTypesBetweenTypes1(entityType, element);
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(entityType, element, false);
         for (let i=0; i<reltypes?.length; i++) {
             const reltype = reltypes[i];
             myMetamodel.addRelationshipType(reltype);
         }
-        reltypes = myMetis.findRelationshipTypesBetweenTypes1(entityType, entityType);
+        reltypes = myMetis.findRelationshipTypesBetweenTypes1(entityType, entityType, false);
         for (let i=0; i<reltypes?.length; i++) {
             const reltype = reltypes[i];
             if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE)

@@ -507,34 +507,24 @@ export function handleSelectDropdownChange(selected, context) {
       const modalContext = context.modalContext;
       const data = modalContext.data;
       const typename = selected.value;
-      if (debug) console.log('508 context, modalContext', context, modalContext);
-      if (debug) console.log('510 myGoModel, myMetamodel', myGoModel, myMetamodel);
       modalContext.selected = selected;
-      if (debug) console.log('512 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
-      if (debug) console.log('514 fromNode', fromNode)
       const fromPortId = modalContext.data.fromPort;
       const toNode = myGoModel.findNode(modalContext.data.to);
       const toPortId = modalContext.data.toPort;
       let fromType = modalContext.fromType; 
-      if (debug) console.log('522 fromNode, fromType', fromNode, fromType);
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
           fromType.allObjecttypes = myMetamodel.objecttypes;
           fromType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       let toType   = modalContext.toType; 
-      if (debug) console.log('529 toNode, toType', toNode, toType);
       if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
       if (toType) {
           toType.allObjecttypes = myMetamodel.objecttypes;
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       let reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (debug) console.log('535 reltype', reltype, fromType, toType);
-      if (debug) console.log('536 reltype ids', context.modalContext.nodeFrom.data.objectview.id,  context.modalContext.nodeTo.data.objectview.id );
-      if (debug) console.log('536 reltype names', context.modalContext.nodeFrom.data.objectview.name, context.modalContext.typename, context.modalContext.nodeTo.data.objectview.name );
-      if (debug) console.log('537 reltype keys', context.modalContext.nodeFrom.data.key, context.modalContext.nodeTo.data.key );
       if (!reltype) {
         reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
         if (!reltype) {
@@ -544,13 +534,11 @@ export function handleSelectDropdownChange(selected, context) {
         }
       }
       if (reltype) {
-        if (debug) console.log('544 reltype', reltype);
         const reltypeview = reltype.typeview;
         if (reltypeview) {
           const modifiedLinkTypeViews = new Array();
           const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
           modifiedLinkTypeViews.push(jsnTypeView);
-          if (debug) console.log('550 jsnTypeView', jsnTypeView);
           modifiedLinkTypeViews?.map(mn => {
             let data = (mn) && mn
             data = JSON.parse(JSON.stringify(data));
@@ -558,12 +546,10 @@ export function handleSelectDropdownChange(selected, context) {
           })
         }
       }
-      if (debug) console.log('558 data, reltype', data, reltype);
       data.relshiptype = reltype;
       break;
     }
     default:
-      if (debug) console.log('563 selected: ', selected);
       break;
   }
 }

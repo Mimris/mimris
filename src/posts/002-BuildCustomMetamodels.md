@@ -36,8 +36,7 @@ In the center of this model we find “EntityType” which is used to define cus
 Both object types and relationship types may have properties as part of its definition. 
 The diagram below shows that an EntityType may have properties and a that a “Property” is of  a “Datatype”. The default datatype is “string”.  
 
-
-![Uploading image003.png…]()
+![image003](https://github.com/SnorreFossland/akmmclient/assets/31763773/683991b0-1db4-4fe6-99b8-c9a28f2df513)
 
 
 One can specify default value and allowed values, and one can also specify how the corresponding field in a dialog box looks and behaves, using “ViewFormat”, “FieldType” and “InputPattern”.  
@@ -46,8 +45,7 @@ To define the properties of relationship types, an object type named “RelshipT
 The RelshipType has two relationships: the “from” and “to” relationships that each points to the from and to object types of the relationship type.
 
 
-![Uploading image004.png…]()
-
+![image004.png](https://github.com/SnorreFossland/akmmclient/assets/31763773/b8e9e5d6-a895-455e-b014-6ff914ba2f28)
 
 In this way one can specify properties on relationship types as well as on object types. 
 
@@ -55,8 +53,9 @@ In this way one can specify properties on relationship types as well as on objec
 
 There are two types of properties, those that are given as input by users, and those whose values are the result of a calculation via a property “Method”. Ref the model below.
 
+![image005](https://github.com/SnorreFossland/akmmclient/assets/31763773/beffe28d-a4a8-4cc4-9c4d-fc11848e4ef8)
 
- ![Uploading image005.png…]()
+
 
 
 The model says that Property is an EntityType, and as such the Property may have a Method attached. The purpose of the Method is to calculate the property value.
@@ -83,7 +82,7 @@ An object typeview defines the default visualization of an object of the given t
 Typeviews for objects are specified using the dialog below.
 
 
- ![Uploading image006.png…]()
+ ![image006](https://github.com/SnorreFossland/akmmclient/assets/31763773/2ee18a34-c1e1-48b1-bf78-5a509b57fe19)
 
 
 The two first fields are related to groups and specify the scale of member objects and the scale of the arrows of member relationships.
@@ -92,13 +91,12 @@ The viewkind is either “Object” or “Container”. Container means a group 
 The template specifies what kind of graphic symbol to use when objects of the given type are shown. A commonly used template when viewkind is “Object”, is “textAndIcon” as the example below shows.
 
 
-![Uploading image007.png…]()
-
+![image007](https://github.com/SnorreFossland/akmmclient/assets/31763773/92775c69-8913-43df-a6c5-656dcac55521)
 
 Other examples are “textAndFigure” and “textAndGeometry” where textAndFigure allows the user to choose from a list of predefined geometrical figures. The example figure below is “Gear”:
 
 
-![Uploading image008.png…]()
+![image008](https://github.com/SnorreFossland/akmmclient/assets/31763773/36e92e22-32f1-45a5-960a-51a834ca9163)
 
 
 The textAndGeometry allows the user to specify a geometrical figure in a format as used in SVG symbols.
@@ -107,7 +105,7 @@ And there are several other templates to choose from.
 The different color fields in the typeview applies to different parts of the symbol as can be seen in this variant of the Gear example:
 
 
- ![Uploading image009.png…]()
+ ![image009](https://github.com/SnorreFossland/akmmclient/assets/31763773/aad287f9-5028-4051-88b9-68834d4e7605)
 
 
 The fillcolor is the same, but fillcolor2 is different. Both strokecolors are different - the stokecolor is red and strokecolor2 is blue. And the textcolor is different. 
@@ -131,7 +129,7 @@ These are the three EnityTypes in column 1 in the diagram below.
 This is done by doing Edit Objectview.
 
 
- ![Uploading image010.png…]()
+ ![image010](https://github.com/SnorreFossland/akmmclient/assets/31763773/d428d6c1-a62b-4cba-9c05-ccf45ef552dd)
 
 
 Now is the time to generate a metamodel and test to see if it actually works.
@@ -149,8 +147,7 @@ Then switch to your new model and start testing.
 Build a test model e.g. like the following:
 
 
- ![Uploading image011.png…]()
-
+ <img width="940" alt="image011" src="https://github.com/SnorreFossland/akmmclient/assets/31763773/6c82892f-26a2-43f7-9dc1-9f40e036183c">
 
 Make sure that your model covers all alternatives as the one above.
 
@@ -161,7 +158,7 @@ When you have got your object and relationship types defined, you may want to ad
 Let us say that you want all the types to have the properties weight and cost, and we start by adding the properties to Component. 
 
 
- ![Uploading image012.png…]()
+ ![image012](https://github.com/SnorreFossland/akmmclient/assets/31763773/684f980b-8406-4308-993c-2f2adbfae1ac)
 
 
 Then do a new Generate Metamodel and choose the same metamodel as last time. 
@@ -175,20 +172,19 @@ But to demonstrate another capability of the AKM Modeller, we will now introduce
 Add an object of type Method as shown below:
 
 
- ![Uploading image013.png…]()
+ ![image013](https://github.com/SnorreFossland/akmmclient/assets/31763773/32378f02-51dc-472d-98c3-d8cc9e989c63)
 
 
 Do Edit Object on the CalculateCost object and click on the methodtype field. You get the following dialog:
 
 
- ![Uploading image014.png…]()
+ ![image014](https://github.com/SnorreFossland/akmmclient/assets/31763773/6cbedc93-bcdd-41d0-8907-6f7c7086fb72)
 
 
 Choose CalculateValue and a new field (expression) will appear. Fill in the expression “weight*0.4”. See below. 
 
 
- ![Uploading image015.png…]()
-
+ ![image015](https://github.com/SnorreFossland/akmmclient/assets/31763773/15c458d9-fcdc-43d2-9ea7-e66697ecb5c1)
 
 
 Close the dialog and do “Generate Metamodel” again, and then go to your test model.
@@ -198,7 +194,7 @@ Open the Component objects and enter weight values if you haven’t already done
 The next step is to add weight and cost to the Assembly and Product types. This means to go back to your metamodel and do the additions as shown below:
 
 
- ![Uploading image016.png…]()
+ ![image016](https://github.com/SnorreFossland/akmmclient/assets/31763773/57e1a6fb-1962-4390-a447-e7e1b2af73c7)
 
 
 The property dialog for AggregateCost is shown below. The methodtype is now AggregateValue.  Note the four new fields (parameters) that appear when you choose AggregateValue.
@@ -208,7 +204,7 @@ The additional parameters are:
 -	objtype contains the name of the object type to check for. If not given the object type will not be checked.
 -	expression contains expression to calculate on each object
 
- ![Uploading image017.png…]()
+ ![image017](https://github.com/SnorreFossland/akmmclient/assets/31763773/636cf19b-8de2-4c39-9757-421c8cb6974e)
 
 
 The only difference between AggregateCost and AggregateWeight is the expression field that contains the name of the property to use in the calculation.
@@ -226,9 +222,7 @@ You may for example, build a method that can be started on a Product, traverses 
 The dialog below shows an example that defines a method that starts on a Product object, follows the consistsOf relationships until it finds Assembly objects and will, if the condition (cost>20) is met, executes an action, that in this example is to do a Select. Ref the definition below. 
 
  
-![Uploading image018.png…]()
-
-
+![image018](https://github.com/SnorreFossland/akmmclient/assets/31763773/4ac12ac4-99d6-4f72-a8b6-a028a0e0d5f9)
 
 The relevant parameters in the dialog are:
 -	reltype that contains the name of the relationship type to follow. If empty – all relationships will be followed.
@@ -252,14 +246,13 @@ The first metamodel is a simplified version of our previous product metamodel (s
 Note the new object of type Metamodel (PROD_MM) that has contains relationships to the object types in the metamodel.
 
 
- ![Uploading image019.png…]()
+ ![image019](https://github.com/SnorreFossland/akmmclient/assets/31763773/2726fcdf-578c-47b1-97eb-b60678bc842d)
 
 
 The second metamodel is a simple organization metamodel as shown below.
 Also here note the object of type Metamodel (ORG_MM) that has contains relationships to the object types in this metamodel. 
 
 
- ![Uploading image020.png…]()
 
 
 You don’t need to do “New Metamodel” to create the metamodels in these cases. You just click on the background and do “Generate Metamodel” and the correct choice is shown in the dialog. 
@@ -267,9 +260,8 @@ You don’t need to do “New Metamodel” to create the metamodels in these cas
 Now we want to combine the two metamodels into one. We do that by creating a new modelview that looks like the following: 
 
 
-![Uploading image021.png…]()
+![image020](https://github.com/SnorreFossland/akmmclient/assets/31763773/402e62e9-e3f5-4b98-ae15-974e8692af66)
 
-	 
 
 Then we click on the background, choose “Generate Metamodel” and get the choice “ORG-PROD_MM”. Only the top metamodel is shown in the popup dialog. 
 When we create a model based on this metamodel, the types we can choose when we model are the sum of the types in the two “sub”-metamodels. 
@@ -278,8 +270,9 @@ The “ORG_MM” and “PROD_MM” are registered as sub-metamodels in “ORG-PR
 When we combine metamodels there is a need to add relationship types that relate object types in the two sub-metamodels. 
 This can be done as shown below where OrganisationUnit and Product are related. It is important that the two objects are objectviews of the corresponding objects in the modelviews they are defined.  
 
-  ![Uploading image022.png…]()
 
+![image021](https://github.com/SnorreFossland/akmmclient/assets/31763773/ff58673f-47ca-4673-9f56-a227aa5bc539)
 
-![Uploading image023.png…]()
+![image022](https://github.com/SnorreFossland/akmmclient/assets/31763773/1b2aef67-2c6b-4f0b-b4ee-3bf67143e7a0)
 
+![image023](https://github.com/SnorreFossland/akmmclient/assets/31763773/02eef7ab-b9f1-4b0e-a806-8a79ab6f3ca2)

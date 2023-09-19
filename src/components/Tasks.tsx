@@ -183,6 +183,7 @@ function Tasks(props) {
                 <ReactMarkdown className="bg-light px-2" >{parentTask.description}</ReactMarkdown>
               </details>
             }
+            {(taskObj.id !== parentTask?.id) &&
             <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
               {/* <hr className="m-0" /> */}       
               <details className="m-y p-0 pe-1 border">
@@ -219,6 +220,7 @@ function Tasks(props) {
                 </div>         
               </details>
             </li>
+            }
           </>
         )}
       )}

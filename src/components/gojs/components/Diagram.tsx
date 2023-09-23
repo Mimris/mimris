@@ -423,9 +423,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myMetis.myDiagram = myDiagram;
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";
+    const myModelview = myMetis.currentModelview;
+    myModelview.diagram = myDiagram;
 
-    if (myMetis.currentModelview?.name === constants.admin.AKM_ADMIN_MODELVIEW) {
-      setLayout(myDiagram, myMetis.currentModelview?.layout);
+    if (myModelview?.name === constants.admin.AKM_ADMIN_MODELVIEW) {
+      setLayout(myDiagram, myModelview?.layout);
     }
 
     // Tooltip functions

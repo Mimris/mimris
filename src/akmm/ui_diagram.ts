@@ -355,6 +355,7 @@ export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
       alert("New operation was cancelled");
     } else {
       const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
+      modelView.diagram = myDiagram;
       model.addModelView(modelView);
       myMetis.addModelView(modelView);
       if (debug) console.log('102 myMetis', myMetis);

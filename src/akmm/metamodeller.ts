@@ -8459,6 +8459,7 @@ export class cxModelView extends cxMetaObject {
     includeInheritedReltypes: boolean | null;
     template: any;
     isTemplate: boolean;
+    diagram: any;
     diagrams: cxDiagram[] | null;
     constructor(id: string, name: string, model: cxModel | null, description: string) {
         super(id, name, description);

@@ -38,13 +38,6 @@ export const iconList = () => [
            {value:"parallel.png", label: "Parallel.png"},
            {value:"task1.jfif", label: "Task1.jfif"},
            {value:"tiger.svg", label: "tiger.svg"},
-
-           {value:"Archimate Capability.png", label: "Capability.png"},
-           {value:"Archimate CourseOfAction.png", label: "CourseOfAction.png"},
-           {value:"Archimate Driver.png", label: "Driver.png"},
-           {value:"Archimate Resource.png", label: "Resource.png"},
-           {value:"Archimate ValueStream.png", label: "ValueStream.png"},
-
            {value:"file-earmark-image.svg", label: "file-earmark-image.svg"},
            {value:"bug.svg", label: "bug.svg"},
            {value:"ui-checks.svg", label: "ui-checks.svg"},

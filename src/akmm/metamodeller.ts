@@ -2692,10 +2692,17 @@ export class cxMetis {
             if (reltype) {
                 if (reltype.isDeleted()) continue;
                 if (reltype.name === constants.types.AKM_IS) continue;
-                if (reltype.name === constants.types.AKM_IS) continue;
                 const fromObjType = reltype.getFromObjType();
                 const toObjType = reltype.getToObjType();
                 if (fromObjType && toObjType) {
+                    if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+                        if (fromType.name === constants.types.AKM_ENTITY_TYPE && 
+                            toType.name === constants.types.AKM_ENTITY_TYPE) {
+                            reltypes.push(reltype);
+                            continue;
+                        } else
+                            continue;
+                    } 
                     if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
                         // if (fromObjType.id === toObjType.id) {
                             if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
@@ -4595,23 +4602,31 @@ export class cxMetaModel extends cxMetaObject {
     findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType, includeGen: boolean): cxRelationshipType[] | null {
         if (!fromType || !toType) 
             return null;
-        const types = this.getRelshipTypes();
-        if (!types) return null;
+        const rtypes = this.getRelshipTypes();
+        if (!rtypes) return null;
         const reltypes = new Array();
         let i = 0;
         let reltype = null;
-        for (i = 0; i < types.length; i++) {
-            reltype = types[i];
+        for (i = 0; i < rtypes.length; i++) {
+            reltype = rtypes[i];
             if (reltype.isDeleted()) continue;
             if (reltype.name === constants.types.AKM_IS) continue;
             const fromObjType = reltype.getFromObjType();
             const toObjType = reltype.getToObjType();
             if (fromObjType && toObjType) {
+                if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+                    if (fromType.name === constants.types.AKM_ENTITY_TYPE && 
+                        toType.name === constants.types.AKM_ENTITY_TYPE) {
+                        reltypes.push(reltype);
+                        continue;
+                    } else
+                        continue;
+                } 
                 if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
                     // if (fromObjType.id === toObjType.id) {
                         if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                             fromObjType.name === constants.types.AKM_GENERIC) {
-                            if (includeGen)
+                                if (includeGen)
                                 reltypes.push(reltype);
                         } else 
                             reltypes.push(reltype);

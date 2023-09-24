@@ -1188,9 +1188,9 @@ export function createRelationship(data: any, context: any) {
             }
         }
         myMetamodel = metamodel;
-        const reltypes = metamodel.relshiptypes;
-        for (let i=0; i<reltypes.length; i++) {
-            const rtype = reltypes[i];
+        const relshiptypes = metamodel.relshiptypes;
+        for (let i=0; i<relshiptypes.length; i++) {
+            const rtype = relshiptypes[i];
             myMetis.fixObjectTypeRefs(rtype);
         }
         if (fromType && toType) {

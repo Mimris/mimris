@@ -11,6 +11,7 @@ import taskIcon from "/public/images/task.png";
 
 import ReportModule from "./ReportModule";
 import {ObjDetailTable} from './forms/ObjDetailTable';
+import { set } from 'immer/dist/internal';
 
 const debug = false;
 
@@ -19,13 +20,14 @@ function Tasks(props) {
 
   console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props, props.props.phData);
+  const dispatch = useDispatch();
 
   const state = useSelector((state) => state); // use RootState type
   if (debug) console.log('24 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(true);
   const [maximized, setMaximized] = useState(false);
-  const dispatch = useDispatch();
+  const [prevParentTask, setPrevParentTask] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -77,8 +79,10 @@ function Tasks(props) {
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
 
-
-
+  let parentTask: any = null;
+  // useEffect(() => {
+  //    setPrevParentTask(parentTask);
+  // }, [parentTask]);
 
 
   const handleMinimize = () => {
@@ -138,136 +142,112 @@ function Tasks(props) {
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
   let curParentObj: any = null;
-  
-  const mvtasks = (seltasks, parentTask) =>  (seltasks?.length > 0) ? (
 
+  
+  const mvtasks = (seltasks, mv) =>  (seltasks?.length > 0) ? ( //seltasks = all objectviews of type Task
     <>
-      {/* <h6 className="bg-transparent">Modelview Tasks: {modelviews.name}</h6> */}
       <ul>
       {
-          seltasks.map((taskObj, index) => {
-          if (!debug) console.log("148 taskobj", taskObj, 'parenTask:', parentTask);
-          // const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
-          // find parent container of taskObj
- 
-          const taskEntriesArr = Object.entries(taskObj || {})
-          .filter(([key]) => !['id', 'description'].includes(key))
-          .map(([key, value]) => `- **${key}:** ${value}\n`);
+        seltasks.map((taskObjView, index) => {
           
-          taskEntries = taskEntriesArr.join('');
-          const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+          // find parent objectview (group) of taskObj
+          const parentObjView = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group) || null; // find parent objectview of taskObjview
+          const grandparentObjView = mv?.objectviews?.find(ov => ov?.id === parentObjView?.group) || null; // find grandparent objectview of taskObjview
+          // find parent objects of taskObj
+          const taskObj = motherobjects.find(o => o.id === taskObjView?.objectRef) || null;
+          const parentObj = motherobjects.find(o => o.id === parentObjView?.objectRef) || null; // find parent object of taskObjview
+          const grandParentObj = motherobjects.find(o => o.id === grandparentObjView?.objectRef) || null; // find grandparent object of taskObjview
           
-          const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
+          // if (prevParentTask === null) setPrevParentTask(parentObj);
+          if (!debug) console.log("151 taskobj", seltasks, parentObj, grandParentObj, prevParentTask, taskObjView, index);
+          console.log('248 Tasks', taskObj, parentObj, grandParentObj, prevParentTask);
 
-          if (debug) console.log('140 taskEntries', taskEntries)
-          
-          const taskEntriesDiv = (
+          return (  
             <>
-              <details>
-                <summary>Task Properties:</summary>
-                <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
-              </details>
-            </>
-          )
-        
-        if (debug) console.log('147 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
+              {(grandParentObj) &&  // write the grandParentObj with description and buttons
+                <details className="mx-0 px-0">
+                  <summary className="text-success d-flex align-items-center">
+                    <span className=""> name -- {grandParentObj?.name}</span>
+                    {(grandParentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details Arrow" width="12" height="16" />}
+                  </summary>
+                  <ReactMarkdown className="bg-light py-0 px-2" >{grandParentObj.description}</ReactMarkdown>
+                </details>
+              }
+              {taskObj && parentTask && parentTask !== prevParentTask && setPrevParentTask(parentTask) ? ( // write the parentTask with description and buttons if it is not the same as previous parentTask
+                <details>
+                  <summary className="text-success d-flex align-items-center">
+                    <span className="ms-2"> - {parentObj?.name}</span>
+                    {(parentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
+                  </summary> 
+                  <ReactMarkdown className="bg-light px-2" >{parentObj.description}</ReactMarkdown>
+                </details>
+              ) : null}       
 
-        return (
-          <>
-            {(parentTask && index === 0) &&
-              <details>
-                <summary className="text-success d-flex align-items-center">
-                  <span className="ms-2"> - {parentTask?.name}</span>
-                  {(parentTask?.description !== "") && <img className="bg-secondary ms-auto me-2" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
-                </summary> 
-                <ReactMarkdown className="bg-light px-2" >{parentTask.description}</ReactMarkdown>
-              </details>
-            }
-            {(taskObj.id !== parentTask?.id) &&
-            <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
-              {/* <hr className="m-0" /> */}       
-              <details className="m-y p-0 pe-1 border">
-                <summary className="text-success d-flex align-items-center" onClick={toggleOpen}>
-                  <img className="ms-2"  src='/images/Task.png' alt="Details Arrow" title="Details Arrow" width="12" height="16" />
-                  <span className="ms-2">{taskObj?.name}</span>
-                  <span className="d-flex my-0 ms-auto me-0 align-items-center">
-                    <button
-                      className="btn btn-sm bg-light text-success mx-0 px-1 " 
-                      onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
-                      style={{
-                        border: "1px solid #ccc",
-                        borderRadius: "5px",
-                        backgroundColor: "#fff",
-                        scale: "0.7",
-                      }}
-                      >
-                      Set Focus
-                    </button>
-                    <img className="bg-secondary" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />
-                    </span>
-                </summary>
-                {/* <div className="bg-light ms-0 me-0 mt-1 px-2"> */}
-                  {/* {taskObj?.description}</div>  */}
-                  <div className="selected-task bg-transparent border border-light p-1">
-                  {/* <div className="bg-light">
-                    {taskEntriesDiv}
-                  </div> */}
-                  <div className="bg-light">
-                    {/* <details><summary>Description:</summary> */}
-                      <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
-                    {/* </details> */}
-                  </div>
-                </div>         
-              </details>
-            </li>
-            }
-          </>
-        )}
-      )}
+              {(taskObj?.id !== parentTask?.id) && // write the taskObj with description and buttons
+                <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
+                  {/* <hr className="m-0" /> */}       
+                  <details className="m-y p-0 pe-1 border">
+                    <summary className="text-success d-flex align-items-center" onClick={toggleOpen}>
+                      <img className="ms-2"  src='/images/Task.png' alt="Details Arrow" title="Details Arrow" width="12" height="16" />
+                      <span className="ms-2">{taskObj?.name}</span>
+                      <span className="d-flex my-0 ms-auto me-0 align-items-center">
+                        <button
+                          className="btn btn-sm bg-light text-success mx-0 px-1 " 
+                          onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
+                          style={{
+                            border: "1px solid #ccc",
+                            borderRadius: "5px",
+                            backgroundColor: "#fff",
+                            scale: "0.7",
+                          }}
+                          >
+                          Set Focus
+                        </button>
+                        <img className="bg-secondary" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />
+                        </span>
+                    </summary>
+                    {/* <div className="bg-light ms-0 me-0 mt-1 px-2"> */}
+                      {/* {taskObj?.description}</div>  */}
+                      <div className="selected-task bg-transparent border border-light p-1">
+                        {/* <div className="bg-light">
+                          {taskEntriesDiv}
+                        </div> */}
+                        <div className="bg-light">
+                          {/* <details><summary>Description:</summary> */}
+                            <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
+                          {/* </details> */}
+                        </div>
+                      </div>         
+                  </details>
+                </li>
+              }
+            </>
+          );
+        })}
       </ul>
     </>
-    ) : (
+  ) : (
     <div>No generated task for this model</div>
-    );
+  );
 
   const tasksDiv = mothermodelviews?.map((mv) => {
-    // const objectviews2 = mothermodelviews?.flatMap(mv => mv.objectviews);
-    const objectviews2 = mv?.objectviews;
-    //   uniqueovs = objectviews2?.filter((ov, index, self) =>
-    //   index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
-    // );
-    console.log('202 Tasks',  uniqueovs, objectviews2, mv);
+
+    const motherobjviews = mv?.objectviews;
+
     // const seltaskObjviews = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
-    const seltaskObjs = motherobjects?.filter(o => objectviews2.find(ov => o.id === ov.objectRef));
-    const seltasks = seltaskObjs?.filter(o => o.typeName === 'Task');
+    const seltaskObjs = motherobjects?.filter(o => motherobjviews.find(ov => o.id === ov.objectRef));
+    const seltasks = motherobjviews?.filter(ov => ov.objectRef === seltaskObjs.find(o => o.typeName === 'Task')); // find all objectviews of type Task
     if (debug) console.log('203 Tasks', seltasks, seltaskObjs);
   
     if (seltasks.length > 0) {
 
-      // find parent objectview (group) of taskObj
-      const taskObjView = mv?.objectviews?.find(ov => ov?.objectRef === seltasks[0].id);
-      const parent = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group) || null;
-      const parentObj = motherobjects.find(o => o.id === parent?.objectRef) || null;
-      const grandParent = mv?.objectviews?.find(ov => ov?.id === parent?.group) || null;
-      const grandParentObj = motherobjects.find(o => o.id === grandParent?.objectRef) || null;
-      console.log('248 Tasks', parent, parentObj, grandParentObj);
-
       return (
         <>
           <hr className="my-0"/>
-          <details className="my-1 mx-0"><summary className="bg-transparent">{mv.name}</summary>        
-          {(grandParentObj) && 
-            <details className="mx-0 px-0">
-              <summary className="text-success d-flex align-items-center">
-                <span className=""> -- {grandParentObj?.name}</span>
-                {(grandParentObj?.description !== "") && <img className="bg-secondary ms-auto" src='/images/info.svg' alt="Details Arrow" title="Details Arrow" width="12" height="16" />}
-              </summary>
-              <ReactMarkdown className="bg-light py-0 px-2" >{grandParentObj.description}</ReactMarkdown>
-            </details>
-          }
-          <ul>
-            {mvtasks(seltasks, parentObj)}
-          </ul>
+          <details className="my-1 mx-0"><summary className="bg-transparent">{mv.description} ({mv.name})</summary>        
+            <ul>
+              {mvtasks(seltasks, mv)}
+            </ul>
           </details> 
         </>
       );
@@ -276,9 +256,6 @@ function Tasks(props) {
       }
     }
   );
-
-
-
 
   const basicTask1 = `
     - From the Palette on left side, drag the object type
@@ -503,3 +480,29 @@ function type(metamodels, model, motherobjects, curov) {
 }
 
 export default Tasks;
+
+
+
+
+ 
+// const taskEntriesArr = Object.entries(taskObj || {})  // task properties 
+// .filter(([key]) => !['id', 'description'].includes(key))
+// .map(([key, value]) => `- **${key}:** ${value}\n`);
+
+// taskEntries = taskEntriesArr.join('');
+// const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+
+// const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
+
+// if (debug) console.log('140 taskEntries', taskEntries)
+
+// const taskEntriesDiv = (
+//   <>
+//     <details>
+//       <summary>Task Properties:</summary>
+//       <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
+//     </details>
+//   </>
+// )
+
+// if (debug) console.log('147 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)

@@ -404,7 +404,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
           else { // Relationship
-            if (debug) console.log('382 data', data);
             let relview = data.relshipview;
             if (relview) {
               if (text === 'Edit name') {
@@ -419,10 +418,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const draftProp = constants.props.DRAFT;
                 rel.setStringValue2(draftProp, text);
                 const relviews = rel.relshipviews;
-                if (debug) console.log('394 rel, relviews', rel, relviews);
                 for (let i = 0; i < relviews.length; i++) {
                   const relview = relviews[i];
                   relview.name = text;
+                  if (text === 'Is') {
+                    rel.relshipkind = 'Generalization';
+                    relview.toArrow = 'Triangle';
+                    data.toArrow = 'Triangle';
+                    // This doesn't work:
+                    let link = myDiagram.findLinkForKey(data.key);
+                    myDiagram.model.setDataProperty(link.data, 'toArrow', data.toArrow);
+                  }
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   modifiedRelshipViews.push(jsnRelview);
                   const jsnRel = new jsn.jsnRelationship(rel);

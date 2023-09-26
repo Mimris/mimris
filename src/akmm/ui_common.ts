@@ -1188,6 +1188,11 @@ export function createRelationship(data: any, context: any) {
             }
         }
         myMetamodel = metamodel;
+        const relshiptypes = metamodel.relshiptypes;
+        for (let i=0; i<relshiptypes.length; i++) {
+            const rtype = relshiptypes[i];
+            myMetis.fixObjectTypeRefs(rtype);
+        }
         if (fromType && toType) {
             const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
             let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;

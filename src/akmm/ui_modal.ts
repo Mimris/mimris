@@ -393,9 +393,7 @@ export function handleSelectDropdownChange(selected, context) {
       break;
     }
     case "Change Relationship type": { 
-      if (debug) console.log('392 selection', myDiagram.selection);
       const typename = (selectedOption) && selectedOption;
-      if (debug) console.log('394 typename', typename);
       myDiagram.selection.each(function(sel) {
         const link = sel.data;
         if (link.category === constants.gojs.C_RELATIONSHIP) {
@@ -410,7 +408,6 @@ export function handleSelectDropdownChange(selected, context) {
           let toType   = toNode?.objecttype;
           fromType = myMetis.findObjectType(fromType?.id);
           toType   = myMetis.findObjectType(toType?.id);
-          if (debug) console.log('413 fromType, toType', fromType, toType);
           const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
           const relshipkind = reltype?.relshipkind;
           relship.setRelshipKind(relshipkind);
@@ -420,9 +417,7 @@ export function handleSelectDropdownChange(selected, context) {
               relship.cardinalityFrom = reltype.cardinalityFrom;
               relship.cardinalityTo = reltype.cardinalityTo;
           }
-          if (debug) console.log('423 reltype', reltype, fromType, toType);
           const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-          if (debug) console.log('400 relview', relview);
           uid.resetToTypeview(link, myMetis, myDiagram);
           myMetis.myDiagram.requestUpdate();        
         }
@@ -534,7 +529,7 @@ export function handleSelectDropdownChange(selected, context) {
         }
       }
       if (reltype) {
-        const reltypeview = reltype.typeview;
+        let reltypeview = reltype.typeview;
         if (reltypeview) {
           const modifiedLinkTypeViews = new Array();
           const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
@@ -810,6 +805,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       let relview = link.data.relshipview;
       relview = myMetis.findRelationshipView(relview.id);
+      if (relship.name === 'Is') {
+        // relview['fromArrow'] = 'None';
+        // relview['toArrow'] = 'Triangle';
+        relship.relshipkind = 'Generalization';
+      }
       if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
@@ -1147,6 +1147,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           uit.addPort(port, myDiagram)
           myDiagram.requestUpdate();
         }
+      }
+      else if (modalContext.case === 'Change Relationship type') {
+        const selectedValue = modalContext.selected?.value;
+        const reltype = myMetamodel.findRelationshipTypeByName(selectedValue);
+        let link = myMetis.currentLink;
+        link = myDiagram.findLinkForKey(link.key);
+        link.relshiptype = reltype;
+        link.name = reltype.name;
+        myDiagram.model.setDataProperty(link.data, 'name', link.name);
       }
       break;
     }

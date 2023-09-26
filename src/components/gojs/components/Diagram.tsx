@@ -423,9 +423,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myMetis.myDiagram = myDiagram;
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";
+    const myModelview = myMetis.currentModelview;
+    myModelview.diagram = myDiagram;
 
-    if (myMetis.currentModelview?.name === constants.admin.AKM_ADMIN_MODELVIEW) {
-      setLayout(myDiagram, myMetis.currentModelview?.layout);
+    if (myModelview?.name === constants.admin.AKM_ADMIN_MODELVIEW) {
+      setLayout(myDiagram, myModelview?.layout);
     }
 
     // Tooltip functions
@@ -1543,9 +1545,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
               const myMetamodel = myMetis.currentMetamodel;
-              let fromType = link.fromNode.objecttype as akm.cxObjectType;
+              let fromType = link.relship.fromObject.type as akm.cxObjectType;
               fromType = myMetamodel.findObjectType(fromType.id);
-              let toType = link.toNode.objecttype as akm.cxObjectType;
+              let toType = link.relship.toObject.type as akm.cxObjectType;
               toType = myMetamodel.findObjectType(toType.id);
               const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               link.choices = [];

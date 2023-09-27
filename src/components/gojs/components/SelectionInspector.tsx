@@ -195,7 +195,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
             if (debug) console.log('185 typename, chosenType, chosenInst, inheritedTypes', typename, chosenType, chosenInst, inheritedTypes);
             if (debug) console.log('186 chosenType, namelist, inheritedTypes', chosenType, namelist, inheritedTypes);
-            if (namelist.length > 1 && typename !== 'Element' && typename !== 'All') {
+            if (namelist.length > 1 && 
+                            typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
               for (let i=0; i<inheritedTypes.length; i++) {
                 const tname = inheritedTypes[i]?.name;
                 if (tname === typename) {

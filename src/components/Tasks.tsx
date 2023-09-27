@@ -232,21 +232,21 @@ function Tasks(props) {
 
   const tasksDiv = mothermodelviews?.map((mv) => {
 
-    const motherobjviews = mv?.objectviews;
+    const motherobjviews = mv?.objectviews; // all objectviews of this modelview
 
     // const seltaskObjviews = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
-    const seltaskObjs = motherobjects?.filter(o => motherobjviews.find(ov => o.id === ov.objectRef));
-    const seltasks = motherobjviews?.filter(ov => ov.objectRef === seltaskObjs.find(o => o.typeName === 'Task')); // find all objectviews of type Task
-    if (debug) console.log('203 Tasks', seltasks, seltaskObjs);
+    const objs = motherobjects?.filter(o => motherobjviews.find(ov => o.id === ov.objectRef)); // objects of this modelview
+    const taskobjs = motherobjviews?.filter(ov => ov.objectRef === objs.find(o => o.typeName === 'Task')); // find all objects of type Task in this modelview
+    if (!debug) console.log('203 Tasks', mv, objs, taskobjs);
   
-    if (seltasks.length > 0) {
+    if (taskobjs.length > 0) {
 
       return (
         <>
           <hr className="my-0"/>
           <details className="my-1 mx-0"><summary className="bg-transparent">{mv.description} ({mv.name})</summary>        
             <ul>
-              {mvtasks(seltasks, mv)}
+              {mvtasks(taskobjs, mv)}
             </ul>
           </details> 
         </>

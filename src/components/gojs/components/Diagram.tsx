@@ -3612,7 +3612,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
           style={this.props.diagramStyle}
-        // exportToSvg={this.props.exportToSvg}
+          // exportToSvg={this.props.exportToSvg}
         />
         {/* <button onClick={exportToSvg}>Export to SVG</button> */}
 

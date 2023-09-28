@@ -40,18 +40,18 @@ function Tasks(props) {
   const containerRef = useRef(null);
   const modalRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const modal = modalRef.current;
-      if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
-        setMinimized(true);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     const modal = modalRef.current;
+  //     if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
+  //       setMinimized(true);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   const handleShowModal = () => {
     if (minimized) {
@@ -144,44 +144,54 @@ function Tasks(props) {
   let curParentObj: any = null;
 
   
-  const mvtasks = (seltasks, mv) =>  (seltasks?.length > 0) ? ( //seltasks = all objectviews of type Task
+  const mvtasks = (taskovs, mv) =>  (taskovs?.length > 0) ? ( //taskovs = objectviews of type Task
     <>
       <ul>
       {
-        seltasks.map((taskObjView, index) => {
+        taskovs.map((taskov, index) => {
           
           // find parent objectview (group) of taskObj
-          const parentObjView = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group) || null; // find parent objectview of taskObjview
-          const grandparentObjView = mv?.objectviews?.find(ov => ov?.id === parentObjView?.group) || null; // find grandparent objectview of taskObjview
+          const parentObjView = mv?.objectviews?.find(ov => ov?.id === taskov?.group) || null; // find parent objectview of taskov
+          const grandparentObjView = mv?.objectviews?.find(ov => ov?.id === parentObjView?.group) || null; // find grandparent objectview of taskov
+          const greatGrandParentObjView = mv?.objectviews?.find(ov => ov?.id === grandparentObjView?.group) || null; // find grandparent objectview of taskov
           // find parent objects of taskObj
-          const taskObj = motherobjects.find(o => o.id === taskObjView?.objectRef) || null;
-          const parentObj = motherobjects.find(o => o.id === parentObjView?.objectRef) || null; // find parent object of taskObjview
-          const grandParentObj = motherobjects.find(o => o.id === grandparentObjView?.objectRef) || null; // find grandparent object of taskObjview
+          const taskObj = motherobjects.find(o => o.id === taskov?.objectRef) || null;
+          const parentObj = motherobjects.find(o => o.id === parentObjView?.objectRef) || null; // find parent object of taskov
+          const grandParentObj = motherobjects.find(o => o.id === grandparentObjView?.objectRef) || null; // find grandparent object of taskov
+          const greatGrandParentObj = motherobjects.find(o => o.id === greatGrandParentObjView?.objectRef) || null; // find grandparent object of taskov
           
           // if (prevParentTask === null) setPrevParentTask(parentObj);
-          if (!debug) console.log("151 taskobj", seltasks, parentObj, grandParentObj, prevParentTask, taskObjView, index);
-          console.log('248 Tasks', taskObj, parentObj, grandParentObj, prevParentTask);
+          if (!debug) console.log("162 taskobj", parentObj, grandParentObj, greatGrandParentObj, prevParentTask, taskObj, index);
 
           return (  
             <>
-              {(grandParentObj) &&  // write the grandParentObj with description and buttons
-                <details className="mx-0 px-0">
-                  <summary className="text-success d-flex align-items-center">
-                    <span className=""> name -- {grandParentObj?.name}</span>
-                    {(grandParentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details Arrow" width="12" height="16" />}
-                  </summary>
-                  <ReactMarkdown className="bg-light py-0 px-2" >{grandParentObj.description}</ReactMarkdown>
-                </details>
-              }
-              {taskObj && parentTask && parentTask !== prevParentTask && setPrevParentTask(parentTask) ? ( // write the parentTask with description and buttons if it is not the same as previous parentTask
+              {grandParentObj ? ( //&& parentTask !== prevParentTask && setPrevParentTask(parentTask) ? ( // write the parentTask with description and buttons if it is not the same as previous parentTask
                 <details>
                   <summary className="text-success d-flex align-items-center">
-                    <span className="ms-2"> - {parentObj?.name}</span>
-                    {(parentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
+                    <span className="ms-2"> - {greatGrandParentObj?.name}</span>
+                    {(greatGrandParentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
                   </summary> 
-                  <ReactMarkdown className="bg-light px-2" >{parentObj.description}</ReactMarkdown>
+                  <ReactMarkdown className="bg-light px-2" >{greatGrandParentObj?.description}</ReactMarkdown>
                 </details>
-              ) : null}       
+              ) : null}
+              {/* {taskObj && parentTask && parentTask !== prevParentTask && setPrevParentTask(parentTask) ? ( // write the parentTask with description and buttons if it is not the same as previous parentTask */}
+                
+                <details>
+                  <summary className="text-success d-flex align-items-center">
+                    <span className="ms-2"> - {grandParentObj?.name}</span>
+                    {(grandParentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
+                  </summary> 
+                  <ReactMarkdown className="bg-light px-2" >{grandParentObj?.description}</ReactMarkdown>
+                </details>
+                {parentObj ? (
+                  <details>
+                    <summary className="text-success d-flex align-items-center">
+                      <span className="ms-2"> - {parentObj?.name}</span>
+                      {(parentObj?.description !== "") && <img className="bg-secondary ms-auto me-1" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
+                    </summary> 
+                    <ReactMarkdown className="bg-light px-2" >{parentObj?.description}</ReactMarkdown>
+                  </details>     
+                ) : null}
 
               {(taskObj?.id !== parentTask?.id) && // write the taskObj with description and buttons
                 <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
@@ -192,16 +202,15 @@ function Tasks(props) {
                       <span className="ms-2">{taskObj?.name}</span>
                       <span className="d-flex my-0 ms-auto me-0 align-items-center">
                         <button
-                          className="btn btn-sm bg-light text-success mx-0 px-1 " 
+                          className="btn btn-sm bg-light text-success mx-0 px-1 fs-6  " 
                           onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
                           style={{
                             border: "1px solid #ccc",
                             borderRadius: "5px",
                             backgroundColor: "#fff",
-                            scale: "0.7",
+                            scale: "0.9",
                           }}
-                          >
-                          Set Focus
+                          >*
                         </button>
                         <img className="bg-secondary" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />
                         </span>
@@ -233,20 +242,21 @@ function Tasks(props) {
   const tasksDiv = mothermodelviews?.map((mv) => {
 
     const motherobjviews = mv?.objectviews; // all objectviews of this modelview
-
-    // const seltaskObjviews = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
+    if (debug) console.log('237 Tasks', mv, motherobjviews);
+    
+    // const seltaskovs = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
     const objs = motherobjects?.filter(o => motherobjviews.find(ov => o.id === ov.objectRef)); // objects of this modelview
-    const taskobjs = motherobjviews?.filter(ov => ov.objectRef === objs.find(o => o.typeName === 'Task')); // find all objects of type Task in this modelview
-    if (!debug) console.log('203 Tasks', mv, objs, taskobjs);
+    const taskobjvs = motherobjviews?.map(ov => ov.objectRef === objs.find(o => o.typeName === 'Task')?.id && ov).filter(ov => ov); // objectviews of type Task of this modelview
+    if (!debug) console.log('245 Tasks',mv.name, objs, taskobjvs);
   
-    if (taskobjs.length > 0) {
+    if (taskobjvs.length > 0) {
 
       return (
         <>
           <hr className="my-0"/>
-          <details className="my-1 mx-0"><summary className="bg-transparent">{mv.description} ({mv.name})</summary>        
+          <details className="my-1 mx-0"><summary className="bg-transparent">{mv.name}</summary>         
             <ul>
-              {mvtasks(taskobjs, mv)}
+              {mvtasks(taskobjvs, mv)}
             </ul>
           </details> 
         </>
@@ -320,7 +330,7 @@ function Tasks(props) {
           </div>
           <hr className="m-0" />
         </div>
-        {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /> */}
+        {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={taskovs} selName='Tasks' focustype='focusTask' /> */}
         <div className="task">
           <details>
             <summary className="bg-light px-1"> Default Modelling Tasks: </summary>

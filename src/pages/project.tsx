@@ -147,24 +147,24 @@ const page = (props: any) => {
   }, [props.phFocus?.focusRefresh?.id])
 
 
-  useEffect(() => {
-    async function fetchData() { // fetch issues
-      if (query.repo?.length > 0) {
-        try {
-        const { data } = await axios.get(issueUrl);
-        setIssues(data);
-        console.log('55 issues', data)
-        } catch (err) {
-          setError(err);
-        }
-      }
-    }
-    fetchData(); // call the function 
-    if (error) {
-      alert(error.response.data.message) // alert the error message
-    }
-  // }, [query.repo]);
-  }, [query.repo !== '' && query.repo !== undefined]);
+  // useEffect(() => {
+  //   async function fetchData() { // fetch issues
+  //     if (query.repo?.length > 0) {
+  //       try {
+  //       const { data } = await axios.get(issueUrl);
+  //       setIssues(data);
+  //       console.log('55 issues', data)
+  //       } catch (err) {
+  //         setError(err);
+  //       }
+  //     }
+  //   }
+  //   fetchData(); // call the function 
+  //   if (error) {
+  //     alert(error.response.data.message) // alert the error message
+  //   }
+  // // }, [query.repo]);
+  // }, [query.repo !== '' && query.repo !== undefined]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}&projectNumber=${projectNumber}&focus=${focus}&ghtype=${ghtype}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json

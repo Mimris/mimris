@@ -27,8 +27,7 @@ const LoadLocal = (props: any) => {
 
   const [locState, setLocState] = useLocalStorage('state', null);
 
-  const [memoryState] = useLocalStorage('memorystate', null);*
-  *@
+  const [memoryState] = useLocalStorage('memorystate', null);
   
   // let locStatus = false
   // let memoryStatus = false

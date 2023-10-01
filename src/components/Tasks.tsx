@@ -279,6 +279,7 @@ function Tasks(props) {
   const renderItems = (mv, notLabelOvs, obvs, parentType) => {
 
     const items2 = obvs?.map((ov) => {
+
       const childrenvs = findChildrenvs(notLabelOvs, ov);
       
       if (debug) console.log('354 renderItems', ov, obvs, childrenvs)
@@ -324,15 +325,21 @@ function Tasks(props) {
       if (debug) console.log('375 noparents', noparentovs, labelos, topGroupOvs);
       if (debug) console.log('376 renderItems', mv, mv?.objectviews, topGroupOvs);
 
+
       const topGroupOvsDiv = topGroupOvs?.map((ov: any) => { // we start with the top containers of this modelview
-      const curChildrenvs = findChildrenvs(notLabelOvs, ov);
-      if (debug) console.log('379 curChildrenvs', notLabelOvs, ov, curChildrenvs);
-      const parentType = 'Container'
-        return (
-          <div>
-            {renderItems(mv, notLabelOvs, curChildrenvs, parentType)}  {/*  render all children of this ov */}
-          </div>
-        )
+        const oType = motherobjects.find((o) => o.id === ov.objectRef)?.typeName;
+        if (oType === 'Task' || oType === 'Container') {
+          const curChildrenvs = findChildrenvs(notLabelOvs, ov);
+          if (debug) console.log('379 curChildrenvs', notLabelOvs, ov, curChildrenvs);
+          const parentType = 'Container'
+          return (
+            <div>
+              <div className="my-1 mx-0">- {ov.name}</div> 
+                {renderItems(mv, notLabelOvs, curChildrenvs, parentType)} {/*  render all children of this ov */}
+  
+            </div>
+          )
+        }
       })
 
 
@@ -340,7 +347,7 @@ function Tasks(props) {
         <>
           <hr className="my-0"/>
           <details className="my-1 mx-0"><summary className="bg-light">{mv.name}</summary>  {/* To level is the modelview */}
-            {topGroupOvsDiv}  {/* Render the top containers of this modelview */}
+            {topGroupOvsDiv} {/* Render the top containers of this modelview */}
           </details> 
         </>
       );

@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch} from 'react-redux';
 import Selector from './utils/Selector';

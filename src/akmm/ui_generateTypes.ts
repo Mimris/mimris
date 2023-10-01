@@ -1315,7 +1315,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 const  typenames = []; 
                 if (obj.name === obj.type.name)
                     typenames.push(obj.type.name);
-                if (obj.type.name !== metaObject)
                     typenames.push(metaObject);
                 for (let i=0; i<typenames.length; i++) {
                     const type = myMetamodel.findObjectTypeByName(typenames[i]);

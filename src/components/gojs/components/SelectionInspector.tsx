@@ -58,12 +58,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis as akm.cxMetis;
     const activeTab = this.props.activeTab;
-    if (debug) console.log('60 activeTab, myMetis', activeTab, myMetis);
-    if (debug) console.log('61 this.props', this.props);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
-    if (debug) console.log('64 allowsMetamodeling', myModel, allowsMetamodeling);
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
@@ -75,7 +72,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
     let typename = "";
     let typedescription = "";
-    if (debug) console.log('75 selObj', selObj);
     switch(category) {
       case constants.gojs.C_OBJECT:
         inst = selObj.object;
@@ -117,7 +113,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         reltypeview = type?.typeview;
         reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
         typeview = reltypeview;
-        if (debug) console.log('119 inst, instview, type, reltypeview', inst, instview, type, reltypeview);
         break;
       case constants.gojs.C_RELSHIPTYPE:
         type = selObj.reltype;
@@ -128,15 +123,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         typeview = reltypeview;
         break;       
     }
-    if (debug) console.log('123 inst, type, typeview', inst, type, typeview);
-    if (debug) console.log('121 selObj, this.props, inst, type', selObj, this.props, inst, type);
     // Set chosenType
     let includeInherited = false;
     let includeConnected = false;
     let tabIndex = 0;
     {
       if (category === constants.gojs.C_OBJECT) {
-        if (debug) console.log('128 type', type);
         if (type?.name === 'Method') {
           chosenType = null;
         } else {
@@ -145,19 +137,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           chosenInst = inst;
           typename = currentType.name;
           typedescription = currentType.description;
-          if (debug) console.log('138 inst', inst);
           if (useTabs && modalContext?.what === 'editObject') {
             let inheritedTypes = inst?.getInheritedTypes();
             inheritedTypes.push(currentType);
             inheritedTypes = [...new Set(inheritedTypes)];
-            if (debug) console.log('143 inheritedTypes', inheritedTypes);
             if (inst?.hasInheritedProperties(myModel)) 
               includeInherited = true;
             const connectedObjects = inst?.getConnectedObjects2(myMetis);
-            if (debug) console.log('147 connectedObjects', connectedObjects);
             if (connectedObjects?.length>0) 
               includeConnected = true;
-            if (debug) console.log('150 includeInherited', includeInherited);
             const context = {
               myMetis: myMetis,
               myModel: myModel,
@@ -166,7 +154,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               includeInherited: includeInherited,
             }
             let namelist = uic.getNameList(inst, context, true); 
-            if (debug) console.log('159 context, inst, namelist', context, inst, namelist);
             if (context.includeInherited) {
               typename = namelist[activeTab];
               const objs = inst.getInheritanceObjects(myModel);
@@ -193,21 +180,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             }
-            if (debug) console.log('185 typename, chosenType, chosenInst, inheritedTypes', typename, chosenType, chosenInst, inheritedTypes);
-            if (debug) console.log('186 chosenType, namelist, inheritedTypes', chosenType, namelist, inheritedTypes);
             if (namelist.length > 1 && 
-                            typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
+                typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
               for (let i=0; i<inheritedTypes.length; i++) {
                 const tname = inheritedTypes[i]?.name;
                 if (tname === typename) {
                   type = inheritedTypes[i];
                   chosenType = type;
-                  if (debug) console.log('193 tname, chosenType', tname, chosenType);
                 }
               }
             } 
-            if (debug) console.log('197 typename, chosenType, chosenInst', typename, chosenType, chosenInst);
-            if (debug) console.log('198 typename, chosenType', typename, chosenType);
             if (typename === 'All') {
               chosenType = null;
             }  
@@ -215,30 +197,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               chosenType = null;
             }
           }
-          if (debug) console.log('206 myModel', myModel);
         }
-        if (debug) console.log('208 inst, inst1, selObj, chosenType', inst, inst1, selObj, chosenType);
-        if (debug) console.log('209 instview, typeview', instview, typeview);
       }
     }
     if (typeof(type) !== 'object')
       return;
-    if (debug) console.log('214 myMetis', myMetis);
 
     // Get properties, and handle empty property values
     {
       if (category === constants.gojs.C_OBJECT) {
-        if (debug) console.log('219 chosenType', chosenType);
         if (chosenType) {
           properties = chosenType.getProperties(false);
-          if (debug) console.log('221 typename, chosenType, properties, chosenInst', typename, chosenType, properties, chosenInst);
           // pointerProps = chosenType.getPointerProperties(false);
         } 
         else if (type?.name === 'Method') {
           inst = myMetis.findObject(inst.id);
           properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
           chosenInst = inst;
-          if (debug) console.log('228 chosenInst, properties', chosenInst, properties);
         } else {
           let includeInherited = true;
           let includeConnected = false;
@@ -250,9 +225,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             properties = typeProps.concat(inheritedProps);
           else
             properties = typeProps;
-          if (debug) console.log('240 typename, typeProps, inheritedProps', typename, typeProps, inheritedProps);
         }
-        if (debug) console.log('242 typename, chosenInst, chosenType, properties', typename, chosenInst, chosenType, properties);
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {
         let flag = false;
@@ -263,7 +236,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       else if (category === constants.gojs.C_RELSHIPTYPE) {
 
       }
-      if (debug) console.log('252 type, properties', type, properties);
 
       // Handle property values that are undefined
       for (let i=0; i<properties?.length; i++) {
@@ -272,11 +244,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
         if (chosenInst) { 
           const v = chosenInst[prop.name];
-          if (debug) console.log('261 prop.name, chosenInst', prop.name, chosenInst);
           if (!v) chosenInst[prop.name] = "";  // Sets empty string if undefined
         }
       }
-      if (debug) console.log('265 properties, chosenInst, selObj', properties, chosenInst, selObj);
     }
 
     const dets = [];
@@ -287,7 +257,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let isLabel = false;
     let test = null;
     const what = modalContext?.what;
-    if (debug) console.log('273 what', what);
     // For each 'what' set correct item 
     switch (what) {
       case "editObjectType":
@@ -331,7 +300,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (!item) item = inst;
         hideNameAndDescr = true;
-        if (debug) console.log('308 inst, item', inst, item);
         if (what === "editObjectview") {
           if (type.name !== constants.types.AKM_PORT) 
             useFillColor = true;
@@ -343,9 +311,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
         break;
     }
-    if (debug) console.log('327 instview, objtypeview, reltypeview', instview, objtypeview, reltypeview);
-    if (debug) console.log('328 myMetis', myMetis);
-    if (debug) console.log('329 item, inst, selObj, chosenInst, type', item, inst, selObj, chosenInst, type);
 
     if (false) {
     // // Check if item has pointer properties
@@ -364,11 +329,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     //     }
     //   }
     // }
-    // if (debug) console.log('278 pvalues', pvalues);
     }
-    if (debug) console.log('346 item', item);
     for (let k in test) {
-        if (debug) console.log('348 k in item/chosenInst', k);
       // Filter some system attributes
       {
         if (k === 'abstract') {
@@ -391,9 +353,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               case 'undefined':
                 continue;
             }   
-            if (debug) console.log('362 k in item', k, item.name);
           } 
-          if (debug) console.log('374 k in item', k, item.name);  
         }
         if (k === 'viewkind') {
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editObjectType')
@@ -420,11 +380,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
         }
       }
-      if (debug) console.log('397 k, chosenType', k, chosenType);
       if (chosenType) {
         // Filter attributes to show in a given tab
         {
-          if (debug) console.log('364 properties', properties);
           let found = false;
           for (let n = 0; n<properties.length; n++) {
             const p = properties[n];
@@ -452,12 +410,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (!found) continue;
         }
       }
-      if (debug) console.log('429 k', k);
 
       let row;
       description = "";
       if (k) {
-        if (debug) console.log('434 k', k);
         let fieldType = 'text';
         let viewFormat = "";
         let readonly = false;
@@ -468,10 +424,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let defValue = "";
         let values   = [];
         let val      = item[k]; 
-        if (debug) console.log('445 k', k);
         // Handle attributes not to be included in modal
         {
-          if (debug) console.log('448 k, properties', k, properties);
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editRelshipview') {
             if (k !== 'markedAsDeleted') {
               // Check if k is a member of properties
@@ -486,7 +440,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               if (!found) {
                 // Check if k should NOT be included in the modal
                 if (!uic.isPropIncluded(k, type)) {
-                  if (debug) console.log('452 k', k);
                   continue;
                 }
               }
@@ -501,16 +454,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 continue;
             }
           }
-          if (debug) console.log('466 k', k);
           if (typeof(val) === 'object') continue;        
           if (typeof(val) === 'function') continue;
-          if (debug) console.log('469 k', k);
           if (hideNameAndDescr) {
             if (k === 'name' || k === 'description' || k === 'title') continue; 
           }
-          if (debug) console.log('473 k', k);
         }
-        if (debug) console.log('475 k, item[k], instview: ', k, item[k], instview);
 
         // Get field value (val)
         {
@@ -547,21 +496,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
           }
         
-          if (debug) console.log('512 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
           // Get property values
           if (properties?.length > 0) {
-            if (debug) console.log('515 properties: ', properties);
             for (let i=0; i<properties.length; i++) {
               let p = properties[i];
               let prop = myMetis.findProperty(p.id);
               if (!prop) {
                 prop = new akm.cxProperty(utils.createGuid(), p.name, p.description);
                 myMetis.addProperty(prop);
-                if (debug) console.log('522 prop: ', prop, k);
               }
               properties[i] = prop;
               if (prop  && prop.name === k) {
-                if (debug) console.log('525 prop: ', prop);
                 let dtype = prop.getDatatype();
                 if (!dtype) {
                   const dtypeRef = prop.getDatatypeRef();
@@ -571,12 +516,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
                 if (dtype) {
                   const dtype1 = dtype.getIsOfDatatype();
-                  if (debug) console.log('520 dtype, dtype1: ', dtype, dtype1);
                   if (dtype1) {
                     dtype = dtype1;
                   }
                 }
-                if (debug) console.log('540 prop, dtype: ', prop, dtype);
                 if (dtype) {
                   fieldType   = dtype.fieldType;
                   viewFormat  = dtype.viewFormat
@@ -596,18 +539,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                     const rel = myMetis.findRelationship(inst.id);
                     if (rel) inst = rel;
                   }
-                  if (debug) console.log('541 item, inst, prop', item, inst, prop);
                   try {
                     val = item.getPropertyValue(prop, myMetis);
                   } catch {
                     // Do nothing
                   }
-                  if (debug) console.log('547 item, prop, val', item, prop, val);
                 }
                 // Handle connected objects
                 if (inst.category === constants.gojs.C_OBJECT) {
                   const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-                  if (debug) console.log('570 prop, chosenInst, objs', prop, chosenInst, objs);
                   if (objs?.length > 1)
                     val = '';
                   for (let i=0; i<objs?.length; i++) {
@@ -621,10 +561,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   }
                 }
               }
-              if (debug) console.log('583 prop, fieldType: ', prop, fieldType);
             }
           }
-          if (debug) console.log('586 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
         }
         // Handle color values
         {
@@ -637,26 +575,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (val === "" && what === "editObjectview") {
               val = typeview.fillcolor;
             }
-            if (debug) console.log('507 instview, val', instview, val);
 
             fieldType = 'color';
             if (val?.substr(0,4) === 'rgb(') {
-              if (debug) console.log('511 val', val);
               let color = '#'+val.match(/\d+/g).map(function(x){
                 x = parseInt(x).toString(16);
                 return (x.length==1) ? "0"+x : x;
               }).join("");
-              if (debug) console.log('516 color', color);
               val = color.toUpperCase();
             }
             if ((val) && val[0] !== '#') {
               // Convert colorname to hex
               val = toHex(val); 
             }         
-            if (debug) console.log('523 color', val);
           }
         }
-        if (debug) console.log('618 k, val', k, val, item[k], selObj[k]);
         // Handle datatypes and fieldtypes
         {
           let dtype;
@@ -681,7 +614,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             case 'fieldType':
             case 'viewkind':
               dtype = myMetamodel.findDatatypeByName(k);
-              if (debug) console.log('396 dtype', dtype);
               if (dtype) {
                 fieldType = dtype.fieldType;
                 pattern   = dtype.inputPattern;
@@ -720,7 +652,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'template':
               if (selObj.isGroup) {
-                if(debug) console.log('595 selObj', selObj);
                 if (selObj.viewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
@@ -811,7 +742,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             checked = val;
           }
           if (fieldType === 'radio') {
-            if (debug) console.log('469 values, defValue', values, defValue);
             fieldType = 'select';
             const p1 = "^(";
             const p2 = ")$";
@@ -819,7 +749,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             let cnt = 0;
             for (let i=0; i<values?.length; i++) {
               const value = values[i];
-              if (debug) console.log('477 value', i, value);
               if (p === "") {
                 p = value;
               } else {
@@ -827,12 +756,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
             }
             pattern = p1 + p + p2;
-            if (debug) console.log('485 pattern', pattern);
           }
           if (fieldType === 'select') {
-            if (debug) console.log('488 values, defValue', values, defValue);
             if (val === "")
               val = defValue;
+          }
+          if (fieldType === 'date') {
+            if (val === "" || val === "now") {
+              const d = new Date();
+              let year = d.getFullYear();
+              let month = d.getMonth()+1;
+              if (month < 10) month = '0' + month;
+              let day = d.getDate();
+              if (day < 10) day = '0' + day;
+              val = year + '-' + month + '-' + day; 
+            }
           }
           if (k === 'name') {
             fieldType = 'text';
@@ -847,7 +785,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (includeConnected) {
             if (tabIndex >0) 
               disabled = true;
-            if (debug) console.log('699 tabIndex, disabled', tabIndex, disabled);
           }
           switch(k) {
             case 'id':
@@ -870,9 +807,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               disabled = true;
           }
         }
-        if (debug) console.log('720 selObj, item:', selObj, item);
-        if (debug) console.log('721 k, value, disabled:', k, val, disabled);
-        if (debug && k==='name') console.log('722 k, fieldType', k, fieldType, defValue, values);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -898,13 +832,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('748 SelectionInspector ', dets);
-    if (debug) console.log('749 myMetis', myMetis);
     return dets;
   }
   
   public render() {
-    if (debug) console.log('864 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

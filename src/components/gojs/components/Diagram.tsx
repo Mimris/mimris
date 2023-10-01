@@ -3365,7 +3365,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selpropgroup = [];
       for (let i = 0; i < namelist.length; i++) {
         let name = namelist[i];
-        if (name === 'Element')
+        if (name === constants.types.AKM_ELEMENT)
           continue; // name = 'Default';
         if (i > 0) {
           let role = connectedRoles[i - 1];

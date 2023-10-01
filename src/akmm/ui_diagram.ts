@@ -14,12 +14,12 @@ const $ = go.GraphObject.make;
 
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
     if (modelview) {
-        modelview.focusObjectView = objview;
+        modelview.focusObjectview = objview;
     }
 }
 export function clearFocus(modelview: akm.cxModelView) {
     if (modelview) {
-        modelview.focusObjectView = null;
+        modelview.focusObjectview = null;
     }
 }
 

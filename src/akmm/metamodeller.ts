@@ -5915,17 +5915,6 @@ export class cxRelationshipType extends cxObjectType {
                         return true;
                     }
                 }
-            //     if (this.toObjtype.name !== 'Element' &&
-            //     this.toObjtype.name !== 'EntityType') {
-            //     if (objtype.inherits(this.toObjtype)) {
-            //         return true;
-            //     }
-            //     if (includeGen) {
-            //         if (objtype.inherits(this.toObjtype)) {
-            //             return true;
-            //         }
-            //     }
-            // }
         }
         return false;
     }
@@ -5934,8 +5923,8 @@ export class cxRelationshipType extends cxObjectType {
         let retval = false;
         if (!fromType && !toType)
             return retval;
-        if (this.toObjtype.name !== 'Element' &&
-            this.toObjtype.name !== 'EntityType') {
+        if (this.toObjtype.name !== constants.types.AKM_ELEMENT &&
+            this.toObjtype.name !== constants.types.AKM_ENTITY_TYPE) {
             if (fromType.inherits(this.toObjtype) &&
                 toType.inherits(this.toObjtype)) {
                 retval = true;
@@ -7453,7 +7442,7 @@ export class cxInstance extends cxMetaObject {
         if (debug) console.log('6697 types', types);
         for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
-            if (tname !== 'Element') 
+            if (tname !== constants.types.AKM_ELEMENT) 
                 typelist.push(types[i]);
         }
         if (debug) console.log('6703 typelist', typelist);
@@ -7465,7 +7454,7 @@ export class cxInstance extends cxMetaObject {
         const types = type?.findSupertypes(0);
         for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
-            if (tname !== 'Element') 
+            if (tname !== constants.types.AKM_ELEMENT) 
                 namelist.push(tname);
         }
         return namelist;
@@ -8584,6 +8573,20 @@ export class cxModelView extends cxMetaObject {
     }
     getRelationshipViews(): cxRelationshipView[] | null {
         return this.relshipviews;
+    }
+    getRelationshipViewsByTypeName(reltypeName: string, kind: string): cxRelationship[] | null {
+        let relshipviews = new Array();
+        if (this.relshipviews) {
+            for (let i = 0; i < this.relshipviews.length; i++) {
+                let relview = this.relshipviews[i];
+                let rel = relview.relship;
+                if (relview.name === reltypeName && !rel.markedAsDeleted) {
+                    if (rel.relshipkind === kind)
+                    relshipviews.push(relview);
+                }
+            }
+        }
+        return relshipviews;
     }
     setRelationshipTypeViews(relshiptypeviews: cxRelationshipTypeView[]) {
         this.relshiptypeviews = relshiptypeviews;

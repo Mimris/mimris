@@ -210,6 +210,7 @@ let includeNoType = false;
     if (showRelshipNames == undefined) 
       showRelshipNames = true;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
+    // load object views
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       if (debug) console.log('208 modelview, objviews:', modelview, objviews);
@@ -229,10 +230,11 @@ let includeNoType = false;
           if (!objview.textcolor)
             objview.textcolor = "black";
         }
-        if (false) {
-          if (objview.id === focusObjview?.id) {
+        if (true) {
+          if (objview.id === focusObjview?.id) 
             objview.isSelected = true;
-          }
+          else
+            objview.isSelected = false;
         }
         let objtype;
         objtype = obj?.type;
@@ -308,10 +310,6 @@ let includeNoType = false;
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           node.scale = objview.scale1;
-          // if (objview.isCollapsed || !objview.isCollapsed) {
-          //   objview.isExpanded = !objview.isCollapsed;
-          // }
-          // node.isExpanded = objview.isExpanded;
           if (debug) console.log('285 node', node);
           if (node.template === "")
             node.template = 'textAndIcon';
@@ -329,6 +327,10 @@ let includeNoType = false;
           const node = nodes[i] as gjs.goObjectNode;
           if (!node.object) continue;
           const objview = node.objectview;
+          if (objview.id === focusObjview?.id) {
+            objview.isSelected = true;
+            node.isSelected = true;
+          }
           const obj = node.object;
           const objtype = obj.type;
           if (objtype?.name === 'Label') {

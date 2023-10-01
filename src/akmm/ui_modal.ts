@@ -854,12 +854,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      if (debug) console.log('841 selObj', selObj, myMetis);
       // Do a fix
       const oview = myMetis.findObjectView(selObj.objectview.id);
       if (!oview)
         break;
-      if (debug) console.log('849 oview', oview);
       oview.group = selObj.objectview?.group;
       myMetis.addObjectView(oview);
       // End fix
@@ -1236,27 +1234,23 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "editTypeview": {   
+      // selObj is a node representing an object or an objecttype
       const selObj = selectedData;
-      if (debug) console.log('919 selObj', selObj, myMetis);
-      if (selObj.category === constants.gojs.C_OBJECT || 
-        selObj.category === constants.gojs.C_OBJECTTYPE) {
-        // Do a fix
-        if (selObj.objectview) {
-          const oview = myMetis.findObjectView(selObj.objectview.id);
-          oview.group = selObj.objectview?.group;
-          myMetis.addObjectView(oview);
-        }
-        // End fix
+      // Do a fix
+      if (selObj.typeview) {
+        const tview = myMetis.findObjectTypeView(selObj.typeview.id);
+        if (!tview)
+          break;
+        myMetis.addObjectTypeView(tview);
       }
+      // End fix     
       let data, typeview, objtypeview, reltypeview;
       if (selObj.category === constants.gojs.C_OBJECTTYPE) {
         let node = myMetis.currentNode;
         node = myDiagram.findNodeForKey(node.key);
         data = node.data;
-        if (debug) console.log('933 node, data', node, data);
         objtypeview = data.typeview;
         typeview = myMetis.findObjectTypeView(objtypeview?.id);
-        if (debug) console.log('936 objtypeview, typeview', objtypeview, typeview);
         for (let prop in objtypeview?.data) {
           if (prop === 'id') continue;
           if (prop === 'name') continue;
@@ -1267,9 +1261,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           typeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
-        if (debug) console.log('1051 typeview, objtypeview', typeview, objtypeview);        
         const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
-        if (debug) console.log('1049 jsnObjtypeview', jsnObjtypeview);
         modifiedObjTypeviews.push(jsnObjtypeview);
         modifiedObjTypeviews.map(mn => {
           let data = mn;
@@ -1285,7 +1277,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         // for (let prop in objtypeview?.data) {
         //   objtypeview[prop] = selObj[prop];
         // }
-        if (debug) console.log('956 objtypeview', objtypeview);
         for (let prop in objtypeview?.data) {
           if (prop === 'id') continue;
           if (prop === 'name') continue;
@@ -1296,9 +1287,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           objtypeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
-        if (debug) console.log('1051 objtypeview', objtypeview);        
         const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
-        if (debug) console.log('1049 jsnObjtypeview', jsnObjtypeview);
         modifiedObjTypeviews.push(jsnObjtypeview);
         modifiedObjTypeviews.map(mn => {
           let data = mn;

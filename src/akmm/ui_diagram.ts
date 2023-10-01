@@ -507,7 +507,6 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 }
 
 export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (debug) console.log('415 selection', myDiagram.selection);
     const icon = uit.findImage(node.icon);
     const modalContext = {
       what:       "editObjectview",

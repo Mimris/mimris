@@ -112,14 +112,15 @@ export class cxMetis {
 
         // Handle metamodels
         const metamodels = (importedData) && importedData.metamodels;
-        if (debug) console.log('120 metamodels', metamodels);
+        const len = metamodels.length;
         if (metamodels && metamodels.length) {
-            for (let i = 0; i < metamodels.length; i++) {
+            for (let i = len-1; i >= 0; i--) {
                 const metamodel = metamodels[i];
-                if (metamodel) 
+                if (metamodel && metamodel.id) { 
                     this.importMetamodel(metamodel);
-                // this.addMetamodel(metamodel);
-                if (debug) console.log('121 metamodel', metamodel, this);
+                    this.addMetamodel(metamodel);
+                    if (debug) console.log('121 metamodel', metamodel, this);
+                }
             }
         }
         if (debug) console.log('124 relshiptypes', this.relshiptypes);
@@ -300,10 +301,11 @@ export class cxMetis {
         if (debug) console.log('304 importedData', importedData);
         const metamodels = (importedData) && importedData.metamodels;
         const mmodels = new Array();
+        const len = metamodels.length;
         if (metamodels && metamodels.length) {
-            for (let i = 0; i < metamodels.length; i++) {
+            for (let i = len-1; i >= 0; i--) {
                 const item = metamodels[i];
-                if (item && (includeDeleted || !item.markedAsDeleted)) { 
+                if (item && item.id && (includeDeleted || !item.markedAsDeleted)) { 
                     const metamodel = (item) && new cxMetaModel(item.id, item.name, item.description);
                     metamodel.markedAsDeleted = item?.markedAsDeleted;
                     metamodel.layout = item.layout;

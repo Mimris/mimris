@@ -62,10 +62,10 @@ const LoadGitHub = (props: any) => {
     lastUpdate: new Date().toISOString()
   }
 
-  useEffect(() => {
-    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
-    loadModels(usernameText, pathText)
-  }, [])
+  // useEffect(() => {
+  //   setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
+  //   loadModels(usernameText, pathText)
+  // }, [])
 
   const onUsernameChange = (text) => {
     if (text?.length > 0) {

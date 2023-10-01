@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { Modal, Button } from 'react-bootstrap';
-import { set } from 'immer/dist/internal';
+import { is, set } from 'immer/dist/internal';
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 
@@ -26,39 +26,34 @@ const Project = (props) => {
   const modalRef = useRef(null);
   const projectModalRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const container = containerRef.current;
-      const modal = modalRef.current;
-      const projectModal = projectModalRef.current;
+  // useEffect(() => {
+    //   const handleClickOutside = (event) => {
+    //     const container = containerRef.current;
+    //     const modal = modalRef.current;
+    //     const projectModal = projectModalRef.current;
 
-      console.log('33 modalContent', container, projectModal,
-      (container && container.contains(event.target)) ,
-      (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
-      )
-  
-      // if (!(container && container.contains(event.target)) &&
-      //   !(projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) )) {
-
-      //   console.log('42 modalContent', container, projectModal,
-      //   (container && container.contains(event.target)) ,
-      //   (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
-      //   )
-      //   // setTimeout(() => {
-      //     // setModalOpen(false);
-      //     // setProjectModalOpen(false);
-      //     setMinimized(true)
-      //   // }, 100)
- 
-      // }
-    };
-    
-    document.addEventListener("mousedown", handleClickOutside);
-  
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    //     console.log('35 modalContent', container, projectModal,
+    //     (container && container.contains(event.target)) ,
+    //     (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
+    //     )
+    //     // if (!(container && container.contains(event.target)) &&
+    //     //   !(projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) )) {
+    //     //   console.log('42 modalContent', container, projectModal,
+    //     //   (container && container.contains(event.target)) ,
+    //     //   (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
+    //     //   )
+    //     //   // setTimeout(() => {
+    //     //     // setModalOpen(false);
+    //     //     // setProjectModalOpen(false);
+    //     //     setMinimized(true)
+    //     //   // }, 100)
+    //     // }
+    //   };
+    //   document.addEventListener("mousedown", handleClickOutside);
+    //   return () => {
+    //     document.removeEventListener("mousedown", handleClickOutside);
+    //   };
+  // }, []);
 
   const handleMinimize = () => {
       setMinimized(true);
@@ -91,24 +86,24 @@ const Project = (props) => {
   // list issues form github
   const fetchIssues = async () => {
     try {
+      if (!debug) console.log('89 issues fetch', issueUrl)
       const res = await fetch(issueUrl);
       const data = await res.json();
-      if (debug) console.log('54 issues', data)
+      if (!debug) console.log('54 issues', res, data)
       if (data.length === 0 ) { // if there is an error
         console.error('Error fetching issues:', data.message);
-        setIssues( [{ number: 'Error', title: 'Error fetching issues:'}]);
+        setIssues( []);
+      } else {
+        setIssues( data);
       }
       if (debug) console.log('58 issues', data)
-      setIssues(data);
     } catch (error) {
       console.error('Error fetching issues:', error);
     }
-    if (debug) console.log('59 issues', issues)
+    if (!debug) console.log('59 issues', issues)
   };
 
-  useEffect(() => {
-      fetchIssues();
-  }, []);
+
 
   const handleSubmit = (details) => {
     props.onSubmit(details);
@@ -227,97 +222,108 @@ const Project = (props) => {
           {/* <div className="issueslist p-1" style={{ backgroundColor: "lightyellow", width: "26rem", position: "absolute", height: "94%", top: "50%", right: "0%", transform: "translate(-0%, -45%)", zIndex: 9999 }}> */}
           <div className="header m-0 p-0 d-flex justify-content-between align-items-center" style={{backgroundColor: "#eee", minWidth: "8rem"}}>
             <div className="ps-2 text-success font-weight-bold fs-6" >Project </div>
-                  <div className="ms-auto mb-2 position-relative end-0">
-                    <button className="button rounded mt-2 px-2 text-primary" 
-                      onClick={handleShowProjectModal} >
-                      Edit Project Details
-                    </button>
-                  </div>
-                <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
-                  <button
-                    className="btn text-success m-0 px-2 py-0 btn-sm"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    data-bs-html="true"
-                    title="Open focusIssue!"
-                    onClick={handleShowModal}
-                    style={{ backgroundColor: "#fff" }}
-                  >
-                  ✵
-                  </button>
-                  <button 
-                      className="btn text-success me-0 px-1 py-0 btn-sm" 
-                      onClick={handleMinimize} 
-                      style={{backgroundColor: "#fff"}}>
-                      &lt;-
-                  </button>
-                </div>
-            </div>     
-            <div className="m-1 p-1" style={{backgroundColor: "#eef"}}> {props.props.phFocus.focusProj.name}</div>
-            <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
-            <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
-                {/* <h6 className='text-muted pt-2'>Links to Github :</h6> */}
-                <div className='bg-light my-1 px-2 '> {/*link to repo */}
-                  <div className='text-muted'>Repository :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-                </div>
-                <div className='bg-light my-1 px-2'> {/*link to repo */}
-                  <div className='text-muted'>GitHub Docs :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
-                </div>
-
-                <div className='bg-light my-1 px-2'> {/*link to canban */}
-                  <div className='text-muted'>Project Canban for this repo:</div>
-                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
-                </div>
+            <div className="ms-auto mb-2 position-relative end-0">
+              <button className="button rounded mt-2 px-2 text-light" 
+                style={{backgroundColor: "steelblue"}}
+                onClick={handleShowProjectModal} >
+                Edit Project Details
+              </button>
             </div>
-            </details>
+          <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
+            <button
+              className="btn text-success m-0 px-2 py-0 btn-sm"
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Open focusIssue!"
+              onClick={handleShowModal}
+              style={{ backgroundColor: "#fff" }}
+            >
+            ✵
+            </button>
+            <button 
+                className="btn text-success me-0 px-1 py-0 btn-sm" 
+                onClick={handleMinimize} 
+                style={{backgroundColor: "#fff"}}>
+                &lt;-
+            </button>
+          </div>
+          </div>     
+          <div className="m-1 p-1" style={{backgroundColor: "#eef"}}> {props.props.phFocus.focusProj.name}</div>
+          <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
+          <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
+              {/* <h6 className='text-muted pt-2'>Links to Github :</h6> */}
+              <div className='bg-light my-1 px-2 '> {/*link to repo */}
+                <div className='text-muted'>Repository :</div>
+                {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+              </div>
+              <div className='bg-light my-1 px-2'> {/*link to repo */}
+                <div className='text-muted'>GitHub Docs :</div>
+                {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
+              </div>
+
+              <div className='bg-light my-1 px-2'> {/*link to canban */}
+                <div className='text-muted'>Project Canban for this repo:</div>
+                {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
+              </div>
+          </div>
+          </details>
+          <hr className="m-1"/>
           <div className="issueslist" >
+              <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
+                <div className="ps-2 font-weight-bold fs-4" >Issues:</div>
+                <button className="button rounded ms-auto m-1 px-2 text-light" 
+                  style={{backgroundColor: "steelblue"}}
+                  onClick={fetchIssues} >
+                  Fetch Issues from GitHub
+                </button>
+              </div>
             <div className="header m-0 p-0">
-              <div className="ps-2 text-success font-weight-bold fs-6" >Issues:</div>
-                  <div className="font-weight-bold px-2 text-success border">
-                  In Focus:  {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}
-                  </div>
-              </div>
-              {/* Listing GitHub Issues */}
-              <div className="m-0 p-0">
-                  <hr className="m-0"/>
-                  <details className='text-muted fs-6 p-2'><summary>GitHub Issues:</summary>
-                  {(issues.length > 0) && issues.map((issue) => (
-                      <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
-                      <div className='d-flex justify-content-between'>
-                        <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
-                      <button
-                          className="btn btn-sm checkbox bg-transparent text-success position-relative" 
-                          onClick={() => dispatch({ type: "SET_FOCUS_ISSUE", data: {id: issue.number, name: issue.title}}) } // && handleShowModal()}
-                          style={{
-                              float: "right",
-                              border: "1px solid #ccc",
-                              borderRadius: "3px",
-                              backgroundColor: "#fff",
-                              // width: "20px",
-                              // height: "20px",
-                              marginTop: "-5px",
-                              marginLeft: "auto",
-                              display: "inline-block",
-                              position: "relative",
-                              scale: "0.7"
-                          }}
-                          >Set Focus
-                      </button>
-                        <div className='text-muted'>{issue.user.name}</div>
-                      </div>
-                      <h6>{issue.title}</h6>
-                      {/* <p className='text-secondary m-2'>{issue.body}</p> */}
-                      <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
-                      </div>
-                  ))}
-                  </details>
-              </div>
-              <div className='px-2 m-1'> {/*link to Issues */}
-                  <div className='text-muted'>Link to GitHub:</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
-              </div>
+              <div className="font-weight-bold px-2 border fs-6">
+              In Focus:</div>
+              <div className="font-weight-bold px-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name} </div>
+            </div>
+            {/* Listing GitHub Issues */}
+            {/* make a button for fetching Issues */}
+            <div className="m-0 p-0">
+                <hr className="m-0"/>
+                <details className='text-muted fs-6 p-2'><summary>GitHub Issues:</summary>
+                {(issues.length > 0) && issues.map((issue) => (
+                    <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                    <div className='d-flex justify-content-between'>
+                      <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
+                    <button
+                        className="btn btn-sm checkbox bg-transparent text-success position-relative" 
+                        onClick={() => dispatch({ type: "SET_FOCUS_ISSUE", data: {id: issue.number, name: issue.title}}) } // && handleShowModal()}
+                        style={{
+                            float: "right",
+                            border: "1px solid #ccc",
+                            borderRadius: "3px",
+                            backgroundColor: "#fff",
+                            // width: "20px",
+                            // height: "20px",
+                            marginTop: "-5px",
+                            marginLeft: "auto",
+                            display: "inline-block",
+                            position: "relative",
+                            scale: "0.7"
+                        }}
+                        >Set Focus
+                    </button>
+                      <div className='text-muted'>{issue.user.name}</div>
+                    </div>
+                    <h6>{issue.title}</h6>
+                    {/* <p className='text-secondary m-2'>{issue.body}</p> */}
+                    <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                    </div>
+                ))}
+                </details>
+            </div>
+            <hr className="m-1" />
+            <div className='px-2 m-1'> {/*link to Issues */}
+                <div className='text-muted'>Link to GitHub:</div>
+                {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+            </div>
           </div>
           {modalDiv}
           {projectModalDiv}

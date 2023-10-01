@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch} from 'react-redux';
 import Selector from './utils/Selector';
@@ -11,45 +11,64 @@ import taskIcon from "/public/images/task.png";
 
 import ReportModule from "./ReportModule";
 import {ObjDetailTable} from './forms/ObjDetailTable';
+import { set } from 'immer/dist/internal';
+import { addLinkToDataArray } from '../akmm/ui_common';
+import { group } from 'console';
 
 const debug = false;
+
+interface ObjView {
+  id: number;
+  group: number;
+}
+
 
 function Tasks(props) {
 
 
   console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props, props.props.phData);
+  const dispatch = useDispatch();
 
   const state = useSelector((state) => state); // use RootState type
   if (debug) console.log('24 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimized, setMinimized] = useState(true);
   const [maximized, setMaximized] = useState(false);
-  const dispatch = useDispatch();
 
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  // useEffect(() => {
+    //   console.log('40 Tasks', taskObj, parentObj,  prevParentObj);
+    //   if (parentObj && parentObj !== prevParentObj) {
+    //    setPrevParentObj(parentObj);
+    //   } else {
+    //     setPrevParentObj(null);
+    //   }
+    //   // if (grandParentObj !== prevGrandParentObj) setPrevGrandParentObj(grandParentObj);
+    //   // if (greatGrandParentObj !== prevGreatGrandParentObj) setPrevGreatGrandParentObj(greatGrandParentObj);
+  // }, [taskObj && taskObj.id ]);
+
   const toggleOpen = () => {
     setIsOpen(!isOpen);
   };
- 
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const modal = modalRef.current;
-      if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
-        setMinimized(true);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     const modal = modalRef.current;
+  //     if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
+  //       setMinimized(true);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   const handleShowModal = () => {
     if (minimized) {
@@ -77,9 +96,10 @@ function Tasks(props) {
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
 
-
-
-
+  let parentTask: any = null;
+  // useEffect(() => {
+  //    setPrevParentTask(parentTask);
+  // }, [parentTask]);
 
   const handleMinimize = () => {
     setMinimized(true);
@@ -138,147 +158,198 @@ function Tasks(props) {
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
   let curParentObj: any = null;
-  
-  const mvtasks = (seltasks, parentTask) =>  (seltasks?.length > 0) ? (
+      // find mv.objectviews that has no parent objectview and not of type Label i.e. top containers(groups)
 
+  const taskItem = (task) => 
+    <li
+      key={task?.id}
+      className="li bg-transparent border-secondary p-0 me-0"
+      onClick={() => setSelectedTask(task)}
+    >
+      <details className="m-y p-0 pe-1">
+        <summary
+          className="text-success d-flex align-items-top p-0 m-0"
+          onClick={toggleOpen}
+        >
+          <img
+            className="ms-0"
+            src="/images/Task.png"
+            alt="Details Arrow"
+            title="Details Arrow"
+            width="16"
+            height="22"
+          />
+          <span className="ms-2">{task?.name}</span>
+          <span className="d-flex my-0 ms-auto me-0 align-items-center">
+            <button 
+              className="btn bg-light text-success mx-0 px-1 pt-0 fs-5"
+
+              onClick={() =>
+                dispatch({
+                  type: "SET_FOCUS_TASK",
+                  data: { id: task.id, name: task.name },
+                })
+              }
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                backgroundColor: "#fff",
+                scale: "0.7",
+              }}
+            >
+              ✵
+            </button>
+            {/* <img
+              className=""
+              src="/images/info.svg"
+              alt="Details Arrow"
+              title="Details info"
+              width="18"
+              height="24"
+              style={{backgroundColor: "gray"}}
+            /> */}
+          </span>
+        </summary>
+        <div className="selected-task bg-transparent border border-light p-1">
+          <div className="m-0 p-0 bg-white">
+            <ReactMarkdown>{task?.description}</ReactMarkdown>
+          </div>
+        </div>
+      </details>
+    </li>
+
+  const containerItem = (container) =>
     <>
-      {/* <h6 className="bg-transparent">Modelview Tasks: {modelviews.name}</h6> */}
-      <ul>
-      {
-          seltasks.map((taskObj, index) => {
-          if (!debug) console.log("148 taskobj", taskObj, 'parenTask:', parentTask);
-          // const taskmetamodel = metamodels?.find(mm => mm.id === mothermodel?.metamodelRef);
-          // find parent container of taskObj
- 
-          const taskEntriesArr = Object.entries(taskObj || {})
-          .filter(([key]) => !['id', 'description'].includes(key))
-          .map(([key, value]) => `- **${key}:** ${value}\n`);
-          
-          taskEntries = taskEntriesArr.join('');
-          const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
-          
-          const objectPropertiesMain = (taskObj) && Object.keys(taskObj).filter(key => includedKeysMain.includes(key));
-
-          if (debug) console.log('140 taskEntries', taskEntries)
-          
-          const taskEntriesDiv = (
-            <>
-              <details>
-                <summary>Task Properties:</summary>
-                <ReactMarkdown>{`${taskEntries}`}</ReactMarkdown>
-              </details>
-            </>
-          )
-        
-        if (debug) console.log('147 taskEntries', taskEntries, taskEntriesArr, taskEntriesDiv)
-
-        return (
-          <>
-            {(parentTask && index === 0) &&
-              <details>
-                <summary className="text-success d-flex align-items-center">
-                  <span className="ms-2"> - {parentTask?.name}</span>
-                  {(parentTask?.description !== "") && <img className="bg-secondary ms-auto me-2" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />}
-                </summary> 
-                <ReactMarkdown className="bg-light px-2" >{parentTask.description}</ReactMarkdown>
-              </details>
-            }
-            {(taskObj.id !== parentTask?.id) &&
-            <li key={taskObj.id} className="li bg-transparent border-secondary p-0 me-0" onClick={() => setSelectedTask(taskObj)}>
-              {/* <hr className="m-0" /> */}       
-              <details className="m-y p-0 pe-1 border">
-                <summary className="text-success d-flex align-items-center" onClick={toggleOpen}>
-                  <img className="ms-2"  src='/images/Task.png' alt="Details Arrow" title="Details Arrow" width="12" height="16" />
-                  <span className="ms-2">{taskObj?.name}</span>
-                  <span className="d-flex my-0 ms-auto me-0 align-items-center">
-                    <button
-                      className="btn btn-sm bg-light text-success mx-0 px-1 " 
-                      onClick={() => dispatch({ type: "SET_FOCUS_TASK", data: {id: taskObj.id, name: taskObj.name }}) } // && handleShowModal()}
-                      style={{
-                        border: "1px solid #ccc",
-                        borderRadius: "5px",
-                        backgroundColor: "#fff",
-                        scale: "0.7",
-                      }}
-                      >
-                      Set Focus
-                    </button>
-                    <img className="bg-secondary" src='/images/info.svg' alt="Details Arrow" title="Details info" width="12" height="16" />
-                    </span>
-                </summary>
-                {/* <div className="bg-light ms-0 me-0 mt-1 px-2"> */}
-                  {/* {taskObj?.description}</div>  */}
-                  <div className="selected-task bg-transparent border border-light p-1">
-                  {/* <div className="bg-light">
-                    {taskEntriesDiv}
-                  </div> */}
-                  <div className="bg-light">
-                    {/* <details><summary>Description:</summary> */}
-                      <ReactMarkdown>{taskObj?.description}</ReactMarkdown>
-                    {/* </details> */}
-                  </div>
-                </div>         
-              </details>
-            </li>
-            }
-          </>
-        )}
-      )}
-      </ul>
+      <details>
+        <summary className="text-success d-flex align-items-center">
+          <span className="ms-0">- {container?.name}</span>
+          {/* {container?.description !== "" && (
+             <img className="bg-secondary ms-auto me-1" src="/images/info.svg" alt="Details Arrow" title="Details info" width="12" height="16" />
+            )} */}
+        </summary>
+        <ReactMarkdown className="bg-light px-2">
+          {container?.description}
+        </ReactMarkdown>
+      </details>
     </>
-    ) : (
-    <div>No generated task for this model</div>
+
+  const groupObjvDiv = (ov, oType, parentType) => {
+    if (debug) console.log('361 gcObjv', ov, oType, parentType);
+    const obj = motherobjects.find((o) => o.id === ov.objectRef);
+    const itemDiv = (oType === 'Task') 
+      ? taskItem(obj) 
+      : (oType === 'Container') 
+        ? containerItem(obj) 
+        : null;
+
+    if (debug) console.log('242 gcObjv', ov, itemDiv)
+
+    return (oType === 'Task')  
+        ? (parentType === 'Task') 
+          ? (
+            <div className="ms-2 " style={{ backgroundColor: "lightyellow"}}>
+              {itemDiv}
+            </div> 
+          )
+          : (
+            <div className="ms-0 " style={{ backgroundColor: "lightyellow"}}>
+              {itemDiv}
+            </div> 
+          )
+        : (parentType === 'Task') 
+          ? (
+            <div className="ms-2 " style={{ backgroundColor: "lightyellow"}}>
+              {itemDiv}
+            </div> 
+          )
+          : (
+            <div className="bg-white ms-0 " >
+              {itemDiv}
+            </div> 
+          )
+
+  }
+
+  const findChildrenvs = (objviews, ov) => {
+    return objviews?.filter(
+      (ov2) => ov2?.group === ov?.id && !motherobjects?.find((o) => (o.id === ov?.objectRef) && (o.typeName === 'Label')) && ov2);
+  };
+
+  //  Render top containers of this modelview and all their children recursively -------------------------------
+  const renderItems = (mv, notLabelOvs, obvs, parentType) => {
+
+    const items2 = obvs?.map((ov) => {
+      const childrenvs = findChildrenvs(notLabelOvs, ov);
+      
+      if (debug) console.log('354 renderItems', ov, obvs, childrenvs)
+      const oType = motherobjects.find((o) => o.id === ov.objectRef)?.typeName;
+      const itemDiv = (
+        (childrenvs.length === 0 && parentType !== 'Task')
+        ? <div className=" p-0"> {groupObjvDiv(ov, oType, parentType)} </div>
+        : <div className=" p-1"> {groupObjvDiv(ov, oType, parentType)} </div>
+      );
+      const childItems = renderItems(mv, notLabelOvs, childrenvs, oType); // recursively render all children of this ov
+      if (debug) console.log('390 renderItems', ov, childrenvs, childItems);
+
+      return (
+        <>
+          {itemDiv}
+          {childItems}
+        </>
+      );
+    });
+    return (
+      <>
+        {items2}
+      </>
     );
+  };
 
-  const tasksDiv = mothermodelviews?.map((mv) => {
-    // const objectviews2 = mothermodelviews?.flatMap(mv => mv.objectviews);
-    const objectviews2 = mv?.objectviews;
-    //   uniqueovs = objectviews2?.filter((ov, index, self) =>
-    //   index === self.findIndex(t => t.place === ov.place && t.id === ov.id)
-    // );
-    console.log('202 Tasks',  uniqueovs, objectviews2, mv);
-    // const seltaskObjviews = uniqueovs?.filter(ov => motherobjects.find(o => o.id === ov.objectRef)?.typeName === 'Task' && ov);
-    const seltaskObjs = motherobjects?.filter(o => objectviews2.find(ov => o.id === ov.objectRef));
-    const seltasks = seltaskObjs?.filter(o => o.typeName === 'Task');
-    if (debug) console.log('203 Tasks', seltasks, seltaskObjs);
+
+
+  const genTasksDiv = mothermodelviews?.map((mv) => { // map over all modelviews of this model
+
   
-    if (seltasks.length > 0) {
+    if (mv.objectviews.length > 0) {
 
-      // find parent objectview (group) of taskObj
-      const taskObjView = mv?.objectviews?.find(ov => ov?.objectRef === seltasks[0].id);
-      const parent = mv?.objectviews?.find(ov => ov?.id === taskObjView?.group) || null;
-      const parentObj = motherobjects.find(o => o.id === parent?.objectRef) || null;
-      const grandParent = mv?.objectviews?.find(ov => ov?.id === parent?.group) || null;
-      const grandParentObj = motherobjects.find(o => o.id === grandParent?.objectRef) || null;
-      console.log('248 Tasks', parent, parentObj, grandParentObj);
+      const motherobjviews = mv?.objectviews; // all objectviews of this modelview
+      if (debug) console.log('237 Tasks', mv, motherobjviews);
+    
+      const noparentovs = mv?.objectviews?.filter(ov => (!motherobjviews?.find(ov2 => ov2?.id === ov?.group))); // objectviews that has no parent objectview
+      const labelos = motherobjects?.filter(o => o.typeName === 'Label' && o);
+      const notLabelOvs = mv.objectviews?.filter(ov => !labelos?.find(o => o?.id === ov?.objectRef) && ov); // remove Label objects from topGroupOvs
+      
+      const topGroupOvs = noparentovs?.filter(ov => !labelos?.find(o => o?.id === ov?.objectRef)); // remove Label objects from topGroupOvs
+      // const topGroupOvs = mv?.objectviews?.filter(ov => (!motherobjviews?.find(ov2 => ov2?.id === ov?.group)))?.filter(ov => !motherobjects?.filter(o => o.typeName === 'Label' && o)?.find(o => o?.id === ov?.objectRef));
+      if (debug) console.log('375 noparents', noparentovs, labelos, topGroupOvs);
+      if (debug) console.log('376 renderItems', mv, mv?.objectviews, topGroupOvs);
+
+      const topGroupOvsDiv = topGroupOvs?.map((ov: any) => { // we start with the top containers of this modelview
+      const curChildrenvs = findChildrenvs(notLabelOvs, ov);
+      if (debug) console.log('379 curChildrenvs', notLabelOvs, ov, curChildrenvs);
+      const parentType = 'Container'
+        return (
+          <div>
+            {renderItems(mv, notLabelOvs, curChildrenvs, parentType)}  {/*  render all children of this ov */}
+          </div>
+        )
+      })
+
 
       return (
         <>
           <hr className="my-0"/>
-          <details className="my-1 mx-0"><summary className="bg-transparent">{mv.name}</summary>        
-          {(grandParentObj) && 
-            <details className="mx-0 px-0">
-              <summary className="text-success d-flex align-items-center">
-                <span className=""> -- {grandParentObj?.name}</span>
-                {(grandParentObj?.description !== "") && <img className="bg-secondary ms-auto" src='/images/info.svg' alt="Details Arrow" title="Details Arrow" width="12" height="16" />}
-              </summary>
-              <ReactMarkdown className="bg-light py-0 px-2" >{grandParentObj.description}</ReactMarkdown>
-            </details>
-          }
-          <ul>
-            {mvtasks(seltasks, parentObj)}
-          </ul>
+          <details className="my-1 mx-0"><summary className="bg-light">{mv.name}</summary>  {/* To level is the modelview */}
+            {topGroupOvsDiv}  {/* Render the top containers of this modelview */}
           </details> 
         </>
       );
-      } else {
-        return (<> </>)
-      }
+      
+
+    } else {
+      return (<> </>)
     }
-  );
-
-
-
+  });
 
   const basicTask1 = `
     - From the Palette on left side, drag the object type
@@ -308,12 +379,12 @@ function Tasks(props) {
     <>
       <div className="tasklist p-1 " 
         ref={containerRef}
-        style={{ backgroundColor: "lightyellow", width: "25rem", 
+        style={{ backgroundColor: "white", width: "25rem", 
         position: "absolute", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
       >
         <div className="header m-0 p-0">
-            <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
-          <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
+          <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
+          <div className="buttons position-relative me-3" style={{ scale: "0.7"}}>
             <button 
               className="btn text-success mt-0 pe-2 py-0 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -343,7 +414,7 @@ function Tasks(props) {
           </div>
           <hr className="m-0" />
         </div>
-        {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /> */}
+        {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={taskovs} selName='Tasks' focustype='focusTask' /> */}
         <div className="task">
           <details>
             <summary className="bg-light px-1"> Default Modelling Tasks: </summary>
@@ -353,7 +424,7 @@ function Tasks(props) {
               </details>
               <hr className="m-0" />
               <details className="mx-2">
-                <summary>Create a new Relatinship:</summary>
+                <summary>Create a new Relationship:</summary>
                 <ReactMarkdown>{basicTask2}</ReactMarkdown>
               </details>
               <hr className="m-0" />
@@ -365,23 +436,23 @@ function Tasks(props) {
           <hr className="my-1 p-0 border-light" />
         </div>
         <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
-        <div className="bg-transparent m-1"> 
-          {tasksDiv} 
+        <div className=" m-1" style={{ backgroundColor: "lightyellow" }}> 
+          {genTasksDiv} 
         </div>
 
-        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
-            <Modal.Header closeButton>
-              <Modal.Title>Focus details ::</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="bg-transparent">
-              <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
+        <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
+          <Modal.Header className="mx-2 bg-transparent" closeButton>
+            <Modal.Title>Focus task </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="bg-transparent">
+            <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
       <style jsx>{`
           .tasklist {
@@ -495,11 +566,12 @@ function Tasks(props) {
   );
 }
 
+
 function type(metamodels, model, motherobjects, curov) {
   const retval = metamodels?.find(mm => mm.id === model?.metamodelRef)
-    ?.objecttypes?.find(ot => ot.id === motherobjects?.find(o => o.id === curov.objectRef)?.typeRef)?.name;
-    if (debug) console.log('377 Tasks ', retval);
-    return retval;
+    ?.objecttypes?.find(ot => ot.id === motherobjects?.find(o => o.id === curov?.objectRef)?.typeRef)?.name;
+  if (debug) console.log('377 Tasks ', retval);
+  return retval;
 }
 
 export default Tasks;

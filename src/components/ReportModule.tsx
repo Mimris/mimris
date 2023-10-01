@@ -14,7 +14,7 @@ const debug = false
 
 const ReportModule = (props) => {
 
-  if (debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
+  if (!debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
   
   const ph = props.props.props || props.props 
   if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
@@ -32,9 +32,9 @@ const ReportModule = (props) => {
 
   const tabsDiv = (
     <>
-      <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 bg-transparent" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
+      {/* <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 bg-transparent" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
         onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
-      </button>
+      </button> */}
       {visibleTabsDiv ?
         <Tabs onSelect={index => setActiveTab(index)} >
           <TabList style={{ margin: '0px' }}>
@@ -45,7 +45,7 @@ const ReportModule = (props) => {
                 <Tab ><FaCompass /></Tab> */}
           </TabList>
           <TabPanel className='p-1 border border-dark' >
-            <Context props={props} />
+            <Context props={props} reportType={props.reportType}/>
           </TabPanel>
           <TabPanel className='p-1 border border-dark' >
             <MarkdownEditor props={props} />
@@ -70,7 +70,7 @@ const ReportModule = (props) => {
     <>
       {visibleTabsDiv ?
           <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-            style={{ height: '84vh', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none' }}>
+            style={{ height: '100%', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>

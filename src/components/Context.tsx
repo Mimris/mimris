@@ -33,21 +33,10 @@ const Context = (props, edit) => {
     const [formValuesObjecttype, setFormValuesObjecttype] = useState({});
     const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
 
-    const models = useSelector(models =>  ph.phData?.metis?.models)  // selecting the models array
+    const models = ph.phData?.metis?.models  // selecting the models array
 
-    const metamodels = useSelector(metamodels => ph.phData?.metis?.metamodels)  // selecting the models array
+    const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
 
-    const focusModel =  (reportType === 'task') ?  models.find(m => m.id === modelInFocusId) : useSelector(focusModel => ph?.phFocus.focusModel)    // selecting the models array current model or task model (generated from model)
-    const focusUser = useSelector(focusUser => ph.phUser?.focusUser)
-    const focusModelview =  (reportType === 'task') ? focusModel.modelviews[0] : useSelector(focusModelview => ph.phFocus?.focusModelview) // if task we use the first modelview (it should be generated with the generatedFrom)
-    const focusObjectview = (reportType === 'task') ? useSelector(focusTask => ph.phFocus?.focusTask) : useSelector(focusObjectview => ph.phFocus?.focusObjectview)
-    const focusObject = (reportType === 'task') ? focusModel.objects.find(o => o.id === useSelector(focusTask => ph.phFocus?.focusTask).objectRef) : useSelector(focusObject => ph.phFocus?.focusObject)
-    const focusTask = useSelector(focusTask => ph.phFocus?.focusTask)
-
-  
-    // const [model, setModel] = useState(focusModel)
-    if (debug) console.log('47 Context:', focusObject, focusModel, focusTask, models);
-    
     // const curmodel = modelInFocus
     const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
 
@@ -55,6 +44,17 @@ const Context = (props, edit) => {
 
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
     const objects = curmodel?.objects //.map((o: any) => o)
+
+    const focusModel =  (reportType === 'task') ?  models.find(m => m.id === modelInFocusId) :  ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
+    const focusUser = ph.phUser?.focusUser
+    const focusModelview =  ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
+    const focusObjectview = ph.phFocus?.focusObjectview
+    const focusTask = ph.phFocus?.focusTask
+    const focusObject = (reportType === 'task') ? ph.phFocus.focusTask :  ph.phFocus?.focusObject
+    if (!debug) console.log('47 Context:', focusObjectview, focusObject)
+    // const [model, setModel] = useState(focusModel)
+    if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
+    
 
     const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
     const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
@@ -64,7 +64,8 @@ const Context = (props, edit) => {
     if (debug) console.log('64 Context:', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
     const curobject = objects?.find(o => o.id === focusObject?.id) 
-    console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
+    // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
+    if (!debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
     useEffect(() => {
       setFormValues(curobject);
@@ -313,6 +314,7 @@ const Context = (props, edit) => {
             parentobject={parentobject}
             edit={props.edit}
           />
+          {(reportType === 'object') && 
           <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
             <TabList>
               <Tab>Children</Tab>
@@ -379,75 +381,78 @@ const Context = (props, edit) => {
                 </tbody>
               </table> 
             </TabPanel>
-          </Tabs>
+          </Tabs>}
         </TabPanel>
-        <TabPanel className='additional-properties' style={{ overflow: 'auto' }}> 
-          {/* <div className="Context-tabs" style={{ overflow: 'auto', maxHeight: '700px' }}> */}
-          <ObjectDetails 
-              curmodel={curmodel}
-              curmodelview={curmodelview}
-              curmm={curmm}
-              curobject={curobject}
-              objectPropertiesMain={objectPropertiesMore}
-              formValues={formValues}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              curobjModelviews={curobjModelviews}
-              setObjview={setObjview}
-              parentobject={parentobject}
-              edit={props.edit}
-            />
-        {/* </div> */}
-        </TabPanel>
-        <TabPanel className='objectview'> 
-        <ObjectDetails
-            curmodel={curmodel}
-            curmodelview={curmodelview}
-            curmm={curmm}
-            curobject={curobjectview}
-            objectPropertiesMain={includedKeysAllExept}
-            formValues={formValuesObjectview}
-            handleChange={handleChange}
-            handleSubmit={handleSubmitObjectview}
-            curobjModelviews={curobjModelviews}
-            setObjview={setObjview}
-            parentobject={parentobject}
-            edit={props.edit}
-          />
-        </TabPanel>
-        <TabPanel  className='objectype'> 
-          <ObjectDetails
-              curmodel={curmodel}
-              curmodelview={curmodelview}
-              curmm={curmm}
-              curobject={curobjecttype}
-              objectPropertiesMain={includedKeysAllObjType}
-              formValues={formValuesObjecttype}
-              handleChange={handleChange}
-              handleSubmit={handleSubmitObjecttype}
-              curobjModelviews={curobjModelviews}
-              setObjview={setObjview}
-              parentobject={parentobject}
-              edit={props.edit}
-            />
-        </TabPanel>
-        <TabPanel  className='typeview'> 
-        <ObjectDetails
-            curmodel={curmodel}
-            curmodelview={curmodelview}
-            curmm={curmm}
-            curobject={curobjtypeview}
-            objectPropertiesMain={includedKeysAllTypeview}
-            formValues={formValuesObjecttypeview}
-            handleChange={handleChange}
-            handleSubmit={handleSubmitObjecttypeview}
-            curobjModelviews={curobjModelviews}
-            setObjview={setObjview}
-            parentobject={parentobject}
-            edit={props.edit}
-          />
-        </TabPanel>
-
+        {(reportType === 'object') && 
+          <>
+            <TabPanel className='additional-properties' style={{ overflow: 'auto' }}> 
+              {/* <div className="Context-tabs" style={{ overflow: 'auto', maxHeight: '700px' }}> */}
+              <ObjectDetails 
+                  curmodel={curmodel}
+                  curmodelview={curmodelview}
+                  curmm={curmm}
+                  curobject={curobject}
+                  objectPropertiesMain={objectPropertiesMore}
+                  formValues={formValues}
+                  handleChange={handleChange}
+                  handleSubmit={handleSubmit}
+                  curobjModelviews={curobjModelviews}
+                  setObjview={setObjview}
+                  parentobject={parentobject}
+                  edit={props.edit}
+                />
+            {/* </div> */}
+            </TabPanel>
+            <TabPanel className='objectview'> 
+            <ObjectDetails
+                curmodel={curmodel}
+                curmodelview={curmodelview}
+                curmm={curmm}
+                curobject={curobjectview}
+                objectPropertiesMain={includedKeysAllExept}
+                formValues={formValuesObjectview}
+                handleChange={handleChange}
+                handleSubmit={handleSubmitObjectview}
+                curobjModelviews={curobjModelviews}
+                setObjview={setObjview}
+                parentobject={parentobject}
+                edit={props.edit}
+              />
+            </TabPanel>
+            <TabPanel  className='objectype'> 
+              <ObjectDetails
+                  curmodel={curmodel}
+                  curmodelview={curmodelview}
+                  curmm={curmm}
+                  curobject={curobjecttype}
+                  objectPropertiesMain={includedKeysAllObjType}
+                  formValues={formValuesObjecttype}
+                  handleChange={handleChange}
+                  handleSubmit={handleSubmitObjecttype}
+                  curobjModelviews={curobjModelviews}
+                  setObjview={setObjview}
+                  parentobject={parentobject}
+                  edit={props.edit}
+                />
+            </TabPanel>
+            <TabPanel  className='typeview'> 
+            <ObjectDetails
+                curmodel={curmodel}
+                curmodelview={curmodelview}
+                curmm={curmm}
+                curobject={curobjtypeview}
+                objectPropertiesMain={includedKeysAllTypeview}
+                formValues={formValuesObjecttypeview}
+                handleChange={handleChange}
+                handleSubmit={handleSubmitObjecttypeview}
+                curobjModelviews={curobjModelviews}
+                setObjview={setObjview}
+                parentobject={parentobject}
+                edit={props.edit}
+              />
+            </TabPanel>
+          </>
+        }
       </Tabs>
     )
 

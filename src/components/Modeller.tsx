@@ -559,8 +559,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           </div>
         </div>
         <div className="modeller--workarea-objects m-0 p-0" >
-          <Row className="m-0">
-            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto ">
+          <Row className="m-0">           
+            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> {/* Objects pane  column */}
               <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{ height: "82vh" }} >
                 <div div className="d-flex justify-content-between">
                   <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
@@ -581,7 +581,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 }
               </div>
             </Col>
-            <Col className="modeller--workarea-modelling px-1 ">
+            <Col className="modeller--workarea-modelling px-1 "> {/* Modelview tabs and footer buttons  column */}
               <div className="mt-2">
                 {modelviewTabDiv}
               </div>

@@ -190,6 +190,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         objtype.setModified();
         const typeview = objtype.typeview as akm.cxObjectTypeView;
         typeview?.applyObjectViewParameters(objview);
+        objtype.typeview = typeview;
     }
     if (!objtype) { // The object type has not been generated
         return null;
@@ -1314,7 +1315,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 const  typenames = []; 
                 if (obj.name === obj.type.name)
                     typenames.push(obj.type.name);
-                typenames.push(metaObject);
+                    typenames.push(metaObject);
                 for (let i=0; i<typenames.length; i++) {
                     const type = myMetamodel.findObjectTypeByName(typenames[i]);
                     if (type && obj && obj.type) {

@@ -494,7 +494,7 @@ let includeNoType = false;
             }
           }
           let typeview = objtype.typeview as akm.cxObjectTypeView;
-          let strokecolor = objtype.typeview?.strokecolor;
+          let strokecolor = typeview?.strokecolor;
           let fillcolor = typeview?.fillcolor;
           if (objtype) {
             if (!objtype.markedAsDeleted) 

@@ -772,6 +772,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               val = year + '-' + month + '-' + day; 
             }
           }
+          if (fieldType === 'time') {
+            if (val === "" || val === "now") {
+              const d = new Date();
+              val = d.getTime();
+            }
+          }
           if (k === 'name') {
             fieldType = 'text';
           }

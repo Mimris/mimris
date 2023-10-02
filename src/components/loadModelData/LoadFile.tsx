@@ -16,7 +16,6 @@ import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadFile = (props: any) => {
 
-
   // if (typeof window === 'undefined') return null
 
   const debug = false
@@ -25,10 +24,10 @@ const LoadFile = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
-  if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
+  // if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
 
-  const modelNames = props.ph.phData?.metis?.models?.map(mn => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels?.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models?.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
 
   if (debug) console.log('26 LoadLocal', props, typeof (window));
 

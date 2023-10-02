@@ -26,7 +26,7 @@ interface ObjView {
 function Tasks(props) {
 
 
-  console.log('20 Tasks', require('/public/images/Task.png'));
+  // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props, props.props.phData);
   const dispatch = useDispatch();
 

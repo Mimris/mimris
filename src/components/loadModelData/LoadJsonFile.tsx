@@ -26,8 +26,8 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       function toggleRefresh() { setRefresh(!refresh); }
 
     
-      const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
-      const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+      const modelNames = props.ph.phData?.metis?.models.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
+      const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
       if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
       
       if (typeof window === 'undefined') return

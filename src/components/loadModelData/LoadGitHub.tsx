@@ -133,7 +133,7 @@ const LoadGitHub = (props: any) => {
     const content = res.data // this is the project file from github
     if (debug) console.log('138 ', searchtext, res, content)
 
-    const model = { // tak model from content and split repository into organisation and repository ad insert into phData
+    const model = { // take model from content and split repository into organisation and repository ad insert into phData
       ...content,
       phData: {
         ...content.phData,
@@ -219,29 +219,30 @@ const LoadGitHub = (props: any) => {
     setRefresh(!refresh)
   };
 
-  useEffect(() => {
-    // setBranchText('')
-    if (usernameText?.length > 0) {
-      loadRepos(repoText, pathText);
-      loadModels(usernameText, pathText)
-    }
-  }, [(modal)]);
+  // Todo: loadModel should be done by clicking on a button, not by useEffect
+  // useEffect(() => {
+  //   // setBranchText('')
+  //   if (usernameText?.length > 0) {
+  //     loadRepos(repoText, pathText);
+  //     loadModels(usernameText, pathText)
+  //   }
+  // }, [(modal)]);
 
-  useEffect(() => {
-    // setModels([]);
-    // setDirs([]);
-    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
-    loadModels(usernameText, pathText)
-  }, [usernameText, repoText, pathText]);
+  // useEffect(() => {
+  //   // setModels([]);
+  //   // setDirs([]);
+  //   setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
+  //   loadModels(usernameText, pathText)
+  // }, [usernameText, repoText, pathText]);
 
-  useEffect(() => {
-    if (debug) console.log('170 useEffect 3', model)
-    loadModels(usernameText, pathText)
-    const  refres = () => {
-      setRefresh(!refresh)
-    }
-    setTimeout(refres, 3000);
-  } , [model]);
+  // useEffect(() => {
+  //   if (debug) console.log('170 useEffect 3', model)
+  //   loadModels(usernameText, pathText)
+  //   const  refres = () => {
+  //     setRefresh(!refresh)
+  //   }
+  //   setTimeout(refres, 3000);
+  // } , [model]);
 
   let modeloptionss = models?.map((mod) => {
     return {

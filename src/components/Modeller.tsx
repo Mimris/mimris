@@ -562,13 +562,21 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           <Row className="m-0">           
             <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> {/* Objects pane  column */}
               <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{ height: "82vh" }} >
-                <div div className="d-flex justify-content-between">
-                  <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                    onClick={toggleObjects} data-toggle="tooltip" data-placement="top" title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;
-                        Drag objects from here to the modelling area to include it in current Objectview"> {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
+                <div className="d-flex justify-content-between">
+                  <button 
+                    className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                    onClick={toggleObjects} 
+                    data-toggle="tooltip" 
+                    data-placement="top" 
+                    title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
+                    {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
                   </button>
-                  <button className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                    onClick={toggleIsExpanded} data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                  <button 
+                    className="btn-sm px-1 m-0 text-left " 
+                    style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                    onClick={toggleIsExpanded} 
+                    data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
+                    {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
                   </button>
                 </div>
                 {(visibleObjects)

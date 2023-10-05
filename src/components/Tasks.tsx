@@ -274,7 +274,9 @@ function Tasks(props) {
         
     const childItems = children?.map((child, index) => {
       if (debug) console.log('308 renderItems', child);
-      return renderTree(child);
+      return (item.typeName === 'Task')
+      ? <div className="ps-2">{renderTree(child)}</div> 
+      : {renderTree(child)};
     });
     return (
       <>

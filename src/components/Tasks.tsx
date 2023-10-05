@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch} from 'react-redux';
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from "rehype-raw";
 import { wrapper } from '../store'; // import RootState type
 
 import Modal from "react-bootstrap/Modal";
@@ -187,7 +188,7 @@ function Tasks(props) {
           <span className="ms-2">{task?.name}</span>
           <span className="d-flex my-0 ms-auto me-0 align-items-center">
             <button 
-              className="btn bg-light text-success mx-0 px-1 pt-0 fs-5"
+              className="btn bg-light text-success mx-0 p-1 pt-0 fs-5"
 
               onClick={() =>
                 dispatch({
@@ -219,9 +220,9 @@ function Tasks(props) {
             /> */}
           </span>
         </summary>
-        <div className="selected-task bg-transparent border border-light p-1">
-          <div className="m-0 p-0 bg-white">
-            <ReactMarkdown>{task?.description}</ReactMarkdown>
+        <div className="selected-task bg-transparent ps-0">
+          <div className="m-0 p-2 bg-white">
+            <ReactMarkdown rehypePlugins={[rehypeRaw]} >{task?.description}</ReactMarkdown>
           </div>
         </div>
       </details>
@@ -244,9 +245,7 @@ function Tasks(props) {
               //   position: "relative",  top: "0%", right: "0%", transform: "translate(50%, -125%)", zIndex: 9999 }}
             /> */}
         </summary>
-        <ReactMarkdown className="bg-light px-2">
-          {container?.description}
-        </ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]} className="bg-light ps-2" source={container?.description} />
       </details>
     </>
 
@@ -276,7 +275,7 @@ function Tasks(props) {
       if (debug) console.log('308 renderItems', child);
       return (item.typeName === 'Task')
       ? <div className="ps-2">{renderTree(child)}</div> 
-      : {renderTree(child)};
+      : <div className="ps-1">{renderTree(child)}</div> 
     });
     return (
       <>
@@ -334,7 +333,37 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
   const ovsTree = buildTree(parent, topObjviews);
   if (!debug) console.log('347 buildTree', ovsTree, topObjviews, parent);
 
-  const topGroupOvsDiv = <>{renderTree(ovsTree)}</>
+  const topGroupOvsDiv = 
+    <details>
+      <summary className="text-success d-flex align-items-center m-0 bg-light" >
+        <span className="ms-2 d-flex justify-content-between" >
+           <div className="d-flex" >
+            <img
+              className="ms-0"
+              src="/images/folder.svg"
+              alt="Details Arrow"
+              title="Details Arrow"
+              width="16"
+              height="22"
+            />
+          <span className="ms-2 me-2">{mv.name}<span style={{ fontWeight: "bold" }}> ({mv.description})</span> </span>
+          </div>
+          {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
+        </span>
+          {/* <img
+            className="d-flex my-0 ms-auto me-0 align-items-center"
+            src="/images/info.svg"
+            alt="Details Arrow"
+            title="Details info"
+            width="18"
+            height="24"
+            style={{ width: "2rem", color: "success" }}
+            // style={{ backgroundColor: "warning", width: "5rem", 
+            //   position: "relative",  top: "0%", right: "0%", transform: "translate(50%, -125%)", zIndex: 9999 }}
+          /> */}
+      </summary>
+      {renderTree(ovsTree)}
+    </details>
 
   return (
     <>
@@ -346,35 +375,48 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
 });
 
   const basicTask1 = `
-    - From the Palette on left side, drag the object type
-      you want to create into the canvas.
-    - Click on the name to edit.
-    - Double-click on the object to open 
-      the properties panel, where you can edit 
-      Name, description etc.
+
+1.  1 - From the Palette (left pane) drag the Object Type and drop it into the modelling area. Give the type a name and description. (canvas).
+<a href="images/help/Create-EntityType-2023-10-05.png" target="_blank"><code style="color: blue"> <font size="2" weight="bold">![image001](images/help/Create-EntityType-2023-10-05.png)</font></code>
+</span>Click on the picture to open in New Tab!</a><hr />
+
+1.  2 - Click on the name to edit and give the Object a new name.<hr />
+
+1.  3 - Right-Click or Double-Click on the object to open the properties panel, where you can edit: Name, description etc.
+<a href="images/help/Edit-Attributes-2023-10-05.png" target="_blank"><code style="color: blue"> <font size="2" weight="bold">![image001](images/help/Edit-Attributes-2023-10-05.png)</font></code>
+</span>Click on the picture to open in New Tab!</a><hr />
+
   `;
   const basicTask2= `
-    - Click on the edge of an Object and 
-      drag the cursor to another object.
-    - Click on the name of the Relationship to edit.
-    - Right-Click or Double-click on the 
-      relationship to open the properties panel, 
-      where you can edit Name, description etc.
+
+1.  1 - Click on the edge of an Object and drag the cursor to another object.
+<a href="images/help/Add-Property-2023-10-05.png" target="_blank"><code style="color: blue"> <font size="2" weight="bold">![image001](images/help/Add-Property-2023-10-05.png)</font></code>
+</span>Click on the picture to open in New Tab...</a><hr />
+
+1.  2 - Click on the name of the Relationship to edit.<hr />
+
+1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.
+
   `;
   const basicTask3 = `
-    - Open the Object panel to the left. Drag one 
+
+1.  1 - Open the Object panel to the left. Drag one 
       or more objects into the canvas.
-      (Note: if you change name or other properties 
+      
+1.
+
+(Note: if you change name or other properties 
       of the object, all other objectviews of the 
       same object will also be changed)
+
   `;
 
   return (
     <>
       <div className="tasklist p-1 " 
         ref={containerRef}
-        style={{ backgroundColor: "white", width: "25rem", 
-        position: "absolute", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
+        style={{ backgroundColor: "lightyellow", width: "25rem", 
+        position: "relative", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
       >
         <div className="header m-0 p-0">
           <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
@@ -412,19 +454,19 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
         <div className="task">
           <details>
             <summary className="bg-light px-1"> Default Modelling Tasks: </summary>
-              <details className="mx-2">
+              <details className="mx-2" style={{ whiteSpace: "wrap" }}>
                 <summary>Create a new Object:</summary>
-                <ReactMarkdown>{basicTask1}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask1}</ReactMarkdown>
               </details>
               <hr className="m-0" />
               <details className="mx-2">
                 <summary>Create a new Relationship:</summary>
-                <ReactMarkdown>{basicTask2}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask2}</ReactMarkdown>
               </details>
               <hr className="m-0" />
               <details className="mx-2">
                 <summary>Make a new Objectview of existing object</summary>
-                <ReactMarkdown>{basicTask3}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask3}</ReactMarkdown>
               </details>
             </details>
           <hr className="my-1 p-0 border-light" />

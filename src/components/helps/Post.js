@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Layout from '../Layout'
 
 
 export default function Post({ post }) {
@@ -10,7 +11,7 @@ export default function Post({ post }) {
       <div className='post-date'>Posted on {post.frontmatter.date}</div>
       <h3>{post.frontmatter.title}</h3>
       <p>{post.frontmatter.excerpt}</p>
-      <Link href={`/helpblog/${post.slug}#AKMM Help`}  className='btn' target="AKMM Help" >Read More</Link>
+      <Link href={`/helpblog/${post.slug}#AKMM Help`}  className='btn' >Read More</Link>
     </div>
     <style jsx>{`
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');

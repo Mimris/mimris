@@ -103,7 +103,7 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    if (debug) useEfflog('106 Modelling useEffect 1 []', props);
+    if (debug) useEfflog('106 Modelling useEffect 1 [] : ', props);
     GenGojsModel(props, dispatch);
     setMount(true)
   }, [])

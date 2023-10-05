@@ -14,7 +14,7 @@ const debug = false
 
 const ReportModule = (props) => {
 
-  if (!debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
+  if (debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
   
   const ph = props.props.props || props.props 
   if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)

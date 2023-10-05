@@ -51,7 +51,7 @@ const Context = (props, edit) => {
     const focusObjectview = ph.phFocus?.focusObjectview
     const focusTask = ph.phFocus?.focusTask
     const focusObject = (reportType === 'task') ? ph.phFocus.focusTask :  ph.phFocus?.focusObject
-    if (!debug) console.log('47 Context:', focusObjectview, focusObject)
+    if (debug) console.log('47 Context:', focusObjectview, focusObject)
     // const [model, setModel] = useState(focusModel)
     if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
     
@@ -65,7 +65,7 @@ const Context = (props, edit) => {
 
     const curobject = objects?.find(o => o.id === focusObject?.id) 
     // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-    if (!debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
+    if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
     useEffect(() => {
       setFormValues(curobject);

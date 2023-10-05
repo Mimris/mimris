@@ -86,10 +86,10 @@ const Project = (props) => {
   // list issues form github
   const fetchIssues = async () => {
     try {
-      if (!debug) console.log('89 issues fetch', issueUrl)
+      if (debug) console.log('89 issues fetch', issueUrl)
       const res = await fetch(issueUrl);
       const data = await res.json();
-      if (!debug) console.log('54 issues', res, data)
+      if (debug) console.log('54 issues', res, data)
       if (data.length === 0 ) { // if there is an error
         console.error('Error fetching issues:', data.message);
         setIssues( []);
@@ -100,7 +100,7 @@ const Project = (props) => {
     } catch (error) {
       console.error('Error fetching issues:', error);
     }
-    if (!debug) console.log('59 issues', issues)
+    if (debug) console.log('59 issues', issues)
   };
 
 

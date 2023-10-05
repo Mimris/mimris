@@ -160,7 +160,7 @@ let linkTemplateNames = [];
 let groupTemplateNames = []; 
 
 function makeGeoIcon() {
-    return $(go.Picture,  // the image -------------------------------------
+    return $(go.Picture,  // the image -------------------------------------       
         new go.Binding("source", "icon", findImage),
         {
             name: "Picture",
@@ -3233,13 +3233,13 @@ export function addPortTemplates() {
 
 // Function to identify images related to an image id
 export function findImage(image: string) {
-    if (debug) console.log("2561 findImage: " + image);
+    if (debug) console.log("2561 findImage: ", image);
     if (!image)
         return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image.includes('//')) { // its an URL   
         if (debug) console.log('2563 Diagram', image);
-        return image
+        return image;
     } else if (image.includes('/')) { // its a local image
         if (debug) console.log('2566 Diagram', image);   
         return image

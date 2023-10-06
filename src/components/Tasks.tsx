@@ -231,9 +231,13 @@ function Tasks(props) {
   const containerItem = (container) =>
     <>
       <details>
-        <summary className="text-success d-flex align-items-center m-0 bg-light" >
+        {/* <summary className="text-success d-flex align-items-center m-0 bg-light" > */}
+        <summary
+          className="text-success d-flex align-items-center m-0 bg-light"
+          onClick={toggleOpen}
+        >
           <span className="ms-2" >{container.name} </span>
-            {/* <img
+            <img
               className="d-flex my-0 ms-auto me-0 align-items-center"
               src="/images/info.svg"
               alt="Details Arrow"
@@ -243,7 +247,7 @@ function Tasks(props) {
               style={{ width: "2rem", color: "success" }}
               // style={{ backgroundColor: "warning", width: "5rem", 
               //   position: "relative",  top: "0%", right: "0%", transform: "translate(50%, -125%)", zIndex: 9999 }}
-            /> */}
+            />
         </summary>
         <ReactMarkdown rehypePlugins={[rehypeRaw]} className="bg-light ps-2" source={container?.description} />
       </details>
@@ -346,7 +350,7 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
               width="16"
               height="22"
             />
-          <span className="ms-2 me-2">{mv.name}<span style={{ fontWeight: "bold" }}> ({mv.description})</span> </span>
+          <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
           </div>
           {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
         </span>
@@ -395,20 +399,36 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
 
 1.  2 - Click on the name of the Relationship to edit.<hr />
 
-1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.
+1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.<hr />
 
   `;
   const basicTask3 = `
 
 1.  1 - Open the Object panel to the left. Drag one 
-      or more objects into the canvas.
+      or more objects into the canvas.<hr />
       
-1.
 
-(Note: if you change name or other properties 
+
+1.  (Note: if you change name or other properties 
       of the object, all other objectviews of the 
-      same object will also be changed)
+      same object will also be changed)<hr />
+      
+  `;
+  const basicTask4 = `
 
+  ### Type-Definitions_TD Model
+
+  To make a new Metamodel, we need to define the Object- and Relationship types we want to be in the Metamodel.
+  
+  In order to create these types, we use the EntityType and RelshipType from the 
+  ##### AKM-CORE_MM Metamodel
+  
+  ![image001](images/posts/CustomMeta/Picture1.png)
+  
+  
+  More info : 
+  <a href="http://localhost:3000/helpblog/002-BuildCustomMetamodels#AKMM%20Help" target="_blank"><code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
+  </span></a> <hr />
   `;
 
   return (
@@ -467,6 +487,10 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
               <details className="mx-2">
                 <summary>Make a new Objectview of existing object</summary>
                 <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask3}</ReactMarkdown>
+              </details>
+              <details className="mx-2">
+                <summary>Build custom Metamodels in AKMM</summary>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask4}</ReactMarkdown>
               </details>
             </details>
           <hr className="my-1 p-0 border-light" />

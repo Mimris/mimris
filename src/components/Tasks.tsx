@@ -114,7 +114,7 @@ function Tasks(props) {
           >
           {/* {!showButton && ( */}
           <button
-            className="btn text-success px-2 py-0 btn-sm"
+            className="btn text-success px-2 py-0 btn-sm fs-5"
             onClick={handleMaximize}
             style={{ backgroundColor: "lightyellow" }}
           >

@@ -5,6 +5,7 @@ import { Modal, Button } from 'react-bootstrap';
 import { is, set } from 'immer/dist/internal';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
+import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
 
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
@@ -123,16 +124,12 @@ const fetchIssues = async () => {
   console.log('72 comments', issues)
 }
 
-
-
-
   const handleSubmit = (details) => {
     props.onSubmit(details);
     handleCloseModal();
   };
 
   const [showModal, setShowModal] = useState(false);
-
 
   const handleShowModal = () => {
     if (minimized) {
@@ -152,6 +149,10 @@ const fetchIssues = async () => {
   };
   const handleCloseProjectModal = () => setShowProjectModal(false);
 
+  const handleNewProject = () => {
+    // dispatch initial state 
+    dispatch({ type: "LOAD_TOSTORE_DATA", data: StartInitStateJson })
+  }
 
   const modalDiv = (
     <Modal show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee"}} >
@@ -214,9 +215,9 @@ const fetchIssues = async () => {
     return (
 
         <div className="minimized-task " >
-          <div className="buttons position-absolute start-0" style={{ scale: "0.7", marginTop: "-26px"}}>
+          <div className="buttons position-absolute start-0" style={{ scale: "0.8", marginTop: "-26px"}}>
             <button
-              className="btn text-primary m-0 px-1 py-0 btn-sm"
+              className="btn bg-light text-primary m-0 px-1 py-0 btn-sm fs-5"
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
@@ -224,7 +225,7 @@ const fetchIssues = async () => {
               onClick={handleMaximize}
               style={{ backgroundColor: "#fff" }}
             >
-              Issues
+              Project
             </button>
   
             {/* <button 
@@ -252,35 +253,46 @@ const fetchIssues = async () => {
       >
         {/* <div className="issueslist p-1" style={{ backgroundColor: "lightyellow", width: "26rem", position: "absolute", height: "94%", top: "50%", right: "0%", transform: "translate(-0%, -45%)", zIndex: 9999 }}> */}
         <div className="header m-0 p-0 d-flex justify-content-between align-items-center" style={{backgroundColor: "#eee", minWidth: "8rem"}}>
-          <div className="ps-2 text-success font-weight-bold fs-6" >Project </div>
-          <div className="ms-auto mb-2 position-relative end-0">
-            <button className="button rounded mt-2 px-2 text-light" 
-              style={{backgroundColor: "steelblue"}}
-              onClick={handleShowProjectModal} >
-              Edit Project Details
+          <div className="ps-2 text-success font-weight-bold fs-3" >Project </div>
+          <div className="buttons position-relative end-0" style={{ scale: "0.9"}}>
+            <button
+              className="btn text-success m-0 px-2 py-0 btn-sm"
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Open focusIssue!"
+              onClick={handleShowModal}
+              style={{ backgroundColor: "#fff" }}
+            >
+            ✵
+            </button>
+            <button 
+                className="btn text-success me-0 px-1 py-0 btn-sm" 
+                onClick={handleMinimize} 
+                style={{backgroundColor: "#fff"}}>
+                &lt;-
             </button>
           </div>
-        <div className="buttons position-relative end-0" style={{ scale: "0.7"}}>
-          <button
-            className="btn text-success m-0 px-2 py-0 btn-sm"
+        </div>               
+        <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
+          <div className="m-1 p-1 fs-5" style={{backgroundColor: "#eef"}}>Name:  {props.props.phFocus.focusProj.name}</div>
+          <button className="button rounded ms-auto m-1 px-2 text-light" 
+            style={{backgroundColor: "steelblue", whiteSpace: "nowrap", maxHeight: "1.5rem"}}
+            onClick={handleShowProjectModal} >
+            Edit Project Details
+          </button>
+        </div>
+        <button
+            className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
+            style={{backgroundColor: "steelblue", whiteSpace: "nowrap", maxHeight: "1.5rem", position: "absolute", top: "7%", right: "0%", transform: "translate(-0%, -0%)"}}
             data-toggle="tooltip"
             data-placement="top"
             data-bs-html="true"
-            title="Open focusIssue!"
-            onClick={handleShowModal}
-            style={{ backgroundColor: "#fff" }}
+            title="Open new Project-file!"
+            onClick={handleNewProject}
           >
-          ✵
-          </button>
-          <button 
-              className="btn text-success me-0 px-1 py-0 btn-sm" 
-              onClick={handleMinimize} 
-              style={{backgroundColor: "#fff"}}>
-              &lt;-
-          </button>
-        </div>
-        </div>     
-        <div className="m-1 p-1" style={{backgroundColor: "#eef"}}> {props.props.phFocus.focusProj.name}</div>
+            New Project
+        </button>
         <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
         <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
             {/* <h6 className='text-muted pt-2'>Links to Github :</h6> */}
@@ -304,7 +316,7 @@ const fetchIssues = async () => {
             <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
               <div className="ps-2 font-weight-bold fs-4" >Issues:</div>
               <button className="button rounded ms-auto m-1 px-2 text-light" 
-                style={{backgroundColor: "steelblue"}}
+              style={{backgroundColor: "steelblue", whiteSpace: "nowrap", maxHeight: "1.5rem"}}
                 onClick={fetchIssues} >
                 Fetch Issues from GitHub
               </button>

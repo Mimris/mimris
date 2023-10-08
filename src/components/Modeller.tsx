@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux';
 import useLocalStorage from '../hooks/use-local-storage'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
+
+import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
@@ -18,16 +20,8 @@ import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./ReportModule";
 import { gojs } from "../akmm/constants";
 
-
-
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-
-
-
-
-
-// import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
 

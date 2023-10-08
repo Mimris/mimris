@@ -315,9 +315,10 @@ const fetchIssues = async () => {
         <div className="issueslist" >
             <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
               <div className="ps-2 font-weight-bold fs-4" >Issues:</div>
-              <button className="button rounded ms-auto m-1 px-2 text-light" 
-              style={{backgroundColor: "steelblue", whiteSpace: "nowrap", maxHeight: "1.5rem"}}
+              <button className="button bg-secondary rounded ms-auto m-1 px-2 text-light" 
+                style={{ whiteSpace: "nowrap", maxHeight: "1.5rem"}}
                 onClick={fetchIssues} >
+                <i className="fab fa-github fa-lg me-2"></i>
                 Fetch Issues from GitHub
               </button>
             </div>

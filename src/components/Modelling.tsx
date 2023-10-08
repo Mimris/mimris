@@ -670,17 +670,19 @@ const page = (props: any) => {
               >
                 New Project
             </button>
-            <span className= "bg-transparent d-flex justify-content-between align-items-center border border-solid border-secondary m-2 mb-2 mt-0" style={{ minHeight: "32px"}} >
-              <span className="pt-1 border border-none" style={{  transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
-              <span className="input text-primary " style={{ minWidth: "220px", maxHeight: "32px", backgroundColor: "transparent" }}>
+            <span className= "d-flex justify-content-between align-items-center bg-light border border-solid border-light m-2 mb-2 mt-0" style={{ minHeight: "32px"}} >
+              <span className="pt-1 border border-none bg-light mx-1" style={{ transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
+              <span className="input text-primary " style={{ minWidth: "220px", maxHeight: "32px", backgroundColor: "transparent" }}
+               data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load"
+               >
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
               </span>
-                <button
-                  className="btn btn-sm bg-transparent text-primary mx-1 px-1 py-0 mt-0 pt-1"
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-                  onClick={handleSaveAllToFile}>Save
-                </button >
+              <button
+                className="btn text-light btn-sm border border-solid px-2 mx-1 py-0 mt-0 pt-1"
+                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button >
             </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>

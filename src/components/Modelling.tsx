@@ -658,7 +658,7 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
+            <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
             <button
               className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
               style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}

@@ -458,7 +458,7 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
       >
         <div className="header m-0 p-0">
           <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
-          <div className="buttons position-relative me-3" style={{ scale: "0.7"}}>
+          <div className="buttons position-relative me-3" style={{ scale: "0.9"}}>
             <button 
               className="btn text-success mt-0 pe-2 py-0 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"

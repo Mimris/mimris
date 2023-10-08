@@ -12,9 +12,8 @@ const Navbar = (props) => {
 
 	const target = "";
 
-
 	const LinkDiv = 
-		<span className="fs-3 d-flex justify-content-between " style={{ fontsize: "30%", minWidth: "300px", marginTop: "2px" }}>
+		<span className="fs-3 d-flex justify-content-between fs-1" style={{ minWidth: "300px", marginTop: "2px" }}>
 			<strong>AKM Modeller </strong>
 			<span className="d-flex">
 				<Link href="https://akmmclient.vercel.app/modelling" target={target} style={{width: "50px"}}>
@@ -29,16 +28,16 @@ const Navbar = (props) => {
 	return (
 		<nav className="navbar navbar-expand-sm d-flex justify-content-between m-0 p-0">
 			<a className="navbar-brand navbar-left mr-4" href="#">
-				<img src="images/equinor-logo.svg" width="100px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
+				<img src="images/equinor-logo.svg" width="140px" height="80px" className="d-inline-block align-top" alt="Equinor logo" />
 			</a>
 			<div className="d-flex justify-content-center w-100">
 				<div className="">
 					{LinkDiv}
 				</div>
 				<div className="collapse navbar-collapse " id="nav-toggler-metis">
-					<ul className="navbar-nav bg-light">
-						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
-							<Link href="/">Home</Link>
+					<ul className="navbar-nav bg-light fs-5">
+						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`} >
+							<Link style={{paddingLeft: "25px", width: "100px"}} href="/">Home</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
 							<Link href="/modelling">Modelling</Link>
@@ -49,11 +48,11 @@ const Navbar = (props) => {
 						{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link href="/context">Focus</Link>
 						</li> */}
-						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`}>
-							<Link href="/helpblog">Help</Link>
+						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
+							<Link style={{paddingLeft: "30px", width: "100px"}} href="/helpblog">Help</Link>
 						</li>
-						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`}>
-							<Link href="/about">About</Link>
+						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
+							<Link style={{paddingLeft: "25px", width: "100px"}} href="/about">About</Link>
 						</li>
 						<li className="nav-item" style={{ minWidth: "140px" }}>
 							<a
@@ -81,7 +80,7 @@ const Navbar = (props) => {
 					</button>
 				</div>
 			</div>
-			<a className="navbar-brand " href="http://www.kavca.no">
+			<a className="navbar-brand " href="http://www.kavca.no" target="_blank">
 				<img src="images/Kavca-logo2.png" width="22" height="24" className="" alt="Kavca logo" />
 				<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
 			</a>

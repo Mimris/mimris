@@ -256,7 +256,7 @@ const fetchIssues = async () => {
           <div className="ps-2 text-success font-weight-bold fs-3" >Project </div>
           <div className="buttons position-relative end-0" style={{ scale: "0.9"}}>
             <button
-              className="btn text-success m-0 px-2 py-0 btn-sm"
+              className="btn text-success m-1 px-2 py-0 btn-sm"
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
@@ -267,7 +267,7 @@ const fetchIssues = async () => {
             ✵
             </button>
             <button 
-                className="btn text-success me-0 px-1 py-0 btn-sm" 
+                className="btn text-success m-1 px-1 py-0 btn-sm" 
                 onClick={handleMinimize} 
                 style={{backgroundColor: "#fff"}}>
                 &lt;-

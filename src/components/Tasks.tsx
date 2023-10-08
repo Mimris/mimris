@@ -41,16 +41,15 @@ function Tasks(props) {
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  // useEffect(() => {
-    //   console.log('40 Tasks', taskObj, parentObj,  prevParentObj);
-    //   if (parentObj && parentObj !== prevParentObj) {
-    //    setPrevParentObj(parentObj);
-    //   } else {
-    //     setPrevParentObj(null);
-    //   }
-    //   // if (grandParentObj !== prevGrandParentObj) setPrevGrandParentObj(grandParentObj);
-    //   // if (greatGrandParentObj !== prevGreatGrandParentObj) setPrevGreatGrandParentObj(greatGrandParentObj);
-  // }, [taskObj && taskObj.id ]);
+  const [showButton, setShowButton] = useState(false);
+
+  const handleMouseEnter = () => {
+    setShowButton(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowButton(false);
+  };
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
@@ -58,19 +57,6 @@ function Tasks(props) {
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
-
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     const modal = modalRef.current;
-  //     if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
-  //       setMinimized(true);
-  //     }
-  //   };
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, []);
 
   const handleShowModal = () => {
     if (minimized) {
@@ -120,45 +106,64 @@ function Tasks(props) {
   if (minimized) {
     return (
       <div className="minimized-task not-visible">
-        <div className="buttons position-absolute me-3 end-0"  style={{ scale: "0.7",marginTop: "-28px" }}>
+        <div
+          className="buttons position-absolute px- me-1 end-0"
+          style={{ scale: "0.7", marginTop: "-30px" }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          >
+          {/* {!showButton && ( */}
           <button
-            className="btn text-success ps-1 pe-1 py-0 btn-sm"
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Toggle Context & Focus Modal for current task!"
-            onClick={handleShowModal}
+            className="btn text-success px-2 py-0 btn-sm"
+            onClick={handleMaximize}
             style={{ backgroundColor: "lightyellow" }}
           >
-            ✵
+            Tasks
           </button>
-          <button 
-            className="btn text-success me-0 px-1 py-0 btn-sm" 
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Minimize"
-            onClick={handleMaximize}
-            style={{ backgroundColor: "lightyellow"}}
-          >
-            &lt;-
-          </button>
+          {/* )} */}
+          {showButton && (
+            <div>
+              {/* <button
+                className="btn text-success ms-2 px-2 py-0 btn-sm"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open Modal with current task!"
+                onClick={handleShowModal}
+                style={{ backgroundColor: "lightyellow" }}
+              >
+                ✵
+              </button> */}
+              {/* <button
+                className="btn text-success px-2 ms-2 py-0 btn-sm"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open Task pane"
+                onClick={handleMaximize}
+                style={{ backgroundColor: "lightyellow" }}
+              >
+                &lt;-
+              </button> */}
+            </div>
+          )}
         </div>
-        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
-            <Modal.Header closeButton>
-              <Modal.Title>Focus details:</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="bg-transparent">
-              <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>
-                Close
-              </Button>
-            </Modal.Footer>
-        </Modal>
       </div>
     );
+  
+    // <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
+    //     <Modal.Header closeButton>
+    //       <Modal.Title>Focus details:</Modal.Title>
+    //     </Modal.Header>
+    //     <Modal.Body className="bg-transparent">
+    //       <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
+    //     </Modal.Body>
+    //     <Modal.Footer>
+    //       <Button variant="secondary" onClick={handleCloseModal}>
+    //         Close
+    //       </Button>
+    //     </Modal.Footer>
+    // </Modal>
   }
 
   let taskEntries: string = '';
@@ -416,6 +421,19 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
   `;
   const basicTask4 = `
 
+  ##### Naming conventions for Models and Metamodels
+
+  ###### Models
+
+    -Concept models:  modelname_CM
+    -Type-Definitions: modelname_TD
+    -Solution models: modelname_SM
+
+  ##### Metamodels
+
+    -metamodelname_MM
+<hr />
+  
   ### Type-Definitions_TD Model
 
   To make a new Metamodel, we need to define the Object- and Relationship types we want to be in the Metamodel.
@@ -435,8 +453,8 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
     <>
       <div className="tasklist p-1 " 
         ref={containerRef}
-        style={{ backgroundColor: "lightyellow", width: "25rem", 
-        position: "relative", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
+        style={{ backgroundColor: "lightyellow", width: "26rem", 
+        position: "relative", height: "100%", top: "44%", right: "1%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
       >
         <div className="header m-0 p-0">
           <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
@@ -444,12 +462,15 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
             <button 
               className="btn text-success mt-0 pe-2 py-0 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Toggle Context & Focus Modal!"
+              title="Open Modal with current task!"
               onClick={handleShowModal} 
-              style={{ backgroundColor: "lightyellow"}} >✵
+              style={{ backgroundColor: "lightyellow"}} >
+              ✵
             </button> 
             <button 
               className="btn text-success me-0 px-1 py-0 btn-sm" 
+              data-toggle="tooltip" data-placement="top" data-bs-html="true"
+              title="Close Task pane!"
               onClick={handleMinimize} 
               style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
             {/* <button onClick={handleMaximize}>+</button> */}
@@ -473,7 +494,7 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
         {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={taskovs} selName='Tasks' focustype='focusTask' /> */}
         <div className="task">
           <details>
-            <summary className="bg-light px-1"> Default Modelling Tasks: </summary>
+            <summary className="bg-light px-1"> Default Modelling Tasks:(See also Help in top menu)</summary>
               <details className="mx-2" style={{ whiteSpace: "wrap" }}>
                 <summary>Create a new Object:</summary>
                 <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask1}</ReactMarkdown>
@@ -488,12 +509,13 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
                 <summary>Make a new Objectview of existing object</summary>
                 <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask3}</ReactMarkdown>
               </details>
+              <hr className="m-0 pt-1 bg-warning" />
               <details className="mx-2">
                 <summary>Build custom Metamodels in AKMM</summary>
                 <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask4}</ReactMarkdown>
               </details>
             </details>
-          <hr className="my-1 p-0 border-light" />
+          <hr className="my-1 pt-1 bg-success" />
         </div>
         <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
         <div className=" m-1" style={{ backgroundColor: "lightyellow" }}> 

@@ -3,6 +3,7 @@ const debug = false;
 import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
+import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
@@ -978,6 +979,7 @@ if (true) {  // Swimpool and swimlane code
 }
 export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
+    if (!debug) console.log('981 addNodeTemplates', myMetis, contextMenu, portContextMenu);
     let nodeTemplate0 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
         new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3233,20 +3235,20 @@ export function addPortTemplates() {
 
 // Function to identify images related to an image id
 export function findImage(image: string) {
-    if (debug) console.log("2561 findImage: ", image);
-    if (!image)
-        return "";
+    if (!debug) console.log("3238 findImage: ", image);
+    // if (!image)
+    //     return "";
     // if (image.substring(0,4) === 'http') { // its an URL
-    if (image.includes('//')) { // its an URL   
-        if (debug) console.log('2563 Diagram', image);
+     if (image.includes('//')) { // this is an http:// or https:// image
+        if (!debug) console.log('3243 Diagram', image);
         return image;
-    } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('2566 Diagram', image);   
+    } else if (image.includes('/')) { // its a local image with path i.e. /images/...
+        if (!debug) console.log('3246 Diagram', image);   
         return image
-    } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-        const firstcharacter = image.substring(0, 1)
-        const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
+        // } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
+        //     const firstcharacter = image.substring(0, 1)
+        //     const secondcharacter = image.substring(1, 2)
+        //     if (debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
         // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
         //   const letter = image.substring(0, image.length - 4)
         //   // const lettersvg = letter
@@ -3256,14 +3258,14 @@ export function findImage(image: string) {
         //   console.log('3025', image);
         //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
         //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
-    } else if (image.includes('<svg')) { // its an icon font
+    } else if (image.includes('<svg')) { // its an svg code image
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
-        if (debug) console.log('2585', img);
+        if (!debug) console.log('3263', img);
         return img
-
     } else { 
-        if (debug) console.log('2586 Diagram', image);
-        return "./../images/" + image //its an image in public/images
+        const img = "images/types/" + image
+        if (!debug) console.log('3267 Diagram', image, img)
+        return img //its an image in public/images
     }
     return "";
 }

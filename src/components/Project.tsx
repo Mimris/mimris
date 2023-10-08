@@ -216,18 +216,18 @@ const fetchIssues = async () => {
         <div className="minimized-task " >
           <div className="buttons position-absolute start-0" style={{ scale: "0.7", marginTop: "-26px"}}>
             <button
-              className="btn text-success m-0 px-1 py-0 btn-sm"
+              className="btn text-primary m-0 px-1 py-0 btn-sm"
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
               title="Open focusIssue!"
-              onClick={handleShowModal}
+              onClick={handleMaximize}
               style={{ backgroundColor: "#fff" }}
             >
-              ✵
+              Issues
             </button>
   
-            <button 
+            {/* <button 
               className="btn text-success me-2 px-1 py-0 btn-sm" 
               data-toggle="tooltip"
               data-placement="top"
@@ -237,9 +237,9 @@ const fetchIssues = async () => {
             style={{ backgroundColor: "#fff" }}
             >
               -&gt;
-            </button>
+            </button> */}
           </div>
-          {modalDiv}
+          {/* {modalDiv} */}
         </div>
       );
   }

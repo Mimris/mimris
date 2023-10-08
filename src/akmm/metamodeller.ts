@@ -6205,7 +6205,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textcolor   = "";
         this.textscale   = "";
         this.viewkind    = "";
-        this.icon        = "";
+        this.icon        = 'images/types/'+type?.name;
         this.data        = new cxObjtypeviewData();
         if (type) {
             const abs = type.abstract;

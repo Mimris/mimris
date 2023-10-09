@@ -48,8 +48,21 @@ const Navbar = (props) => {
 						{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link href="/context">Focus</Link>
 						</li> */}
-						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
-							<Link style={{paddingLeft: "30px", width: "100px"}} href="/helpblog">Help</Link>
+						<li 
+							className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
+							<Link 
+								style={{paddingLeft: "30px", width: "100px"}} 
+								href="/tasks">
+								Tasks
+							</Link>
+						</li>
+						<li 
+							className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
+							<Link 
+								style={{paddingLeft: "30px", width: "100px"}} 
+								href="/helpblog">
+								Help
+							</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
 							<Link style={{paddingLeft: "25px", width: "100px"}} href="/about">About</Link>

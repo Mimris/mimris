@@ -20,33 +20,123 @@ const SetContext = (props: any) =>  {
   }
 
   const contextRepoDiv = 
-    <div className="context-list d-flex justify-content-around flex-grow-1 px-1"> Context :
-      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item "> Modelview: <strong>{ phFocus?.focusModelview?.name } </strong> </span> 
-      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span> |
-      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
-      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
-    </div>
+  <div className="context-list d-flex justify-content-around align-items-center ms-4 px-1">
+  Context / Focus :
+  <span className="ms-2 ms-1 border rounded-2">
+    Proj:
+    <span
+      className="ms-1 px-1 border rounded-2"
+      style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      <Link
+        className="text-primary"
+        href={`https:/github.com/orgs/${org}/projects/${projectNumber}`}
+        target="_blank"
+      >
+        <span style={{ whiteSpace: "nowrap" }}>
+          {phFocus.focusProj.name}
+        </span>
+      </Link>
+    </span>
+  </span>
+  <span className="ms-2 me-1 border rounded-2">
+    Repo:
+    <span
+      className="m1-1 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      <Link
+        className="text-primary"
+        href={`https:/github.com/${org}/${repo}`}
+        target="_blank"
+      >
+        <span style={{ whiteSpace: "nowrap" }}>{repo}</span>
+      </Link>
+    </span>
+  </span>
+  <span className="context-item">
+    <span className="ms-2 me-1 px-1 border rounded-2">
+      Model:
+    </span>
+    <span
+      className="ms-1 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      {phFocus?.focusModel?.name}
+    </span>
+  </span>
+  <span 
+    className="ms-2 me-1 border rounded-2">
+    Modelview:
+    <span
+      className="mx-0 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      {phFocus?.focusModelview?.name}
+    </span>
+  </span>
+  <span 
+    className="ms-2 me-1 border rounded-2">
+    Object:
+    <span
+      className="ms-1 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      {phFocus?.focusObject?.name}
+    </span>
+  </span>
+  <span 
+    className="ms-2 me-1 border rounded-2">
+    Objectview:
+    <span
+      className="ms-1 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      {phFocus?.focusObjectview?.name}
+    </span>
+  </span>
+  <span 
+    className="ms-2 me-1 border rounded-2"
+    >
+    Role:
+    <span
+      className="ms-1 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+    >
+      {phFocus?.focusRole?.name}
+    </span>
+  </span>
+  <span
+    className="ms-2 me-1 border rounded-2"
+    >
+    Task:
+    <span
+      className="ms-1 px-1 border rounded-2"
+       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      >
+      {phFocus?.focusTask?.name}
+    </span>
+  </span>
+</div>
 
   const contextModelDiv = 
-    <div className="context-list d-flex justify-content-around align-items-center flex-grow-1"> Context 2:
-      <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
-      <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <strong>{repo}</strong> </Link></span> |
-      <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <strong>{phFocus.focusProj.name}</strong></Link>}</span> |
-      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
-
+    <div className="context-list d-flex justify-content-between align-items-center flex-grow-1"> Context 2:
+      <span className="context-item"> Org: <span>{phFocus?.focusProj?.org}</span> </span> | 
+      <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <span>{repo}</span> </Link></span> |
+      <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <span>{phFocus.focusProj.name}</span></Link>}</span>
   </div>
 
-  const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}
+  // const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}
   
   return (
     <>
-      {toggle ? contextRepoDiv : contextModelDiv}
-      <button className="btn btn-sm my-0 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "24px", backgroundColor: "#cdd"}}>
-        {(toggle) ? <span>&gt;</span> : <span >&lt;</span> }
-        {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}
-      </button> 
+      <div className="d-flex justify-content-between align-items-center ms-4 w-100" >
+        <span className="ms-5">{toggle ? contextRepoDiv : contextModelDiv}</span>
+        {/* <button className="btn btn-sm my-0 mx-1 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "24px", backgroundColor: "#cdd"}}> */}
+          {/* {(toggle) ? <span>&gt;</span> : <span >&lt;</span> } */}
+          {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}
+        {/* </button>  */}
+      </div>
     </>
   )
 }
@@ -55,16 +145,16 @@ export default SetContext
 
 
 
-      // {/* <span className="context-item">Objecttype: <strong>{phFocus?.focusObjecttype?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Objecttypeview: <strong>{phFocus?.focusObjecttypeview?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Relshipview: <strong>{phFocus?.focusRelshipview?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Relship: <strong>{phFocus?.focusRelship?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Relshiptype: <strong>{phFocus?.focusRelshiptype?.name}</strong> </span>| */}
+      // {/* <span className="context-item">Objecttype: <span>{phFocus?.focusObjecttype?.name}</span> </span>| */}
+      // {/* <span className="context-item">Objecttypeview: <span>{phFocus?.focusObjecttypeview?.name}</span> </span>| */}
+      // {/* <span className="context-item">Relshipview: <span>{phFocus?.focusRelshipview?.name}</span> </span>| */}
+      // {/* <span className="context-item">Relship: <span>{phFocus?.focusRelship?.name}</span> </span>| */}
+      // {/* <span className="context-item">Relshiptype: <span>{phFocus?.focusRelshiptype?.name}</span> </span>| */}
       // {/* <span className="context-item"><SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> </span>| */}
-      // {/* <span className="context-item">FocusModel: <strong>{phFocus?.focusModel?.name}</strong> </span>|
-      // <span className="context-item">FocusModelview: <strong>{phFocus?.focusModelview?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Tab: <strong>{phFocus?.focusTab}</strong> </span>  */}
-      // {/* <span className="context-item">Template: <strong>{phFocus?.focusTemplateModel?.name}</strong> </span>|
-      // <span className="context-item">TemplateModelview: <strong>{phFocus?.focusTemplateModelview?.name}</strong> </span>|
-      // <span className="context-item">TargetModel: <strong>{phFocus?.focusTargetModel?.name}</strong> </span>|
-      // <span className="context-item">TargetModelview: <strong>{phFocus?.focusTargetModelview?.name}</strong> </span>| */}
+      // {/* <span className="context-item">FocusModel: <span>{phFocus?.focusModel?.name}</span> </span>|
+      // <span className="context-item">FocusModelview: <span>{phFocus?.focusModelview?.name}</span> </span>| */}
+      // {/* <span className="context-item">Tab: <span>{phFocus?.focusTab}</span> </span>  */}
+      // {/* <span className="context-item">Template: <span>{phFocus?.focusTemplateModel?.name}</span> </span>|
+      // <span className="context-item">TemplateModelview: <span>{phFocus?.focusTemplateModelview?.name}</span> </span>|
+      // <span className="context-item">TargetModel: <span>{phFocus?.focusTargetModel?.name}</span> </span>|
+      // <span className="context-item">TargetModelview: <span>{phFocus?.focusTargetModelview?.name}</span> </span>| */}

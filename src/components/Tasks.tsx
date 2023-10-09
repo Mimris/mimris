@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef} from 'react';
 import { useSelector, useDispatch} from 'react-redux';
+
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
@@ -24,13 +25,14 @@ interface ObjView {
   group: number;
 }
 
-
 function Tasks(props) {
 
-
   // console.log('20 Tasks', require('/public/images/Task.png'));
-  if (debug) console.log('18 Tasks props', props, props.props.phData);
+  if (debug) console.log('18 Tasks props', props);
   const dispatch = useDispatch();
+
+
+  const [taskFocusModel, setTaskFocusModel] = useState(props.taskFocusModel);
 
   const state = useSelector((state) => state); // use RootState type
   if (debug) console.log('24 Tasks state', state);
@@ -43,6 +45,9 @@ function Tasks(props) {
 
   const [showButton, setShowButton] = useState(false);
 
+  useEffect(() => {
+    setMinimized(false);
+  }, [props.visible]);
   const handleMouseEnter = () => {
     setShowButton(true);
   };
@@ -70,12 +75,11 @@ function Tasks(props) {
 
   const metamodels = useSelector(state => state.phData?.metis?.metamodels);
   const models = useSelector(state => state.phData?.metis?.models);
-  const focusModel = useSelector(state => state.phFocus?.focusModel);
+  let focusModel = useSelector(state => state.phFocus?.focusModel);
   const focusModelview = useSelector(state => state.phFocus.focusModelview);
   const focusTask = useSelector(state => state.phFocus.focusTask);
   const focusRole = useSelector(state => state.phFocus.focusRole);
-
-  const curmodel = models?.find(m => m?.id === focusModel?.id);
+  const curmodel = (taskFocusModel) ?  models?.find(m => m?.id === taskFocusModel?.id) : models?.find(m => m?.id === focusModel?.id);
   const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
   // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
   // set mothermodel to generatedRef in cur metamodel
@@ -86,7 +90,7 @@ function Tasks(props) {
   const motherobjviews = mothermodel?.objectviews;
   const motherrelships = mothermodel?.relshipviews;
 
-  // console.log('104 Tasks', curmodel, curmetamodel, mothermodel, mothermodelviews, motherobjects, motherobjviews, motherrelships);
+  console.log('104 Tasks', curmodel, curmetamodel, mothermodel, mothermodelviews, motherobjects, motherobjviews, motherrelships);
 
   let parentTask: any = null;
   // useEffect(() => {
@@ -102,6 +106,13 @@ function Tasks(props) {
     setMinimized(false);
     setMaximized(true);
   };
+
+const handleNewWindow = () => {
+  const curmodId = String(curmodel?.id);
+  const parameter = '/tasks?taskFocusModel=' + curmodId;
+  console.log('116 handleNewWindow', curmodId, parameter);
+  window.open(parameter, '_blank');
+}
 
   if (minimized) {
     return (
@@ -274,7 +285,7 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
     const ovs = children;
 
     const parentobj = (parent === mv) ? {id: mv.id, name: mv.name, description: mv.description} : motherobjects?.find((o: any) => o.id === parent.objectRef); // find the object of this parent objectview
-    if (!debug) console.log('314 buildTree', mv.name, parent, children, parentobj);
+    if (debug) console.log('314 buildTree', mv.name, parent, children, parentobj);
 
     // children are the objectviews that has this parent objectview as group
     const children2 = children.map((ov: any) =>  {
@@ -287,19 +298,19 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
         objectRef: ov.objectRef,
         children: grandchildren
       };
-      if (!debug) console.log('321 buildTree', ov, grandchildren, simplifiedChild);
+      if (debug) console.log('321 buildTree', ov, grandchildren, simplifiedChild);
      return  buildTree(simplifiedChild, grandchildren); // recursively build the tree for all children with children
     }) ; //
-    console.log('332 buildTree', children2);
+    if (debug) console.log('332 buildTree', children2);
 
     const parent1 = { id: parent.id, name: parent.name, description: parentobj?.description, typeName: parentobj?.typeName,  objectRef: parent.objectRef, children: children2 };  // convert parent object with id, name, description, typeName, objectRef (from object) and children
     if (debug) console.log('337 buildTree', parentobj, parent1,  children2);
-    if (!debug) console.log('342 buildTree', parent1);
+    if (debug) console.log('342 buildTree', parent1);
     return parent1;
   };    
 
   const ovsTree = buildTree(parent, topObjviews);
-  if (!debug) console.log('347 buildTree', ovsTree, topObjviews, parent);
+  if (debug) console.log('347 buildTree', ovsTree, topObjviews, parent);
 
   const topGroupOvsDiv = 
     <details>
@@ -337,7 +348,9 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
     <>
       <hr className="my-0"/>
         {/* Render the top containers of this modelview */}
-        {topGroupOvsDiv}
+        <div className=" m-1" style={{ backgroundColor: "lightyellow" }}> 
+          {topGroupOvsDiv}
+        </div>
     </>
   );
 });
@@ -408,93 +421,112 @@ const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map o
   </span></a> <hr />
   `;
 
+  const genTasksHeaderDiv  =  
+    <>
+        <div className="tasklist p-1 "
+          style={{  width: "26rem"}} 
+          ref={containerRef}
+          >
+        {(props.asPage)
+          ? <></>
+          : 
+          <div className="header m-0 p-0 "
+            style={{ backgroundColor: "lightyellow", position: "relative", height: "100%", top: "44%", right: "1%", transform: "translate(-1%, -5%)", zIndex: 9999 }}
+            >
+              <div className="buttons position-relative me-3 float-end" style={{ scale: "0.9"}}>
+                <button 
+                  className="btn text-success mt-0 pe-2 py-0 btn-sm"
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Open Modal with current task!"
+                  onClick={handleShowModal} 
+                  style={{ backgroundColor: "lightyellow"}} >
+                  ✵
+                </button> 
+                <button 
+                  className="btn text-success mt-0 pe-2 py-0 btn-sm"
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Open Modal with current task!"
+                  onClick={handleNewWindow} 
+                  style={{ backgroundColor: "lightyellow"}} >
+                  ✵
+                </button> 
+                <button 
+                  className="btn text-success me-0 px-1 py-0 btn-sm" 
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Close Task pane!"
+                  onClick={handleMinimize} 
+                  style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
+                {/* <button onClick={handleMaximize}>+</button> */}
+              </div>
+              <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
+            </div>
+        }
+          <div className="flex-d">
+            <div>
+              Role:{" "}
+              <span className="font-weight-bold text-success bg-white p-1">
+                {focusRole.name}
+              </span>
+            </div>
+            <div>
+              Task:{" "}
+              <span className="font-weight-bold text-success bg-white p-1">
+                {focusTask.name}
+              </span>
+            </div>
+            <hr className="m-0" />
+          </div>
+          {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={taskovs} selName='Tasks' focustype='focusTask' /> */}
+          <div className="task">
+            <details>
+              <summary className="bg-light px-1"> Default Modelling Tasks:(See also Help in top menu)</summary>
+                <details className="mx-2" style={{ whiteSpace: "wrap" }}>
+                  <summary>Create a new Object:</summary>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask1}</ReactMarkdown>
+                </details>
+                <hr className="m-0" />
+                <details className="mx-2">
+                  <summary>Create a new Relationship:</summary>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask2}</ReactMarkdown>
+                </details>
+                <hr className="m-0" />
+                <details className="mx-2">
+                  <summary>Make a new Objectview of existing object</summary>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask3}</ReactMarkdown>
+                </details>
+                <hr className="m-0 pt-1 bg-warning" />
+                <details className="mx-2">
+                  <summary>Build custom Metamodels in AKMM</summary>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask4}</ReactMarkdown>
+                </details>
+              </details>
+            <hr className="my-1 pt-1 bg-success" />
+          </div>
+        </div>
+    </>
+  ;
+
   return (
     <>
-      <div className="tasklist p-1 " 
-        ref={containerRef}
-        style={{ backgroundColor: "lightyellow", width: "26rem", 
-        position: "relative", height: "100%", top: "44%", right: "1%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
-      >
-        <div className="header m-0 p-0">
-          <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
-          <div className="buttons position-relative me-3" style={{ scale: "0.9"}}>
-            <button 
-              className="btn text-success mt-0 pe-2 py-0 btn-sm"
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Open Modal with current task!"
-              onClick={handleShowModal} 
-              style={{ backgroundColor: "lightyellow"}} >
-              ✵
-            </button> 
-            <button 
-              className="btn text-success me-0 px-1 py-0 btn-sm" 
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Close Task pane!"
-              onClick={handleMinimize} 
-              style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
-            {/* <button onClick={handleMaximize}>+</button> */}
-          </div>
-        </div>
-        <div className="flex-d">
-          <div>
-            Role:{" "}
-            <span className="font-weight-bold text-success bg-white p-1">
-              {focusRole.name}
-            </span>
-          </div>
-          <div>
-            Task:{" "}
-            <span className="font-weight-bold text-success bg-white p-1">
-              {focusTask.name}
-            </span>
-          </div>
-          <hr className="m-0" />
-        </div>
-        {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={taskovs} selName='Tasks' focustype='focusTask' /> */}
-        <div className="task">
-          <details>
-            <summary className="bg-light px-1"> Default Modelling Tasks:(See also Help in top menu)</summary>
-              <details className="mx-2" style={{ whiteSpace: "wrap" }}>
-                <summary>Create a new Object:</summary>
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask1}</ReactMarkdown>
-              </details>
-              <hr className="m-0" />
-              <details className="mx-2">
-                <summary>Create a new Relationship:</summary>
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask2}</ReactMarkdown>
-              </details>
-              <hr className="m-0" />
-              <details className="mx-2">
-                <summary>Make a new Objectview of existing object</summary>
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask3}</ReactMarkdown>
-              </details>
-              <hr className="m-0 pt-1 bg-warning" />
-              <details className="mx-2">
-                <summary>Build custom Metamodels in AKMM</summary>
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask4}</ReactMarkdown>
-              </details>
-            </details>
-          <hr className="my-1 pt-1 bg-success" />
-        </div>
-        <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
-        <div className=" m-1" style={{ backgroundColor: "lightyellow" }}> 
-          {genTasksDiv} 
-        </div>
 
-        <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
-          <Modal.Header className="mx-2 bg-transparent" closeButton>
-            <Modal.Title>Focus task </Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="bg-transparent">
-            <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </div>
+      {genTasksHeaderDiv}
+      <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
+      {genTasksDiv}
+
+      <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
+        <Modal.Header className="mx-2 bg-transparent" closeButton>
+          <Modal.Title>Focus task </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="bg-transparent">
+          <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
       <style jsx>{`
           .tasklist {
             width: 100%;

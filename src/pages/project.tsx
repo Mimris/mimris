@@ -39,6 +39,7 @@ const page = (props: any) => {
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [mount, setMount] = useState(false)
+
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
@@ -327,7 +328,7 @@ const page = (props: any) => {
   )
 }
 
-export default connect((state: any) => state)(page)
+export default connect(state: any => state)(page)
 
 
 

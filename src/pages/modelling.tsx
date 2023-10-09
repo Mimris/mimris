@@ -117,8 +117,8 @@ const page = (props: any) => {
   }, [])
 
   const contextDiv = ( // the top context area (green)
-    <div className="context-bar d-flex ps-4 pe-5 " style={{ backgroundColor: "#cdd", width: "100%", maxHeight: "24px"}}>
-      <SetContext className='setContext w-100' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%"}} />
+    <div className="context-bar d-flex ps-4 " style={{ backgroundColor: "#cdd", width: "", maxHeight: ""}}>
+      <SetContext className='setContext' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%"}} />
       <div className="context-bar--context d-flex justify-content-between align-items-center me-4" style={{ backgroundColor: "#dcc" }}>
         <SelectContext className='ContextModal mr-1' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
         {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}

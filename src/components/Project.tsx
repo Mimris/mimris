@@ -187,7 +187,7 @@ const fetchIssues = async () => {
         <div className="minimized-task " >
           <div 
             className="buttons position-absolute" 
-            style={{ scale: "0.8", marginTop: "-25px", marginLeft: "-12px"}}
+            style={{ scale: "0.8", marginTop: "-28px", marginLeft: "-8px"}}
           >
             <button
               className="btn bg-light text-primary m-0 p-1 btn-sm fs-5"

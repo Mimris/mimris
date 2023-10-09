@@ -105,65 +105,24 @@ function Tasks(props) {
 
   if (minimized) {
     return (
-      <div className="minimized-task not-visible">
+      <div className="minimized-task">
         <div
-          className="buttons position-absolute px- me-1 end-0"
-          style={{ scale: "0.7", marginTop: "-30px" }}
+          className="buttons position-absolute p-0 m-0 me-1 end-0"
+          style={{ scale: "0.8", marginTop: "-25px", marginLeft: "-2px"}}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           >
-          {/* {!showButton && ( */}
-          <button
-            className="btn text-success px-2 py-0 btn-sm fs-5"
+           <button
+            className="btn text-success m-0 px-1 py-0 btn-sm fs-4"
             onClick={handleMaximize}
             style={{ backgroundColor: "lightyellow" }}
           >
+            <i className="fas fa-tasks me-1" aria-hidden="true"></i>
             Tasks
           </button>
-          {/* )} */}
-          {showButton && (
-            <div>
-              {/* <button
-                className="btn text-success ms-2 px-2 py-0 btn-sm"
-                data-toggle="tooltip"
-                data-placement="top"
-                data-bs-html="true"
-                title="Open Modal with current task!"
-                onClick={handleShowModal}
-                style={{ backgroundColor: "lightyellow" }}
-              >
-                ✵
-              </button> */}
-              {/* <button
-                className="btn text-success px-2 ms-2 py-0 btn-sm"
-                data-toggle="tooltip"
-                data-placement="top"
-                data-bs-html="true"
-                title="Open Task pane"
-                onClick={handleMaximize}
-                style={{ backgroundColor: "lightyellow" }}
-              >
-                &lt;-
-              </button> */}
-            </div>
-          )}
         </div>
       </div>
     );
-  
-    // <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
-    //     <Modal.Header closeButton>
-    //       <Modal.Title>Focus details:</Modal.Title>
-    //     </Modal.Header>
-    //     <Modal.Body className="bg-transparent">
-    //       <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
-    //     </Modal.Body>
-    //     <Modal.Footer>
-    //       <Button variant="secondary" onClick={handleCloseModal}>
-    //         Close
-    //       </Button>
-    //     </Modal.Footer>
-    // </Modal>
   }
 
   let taskEntries: string = '';

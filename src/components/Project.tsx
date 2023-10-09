@@ -30,35 +30,6 @@ const Project = (props) => {
   const modalRef = useRef(null);
   const projectModalRef = useRef(null);
 
-  // useEffect(() => {
-    //   const handleClickOutside = (event) => {
-    //     const container = containerRef.current;
-    //     const modal = modalRef.current;
-    //     const projectModal = projectModalRef.current;
-
-    //     console.log('35 modalContent', container, projectModal,
-    //     (container && container.contains(event.target)) ,
-    //     (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
-    //     )
-    //     // if (!(container && container.contains(event.target)) &&
-    //     //   !(projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) )) {
-    //     //   console.log('42 modalContent', container, projectModal,
-    //     //   (container && container.contains(event.target)) ,
-    //     //   (projectModal && projectModal instanceof HTMLElement && projectModal.contains(event.target) ),
-    //     //   )
-    //     //   // setTimeout(() => {
-    //     //     // setModalOpen(false);
-    //     //     // setProjectModalOpen(false);
-    //     //     setMinimized(true)
-    //     //   // }, 100)
-    //     // }
-    //   };
-    //   document.addEventListener("mousedown", handleClickOutside);
-    //   return () => {
-    //     document.removeEventListener("mousedown", handleClickOutside);
-    //   };
-  // }, []);
-
   const handleMinimize = () => {
       setMinimized(true);
       // setMaximized(false);
@@ -213,11 +184,13 @@ const fetchIssues = async () => {
 
   if (minimized) {
     return (
-
         <div className="minimized-task " >
-          <div className="buttons position-absolute start-0" style={{ scale: "0.8", marginTop: "-26px"}}>
+          <div 
+            className="buttons position-absolute" 
+            style={{ scale: "0.8", marginTop: "-25px", marginLeft: "-12px"}}
+          >
             <button
-              className="btn bg-light text-primary m-0 px-1 py-0 btn-sm fs-5"
+              className="btn bg-light text-primary m-0 p-1 btn-sm fs-5"
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
@@ -225,22 +198,10 @@ const fetchIssues = async () => {
               onClick={handleMaximize}
               style={{ backgroundColor: "#fff" }}
             >
+              <i className="fas fa-poll-h fa-lg me-1" aria-hidden="true"></i>
               Project
             </button>
-  
-            {/* <button 
-              className="btn text-success me-2 px-1 py-0 btn-sm" 
-              data-toggle="tooltip"
-              data-placement="top"
-              data-bs-html="true"
-              title="Minimize Issues list for this modelling project!"
-              onClick={handleMaximize}
-            style={{ backgroundColor: "#fff" }}
-            >
-              -&gt;
-            </button> */}
           </div>
-          {/* {modalDiv} */}
         </div>
       );
   }

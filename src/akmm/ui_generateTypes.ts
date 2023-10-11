@@ -602,9 +602,11 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 }
                 else if (rel.getName() === constants.types.AKM_IS_DEFAULTVALUE) {
                     let valueObj = rel.toObject;
-                    datatype.setDefaultValue(valueObj.name);
-                    if (debug) console.log('516 defaultValue', valueObj.name);
-                    values.push(valueObj.getName());
+                    if (valueObj) {
+                        datatype.setDefaultValue(valueObj.name);
+                        if (debug) console.log('516 defaultValue', valueObj.name);
+                        values.push(valueObj.getName());
+                    }
                 }
                 for (let i=0; i< values.length; i++) {
                     datatype.addAllowedValue(values[i]);
@@ -674,8 +676,8 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 });
 
                 if (debug) console.log('564 generateDatatype', datatype, myMetis);
-                return datatype;
             }
+            return datatype;
         }
     }
 }

@@ -180,8 +180,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             }
-            if (namelist.length > 1 && 
-                typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
+            // if (namelist.length > 1 && 
+            //     typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
+            if (namelist.length > 1 && typename !== 'Element' && typename !== 'All') {
               for (let i=0; i<inheritedTypes.length; i++) {
                 const tname = inheritedTypes[i]?.name;
                 if (tname === typename) {
@@ -379,6 +380,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (k === 'markedAsDeleted') {
           continue;
         }
+        // Hack
+        if (k === 'memberscale') {
+          continue;
+        }
+        // End hack
       }
       if (chosenType) {
         // Filter attributes to show in a given tab
@@ -761,29 +767,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (val === "")
               val = defValue;
           }
-          if (fieldType === 'date') {
-            if (val === "" || val === "now") {
-              const d = new Date();
-              let year = d.getFullYear();
-              let month = d.getMonth()+1;
-              if (month < 10) month = '0' + month;
-              let day = d.getDate();
-              if (day < 10) day = '0' + day;
-              val = year + '-' + month + '-' + day; 
-            }
-          }
           if (fieldType === 'time') {
-            if (val === "" || val === "now") {
+            pattern = "";
+            const isNow = (val === "now");
+            if (val === "" || isNow) {
               const d = new Date();
               val = d.getTime();
             }
+            if (isNow)
+              disabled = true;
           }
           if (k === 'name') {
             fieldType = 'text';
           }
           if (viewFormat) {
-            if (utils.isNumeric(val))
+            if (utils.isNumeric(val) && fieldType !== 'time') {
               val = printf(viewFormat, Number(val));
+            }
           }
         }
         // Handle disabled

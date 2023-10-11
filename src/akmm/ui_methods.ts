@@ -595,6 +595,9 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         return retval;
     const pi = 3.14159265
     let mtd = prop.method;
+    let dtype = prop.datatype;
+    if (!dtype)
+        dtype = myMetis.findDatatype(prop.datatypeRef);
     if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let expression = mtd?.expression;
     if (expression) { 
@@ -602,7 +605,22 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         expression = substitutePropnamesInExpression(object, expression, myMetis);
         if (debug) console.log('455 expression', expression);
         try {
-            retval = eval(expression);
+            if (expression === 'now') {
+                if (dtype?.name === 'date') {
+                    const d = new Date();
+                    let year = d.getFullYear();
+                    let month = d.getMonth()+1;
+                    if (month < 10) month = '0' + month;
+                    let day = d.getDate();
+                    if (day < 10) day = '0' + day;
+                    retval = year + '-' + month + '-' + day; 
+                } else if (dtype?.name === 'time') {
+                    const d = new Date();
+                    retval = d.getTime();      
+                }
+            } else {
+                retval = eval(expression);
+            }
             if (!retval)
                 retval = expression;
         } catch(e) {

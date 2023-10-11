@@ -339,6 +339,10 @@ let includeNoType = false;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
           node.name = objview.name;
+          // Temporary hack
+          node.scale = 1;
+          node.scale1 = 1;
+          // End temporary hack
           myGoModel.addNode(node);
       }
       if (debug) console.log('312 myGoModel', myGoModel);

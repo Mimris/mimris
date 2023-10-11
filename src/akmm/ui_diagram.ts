@@ -1395,8 +1395,8 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     msg += printf(format2, "descr.", breakString(d.object.description, 64));
     // msg += "-------------------\n";
     // msg = "Object \Type props:\n";
-    d.object.type.properties.map(prop => {  
-        propval = prop.name;
+    d.object.type.properties?.map(prop => {  
+        propval = prop?.name;
         console.log('1338 propval', propval);
         msg += printf(format2, prop.name, d.object[propval]);
     });

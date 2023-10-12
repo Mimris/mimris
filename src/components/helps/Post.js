@@ -3,7 +3,7 @@ import Layout from '../Layout'
 
 
 export default function Post({ post }) {
-  console.log('5 Post', post)
+  // console.log('5 Post', post)
   return (
     <>
     <div className='card'>

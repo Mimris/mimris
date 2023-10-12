@@ -28,7 +28,7 @@ interface ObjView {
 function Tasks(props) {
 
   // console.log('20 Tasks', require('/public/images/Task.png'));
-  if (!debug) console.log('18 Tasks props', props);
+  if (debug) console.log('18 Tasks props', props);
   const dispatch = useDispatch();
 
 
@@ -92,7 +92,7 @@ function Tasks(props) {
   const focusTask = useSelector(state => state.phFocus.focusTask);
   const focusRole = useSelector(state => state.phFocus.focusRole);
   const curmodel = (taskFocusModel?.id) ?  models?.find(m => m?.id === taskFocusModel?.id) : models?.find(m => m?.id === focusModel?.id);
-  if  (!debug) console.log('91 Tasks', models, focusModel, taskFocusModel, curmodel);
+  if  (debug) console.log('91 Tasks', models, focusModel, taskFocusModel, curmodel);
   const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
   // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
   // set mothermodel to generatedRef in cur metamodel
@@ -316,7 +316,7 @@ const openOneLevel = () => {
   };
 
 const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
-  if (!debug) console.log('371 Tasks', mv);
+  if (debug) console.log('371 Tasks', mv);
 
   const parent = mv;
 

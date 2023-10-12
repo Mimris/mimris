@@ -5,7 +5,7 @@ import { Modal, Button } from 'react-bootstrap';
 import { is, set } from 'immer/dist/internal';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
-// import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
+import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
 // import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
 
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
@@ -144,9 +144,9 @@ const fetchIssues = async () => {
                 Updated: {issue.updated_at.slice(0, 10)} <br />
                 Closed: {issue.closed_at?.slice(0, 10)} <br />
                 Labels: {issue.labels.map((label) => (label.name))} <br />
-                <div className="bg-white border border-secondary p-2">
+                {/* <div className="bg-white border border-secondary p-2">
                   Details: <ReactMarkdown rehypePlugins={[rehypeRaw]} >{issue.body}</ReactMarkdown>
-                </div>
+                </div> */}
                 Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br />
 
                 {/* Body:  {issue.body}, User name: {issue.user.name} */}

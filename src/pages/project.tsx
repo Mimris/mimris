@@ -328,7 +328,7 @@ const page = (props: any) => {
   )
 }
 
-export default connect(state: any => state)(page)
+export default connect(state => state)(page)
 
 
 

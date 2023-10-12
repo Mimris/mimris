@@ -321,6 +321,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.markedAsDeleted) { 
                                 const dtype = new cxDatatype(item.id, item.name, item.description);
+                                if (dtype.name === 'time') dtype.fieldType = 'time';
                                 metamodel.addDatatype(dtype);
                                 this.addDatatype(dtype);
                             }

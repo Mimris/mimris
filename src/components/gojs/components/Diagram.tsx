@@ -590,6 +590,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Connect to Selected",
             function (e: any, obj: any) {
               const node = obj.part.data;
+              node.isSelected = false;
               let fromType = node.objecttype;
               fromType = myMetis.findObjectType(fromType.id);
               const nodes = [];

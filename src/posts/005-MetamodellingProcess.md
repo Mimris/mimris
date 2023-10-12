@@ -5,51 +5,211 @@ excerpt: 'How to build type definition models and then generate metamodels.'
 cover_image: 'images/posts/modelling/image_model001.png'
 ---
 
-First a few words about terminology. 
+## Build Type Definition Models (TD)
 
-There are in principle two kinds of models – models whose focus is on type definitions, i.e. we define types that compose a modelling language (a metamodel), and models that are based upon a (generated) metamodel (the generated modelling language).  
+To build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.
+This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. 
 
-In this chapter the focus is on the technicalities associated with developing type definition models, generating metamodels, creating models based on the generated metamodel and then start over again by making changes to the type definition model.
+<details>  <summary>Build a Type-definition model ...</summary>
 
-## Build the metamodel
+... 
 
-Let us start with the built-in metamodel:
+<details>  <summary>Create Initial Containers ...</summary>
 
-![alt text](/images/posts/modelling/image_model001.png)
+
+Let us start with an empty model and the built-in ***AKM-Core_MM*** metamodel:
+
+![Initial page with blank modelling area and AKM-Core_MM types in the Palette](/images/posts/modelling/image_model001.png)
 
 The left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.
 
-### Model the type definition model
 
-When building a type definition model the primary type used to represent an object type, is “*EntityType*”. You drag “*EntityType*” into the modelling area and drop it to create an object representing your new type. You set the object name to the typename you decide. You do this for as many types you want. 
-Relationship types are modelled as relationships of type “*relationshipType*” between “*EntityTypes*” in the model and renamed to the typename you decide.
+From the Palette (left pane) drag the ***Container*** type and drop it into the Modelling area.
 
-### The example
+Click on the name and edit ***name*** ( Name it  ***"Domain Types"*** i.e. ***"Bikerental Types"***).
 
-In this chapter we will use an example metamodel as defined below. It has four different object types, "*Person*", "*House*", "*Apartment*" and "*Car*", with relationship types "*owns*" and "*rents*" as shown in the next model diagram.
+Right-Click the object to edit  ***description***.
 
-There are four “*EntityType*” objects, each representing an object type in the intended new metamodel. Their names are the planned object type names.
-There are six “*isRelatedTo*” relationships, each representing a relationship type in the new metamodel. Each “*isRelatedTo*” relationship is renamed to its planned relationship type names. These are the names you see in the diagram.
 
-![alt text](/images/posts/modelling/image_model031.png)
+<a href="images/help/Demo-InitialContainers.png" target="_blank">
+<code style="color: blue"> 
+<font size="2" weight="bold">
 
-This small type definition model is enough to generate a new metamodel, that will allow you to model people, houses, apartments and cars, and link them together with the appropriate relationships. 
+![Create EntityType](images/help/Demo-InitialContainers.png)
 
-### Generate the metamodel
+</font>
+</code>
+Click on the picture to open in New Tab!</a>
 
+</details>
+
+---
+
+<details>  <summary>Create EntityTypes ...</summary>
+
+From the Palette (left pane) drag the ***EntityType*** and drop it into the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description*** and ***proposedType***.
+
+The attribute "proposedType" is used to give the Concept-/ Information-object a proposed TypeName.
+
+<a href="images/help/Create-EntityType.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">
+![Create EntityType](images/help/Create-EntityType.png)</font>
+</code>
+Click on the picture to open in New Tab!</a>
+</details>
+
+---
+
+<details>  <summary>Add Tasks and Role ...</summary>
+
+In the  Palette > ***Additional Metamodels*** (lower left pane) select AKM-IRTV_MM metamodel.
+
+From this Palette drag the ***Task*** object-type and drop it into the Container ***"Tasks and Roles"***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description*** and ***proposedType***.
+
+Connect the ***Task*** object with the appropriate ***EntityType***, using ***refertsTo*** relationship.
+
+Drag and drop a ***Role*** object and connect with the ***Task***, using ***performs*** relationship.
+
+##### Example figur:
+
+<a href="images/help/Demo-TypesTasksRoles1.png" target="_blank">
+
+<code style="color: blue"> <font size="2" weight="bold">
+![Add Roles and Tasks](images/help/Demo-TypesTasksRoles1.png)</font>
+</code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+
+<details>  <summary>Add Properties ...</summary>
+
+From the Palette (left pane) drag the ***Property*** type and drop it into the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description***.
+
+<a href="images/help/Add-Property.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-Property.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+
+<details>  <summary>Add Values ...</summary>
+
+From the Palette (left pane) drag the ***Value*** type and drop it into the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description***.
+
+<a href="images/help/Add-Value.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-Value.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+
+<details>  <summary>Add Fieldtype ...</summary>
+
+From the Palette (left pane) drag the ***Fieldtype*** type and drop it into the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description***.
+
+<a href="images/help/Add-Fieldtype.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-Fieldtype.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+
+<details>  <summary>Add InputPattern ...</summary>
+
+From the Palette (left pane) drag the ***InputPattern*** type and drop it into the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description***.
+
+<a href="images/help/Add-InputPattern.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-InputPattern.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+
+<details>  <summary>Add ViewFormat ...</summary>
+
+From the Palette (left pane) drag the ***ViewFormat*** type and drop it into the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit  ***description***.
+
+<a href="images/help/Add-ViewFormat.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-ViewFormat.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+
+<details>  <summary>Add Metamodel Object ...</summary>
+
+From the Palette (left pane) drag the ***Metamodel*** type and drop outside the Container ***"Domain" Types***. Click on the name and edit ***name***.
+Right-Click the object to edit ***description***.
+
+Drag a relationship with type ***contains*** from til ***Metamodel*** object to the EntityType objects to be included in the new Metamodel.
+
+<a href="images/help/Add-Metamodel.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-Metamodel.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+</details>
+
+---
+---
+
+<details>  <summary>Modify the Type-definition model ...</summary>
+
+If something is wrong, or you want to change anything, go back to the type definition model, do the necessary changes, and generate the metamodel again.
+
+If you want to add symbols and colors to your types, go back to your type definition model to add view specifications, and generate the metamodel again.
+
+The view specifications are done by editing “*Object View*” of the “*EntityType*” objects and by editing “*Relationship View*” of the “*relationshipType*” relationships. 
+The “*Object View*” and “*Relationship View*” definitions are used to define the corresponding “*Object Typeview*” and “*Relationship Typeview*” definitions in the generated metamodel.
+
+<a href="images/help/Add-Metamodel.png" target="_blank">
+<code style="color: blue"> <font size="2" weight="bold">![Create EntityType](images/help/Add-Metamodel.png)</font></code>
+Click on the picture to open in New Tab!</a>
+
+</details>
+
+---
+---
+
+<details>  <summary>Generate a new Metamodel ...</summary>
+
+### Generate the new Metamodel
+ 
 The first time you want to generate a metamodel from the type definition model, there are a few things you need to do:
 
-1. Create a new metamodel by right clicking the background and choose “***New Metamodel***” in the popup menu. You will be asked for a metamodel name.
+Generate the metamodel content by right clicking the background and choose “***Generate Metamodel***”. Follow the dialog questions:
 
-2. Generate the metamodel content by right clicking the background and choose “***Generate Metamodel***”. You will then be asked two questions:
+- “***Do you want to exclude system types***”? Click “*Ok*”.
+- “***Select Target Metamodel***”. Confirm the metamodel in the list.  
 
-3. “***Do you want to include system types***”? At the time being answer “*No*” or “*Cancel*” to that question.
-
-4. “***Select Target Metamodel***”. In the dropdown list select the metamodel you created above and click "*Done*". You should then get the message: “*Target metamodel has been successfully generated!*”.
+You should then get the message: “***Target metamodel has been successfully generated!***”.
 
 Now it is time to verify your metamodel, to see if you are able to build the desired model based on the type definitions you just created.
+(see next step)
 
-### Verify the metamodel
+</details>
+
+---
+---
+
+<details>  <summary>Use/verify the new Metamodel ...</summary>
+
+### Use/Verify the Metamodel
 To do the verification create a new model based on your new metamodel and start modelling *persons*, *houses*, *apartments* and *cars*. 
 
 You create the new model by right clicking the background and choose “*New Model*” in the popup menu. You will be asked to select a metamodel – select the one you just generated.
@@ -62,11 +222,50 @@ If you can create objects of your 4 types, and connect relationships according t
 
 ![alt text](/images/posts/modelling/image_model0371.png)
 
-### Modify the metamodel
-If something is wrong, or you want to change anything, go back to the type definition model, do the necessary changes, and generate the metamodel again.
+</details>
 
-If you want to add symbols and colors to your types, go back to your type definition model to add view specifications, and generate the metamodel again.
+---
+---
 
-The view specifications are done by editing “*Object View*” of the “*EntityType*” objects and by editing “*Relationship View*” of the “*relationshipType*” relationships. 
-The “*Object View*” and “*Relationship View*” definitions are used to define the corresponding “*Object Typeview*” and “*Relationship Typeview*” definitions in the generated metamodel.
+<details>  <summary>Example Type-definition Model ...</summary>
 
+### The example
+
+In this chapter we will use an example metamodel as defined below. It has four different object types, "*Person*", "*House*", "*Apartment*" and "*Car*", with relationship types "*owns*" and "*rents*" as shown in the next model diagram.
+
+There are four “*EntityType*” objects, each representing an object type in the intended new metamodel. Their names are the planned object type names.
+There are six “*isRelatedTo*” relationships, each representing a relationship type in the new metamodel. Each “*isRelatedTo*” relationship is renamed to its planned relationship type names. These are the names you see in the diagram.
+
+![alt text](/images/posts/modelling/image_model031.png)
+
+This small type definition model is enough to generate a new metamodel, that will allow you to model people, houses, apartments and cars, and link them together with the appropriate relationships. 
+
+</details>
+
+---
+<details><summary>More about The Core Metamodel ...</summary>
+
+### AKM-CORE_MM Metamodel
+
+![image001](images/posts/CustomMeta/Picture1.png)
+
+### Links
+
+You can find more info following this link : 
+<a href="/helpblog/002-BuildCustomMetamodels#AKMM%20Help" target="_blank">
+
+<code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
+
+</span></a> 
+
+</details>
+
+---
+---
+
+
+You can find more info following this link : 
+<a href="http://localhost:3000/helpblog/002-BuildCustomMetamodels#AKMM%20Help" target="_blank"><code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
+</span></a>
+
+</details>

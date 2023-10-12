@@ -16,7 +16,8 @@ import Tasks from '../components/Tasks'
 // import TasksHelp from '../components/TasksHelp'
 import useLocalStorage from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
-import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
+// import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
+// import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
 import GenGojsModel from "../components/GenGojsModel";
 import Issues from "../components/Project";
 
@@ -150,9 +151,9 @@ const page = (props: any) => {
                 {/* <div className="contextarea">
                 </div> */}
               {/* </div> */}
-                <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }} >
-                    <Tasks props={props}/>
-                </div>
+            <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px", maxHeight: "92vh" }}>
+              <Tasks props={props}/>
+            </div>
             </div>
             <div className="footer">
               <Footer />

@@ -5,7 +5,8 @@ import { Modal, Button } from 'react-bootstrap';
 import { is, set } from 'immer/dist/internal';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
-import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
+// import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
+// import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
 
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
@@ -225,13 +226,20 @@ const fetchIssues = async () => {
               onClick={handleShowModal}
               style={{ backgroundColor: "#fff" }}
             >
-            ✵
+            <i className="fa fa-lg fa-bullseye"></i> 
             </button>
             <button 
                 className="btn text-success m-1 px-1 py-0 btn-sm" 
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Close Project Pane!"
                 onClick={handleMinimize} 
-                style={{backgroundColor: "#fff"}}>
-                &lt;-
+                style={{backgroundColor: "#fff"}}
+                >
+                {/* &lt;- */}
+                {/* <i className="fas fa-compress-arrows-alt fa-lg" aria-hidden="true"></i> */}
+                <i className="fa fa-lg fa-arrow-left"></i>
             </button>
           </div>
         </div>               

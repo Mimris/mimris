@@ -306,7 +306,7 @@
 .tasksarea {
   padding: 2px;
   border: 2px;
-  max-width: 400px;
+  /* max-width: 400px; */
   border-radius: 5px 5px 5px 5px;
   border-color: #000;
   background-color: #aaa;

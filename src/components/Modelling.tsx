@@ -11,7 +11,8 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'r
 import classnames from 'classnames';
 
 import Page from './page';
-import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
+// import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
+import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions__PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";

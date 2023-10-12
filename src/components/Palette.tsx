@@ -126,44 +126,44 @@ const Palette = (props: any) => {
 
   if (debug) console.log('127 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
-function getModellingTask(selectedIndex) {
-  const taskObj = metamodelList[selectedIndex];
-  setTask(taskObj);
+  function getModellingTask(selectedIndex) {
+    const taskObj = metamodelList[selectedIndex];
+    setTask(taskObj);
 
-  const curmm = { id: taskObj?.id, name: taskObj?.name };
-  const curmmodel = metamodels?.find((m: any) => m?.id === curmm?.id);
-  const thistypes = curmmodel?.objecttypes?.map((t: any) => t?.name) || [];
+    const curmm = { id: taskObj?.id, name: taskObj?.name };
+    const curmmodel = metamodels?.find((m: any) => m?.id === curmm?.id);
+    const thistypes = curmmodel?.objecttypes?.map((t: any) => t?.name) || [];
 
-  const filteredNodeDataArray = buildFilter(role, task, metamodelList, thistypes, curmmodel);
+    const filteredNodeDataArray = buildFilter(role, task, metamodelList, thistypes, curmmodel);
 
-  const timer = setTimeout(() => {
-    setFilteredOtNodeDataArray(filteredNodeDataArray);
-    setRefreshPalette(!refreshPalette);
-  }, 200);
+    const timer = setTimeout(() => {
+      setFilteredOtNodeDataArray(filteredNodeDataArray);
+      setRefreshPalette(!refreshPalette);
+    }, 200);
 
-  return () => clearTimeout(timer);
-}
+    return () => clearTimeout(timer);
+  }
 
-const otDiv = (
-  <>
-    <label className="label-field px-1">Additional Metamodels:</label>
-    <select
-      className="select-field mx-1 text-secondary"
-      style={{ width: "96%" }}
-      value={metamodelList?.findIndex((t) => t.id === task.id)}
-      onChange={(e) => getModellingTask(e.target.value)}
-    >
-      <option value="" key="-1">
-        Select Metamodel
-      </option>
-      {metamodelList?.map((t, i) => (
-        <option key={i} value={i}>
-          {t?.name}
+  const otDiv = (
+    <>
+      <label className="label-field px-1">Additional Metamodels:</label>
+      <select
+        className="select-field mx-1 text-secondary"
+        style={{ width: "96%" }}
+        value={metamodelList?.findIndex((t) => t.id === task.id)}
+        onChange={(e) => getModellingTask(e.target.value)}
+      >
+        <option value="" key="-1">
+          Select Metamodel
         </option>
-      ))}
-    </select>
-  </>
-);
+        {metamodelList?.map((t, i) => (
+          <option key={i} value={i}>
+            {t?.name}
+          </option>
+        ))}
+      </select>
+    </>
+  );
 
   const gojsappPaletteDiv = (mmodel) &&
     <>

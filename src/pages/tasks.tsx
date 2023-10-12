@@ -1,7 +1,9 @@
-//@ts-nocheck
-import { useEffect } from "react";
-import { connect } from 'react-redux';
+//@ts- nocheck
+import { use, useEffect } from "react";
+import { connect, useDispatch } from 'react-redux';
 import { useRouter } from "next/router";
+import useLocalStorage from '../hooks/use-local-storage'
+
 import Page from '../components/page';
 
 import Layout from '../components/Layout';
@@ -11,35 +13,56 @@ import Tasks from '../components/Tasks';
 
 const page = (props: any) => {
     const { query } = useRouter();
+    const dispatch = useDispatch();
+    const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+
+    function dispatchLocalStore(locStore) {
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+      }
+
     useEffect(() => {
         console.log('16 page tasks props', props);
+        if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+            if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
+              const locStore = (memoryLocState[0])
+              if (locStore) {
+                dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
+              }
+            }
+          }
     }, []);
     
-    const taskFocusModel = {id: query.taskFocusModel, name: 'taskFocusModel'};
-    
-    console.log('22 page tasks props', query, taskFocusModel,props);
+
+    const taskDiv =  <Tasks props={props} />
+
+    console.log('32 page tasks props', query, props);
 
     return (
         <>
-            <Layout user={props.phUser?.focusUser} >
+            {/* <Layout user={props.phUser?.focusUser} > */}
                 <div id="index" >
-                    <div className="wrapper bg-secondary"
-                    style={{ minHeight: '100vh', paddingBottom: '100px' }}
-                    >
-                        <div className="wrapper container"
+                    {/* <div className="wrapper bg-secondary" */}
+                    {/* // style={{ minHeight: '100vh', paddingBottom: '100px' }} */}
+                    {/* > */}
+                        <div className="wrapper"
                             style={{  backgroundColor: 'lightyellow', minHeight: '100vh', paddingBottom: '100px' }}
                         >
-                            <div className="header">
+                            {/* <div className="header ">
                                 <Header title='Modelling Tasks' />
-                            </div>
-                                <Tasks props={props} taskFocusModel={taskFocusModel} asPage={true}/>
-                            <div className="footer">
+                            </div> */}
+                                <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px", maxHeight: "92vh", overflow: "hidden" }}>                                {/* <Tasks props={props}/> */}
+                                    <Tasks props={props} asPage={true}/>
+                                </div>
+                            {/* <div className="footer">
                                 <Footer />
-                            </div>    
+                            </div>     */}
                         </div>
-                    </div>
+                    {/* </div> */}
                 </div>
-            </Layout>
+            {/* </Layout> */}
         </>
     );
 }

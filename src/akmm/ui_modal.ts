@@ -152,6 +152,7 @@ export function handleSelectDropdownChange(selected, context) {
           // const data = n.data;
           myDiagram.model.setDataProperty(n.data, "typename", typename);
           uid.resetToTypeview(inst, myMetis, myDiagram);
+          myDiagram.findNodeForKey(inst.key).isSelected = false;
           myMetis.myDiagram.requestUpdate();
         }
       });
@@ -199,6 +200,7 @@ export function handleSelectDropdownChange(selected, context) {
       }
       if (debug) console.log('193 links', links);
       modalContext.links = links;
+      myDiagram.findNodeForKey(nodeFrom.key).isSelected = false;
       break;
     }
     case "Change Icon": {
@@ -226,6 +228,7 @@ export function handleSelectDropdownChange(selected, context) {
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
+          myDiagram.findNodeForKey(inst.key).isSelected = false;
         }
         else if (inst.category === constants.gojs.C_OBJECTTYPE) {
           let node = myMetis.currentNode;
@@ -596,6 +599,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('603 k, selObj[k]', k, selObj[k]);
         myDiagram.model.setDataProperty(data, k, type[k]);
       }
+      node.isSelected = false;
       // Do the dispatches
       const jsnObjtype = new jsn.jsnObjectType(type, true);
       if (debug) console.log('608 jsnObjtype', jsnObjtype);
@@ -753,7 +757,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // Special handling of the draft property
       if (node[constants.props.DRAFT]) {
         myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
-        }
+      }
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;
@@ -770,6 +774,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('912 jsnObject, data', jsnObject, data);
         myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       }
+      n.isSelected = false;
       break;
     }
     case "addPort": {
@@ -932,6 +937,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }
             if (debug) console.log('906 node, data', node, data);
           }
+          node.isSelected = false;
           myDiagram.requestUpdate;
           // Do dispatch
           const jsnObjview = new jsn.jsnObjectView(objview);

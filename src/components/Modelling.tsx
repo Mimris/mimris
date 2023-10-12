@@ -9,7 +9,9 @@ import { useState, useEffect, useLayoutEffect, useRef, use } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
+
 import Page from './page';
+import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
@@ -103,7 +105,7 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    if (debug) useEfflog('106 Modelling useEffect 1 []', props);
+    if (debug) useEfflog('106 Modelling useEffect 1 [] : ', props);
     GenGojsModel(props, dispatch);
     setMount(true)
   }, [])
@@ -335,6 +337,10 @@ const page = (props: any) => {
       SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 
+    const handleNewProject = () => {
+      // dispatch initial state 
+      dispatch({ type: "LOAD_TOSTORE_DATA", data: StartInitStateJson })
+    }
 
     function handleSaveAllToFile() {
       const projectname = props.phData.metis.name
@@ -652,19 +658,31 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
-            <span className= "bg-transparent d-flex justify-content-between align-items-center border border-solid border-secondary m-2 mb-2 mt-0" style={{ minHeight: "32px"}} >
-              <span className="pt-1 border border-none
-              " style={{  transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
-              <span className="input text-primary " style={{ minWidth: "220px", maxHeight: "32px", backgroundColor: "transparent" }}>
+            <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
+            <button
+              className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
+              style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Open new Project-file!"
+              onClick={handleNewProject}
+              >
+                New Project
+            </button>
+            <span className= "d-flex justify-content-between align-items-center bg-light border border-solid border-light m-2 mb-2 mt-0" style={{ minHeight: "32px"}} >
+              <span className="pt-1 border border-none bg-light mx-1" style={{ transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
+              <span className="input text-primary " style={{ minWidth: "220px", maxHeight: "32px", backgroundColor: "transparent" }}
+               data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load"
+               >
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
               </span>
-                <button
-                  className="btn btn-sm bg-transparent text-primary mx-1 px-1 py-0 mt-0 pt-1"
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-                  onClick={handleSaveAllToFile}>Save
-                </button >
+              <button
+                className="btn text-light btn-sm border border-solid px-2 mx-1 py-0 mt-0 pt-1"
+                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button >
             </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>

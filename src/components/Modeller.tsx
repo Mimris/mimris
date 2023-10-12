@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux';
 import useLocalStorage from '../hooks/use-local-storage'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
+
+import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
@@ -18,16 +20,8 @@ import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./ReportModule";
 import { gojs } from "../akmm/constants";
 
-
-
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-
-
-
-
-
-// import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
 
@@ -94,7 +88,7 @@ const Modeller = (props: any) => {
   const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
 
   useEffect(() => { // set activTab when focusModelview.id changes
-    if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id]', activeTab, activetabindex, props.phFocus.focusModel?.name);
+    if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
     setActiveTab(activetabindex)
   }, [props.phFocus?.focusModelview?.id])
   // }, [props.phFocus.focusModelview?.id])
@@ -170,7 +164,7 @@ const Modeller = (props: any) => {
         phUser: props.phUser,
         phSource: props.phSource,
       }
-      if (debug) console.log('119 Modeller: useEffect 2 [props.phFocus.focusModelview?.id]',
+      if (debug) console.log('173 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ',
         SaveModelToLocState(propps, memoryLocState, setMemoryLocState)[0].phFocus?.focusModel?.name,);
       setMemoryLocState(SaveModelToLocState(propps, memoryLocState, setMemoryLocState))
       SaveAkmmUser(props, locStateKey = 'akmmUser')

@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch} from 'react-redux';
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from "rehype-raw";
 import { wrapper } from '../store'; // import RootState type
 
 import Modal from "react-bootstrap/Modal";
@@ -10,10 +11,11 @@ import Button from "react-bootstrap/Button";
 import taskIcon from "/public/images/task.png";
 
 import ReportModule from "./ReportModule";
-import {ObjDetailTable} from './forms/ObjDetailTable';
-import { set } from 'immer/dist/internal';
-import { addLinkToDataArray } from '../akmm/ui_common';
-import { group } from 'console';
+
+// import {ObjDetailTable} from './forms/ObjDetailTable';
+// import { set } from 'immer/dist/internal';
+// import { addLinkToDataArray } from '../akmm/ui_common';
+// import { group } from 'console';
 
 const debug = false;
 
@@ -39,16 +41,15 @@ function Tasks(props) {
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  // useEffect(() => {
-    //   console.log('40 Tasks', taskObj, parentObj,  prevParentObj);
-    //   if (parentObj && parentObj !== prevParentObj) {
-    //    setPrevParentObj(parentObj);
-    //   } else {
-    //     setPrevParentObj(null);
-    //   }
-    //   // if (grandParentObj !== prevGrandParentObj) setPrevGrandParentObj(grandParentObj);
-    //   // if (greatGrandParentObj !== prevGreatGrandParentObj) setPrevGreatGrandParentObj(greatGrandParentObj);
-  // }, [taskObj && taskObj.id ]);
+  const [showButton, setShowButton] = useState(false);
+
+  const handleMouseEnter = () => {
+    setShowButton(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowButton(false);
+  };
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
@@ -56,19 +57,6 @@ function Tasks(props) {
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
-
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     const modal = modalRef.current;
-  //     if (containerRef.current && !containerRef.current.contains(event.target) && (!modal || !modal.contains(event.target))) {
-  //       setMinimized(true);
-  //     }
-  //   };
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, []);
 
   const handleShowModal = () => {
     if (minimized) {
@@ -95,6 +83,10 @@ function Tasks(props) {
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
+  const motherobjviews = mothermodel?.objectviews;
+  const motherrelships = mothermodel?.relshipviews;
+
+  // console.log('104 Tasks', curmodel, curmetamodel, mothermodel, mothermodelviews, motherobjects, motherobjviews, motherrelships);
 
   let parentTask: any = null;
   // useEffect(() => {
@@ -113,44 +105,22 @@ function Tasks(props) {
 
   if (minimized) {
     return (
-      <div className="minimized-task not-visible">
-        <div className="buttons position-absolute me-3 end-0"  style={{ scale: "0.7",marginTop: "-28px" }}>
-          <button
-            className="btn text-success ps-1 pe-1 py-0 btn-sm"
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Toggle Context & Focus Modal for current task!"
-            onClick={handleShowModal}
+      <div className="minimized-task">
+        <div
+          className="buttons position-absolute p-0 m-0 me-1 end-0"
+          style={{ scale: "0.8", marginTop: "-25px", marginLeft: "-2px"}}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          >
+           <button
+            className="btn text-success m-0 px-1 py-0 btn-sm fs-4"
+            onClick={handleMaximize}
             style={{ backgroundColor: "lightyellow" }}
           >
-            ✵
-          </button>
-          <button 
-            className="btn text-success me-0 px-1 py-0 btn-sm" 
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Minimize"
-            onClick={handleMaximize}
-            style={{ backgroundColor: "lightyellow"}}
-          >
-            &lt;-
+            <i className="fas fa-tasks me-1" aria-hidden="true"></i>
+            Tasks
           </button>
         </div>
-        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "lightyellow" }} >
-            <Modal.Header closeButton>
-              <Modal.Title>Focus details:</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="bg-transparent">
-              <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>
-                Close
-              </Button>
-            </Modal.Footer>
-        </Modal>
       </div>
     );
   }
@@ -160,10 +130,10 @@ function Tasks(props) {
   let curParentObj: any = null;
       // find mv.objectviews that has no parent objectview and not of type Label i.e. top containers(groups)
 
-  const taskItem = (task) => 
+  const taskItem = (task, role, index) => 
     <li
-      key={task?.id}
-      className="li bg-transparent border-secondary p-0 me-0"
+      key={task?.id+index}
+      className="p-0 me-0"
       onClick={() => setSelectedTask(task)}
     >
       <details className="m-y p-0 pe-1">
@@ -182,12 +152,16 @@ function Tasks(props) {
           <span className="ms-2">{task?.name}</span>
           <span className="d-flex my-0 ms-auto me-0 align-items-center">
             <button 
-              className="btn bg-light text-success mx-0 px-1 pt-0 fs-5"
+              className="btn bg-light text-success mx-0 p-1 pt-0 fs-5"
 
               onClick={() =>
                 dispatch({
                   type: "SET_FOCUS_TASK",
                   data: { id: task.id, name: task.name },
+                }),
+                (role) && dispatch({
+                  type: "SET_FOCUS_ROLE",
+                  data: { id: role.id, name: role.name },
                 })
               }
               style={{
@@ -210,9 +184,9 @@ function Tasks(props) {
             /> */}
           </span>
         </summary>
-        <div className="selected-task bg-transparent border border-light p-1">
-          <div className="m-0 p-0 bg-white">
-            <ReactMarkdown>{task?.description}</ReactMarkdown>
+        <div className="selected-task bg-transparent ps-0">
+          <div className="m-0 p-2 bg-white">
+            <ReactMarkdown rehypePlugins={[rehypeRaw]} >{task?.description}</ReactMarkdown>
           </div>
         </div>
       </details>
@@ -221,186 +195,241 @@ function Tasks(props) {
   const containerItem = (container) =>
     <>
       <details>
-        <summary className="text-success d-flex align-items-center">
-          <span className="ms-0">- {container?.name}</span>
-          {/* {container?.description !== "" && (
-             <img className="bg-secondary ms-auto me-1" src="/images/info.svg" alt="Details Arrow" title="Details info" width="12" height="16" />
-            )} */}
+        {/* <summary className="text-success d-flex align-items-center m-0 bg-light" > */}
+        <summary
+          className="text-success d-flex align-items-center m-0 bg-light"
+          onClick={toggleOpen}
+        >
+          <span className="ms-2" >{container.name} </span>
+            <img
+              className="d-flex my-0 ms-auto me-0 align-items-center"
+              src="/images/info.svg"
+              alt="Details Arrow"
+              title="Details info"
+              width="18"
+              height="24"
+              style={{ width: "2rem", color: "success" }}
+              // style={{ backgroundColor: "warning", width: "5rem", 
+              //   position: "relative",  top: "0%", right: "0%", transform: "translate(50%, -125%)", zIndex: 9999 }}
+            />
         </summary>
-        <ReactMarkdown className="bg-light px-2">
-          {container?.description}
-        </ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]} className="bg-light ps-2" source={container?.description} />
       </details>
     </>
 
-  const groupObjvDiv = (ov, oType, parentType) => {
-    if (debug) console.log('361 gcObjv', ov, oType, parentType);
-    const obj = motherobjects.find((o) => o.id === ov.objectRef);
-    const itemDiv = (oType === 'Task') 
-      ? taskItem(obj) 
-      : (oType === 'Container') 
-        ? containerItem(obj) 
+  const renderItem = (ov: any, oType: string) => {
+    if (debug) console.log('352 gcObjv', ov, oType);
+    if (!ov) return null;
+    const obj = motherobjects.find((o) => o.id === ov?.objectRef);
+    const role = '' // Todo: find role obj referenced to this objectview
+    if (debug) console.log('253 ', role);
+
+    return (oType === 'Task')
+      ? taskItem(obj, role)
+      : (oType === 'Container')
+        ? containerItem(obj)
         : null;
-
-    if (debug) console.log('242 gcObjv', ov, itemDiv)
-
-    return (oType === 'Task')  
-        ? (parentType === 'Task') 
-          ? (
-            <div className="ms-2 " style={{ backgroundColor: "lightyellow"}}>
-              {itemDiv}
-            </div> 
-          )
-          : (
-            <div className="ms-0 " style={{ backgroundColor: "lightyellow"}}>
-              {itemDiv}
-            </div> 
-          )
-        : (parentType === 'Task') 
-          ? (
-            <div className="ms-2 " style={{ backgroundColor: "lightyellow"}}>
-              {itemDiv}
-            </div> 
-          )
-          : (
-            <div className="bg-white ms-0 " >
-              {itemDiv}
-            </div> 
-          )
-
-  }
-
-  const findChildrenvs = (objviews, ov) => {
-    return objviews?.filter(
-      (ov2) => ov2?.group === ov?.id && !motherobjects?.find((o) => (o.id === ov?.objectRef) && (o.typeName === 'Label')) && ov2);
   };
 
   //  Render top containers of this modelview and all their children recursively -------------------------------
-  const renderItems = (mv, notLabelOvs, obvs, parentType) => {
-
-    const items2 = obvs?.map((ov) => {
-
-      const childrenvs = findChildrenvs(notLabelOvs, ov);
-      
-      if (debug) console.log('354 renderItems', ov, obvs, childrenvs)
-      const oType = motherobjects.find((o) => o.id === ov.objectRef)?.typeName;
-      const itemDiv = (
-        (childrenvs.length === 0 && parentType !== 'Task')
-        ? <div className=" p-0"> {groupObjvDiv(ov, oType, parentType)} </div>
-        : <div className=" p-1"> {groupObjvDiv(ov, oType, parentType)} </div>
-      );
-      const childItems = renderItems(mv, notLabelOvs, childrenvs, oType); // recursively render all children of this ov
-      if (debug) console.log('390 renderItems', ov, childrenvs, childItems);
-
-      return (
-        <>
-          {itemDiv}
-          {childItems}
-        </>
-      );
+  const renderTree = (item) => {
+    if (debug) console.log('325 renderItems', item);
+    if (!item) return null;
+    const children = item.children;
+    const itemDiv = renderItem(item, item.typeName);
+    if (debug) console.log('306 renderItem',item,  children);
+        
+    const childItems = children?.map((child, index) => {
+      if (debug) console.log('308 renderItems', child);
+      return (item.typeName === 'Task')
+      ? <div className="ps-2">{renderTree(child)}</div> 
+      : <div className="ps-1">{renderTree(child)}</div> 
     });
     return (
       <>
-        {items2}
+        {itemDiv}
+        {childItems}
       </>
     );
   };
 
 
+const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
+  if (debug) console.log('371 Tasks', mv);
 
-  const genTasksDiv = mothermodelviews?.map((mv) => { // map over all modelviews of this model
+  const parent = mv;
 
-  
-    if (mv.objectviews.length > 0) {
+  // nolabel objectviews that has no parent objectview i.e. top containers(groups)
+  const noLabelovs = mv?.objectviews?.filter((ov: any) =>
+    (!motherobjects?.filter((o: any) => o.typeName === 'Label').find((o: any) => o.id === ov?.objectRef) && ov)
+  );
+  const topObjviews = noLabelovs?.filter((ov: any) =>
+    (!mv.objectviews?.find((ov2: any) => ov2?.id === ov?.group) && ov)
+  );
+  if (debug) console.log('305 buildTree', parent, mv, mv.objectviews, noLabelovs, topObjviews);
 
-      const motherobjviews = mv?.objectviews; // all objectviews of this modelview
-      if (debug) console.log('237 Tasks', mv, motherobjviews);
-    
-      const noparentovs = mv?.objectviews?.filter(ov => (!motherobjviews?.find(ov2 => ov2?.id === ov?.group))); // objectviews that has no parent objectview
-      const labelos = motherobjects?.filter(o => o.typeName === 'Label' && o);
-      const notLabelOvs = mv.objectviews?.filter(ov => !labelos?.find(o => o?.id === ov?.objectRef) && ov); // remove Label objects from topGroupOvs
-      
-      const topGroupOvs = noparentovs?.filter(ov => !labelos?.find(o => o?.id === ov?.objectRef)); // remove Label objects from topGroupOvs
-      // const topGroupOvs = mv?.objectviews?.filter(ov => (!motherobjviews?.find(ov2 => ov2?.id === ov?.group)))?.filter(ov => !motherobjects?.filter(o => o.typeName === 'Label' && o)?.find(o => o?.id === ov?.objectRef));
-      if (debug) console.log('375 noparents', noparentovs, labelos, topGroupOvs);
-      if (debug) console.log('376 renderItems', mv, mv?.objectviews, topGroupOvs);
+  //  build a tree of the objectviews in this modelview  
+  const buildTree = (parent: any, children: any) => {  // build a tree of the objectviews in this modelview (children is the children of the parent)
+    if (debug) console.log('308 buildTree', parent.name, children);
+    const ovs = children;
 
+    const parentobj = (parent === mv) ? {id: mv.id, name: mv.name, description: mv.description} : motherobjects?.find((o: any) => o.id === parent.objectRef); // find the object of this parent objectview
+    if (!debug) console.log('314 buildTree', mv.name, parent, children, parentobj);
 
-      const topGroupOvsDiv = topGroupOvs?.map((ov: any) => { // we start with the top containers of this modelview
-        const oType = motherobjects.find((o) => o.id === ov.objectRef)?.typeName;
-        if (oType === 'Task' || oType === 'Container') {
-          const curChildrenvs = findChildrenvs(notLabelOvs, ov);
-          if (debug) console.log('379 curChildrenvs', notLabelOvs, ov, curChildrenvs);
-          const parentType = 'Container'
-          return (
-            <div>
-              <div className="my-1 mx-0">- {ov.name}</div> 
-                {renderItems(mv, notLabelOvs, curChildrenvs, parentType)} {/*  render all children of this ov */}
-  
-            </div>
-          )
-        }
-      })
+    // children are the objectviews that has this parent objectview as group
+    const children2 = children.map((ov: any) =>  {
+      const grandchildren = mv.objectviews?.filter((ov2: any) => ov2.group === ov.id);
+      const simplifiedChild = {
+        id: ov.id, 
+        name: ov.name, 
+        description: motherobjects?.find((o: any) => o.id === ov.objectRef)?.description, 
+        typeName: motherobjects?.find((o: any) => o.id === ov.objectRef)?.typeName,
+        objectRef: ov.objectRef,
+        children: grandchildren
+      };
+      if (!debug) console.log('321 buildTree', ov, grandchildren, simplifiedChild);
+     return  buildTree(simplifiedChild, grandchildren); // recursively build the tree for all children with children
+    }) ; //
+    console.log('332 buildTree', children2);
 
+    const parent1 = { id: parent.id, name: parent.name, description: parentobj?.description, typeName: parentobj?.typeName,  objectRef: parent.objectRef, children: children2 };  // convert parent object with id, name, description, typeName, objectRef (from object) and children
+    if (debug) console.log('337 buildTree', parentobj, parent1,  children2);
+    if (!debug) console.log('342 buildTree', parent1);
+    return parent1;
+  };    
 
-      return (
-        <>
-          <hr className="my-0"/>
-          <details className="my-1 mx-0"><summary className="bg-light">{mv.name}</summary>  {/* To level is the modelview */}
-            {topGroupOvsDiv} {/* Render the top containers of this modelview */}
-          </details> 
-        </>
-      );
-      
+  const ovsTree = buildTree(parent, topObjviews);
+  if (!debug) console.log('347 buildTree', ovsTree, topObjviews, parent);
 
-    } else {
-      return (<> </>)
-    }
-  });
+  const topGroupOvsDiv = 
+    <details>
+      <summary className="text-success d-flex align-items-center m-0 bg-light" >
+        <span className="ms-2 d-flex justify-content-between" >
+           <div className="d-flex" >
+            <img
+              className="ms-0"
+              src="/images/folder.svg"
+              alt="Details Arrow"
+              title="Details Arrow"
+              width="16"
+              height="22"
+            />
+          <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
+          </div>
+          {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
+        </span>
+          {/* <img
+            className="d-flex my-0 ms-auto me-0 align-items-center"
+            src="/images/info.svg"
+            alt="Details Arrow"
+            title="Details info"
+            width="18"
+            height="24"
+            style={{ width: "2rem", color: "success" }}
+            // style={{ backgroundColor: "warning", width: "5rem", 
+            //   position: "relative",  top: "0%", right: "0%", transform: "translate(50%, -125%)", zIndex: 9999 }}
+          /> */}
+      </summary>
+      {renderTree(ovsTree)}
+    </details>
+
+  return (
+    <>
+      <hr className="my-0"/>
+        {/* Render the top containers of this modelview */}
+        {topGroupOvsDiv}
+    </>
+  );
+});
 
   const basicTask1 = `
-    - From the Palette on left side, drag the object type
-      you want to create into the canvas.
-    - Click on the name to edit.
-    - Double-click on the object to open 
-      the properties panel, where you can edit 
-      Name, description etc.
+
+1.  1 - From the Palette (left pane) drag the Object Type and drop it into the modelling area. Give the type a name and description. (canvas).
+<a href="images/help/Create-EntityType-2023-10-05.png" target="_blank"><code style="color: blue"> <font size="2" weight="bold">![image001](images/help/Create-EntityType-2023-10-05.png)</font></code>
+</span>Click on the picture to open in New Tab!</a><hr />
+
+1.  2 - Click on the name to edit and give the Object a new name.<hr />
+
+1.  3 - Right-Click or Double-Click on the object to open the properties panel, where you can edit: Name, description etc.
+<a href="images/help/Edit-Attributes-2023-10-05.png" target="_blank"><code style="color: blue"> <font size="2" weight="bold">![image001](images/help/Edit-Attributes-2023-10-05.png)</font></code>
+</span>Click on the picture to open in New Tab!</a><hr />
+
   `;
   const basicTask2= `
-    - Click on the edge of an Object and 
-      drag the cursor to another object.
-    - Click on the name of the Relationship to edit.
-    - Right-Click or Double-click on the 
-      relationship to open the properties panel, 
-      where you can edit Name, description etc.
+
+1.  1 - Click on the edge of an Object and drag the cursor to another object.
+<a href="images/help/Add-Property-2023-10-05.png" target="_blank"><code style="color: blue"> <font size="2" weight="bold">![image001](images/help/Add-Property-2023-10-05.png)</font></code>
+</span>Click on the picture to open in New Tab...</a><hr />
+
+1.  2 - Click on the name of the Relationship to edit.<hr />
+
+1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.<hr />
+
   `;
   const basicTask3 = `
-    - Open the Object panel to the left. Drag one 
-      or more objects into the canvas.
-      (Note: if you change name or other properties 
+
+1.  1 - Open the Object panel to the left. Drag one 
+      or more objects into the canvas.<hr />
+      
+
+
+1.  (Note: if you change name or other properties 
       of the object, all other objectviews of the 
-      same object will also be changed)
+      same object will also be changed)<hr />
+      
+  `;
+  const basicTask4 = `
+
+  ##### Naming conventions for Models and Metamodels
+
+  ###### Models
+
+    -Concept models:  modelname_CM
+    -Type-Definitions: modelname_TD
+    -Solution models: modelname_SM
+
+  ##### Metamodels
+
+    -metamodelname_MM
+<hr />
+  
+  ### Type-Definitions_TD Model
+
+  To make a new Metamodel, we need to define the Object- and Relationship types we want to be in the Metamodel.
+  
+  In order to create these types, we use the EntityType and RelshipType from the 
+  ##### AKM-CORE_MM Metamodel
+  
+  ![image001](images/posts/CustomMeta/Picture1.png)
+  
+  
+  More info : 
+  <a href="http://localhost:3000/helpblog/002-BuildCustomMetamodels#AKMM%20Help" target="_blank"><code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
+  </span></a> <hr />
   `;
 
   return (
     <>
       <div className="tasklist p-1 " 
         ref={containerRef}
-        style={{ backgroundColor: "white", width: "25rem", 
-        position: "absolute", height: "100%", top: "50%", right: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
+        style={{ backgroundColor: "lightyellow", width: "26rem", 
+        position: "relative", height: "100%", top: "44%", right: "1%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
       >
         <div className="header m-0 p-0">
           <div className="ps-2 text-success font-weight-bold fs-6" >Modelling Guide with suggested Tasks</div>
-          <div className="buttons position-relative me-3" style={{ scale: "0.7"}}>
+          <div className="buttons position-relative me-3" style={{ scale: "0.9"}}>
             <button 
               className="btn text-success mt-0 pe-2 py-0 btn-sm"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Toggle Context & Focus Modal!"
+              title="Open Modal with current task!"
               onClick={handleShowModal} 
-              style={{ backgroundColor: "lightyellow"}} >✵
+              style={{ backgroundColor: "lightyellow"}} >
+              ✵
             </button> 
             <button 
               className="btn text-success me-0 px-1 py-0 btn-sm" 
+              data-toggle="tooltip" data-placement="top" data-bs-html="true"
+              title="Close Task pane!"
               onClick={handleMinimize} 
               style={{ backgroundColor: "lightyellow"}}>-&gt;</button>
             {/* <button onClick={handleMaximize}>+</button> */}
@@ -424,23 +453,28 @@ function Tasks(props) {
         {/* <Selector key='Tasks1' type='SET_FOCUS_TASK' selArray={taskovs} selName='Tasks' focustype='focusTask' /> */}
         <div className="task">
           <details>
-            <summary className="bg-light px-1"> Default Modelling Tasks: </summary>
-              <details className="mx-2">
+            <summary className="bg-light px-1"> Default Modelling Tasks:(See also Help in top menu)</summary>
+              <details className="mx-2" style={{ whiteSpace: "wrap" }}>
                 <summary>Create a new Object:</summary>
-                <ReactMarkdown>{basicTask1}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask1}</ReactMarkdown>
               </details>
               <hr className="m-0" />
               <details className="mx-2">
                 <summary>Create a new Relationship:</summary>
-                <ReactMarkdown>{basicTask2}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask2}</ReactMarkdown>
               </details>
               <hr className="m-0" />
               <details className="mx-2">
                 <summary>Make a new Objectview of existing object</summary>
-                <ReactMarkdown>{basicTask3}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask3}</ReactMarkdown>
+              </details>
+              <hr className="m-0 pt-1 bg-warning" />
+              <details className="mx-2">
+                <summary>Build custom Metamodels in AKMM</summary>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{basicTask4}</ReactMarkdown>
               </details>
             </details>
-          <hr className="my-1 p-0 border-light" />
+          <hr className="my-1 pt-1 bg-success" />
         </div>
         <div className="bg-light p-1"> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> </div>
         <div className=" m-1" style={{ backgroundColor: "lightyellow" }}> 

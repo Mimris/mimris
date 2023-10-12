@@ -3239,7 +3239,7 @@ export function findImage(image: string) {
     // if (!image)
     //     return "";
     // if (image.substring(0,4) === 'http') { // its an URL
-     if (image?.includes('//')) { // this is an http:// or https:// image
+    if (image?.includes('//')) { // this is an http:// or https:// image
         if (!debug) console.log('3243 Diagram', image);
         return image;
     } else if (image?.includes('/')) { // its a local image with path i.e. /images/...
@@ -3262,11 +3262,13 @@ export function findImage(image: string) {
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (!debug) console.log('3263', img);
         return img
-    } else if (image?.includes('<i ')) { // its an awesome font image
+    } else if (image?.includes('<i class')) { // its an awesome font image
         // const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (!debug) console.log('3266', img);
-        return image 
-    } else { 
+        return ''
+        // return '<i class="fa fa-"'+image+' area-hidden="true"></i>' 
+
+    } else { git
         const img = "images/types/" + image
         if (!debug) console.log('3267 Diagram', image, img)
         return img //its an image in public/images

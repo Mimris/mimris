@@ -279,7 +279,7 @@ const openOneLevel = () => {
     if (!oType) return null;
     const obj = motherobjects.find((o) => o.id === ov?.objectRef);
     const role = '' // Todo: find role obj referenced to this objectview
-    if (!debug) console.log('281 ', obj, oType, role);
+    if (debug) console.log('281 ', obj, oType, role);
 
     return (oType === 'Task')
       ? taskItem(obj, role)

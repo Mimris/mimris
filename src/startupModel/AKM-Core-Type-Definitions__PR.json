@@ -6128,6 +6128,27 @@
               "modified": false
             },
             {
+              "id": "70e7b709-bd91-4b7c-f390-553914e10430",
+              "name": "relationshipType_Association",
+              "description": "",
+              "typeRef": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
+              "template": "linkTemplate1",
+              "strokecolor": "black",
+              "strokewidth": "1",
+              "textcolor": "black",
+              "textscale": "1",
+              "dash": "None",
+              "fromArrow": "",
+              "toArrow": "OpenTriangle",
+              "fromArrowColor": "",
+              "toArrowColor": "white",
+              "routing": "Normal",
+              "corner": "0",
+              "curve": "0",
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
               "id": "b8c49fd7-65af-42c6-c895-5f7ad9d247f4",
               "name": "to_Association",
               "description": "",
@@ -8725,7 +8746,7 @@
             {
               "id": "9241eca7-0eb2-4931-3d41-204f6ae523fe",
               "name": "Build a Type-definition model ...",
-              "description": "## Build Type Definition Models (TD)\n\nTo build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.\nThis is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. \n\n<details>  <summary>Create Initial Containers ...</summary>\n\n\nLet us start with an empty model and the built-in ***AKM-Core_MM*** metamodel:\n\n![Initial page with blank modelling area and AKM-Core_MM types in the Palette](/images/posts/modelling/image_model001.png)\n\nThe left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.\n\n\nFrom the Palette (left pane) drag the ***Container*** type and drop it into the Modelling area.\n\nClick on the name and edit ***name*** ( Name it  ***\"Domain Types\"*** i.e. ***\"Bikerental Types\"***).\n\nRight-Click the object to edit  ***description***.\n\n\n\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n<details>  <summary>Create EntityTypes ...</summary>\n\nFrom the Palette (left pane) drag the ***EntityType*** and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description*** and ***proposedType***.\n\nThe attribute \"proposedType\" is used to give the Concept-/ Information-object a proposed TypeName.\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n<details>  <summary>Add Properties ...</summary>\n\nFrom the Palette (left pane) drag the ***Property*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Property.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Property.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Values ...</summary>\n\nFrom the Palette (left pane) drag the ***Value*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Value.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Value.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Fieldtype ...</summary>\n\nFrom the Palette (left pane) drag the ***Fieldtype*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Fieldtype.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Fieldtype.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add InputPattern ...</summary>\n\nFrom the Palette (left pane) drag the ***InputPattern*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-InputPattern.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-InputPattern.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add ViewFormat ...</summary>\n\nFrom the Palette (left pane) drag the ***ViewFormat*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-ViewFormat.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-ViewFormat.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Metamodel Object ...</summary>\n\nFrom the Palette (left pane) drag the ***Metamodel*** type and drop outside the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit ***description***.\n\nDrag a relationship with type ***contains*** from til ***Metamodel*** object to the EntityType objects to be included in the new Metamodel.\n\n<a href=\"images/help/Add-Metamodel.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Metamodel.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>",
+              "description": "## Build Type Definition Models (TD)\n\nTo build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.\nThis is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. \n\n<details>  <summary>Create Initial Containers ...</summary>\n\n\nLet us start with an empty model and the built-in ***AKM-Core_MM*** metamodel:\n\n![Initial page with blank modelling area and AKM-Core_MM types in the Palette](/images/posts/modelling/image_model001.png)\n\nThe left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.\n\n\nFrom the Palette (left pane) drag the ***Container*** type and drop it into the Modelling area.\n\nClick on the name and edit ***name*** ( Name it  ***\"Domain Types\"*** i.e. ***\"Bikerental Types\"***).\n\nRight-Click the object to edit  ***description***.\n\n\n\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n<details>  <summary>Create EntityTypes ...</summary>\n\nFrom the Palette (left pane) drag the ***EntityType*** and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description*** and ***proposedType***.\n\nThe attribute \"proposedType\" is used to give the Concept-/ Information-object a proposed TypeName.\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n\n<details>  <summary>Create Relationship types ...</summary>\n\n1.  1 - Click on the edge of an Object and drag the cursor to another object.\n<a href=\"images/help/Add-Property-2023-10-05.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/Add-Property-2023-10-05.png)</font></code>\n</span>Click on the picture to open in New Tab...</a><hr />\n\n1.  2 - Click on the name of the Relationship to edit.<hr />\n\n1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.<hr />\n</details>\n\n---\n\n<details>  <summary>Add Properties ...</summary>\n\nFrom the Palette (left pane) drag the ***Property*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Property.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Property.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Values ...</summary>\n\nFrom the Palette (left pane) drag the ***Value*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Value.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Value.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Fieldtype ...</summary>\n\nFrom the Palette (left pane) drag the ***Fieldtype*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Fieldtype.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Fieldtype.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add InputPattern ...</summary>\n\nFrom the Palette (left pane) drag the ***InputPattern*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-InputPattern.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-InputPattern.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add ViewFormat ...</summary>\n\nFrom the Palette (left pane) drag the ***ViewFormat*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-ViewFormat.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-ViewFormat.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Metamodel Object ...</summary>\n\nFrom the Palette (left pane) drag the ***Metamodel*** type and drop outside the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit ***description***.\n\nDrag a relationship with type ***contains*** from til ***Metamodel*** object to the EntityType objects to be included in the new Metamodel.\n\n<a href=\"images/help/Add-Metamodel.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Metamodel.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>",
               "abstract": false,
               "viewkind": "",
               "typeRef": "f02d8b8c-d693-4e6b-1291-4d69f63dc8d7",
@@ -10234,6 +10255,26 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false
+            },
+            {
+              "id": "e99ac802-1fb8-4ca8-3fdc-5f31d56f7976",
+              "name": "has",
+              "description": "",
+              "relshipkind": "Association",
+              "fromobjectRef": "9e27431e-86c8-4e9f-b29d-c76d8c07174c",
+              "toobjectRef": "bc76bd50-540c-4428-cc7d-38acc1db9e87",
+              "typeRef": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "fromPortid": "",
+              "toPortid": "",
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true
             }
           ],
           "modelviews": [
@@ -10532,7 +10573,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-380 -910",
+                  "loc": "-380 -900",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -11261,7 +11302,7 @@
                   "toPortid": "",
                   "points": [
                     -279,
-                    -839,
+                    -829,
                     -279,
                     -789
                   ],
@@ -11293,10 +11334,10 @@
                   "fromPortid": "",
                   "toPortid": "",
                   "points": [
-                    -569.0003285690905,
-                    -866.564094139254,
-                    -378.9996714309095,
-                    -871.435905860746
+                    -569,
+                    -864,
+                    -379,
+                    -864
                   ],
                   "routing": "",
                   "curve": "",
@@ -11405,6 +11446,34 @@
                     -691.5904432980803,
                     -829.1609523222763
                   ],
+                  "routing": "",
+                  "curve": "",
+                  "corner": "",
+                  "markedAsDeleted": "",
+                  "modified": true
+                },
+                {
+                  "id": "e8f80bab-3555-4d92-8f4c-54fa61930981",
+                  "name": "has",
+                  "description": "",
+                  "relshipRef": "e99ac802-1fb8-4ca8-3fdc-5f31d56f7976",
+                  "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
+                  "template": "",
+                  "arrowscale": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "textscale": "",
+                  "dash": "",
+                  "fromArrow": "",
+                  "toArrow": "",
+                  "fromArrowColor": "",
+                  "toArrowColor": "",
+                  "fromobjviewRef": "801ab229-3910-4319-c5ae-c11a20f4ec11",
+                  "toobjviewRef": "35f14c7c-e449-412c-509f-9cbff31b90a7",
+                  "fromPortid": "",
+                  "toPortid": "",
+                  "points": [],
                   "routing": "",
                   "curve": "",
                   "corner": "",
@@ -11802,7 +11871,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-60 -370",
+                  "loc": "-60 -380",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -11952,7 +12021,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-60 210",
+                  "loc": "-60 150",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -16667,12 +16736,12 @@
       "name": "1-User"
     },
     "focusObject": {
-      "id": "622d1ba7-e151-40a4-d82e-e1e4b3cc659e",
-      "name": "Example model ..."
+      "id": "6e3a383e-776b-4b24-d9a8-ed8b3f8a8c1d",
+      "name": "Person"
     },
     "focusObjectview": {
-      "id": "2e8cd98f-d06d-4401-8e60-181a4f2fe4e0",
-      "name": "Example model ..."
+      "id": "571009d9-bcc6-4fb6-afd1-7a32fc88a4e1",
+      "name": "Person"
     },
     "focusRelship": {
       "id": null,

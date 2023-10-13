@@ -3268,7 +3268,7 @@ export function findImage(image: string) {
         return ''
         // return '<i class="fa fa-"'+image+' area-hidden="true"></i>' 
 
-    } else { git
+    } else { 
         const img = "images/types/" + image
         if (debug) console.log('3267 Diagram', image, img)
         return img //its an image in public/images

@@ -550,7 +550,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               title="Open the Focus Object in a Modal window!"
               onClick={handleShowModal} style={{ scale: "0.9" }} 
               >
-              <i className="fa fa-lg fa-bullseye"></i> 
+              <i className="fa fa-lg fa-external-link"></i> 
             </button>  {/* show Context ---------------------------------------------------   */}
               {/*  onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button>  */}
           </div>

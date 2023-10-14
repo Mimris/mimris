@@ -498,7 +498,14 @@ export function generateRelshipType2(object: akm.cxObject, fromType: akm.cxObjec
     const modifiedRelshipTypes = new Array();
 
     const relname = object.name;
-    const reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromType, toType, object.description);
+    let reltype: akm.cxRelationshipType | null = null;
+    if (relname === constants.types.AKM_RELATIONSHIP_TYPE) {
+        const fromType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+        const toType = fromType;
+        reltype = myMetis.findRelationshipTypeByName2(relname, fromType, toType);
+    } else {
+        reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromType, toType, object.description);
+    }
     myTargetMetamodel?.addRelationshipType(reltype);
     myMetis.addRelationshipType(reltype);
 

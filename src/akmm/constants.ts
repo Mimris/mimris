@@ -129,6 +129,7 @@ export let types = {
           AKM_COLLECTION        : "Collection",
           AKM_CONTAINER         : "Container",
           AKM_ENTITY_TYPE       : "EntityType",
+          AKM_RELATIONSHIP_TYPE : "relationshipType",
           AKM_RELSHIP_TYPE      : "RelshipType",
           AKM_INFORMATION       : "Information",
           AKM_PORT              : "Port",

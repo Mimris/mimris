@@ -48,12 +48,12 @@ const page = (props: any) => {
                     {/* // style={{ minHeight: '100vh', paddingBottom: '100px' }} */}
                     {/* > */}
                         <div className="wrapper"
-                            style={{  backgroundColor: 'lightyellow', minHeight: '100vh', paddingBottom: '100px' }}
+                            style={{  backgroundColor: 'lightyellow', minHeight: '80vh', paddingBottom: '100px' }}
                         >
                             {/* <div className="header ">
                                 <Header title='Modelling Tasks' />
                             </div> */}
-                                <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px", maxHeight: "92vh", overflow: "hidden" }}>                                {/* <Tasks props={props}/> */}
+                                <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px", maxHeight: "92vh" }}>                                {/* <Tasks props={props}/> */}
                                     <Tasks props={props} asPage={true}/>
                                 </div>
                             {/* <div className="footer">

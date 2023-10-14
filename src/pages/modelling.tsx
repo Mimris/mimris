@@ -128,40 +128,34 @@ const page = (props: any) => {
   )
 
   const modellingDiv = (mount)
-    ? <div>
-      <Layout user={props.phUser?.focusUser} >
-        <div id="index" >
-          <div className="wrapper"  >
-            {/* <div className="header" >
-              <Header title={props.phUser?.focusUser.name} /> 
-            </div> */}
-            {/* {videoDiv} */}
-              {contextDiv}
-            <div className="workplace d-flex" style={{ zIndex: 1 }}>
-              {/* make issues  */}
-              <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
-                 <Issues props={props}/>
-              </div>
-              {/* <div className="d-flex" > */}
-                {/* {mount ? <>{contextDiv}</> : <>{contextDiv}</>} */}
-                <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                  {/* {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>} */}
-                  <Modelling />
+    ? 
+      <div>
+        <Layout user={props.phUser?.focusUser} >
+          <div id="index" >
+            <div className="wrapper" > 
+              {/* <div className="header" >
+                <Header title={props.phUser?.focusUser.name} /> 
+              </div> */}
+              {/* {videoDiv} */}
+                {contextDiv}
+              <div className="workplace d-flex" style={{ zIndex: 1 }}>
+                <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
+                  <Issues props={props}/>
                 </div>
-                {/* <div className="contextarea">
-                </div> */}
-              {/* </div> */}
-            <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px", maxHeight: "92vh" }}>
-              <Tasks props={props}/>
-            </div>
-            </div>
-            <div className="footer">
-              <Footer />
+                  <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
+                    <Modelling />
+                  </div>
+              <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                <Tasks props={props}/>
+              </div>
+              </div>
+              <div className="footer">
+                <Footer />
+              </div>
             </div>
           </div>
-        </div>
-      </Layout>
-    </div>
+        </Layout>
+      </div>
     : <>No model loaded</>
 
   return (

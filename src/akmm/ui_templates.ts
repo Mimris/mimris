@@ -3240,7 +3240,7 @@ export function findImage(image: string) {
     //     return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image?.includes('//')) { // this is an http:// or https:// image
-        if (debug) console.log('3243 Diagram', image);
+        if (debug) console.log('3249 Diagram', image);
         return image;
     } else if (image?.includes('<i class')) { // its an awesome font image
         if (debug) console.log('3247', image);
@@ -3248,6 +3248,10 @@ export function findImage(image: string) {
     } else if (image?.includes('/')) { // its a local image with path i.e. /images/...
         if (debug) console.log('3250 Diagram', image);   
         return image
+    } else if (image?.startWith('<i ')) { // its an awesome font image
+        const img = image //{image:'data:image/svg+xml;charset=UTF-8,image'}
+        if (debug) console.log('3244', img);
+        return img
         // } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         //     const firstcharacter = image.substring(0, 1)
         //     const secondcharacter = image.substring(1, 2)
@@ -3263,12 +3267,12 @@ export function findImage(image: string) {
         //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
     } else if (image?.includes('<svg')) { // its an svg code image
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
-        if (debug) console.log('3263', img);
+        if (!debug) console.log('3269', img);
         return img
-    // } else { git
-    //     const img = "images/types/" + image
-    //     if (debug) console.log('3267 Diagram', image, img)
-    //     return img //its an image in public/images
+    } else { 
+        const img = "images/types/" + image
+        if (!debug) console.log('3273 Diagram', image, img)
+        return img //its an image in public/images
     }
     return "";
 }

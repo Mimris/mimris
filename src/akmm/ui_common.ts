@@ -53,7 +53,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 obj = pastedobj;
             }
         } else {
-            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
+            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.object.description);
         }
         if (debug) console.log('56 obj, myMetis', obj, myMetis);
         if (obj) {

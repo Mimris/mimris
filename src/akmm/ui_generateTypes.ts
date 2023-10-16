@@ -445,7 +445,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
                 reltype.properties = new Array();
             for (let i=0; i<props?.length; i++) {
                 const prop = props[i];
-                reltype.properties.push(prop);
+                reltype.properties?.push(prop);
             }
         }
         myTargetMetamodel?.addRelationshipType(reltype);
@@ -1444,7 +1444,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (!obj) 
                 continue;
             const type = obj.type;
-            if (type.name !== 'RelshipType')
+            if (type.name !== constants.types.AKM_RELSHIP_TYPE)
                 continue;
             const rtypename = obj.name;
             // Find fromObject and toObject

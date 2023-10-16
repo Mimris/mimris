@@ -108,6 +108,7 @@ export class jsnDatatype {
     datatypeRef:        string | undefined;
     allowedValues:      string[];
     defaultValue:       string;
+    readOnly:           boolean;
     value:              string;
     inputPattern:       string;
     viewFormat:         string;
@@ -121,6 +122,7 @@ export class jsnDatatype {
         this.datatypeRef     = dtype.isOfDatatype?.id;
         this.allowedValues   = dtype.allowedValues;
         this.defaultValue    = dtype.defaultValue;
+        this.readOnly        = dtype.readOnly;
         this.value           = dtype.value;
         this.inputPattern    = dtype.inputPattern;
         this.viewFormat      = dtype.viewFormat;
@@ -906,6 +908,7 @@ export class jsnProperty {
     defaultValue:       string;
     inputPattern:       string;
     viewFormat:         string;
+    readOnly:           boolean;
     example:            string;
     markedAsDeleted:    boolean;
     modified:           boolean;
@@ -916,6 +919,7 @@ export class jsnProperty {
         this.inputPattern    = "";
         this.viewFormat      = "";
         this.example         = "";
+        this.readOnly        = prop.readOnly;
         this.markedAsDeleted = prop.markedAsDeleted;
         this.modified        = prop.modified;
         // Code

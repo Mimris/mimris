@@ -336,7 +336,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       {
         if (k === 'abstract') {
           if (what === "editObject") {
-            if (type?.name !== constants.types.AKM_ENTITY_TYPE)
+            if (type && type.name !== constants.types.AKM_ENTITY_TYPE)
               continue;
           }
           else if (what !== 'editObjectType')
@@ -767,16 +767,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (val === "")
               val = defValue;
           }
-          if (fieldType === 'time') {
+          if (fieldType === 'date') {
+            if (debug) console.log('771 prop', prop);
             pattern = "";
-            const isNow = (val === "now");
-            if (val === "" || isNow) {
+            if (val === "") {
               const d = new Date();
-              val = d.getTime();
+              val = d.toISOString().slice(0,10);
             }
-            if (isNow)
-              disabled = true;
           }
+          // if (fieldType === 'time') {
+          //   pattern = "";
+          //   const isNow = (val === "now");
+          //   if (val === "" || isNow) {
+          //     const d = new Date();
+          //     val = d.getTime();
+          //     if (isNow)
+          //       disabled = true;
+          //   }
+          // }
           if (k === 'name') {
             fieldType = 'text';
           }

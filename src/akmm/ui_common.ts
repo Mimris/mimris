@@ -42,12 +42,12 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             const pastedobj = myMetis.findObject(obj.id);
             if (objtype.name === constants.types.AKM_CONTAINER) {
                 const guid = utils.createGuid();
-                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                obj = new akm.cxObject(guid, data.name, objtype, data.object.description);
             }
             else if (!pastedobj) {
                 // This is not a pasted object, create a new one
                 let guid = obj.id;
-                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                obj = new akm.cxObject(guid, data.name, objtype, data.object.description);
                 myMetis.pasteViewsOnly = false;
             } else {
                 obj = pastedobj;

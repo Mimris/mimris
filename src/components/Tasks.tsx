@@ -9,7 +9,6 @@ import { wrapper } from '../store'; // import RootState type
 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import taskIcon from "/public/images/task.png";
 
 import ReportModule from "./ReportModule";
 
@@ -57,7 +56,7 @@ function Tasks(props) {
   } , []);
 
   useEffect(() => {
-    setMinimized(false);
+    setMinimized(true);
   }, [props.visible]);
 
   const handleMouseEnter = () => {

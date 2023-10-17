@@ -1,18 +1,21 @@
-'use client';
+// 'use client';
 
 import Head from 'next/head';
 import TopMenu from './Navbar';
+
 // import useDarkMode from '../hooks/use-dark-mode';
 // import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
-  // console.log('6 layout', props.user, props);
+  const projName =  props?.children?.props?.children?.props?.children[0].props?.children[0].props.ph.phSource;
+  // const projName = props.phSource.;
   // const [darkMode, setDarkMode] = useDarkMode();
-
   return (
     <div style={{ backgroundColor: "#fff" }} >
       <Head>
-        <title>AKM Modelling App</title>
+      <title>
+         {projName}
+      </title>
         <link rel="icon" href="" />
       </Head>
       <TopMenu user={props.user}/>

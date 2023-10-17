@@ -38,6 +38,7 @@ const LoadGitHub = (props: any) => {
   
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
+  const [orgText, setOrgText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
   const [pathText, setPathText] = useState('');
   const [branchText, setBranchText] = useState('main');
@@ -219,6 +220,15 @@ const LoadGitHub = (props: any) => {
     setRefresh(!refresh)
   };
 
+  useEffect(() => {
+    setOrgText(props.ph.phFocus?.focusProj?.org)
+    setRepoText(props.ph.phFocus?.focusProj?.repo)
+    setPathText(props.ph.phFocus?.focusProj?.path)
+    setBranchText(props.ph.phFocus?.focusProj?.branch)
+    setUsernameText(props.ph.phFocus?.focusProj?.username)
+    setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
+  }, []);
+
   // Todo: loadModel should be done by clicking on a button, not by useEffect
   // useEffect(() => {
   //   // setBranchText('')
@@ -275,7 +285,7 @@ const LoadGitHub = (props: any) => {
             <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Models:</strong>
 
               {/* ----Repository user name input------------------------------- */}
-              <TextInput label="RepoOwner:" value={usernameText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
+              <TextInput label="RepoOwner:" value={orgText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
               {/* {loading ? 'Loading...' : 
                 <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
               } */}

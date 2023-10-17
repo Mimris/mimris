@@ -3245,7 +3245,7 @@ export function findImage(image: string) {
     } else if (image?.includes('/')) { // its a local image with path i.e. /images/...
         if (debug) console.log('3252 Diagram', image);   
         return image
-    } else if (image?.startWith('<i ')) { // its an awesome font image
+    } else if (image?.startsWith('<i ')) { // its an awesome font image
         const img = image //{image:'data:image/svg+xml;charset=UTF-8,image'}
         if (debug) console.log('3244', img);
     return img

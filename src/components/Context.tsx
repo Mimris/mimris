@@ -21,7 +21,7 @@ const Context = (props, edit) => {
     const ph = props.props.props || props.props
     const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
     const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
-    console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
+    if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
 
     if (!ph?.phData?.metis?.models) return <></>
 
@@ -76,13 +76,13 @@ const Context = (props, edit) => {
     
     const handleChange = (e) => {
       const { name, value } = e.target;
-      console.log('78 Context :',name, value, e);
+      if (debug) console.log('78 Context :',name, value, e);
       setFormValues({ ...formValues, [name]: value });
     };
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      console.log('79 Context :',formValues, e);
+      if (debug) console.log('79 Context :',formValues, e);
       if (formValues) {
       const modifiedFields = {};
       for (const key in formValues) { 
@@ -93,7 +93,7 @@ const Context = (props, edit) => {
 
       const objData = { id: formValues['id'], ...modifiedFields , modifiedDate: new Date().toISOString()};
       const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString()};
-      console.log('93 Context :',objData, objvData);
+      if (debug) console.log('93 Context :',objData, objvData);
       dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData }) 
       dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
       
@@ -105,13 +105,13 @@ const Context = (props, edit) => {
       // }
         
         // dispatch(submitForm(formValues));
-        console.log('105 Context ',formValues, objData, objvData);
+        if (debug) console.log('105 Context ',formValues, objData, objvData);
       }
     };
 
     const handleSubmitObjectview = (e) => {
       e.preventDefault();
-      console.log('70 Context ',formValues, e);
+      if (debug) console.log('70 Context ',formValues, e);
       if (formValues) {
       const modifiedFields = {};
       for (const key in formValues) { 
@@ -127,7 +127,7 @@ const Context = (props, edit) => {
 
     const handleSubmitObjecttype = (e) => {
       e.preventDefault();
-      console.log('70 Context ',formValues, e);
+      if (debug) console.log('70 Context ',formValues, e);
       if (formValues) {
       const modifiedFields = {};
       for (const key in formValues) { 
@@ -142,7 +142,7 @@ const Context = (props, edit) => {
     };
     const handleSubmitObjecttypeview = (e) => {
       e.preventDefault();
-      console.log('70 Context ',formValues, e);
+      if (debug) console.log('70 Context ',formValues, e);
       if (formValues) {
       const modifiedFields = {};
       for (const key in formValues) { 

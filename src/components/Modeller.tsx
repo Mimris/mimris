@@ -82,7 +82,7 @@ const Modeller = (props: any) => {
     // setVisibleContext(!visibleContext)
     SaveAkmmUser({ ...memoryAkmmUser, visibleContext }, locStateKey = 'akmmUser')
     // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
-    console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
+    if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
   }
 
   const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
@@ -116,7 +116,7 @@ const Modeller = (props: any) => {
   function toggleRefreshObjects() {
     if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
     saveModelsToLocState(props, memoryLocState, setMemoryLocState)
-    console.log('78 Modeller: toggleRefreshObjects', props);
+    if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
     if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
     setRefresh(!refresh)
   }
@@ -143,7 +143,7 @@ const Modeller = (props: any) => {
       phUser: props.phUser,
       phSource: props.phSource,
     }
-    console.log('102 Modeller: saveModelsToLocState',
+    if (debug) console.log('146 Modeller: saveModelsToLocState',
       props.phFocus.focusModel?.name,
       props.phFocus.focusModelview?.name,
       props.phFocus?.focusRefresh?.name,

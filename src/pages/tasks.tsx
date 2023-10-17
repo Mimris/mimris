@@ -26,7 +26,7 @@ const page = (props: any) => {
       }
 
     useEffect(() => {
-        console.log('16 page tasks props', props);
+        if (debug) console.log('16 page tasks props', props);
         if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
             if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
               const locStore = (memoryLocState[0])

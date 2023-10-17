@@ -1252,7 +1252,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
-        console.log('1237 selected', data, sel);
+        if (debug) ('1237 selected', data, sel);
         if (false) {
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {

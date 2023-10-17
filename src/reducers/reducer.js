@@ -90,7 +90,8 @@ import {
   UPDATE_OBJECTVIEW_NAME,
   SET_VISIBLE_CONTEXT
 } from '../actions/types';
-import context from '../pages/context';
+
+//import context from '../pages/context';
 
 
 // import InitStateJson from './InitialState.json'
@@ -570,7 +571,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_USER_SHOWDELETED:
-      console.log('440 SET_USER_SHOWDELETED', action);
+      if (debug) console.log('440 SET_USER_SHOWDELETED', action);
       return {
         ...state,
         phUser: {

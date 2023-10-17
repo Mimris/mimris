@@ -9,7 +9,7 @@ import { wrapper } from '../store'; // import RootState type
 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-
+import taskIcon from "/public/images/task.png";
 import ReportModule from "./ReportModule";
 
 // import {ObjDetailTable} from './forms/ObjDetailTable';
@@ -102,7 +102,7 @@ function Tasks(props) {
   const motherobjviews = mothermodel?.objectviews;
   const motherrelships = mothermodel?.relshipviews;
 
-  console.log('93 Tasks', curmodel, curmetamodel, mothermodel, mothermodelviews, motherobjects, motherobjviews, motherrelships);
+  if (debug) console.log('93 Tasks', curmodel, curmetamodel, mothermodel, mothermodelviews, motherobjects, motherobjviews, motherrelships);
 
   let parentTask: any = null;
   // useEffect(() => {

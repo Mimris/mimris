@@ -452,7 +452,7 @@ export function handleSelectDropdownChange(selected, context) {
           if (propname === 'description') {
             inst.description = value;
           } else {
-            console.log('304 prop, value', propname, value);
+            if (debug) console.log('304 prop, value', propname, value);
             inst[propname] = value;
           }
           switch(inst.category) {
@@ -475,7 +475,7 @@ export function handleSelectDropdownChange(selected, context) {
             if (propname === 'cardinalityFrom' || propname === 'cardinalityTo') {
               const patt = '\\b(n|[0-9])\\b[-]\\b(n|[1-9])\\b';
               const regex = new RegexParser(patt);
-              console.log('326 regex:', regex, value);
+              if (debug) console.log('326 regex:', regex, value);
               if (!regex.test(value)) {
                 alert('Value: ' + value + ' IS NOT valid');
                 break;

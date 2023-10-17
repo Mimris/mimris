@@ -341,7 +341,7 @@ const page = (props: any) => {
       const projectname = props.phData.metis.name
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
       const data = `${projectname}_PR`
-      console.log('343 handleSaveAllToFile', data)
+      if (debug) console.log('343 handleSaveAllToFile', data)
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
     }
 

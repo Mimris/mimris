@@ -512,7 +512,7 @@ let includeNoType = false;
 
             // added 2023-04-24 sf
             if (showModified) {
-              console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
+              if (debug) console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
               if (objtype.modified) {
                   objtype.strokecolor = "green";
                   includeObjtype = true;
@@ -867,7 +867,7 @@ let includeNoType = false;
 
   export function buildMinimisedMetis(metis, curmod) { 
     // stripped down metis to, where only current models and metamodels include all their objects and relationships, the rest has only id and name (needed for _ADMIN modellen)
-    console.log('812 buildMinimisedMetis', metis, curmod);
+    if (debug) console.log('812 buildMinimisedMetis', metis, curmod);
     const models = metis.models;
     const metamodels = metis.metamodels;
 
@@ -920,7 +920,7 @@ let includeNoType = false;
       curmod, 
       ...strippedModels?.slice(curmodIndex+1, strippedModels.length),
     ]
-    console.log('865 curModelWithStrippedModels', curModelWithStrippedModels);
+    if (debug) console.log('865 curModelWithStrippedModels', curModelWithStrippedModels);
     const curTargetModelWithStrippedModels = (curtargetmodel) ? [
       ...curModelWithStrippedModels.slice(0,curtargetmodelIndex),
       curtargetmodel,

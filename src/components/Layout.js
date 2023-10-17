@@ -7,14 +7,15 @@ import TopMenu from './Navbar';
 // import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
-  const projName =  props?.children?.props?.children?.props?.children[0].props?.children[0].props.ph.phSource;
+  const projName =  props?.children?.props?.children?.props?.children[0]?.props?.children[0]?.props?.ph?.phSource;
+  console.log("11 projName", projName);
   // const projName = props.phSource.;
   // const [darkMode, setDarkMode] = useDarkMode();
   return (
     <div style={{ backgroundColor: "#fff" }} >
       <Head>
       <title>
-         {projName}
+         {(projName) ? projName : "AKMM"}
       </title>
         <link rel="icon" href="" />
       </Head>

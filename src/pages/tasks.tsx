@@ -11,6 +11,8 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Tasks from '../components/Tasks';
 
+const debug = false;
+
 const page = (props: any) => {
     const { query } = useRouter();
     const dispatch = useDispatch();
@@ -38,7 +40,7 @@ const page = (props: any) => {
 
     const taskDiv =  <Tasks props={props} />
 
-    console.log('32 page tasks props', query, props);
+    if (debug) console.log('32 page tasks props', query, props);
 
     return (
         <>

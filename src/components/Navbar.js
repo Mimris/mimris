@@ -10,9 +10,9 @@ const Navbar = (props) => {
 	const currentRoute = router.pathname;
 	if (debug) console.log('11 Navbar currentRoute', currentRoute, props);
 
-	let domainName = "";
+	const [domainName, setDomainName] = useState("");
 	useEffect(() => {
-		domainName = (window) && window.location.hostname;
+		setDomainName(window.location.hostname);
 		if (debug) console.log(domainName);
 	}, []);
 

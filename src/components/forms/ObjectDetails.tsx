@@ -234,7 +234,7 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
 };
 
 const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject, edit}) => {
-  console.log('237 ObjectDetails ', curobject, formValues, edit);
+  if (debug) console.log('237 ObjectDetails ', curobject, formValues, edit);
   return (
     <div className='object-details' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />

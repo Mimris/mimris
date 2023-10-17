@@ -58,7 +58,7 @@ const page = (props: any) => {
   const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
 
 
-  console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
+  if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`

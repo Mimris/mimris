@@ -464,12 +464,13 @@ export class goObjectNode extends goNode {
                 this.name = object.getName();
                 const objtype = object.getType() as akm.cxObjectType;
                 if (objtype) {
-                    this.objecttype = objtype;
-                    this.typename = objtype.getName();
-                    this.typedescription = this.objecttype.getDescription();
+                    const copiedObjtype = new akm.cxObjectType(objtype.id, objtype.name, objtype.description);
+                    this.objecttype = copiedObjtype;
+                    this.typename = copiedObjtype.name;
+                    this.typedescription = copiedObjtype.description;
                     // Check if a draft property exists
                     const draftProp = constants.props.DRAFT;
-                    const draft = objtype.findPropertyByName(draftProp);
+                    const draft = copiedObjtype.findPropertyByName(draftProp);
                     if (draft) {
                         const value = object.getStringValue2(draftProp);
                         if (value && value?.length > 0) {

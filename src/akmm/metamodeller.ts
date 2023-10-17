@@ -3175,6 +3175,7 @@ export class cxDatatype extends cxMetaObject {
     inputPattern:       string;
     viewFormat:         string;
     fieldType:          string;
+    readOnly:           boolean;
     pointerType:        cxObjectType;
     pointerCriteria:    string;
     constructor(id: string, name: string, description: string) {
@@ -3185,6 +3186,7 @@ export class cxDatatype extends cxMetaObject {
         this.inputPattern  = "";
         this.viewFormat    = "";
         this.fieldType     = "text";
+        this.readOnly      = false;
         this.allowedValues = null;
         this.defaultValue  = "";
         this.value         = "";
@@ -5970,6 +5972,7 @@ export class cxProperty extends cxMetaObject {
     unitCategory:   cxUnitCategory | null;
     unitCategoryRef: string;
     defaultValue:   string;
+    readOnly:       boolean;
     inputPattern:   string;
     viewFormat:     string;
     example:        string;
@@ -5984,6 +5987,7 @@ export class cxProperty extends cxMetaObject {
         this.unitCategory       = null;
         this.unitCategoryRef    = "";
         this.defaultValue       = "";
+        this.readOnly           = false;
         this.inputPattern       = "";
         this.viewFormat         = "";
         this.example            = "";

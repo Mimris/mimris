@@ -126,7 +126,7 @@ function Tasks(props) {
 const handleNewWindow = () => {
   const curmodId = String(curmodel?.id);
   const parameter = '/tasks?taskFocusModel=' + curmodId;
-  console.log('116 handleNewWindow', curmodId, parameter);
+  if (debug) console.log('116 handleNewWindow', curmodId, parameter);
   window.open(parameter, '_blank', 'width=644,height=800');
   setMinimized(true);
 }

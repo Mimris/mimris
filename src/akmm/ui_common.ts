@@ -42,18 +42,19 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             const pastedobj = myMetis.findObject(obj.id);
             if (objtype.name === constants.types.AKM_CONTAINER) {
                 const guid = utils.createGuid();
-                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                obj = new akm.cxObject(guid, data.name, objtype, data.object.description);
             }
             else if (!pastedobj) {
                 // This is not a pasted object, create a new one
                 let guid = obj.id;
-                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                obj = new akm.cxObject(guid, data.name, objtype, data.object.description);
                 myMetis.pasteViewsOnly = false;
             } else {
                 obj = pastedobj;
             }
         } else {
-            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
+            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.object.description);
+            copyProperties(obj, data.object);
         }
         if (debug) console.log('56 obj, myMetis', obj, myMetis);
         if (obj) {
@@ -512,6 +513,21 @@ export function copyRelationship(fromRel: akm.cxRelationship, fromObj: akm.cxObj
         toRel[prop] = fromRel[prop];
     }
     return toRel;
+}
+
+export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
+    for (let prop in fromObj) {
+        if (prop === 'id') continue;
+        if (prop === 'name') continue;
+        if (prop === 'description') continue;
+        if (prop === 'inputrels') continue;
+        if (prop === 'outputrels') continue;
+        if (prop === 'objectviews') continue;
+        if (prop === 'relshipviews') continue;
+        if (prop === 'modified') continue;
+        if (prop === 'generatedTypeId') continue;
+        toObj[prop] = fromObj[prop];
+    }
 }
 
 export function deleteObjectType(data: any, context: any) {   

@@ -83,12 +83,12 @@ const page = (props: any) => {
       try {
         const queryParam = await query
         // if (!queryParam.repo) {
-          if (!debug) console.log('68 modelling', props)
+          if (debug) console.log('68 modelling', props)
           if ((window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") { // if page is refreshed
             if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
                 if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
                   const locStore = (memoryLocState[0])
-                  if (!debug) console.log('modelling 91 ', locStore)  
+                  if (debug) console.log('modelling 91 ', locStore)  
                   if (locStore) {
                     dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
                     // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}

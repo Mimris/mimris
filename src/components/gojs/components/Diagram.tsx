@@ -729,53 +729,45 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
           makeButton("Sort Selection",
-          function (e: any, obj: any) {
-            const selection = myDiagram.selection;
-            const mySelection = [];
-            let myLocs = [];
-
-            for (let it = selection.iterator; it?.next();) {
-              let n = it.value;
-              mySelection.push(n.data);
-
-              const nodeLoc = n.data.loc?.split(" ");
-              const nx = parseInt(nodeLoc[0]);
-              const ny = parseInt(nodeLoc[1]);
-          
-              const myLoc = {name: ny, loc: n.data.loc};
-              myLocs.push(myLoc);
-            }
-            console.log('741 mySelection, myLoc', mySelection, myLocs);
-            const myObjectViews = [];
-            mySelection.sort(utils.compare);
-            myLocs.sort(utils.compare);
-            console.log('743 mySelection, myLoc', mySelection, myLocs);
-            const len = mySelection.length;
-            for (let i = 0; i < mySelection.length; i++) {
-              const node = mySelection[i];
-              node.loc = myLocs[i].loc;
-              const objview = node.objectview;
-              objview.loc = node.loc;
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              myObjectViews.push(jsnObjview);
-              console.log('751 objview, jsnObjview', objview, jsnObjview);
-             }
-            console.log('755 selection',mySelection);
-            myObjectViews.map(mn => {
-              let data = (mn) && mn
-              if (mn.id) {
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+            function (e: any, obj: any) {
+              const selection = myDiagram.selection;
+              const mySelection = [];
+              let myLocs = [];
+              for (let it = selection.iterator; it?.next();) {
+                let n = it.value;
+                mySelection.push(n.data);
+                const nodeLoc = n.data.loc?.split(" ");
+                const ny = parseInt(nodeLoc[1]);
+            
+                const myLoc = {name: ny, loc: n.data.loc};
+                myLocs.push(myLoc);
               }
-            })
-          },
-          function (o: any) {
-            const selection = myDiagram.selection;
-            if (selection.count > 1)
-              return true;
-            else
-              return false;
-          }),
+              const myObjectViews = [];
+              mySelection.sort(utils.compare);
+              myLocs.sort(utils.compare);
+              for (let i = 0; i < mySelection.length; i++) {
+                const node = mySelection[i];
+                node.loc = myLocs[i].loc;
+                const objview = node.objectview;
+                objview.loc = node.loc;
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                myObjectViews.push(jsnObjview);
+              }
+              myObjectViews.map(mn => {
+                let data = (mn) && mn
+                if (mn.id) {
+                  data = JSON.parse(JSON.stringify(data));
+                  myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                }
+              })
+            },
+            function (o: any) {
+              const selection = myDiagram.selection;
+              if (selection.count > 1)
+                return true;
+              else
+                return false;
+            }),
           makeButton("Cut",
             function (e: any, obj: any) {
               e.diagram.commandHandler.cutSelection();

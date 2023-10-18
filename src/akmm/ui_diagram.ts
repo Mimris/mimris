@@ -17,6 +17,7 @@ export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) 
         modelview.focusObjectview = objview;
     }
 }
+
 export function clearFocus(modelview: akm.cxModelView) {
     if (modelview) {
         modelview.focusObjectview = null;
@@ -1358,7 +1359,6 @@ function clearModel1(context: any) {
         if (debug) console.log('367 model, myMetis', model, myMetis);
     }
 }
-
 
 const breakString = (str, limit) => {
     let brokenString = '';

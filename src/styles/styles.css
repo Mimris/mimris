@@ -740,7 +740,7 @@ ul {
 }
 ul li a {
   display: block;
-  width: 100%;
+  /* width: 100%; */
   text-decoration: none;
   padding: 5px;
 }

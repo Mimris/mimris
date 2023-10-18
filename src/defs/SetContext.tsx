@@ -20,118 +20,120 @@ const SetContext = (props: any) =>  {
   }
 
   const contextRepoDiv = 
-  <div className="context-list d-flex justify-content-around align-items-center ms-4 px-1">
-  Context / Focus :
-  <span className="ms-2 ms-1 border rounded-2">
+  <div className="context-list d-flex justify-content-between align-items-center px-4 pt-0" style={{ backgroundColor: "#e5e5e5", whiteSpace: "nowrap" }}>
+  Focus :
+  <span className="border rounded-2">
     Proj:
     <span
-      className="ms-1 px-1 border rounded-2"
-      style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+      style={{ backgroundColor: "#fff"  }}
     >
       <Link
         className="text-primary"
         href={`https:/github.com/orgs/${org}/projects/${projectNumber}`}
         target="_blank"
       >
-        <span style={{ whiteSpace: "nowrap" }}>
+        <span >
           {phFocus.focusProj.name}
         </span>
       </Link>
     </span>
   </span>
-  <span className="ms-2 me-1 border rounded-2">
+  <span className="border rounded-2">
     Repo:
     <span
-      className="m1-1 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+       style={{ backgroundColor: "#fff" }}
     >
       <Link
         className="text-primary"
         href={`https:/github.com/${org}/${repo}`}
         target="_blank"
       >
-        <span style={{ whiteSpace: "nowrap" }}>{repo}</span>
+        <span >{repo}</span>
       </Link>
     </span>
   </span>
   <span className="context-item">
-    <span className="ms-2 me-1 px-1 border rounded-2">
+    <span className="px-1 border rounded-2">
       Model:
     </span>
     <span
-      className="ms-1 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+       style={{ backgroundColor: "#fff" }}
     >
       {phFocus?.focusModel?.name}
     </span>
   </span>
   <span 
-    className="ms-2 me-1 border rounded-2">
+    className="border rounded-2">
     Modelview:
     <span
-      className="mx-0 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+       style={{ backgroundColor: "#fff" }}
     >
       {phFocus?.focusModelview?.name}
     </span>
   </span>
   <span 
-    className="ms-2 me-1 border rounded-2">
+    className="border rounded-2">
     Object:
     <span
-      className="ms-1 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+       style={{ backgroundColor: "#fff" }}
     >
       {phFocus?.focusObject?.name}
     </span>
   </span>
   <span 
-    className="ms-2 me-1 border rounded-2">
+    className="border rounded-2">
     Objectview:
     <span
-      className="ms-1 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+       style={{ backgroundColor: "#fff" }}
     >
       {phFocus?.focusObjectview?.name}
     </span>
   </span>
   <span 
-    className="ms-2 me-1 border rounded-2"
+    className="border rounded-2"
     >
     Role:
     <span
-      className="ms-1 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1"
+       style={{ backgroundColor: "#fff" }}
     >
       {phFocus?.focusRole?.name}
     </span>
   </span>
   <span
-    className="ms-2 me-1 border rounded-2"
+    className="border rounded-2"
     >
     Task:
     <span
-      className="ms-1 px-1 border rounded-2"
-       style={{ backgroundColor: "#dde5e5", fontWeight: "bold"  }}
+      className="border rounded-2 px-1gi"
+       style={{ backgroundColor: "#fff" }}
       >
       {phFocus?.focusTask?.name}
     </span>
   </span>
 </div>
 
-  const contextModelDiv = 
-    <div className="context-list d-flex justify-content-between align-items-center flex-grow-1"> Context 2:
-      <span className="context-item"> Org: <span>{phFocus?.focusProj?.org}</span> </span> | 
-      <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <span>{repo}</span> </Link></span> |
-      <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <span>{phFocus.focusProj.name}</span></Link>}</span>
-  </div>
+  // const contextModelDiv = 
+  //   <div className="context-list d-flex justify-content-between align-items-center flex-grow-1">Context 2:
+  //     <span className="context-item"> Org: <span>{phFocus?.focusProj?.org}</span> </span> | 
+  //     <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <span>{repo}</span> </Link></span> |
+  //     <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <span>{phFocus.focusProj.name}</span></Link>}</span>
+  // </div>
 
   // const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}
   
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center ms-4 w-100" >
-        <span className="ms-5">{toggle ? contextRepoDiv : contextModelDiv}</span>
+      <div className="d-flex justify-content-between align-items-center ms-2" >
+        {/* <span className="ms-5">{toggle ? contextRepoDiv : contextModelDiv}</span> */}
+        <span className="ms-5 bg-light">{contextRepoDiv}</span>
+
         {/* <button className="btn btn-sm my-0 mx-1 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "24px", backgroundColor: "#cdd"}}> */}
           {/* {(toggle) ? <span>&gt;</span> : <span >&lt;</span> } */}
           {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}

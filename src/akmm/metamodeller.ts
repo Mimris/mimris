@@ -7445,7 +7445,7 @@ export class cxInstance extends cxMetaObject {
     getInheritedTypes(): cxType[] | null {
         const typelist = [];
         const type = this.getType();
-        const types = type?.findSupertypes(0);
+        const types = type && type.findSupertypes(0);
         if (debug) console.log('6697 types', types);
         for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;

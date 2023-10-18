@@ -8,7 +8,7 @@ const debug = false;
 
 const DropdownMenu = ({ options, domainName }) => {
 	const [isOpen, setIsOpen] = useState(false);
-	console.log('11 DropdownMenu', options, domainName);
+	
 	const toggleMenu = () => {
 	  setIsOpen(!isOpen);
 	};
@@ -70,9 +70,9 @@ const Navbar = (props) => {
 			}>
 			<div className="d-flex justify-content-center align-items-center">
 				<Link className="navbar-brand navbar-left mx-2" href="#">
-					<img src="images/equinor-logo.svg" width="140px" height="80px" className="d-inline-block align-top" alt="Equinor logo" />
+					<img src="images/equinor-logo.svg" width="100px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
-				<Link className="navbar-brand navbar-left ms-2 me-auto fs-1 " href="#">
+				<Link className="navbar-brand navbar-left ms-2 me-auto fs-2 " href="#">
 					<strong className="text-success">AKM Modeller</strong>
 				</Link>
 				<div className="mx-4">
@@ -81,7 +81,7 @@ const Navbar = (props) => {
 			</div>
 			<div className="">
 				<div className="collapse navbar-collapse " id="nav-toggler-metis">
-					<ul className="navbar-nav fs-4" >
+					<ul className="navbar-nav fs-5 ">
 						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
 							<Link  href="/">Home</Link>
 						</li>
@@ -143,26 +143,29 @@ const Navbar = (props) => {
 
 		<style jsx>{`
 		  	nav {
-				height: 54px;
+				height: 46px;
 				padding-bottom: 5px;
 				display: flex;
 				justify-content: between;
 				align-items: center;
 				background: #dadada;
-				box-shadow: 0 0px 10px #aaa;
+				box-shadow: 0 0px 10px #ccc;
 			}
 			.nav-item {
-				width: 10rem;
+				width: 8rem;
 				display: flex;
 				justify-content: center;
 				align-items: center; 
 				height: 100%;
-				background: #bfbfbf;
+				background: #bccccc;
 				border-top: 3px solid #ccc;
 				border-bottom: 3px solid #fff;
 			}
 			.nav-item:first-child {
 				border-left: 3px solid #ddd;
+			}
+			.nav-item:last-child {
+				border-right: 3px solid #fff;
 			}
 			/* Basic styles for nav links */
 			nav Links {
@@ -188,11 +191,11 @@ const Navbar = (props) => {
 			/* Specific styles for active links */
 			.active {
 				color: black;
-				background: #d0d0d0;
+				background: #d0d8d8;
 				border-top: 3px solid #fff;
 				border-right: 3px solid #ccc;
 				border-left: 3px solid #fff;
-				border-bottom: 3px solid #d5d5d5;
+				border-bottom: 3px solid #d0d8d8;
 				border-radius: 10px 10px 0 0;
 			}
 				/* Specific styles for the navbar brand */

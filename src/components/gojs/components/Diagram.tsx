@@ -737,14 +737,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let n = it.value;
                 mySelection.push(n.data);
                 const nodeLoc = n.data.loc?.split(" ");
-                const ny = parseInt(nodeLoc[1]);
-            
-                const myLoc = {name: ny, loc: n.data.loc};
+                const nx = parseInt(nodeLoc[0]);            
+                const ny = parseInt(nodeLoc[1]);            
+                const myLoc = {name: ny, loc: n.data.loc, nx: nx};
                 myLocs.push(myLoc);
               }
               const myObjectViews = [];
               mySelection.sort(utils.compare);
               myLocs.sort(utils.compare);
+              for (let i = 1; i < myLocs.length; i++) {
+                const myLoc = myLocs[i];
+                if (myLocs[i].ny === myLocs[i-1].necessary) {
+                  if (myLoc.name < myLocs[i-1].name) {
+                    myLocs[i] = myLocs[i-1];
+                    myLocs[i-1] = myLoc;
+                  }
+                }
+              }
               for (let i = 0; i < mySelection.length; i++) {
                 const node = mySelection[i];
                 node.loc = myLocs[i].loc;

@@ -58,7 +58,7 @@ const page = (props: any) => {
   const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
 
 
-  console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
+  if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -128,13 +128,13 @@ const page = (props: any) => {
 
 
   useEffect(() => { // when the page loads, set the focus
-    console.log('61 project', query, query?.repo)
+    if (debug) console.log('61 project', query, query?.repo)
     const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus, projectNumber: query.projectNumber, ghtype: query.ghtype  }
-    console.log('65 project', data);
+    if (debug) console.log('65 project', data);
     (query.repo) && dispatch({ type: 'SET_FOCUS_PROJ', data });
 
     const { org, repo, path, file, branch, focus, ghtype, projectNumber } = query;
-    console.log('69 project', org, repo, path, file, branch)
+    if (debug) console.log('69 project', org, repo, path, file, branch)
     dispatch({ type: 'LOAD_DATAGITHUB', data: query });
     const timer = setTimeout(() => {
       dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })

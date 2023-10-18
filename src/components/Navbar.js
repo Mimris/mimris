@@ -10,23 +10,47 @@ const Navbar = (props) => {
 	const currentRoute = router.pathname;
 	if (debug) console.log('11 Navbar currentRoute', currentRoute, props);
 
+	const [domainName, setDomainName] = useState("");
+	useEffect(() => {
+		setDomainName(window.location.hostname);
+		if (debug) console.log(domainName);
+	}, []);
+
 	const target = "";
 
 	const LinkDiv = 
 		<span className="fs-3 d-flex justify-content-between fs-1" style={{ minWidth: "300px", marginTop: "2px" }}>
 			<strong>AKM Modeller </strong>
 			<span className="d-flex">
-				<Link href="https://akmmclient.vercel.app/modelling" target={target} style={{width: "50px"}}>
-	 				<span className="bg-light border border-light text-secondary rounded ms-2 mb-2" style={{ fontSize: 10 }}>Final v.</span>
+				<Link href="https://akmmclient.vercel.app/modelling" target={target} style={{width: "60px"}}>
+	 				<span className="border border-light rounded ms-3 mb-2" 
+						style={(domainName === "akmmclient.vercel.app") 
+							? { fontSize: 10, backgroundColor: "lightgreen" } 
+							: { fontSize: 10 }
+						}
+					>
+						Final v.
+					</span>
 				</Link>
 				<Link href="https://akmmclient-beta.vercel.app/modelling" target={target} style={{width: "70px"}} >
-					<span className="bg-light border border-light text-secondary rounded ms-0 mb-2" style={{ fontSize: 10 }}>Beta v.</span>
+					<span className="border border-light rounded ms-0 mb-2" 
+						style={(domainName === "akmmclient-beta.vercel.app") 
+							? { fontSize: 10, backgroundColor: "lightgreen" } 
+							: { fontSize: 10 }
+						}
+					>
+						Beta v.
+					</span>
 				</Link>
 			</span>
 		</span>
 
 	return (
-		<nav className="navbar navbar-expand-sm d-flex justify-content-between m-0 p-0">
+		<nav className="navbar navbar-expand-sm d-flex justify-content-between m-0 p-0" 
+			style= {(domainName === "localhost") 
+				? {backgroundColor: "#efe"} 
+				: {backgroundColor: " #efefef"}
+			}>
 			<a className="navbar-brand navbar-left mr-4" href="#">
 				<img src="images/equinor-logo.svg" width="140px" height="80px" className="d-inline-block align-top" alt="Equinor logo" />
 			</a>
@@ -48,14 +72,14 @@ const Navbar = (props) => {
 						{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link href="/context">Focus</Link>
 						</li> */}
-						<li 
+						{/* <li 
 							className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link 
 								style={{paddingLeft: "30px", width: "100px"}} 
 								href="/tasks">
 								Tasks
 							</Link>
-						</li>
+						</li> */}
 						<li 
 							className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
 							<Link 

@@ -115,7 +115,7 @@ function * loadDataSaga() {
         }
       )
       const metis = yield res.clone().json()
-      console.log('78 Saga', metis);
+      if (debug) console.log('78 Saga', metis);
       yield put(loadDataSuccess({ metis }))
     } catch (err) {
       if (debug) console.log('72 saga', failure(err));  
@@ -129,18 +129,18 @@ function * loadDataGithubSaga(params) {  // load url-params of data from github
   const { org, repo, path, file, branch, focus , ghtype} = params.data
   if (params.data) {
     const orgrepo = org + '/' + repo
-    console.log('131 Saga', orgrepo,org, repo, path, file, branch, focus);
+    if (debug) console.log('131 Saga', orgrepo,org, repo, path, file, branch, focus);
     if (repo && file) {
       try {
         let res = ''  
         res = yield searchGithub(orgrepo, path, file, 'main', 'paramfile')
-        console.log('148 Saga', res.data);
+        if (debug) console.log('148 Saga', res.data);
         const data = yield res.data
-        console.log('153 Saga', data);
+        if (debug) console.log('153 Saga', data);
 
         yield put(loadDataGithubSuccess({ data })) 
       } catch (err) {
-        console.log('156 saga', failure(err));  
+        if (debug) console.log('156 saga', failure(err));  
         yield put(failure(err))
       }
     }

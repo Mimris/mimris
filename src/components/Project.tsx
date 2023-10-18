@@ -80,20 +80,20 @@ const fetchIssues = async () => {
       issues.map(async (issue) => {
         const res = await fetch(issue.comments_url);
         const data = await res.json();
-        console.log('67 comments', res, data)
+        if (debug) console.log('67 comments', res, data)
         if (data.length === 0) { // if there is an error
           console.error('Error fetching comments:', data.message);
           setComments([]);
         } else {
           setComments((comments) => [...comments, data]);
         }
-        console.log('71 comments', data)
+        if (debug) console.log('71 comments', data)
       })
     }
   } catch (error) {
     console.error('Error fetching comments:', error);
   }
-  console.log('72 comments', issues)
+  if (debug) console.log('72 comments', issues)
 }
 
   const handleSubmit = (details) => {

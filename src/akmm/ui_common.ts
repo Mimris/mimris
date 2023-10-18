@@ -1562,7 +1562,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                         myDiagram.requestUpdate();
                         if (debug) console.log('1293 myMetamodel', myMetamodel);
                     }
-                    console.log('1295 reltype', reltype);
+                    if (debug) console.log('1295 reltype', reltype);
                     return reltype;
                 }
             }
@@ -3244,7 +3244,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "End Verification\n";
 
     report += printf(format, msg);
-    console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 
     if (debug) console.log('2841 verifyAndRepairModel ENDED, myMetis', myMetis);
@@ -3329,7 +3329,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     if (debug) console.log('2860 data', data, myMetis);
 
     report += printf(format, msg);
-    console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 
     if (debug) console.log('2866 verifyAndRepairMetamodel ENDED, myMetis', myMetis);

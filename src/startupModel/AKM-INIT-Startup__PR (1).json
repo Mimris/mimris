@@ -1,9 +1,9 @@
 {
   "phData": {
     "metis": {
-      "name": "AKM-Core-Type-Definitions",
-      "description": "Project containing AKMM core and IRTV type definitions",
-      "allowGenerateCurrentMetamodel": true,
+      "name": "AKM-INIT-Startup__PR",
+      "description": "Startup Project containing AKMM core and IRTV type definitions",
+      "allowGenerateCurrentMetamodel": false,
       "metamodels": [
         {
           "id": "136c6e85-f306-42c0-54c3-322bdd10470e",
@@ -8518,7 +8518,7 @@
             {
               "id": "c9e3334f-f528-4029-7fd5-edf932eec7fe",
               "name": "Build a Concept Model",
-              "description": "### Concept Model (TD) Model\n\nAs a way to Explore and Understand the problem space. we will create a Product-(Information and Concepts) and Functional-model (Tasks and Roles)\n\n##### Example Model\n\n<a href=\"images/help/Concept-model.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/ISPIM-Concept1-2023-10-10.png)</font></code>\n</span>Click on the picture to open in New Tab!</a>\n\nAs you see there are also additional ObjectTypes that can be added to the TD-model here.\n\nVi use the IRTV_MM Types to build this model.\n\n##### IRTV_MM Metamodel\n\n<a href=\"images/help/IRTV-2023-10-10.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/IRTV-2023-10-10.png)</font></code>\n</span>Click on the picture to open in New Tab!</a>\n\nThe main Objecttypes in IRTV is Information Role, Task and View EntityTypes.\n\nThese are the types that will be generated to Object types in the resulting Metamodel.\n\nIn addition we have the proposedType Property added to the IRTV EntityTypes.\n\nThe MetaModel Object is used to  point to which EntityTypes are included in the metamodel, in this cas IRTV EntityTypes\n\nYou can find more info following this link : \n<a href=\"http://localhost:3000/helpblog/020-escooter#AKMM%20Help\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\"> A Demo Solution Model...</font></code>\n</span></a>\n",
+              "description": "### Concept Model (TD) Model\n\nAs a way to Explore and Understand the problem space. we will create a Product-(Information and Concepts) and Functional-model (Tasks and Roles)\n\n##### Example Model\n\n<a href=\"images/help/ISPIM-Concept1-2023-10-10.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/ISPIM-Concept1-2023-10-10.png)</font></code>\n</span>Click on the picture to open in New Tab!</a>\n\nAs you see there are also additional ObjectTypes that can be added to the TD-model here.\n\nVi use the IRTV_MM Types to build this model.\n\n##### IRTV_MM Metamodel\n\n<a href=\"images/help/IRTV-2023-10-10.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/IRTV-2023-10-10.png)</font></code>\n</span>Click on the picture to open in New Tab!</a>\n\nThe main Objecttypes in IRTV is Information Role, Task and View EntityTypes.\n\nThese are the types that will be generated to Object types in the resulting Metamodel.\n\nIn addition we have the proposedType Property added to the IRTV EntityTypes.\n\nThe MetaModel Object is used to  point to which EntityTypes are included in the metamodel, in this cas IRTV EntityTypes\n\nYou can find more info following this link : \n<a href=\"http://localhost:3000/helpblog/020-escooter#AKMM%20Help\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\"> A Demo Solution Model...</font></code>\n</span></a>\n",
               "abstract": false,
               "viewkind": "",
               "typeRef": "f02d8b8c-d693-4e6b-1291-4d69f63dc8d7",
@@ -11811,7 +11811,7 @@
                   "isGroup": true,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1990 -490",
+                  "loc": "-200 -490",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -11871,7 +11871,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1850 -380",
+                  "loc": "-60 -380",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -11901,7 +11901,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1850 -250",
+                  "loc": "-60 -250",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -11931,7 +11931,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1850 -120",
+                  "loc": "-60 -120",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -11961,7 +11961,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1850 0",
+                  "loc": "-60 0",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -12021,7 +12021,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1850 150",
+                  "loc": "-60 150",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -13191,7 +13191,7 @@
                   "viewkind": "Object",
                   "isGroup": false,
                   "isExpanded": true,
-                  "isSelected": false,
+                  "isSelected": true,
                   "loc": "-710 -30",
                   "template": "textAndIcon",
                   "figure": "",
@@ -13222,7 +13222,7 @@
                   "isGroup": true,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1140 -410",
+                  "loc": "660 -420",
                   "template": "groupNoPorts",
                   "figure": "",
                   "geometry": "",
@@ -13282,7 +13282,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 -360",
+                  "loc": "750 -370",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -13312,7 +13312,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 -280",
+                  "loc": "750 -290",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -13342,7 +13342,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 -200",
+                  "loc": "750 -210",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -13372,7 +13372,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 -120",
+                  "loc": "750 -130",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -13402,7 +13402,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 -40",
+                  "loc": "750 -50",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -13432,7 +13432,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 40",
+                  "loc": "750 30",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -13462,7 +13462,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1050 120",
+                  "loc": "750 110",
                   "template": "",
                   "figure": "",
                   "geometry": "",
@@ -13516,7 +13516,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "360f58bd-19cc-4817-2d1c-9ee91f5eb049",
@@ -13551,7 +13551,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "17af16fe-b29a-478f-6862-2c144ea27528",
@@ -13584,7 +13584,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "6e791267-aecb-46e2-9af7-0feda37467e7",
@@ -13617,7 +13617,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "47adb59b-166e-411d-c00a-b2081909d5d3",
@@ -13652,7 +13652,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "7a4fd290-48cf-49ff-3e58-8f5758abcee4",
@@ -13687,7 +13687,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "c167e780-99ba-4222-25d1-f1733456da19",
@@ -13722,7 +13722,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "5c5b9945-c8b6-4610-e687-7e39085aee61",
@@ -13757,7 +13757,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "76b606a4-cc74-40f6-035f-2498012cc2af",
@@ -13794,7 +13794,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "25c513ad-34ab-4d87-1337-52c09dde2f30",
@@ -13829,7 +13829,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "169fb900-445a-40d7-bd2b-bf1618e857f5",
@@ -13864,7 +13864,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "a5277c82-a5f8-45eb-f91f-0a1a42edc6ac",
@@ -13897,7 +13897,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "75d35070-3495-48aa-8240-07a677c53e78",
@@ -13930,7 +13930,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "6f4a8b3e-57c0-4d93-ef5e-b52ce545ef24",
@@ -13963,7 +13963,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "e9b77350-9cb6-45b7-26a0-7dfa131f1f36",
@@ -13996,7 +13996,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "8a3b2103-857a-487a-ac18-c40e7133333d",
@@ -14031,7 +14031,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "b146bb2d-d78b-4652-5549-f9573a5ce159",
@@ -14066,7 +14066,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "2ddce22d-feb0-4d93-50af-a69585daf369",
@@ -14099,7 +14099,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "570adb8e-086c-477e-c639-f6ad34dd67ca",
@@ -14132,7 +14132,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "b20e6fd2-6b60-4bb1-e176-5f3bfee7884e",
@@ -14165,7 +14165,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "cc44f422-88ec-4736-4a85-6630442bee29",
@@ -14198,7 +14198,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 },
                 {
                   "id": "9f74418a-3e19-4419-7d08-4d5f452afce7",
@@ -14231,7 +14231,7 @@
                   "curve": "",
                   "corner": "",
                   "markedAsDeleted": "",
-                  "modified": ""
+                  "modified": false
                 }
               ],
               "objecttypeviews": [],
@@ -16183,7 +16183,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-1010 -540",
+                  "loc": "-1010 -530",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -16213,7 +16213,7 @@
                   "isGroup": false,
                   "isExpanded": true,
                   "isSelected": false,
-                  "loc": "-630 -540",
+                  "loc": "-630 -530",
                   "template": "textAndIcon",
                   "figure": "",
                   "geometry": "",
@@ -16289,12 +16289,12 @@
                   "fromPortid": "",
                   "toPortid": "",
                   "points": [
-                    -809.0000020992497,
-                    -504.2049027228541,
-                    -718.9999998834611,
-                    -504.21044063449654,
-                    -628.9999976676714,
-                    -504.215978546139
+                    -809.0001639229781,
+                    -495.8108713675253,
+                    -719.0000000000005,
+                    -495.8108713675492,
+                    -628.9998360770219,
+                    -495.81087136757316
                   ],
                   "routing": "",
                   "curve": "",
@@ -16324,10 +16324,10 @@
                   "fromPortid": "",
                   "toPortid": "",
                   "points": [
-                    -1170.8407036704773,
-                    -591.2802345568258,
-                    -1007.1592963295226,
-                    -536.7197654431742
+                    -1173.9947229233544,
+                    -589.6925388334334,
+                    -1004.0052770766456,
+                    -528.3074611665664
                   ],
                   "routing": "",
                   "curve": "",
@@ -16357,10 +16357,10 @@
                   "fromPortid": "",
                   "toPortid": "",
                   "points": [
-                    -1169.0128945222525,
-                    -607.7858747873922,
-                    -628.9871054777476,
-                    -520.2141252126078
+                    -1169.0150827436928,
+                    -606.4350821036218,
+                    -628.9849172563071,
+                    -511.5649178963783
                   ],
                   "routing": "",
                   "curve": "",
@@ -16736,12 +16736,12 @@
       "name": "2-IRTV"
     },
     "focusObject": {
-      "id": "c9e3334f-f528-4029-7fd5-edf932eec7fe",
-      "name": "Build a Concept Model"
+      "id": "6e3a383e-776b-4b24-d9a8-ed8b3f8a8c1d",
+      "name": "Person"
     },
     "focusObjectview": {
-      "id": "8142af00-e852-4162-6bc5-b1385afe62f4",
-      "name": "Build a Concept Model"
+      "id": "571009d9-bcc6-4fb6-afd1-7a32fc88a4e1",
+      "name": "Person"
     },
     "focusRelship": {
       "id": null,
@@ -16772,8 +16772,8 @@
       "name": ""
     },
     "focusProj": {
-      "id": "AKM-Type-Definitions",
-      "name": "AKM-Type-Definitions",
+      "id": "AKM-Core-Type-Definitions",
+      "name": "AKM-Core-Type-Definitions",
       "org": "kavca",
       "repo": "kavca-akm-models",
       "file": "AKM-Core-Type-Definitions_PR.json",
@@ -16884,7 +16884,7 @@
       "name": "AKM-IRTV_MM"
     }
   },
-  "phSource": "AKM-Core-Type-Definitions_PR",
+  "phSource": "AKM-INIT-Startup__PR_PR",
   "phUser": {
     "focusUser": {
       "id": "email",

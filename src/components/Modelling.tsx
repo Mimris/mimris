@@ -309,8 +309,6 @@ const page = (props: any) => {
   //     nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,
   //     linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links
   //   }
-
-
   // }, [refresh])
 
   if (debug) console.log('233 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
@@ -320,10 +318,6 @@ const page = (props: any) => {
   } else {
 
     if (debug) console.log('185 Modelling myModel', myMetis, myModel);
-
-
-
-
 
     //let myGoMetamodel = props.phGojs?.gojsMetamodel
     let phFocus = props.phFocus;
@@ -347,7 +341,7 @@ const page = (props: any) => {
       const projectname = props.phData.metis.name
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
       const data = `${projectname}_PR`
-      console.log('343 handleSaveAllToFile', data)
+      if (debug) console.log('343 handleSaveAllToFile', data)
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
     }
 

@@ -91,6 +91,8 @@ import {
   SET_VISIBLE_CONTEXT
 } from '../actions/types';
 
+//import context from '../pages/context';
+
 
 // import InitStateJson from './InitialState.json'
 
@@ -188,6 +190,33 @@ function reducer(state = InitialState, action) {
 
   const curMetamodel = phData.metis.metamodels.find((m) => m.id === curModel.metamodelRef);
   const curMetamodelIndex = phData.metis.metamodels.findIndex((m) => m.id === curModel.metamodelRef);
+
+
+
+        // ToDo:
+      // add new object + date and issue name and github link
+      // const getContext = (curObjectIndex) => {
+      //   return {
+        //   (curObjectIndex < 0) 
+        //     ? {
+        //         ...curModel?.objects[curObjectIndex].context,
+        //         created: {
+          //         user: state.phUser?.focusUser?.id,
+          //         date: new Date().toISOString(),
+          //         issue: state.phFocus?.focusIssue?.id,
+          //         github: state.phFocus?.focusIssue?.github,
+        //         },
+        //         modified: {
+        //           user: state.phUser?.focusUser?.id,
+        //           date: new Date().toISOString(),
+        //           issue: state.phFocus?.focusIssue?.id,
+        //           github: state.phFocus?.focusIssue?.github,
+        //         },
+        //       }
+        //     : curModel?.objects[curObjectIndex]?.context
+        //     }
+        //   }
+      //  }
 
   if (debug) console.log('188 reducer action', action)
   switch (action.type) {
@@ -542,7 +571,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_USER_SHOWDELETED:
-      console.log('440 SET_USER_SHOWDELETED', action);
+      if (debug) console.log('440 SET_USER_SHOWDELETED', action);
       return {
         ...state,
         phUser: {
@@ -756,8 +785,10 @@ function reducer(state = InitialState, action) {
       const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
       let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
       const curObjectLength = curModel?.objects?.length;
-      if (curObjectIndex < 0) { curObjectIndex = curObjectLength }
+      if (curObjectIndex < 0) { curObjectIndex = curObjectLength }  // if object not found, i.e. -1, then add a new object
 
+      // const context = getContext(curObjectIndex)
+      
       const retval_UPDATE_OBJECT_PROPERTIES = {
         ...state,
         phData: {
@@ -773,6 +804,7 @@ function reducer(state = InitialState, action) {
                   {
                     ...curModel.objects[curObjectIndex],
                     ...action.data,
+                    // ...context,
                   },
                   ...curModel?.objects.slice(curObjectIndex + 1, curModel?.objects.length)
                 ],

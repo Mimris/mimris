@@ -4,7 +4,7 @@ import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 
 function ProjectDetailsModal(props) {
 
-  console.log("6 ProjectDetailsModal", props.props.phFocus);
+  // console.log("6 ProjectDetailsModal", props.props.phFocus);
   const [showModal, setShowModal] = useState(false);
   const toggle = () => setShowModal(!showModal);
 

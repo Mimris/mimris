@@ -108,7 +108,7 @@ const page = (props: any) => {
            }
         // }
       } catch (error) {
-        console.log('modelling 80 ', error)
+        console.log('111 modelling query error ', error)
       }
     }
     if (debug) console.log('modelling 106a ', router)

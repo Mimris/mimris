@@ -350,6 +350,9 @@ const page = (props: any) => {
       const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
       // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
       dispatch({ type: 'SET_FOCUS_TAB', data })
+      // dispatch  the nodel and modelview also
+      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: curmodview })
+      dispatch({ type: 'SET_FOCUS_MODEL', data: curmod })
       // GenGojsModel(props, dispatch)
     }
 

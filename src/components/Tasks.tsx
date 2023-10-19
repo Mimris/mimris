@@ -80,6 +80,7 @@ function Tasks(props) {
     }
     setShowModal(true);
   };
+
   const handleCloseModal = () => setShowModal(false);
 
   const [formValues, setFormValues] = useState({});
@@ -123,56 +124,70 @@ function Tasks(props) {
     setMaximized(true);
   };
 
-const handleNewWindow = () => {
-  const curmodId = String(curmodel?.id);
-  const parameter = '/tasks?taskFocusModel=' + curmodId;
-  if (debug) console.log('116 handleNewWindow', curmodId, parameter);
-  window.open(parameter, '_blank', 'width=644,height=800');
-  setMinimized(true);
-}
+  const handleNewWindow = () => {
+    const curmodId = String(curmodel?.id);
+    const parameter = '/tasks?taskFocusModel=' + curmodId;
+    if (debug) console.log('116 handleNewWindow', curmodId, parameter);
+    window.open(parameter, '_blank', 'width=644,height=800');
+    setMinimized(true);
+  }
 
-const closeAllDetails = () => {
-  const detailsElements = document.querySelectorAll("details");
-  detailsElements.forEach((detailsElement) => {
-    const summaryElement = detailsElement.querySelector("summary");
-    if (summaryElement) {
-      detailsElement.removeAttribute("open");
-    }
-  });
-  setCollapsed(!collapsed);
-};
-
-const openAllDetails = () => {
-  const detailsElements = document.querySelectorAll("details");
-  detailsElements.forEach((detailsElement) => {
-    const summaryElement = detailsElement.querySelector("summary");
-    if (summaryElement) {
-      detailsElement.setAttribute("open", "");
-    }
-  });
-  setCollapsed(!collapsed);
-};
-
-const openOneLevel = () => {
-  const detailsElements = document.querySelectorAll("details");
-  detailsElements.forEach((detailsElement, index) => {
-    const summaryElement = detailsElement.querySelector("summary");
-    if (summaryElement) {
-      if (index === 1) {
-        detailsElement.setAttribute("open", "");
-      } else {
+  const closeAllDetails = () => {
+    const detailsElements = document.querySelectorAll("details");
+    detailsElements.forEach((detailsElement) => {
+      const summaryElement = detailsElement.querySelector("summary");
+      if (summaryElement) {
         detailsElement.removeAttribute("open");
       }
+    });
+    setCollapsed(!collapsed);
+  };
+
+  const openAllDetails = () => {
+    const detailsElements = document.querySelectorAll("details");
+    detailsElements.forEach((detailsElement) => {
+      const summaryElement = detailsElement.querySelector("summary");
+      if (summaryElement) {
+        detailsElement.setAttribute("open", "");
+      }
+    });
+    setCollapsed(!collapsed);
+  };
+
+  const openOneLevel = () => {
+    const detailsElements = document.querySelectorAll("details");
+    detailsElements.forEach((detailsElement, index) => {
+      const summaryElement = detailsElement.querySelector("summary");
+      if (summaryElement) {
+        if (index === 1) {
+          detailsElement.setAttribute("open", "");
+        } else {
+          detailsElement.removeAttribute("open");
+        }
+      }
+    });
+  };
+
+  const handleClick = () => {
+    if (task) {
+      dispatch({
+        type: "SET_FOCUS_TASK",
+        data: { id: task.id, name: task.name },
+      });
+    } else if (role) {
+      dispatch({
+        type: "SET_FOCUS_ROLE",
+        data: { id: role.id, name: role.name },
+      });
     }
-  });
-};
+  };
 
   if (minimized) {
     return (
       <div className="minimized-task">
         <div
           className="buttons position-absolute p-0 m-0 me-1 end-0"
-          style={{ scale: "0.8", marginTop: "-25px", marginLeft: "-2px"}}
+          style={{ transform: "scale(0.7)", marginTop: "-25px", marginLeft: "-2px"}}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           >
@@ -205,28 +220,19 @@ const openOneLevel = () => {
       <details className="m-y p-0 pe-1">
         <summary
           className="text-success d-flex align-items-top p-0 m-0"
-          onClick={toggleOpen}
+
         >
           <i className="fa fa-tasks mt-1 ms-2" aria-hidden="true"></i>
           <span className="ms-2">{task?.name}</span>
           <span className="d-flex my-0 ms-auto me-0 align-items-center justify-items-center">
             <button 
               className="btn bg-light text-success mx-0 p-1 pt-0 fs-5"
-              onClick={() =>
-               (task) && dispatch({
-                  type: "SET_FOCUS_TASK",
-                  data: { id: task.id, name: task.name },
-                }),
-                (role) && dispatch({
-                  type: "SET_FOCUS_ROLE",
-                  data: { id: role.id, name: role.name },
-                })
-              }
+              onClick={handleClick}
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "5px",
                 backgroundColor: "#fff",
-                scale: "0.7",
+                transform: "scale(0.7)",
               }}
             >
               {/* <i className="fa fa-lg fa-check"></i>   */}
@@ -243,34 +249,22 @@ const openOneLevel = () => {
     </li>
 
   const containerItem = (container) =>
-    <>
+    <div >
       <details>
         {/* <summary className="text-success d-flex align-items-center m-0 bg-light" > */}
         <summary
-          className="text-success d-flex align-items-center m-0 bg-ligt"
-          onClick={toggleOpen}
+          className="text-success d-flex align-items-center m-0 bg-light"
+
         >
-          <i className="fa fa-info mt- ms-2" aria-hidden="true"></i>
+          <i className="fa fa-folder mt- ms-2" aria-hidden="true"></i>
           <span className="ms-2" >{container.name} </span>
-          <i className="fa fa- mt-1 ms-2" aria-hidden="true"></i>
-            {/* <img
-              className="d-flex my-0 ms-auto me-0 align-items-center"
-              src="/images/info.svg"
-              alt="Details Arrow"
-              title="Details info"
-              width="18"
-              height="24"
-              style={{ width: "2rem", color: "success" }}
-              // style={{ backgroundColor: "warning", width: "5rem", 
-              //   position: "relative",  top: "0%", right: "0%", transform: "translate(50%, -125%)", zIndex: 9999 }}
-            /> */}
         </summary>
         <div className="m-0 p-2 bg-ligt">
-            <ReactMarkdown rehypePlugins={[rehypeRaw]} >{container?.description}</ReactMarkdown>
-            <hr />
-          </div>
+          <ReactMarkdown rehypePlugins={[rehypeRaw]} >{container?.description}</ReactMarkdown>
+          <hr />
+        </div>
       </details>
-    </>
+    </div>
 
   const renderItem = (ov: any, oType: string) => {
     if (debug) console.log('352 gcObjv', ov, oType);
@@ -291,16 +285,19 @@ const openOneLevel = () => {
   const renderTree = (item) => {
     if (debug) console.log('325 renderItems', item);
     if (!item) return null;
-    const children = item.children;
     const itemDiv = renderItem(item, item.typeName);
+    const children = item.children;
     if (debug) console.log('306 renderItem',item,  children);
+
+    if (children?.length === 0) return renderItem(item, item.typeName)
         
     const childItems = children?.map((child, index) => {
       if (debug) console.log('308 renderItems', child);
       return (item.typeName === 'Task')
-      ? <div className="ps-2">{renderTree(child)}</div> 
-      : <div className="ps-1">{renderTree(child)}</div> 
+      ? <div key={index} className="ps-2">{renderTree(child)}</div> 
+      : <div key={index} className="ps-1">{renderTree(child)}</div> 
     });
+
     return (
       <>
         {itemDiv}
@@ -357,30 +354,30 @@ const openOneLevel = () => {
     if (debug) console.log('347 buildTree', ovsTree, topObjviews, parent);
 
     const topGroupOvsDiv = 
-      <details>
+      <details key={index}>
         <summary className="text-success d-flex align-items-center m-0 bg-light" >
           <span className="ms-0 d-flex justify-content-between" >
-            <div className="" >
+            <div key={index} className="" >
               <i className="fa fa-folder mt-1" aria-hidden="true"></i>
-            <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
+              <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
             </div>
             {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
           </span>
         </summary>
-        <div className="m-0 p-2">
+        <div key={index} className="m-0 p-2">
           {renderTree(ovsTree)}
         </div>
       </details>
     ;
     
     return (
-      <>
+      <div  key={index} >
         <hr className="my-0"/>
           {/* Render the top containers of this modelview */}
-          <div className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
+          <div  key={index} className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
             {topGroupOvsDiv}
           </div>
-      </>
+      </div>
     );
   });
 
@@ -393,7 +390,7 @@ const openOneLevel = () => {
           <div className="header m-0 p-0 "
             style={{ backgroundColor: "lightyellow", position: "relative", width: "100%", height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -5%)", overflow: "hidden", zIndex: 9999 }}
             >
-              <div className="buttons position-relative me-1 float-end" style={{ scale: "0.9"}}>
+              <div className="buttons position-relative me-1 float-end" style={{ transform: "scale(0.9)"}}>
                 <button 
                   className="btn text-success mt-0 pe-2 py-0 btn-sm"
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -417,7 +414,6 @@ const openOneLevel = () => {
                   onClick={handleExpandedTaskPane}
                   style={{ backgroundColor: "lightyellow"}}
                   >
-                    {/* -&gt; */}
                     {(!expandedTaskPane) ? <i className="fa fa-lg fa-arrow-left"></i> : <i className="fa fa-lg fa-arrow-right"></i>}
                 </button>
                 <button 
@@ -427,10 +423,8 @@ const openOneLevel = () => {
                   onClick={handleMinimize} 
                   style={{ backgroundColor: "lightyellow"}}
                   >
-                    {/* -&gt; */}
                     <i className="fa fa-lg fa-arrow-right"></i>
                 </button>
-                {/* <button onClick={handleMaximize}>+</button> */}
               </div>
               <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
           </div>

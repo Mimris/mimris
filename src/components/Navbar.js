@@ -70,7 +70,7 @@ const Navbar = (props) => {
 			}>
 			<div className="d-flex justify-content-center align-items-center">
 				<Link className="navbar-brand navbar-left mx-2" href="#">
-					<img src="images/equinor-logo.svg" width="100px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
+					<img src="images/equinor-logo.svg" width="110px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
 				<Link className="navbar-brand navbar-left ms-2 me-auto fs-2 " href="#">
 					<strong className="text-success">AKM Modeller</strong>
@@ -157,15 +157,16 @@ const Navbar = (props) => {
 				justify-content: center;
 				align-items: center; 
 				height: 100%;
-				background: #bccccc;
-				border-top: 3px solid #ccc;
+				background: #cdd;
+				border-top: 4pbx solid #aaa
+				border-right: 4px solid #fff;
 				border-bottom: 3px solid #fff;
 			}
 			.nav-item:first-child {
-				border-left: 3px solid #ddd;
+				border-left: 4px solid #ddd;
 			}
 			.nav-item:last-child {
-				border-right: 3px solid #fff;
+				border-right: 4px solid #fff;
 			}
 			/* Basic styles for nav links */
 			nav Links {

@@ -178,6 +178,7 @@ export class jsnMetaModel {
     description:        string;
     metamodelRefs:      string[];
     subMetamodelRefs:   string[];
+    subModelRefs:       string[];
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
     objecttypes:        jsnObjectType[];
@@ -206,6 +207,7 @@ export class jsnMetaModel {
         this.description = (metamodel.description) ? metamodel.description : "";
         this.metamodelRefs = [];
         this.subMetamodelRefs = [];
+        this.subModelRefs = [];
         this.viewstyles = [];
         this.geometries = [];
         this.objecttypes = [];
@@ -244,6 +246,14 @@ export class jsnMetaModel {
             for (let i = 0; i < cnt; i++) {
                 const metamodel = subMetamodels[i];
                 this.subMetamodelRefs.push(metamodel.id);
+            }
+        }
+        let subModels = metamodel.getSubModels();
+        if (subModels) {
+            const cnt = subModels.length;
+            for (let i = 0; i < cnt; i++) {
+                const submodel = subModels[i];
+                this.subModelRefs.push(metamodel.id);
             }
         }
         const objtypes = metamodel.getObjectTypes();
@@ -403,6 +413,11 @@ export class jsnMetaModel {
     addMetamodel(metamodel: akm.cxMetaModel) {
         if (metamodel) {
             this.metamodelRefs.push(metamodel.id);
+        }
+    }
+    addSubModel(model: akm.cxModel) {
+        if (model) {
+            this.subModelRefs.push(model.id);
         }
     }
     addObjectType(objtype: akm.cxObjectType, includeViews: boolean) {

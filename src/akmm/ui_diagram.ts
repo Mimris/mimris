@@ -212,8 +212,24 @@ export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
     askForModel(context);
 }
 
+export function generateSubModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const objview = myMetis.findObjectView(node.objectview?.id);
+    // Ask for model name
+    const modelname = prompt("Enter Model name");
+    // Check if it already exists
+    const model = myMetis.findModelByName(modelname);
+    if (model) {
+        alert("Model already exists");
+        return;
+    }
+    // Find what metampdel is used
+    const metamodel = objview.model?.metamodel;
+    // Create a new model
+    const newModel = new akm.cxModel(utils.createGuid(), modelname, myMetis.currentTargetMetamodel, "");
+}
+
+
 export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (debug) console.log('163 node', node);
     const objview = myMetis.findObjectView(node.objectview?.id);
     // Select model among all models (except the current)
     const args = {
@@ -621,6 +637,60 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;
 }
+
+export function sortSelection(myDiagram) {
+    const selection = myDiagram.selection;
+    const mySelection = [];
+    let myLocs = [];
+    for (let it = selection.iterator; it?.next();) {
+      let n = it.value;
+      mySelection.push(n.data);
+      const nodeLoc = n.data.loc?.split(" ");
+      const nx = parseInt(nodeLoc[0]);            
+      const ny = parseInt(nodeLoc[1]);            
+      const myLoc = {name: ny, loc: n.data.loc, nx: nx, ny: ny};
+      myLocs.push(myLoc);
+    }
+    const myObjectViews = [];
+    mySelection.sort(utils.compare);
+    myLocs.sort(utils.compare);
+    for (let i = 1; i < myLocs.length; i++) {
+      const myLoc = myLocs[i];
+      if (myLocs[i].ny === myLocs[i-1].ny) {
+        if (myLoc.name < myLocs[i-1].name) {
+          myLocs[i] = myLocs[i-1];
+          myLocs[i-1] = myLoc;
+    //   if (myLocs[i].ny === myLocs[i-1].ny) {
+    //     if (myLocs[i].nx > myLocs[i-1].nx) {
+    //         if (myLoc.name < myLocs[i-1].name) {
+    //             myLocs[i] = myLocs[i-1];
+    //             myLocs[i-1] = myLoc;
+    //         }
+        // } else if (myLocs[i].nx < myLocs[i-1].nx) {
+        //     if (myLoc.name < myLocs[i-1].name) {
+        //         myLocs[i] = myLocs[i-1];
+        //         myLocs[i-1] = myLoc;
+        //     }    
+        }
+      }
+    }
+    for (let i = 0; i < mySelection.length; i++) {
+      const node = mySelection[i];
+      node.loc = myLocs[i].loc;
+      const objview = node.objectview;
+      objview.loc = node.loc;
+      const jsnObjview = new jsn.jsnObjectView(objview);
+      myObjectViews.push(jsnObjview);
+    }
+    myObjectViews.map(mn => {
+      let data = (mn) && mn
+      if (mn.id) {
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      }
+    })
+}
+
 
 export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any) {
     const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);

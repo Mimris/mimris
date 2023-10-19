@@ -57,8 +57,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     if (!toObj || toObj.markedAsDeleted)
                         continue;
                     const toObjtype = toObj.type;
-                    const toObjtypeview = toObjtype.typeview;
-                    const toTypeviewData = toObjtypeview.data;
+                    const toObjtypeview = toObjtype?.typeview;
+                    const toTypeviewData = toObjtypeview?.data;
                     const toObjviews = toObj.objectviews;
                     // Find toObj in modelview
                     const objviews = modelview.findObjectViewsByObject(toObj);
@@ -96,7 +96,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         modelview.addObjectView(toObjview);
                         myMetis.addObjectView(toObjview);
                         const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
-                        if (toObjviews) {
+                        if (toObjviews && toTypeviewData) {
                             const oview = toObjviews[0];
                             for (let prop in toTypeviewData) {
                                 if (oview[prop] !== "") {
@@ -105,7 +105,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                                 } else
                                     myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                             }
-                        } else {
+                        } else if (toTypeviewData) {
                             for (let prop in toTypeviewData) {
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                             }

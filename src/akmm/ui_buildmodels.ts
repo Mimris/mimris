@@ -339,6 +339,8 @@ let includeNoType = false;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
           node.name = objview.name;
+          if (node.object['proposedType'])
+            node.typename = node.object['proposedType'];
           myGoModel.addNode(node);
       }
       if (debug) console.log('312 myGoModel', myGoModel);

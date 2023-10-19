@@ -658,6 +658,17 @@ export class cxMetis {
                 }
             });
         }
+        let subModelRefs = item.subModelRefs;
+        if (subModelRefs && subModelRefs.length) {
+            subModelRefs.forEach(subModelRef => {
+                if (subModelRef) {
+                    const subModel = this.findModel(subModelRef);
+                    if (subModel) {
+                        metamodel.addSubModel(subModel);
+                    }
+                }
+            });
+        }
         let datatypes: any[] = item.datatypes;
         if (datatypes && datatypes.length) {
             datatypes.forEach(datatype => {
@@ -3477,6 +3488,7 @@ export class cxMethodType extends cxMetaObject {
 export class cxMetaModel extends cxMetaObject {
     metamodels:  cxMetaModel[] | null;
     submetamodels:  cxMetaModel[] | null;
+    submodels:   cxModel[] | null;
     viewstyle:   cxViewStyle | null;
     viewstyles:  cxViewStyle[] | null;
     geometries:  cxGeometry[] | null;
@@ -3514,6 +3526,7 @@ export class cxMetaModel extends cxMetaObject {
     clearContent() {
         this.metamodels = [];
         this.submetamodels  = [];
+        this.submodels  = [];
         this.viewstyle  = null; // Current viewstyle
         this.viewstyles = [];
         this.geometries = [];
@@ -3684,6 +3697,9 @@ export class cxMetaModel extends cxMetaObject {
     }
     getSubMetamodels() : cxMetaModel[] | null {
         return this.submetamodels;
+    }
+    getSubModels() : cxMetaModel[] | null {
+        return this.submodels;
     }
     getCategories(): cxUnitCategory[] | null {
         return this.categories;
@@ -5912,7 +5928,7 @@ export class cxRelationshipType extends cxObjectType {
         return false;
     }
     isAllowedToType(objtype: cxObjectType, includeGen: boolean): boolean {
-        if (objtype && this.fromObjtype) {
+        if (objtype && this.toObjtype) {
             if (this.toObjtype.id === objtype.id) 
                 return true;
                 if (includeGen) {

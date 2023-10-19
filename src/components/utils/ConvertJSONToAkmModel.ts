@@ -571,8 +571,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             const relId = utils.createGuid()
             const relDescription = ''
             const relTitle = ''
-            reltypeRef = hasType.id
-            reltypeName = hasType.name      
+            reltypeRef = hasType?.id
+            reltypeName = hasType?.name      
             relshipKind = 'Association'   
 
             if (debug) console.log('390 parentName', gggparentName, ggparentName, gparentName, parentName);

@@ -3269,12 +3269,15 @@ export function findImage(image: string) {
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (!debug) console.log('3269', img);
         return img
-    } else { 
-        const img = "images/types/" + image
+    } else if (image !== '') { 
+        const img = (img !== '') ? "images/types/"+image : img;
+
         if (!debug) console.log('3273 Diagram', image, img)
+        
         return img //its an image in public/images
+    } else {
+        return "";
     }
-    // return "";
 }
 
 // Function to specify default text style

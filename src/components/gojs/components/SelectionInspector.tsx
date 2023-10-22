@@ -99,8 +99,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst = selObj.relship;
         inst1 = myMetis.findRelationship(inst?.id);   
         if (inst1) inst = inst1;
-        currentType = inst.type;
-        chosenType = currentType;
+        currentType = inst.type as akm.cxObjectType;
+        chosenType = currentType as akm.cxObjectType;
         chosenInst = inst;
         typename = currentType?.name;
         typedescription = currentType?.description;
@@ -132,7 +132,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (type?.name === 'Method') {
           chosenType = null;
         } else {
-          currentType = inst.type;
+          currentType = inst.type as akm.cxObjectType;
           chosenType = currentType;
           chosenInst = inst;
           typename = currentType.name;
@@ -170,10 +170,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               for (let i=0; i<connectedObjects.length; i++) {
                 if (connectedObjects[i].name === objname) {
                   const connectedObj = connectedObjects[i];
-                  type = connectedObj.type;
+                  type = connectedObj.type as akm.cxObjectType;
                   typename = type.name;
                   typedescription = type.description;
-                  chosenType = type;
+                  chosenType = type as akm.cxObjectType;
                   chosenInst = connectedObj;
                   tabIndex = i+1;
                   // break;
@@ -187,7 +187,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 const tname = inheritedTypes[i]?.name;
                 if (tname === typename) {
                   type = inheritedTypes[i];
-                  chosenType = type;
+                  chosenType = type as akm.cxObjectType;
                 }
               }
             } 

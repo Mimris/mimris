@@ -627,12 +627,12 @@ export class goObjectNode extends goNode {
         return "";
     }
     getGroupMembers(model: goModel): goObjectNode[] {
-        if (!this.isGroup)
+        if (!this.isGroup || !model)
             return null;
         const members = new Array();
         const groupId = this.key;
         const nodes = model.nodes;
-        for (let i=0; i<nodes.length; i++) {
+        for (let i=0; i<nodes?.length; i++) {
             const node = nodes[i] as goObjectNode;
             if (node.group === groupId) {
                 members.push(node);

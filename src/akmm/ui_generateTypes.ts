@@ -893,12 +893,12 @@ export function askForTargetMetamodel(context: any) {
     for (let i=0; i<objectviews.length; i++) {
         const objectview = objectviews[i] as akm.cxObjectView;
         const object = objectview.object as akm.cxObject;
-        if (object?.type.name === constants.types.AKM_METAMODEL) {
+        if (object?.type?.name === constants.types.AKM_METAMODEL) {
             const relviews = objectview.getInputRelviews();
             for (let j=0; j<relviews?.length; j++) {
                 const relview = relviews[j];
                 const rel = relview.relship;
-                if (rel.type.name === constants.types.AKM_CONTAINS) {
+                if (rel?.type?.name === constants.types.AKM_CONTAINS) {
                     const fromObj = rel.fromObject;
                     if (fromObj.type.name === constants.types.AKM_METAMODEL) {
                         if (mmlist == null || mmlist.length == 0) { 
@@ -1054,6 +1054,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const myMetis     = context.myMetis as akm.cxMetis;
     const myMetamodel = context.myMetamodel as akm.cxMetaModel;
     const model       = context.myModel as akm.cxModel;
+    const myGoModel   = context.myGoModel;
     const targetMetamodel = context.myTargetMetamodel as akm.cxMetaModel;
     const myDiagram   = context.myDiagram;
     const modifiedMethods      = new Array();
@@ -1133,7 +1134,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 if (debug) console.log('1337 method, jsnMethod', method, jsnMethod);
             }
         }
-   }
+    }
     // Add system datatypes
     let systemdtypes = ['cardinality', 'viewkind', 'relshipkind', 'fieldtype', 
                         'layout', 'routing', 'linkcurve',
@@ -1248,6 +1249,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // ---
     let metaObject;
     {   // Add metamodel contents
+        let model;
+        let modelview;
         for (let i=0; i <= objectviews?.length; i++) {
             const objview = objectviews[i];
             if (!objview /*|| objview.markedAsDeleted*/) 
@@ -1282,11 +1285,33 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     }
                 }
             }
+            if (debug) console.log('1288 context', context);
+            if (obj.isOfType('Model')) {  // A group object of type Model
+                addModelToMetamodel(targetMetamodel, obj, context);
+                // model = myMetis.findModelByName(obj.name);
+                // if (!model) {
+                //     model = new akm.cxModel(utils.createGuid(), obj.name, obj.description);
+                // }
+                // // Fill the model with its content
+                // // objview is a group - find the group
+                // const group = myGoModel.findNodeByViewId(objview.id);
+                // if (group) {
+                //     const members = group.getGroupMembers();
+                //     for (let i=0; i<members?.length; i++) {
+                //         const member = members[i];
+                //         const memberObj = member.data.object;
+                //         if (memberObj) {
+                //             model.addObject(memberObj);
+                //         }
+                //     }
+                // }
+                // targetMetamodel.addSubModel(model)
+
+            }
         }
     }
+    const metaObjects = ['EntityType'];
     { // Add or generate objecttypes
-        const metaObjects = ['EntityType'];
-        // const metaObjects = ['Role', 'Task', 'View', 'Information'];
         for (let i=0; i<metaObjects.length; i++) {
             const mObject = metaObjects[i];
             const mType = myMetamodel.findObjectTypeByName(mObject);
@@ -1492,7 +1517,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }        
         }
     }
-    { // Finally, handle pointer datatypes (To Be Done)
+    { // Then handle pointer datatypes (To Be Done)
     // objects = model?.getObjectsByTypename('Datatype', false);
     // if (objects) {
     //     // For each pointer Datatype object call generatePointerDatatype
@@ -1765,6 +1790,71 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
     // Do the dispatches
     const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });
+}
+
+function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, context:any) {
+    // object represents the metamodel
+    const myMetis = context.myMetis as akm.cxMetis;
+    const myDiagram = context.myDiagram;
+    //const myTargetMetamodel = context.myTargetMetamodel as akm.cxMetaModel;
+    const subMetamodels = metamodel.submetamodels;
+    const myModelview = context.myCurrentModelview;
+    // Find the objectview of the object representing the model
+    let objectview;
+    const objectviews = myModelview.objectviews;
+    for (let i=0; i<objectviews?.length; i++) {
+        const objview = objectviews[i];
+        if (objview.object?.id === object.id) {
+            objectview = objview;
+            break;
+        }
+    }
+    const objtype = object.type;
+    // Find submetamodel
+    let subMetamodel = subMetamodels[0] as akm.cxMetaModel;
+    for (let i=0; i<subMetamodels?.length; i++) {
+        const submeta = subMetamodels[i];
+        if (submeta.findObjectTypeByName(objtype.name)) {
+            subMetamodel = submeta;
+            break;
+        }
+    }
+    if (!subMetamodel) 
+        return;
+
+    // Check if the model already exists
+    let model = myMetis.findModelByName(object.name);
+    if (!model) {
+        model = new akm.cxModel(utils.createGuid(), object.name, subMetamodel, object.description);
+        myMetis.addModel(model);
+    }
+    // Fill the model with its content
+    // objview is the group 
+    const group = objectview as akm.cxObjectView;
+    if (group) {
+        const objviews = group.getGroupMembers(myModelview);
+        for (let i=0; i<objviews?.length; i++) {
+            const member = objviews[i];
+            const memberObj = member.object;
+            if (memberObj) {
+                model.addObject(memberObj);
+            }
+        }
+        const relviews = myModelview.getRelshipviewsInGroup(group);
+        for (let i=0; i<relviews?.length; i++) {
+            const relview = relviews[i];
+            const rel = relview.relship;
+            if (rel) {
+                model.addRelationship(rel);
+            }
+        }
+    }
+    myMetis.addModel(model);
+    metamodel.addSubModel(model);
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = { metis: jsnMetis }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 function buildTemporaryModelView(context: any): akm.cxModelView {

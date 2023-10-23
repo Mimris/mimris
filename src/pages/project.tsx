@@ -53,7 +53,7 @@ const page = (props: any) => {
   const [path, setPath] = useState(props.phFocus.focusProj.path)
   const [file, setFile] = useState(props.phFocus.focusProj.file)
   const [branch, setBranch] = useState(props.phFocus.focusProj.branch)
-  const [focus, setFocus] = useState(props.phFocus.focusProj.focus)
+  const [focus, setFocus] = useState(props.phFocus)
   const [ghtype, setGhtype] = useState(props.phFocus.focusProj.ghtype)
   const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
 

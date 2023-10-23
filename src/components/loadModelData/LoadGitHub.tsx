@@ -132,7 +132,7 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('131 res', res, res.data, sha)
 
     const content = res.data // this is the project file from github
-    if (debug) console.log('138 ', searchtext, res, content)
+    if (!debug) console.log('138 ', searchtext, res, content)
 
     const model = { // take model from content and split repository into organisation and repository ad insert into phData
       ...content,

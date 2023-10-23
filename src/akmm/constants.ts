@@ -126,6 +126,7 @@ export let types = {
      // AKM types
           AKM_ELEMENT           : "Element",
           AKM_METAMODEL         : "Metamodel",
+          AKM_MODEL             : "Model",
           AKM_COLLECTION        : "Collection",
           AKM_CONTAINER         : "Container",
           AKM_ENTITY_TYPE       : "EntityType",

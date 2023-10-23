@@ -136,7 +136,7 @@ const fetchIssues = async () => {
           {/* <div className='text-muted'>Issues for this repo:</div> */}
           {(issues.length > 0) 
             ? issues?.map((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
-              <div>{issue.number}, {issue.title} <br />
+              <div key={issue.number}>{issue.number}, {issue.title} <br />
                 User login: {issue.user.login} <br />
                 Assignee: {issue.assignees[0]?.login}  <br />      
                 State: {issue.state} <br />
@@ -150,15 +150,15 @@ const fetchIssues = async () => {
                 Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br />
 
                 {/* Body:  {issue.body}, User name: {issue.user.name} */}
+                <>
+                  <hr />
+                  <h6 className="border" >Open Issue on GitHub!</h6>
+                  <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues/${issue.number}`} target="_blank">{org}/{repo}/issues/{issue.number}</Link>
+                </>
               </div>
               ) )
             : <div className='text-muted'>Unable to get issues for this repo!</div>
           }
-          <>
-          <hr />
-          <h6 className="border" >Check on GitHub!</h6>
-          <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>
-          </>
         </div>
         {/* <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} /> */}
       </Modal.Body>˝

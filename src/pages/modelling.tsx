@@ -1,7 +1,6 @@
 //@ts-check
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
-// import { loadData, loadDataGithub, loadDataModelList } from '../actions/actions'
 import Link from 'next/link';
 import { Router, useRouter } from "next/router";
 import Page from '../components/page';
@@ -13,20 +12,15 @@ import SetContext from '../defs/SetContext'
 import Context from "../components/Context"
 import SelectContext from '../components/utils/SelectContext'
 import Tasks from '../components/Tasks'
-// import TasksHelp from '../components/TasksHelp'
+
 import useLocalStorage from '../hooks/use-local-storage'
 import { NavbarToggler } from "reactstrap";
-// import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
-// import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
+
 import GenGojsModel from "../components/GenGojsModel";
 import Issues from "../components/Project";
 
-// import SelectVideo from '../components/SelectVideo'
-// import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
-// import useLocalStorage from '../hooks/use-local-storage'
-// import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
-// import LoadInitial from "../components/loadModelData/LoadInitmodel";
-// import { loadState, saveState } from '../components/utils/LocalStorage'
+import { searchGithub } from '../components/githubServices/githubService' 
+
 
 const debug = false
 
@@ -35,7 +29,7 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 
 const page = (props: any) => {
 
-  if (debug) console.log('34 modelling ', props)
+  if (!debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) {
@@ -46,7 +40,7 @@ const page = (props: any) => {
   }
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
-  const router = useRouter();
+
   if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
   // const [visible, setVisible] = useState(false)
@@ -58,6 +52,9 @@ const page = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+
+  const [focus, setFocus] = useState(props.phFocus)
+
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const [akmmUser, setAkmmUser] = useState(props.phUser);
@@ -75,48 +72,115 @@ const page = (props: any) => {
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+  // const [focus1, setFocus1] = useState({
+  //   focusModel: '05d5b929-b985-49ac-cf92-cc095a03889z',
+  //   focusModelview: '3d010104-5c18-43cb-f44c-469a7533658b',
+  //   focusObject: 'ba6a2b12-5263-43f2-eefe-8a84912551cb',
+  //   focusObjectview: 'ba6a2b12-5263-43f2-eefe-8a84912551cb',
+  // });
+  
+
+  // const focusEncoded = encodeURIComponent(JSON.stringify(focus1));
+  // console.log(' 89 focusEncoded', focusEncoded);
+  
+  // const url = `http://localhost:3000/modelling?focus=${focusEncoded}`;
+  // console.log(' 92 url', url);
+
   useEffect(() => {
-    if (debug) console.log('76 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (!debug) console.log('89 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
   
     // let data = {}
     const getQuery = async () => {
+      let focusProj = null;
       try {
-        const queryParam = await query
-        // if (!queryParam.repo) {
-          if (debug) console.log('68 modelling', props)
-          if ((window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") { // if page is refreshed
-            if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-                if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
-                  const locStore = (memoryLocState[0])
-                  if (debug) console.log('modelling 91 ', locStore)  
-                  if (locStore) {
-                    dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
-                    // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-                    // console.log('modelling 73 ', data)
-                  }
+        const queryParam = await query;
+        console.log('97 modelling ', queryParam);
+        const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
+        const params = JSON.parse(queryParams);
+        console.log('100 modelling ', params);
+        const githubFile = params.githubFile;
+        console.log('102 modelling ', githubFile);
+
+        // if (githubFile?.repo && githubFile?.branch && githubFile?.path && githubFile?.filename) {
+        if (githubFile) {
+          console.log('105 modelling ', githubFile);
+          focusProj = {
+            org: githubFile.org,
+            repo: githubFile.repo,
+            branch: githubFile.branch,
+            path: githubFile.path,
+            file: githubFile.filename,
+          } 
+        // } else if (githubFile?.repo && githubFile?.branch && githubFile?.filename) {
+        //   console.log('113 modelling ', githubFile);
+        //   focusProj = {
+        //     repo: githubFile.repo,
+        //     branch: githubFile.branch,
+        //     file: githubFile.filename,
+        //   
+          const orgrepo = githubFile.org+'/'+githubFile.repo 
+          console.log('119 modelling ', orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file');
+          const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
+          const githubData = await res.data
+          const sha = await res.data.sha
+          console.log('121 modelling ', res, githubData, sha);
+
+          const data = {
+            ...githubData,
+            phFocus: {
+              ...props.phFocus,
+              focusProj: focusProj,
+              focusModel:  params.focusModel,
+              focusModelview: params.focusModelview,
+              focusObject: params.focusObject,
+              focusObjectview:  params.focusObjectview,
+              focusRole: params.focusRole,
+              focusTask: params.focusTask,
+            },
+          };
+          console.log('125 modelling ', data);
+          dispatchLocalStore(data); // dispatch to store the latest [0] from local storage
+          
+        } else if (focus && !githubFile) {
+          if (!debug) console.log('94 modelling', focus);
+
+          if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+            if (memoryLocState?.[0]?.phData) {
+              const locStore = memoryLocState[0];
+              if (debug) console.log('modelling 134 ', locStore);
+              if (locStore) {
+                const data = {
+                  ...locStore,
+                  phFocus: {
+                    ...locStore.phFocus,
+                    ...focus,
+                  },
+                };
+                if (!debug) console.log('143 modelling ', data);
+                dispatchLocalStore(data);
+              }
+            } else {
+              if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
+                if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
                   const timer = setTimeout(() => {
-                    setRefresh(!refresh)
-                  }, 1000);
+                    setRefresh(!refresh);
+                  }, 100);
                 }
               }
-           } else {
-            // if ((window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-            // if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
-            // const timer = setTimeout(() => {
-            //   setRefresh(!refresh)
-            // }, 100);
-           }
-        // }
+            }
+          }
+        }
       } catch (error) {
-        console.log('111 modelling query error ', error)
+        console.log('169 modelling query error ', error);
       }
+    
     }
-    if (debug) console.log('modelling 106a ', router)
+    // if (debug) console.log('modelling 106a ', router)
 
     getQuery()
     
     setMount(true)
-  }, [])
+  }, [(query)])
 
   const contextDiv = ( // the top context area (green)
     <div className="context-bar d-flex ps-4 " style={{ backgroundColor: "#cdd", width: "", maxHeight: ""}}>

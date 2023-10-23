@@ -308,6 +308,19 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 },
             }
+        } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'
+            data = {
+                phData: {
+                    ...props.phData,
+                    metis: {
+                        ...props.phData.metis,
+                        metamodels: [
+                            ...props.phData.metis.models,
+                            data,
+                        ],
+                    },
+                },
+            }
         } else {
             console.log('335 ReadModelFromFile: ', data )
             // find current model index

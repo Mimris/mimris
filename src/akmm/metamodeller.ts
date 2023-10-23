@@ -1329,8 +1329,9 @@ export class cxMetis {
                 this.metamodels.push(metamodel);
             else {
                 const mms = this.metamodels;
-                for (let i=0; i<mms.length; i++) {
-                    const mm = mms[i];
+                const len = mms?.length;
+                for (let i=len; i>0; i--) {
+                    const mm = mms[i-1];
                     if (mm.id === metamodel.id) {
                         mms[i] = metamodel;
                         break;
@@ -3865,6 +3866,15 @@ export class cxMetaModel extends cxMetaObject {
             }
         }               
     }
+    addSubModel(model: cxModel) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (model?.category === constants.gojs.C_MODEL) {
+            if (this.submodels == null)
+                this.submodels = new Array();
+            if (!this.findSubModel(model.id))
+                this.submodels.push(model);
+        }
+    }
     addDatatype(datatype: cxDatatype) {
         // Check if input is of correct category and not already in list (TBD)
         if (datatype.category === constants.gojs.C_DATATYPE) {
@@ -4717,6 +4727,19 @@ export class cxMetaModel extends cxMetaObject {
             if (submeta.isDeleted()) continue;
             if (submeta.id === id)
                 return submeta;
+        }
+        return null;
+    }
+    findSubModel(id: string): cxModel | null {
+        let submodels = this.submodels;
+        if (!submodels) return null;
+        let i = 0;
+        let submodel = null;
+        for (i = 0; i < submodels.length; i++) {
+            submodel = submodels[i];
+            if (submodel.isDeleted()) continue;
+            if (submodel.id === id)
+                return submodel;
         }
         return null;
     }
@@ -6989,8 +7012,7 @@ export class cxModel extends cxMetaObject {
     addSubmodel(model: cxModel) {
         // Check if input is of correct category and not already in list (TBD)
         if (this.submodels == null)
-            this.submodels = new Array();
-        
+            this.submodels = new Array();       
         if (!this.findSubmodel(model.id))
             this.submodels.push(model);
     }
@@ -8814,6 +8836,24 @@ export class cxModelView extends cxMetaObject {
                 if (rv?.fromObjview?.id === fromView.id) {  
                     if (rv?.toObjview?.id === toView.id) {
                         relviews.push(rv);
+                    }
+                }
+            }
+        }
+        return relviews;
+    }
+    getRelshipviewsInGroup(group: cxObjectView): cxRelationshipView[] | null {
+        const relviews = new Array();
+        const objviews = group.getGroupMembers(this);
+        for (let i=0; i<objviews?.length; i++) {
+            const objview = objviews[i];
+            const relviews1 = objview.getOutputRelviews();
+            if (relviews1) {
+                for (let j=0; j<relviews1.length; j++) {
+                    const relview = relviews1[j];
+                    const toObjview = relview.getToObjectView();
+                    if (toObjview?.group === group.id) {
+                        relviews.push(relview);
                     }
                 }
             }

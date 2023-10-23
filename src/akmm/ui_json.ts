@@ -253,7 +253,7 @@ export class jsnMetaModel {
             const cnt = subModels.length;
             for (let i = 0; i < cnt; i++) {
                 const submodel = subModels[i];
-                this.subModelRefs.push(metamodel.id);
+                this.subModelRefs.push(submodel.id);
             }
         }
         const objtypes = metamodel.getObjectTypes();

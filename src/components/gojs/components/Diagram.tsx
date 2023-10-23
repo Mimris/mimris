@@ -879,9 +879,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Add Submodel",
             function (e: any, obj: any) {
               const node = myDiagram.selection.first().data;
-              uid.addSubModel(node, myMetis, myDiagram);
+              alert('Add Submodel is not yet implemented!')
+              // uid.addSubModel(node, myMetis, myDiagram);
             },
             function (o: any) {
+              return false;
               if (debug) console.log('1991 myMetis', myMetis);
               if (myMetis.modelType == 'Modelling') {
                 const node = o.part.data;

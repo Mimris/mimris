@@ -1827,9 +1827,10 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
     }
     // Check if the model already exists
     let model = myMetis.findModelByName(object.name);
+    let modelview = null as akm.cxModelView;
     if (!model) {
         model = new akm.cxModel(utils.createGuid(), object.name, subMetamodel, object.description);
-        myMetis.addModel(model);
+        modelview = new akm.cxModelView(utils.createGuid(), object.name, model, "");
     }
     // Fill the model with its content
     // objview is the group 
@@ -1841,6 +1842,7 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
             const memberObj = member.object;
             if (memberObj) {
                 model.addObject(memberObj);
+                modelview.addObjectView(member);
             }
         }
         const relviews = myModelview.getRelshipviewsInGroup(group);
@@ -1849,11 +1851,14 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
             const rel = relview.relship;
             if (rel) {
                 model.addRelationship(rel);
+                modelview.addRelationshipView(relview);
             }
         }
     }
-    myMetis.addModel(model);
     metamodel.addSubModel(model);
+    model.addModelView(modelview);
+    myMetis.addModel(model);
+    myMetis.addModelView(modelview);
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));

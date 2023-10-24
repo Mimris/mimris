@@ -120,6 +120,7 @@ const Modeller = (props: any) => {
     if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
     setRefresh(!refresh)
   }
+
   function loadLocalStorageModel() {
     if (debug) console.log('94 Modeller: loadLocalStorageModel', memoryLocState);
     if (Array.isArray(memoryLocState) && memoryLocState[0]) {
@@ -143,15 +144,10 @@ const Modeller = (props: any) => {
       phUser: props.phUser,
       phSource: props.phSource,
     }
-    if (debug) console.log('146 Modeller: saveModelsToLocState',
-      props.phFocus.focusModel?.name,
-      props.phFocus.focusModelview?.name,
-      props.phFocus?.focusRefresh?.name,
-      props, propps);
-    const timer = setTimeout(() => {
-      setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-      SaveAkmmUser(props, locStateKey = 'akmmUser')
-    }, 100);
+    // const timer = setTimeout(() => {
+    //   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+    //   SaveAkmmUser(props, locStateKey = 'akmmUser')
+    // }, 100);
     return () => clearTimeout(timer);
   }
 
@@ -366,12 +362,12 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   }
 
   {/* <div style={{transform: "scale(0.9)" }}> */ }
-  const selectedObjDiv = (
-    <div >
-      {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
-      {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
-    </div>
-  )
+  // const selectedObjDiv = (
+  //   <div >
+  //     {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
+  //     {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
+  //   </div>
+  // )
 
   let selectTaskDiv =
     <>
@@ -503,9 +499,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>export2Svg </span>
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>Export Modelview to Svg </span>
+      {/* <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span> */}
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>

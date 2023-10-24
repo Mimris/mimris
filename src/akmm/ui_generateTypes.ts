@@ -1827,7 +1827,7 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
     }
     // Check if the model already exists
     let model = myMetis.findModelByName(object.name);
-    let modelview = null as akm.cxModelView;
+    let modelview = model ? model.modelviews[0] : null;
     if (!model) {
         model = new akm.cxModel(utils.createGuid(), object.name, subMetamodel, object.description);
         modelview = new akm.cxModelView(utils.createGuid(), object.name, model, "");

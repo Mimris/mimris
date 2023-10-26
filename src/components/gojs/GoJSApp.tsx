@@ -1287,32 +1287,31 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "PartResized": {
-        const part = e.subject.part;
-        const data = e.subject.part.data;
-        if (debug) console.log('1009 PartResized', part, data);
-        const myNode = myGoModel.findNode(data.key);
-        const myFromNodes = [];
-        const myLoc = {
-          "key": data.key,
-          "name": data.name,
-          "loc": data.loc,
+        let selection = e.diagram.selection
+        for (let it = selection.iterator; it?.next();) {
+          let n = it.value;
+          if (n.data.isGroup) {
+            let objview = n.data.objectview;
+            objview.loc = n.data.loc;
+            objview.size = n.data.size;
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            uic.addItemToList(modifiedObjectViews, jsnObjview);
+            let children = n.memberParts;
+            for (let it = children.iterator; it?.next();) {
+              let c = it.value;
+              if (c instanceof go.Node) {
+                let data = c.data;
+                const objview = data.objectview;
+                if (objview) {
+                  objview.loc = data.loc;
+                  objview.size = data.size;
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  uic.addItemToList(modifiedObjectViews, jsnObjview);
+                }
+              }
+            }
+          }
         }
-        myFromNodes.push(myLoc);
-        const myToNodes = [];
-        myToNodes.push(myLoc);
-        const fromloc = myLoc.loc;
-        const toloc = myLoc.loc;
-        if (debug) console.log('1022 data, myNode, fromNode, toNode', data, myNode, myLoc, myLoc);
-        let node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
-        if (debug) console.log('1024 node, modifiedObjectViews', node, modifiedObjectViews);
-        const objview = node.objectview;
-        if (objview) {
-          objview.loc = data.loc;
-          objview.size = data.size;
-          const jsnObjview = new jsn.jsnObjectView(objview);
-          uic.addItemToList(modifiedObjectViews, jsnObjview);
-        }
-        if (debug) console.log('1032 node, objview', node, objview);
         break;
       }
       case 'ClipboardChanged': {

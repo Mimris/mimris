@@ -7482,7 +7482,7 @@ export class cxInstance extends cxMetaObject {
     }
     getInheritedTypes(): cxType[] | null {
         const typelist = [];
-        const type = this.getType();
+        const type = this.getType() as cxObjectType;
         const types = type && type.findSupertypes(0);
         if (debug) console.log('6697 types', types);
         for (let i=0; i<types?.length; i++) {
@@ -8863,6 +8863,7 @@ export class cxModelView extends cxMetaObject {
 }
 
 export class cxObjectView extends cxMetaObject {
+    modelview: cxModelView | null;
     category: string;
     fs_collection: string;
     object: cxObject | null;
@@ -8896,9 +8897,10 @@ export class cxObjectView extends cxMetaObject {
     textcolor: string;
     textscale: string;
     icon: string;
-    constructor(id: string, name: string, object: cxObject | null, description: string) {
+    constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTVIEWS;  // Firestore collection
+        this.modelview = modelview;
         this.category = constants.gojs.C_OBJECTVIEW;
         this.object = object;
         this.objectRef = "";
@@ -8933,6 +8935,12 @@ export class cxObjectView extends cxMetaObject {
         this.icon = "";
     }
     // Methods
+    setModelView(modelview: cxModelView) {
+        this.modelview = modelview;
+    }
+    getModelView(): cxModelView | null {
+        return this.modelview;
+    }
     setObject(object: cxObject) {
         if (utils.objExists(object)) {
             this.object = object;

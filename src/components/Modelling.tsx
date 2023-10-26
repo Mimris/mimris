@@ -100,7 +100,6 @@ const page = (props: any) => {
     // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
     const timer = setTimeout(() => {
       setRefresh(!refresh)
-
     }, 100);
     return () => clearTimeout(timer);
   }
@@ -670,7 +669,7 @@ const page = (props: any) => {
                 New Project
               </button> */}
             </div>
-            <div className="col-6 d-flex justify-content-start align-items-center bg-light border border-solid border-secondary m-2 mb-2 mt-0" style={{ minHeight: "32px" }}>
+            <div className="col-6 d-flex justify-content-start align-items-center bg-light border border-solid border-secondary m-2 mb- mt-0" style={{ minHeight: "32px" }}>
               <div className="col-3 d-flex align-items-center me-0 pe-0">
                 <i className="fa fa-folder me-1 ms-0 ps-1"></i>
                 <div className=""  style={{ whiteSpace: "nowrap" }}>Project files:</div>
@@ -682,13 +681,13 @@ const page = (props: any) => {
                 </div>
               </div>
             </div>
-            <div className="col-1">
-              <button className="btn text-light btn-sm border border-solid px-2 mx-1 py-0 mt-0 pt-1"
+            {/* <div className="col-1"> */}
+              <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
                 title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
                 onClick={handleSaveAllToFile}>Save
               </button>
-            </div>
+            {/* </div> */}
             <span className="col-1 btn px-2 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
@@ -707,49 +706,3 @@ const page = (props: any) => {
 }
 
 export default Page(connect(state => state)(page));
-
-
-
-
-    // if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
-    //   // set focusOrg and focusProj to focusProj.org and focusProj.proj
-    //   if (props.phFocus.focusOrg.name !== props.phFocus.focusProj.org ) {
-    //     props.phFocus.focusOrg = props.phFocus.focusProj.org || props.phFocus.focusOrg
-    //   }
-    //   if (props.phFocus.focusProj.name !== props.phFocus.focusProj.proj) {
-    //     props.phFocus.focusProj = props.phFocus.focusProj.proj || props.phFocus.focusProj
-    //   }
-    //   // check if focusModel exists in one of the current models. If not, set it to the first model
-    //   let found = false;
-    //   for (let i = 0; i < props.phData?.metis.models.length; i++) {
-    //     if (props.phFocus.focusModel?.id === props.phData?.metis.models[i]) {
-    //       found = true;
-    //       break;
-    //     }
-    //   }
-    //   if (debug) console.log('89 Modelling found', found, props.phFocus.focusModel, props.phData?.metis.models)
-    //   if (!found) {
-    //     props.phFocus.focusModel = props.phData.metis.models[0]
-    //     // check if focusModelview exists in one of the current modelviews. If not, set it to the first modelview
-    //     found = false;
-    //     props.phData?.metis.models[0].modelviews.map ((modelview:any) => {
-    //       if (props.phFocus.focusModelview.id === modelview.id) {
-    //         found = true;
-    //       }
-    //     })
-    //     if (!found) {
-    //       props.phFocus.focusModelview = props.phData.metis.models[0].modelviews[0]
-    //     }
-    //   }
-      // put currentdata in the first position of the array data
-    //   let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    //   if (debug) console.log('84 Modelling save memoryState', mdata);
-    //   // if mdata is longer than 10, remove the last 2 elements
-    //   if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
-    //   if (mdata.length > 2) { mdata.pop() }
-    //   if (debug) console.log('88 Modelling refresh', mdata);
-    //   (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-    // } else {
-    //   if (debug) console.log('91 Modelling refresh', props);
-    //   setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
-    // }

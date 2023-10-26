@@ -114,59 +114,56 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); }
 
   function toggleRefreshObjects() {
-    if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
+    if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
     saveModelsToLocState(props, memoryLocState, setMemoryLocState)
     if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
-    if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
+    if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
     setRefresh(!refresh)
   }
 
-  function loadLocalStorageModel() {
-    if (debug) console.log('94 Modeller: loadLocalStorageModel', memoryLocState);
-    if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-      const locStore = (memoryLocState[1])
-      if (locStore) {
-        dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
-        // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-        // console.log('modelling 73 ', data)
-      }
-    }
-    if (debug) console.log('97 Modeller: loadLocalStorageModel', memoryLocState[0].phFocus);
-    setRefresh(!refresh)
+  // function loadLocalStorageModel() {
+  //   if (debug) console.log('94 Modeller: loadLocalStorageModel', memoryLocState);
+  //   if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+  //     const locStore = (memoryLocState[1])
+  //     if (locStore) {
+  //       dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
+  //       // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+  //       // console.log('modelling 73 ', data)
+  //     }
+  //   }
+  //   if (debug) console.log('97 Modeller: loadLocalStorageModel', memoryLocState[0].phFocus);
+  //   setRefresh(!refresh)
+  // }
+
+  // if (debug) console.log('83 Modeller: props, refresh', props, refresh);
+
+// function saveModelsToLocState(props: any, memoryLocState: any, setMemoryLocState: any) {
+//   const propps = {
+//     phData: props.phData,
+//     phFocus: props.phFocus,
+//     phUser: props.phUser,
+//     phSource: props.phSource,
+//   }
+//   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+//   SaveAkmmUser(props, 'akmmUser')
+// }
+
+useEffect(() => {
+  const propps = {
+    phData: props.phData,
+    phFocus: props.phFocus,
+    phUser: props.phUser,
+    phSource: props.phSource,
   }
+  if ((debug)) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
+  setMemoryLocState(propps)
 
-  if (debug) console.log('83 Modeller: props, refresh', props, refresh);
-
-  function saveModelsToLocState(props, memoryLocState, setMemoryLocState) {
-    const propps = {
-      phData: props.phData,
-      phFocus: props.phFocus,
-      phUser: props.phUser,
-      phSource: props.phSource,
-    }
-    // const timer = setTimeout(() => {
-    //   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-    //   SaveAkmmUser(props, locStateKey = 'akmmUser')
-    // }, 100);
-    return () => clearTimeout(timer);
-  }
-
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const propps = {
-        phData: props.phData,
-        phFocus: props.phFocus,
-        phUser: props.phUser,
-        phSource: props.phSource,
-      }
-      if (debug) console.log('173 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ',
-        SaveModelToLocState(propps, memoryLocState, setMemoryLocState)[0].phFocus?.focusModel?.name,);
-      setMemoryLocState(SaveModelToLocState(propps, memoryLocState, setMemoryLocState))
-      SaveAkmmUser(props, locStateKey = 'akmmUser')
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [props.phFocus?.focusObjectview?.id])
+  // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+  const timer = setTimeout(() => {
+    SaveAkmmUser(props, 'akmmUser')
+  }, 250);
+  return () => clearTimeout(timer);
+}, [props.phFocus?.focusObjectview?.id])
 
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }

@@ -25,7 +25,7 @@ const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: wh
   
 const page = (props: any) => {
 
-  if (!debug) console.log('38 modelling ', props)
+  if ((debug)) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) {
@@ -65,18 +65,19 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (memoryLocState?.[0]?.phData) {
-        const locStore = memoryLocState[0];
+    // if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+      if (memoryLocState?.phData) {
+        const locStore = memoryLocState;
         if (debug) console.log('modelling 134 ', locStore);
         if (locStore) {
-          const data = {
-            ...locStore,
-            phFocus: {
-              ...locStore.phFocus,
-              ...focus,
-            },
-          };
+          const data = locStore;
+          // {
+          //   ...locStore,
+          //   phFocus: {
+          //     ...locStore.phFocus,
+          //     ...focus,
+          //   },
+          // };
           if (debug) console.log('143 modelling ', data);
           dispatchLocalStore(data);
         }
@@ -89,7 +90,7 @@ const page = (props: any) => {
           }
         }
       }
-    }
+    // }
 
   }, [])
 
@@ -101,12 +102,12 @@ const page = (props: any) => {
       let focusProj = null;
       try {
         const queryParam = new URLSearchParams(window.location.search);
-        if (!debug) console.log('75 modelling queryParam', query, queryParam)
+        if ((debug)) console.log('75 modelling queryParam', query, queryParam)
         const queryParams = queryParam.get('focus');
         // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
         const params = JSON.parse(queryParams);
-        if (!debug) console.log('78 modelling params', params)
-        const githubFile = params.githubFile;
+        if ((debug)) console.log('78 modelling params', params)
+        const githubFile = params?.githubFile;
 
         if (githubFile) {
           focusProj = {
@@ -146,19 +147,22 @@ const page = (props: any) => {
           
         } else if (focus && !githubFile) {
           if (debug) console.log('94 modelling', focus);
-          const data = {
-            phFocus: {
-              ...props.phFocus,
-              focusProj: focusProj,
-              focusModel:  params.focusModel,
-              focusModelview: params.focusModelview,
-              focusObject: params.focusObject,
-              focusObjectview:  params.focusObjectview,
-              focusRole: params.focusRole,
-              focusTask: params.focusTask,
-            },
-          };
+          if (params) {
+            const data = {
+              phFocus: {
+                ...props.phFocus,
+                focusProj: focusProj,
+                focusModel:  params.focusModel,
+                focusModelview: params.focusModelview,
+                focusObject: params.focusObject,
+                focusObjectview:  params.focusObjectview,
+                focusRole: params.focusRole,
+                focusTask: params.focusTask,
+              },
+            };
+          
           dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+          }
         }
       } catch (error) {
         console.log('169 modelling query error ', error);

@@ -132,7 +132,7 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('131 res', res, res.data, sha)
 
     const content = res.data // this is the project file from github
-    if (!debug) console.log('138 ', searchtext, res, content)
+    if ((debug)) console.log('138 ', searchtext, res, content)
 
     const model = { // take model from content and split repository into organisation and repository ad insert into phData
       ...content,
@@ -148,6 +148,7 @@ const LoadGitHub = (props: any) => {
     setModel(model);
     setLoading(false);
     if (debug) console.log('90 onModelChange', model, props) 
+
     if (model) {
       if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
         const mmodel = model; // model is a metamodel
@@ -200,7 +201,7 @@ const LoadGitHub = (props: any) => {
 
   const loadModels = async (usernameText, pathText) => {
     setLoading(true);
-    const repos = (pathText !== '') ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
+    const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     const res = await searchModels(repos, pathText);
@@ -213,10 +214,17 @@ const LoadGitHub = (props: any) => {
       && model.name !== '.github' 
       && model.name !== '.gitignore');
     const filteredModels = await res.data?.filter(model => model.name.endsWith('.json'));
-    if (debug) console.log('136 ', filteredModels)
     setModels(filteredModels);
     setDirs(filteredDirs);
-    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
+    if ((debug)) console.log('218 ', filteredModels, filteredDirs)
+
+
+    if (pathText === undefined || pathText === '') {
+      setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/`)
+    } else {
+      setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
+    }
+    if ((debug)) console.log('224 ', filteredModels, filteredDirs, githubLink)
     setRefresh(!refresh)
   };
 
@@ -226,7 +234,12 @@ const LoadGitHub = (props: any) => {
     setPathText(props.ph.phFocus?.focusProj?.path)
     setBranchText(props.ph.phFocus?.focusProj?.branch)
     setUsernameText(props.ph.phFocus?.focusProj?.username)
-    setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
+    if (pathText === undefined || pathText === '') {
+      setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/`)
+    } else {
+      setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
+    }
+    if ((debug)) console.log('239 ', usernameText, repoText, branchText, pathText,  githubLink)
   }, []);
 
   // Todo: loadModel should be done by clicking on a button, not by useEffect
@@ -278,7 +291,7 @@ const LoadGitHub = (props: any) => {
     <>
       <span><button className="btn bg-secondary py-1 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg me-2 ms-0 "></i>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
+        <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 d-flex flex-column">
           <div className="bg-light" >
               
@@ -341,14 +354,14 @@ const LoadGitHub = (props: any) => {
               </div> */}
             <hr className="bg-secondary py-0 my-1 mx-4" />
             <div className="bg-light square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
-              <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
+              <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> <br /> Then upload the project.json file to GitHub 
+                <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
                 <button 
-                  className="btn-primary modal--footer ms-4 mr-2 py-0 px-1 float-right" 
+                  className="btn-primary modal--footer ms-4 mr-2 py-0 px-1 float-end " color="primary" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                  title="Click here to Save the Project&#013; to file &#013;(Default in Downloads folder)"
                   onClick={handleSaveAllToFile}>Save
                 </button >
-                <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
               </div>
                 <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
                 <div className=" text-secondary">{githubLink} </div>

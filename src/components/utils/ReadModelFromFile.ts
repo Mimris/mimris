@@ -279,15 +279,32 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         // ---------------------  check type of import --------------------- Todo: this can be removed
 
         if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
-            if (debug) console.log('248 ReadModelFromFile _MV found', data)
+            if (!debug) console.log('248 ReadModelFromFile _MV found', data)
 
             if (!impObjects) { //|| !impRelships) {
                 const r = window.confirm("This Modelview import has no Objects and/or Relships. Click OK to cancel?")
                 if (r === false) { return null } // if user clicks cancel, then do nothing
             }
-            if (debug) console.log('254 ReadModelFromFile', data);
-        }
 
+            const mmod = data.metamodels
+            const modview = data.modelviews
+            const mobjects = data.objects
+            const mrelships = data.relships
+
+            // dispatch mmod, modview, mobjects, mrelships to store
+            const r = window.confirm(`This import includes metamodel: ${mmod.name}. If you want to import this metamodel, Click OK`)
+            if (r === true) { 
+                dispatchLocalFile('UPDATE_METAMODEL_PROPERTIES', mmod)
+            }
+            dispatchLocalFile('UPDATE_MODELVIEW_PROPERTIES', modview)
+            const objects = mobjects.map(o => {
+                dispatchLocalFile('UPDATE_OBJECT_PROPERTIES', o)
+            })
+            const relships = mrelships.map(r => {
+                dispatchLocalFile('UPDATE_RELSHIP_PROPERTIES', r)
+            })
+            return ; // skip the rest of this function
+        }
         // merge imported with existing project
         if (data.phData || filename.includes('_PR' || '.Project')) { // its a project file, just import as is
             data = importedfile
@@ -352,8 +369,8 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 }
             }
         }
-        if (debug) console.log('333 ReadModelFromFile', data, importedfile.phData.metis.models, importedfile.phData.metis.metamodels)
 
+        if ((!debug)) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource) 

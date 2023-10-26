@@ -754,9 +754,14 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_MODELVIEW_PROPERTIES:
-      if (debug) console.log('713 UPDATE_MODELVIEW_PROPERTIES', action, state.phData);
-      if (debug) console.log('714 UPDATE_MODELVIEW_PROPERTIES', curModelIndex, state.phData.metis.models[curModelIndex].modelviews[curModelviewIndex])
-      return {
+      if (!debug) console.log('713 UPDATE_MODELVIEW_PROPERTIES', action);
+      const curmv = curModel?.modelviews?.find(mv => mv.id === action?.data?.id) // current modelview
+      let curModviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === action?.data?.id) // current modelview index
+      const curmvlength = curModel?.modelviews?.length
+      if (curModviewIndex < 0) { curModviewIndex = curmvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
+      if (!debug) console.log('714 UPDATE_MODELVIEW_PROPERTIES', curModviewIndex, state.phData.metis.models[curModelIndex].modelviews[curModviewIndex])
+
+      const retval_UPDATE_MODELVIEW_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -767,12 +772,12 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.models[curModelIndex],
                 modelviews: [
-                  ...curModel?.modelviews?.slice(0, curModelviewIndex),
+                  ...curModel?.modelviews?.slice(0, curModviewIndex),
                   {
-                    ...curModel?.modelviews[curModelviewIndex],
+                    ...curModel?.modelviews[curModviewIndex],
                     ...action.data,
                   },
-                  ...curModel?.modelviews?.slice(curModelviewIndex + 1),
+                  ...curModel?.modelviews?.slice(curModviewIndex + 1),
                 ]
               },
               ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
@@ -780,6 +785,9 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (!debug) console.log('731 retval', retval_UPDATE_MODELVIEW_PROPERTIES);
+      return retval_UPDATE_MODELVIEW_PROPERTIES
+
     case UPDATE_OBJECT_PROPERTIES:
       if (debug) console.log('743 UPDATE_OBJECT_PROPERTIES', action);
       const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);

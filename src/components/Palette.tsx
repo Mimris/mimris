@@ -75,11 +75,12 @@ const Palette = (props: any) => {
 
   useEffect(() => {
     const { focusRole, focusTask } = props.phFocus;
-    const { objecttypes } = mmodel;
+    const objecttypes  = mmodel?.objecttypes;
+    if (!metamodels) return null;
   
     setRole(focusRole);
     setTask(focusTask);
-    setTypes(objecttypes.map((t: any) => t?.name));
+    setTypes(objecttypes?.map((t: any) => t?.name));
   
     setFilteredNewtypesNodeDataArray(buildFilter(focusRole, focusTask, metamodelList, types, mmodel));  // build the palette for current metamodel
 

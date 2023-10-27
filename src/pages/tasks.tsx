@@ -27,13 +27,13 @@ const page = (props: any) => {
 
     useEffect(() => {
         if (debug) console.log('16 page tasks props', props);
-        if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-            if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
-              const locStore = (memoryLocState[0])
+        if ((memoryLocState) && (memoryLocState.phData)) {
+            // if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
+              const locStore = memoryLocState
               if (locStore) {
                 dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
               }
-            }
+            // }
           }
     }, []);
     

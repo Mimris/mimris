@@ -114,63 +114,56 @@ const Modeller = (props: any) => {
   function toggleObjects() { setVisiblePalette(!visibleObjects); }
 
   function toggleRefreshObjects() {
-    if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
+    if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
     saveModelsToLocState(props, memoryLocState, setMemoryLocState)
     if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
-    if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState[0].phFocus);
-    setRefresh(!refresh)
-  }
-  function loadLocalStorageModel() {
-    if (debug) console.log('94 Modeller: loadLocalStorageModel', memoryLocState);
-    if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-      const locStore = (memoryLocState[1])
-      if (locStore) {
-        dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
-        // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-        // console.log('modelling 73 ', data)
-      }
-    }
-    if (debug) console.log('97 Modeller: loadLocalStorageModel', memoryLocState[0].phFocus);
+    if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
     setRefresh(!refresh)
   }
 
-  if (debug) console.log('83 Modeller: props, refresh', props, refresh);
+  // function loadLocalStorageModel() {
+  //   if (debug) console.log('94 Modeller: loadLocalStorageModel', memoryLocState);
+  //   if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+  //     const locStore = (memoryLocState[1])
+  //     if (locStore) {
+  //       dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
+  //       // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+  //       // console.log('modelling 73 ', data)
+  //     }
+  //   }
+  //   if (debug) console.log('97 Modeller: loadLocalStorageModel', memoryLocState[0].phFocus);
+  //   setRefresh(!refresh)
+  // }
 
-  function saveModelsToLocState(props, memoryLocState, setMemoryLocState) {
-    const propps = {
-      phData: props.phData,
-      phFocus: props.phFocus,
-      phUser: props.phUser,
-      phSource: props.phSource,
-    }
-    if (debug) console.log('146 Modeller: saveModelsToLocState',
-      props.phFocus.focusModel?.name,
-      props.phFocus.focusModelview?.name,
-      props.phFocus?.focusRefresh?.name,
-      props, propps);
-    const timer = setTimeout(() => {
-      setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-      SaveAkmmUser(props, locStateKey = 'akmmUser')
-    }, 100);
-    return () => clearTimeout(timer);
+  // if (debug) console.log('83 Modeller: props, refresh', props, refresh);
+
+// function saveModelsToLocState(props: any, memoryLocState: any, setMemoryLocState: any) {
+//   const propps = {
+//     phData: props.phData,
+//     phFocus: props.phFocus,
+//     phUser: props.phUser,
+//     phSource: props.phSource,
+//   }
+//   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+//   SaveAkmmUser(props, 'akmmUser')
+// }
+
+useEffect(() => {
+  const propps = {
+    phData: props.phData,
+    phFocus: props.phFocus,
+    phUser: props.phUser,
+    phSource: props.phSource,
   }
+  if ((debug)) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
+  setMemoryLocState(propps)
 
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const propps = {
-        phData: props.phData,
-        phFocus: props.phFocus,
-        phUser: props.phUser,
-        phSource: props.phSource,
-      }
-      if (debug) console.log('173 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ',
-        SaveModelToLocState(propps, memoryLocState, setMemoryLocState)[0].phFocus?.focusModel?.name,);
-      setMemoryLocState(SaveModelToLocState(propps, memoryLocState, setMemoryLocState))
-      SaveAkmmUser(props, locStateKey = 'akmmUser')
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [props.phFocus?.focusObjectview?.id])
+  // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+  const timer = setTimeout(() => {
+    SaveAkmmUser(props, 'akmmUser')
+  }, 250);
+  return () => clearTimeout(timer);
+}, [props.phFocus?.focusObjectview?.id])
 
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
@@ -366,12 +359,12 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   }
 
   {/* <div style={{transform: "scale(0.9)" }}> */ }
-  const selectedObjDiv = (
-    <div >
-      {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
-      {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
-    </div>
-  )
+  // const selectedObjDiv = (
+  //   <div >
+  //     {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
+  //     {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
+  //   </div>
+  // )
 
   let selectTaskDiv =
     <>
@@ -503,9 +496,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>export2Svg </span>
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>Export Modelview to Svg </span>
+      {/* <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
+      <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span> */}
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
     <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>

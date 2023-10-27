@@ -100,7 +100,6 @@ const page = (props: any) => {
     // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
     const timer = setTimeout(() => {
       setRefresh(!refresh)
-
     }, 100);
     return () => clearTimeout(timer);
   }
@@ -624,9 +623,9 @@ const page = (props: any) => {
     const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Modelfile' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Modelfiles' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
     const modelType = (activeTab === '1') ? 'metamodel' : 'model'
@@ -642,52 +641,59 @@ const page = (props: any) => {
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
       <>
-        <div className="header-buttons float-end mt-0" style={{ scale: "0.8", minHeight: "32px",  backgroundColor: "#ddd" }}>
+        <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "32px", backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
-          <span className="buttonrow mr-4 d-flex justify-content-end" style={{ maxHeight: "9px", minHeight: "30px" }}>
-            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-            {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span> */}
-            {/* <span className="pt-1 pr-1" > </span> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" style={{ minWidth: "108px" }}> {loadfile} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
-            <button
-              className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
-              style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
-              data-toggle="tooltip"
-              data-placement="top"
-              data-bs-html="true"
-              title="Open new Project-file!"
-              onClick={handleNewProject}
-              >
+          <div className="buttonrow col-12 mr-4 d-flex justify-content-start" style={{ maxHeight: "9px", minHeight: "30px" }}>
+            <div className="col-4">
+              {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
+              {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
+              {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span> */}
+              {/* <span className="pt-1 pr-1" > </span> */}
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
+              {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
+              {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
+              <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (export/import) from file" style={{ minWidth: "108px" }}> {loadfile} </span>
+              {/* <button
+                className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
+                style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open new Project-file!"
+                onClick={handleNewProject}
+                >
                 New Project
-            </button>
-            <span className= "d-flex justify-content-between align-items-center bg-light border border-solid border-light m-2 mb-2 mt-0" style={{ minHeight: "32px"}} >
-              <span className="pt-1 border border-none bg-light mx-1" style={{ transform: "scale(0.9)", minWidth: "96px" }} >Project files:</span>
-              <span className="input text-primary " style={{ minWidth: "220px", maxHeight: "32px", backgroundColor: "transparent" }}
-               data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load"
-               >
-                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
-              </span>
-              <button
-                className="btn text-light btn-sm border border-solid px-2 mx-1 py-0 mt-0 pt-1"
+              </button> */}
+            </div>
+            <div className="col-6 d-flex justify-content-start align-items-center bg-light border border-solid border-secondary m-2 mb- mt-0" style={{ minHeight: "32px" }}>
+              <div className="col-3 d-flex align-items-center me-0 pe-0">
+                <i className="fa fa-folder me-1 ms-0 ps-1"></i>
+                <div className=""  style={{ whiteSpace: "nowrap" }}>Project files:</div>
+              </div>
+              <div className="col-4">
+                <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }}
+                  data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
+                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ minWidth: "600px"}}/>
+                </div>
+              </div>
+            </div>
+            {/* <div className="col-1"> */}
+              <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
                 title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
                 onClick={handleSaveAllToFile}>Save
-              </button >
-            </span>
+              </button>
+            {/* </div> */}
+            <span className="col-1 btn px-2 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-            <span className="btn px-2 py-0 ps-auto mt-0 pt-1 bg-light text-secondary float-right" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
             {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
             {/* <ProjectDetailsModal props={props} /> */}
-          </span>
+          </div>
         </div>
         <div className="diagramtabs pb-0" >
           <div className="modellingContent mt-1">
@@ -700,49 +706,3 @@ const page = (props: any) => {
 }
 
 export default Page(connect(state => state)(page));
-
-
-
-
-    // if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
-    //   // set focusOrg and focusProj to focusProj.org and focusProj.proj
-    //   if (props.phFocus.focusOrg.name !== props.phFocus.focusProj.org ) {
-    //     props.phFocus.focusOrg = props.phFocus.focusProj.org || props.phFocus.focusOrg
-    //   }
-    //   if (props.phFocus.focusProj.name !== props.phFocus.focusProj.proj) {
-    //     props.phFocus.focusProj = props.phFocus.focusProj.proj || props.phFocus.focusProj
-    //   }
-    //   // check if focusModel exists in one of the current models. If not, set it to the first model
-    //   let found = false;
-    //   for (let i = 0; i < props.phData?.metis.models.length; i++) {
-    //     if (props.phFocus.focusModel?.id === props.phData?.metis.models[i]) {
-    //       found = true;
-    //       break;
-    //     }
-    //   }
-    //   if (debug) console.log('89 Modelling found', found, props.phFocus.focusModel, props.phData?.metis.models)
-    //   if (!found) {
-    //     props.phFocus.focusModel = props.phData.metis.models[0]
-    //     // check if focusModelview exists in one of the current modelviews. If not, set it to the first modelview
-    //     found = false;
-    //     props.phData?.metis.models[0].modelviews.map ((modelview:any) => {
-    //       if (props.phFocus.focusModelview.id === modelview.id) {
-    //         found = true;
-    //       }
-    //     })
-    //     if (!found) {
-    //       props.phFocus.focusModelview = props.phData.metis.models[0].modelviews[0]
-    //     }
-    //   }
-      // put currentdata in the first position of the array data
-    //   let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}, ...memoryLocState] : [{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}];
-    //   if (debug) console.log('84 Modelling save memoryState', mdata);
-    //   // if mdata is longer than 10, remove the last 2 elements
-    //   if (mdata.length > 2) {mdata = mdata.slice(0, 2)}
-    //   if (mdata.length > 2) { mdata.pop() }
-    //   if (debug) console.log('88 Modelling refresh', mdata);
-    //   (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-    // } else {
-    //   if (debug) console.log('91 Modelling refresh', props);
-    //   setMemoryLocState([{phData: props.phData, phFocus: props.phFocus,phSource: props.phSource, phUser: props.phUser}]) // Save Project to Memorystate in LocalStorage at every refresh
-    // }

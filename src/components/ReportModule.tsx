@@ -82,13 +82,13 @@ const ReportModule = (props) => {
   return (
     (props.reportType === 'task') ? // task modal
     // <div style={{ backgroundColor: '#faa' }}>
-      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}
       </div>
     // </div>
     :
     // <div >
-      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}
       </div>
     // </div>

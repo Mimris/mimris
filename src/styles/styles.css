@@ -89,11 +89,11 @@
 .modal {
   background: rgba(255,255,255,0.3);
   width: fit-content;
-  height: auto;
-  position: calc(40% - 0px);
-  top: 50%;
+  height: fit-content;
+  /* position: calc(40% - 0px); */
+  top: 1%;
   left: 40%;
-  transform: translate(-40%, -60%);
+  /* transform: translate(-40%, -30%); */
 }
 
 .modal-dialog {

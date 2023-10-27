@@ -14,6 +14,7 @@ import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, R
 import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopEntityTypes';
+import SetColorsTopEntityTypes from '../utils/SetColorsTopEntityTypes';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
@@ -112,10 +113,11 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       };
     
       const buttonSaveJSONToFileDiv = 
-        <button className="btn-success text-white-50 btn-sm mr-2 w-100  " 
+        <button className="btn-success btn-sm text-secondary fs-5 w-100  " 
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
-          onClick={handleSaveJSONToFile}>Save Current Model to File 
+          >Save Current Model to File (not implemented yet)
+          {/* onClick={handleSaveJSONToFile}>Save Current Model to File  */}
         </button >
    
       if (debug) console.log('172', buttonLabel);
@@ -148,16 +150,16 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
 
       return (
         <>
-          <button className="btn bg-light text-dark" onClick={toggle}>{buttonLabel}</button>
+          <button className="btn bg-primary  py-1 px-2 " onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0 "></i>{buttonLabel}</button>
         {/* <Draggable handle=".handle"> */}
           <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
-            <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>
+            <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import OSDU Schema (JSON-files): </ModalHeader>
               {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
                 {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
-            <ModalBody className="pt-0 d-flex flex-column">
-              Current Source: <strong> {props.ph.phSource}</strong>
-              <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
-              <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
+            <ModalBody className="d-flex flex-column bg-primary">
+              {/* <span className="text-light">Current Source: <strong> {props.ph.phSource}</strong></span> */}
+              {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
+              <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
               <div className="source bg-light p-2 ">
                 <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
        
@@ -169,9 +171,10 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                       <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
                       <input className="select-input w-100" type="file" accept=".json" onChange={ upload } multiple />
                       {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
-                      <label className="pt-3" htmlFor="inclProps ">Include Properties 
-                        <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
-                      </label>
+                      <div className="d-flex align-items-center my-2 border">
+                        <label className="" htmlFor="inclProps ">Include Properties</label>
+                        <input className="ms-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                      </div>
                       {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                     </div>
                     {/* <div className="selectbox3 mb-2 border bg-secondary">
@@ -183,35 +186,42 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                       </label>
                     </div> */}
 
-                    <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                    <h6>Connect imported EntityTypes</h6> 
-                    <div className="selectbox3 mb-2 border">
+                    {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                    <div className="selectbox3 mb-2">
+                      <h6>Connect imported EntityTypes</h6> 
                       <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                        title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes 
+                        title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes (Propertylinks)
+                      </Button>
+                    </div>
+                    <div className="selectbox3 mb-2">
+                      <h6>Set colors on EntityTypes</h6> 
+                      <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                        title="Setting colors on EntityTypes!" 
+                        onClick={() => { SetColorsTopEntityTypes(props.ph, dispatch)}}
+                      >
+                        Set OSDU Colors
                       </Button>
                     </div>
                 </div>
-                <div className="loadsave--JsonToFile select bg-success mb-1 p-2  border border-dark">
-                    <h5>OSDU JSON filestructure</h5>
+                <div className="loadsave--JsonToFile select mb-1 p-2  border border-dark" >
+                    {/* <h5>OSDU JSON filestructure</h5>
                     <div className="selectbox3 mb-2 border">
                       <h6>Import OSDU Json file as a Json model </h6>
                       <h6>(This will import the OSDU Json structure)</h6>
-                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />
-                      {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
-                 
-                    </div>
+                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
+                    </div> */}
                     <div className="selectbox2 mb-2 border">
                       <h6>Export model as OSDU Json file </h6>
                       <h6>(The file will be found in the download folder)</h6>
                       {buttonSaveJSONToFileDiv}
                     </div>
-                    
-                      {/* <h6>Send Project by mail </h6>
-                      <div className="selectbox bg-white mb-2 border">
-                        <div className="ml-2">{emailDivGmail}</div>
-                        <div className="ml-2">{emailDivMailto}</div>
-                      </div> */}
                 </div>
+                    <div className="selectbox2 mb-2 border bg-light">
+                      <h6>Link to the OSDU Open Subsurface Data Universe - Software Data Definitions and Services - Data Definitions</h6>
+                      <h6>(This will open a new tab in your browser)</h6>
+                      <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
+                  
+                    </div>
               </div>
     
             </ModalBody>

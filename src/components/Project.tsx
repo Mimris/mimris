@@ -5,8 +5,11 @@ import { Modal, Button } from 'react-bootstrap';
 import { is, set } from 'immer/dist/internal';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
+import rehypeSlug from 'rehype-slug';
+import remarkGfm from 'remark-gfm';
 import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
-// import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
+// import AKM-Start-IRTV_PR from '../startupModel/AKM-Start-IRTV_PR.json'
+// import AKM-Start-CORE_PR from '../startupModel/AKM-Start-CORE_PR.json'
 
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
@@ -16,30 +19,25 @@ import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 const debug = false;
 
 const Project = (props) => {
-
   if (debug) console.log('18 Tasks props', props.props.phData, props);
-
   const dispatch = useDispatch();
-  
-
-  const [minimized, setMinimized] = useState(true);
-  // const [maximized, setMaximized] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [projectModalOpen, setProjectModalOpen] = useState(false);
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
   const projectModalRef = useRef(null);
+  
+  const [minimized, setMinimized] = useState(true);
+  // const [maximized, setMaximized] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
+  const [issues, setIssues] = useState([]);
+  const [projectFile, setProjectFile] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState('');
 
-  const handleMinimize = () => {
-      setMinimized(true);
-      // setMaximized(false);
-  };
-
-  const handleMaximize = () => {
-      setMinimized(false);
-      // setMaximized(true);
-  };
 
   const [org, setOrg] = useState(props.props.phFocus.focusProj.org)
   const [repo, setRepo] = useState(props.props.phFocus.focusProj.repo)
@@ -56,52 +54,96 @@ const Project = (props) => {
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
   const projectUrl = `https://api.github.com/repos/${org}/${repo}/projects/${projectNumber}`
+  const projectFileUrl = `https://api.github.com/repos/${org}/${repo}/contents/${path}/${file}?ref=${branch}`
 
-  const [issues, setIssues] = useState([]);
-  const [comments, setComments] = useState([]);
+
+
+  const handleMinimize = () => {
+      setMinimized(true);
+      // setMaximized(false);
+  };
+
+  const handleMaximize = () => {
+      setMinimized(false);
+      // setMaximized(true);
+  };
 
   // list issues form github
-const fetchIssues = async () => {
-  try {
-    if (debug) console.log('89 issues fetch', issueUrl)
-    const res = await fetch(issueUrl);
-    const data = await res.json();
-    if (debug) console.log('54 issues', res, data)
-    if (data.length === 0) { // if there is an error
-      console.error('Error fetching issues:', data.message);
-      setIssues([]);
-    } else {
-      setIssues(data);
-    }
-    if (debug) console.log('58 issues', data)
-    if (debug) console.log('59 issues', issues)
+  const fetchIssues = async () => {
+    try {
+      if (debug) console.log('89 issues fetch', issueUrl)
+      const res = await fetch(issueUrl);
+      const data = await res.json();
+      if (debug) console.log('54 issues', res, data)
+      if (data.length === 0) { // if there is an error
+        console.error('Error fetching issues:', data.message);
+        setIssues([]);
+      } else {
+        setIssues(data);
+      }
+      if (debug) console.log('58 issues', data)
+      if (debug) console.log('59 issues', issues)
 
-    if (issues.length > 0) {
-      issues.map(async (issue) => {
-        const res = await fetch(issue.comments_url);
-        const data = await res.json();
-        if (debug) console.log('67 comments', res, data)
-        if (data.length === 0) { // if there is an error
-          console.error('Error fetching comments:', data.message);
-          setComments([]);
-        } else {
-          setComments((comments) => [...comments, data]);
-        }
-        if (debug) console.log('71 comments', data)
-      })
+      if (issues.length > 0) {
+        issues.map(async (issue) => {
+          const res = await fetch(issue.comments_url);
+          const data = await res.json();
+          if (debug) console.log('67 comments', res, data)
+          if (data.length === 0) { // if there is an error
+            console.error('Error fetching comments:', data.message);
+            setComments([]);
+          } else {
+            setComments((comments) => [...comments, data]);
+          }
+          if (debug) console.log('71 comments', data)
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
     }
-  } catch (error) {
-    console.error('Error fetching comments:', error);
+    if (debug) console.log('72 comments', issues)
   }
-  if (debug) console.log('72 comments', issues)
-}
+
+  const fetchProjectFile = async () => {
+    try {
+      if (debug) console.log('89 issues fetch', file)
+      const res = await fetch(projectFileUrl);
+      const data = await res.json();
+      if (debug) console.log('54 issues', res, data)
+      if (data.length === 0) { // if there is an error
+        console.error('Error fetching issues:', data.message);
+        setProjectFile([]);
+      } else {
+        setProjectFile(data);
+      }
+      if (debug) console.log('58 issues', data)
+      if (debug) console.log('59 issues', issues)
+
+      if (issues.length > 0) {
+        issues.map(async (issue) => {
+          const res = await fetch(issue.comments_url);
+          const data = await res.json();
+          if (debug) console.log('67 comments', res, data)
+          if (data.length === 0) { // if there is an error
+            console.error('Error fetching comments:', data.message);
+            setComments([]);
+          } else {
+            setComments((comments) => [...comments, data]);
+          }
+          if (debug) console.log('71 comments', data)
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+    if (debug) console.log('72 comments', issues)
+  }
 
   const handleSubmit = (details) => {
     props.onSubmit(details);
     handleCloseModal();
   };
 
-  const [showModal, setShowModal] = useState(false);
 
   const handleShowModal = () => {
     if (minimized) {
@@ -111,7 +153,7 @@ const fetchIssues = async () => {
   };
   const handleCloseModal = () => setShowModal(false);
 
-  const [showProjectModal, setShowProjectModal] = useState(false);
+
 
   const handleShowProjectModal = () => {
     if (minimized) {
@@ -119,24 +161,100 @@ const fetchIssues = async () => {
     }
     setShowProjectModal(true);
   };
+
   const handleCloseProjectModal = () => setShowProjectModal(false);
 
+  const handleStartupProject= () => {
+    setShowNewProjectModal(true);
+  }
+  
+  const handleShowNewProject = () => {
+    if (minimized) {
+      setMinimized(true);
+    }
+    setShowNewProjectModal(true);
+    switch (selectedProject) {
+      case 'Initial Start Model':
+        dispatch({ type: "LOAD_TOSTORE_DATA", data: StartInitStateJson })
+        break;
+      case 'Concept Modelling':
+        // fetchProjectFile()
+        // const data = projectFile
+        // if (debug) console.log('182 project file', data)
+        // if (data.length === 0) { // if there is an error
+        //   console.error('Error fetching project file:', data.message);
+        //   setProjectFile([]);
+        // } else {
+        //   setProjectFile(data);
+        // }
+        // dispatch({ type: "LOAD_TOSTORE_DATA", data: data })
+        dispatch({ type: "LOAD_TOSTORE_DATA", data: AKM-Start-IRTV_PR })
+        break;
+        case 'Type Definition Modelling':
+        dispatch({ type: "LOAD_TOSTORE_DATA", data: AKM-Start-CORE_PR })
+        break;
+      default:
+        break;
+        }
+      }
+      const handleSelectProject = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedProject(event.target.value);
+      }
   const handleNewProject = () => {
-    // dispatch initial state 
-    dispatch({ type: "LOAD_TOSTORE_DATA", data: StartInitStateJson })
+    return (
+      {modalStartupProjectDiv}
+    );
   }
 
+  const modalStartupProjectDiv = (
+      <Modal show={showNewProjectModal} onHide={handleCloseProjectModal} >
+        <Modal.Header closeButton>
+          <Modal.Title>New Project: </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <label htmlFor="project-select">Select a project template:</label>
+        <select id="project-select" value={selectedProject} onChange={handleSelectProject}>
+          <option value="">-- Select a project --</option>
+          <option value="Intial Start Model">Intial</option>
+          <option value="Concept Modelling">Concept Modelling (IRTV)</option>
+          <option value="Type Definition Modelling">Type Definition Modelling (CORE)</option>
+          {/* add more options for other project templates */}
+        </select>
+        <button onClick={handleStartupProject}>Create new project</button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+        </Modal.Footer>
+      </Modal>
+  )
+
+  const projectModalDiv = (
+    <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
+      className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
+    <Modal.Header closeButton>Set Context: </Modal.Header>
+    <Modal.Body >
+      <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+    </Modal.Body>
+    <Modal.Footer>
+      <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+    </Modal.Footer>
+  </Modal>
+);
+
   const modalDiv = (
-    <Modal show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee"}} >
+    <Modal  show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "20px", backgroundColor: "#fee"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="bg-transparent">
-        <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
+      <Modal.Body className="bg-transparent"  style={{ overflowY: 'scroll', maxHeight: '80vh' }}>
+        <div className='bg-light p-2 m-0'> {/*link to Issues */}
           {/* <div className='text-muted'>Issues for this repo:</div> */}
           {(issues.length > 0) 
             ? issues?.map((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
-              <div key={issue.number}>{issue.number}, {issue.title} <br />
+              <div key={issue.number}>
+                <Link className='text-primary fs-4' href={`https:/github.com/${org}/${repo}/issues/${issue.number}`} target="_blank" style={{ textDecoration: 'underline' }}>
+                  {issue.number}, {issue.title}
+                </Link> <br />
                 User login: {issue.user.login} <br />
                 Assignee: {issue.assignees[0]?.login}  <br />      
                 State: {issue.state} <br />
@@ -144,9 +262,10 @@ const fetchIssues = async () => {
                 Updated: {issue.updated_at.slice(0, 10)} <br />
                 Closed: {issue.closed_at?.slice(0, 10)} <br />
                 Labels: {issue.labels.map((label) => (label.name))} <br />
-                {/* <div className="bg-white border border-secondary p-2">
-                  Details: <ReactMarkdown rehypePlugins={[rehypeRaw]} >{issue.body}</ReactMarkdown>
-                </div> */}
+                <div className="bg-white border border-secondary p-2">
+                  Details:
+                  <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{issue.body}</ReactMarkdown>
+                </div>
                 Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br />
 
                 {/* Body:  {issue.body}, User name: {issue.user.name} */}
@@ -169,19 +288,6 @@ const fetchIssues = async () => {
       </Modal.Footer>
     </Modal>
   )
-
-  const projectModalDiv = (
-      <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
-        className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
-      <Modal.Header closeButton>Set Context: </Modal.Header>
-      <Modal.Body >
-        <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
-      </Modal.Body>
-      <Modal.Footer>
-        <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
-      </Modal.Footer>
-    </Modal>
-  );
 
   if (minimized) {
     return (
@@ -217,17 +323,6 @@ const fetchIssues = async () => {
         <div className="header m-0 p-0 d-flex justify-content-between align-items-center" style={{backgroundColor: "#eee", minWidth: "8rem"}}>
           <div className="ps-2 text-success font-weight-bold fs-3" >Project </div>
           <div className="buttons position-relative end-0" style={{ scale: "0.9"}}>
-            <button
-              className="btn text-success m-1 px-2 py-0 btn-sm"
-              data-toggle="tooltip"
-              data-placement="top"
-              data-bs-html="true"
-              title="Open focusIssue!"
-              onClick={handleShowModal}
-              style={{ backgroundColor: "#fff" }}
-            >
-            <i className="fa fa-lg fa-bullseye"></i> 
-            </button>
             <button 
                 className="btn text-success m-1 px-1 py-0 btn-sm" 
                 data-toggle="tooltip"
@@ -237,49 +332,46 @@ const fetchIssues = async () => {
                 onClick={handleMinimize} 
                 style={{backgroundColor: "#fff"}}
                 >
-                {/* &lt;- */}
-                {/* <i className="fas fa-compress-arrows-alt fa-lg" aria-hidden="true"></i> */}
                 <i className="fa fa-lg fa-arrow-left"></i>
             </button>
           </div>
         </div>               
-        <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
-          <div className="m-1 p-1 fs-5" style={{backgroundColor: "#eef"}}>Name:  {props.props.phFocus.focusProj.name}</div>
-          <button className="button rounded ms-auto m-1 px-2 text-light" 
-            style={{backgroundColor: "steelblue", whiteSpace: "nowrap", maxHeight: "1.5rem"}}
+        <div className="m-1 p-1 fs-5" style={{backgroundColor: "#eef"}}>Name:  {props.props.phFocus.focusProj.name}</div>
+        <div className="d-flex justify-content-between align-items-center">
+          <button className="button rounded m-1 px-2 text-light" 
+            style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
             onClick={handleShowProjectModal} >
             Edit Project Details
           </button>
+          <button
+              className="button rounded m-0 px-2 py-0 btn-sm me-2 text-light"
+              style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Open new Project-file!"
+              onClick={handleShowNewProject}
+              >
+              New Project
+          </button>
         </div>
-        <button
-            className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
-            style={{backgroundColor: "steelblue", whiteSpace: "nowrap", maxHeight: "1.5rem", position: "absolute", top: "7%", right: "0%", transform: "translate(-0%, -0%)"}}
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Open new Project-file!"
-            onClick={handleNewProject}
-          >
-            New Project
-        </button>
-        <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
-        <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
-            {/* <h6 className='text-muted pt-2'>Links to Github :</h6> */}
-            <div className='bg-light my-1 px-2 '> {/*link to repo */}
-              <div className='text-muted'>Repository :</div>
-              {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-            </div>
-            <div className='bg-light my-1 px-2'> {/*link to repo */}
-              <div className='text-muted'>GitHub Docs :</div>
-              {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
-            </div>
+        {/* <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
+          <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
+              <div className='bg-light my-1 px-2 '> 
+                <div className='text-muted'>Repository :</div>
+                {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+              </div>
+              <div className='bg-light my-1 px-2'> 
+                <div className='text-muted'>GitHub Docs :</div>
+                {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
+              </div>
 
-            <div className='bg-light my-1 px-2'> {/*link to canban */}
-              <div className='text-muted'>Project Canban for this repo:</div>
-              {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
-            </div>
-        </div>
-        </details>
+              <div className='bg-light my-1 px-2'> 
+                <div className='text-muted'>Project Canban for this repo:</div>
+                {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
+              </div>
+          </div>
+        </details> */}
         <hr className="m-1"/>
         <div className="issueslist" >
             <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
@@ -292,9 +384,21 @@ const fetchIssues = async () => {
               </button>
             </div>
           <div className="header m-0 p-0">
-            <div className="font-weight-bold px-2 border fs-6">
-            In Focus:</div>
-            <div className="font-weight-bold px-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name} </div>
+            <div className="font-weight-bold px-2 py-2 border fs-6">
+              In Focus:
+              <button
+                className="btn text-success m-0 px-2 py-0 btn-sm float-end"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open focusIssue!"
+                onClick={handleShowModal}
+                style={{ backgroundColor: "#fff" }}
+              >
+              <i className="fa fa- fa-bullseye"></i> 
+              </button>
+            </div>
+            <div className="font-weight-bold px-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}</div>
           </div>
           {/* Listing GitHub Issues */}
           {/* make a button for fetching Issues */}
@@ -338,6 +442,7 @@ const fetchIssues = async () => {
               {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
           </div>
         </div>
+        {modalStartupProjectDiv}
         {modalDiv}
         {projectModalDiv}
       </div>

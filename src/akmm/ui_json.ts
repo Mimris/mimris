@@ -2066,7 +2066,7 @@ export class jsnImportMetis {
         if (item.objectRef) {
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
-                const objview = new akm.cxObjectView(item.id, item.name, object, item.description);
+                const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
                 objview.setObject(object);

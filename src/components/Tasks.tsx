@@ -442,7 +442,7 @@ function Tasks(props) {
               </span>
             </div>
             <div className="mb-3">
-              {(!collapsed) 
+              {(!collapsed) // collapsed task container
                 ? 
                   <button 
                     className="btn text-success mt-0 pe-2 py-0 btn-sm float-end"
@@ -478,7 +478,7 @@ function Tasks(props) {
 
   return (
     <>
-      <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "80vh" : "40vh")  }}>
+      <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "70vh" : "40vh")  }}>
         {genTasksHeaderDiv}
       </div>
 

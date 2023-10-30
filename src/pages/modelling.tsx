@@ -65,7 +65,7 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    // if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+    if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
       if (memoryLocState?.phData) {
         const locStore = memoryLocState;
         if (debug) console.log('modelling 134 ', locStore);
@@ -90,7 +90,8 @@ const page = (props: any) => {
           }
         }
       }
-    // }
+    } 
+
 
   }, [])
 

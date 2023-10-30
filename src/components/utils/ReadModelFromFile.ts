@@ -33,6 +33,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const metis = props.phData.metis
         const focus = props.phFocus
         const curmod = metis.models.find(m => m.id === focus.focusModel?.id)
+        if (!curmod) return null
         const curmmod = metis.metamodels.find(m => m.id === curmod.metamodelRef)
         const modelviews = curmod.modelviews
         const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
@@ -169,8 +170,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         }
         const editedmodelffobjects = addTypenameFromObjectTypes(impObjecttypes, impObjects)
 
-
-
         // chande the typeRef in objects to point to types with the same typeName in currentMetamodel.objecttypes
         // map over mmodelffobjecttypes and find the type in currentMetamodel.objecttypes with the same typeName and replace the typeRef in mmodelffobjects
         function replaceTypeRefFromObjectTypesWhithSameTypename(objecttypes, objects) {
@@ -186,7 +185,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             })
             return objects
         }
-        const editedmodelffobjects2 = replaceTypeRefFromObjectTypesWhithSameTypename(curmmod.objecttypes, editedmodelffobjects)
+        const editedmodelffobjects2 = (curmod.objecttypes) && replaceTypeRefFromObjectTypesWhithSameTypename(curmmod?.objecttypes, editedmodelffobjects)
         // models
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
         let mlength = props.phData?.metis?.models.length
@@ -196,6 +195,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         // merge objects from modelff.objects into tmpo
         function mergeObjectsFromModelffObjects(objects, tmpo) {
+            if (!tmpo) return;
             if (debug) console.log("120 ReadModelFromFile", objects, tmpo);
             objects?.forEach((o) => {
                 const oindex = tmpo.findIndex((ot) => ot.id === o.id);
@@ -207,7 +207,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 }
             });
             // Remove duplicates based on the 'id' property¯
-            const uniqueTmpo = tmpo.filter((obj, index, self) => {
+            const uniqueTmpo = tmpo?.filter((obj, index, self) => {
                 return index === self.findIndex((t) => t.id === obj.id);
             });
             return uniqueTmpo;

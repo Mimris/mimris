@@ -643,8 +643,8 @@ const page = (props: any) => {
       <>
         <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "32px", backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
-          <div className="buttonrow col-12 mr-4 d-flex justify-content-start" style={{ maxHeight: "9px", minHeight: "30px" }}>
-            <div className="col-4">
+          <div className="buttonrow d-flex justify-content-end" style={{ maxHeight: "9px", minHeight: "30px" }}>
+            <div className="w-50">
               {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
               {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
@@ -655,10 +655,10 @@ const page = (props: any) => {
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-              <span className="mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
+              <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (export/import) from file" style={{ minWidth: "108px" }}> {loadfile} </span>
-              {/* <button
-                className="btn m-0 px-2 py-0 btn-sm me-2 float-end"
+              <button
+                className="btn btn-sm bg-light text-secondary"
                 style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
                 data-toggle="tooltip"
                 data-placement="top"
@@ -666,29 +666,28 @@ const page = (props: any) => {
                 title="Open new Project-file!"
                 onClick={handleNewProject}
                 >
+                <i className="fas fa-lg fa-poll-h me-1"></i>
                 New Project
-              </button> */}
+              </button>
             </div>
-            <div className="col-6 d-flex justify-content-start align-items-center bg-light border border-solid border-secondary m-2 mb- mt-0" style={{ minHeight: "32px" }}>
-              <div className="col-3 d-flex align-items-center me-0 pe-0">
+            <div className="d-flex justify-content-end align-items-center bg-light border border-solid border-secondary  me-2" style={{ minHeight: "32px" }}>
+              <div className=" d-flex align-items-center me-0 pe-0">
                 <i className="fa fa-folder me-1 ms-0 ps-1"></i>
                 <div className=""  style={{ whiteSpace: "nowrap" }}>Project files:</div>
               </div>
-              <div className="col-4">
+              <div className="">
                 <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }}
                   data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ minWidth: "600px"}}/>
+                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ }}/>
                 </div>
               </div>
-            </div>
-            {/* <div className="col-1"> */}
               <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
                 title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
                 onClick={handleSaveAllToFile}>Save
               </button>
-            {/* </div> */}
-            <span className="col-1 btn px-2 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+            </div>
+            <span className="btn px-2 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
             {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}

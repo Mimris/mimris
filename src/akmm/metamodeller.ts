@@ -4145,7 +4145,7 @@ export class cxMetaModel extends cxMetaObject {
     }
     addRelationshipType0(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
-        if (relType.category === constants.gojs.C_RELSHIPTYPE) {
+        if (relType?.category === constants.gojs.C_RELSHIPTYPE) {
             if (relType.name !== constants.types.AKM_RELSHIP_TYPE && relType.name !== constants.types.AKM__IS) {
                 if (this.relshiptypes0 == null)
                     this.relshiptypes0 = new Array();
@@ -4674,7 +4674,6 @@ export class cxMetaModel extends cxMetaObject {
         }
         return reltypes;
     }
-    
     findRelationshipTypeView(id: string): cxRelationshipTypeView | null {
         if (!this.relshiptypeviews) return null;
         let i = 0;

@@ -307,7 +307,7 @@ export class jsnMetaModel {
             if (debug) console.log('195 reltypes0', reltypes0);
             const cnt = reltypes0.length;
             for (let i = 0; i < cnt; i++) {
-                const reltype = reltypes[i];
+                const reltype = reltypes0[i];
                 if (!reltype) continue;
                 if (!reltype.fromObjtype) {
                     if (reltype.fromobjtypeRef) {

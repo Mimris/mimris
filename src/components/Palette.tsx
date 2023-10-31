@@ -84,7 +84,7 @@ const Palette = (props: any) => {
   
     setFilteredNewtypesNodeDataArray(buildFilter(focusRole, focusTask, metamodelList, types, mmodel));  // build the palette for current metamodel
 
-    const seltypes =  metamodels[0]?.objecttypes.map((t: any) => t?.name);
+    const seltypes =  metamodels[0]?.objecttypes?.map((t: any) => t?.name);
     setFilteredOtNodeDataArray(buildFilter(seltypes, metamodels[0]));  // build the palette for current metamodel
     if (debug) console.log('85 Palette useEffect 1', focusRole, focusTask, metamodelList, seltypes, metamodels[0]);
   

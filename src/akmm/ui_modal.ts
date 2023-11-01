@@ -24,7 +24,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   if (debug) console.log('22 obj, context:', obj, context);
   if (debug) console.log('23 propname, value:', propname, value);
   // const myDiagram = context.myDiagram;
-  let inst, instview, typeview, myInst, myInstview, myItem;
+  let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
     const node = obj;
@@ -83,19 +83,22 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     const link = obj;
     if (debug) console.log('89 link', link);
     inst = link.reltype;
-    typeview = link.reltype;
+    typeview = link.reltype.typeview;
 
     if (context?.what === "editType") {
       myItem = inst;
     } else if (context?.what === "editTypeview") {
         myItem = typeview; 
-        if (debug) console.log('97 editTypeview', typeview);
+        myTypeview = myMetis.findRelationshipTypeView(typeview?.id);    
+        if (debug) console.log('97 editTypeview', myTypeview);
     } 
     try {
       myItem[propname] = value;
+      myTypeview[propname] = value;
     } catch {
       // Do nothing
     }
+
   }
   // Handle relationships
   if (obj.category === constants.gojs.C_RELATIONSHIP) {

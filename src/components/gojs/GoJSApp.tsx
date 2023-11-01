@@ -257,6 +257,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     let modifiedRelships = new Array();
     let modifiedObjectViews = new Array();
     let modifiedRelshipViews = new Array();
+    let modifiedMetamodels   = new Array();
     let done = false;
     let pasted = false;
 
@@ -936,8 +937,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         const selection = e.subject;
         if (debug) console.log('738 selection', selection);
         const data = selection.first().data;
+        const isMetamodel = this.isMetamodelType(data.category);
         if (debug) console.log('732 data, selection', data, selection);
-        if (this.isMetamodelType(data.category)) {
+        if (isMetamodel) {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
             renameTypes = true;
           }
@@ -946,6 +948,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = selection?.iterator; it?.next();) {
             const sel = it.value;
             const data = sel.data;
+            if (data.markedAsDeleted) continue;
             if (data.category === constants.gojs.C_OBJECTTYPE) {
               const objtype = myMetis.findObjectType(data.objecttype?.id);
               if (objtype) {
@@ -1027,7 +1030,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             // Handle objecttypes
+            let count = 0;
             for (let it = selection?.iterator; it?.next();) {
+              count++;
               const sel = it.value;
               const data = sel.data;
               if (debug) console.log('805 sel, data', sel, data);
@@ -1074,9 +1079,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objtype.markedAsDeleted = deletedFlag;
                   const jsnObjtype = new jsn.jsnObjectType(objtype);
                   modifiedObjectTypes.push(jsnObjtype);
+                  if (debug) console.log('1079 objtype', objtype);
                 }
               }
             }
+          }
+          if (isMetamodel) {
+            uic.purgeModelDeletions(myMetis, myDiagram);
+            return;
           }
         } else {
           // Handle objects

@@ -340,7 +340,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": function () {
               this.diagram.lastInput.shift = true;
-              go.ContextMenuTool.prototype.standardMouseSelect.call(this);
+              // go.ContextMenuTool.prototype.standardMouseSelect.call(this);
             },
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
@@ -568,7 +568,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (debug) console.log('570 node', node);
               if (node.category === constants.gojs.C_OBJECT) {
                 return true;
               }
@@ -626,7 +625,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const selection = myDiagram.selection;
-                if (selection.count > 1)
+                if (selection.count > 0)
                   return true;
                 return false;
               }
@@ -646,7 +645,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Change Icon",
             function (e: any, obj: any) {
-              const node = e.diagram.selection.first().data;
+              const node = obj.part.data;
               const ilist = iconList()
               const iconLabels = ilist.map(il => (il) && il.label)
               if (debug) console.log('719', iconLabels, ilist);
@@ -664,13 +663,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-                // } else if (node.category === constants.gojs.C_OBJECTTYPE) {
-                //     return true;
-              } else {
-                return false;
+              if (node.isSelected) {
+                if (node.category === constants.gojs.C_OBJECT) {
+                    return true;
+                }
               }
+              return false;
             }),
           makeButton("Test InputPattern",
             function (e: any, obj: any) {
@@ -797,7 +795,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              return o.diagram.commandHandler.canDeleteSelection();
+              const node = o.part.data;
+              if (node.isSelected) {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } 
+              return false;
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
@@ -819,10 +821,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return o.diagram.commandHandler.canDeleteSelection();
-              } else {
-                return false;
-              }
+                if (node.isSelected) 
+                  return o.diagram.commandHandler.canDeleteSelection();
+              } 
+              return false;
             }),
           makeButton("----------"),
           makeButton("Add Port",
@@ -860,7 +862,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Export Task Model",
             function (e: any, obj: any) {
-              const node = myDiagram.selection.first().data;
+              const node = obj.part.data;
               uid.exportTaskModel(node, myMetis, myDiagram);
             },
             function (o: any) {
@@ -878,7 +880,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Add Submodel",
             function (e: any, obj: any) {
-              const node = myDiagram.selection.first().data;
+              const node = obj.part.data;
               alert('Add Submodel is not yet implemented!')
               // uid.addSubModel(node, myMetis, myDiagram);
             },
@@ -969,7 +971,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Change Object Type",
             function (e: any, obj: any) {
-              const node = e.diagram.selection.first().data;
+              const node = obj.part.data;
               const currentType = node.objecttype;
               if (debug) console.log('273 node', node);
               const myMetamodel = myMetis.currentMetamodel;
@@ -1001,15 +1003,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              } else {
-                return false;
+              if (node.isSelected) {
+                if (node.category === constants.gojs.C_OBJECT) {
+                    return true;
+                }
               }
+              return false;
             }),
           makeButton("Edit Typeview",
             function (e: any, obj: any) {
-              const node = e.diagram.selection.first().data;
+              const node = obj.part.data;
               if (debug) console.log('983 node, myMetis', node, myMetis);
               uid.editTypeview(node, myMetis, myDiagram);
             },
@@ -1024,6 +1027,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Reset to Typeview",
             function (e: any, obj: any) {
+              const node = obj.part.data;
               const myGoModel = myMetis.gojsModel;
               myDiagram.selection.each(function (sel) {
                 const inst = sel.data;
@@ -1035,40 +1039,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT)
-                return true;
-            }),
-          makeButton("Change Icon",
-            function (e: any, obj: any) {
-              const node = e.diagram.selection.first().data;
-              if (debug) console.log('1503 node', node);
-              const ilist = iconList()
-              const iconLabels = ilist.map(il => (il) && il.label)
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Icon",
-                case: "Change Icon",
-                iconList: iconList(),
-                myDiagram: myDiagram
+              if (node.isSelected) {
+                if (node.category === constants.gojs.C_OBJECT) {
+                    return true;
+                }
               }
-              myMetis.currentNode = node;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(node, modalContext);
-              if (debug) console.log('511 myMetis', myMetis);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECTTYPE) {
-                return true;
-              } else {
-                return false;
-              }
+              return false;
             }),
           makeButton("Convert to Group",
             function (e: any, obj: any) {
               const noPorts = confirm("No Ports (OK) or Allow Ports?");
               const allowPorts = !noPorts;
-              const n = e.diagram.selection.first().data;
+              const n = obj.part.data;
               let objview = n.objectview;
               objview = myMetis.findObjectView(objview.id);
               objview.viewkind = 'Container';
@@ -1107,7 +1089,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Convert to Node",
             function (e: any, obj: any) {
-              const n = e.diagram.selection.first().data;
+              const n = obj.part.data;
               let objview = n.objectview;
               objview = myMetis.findObjectView(objview.id);
               objview.viewkind = 'Object';
@@ -1132,7 +1114,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Open Group",
             function (e: any, obj: any) {
-              const n = e.diagram.selection.first();
+              const n = obj.part.data;
               n.isSubGraphExpanded = true;
               const node = n.data;
               node.isExpanded = true;

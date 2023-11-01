@@ -754,12 +754,12 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_MODELVIEW_PROPERTIES:
-      if ((debug)) console.log('713 UPDATE_MODELVIEW_PROPERTIES', action);
+      if (debug) console.log('713 UPDATE_MODELVIEW_PROPERTIES', action);
       const curmv = curModel?.modelviews?.find(mv => mv.id === action?.data?.id) // current modelview
       let curModviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === action?.data?.id) // current modelview index
       const curmvlength = curModel?.modelviews?.length
       if (curModviewIndex < 0) { curModviewIndex = curmvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
-      if ((debug)) console.log('714 UPDATE_MODELVIEW_PROPERTIES', curModviewIndex, state.phData.metis.models[curModelIndex].modelviews[curModviewIndex])
+      if (debug) console.log('714 UPDATE_MODELVIEW_PROPERTIES', curModviewIndex, state.phData.metis.models[curModelIndex].modelviews[curModviewIndex])
 
       const retval_UPDATE_MODELVIEW_PROPERTIES = {
         ...state,
@@ -785,7 +785,7 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-      if ((debug)) console.log('731 retval', retval_UPDATE_MODELVIEW_PROPERTIES);
+      if (debug) console.log('731 retval', retval_UPDATE_MODELVIEW_PROPERTIES);
       return retval_UPDATE_MODELVIEW_PROPERTIES
 
     case UPDATE_OBJECT_PROPERTIES:

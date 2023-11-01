@@ -89,7 +89,7 @@ const page = (props: any) => {
         
           // let data = {}
           if (debug) console.log('68 project', props.phFocus.focusProj.file)
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (memoryLocState && memoryLocState.phData) {
               // if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
                 // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
@@ -169,8 +169,8 @@ const page = (props: any) => {
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}&projectNumber=${projectNumber}&focus=${focus}&ghtype=${ghtype}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
-  const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
-  // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
+  const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup_PR.json&branch=main`
+  // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup_PR.json&branch=main`
 
   const contextDiv = (
     <div className="contextarea d-flex" style={{ backgroundColor: "#cdd", width: "99%", maxHeight: "24px" }}>

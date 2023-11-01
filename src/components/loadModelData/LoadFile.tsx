@@ -12,6 +12,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
 import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
+import SaveNewModel  from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 import { UniqueDirectiveNamesRule } from 'graphql';
@@ -98,16 +99,20 @@ const LoadFile = (props: any) => {
     const curmodelview = curmodel?.modelviews?.find(mv => mv.id === props.ph?.phFocus?.focusModelview?.id)
     const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const metamodelobjects = curmodel.objects?.filter(o => o.typeName === 'Metamodel' )
-    const metamodelObjectview =  curmodelview.objectviews.find(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.typeRef)))
-    console.log('102 Loadfile', metamodelobjects, metamodelObjectview)
+    const metamodelObjectview =  curmodelview.objectviews.find(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))) 
+
+    console.log('102 Loadfile', curmodelview.objectviews.filter(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))))
+    console.log('103 Loadfile', metamodelobjects, curmodelview, metamodelObjectview)
 
     const metamodelGenerated = metamodels?.find(m => m.name === metamodelObjectview?.name)
     console.log('105 Loadfile',  metamodelGenerated)
 
 
-    const submodels = models.filter(m => m.parentModel === curmodel.id)
-    const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
+    const submodels = [curmodel]
+    const submetamodels = metamodels.filter(smm => smm.name === 'AKM-Core_MM' && smm.id !== metamodelGenerated?.id)
+    // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
     // create an empty model object with an empty modelview all with uuids
+    console.log('110 Loadfile', submodels, submetamodels)
 
     const matamodelObjectview = curmodelview
     const metamodelRef = metamodels.find(m => m.name === '_ADMIN_METAMODEL')?.id
@@ -137,7 +142,7 @@ const LoadFile = (props: any) => {
       markedAsDeleted: false,
       modified: false,
     }
- 
+    console.log('142 Loadfile', newmodel)
       const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
       const adminMetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
 
@@ -146,9 +151,17 @@ const LoadFile = (props: any) => {
         metis: {
           ...props.ph.phData.metis,
           models: 
-            [newmodel, curmodel, adminmodel, ...submodels],
-          metamodels:
-            [curMetamodel, metamodelGenerated, adminMetamodel, ...submetamodels], 
+            [newmodel, adminmodel],
+          metamodels:[
+            {
+              ...metamodelGenerated, 
+              subMetamodelRefs: [submetamodels[0].id],
+              subModelRefs: [submodels[0].id],
+              submodels: submodels,
+              submetamodels: submetamodels,
+            },
+            adminMetamodel
+          ], 
           name: 'New-Project', 
           description: 'New Project to start modelling',
           },
@@ -170,14 +183,27 @@ const LoadFile = (props: any) => {
     SaveAllToFile(data, 'New Project', '_PR')
   }
 
+  function handleSaveNewModel() {
+    const ph = props.ph
+    const models = ph?.phData?.metis?.models
+    const metamodels = ph?.phData?.metis?.metamodels
+    const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
+    const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
+    const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
+
+    SaveNewModel(props.ph)//,  curmodel, curmodelview)
+
+    console.log('130 Loadfile', data)
+    SaveAllToFile(data, 'New Project', '_PR')
+  }
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const modelview = model.modelviews?.find(mv => mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
     WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
-    // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+      // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
+      // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
   const { buttonLabel, className } = props;
@@ -239,7 +265,17 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
-        onClick={handleSaveMetamodelWithSubToProjectfile}>Save New Startfile w/ Current Metamodel to: New-Project_PR.json
+        onClick={handleSaveMetamodelWithSubToProjectfile}>Create New Startfile from this Modelviews Metamodelobject to: New-Project_PR.json
+      </button >
+    </div>
+
+  const buttonSaveModelprojectToFileDiv =
+    <div>
+      <button
+        className="btn-secondary border rounded border-secondary mr-2  w-100  "
+        data-toggle="tooltip" data-placement="top" data-bs-html="true"
+        title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
+        onClick={handleSaveNewModel}>Create New Startfile from this modelview: New-Project_PR.json
       </button >
     </div>
 
@@ -247,7 +283,7 @@ const LoadFile = (props: any) => {
 
   return (
     <>
-      <button className="btn px-2 bg-light text-secondary" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button>
+      <button className="btn bg-light text-secondary py-1 px-2" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">
@@ -292,6 +328,10 @@ const LoadFile = (props: any) => {
                 <div className="selectbox mb-2 border">
                   <h6>Export start project with Metamodel, sub-metamodels and sub-models to file </h6>
                   {buttonSaveMetamodelWithSubToFileDiv}
+                </div>
+                <div className="selectbox mb-2 border">
+                  <h6>Export start projectModalDiv </h6>
+                  {buttonSaveModelprojectToFileDiv}
                 </div>
               </div>
             </div>

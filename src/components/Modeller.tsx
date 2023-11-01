@@ -7,7 +7,7 @@ import useLocalStorage from '../hooks/use-local-storage'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 
-import StartInitStateJson from '../startupModel/AKM-INIT-Startup__PR.json'
+import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
@@ -137,34 +137,33 @@ const Modeller = (props: any) => {
 
   // if (debug) console.log('83 Modeller: props, refresh', props, refresh);
 
-// function saveModelsToLocState(props: any, memoryLocState: any, setMemoryLocState: any) {
-//   const propps = {
-//     phData: props.phData,
-//     phFocus: props.phFocus,
-//     phUser: props.phUser,
-//     phSource: props.phSource,
-//   }
-//   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-//   SaveAkmmUser(props, 'akmmUser')
-// }
+  // function saveModelsToLocState(props: any, memoryLocState: any, setMemoryLocState: any) {
+  //   const propps = {
+  //     phData: props.phData,
+  //     phFocus: props.phFocus,
+  //     phUser: props.phUser,
+  //     phSource: props.phSource,
+  //   }
+  //   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+  //   SaveAkmmUser(props, 'akmmUser')
+  // }
 
-useEffect(() => {
-  const propps = {
-    phData: props.phData,
-    phFocus: props.phFocus,
-    phUser: props.phUser,
-    phSource: props.phSource,
-  }
-  if ((debug)) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
-  setMemoryLocState(propps)
+  useEffect(() => {
+    const propps = {
+      phData: props.phData,
+      phFocus: props.phFocus,
+      phUser: props.phUser,
+      phSource: props.phSource,
+    }
+    if ((debug)) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
+    setMemoryLocState(propps)
 
-  // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-  const timer = setTimeout(() => {
-    SaveAkmmUser(props, 'akmmUser')
-  }, 250);
-  return () => clearTimeout(timer);
-}, [props.phFocus?.focusObjectview?.id])
-
+    // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
+    const timer = setTimeout(() => {
+      SaveAkmmUser(props, 'akmmUser')
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusObjectview?.id])
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
@@ -184,19 +183,21 @@ useEffect(() => {
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
   const handleProjectChange = (event) => { // Editing project name
-    if (debug) console.log('186 Modeller: handleProjectChange', event);
+    if ((debug)) console.log('186 Modeller: handleProjectChange', event);
     setProjectName(event.target.value);
   }
   const handleProjectBlur = () => { // finish editing project name
-    if (debug) console.log('190 Modeller: handleProjectChange', displayValue);
-    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
-    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
+    if ((debug)) console.log('190 Modeller: handleProjectChange', projectName);
+    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: projectName } }); // update project name
+    // dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
   }
+
   const handleModelviewChange = (event) => { // Editing project name
     if (debug) console.log('186 Modeller: handleProjectChange', event);
     setMvName(event.target.value);
   }
+
   const handleModelviewBlur = () => { // finish editing project name
     if (debug) console.log('190 Modeller: handleProjectChange', displayValue);
     dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: displayValue } }); // update project name
@@ -240,7 +241,7 @@ useEffect(() => {
     // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
     <div className="Selector--menu d-flex justify-content-between gap-2 pt-1">
       <div className="d-flex ">
-        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 text-nowrap "
+        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 pt-1 text-nowrap "
           data-toggle="tooltip" data-placement="top" data-bs-html="true"
           title={
             `Description : ${props.metis.description} 

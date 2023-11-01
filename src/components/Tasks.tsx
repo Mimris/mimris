@@ -95,8 +95,9 @@ function Tasks(props) {
   if  (debug) console.log('91 Tasks', models, focusModel, taskFocusModel, curmodel);
   const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
   // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
-  // set mothermodel to generatedRef in cur metamodel
-  const mothermodel = models?.find(m => m?.id === curmetamodel?.generatedFromModelRef);
+  // set  metamodel
+  const mothermodel = (curmetamodel.submodels) && curmetamodel.submodels[0];
+  if ((debug)) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
@@ -192,7 +193,7 @@ function Tasks(props) {
           onMouseLeave={handleMouseLeave}
           >
            <button
-            className="btn text-success m-0 px-1 py-0 btn-sm fs-4"
+            className="btn text-success m-0 px-1 py-0 btn-sm fs-5"
             onClick={handleMaximize}
             style={{ backgroundColor: "lightyellow" }}
           >
@@ -387,7 +388,7 @@ function Tasks(props) {
           style={{ backgroundColor: "lightyellow"}} 
           ref={containerRef}
           >
-          <div className="header m-0 p-0 "
+          <div className="header d-flex  "
             style={{ backgroundColor: "lightyellow", position: "relative", width: "100%", height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -5%)", overflow: "hidden", zIndex: 9999 }}
             >
               <div className="buttons position-relative me-1 float-end" style={{ transform: "scale(0.9)"}}>
@@ -481,7 +482,6 @@ function Tasks(props) {
       <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "70vh" : "40vh")  }}>
         {genTasksHeaderDiv}
       </div>
-
       <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
         <Modal.Header className="mx-2 bg-transparent" closeButton>
           <Modal.Title>Focus task </Modal.Title>
@@ -494,8 +494,7 @@ function Tasks(props) {
             Close
           </Button>
         </Modal.Footer>
-      </Modal>
-      
+      </Modal>   
       <style jsx>{`
           .tasklist {
             width: 100%;

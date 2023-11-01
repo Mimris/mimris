@@ -83,7 +83,7 @@ const page = (props: any) => {
         }
       } else {
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             const timer = setTimeout(() => {
               setRefresh(!refresh);
             }, 100);

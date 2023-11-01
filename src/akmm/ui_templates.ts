@@ -3271,7 +3271,7 @@ export function findImage(image: string) {
         return img
     } else if (image !== '') { 
         const img = "images/types/" + image
-        if ((debug)) console.log('3273 Diagram', image, img)
+        if (debug) console.log('3273 Diagram', image, img)
         return img //its an image in public/images
     } else {
         return "";

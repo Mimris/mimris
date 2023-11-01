@@ -37,7 +37,7 @@ const SetContext = (props: any) =>  {
     const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
     // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
     const focus = await navigator.clipboard.writeText(`http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`);
-    if ((debug)) console.log('29 focus', focus);
+    if (debug) console.log('29 focus', focus);
     // return focus    
   }
 

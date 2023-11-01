@@ -66,7 +66,7 @@ export const SaveMetamodelToFile = (metamodel, name, type) => {
 
 export const SaveAllToFile = (data, name, type) => {
     const fileName = (name.includes('_PR')) ? name : name+type 
-    if ((debug)) console.log('69 SaveModelToFile', data, fileName);
+    if (debug) console.log('69 SaveModelToFile', data, fileName);
     // const json = JSON.stringify(data);
     const json = JSON.safeStringify(data);
     if (debug) console.log('72 SaveModelToFile', json);

@@ -155,7 +155,7 @@ const Modeller = (props: any) => {
       phUser: props.phUser,
       phSource: props.phSource,
     }
-    if ((debug)) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
+    if (debug) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
     setMemoryLocState(propps)
 
     // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
@@ -183,11 +183,11 @@ const Modeller = (props: any) => {
   // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
   const handleProjectChange = (event) => { // Editing project name
-    if ((debug)) console.log('186 Modeller: handleProjectChange', event);
+    if (debug) console.log('186 Modeller: handleProjectChange', event);
     setProjectName(event.target.value);
   }
   const handleProjectBlur = () => { // finish editing project name
-    if ((debug)) console.log('190 Modeller: handleProjectChange', projectName);
+    if (debug) console.log('190 Modeller: handleProjectChange', projectName);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: projectName } }); // update project name
     // dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project

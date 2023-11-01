@@ -12,7 +12,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
 import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
-import SaveNewModel  from '../akmm-api/CreateNewModel';
+import CreateNewModel  from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 import { UniqueDirectiveNamesRule } from 'graphql';
@@ -91,97 +91,97 @@ const LoadFile = (props: any) => {
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
 
-  function handleSaveMetamodelWithSubToProjectfile() {
-    const ph = props.ph
-    const models = props.ph?.phData?.metis?.models
-    const metamodels = props.ph?.phData?.metis?.metamodels
-    const curmodel = models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
-    const curmodelview = curmodel?.modelviews?.find(mv => mv.id === props.ph?.phFocus?.focusModelview?.id)
-    const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
-    const metamodelobjects = curmodel.objects?.filter(o => o.typeName === 'Metamodel' )
-    const metamodelObjectview =  curmodelview.objectviews.find(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))) 
+  // function handleSaveMetamodelWithSubToProjectfile() {
+  //   const ph = props.ph
+  //   const models = props.ph?.phData?.metis?.models
+  //   const metamodels = props.ph?.phData?.metis?.metamodels
+  //   const curmodel = models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
+  //   const curmodelview = curmodel?.modelviews?.find(mv => mv.id === props.ph?.phFocus?.focusModelview?.id)
+  //   const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
+  //   const metamodelobjects = curmodel.objects?.filter(o => o.typeName === 'Metamodel' )
+  //   const metamodelObjectview =  curmodelview.objectviews.find(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))) 
 
-    console.log('102 Loadfile', curmodelview.objectviews.filter(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))))
-    console.log('103 Loadfile', metamodelobjects, curmodelview, metamodelObjectview)
+  //   console.log('102 Loadfile', curmodelview.objectviews.filter(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))))
+  //   console.log('103 Loadfile', metamodelobjects, curmodelview, metamodelObjectview)
 
-    const metamodelGenerated = metamodels?.find(m => m.name === metamodelObjectview?.name)
-    console.log('105 Loadfile',  metamodelGenerated)
+  //   const metamodelGenerated = metamodels?.find(m => m.name === metamodelObjectview?.name)
+  //   console.log('105 Loadfile',  metamodelGenerated)
 
 
-    const submodels = [curmodel]
-    const submetamodels = metamodels.filter(smm => smm.name === 'AKM-Core_MM' && smm.id !== metamodelGenerated?.id)
-    // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
-    // create an empty model object with an empty modelview all with uuids
-    console.log('110 Loadfile', submodels, submetamodels)
+  //   const submodels = [curmodel]
+  //   const submetamodels = metamodels.filter(smm => smm.name === 'AKM-Core_MM' && smm.id !== metamodelGenerated?.id)
+  //   // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
+  //   // create an empty model object with an empty modelview all with uuids
+  //   console.log('110 Loadfile', submodels, submetamodels)
 
-    const matamodelObjectview = curmodelview
-    const metamodelRef = metamodels.find(m => m.name === '_ADMIN_METAMODEL')?.id
-    const newmodel = {
-      id: uuidv4(),
-      name: 'New-Model',
-      description: 'New Model to start modelling',
-      metamodelRef: metamodelGenerated?.id,
-      sourceMetamodelRef: "",
-      targetMetamodelRef: "",
-      sourceModelRef: curmodel.id,
-      targetModelRef: "",
-      includeSystemtypes: false,
-      isTemplate: false,
-      templates: [],
-      objects: [],
-      relships: [],
-      modelviews: [
-        {
-          id: uuidv4(),
-          name: '0-Main',
-          objectviews: [],
-          relshipviews: []
+  //   const matamodelObjectview = curmodelview
+  //   const metamodelRef = metamodels.find(m => m.name === '_ADMIN_METAMODEL')?.id
+  //   const newmodel = {
+  //     id: uuidv4(),
+  //     name: 'New-Model',
+  //     description: 'New Model to start modelling',
+  //     metamodelRef: metamodelGenerated?.id,
+  //     sourceMetamodelRef: "",
+  //     targetMetamodelRef: "",
+  //     sourceModelRef: curmodel.id,
+  //     targetModelRef: "",
+  //     includeSystemtypes: false,
+  //     isTemplate: false,
+  //     templates: [],
+  //     objects: [],
+  //     relships: [],
+  //     modelviews: [
+  //       {
+  //         id: uuidv4(),
+  //         name: '0-Main',
+  //         objectviews: [],
+  //         relshipviews: []
 
-        }
-      ],
-      markedAsDeleted: false,
-      modified: false,
-    }
-    console.log('142 Loadfile', newmodel)
-      const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
-      const adminMetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
+  //       }
+  //     ],
+  //     markedAsDeleted: false,
+  //     modified: false,
+  //   }
+  //   console.log('142 Loadfile', newmodel)
+  //     const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
+  //     const adminMetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
 
-    const data = {
-      phData: { 
-        metis: {
-          ...props.ph.phData.metis,
-          models: 
-            [newmodel, adminmodel],
-          metamodels:[
-            {
-              ...metamodelGenerated, 
-              subMetamodelRefs: [submetamodels[0].id],
-              subModelRefs: [submodels[0].id],
-              submodels: submodels,
-              submetamodels: submetamodels,
-            },
-            adminMetamodel
-          ], 
-          name: 'New-Project', 
-          description: 'New Project to start modelling',
-          },
-      },
-      phFocus: {
-        ...props.ph.phFocus,
-        focusModel: {id: newmodel.id, name: newmodel.name},
-        focusModelview: {id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name},
-        focusObject: {id: '', name: ''},
-        focusRelship: {id: '', name: ''},
-        focusObjectview: {id: '', name: ''},
-        focusRelshipview: {id: '', name: ''},
-      },
-      phUser: props.ph.phUser,
-      phSource: 'New Project Template',
-      lastUpdate: new Date().toISOString()
-    }
-    console.log('130 Loadfile', data)
-    SaveAllToFile(data, 'New Project', '_PR')
-  }
+  //   const data = {
+  //     phData: { 
+  //       metis: {
+  //         ...props.ph.phData.metis,
+  //         models: 
+  //           [newmodel, adminmodel],
+  //         metamodels:[
+  //           {
+  //             ...metamodelGenerated, 
+  //             subMetamodelRefs: [submetamodels[0].id],
+  //             subModelRefs: [submodels[0].id],
+  //             submodels: submodels,
+  //             submetamodels: submetamodels,
+  //           },
+  //           adminMetamodel
+  //         ], 
+  //         name: 'New-Project', 
+  //         description: 'New Project to start modelling',
+  //         },
+  //     },
+  //     phFocus: {
+  //       ...props.ph.phFocus,
+  //       focusModel: {id: newmodel.id, name: newmodel.name},
+  //       focusModelview: {id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name},
+  //       focusObject: {id: '', name: ''},
+  //       focusRelship: {id: '', name: ''},
+  //       focusObjectview: {id: '', name: ''},
+  //       focusRelshipview: {id: '', name: ''},
+  //     },
+  //     phUser: props.ph.phUser,
+  //     phSource: 'New Project Template',
+  //     lastUpdate: new Date().toISOString()
+  //   }
+  //   console.log('130 Loadfile', data)
+  //   SaveAllToFile(data, 'New Project', '_PR')
+  // }
 
   function handleSaveNewModel() {
     const ph = props.ph
@@ -191,7 +191,7 @@ const LoadFile = (props: any) => {
     const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
     const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
 
-    SaveNewModel(props.ph)//,  curmodel, curmodelview)
+    const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
 
     console.log('130 Loadfile', data)
     SaveAllToFile(data, 'New Project', '_PR')
@@ -259,22 +259,22 @@ const LoadFile = (props: any) => {
       </button >
     </div>
 
-  const buttonSaveMetamodelWithSubToFileDiv =
-    <div>
-      <button
-        className="btn-secondary border rounded border-secondary mr-2  w-100  "
-        data-toggle="tooltip" data-placement="top" data-bs-html="true"
-        title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
-        onClick={handleSaveMetamodelWithSubToProjectfile}>Create New Startfile from this Modelviews Metamodelobject to: New-Project_PR.json
-      </button >
-    </div>
+  // const buttonSaveMetamodelWithSubToFileDiv =
+  //   <div>
+  //     <button
+  //       className="btn-secondary border rounded border-secondary mr-2  w-100  "
+  //       data-toggle="tooltip" data-placement="top" data-bs-html="true"
+  //       title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
+  //       onClick={handleSaveMetamodelWithSubToProjectfile}>Create New Startfile from this Modelviews Metamodelobject to: New-Project_PR.json
+  //     </button >
+  //   </div>
 
   const buttonSaveModelprojectToFileDiv =
     <div>
       <button
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
-        title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
+        title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
         onClick={handleSaveNewModel}>Create New Startfile from this modelview: New-Project_PR.json
       </button >
     </div>
@@ -283,7 +283,7 @@ const LoadFile = (props: any) => {
 
   return (
     <>
-      <button className="btn bg-light text-secondary py-1 px-2" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button>
+      <span><button className="btn bg-light text-secondary py-1 px-2" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button></span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">
@@ -325,10 +325,10 @@ const LoadFile = (props: any) => {
                   <h6>Export Metamodel to file </h6>
                   {buttonSaveMetamodelToFileDiv}
                 </div>
-                <div className="selectbox mb-2 border">
+                {/* <div className="selectbox mb-2 border">
                   <h6>Export start project with Metamodel, sub-metamodels and sub-models to file </h6>
                   {buttonSaveMetamodelWithSubToFileDiv}
-                </div>
+                </div> */}
                 <div className="selectbox mb-2 border">
                   <h6>Export start projectModalDiv </h6>
                   {buttonSaveModelprojectToFileDiv}

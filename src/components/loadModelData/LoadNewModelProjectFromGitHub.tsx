@@ -16,14 +16,12 @@ const debug = false
 const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
-  // console.log('11', props)
+  console.log('11', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
   // const repository = 'akm-models'
   // const path = 'models'
-
-
   // const username = 'josmiseth'
   // const url = `https://api.github.com/users/${username}/repos/`
   // const repository = 'cumulus-akm-pocc'
@@ -40,7 +38,7 @@ const LoadGitHub = (props: any) => {
   const [usernameText, setUsernameText] = useState('Kavca');
   const [orgText, setOrgText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
-  const [pathText, setPathText] = useState('');
+  const [pathText, setPathText] = useState('akm-startups');
   const [branchText, setBranchText] = useState('main');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
@@ -203,7 +201,7 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (!debug) console.log('206  ', usernameText, repoText, pathText, 'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
@@ -228,44 +226,19 @@ const LoadGitHub = (props: any) => {
     setRefresh(!refresh)
   };
 
-  useEffect(() => {
-    setOrgText(props.ph.phFocus?.focusProj?.org)
-    setRepoText(props.ph.phFocus?.focusProj?.repo)
-    setPathText(props.ph.phFocus?.focusProj?.path)
-    setBranchText(props.ph.phFocus?.focusProj?.branch)
-    setUsernameText(props.ph.phFocus?.focusProj?.username)
-    if (pathText === undefined || pathText === '') {
-      setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/`)
-    } else {
-      setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
-    }
-    if (debug) console.log('239 ', usernameText, repoText, branchText, pathText,  githubLink)
-  }, []);
-
-  // Todo: loadModel should be done by clicking on a button, not by useEffect
   // useEffect(() => {
-  //   // setBranchText('')
-  //   if (usernameText?.length > 0) {
-  //     loadRepos(repoText, pathText);
-  //     loadModels(usernameText, pathText)
+  //   // setOrgText(props.ph.phFocus?.focusProj?.org)
+  //   // setRepoText(props.ph.phFocus?.focusProj?.repo)
+  //   // setPathText(props.ph.phFocus?.focusProj?.path)
+  //   // setBranchText(props.ph.phFocus?.focusProj?.branch)
+  //   setUsernameText(props.ph.phFocus?.focusProj?.username)
+  //   if (pathText === undefined || pathText === '') {
+  //     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/`)
+  //   } else {
+  //     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
   //   }
-  // }, [(modal)]);
-
-  // useEffect(() => {
-  //   // setModels([]);
-  //   // setDirs([]);
-  //   setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
-  //   loadModels(usernameText, pathText)
-  // }, [usernameText, repoText, pathText]);
-
-  // useEffect(() => {
-  //   if (debug) console.log('170 useEffect 3', model)
-  //   loadModels(usernameText, pathText)
-  //   const  refres = () => {
-  //     setRefresh(!refresh)
-  //   }
-  //   setTimeout(refres, 3000);
-  // } , [model]);
+  //   if (!debug) console.log('242 ', usernameText, repoText, branchText, pathText,  githubLink)
+  // }, []);
 
   let modeloptionss = models?.map((mod) => {
     return {
@@ -295,28 +268,27 @@ const LoadGitHub = (props: any) => {
         <ModalBody className="pl-1 pt-1 d-flex flex-column">
           <div className="bg-light" >
               
-            <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Models:</strong>
-
+            <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Start Models:</strong>
               {/* ----Repository user name input------------------------------- */}
-              <TextInput label="RepoOwner:" value={orgText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
+              {/* <TextInput label="RepoOwner:" value={orgText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />          */}
               {/* {loading ? 'Loading...' : 
                 <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
               } */}
               {/* ----- Searching repos -------------------------------- */}
               {/* <div className="w-100 mt-1 text-secondary"> {githubLink} </div> */}
-              <hr className="bg-primary my-1 mx-4" />
-              {loading ? 'Loading...' :  <div className="text-success m-1" > {repos.map((repo) => ( <span className="px-1" key={repo.id} > {repo.full_name}, </span> ))}  </div>  }
+              {/* <hr className="bg-primary my-1 mx-4" /> */}
+              {/* {loading ? 'Loading...' :  <div className="text-success m-1" > {repos.map((repo) => ( <span className="px-1" key={repo.id} > {repo.full_name}, </span> ))}  </div>  } */}
 
               {/* ----- Repository name input ------------------------------ */}
-              <span ><TextInput  label="Repository:" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name:" /> </span>
+              {/* <span ><TextInput  label="Repository:" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name:" /> </span> */}
               <hr className="bg-primary my-2 mx-4" />
 
               {/* ----- Model Path input ---------------------------------- */}
-              {(dirs?.length !== 0) 
+              {/* {(dirs?.length !== 0) 
                 ? <div >Model paths (folders) found: (blank out the Path content and return, to see alternative paths)<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
                 : (!pathText) && <div className='text-warning'> 'No model paths (folders) found!'</div>
-              } 
-              <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
+              }  */}
+              {/* <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span> */}
               <hr className="bg-light my-1 mx-4" />
 
               {/* -------- Select model ----------------------------------- */}
@@ -334,35 +306,9 @@ const LoadGitHub = (props: any) => {
                   title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
                 </Button>
               </span>
-              {/* -------------------------------------------------------- */}
-              {/* <hr /> */}
-              {/* {loading ? 'Loading...' : (models?.length > 0) 
-                ? <div>Models found:
-                  {models?.map((mod) => (
-                    <li key={mod.name} >{mod.name}</li>
-                  ))} </div> 
-                : 'No models found!'} */}
-            </div>
-              {/* <hr className="bg-primary m-2" />
-              {/* ----- Branch input default main ------------------------------------ */}
-              {/* <div className="square border border-2 border-white p-1"><strong>Download a patch:</strong> (RepoOwner, Repository and Path must be filled in above)<br />
-                <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
-              </div> */}
+
             <hr className="bg-secondary py-0 my-1 mx-4" />
-            <div className="bg-light square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
-              <div className="bg-light square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> <br /> Then upload the project.json file to GitHub 
-                <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
-                <button 
-                  className="btn-primary modal--footer ms-4 mr-2 py-0 px-1 float-end " color="primary" 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here to Save the Project&#013; to file &#013;(Default in Downloads folder)"
-                  onClick={handleSaveAllToFile}>Save
-                </button >
-              </div>
-                <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
-                <div className=" text-secondary">{githubLink} </div>
-              </div>
-            <hr className="bg-primary my-1 mx-0" />
+          </div>
           </div>
         </ModalBody>
       </Modal>

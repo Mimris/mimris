@@ -15,24 +15,21 @@ const CreateNewModel = (props: any) => {
   // const [modal, setModal] = useState(true);
   // const toggle = () => setModal(!modal);
 
-  const ph = props
-  const models = ph?.phData?.metis?.models
-  const metamodels = ph?.phData?.metis?.metamodels
-  const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-  const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
-  const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
-  console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel)
-  const metamodelobjects = curmodel?.objects?.filter(o => o.typeName === 'Metamodel' )
-  const metamodelObjectview =  curmodelview?.objectviews.find(ov => (ov.objectRef === metamodelobjects?.find(o => o.id === ov.objectRef))) 
+  const ph = props;
+const models = ph?.phData?.metis?.models;
+const metamodels = ph?.phData?.metis?.metamodels;
+const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id);
+const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id);
+const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef);
+console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
+const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
+const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
+   console.log('28 CreateNewModel', modelobjectsoftypemetamodel, objectviewoftypemetamodel)
 
-   console.log('28 CreateNewModel', metamodelObjectview)
-
-  const metamodelGenerated = metamodels?.find(m => m.name === metamodelObjectview?.name)
-  console.log('31 CreateNewModel',  metamodelGenerated)
+  const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
+  console.log('31 CreateNewModel', metamodels, metamodelGenerated)
 
   const createNewModelJson = (props: any) => {
-
-
 
     const submodels = [curmodel]
     const submetamodels = metamodels?.filter(smm => smm.name === 'AKM-Core_MM' && smm.id !== metamodelGenerated?.id)
@@ -80,8 +77,8 @@ const CreateNewModel = (props: any) => {
           metamodels:[
             {
               ...metamodelGenerated, 
-              subMetamodelRefs: [submetamodels[0].id],
-              subModelRefs: [submodels[0].id],
+              subMetamodelRefs: [submetamodels[0]?.id],
+              subModelRefs: [submodels[0]?.id],
               submodels: submodels,
               submetamodels: submetamodels,
             },

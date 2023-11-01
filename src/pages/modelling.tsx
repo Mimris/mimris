@@ -25,7 +25,7 @@ const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: wh
   
 const page = (props: any) => {
 
-  if ((debug)) console.log('38 modelling ', props)
+  if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) {
@@ -103,11 +103,11 @@ const page = (props: any) => {
       let focusProj = null;
       try {
         const queryParam = new URLSearchParams(window.location.search);
-        if ((debug)) console.log('75 modelling queryParam', query, queryParam)
+        if (debug) console.log('75 modelling queryParam', query, queryParam)
         const queryParams = queryParam.get('focus');
         // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
         const params = JSON.parse(queryParams);
-        if ((debug)) console.log('78 modelling params', params)
+        if (debug) console.log('78 modelling params', params)
         const githubFile = params?.githubFile;
 
         if (githubFile) {

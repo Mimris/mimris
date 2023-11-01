@@ -2831,9 +2831,9 @@ export class cxMetis {
         return null;
     }
     findSubMetamodel(id: string): cxModel | null {
-        if (!debug) console.log('2834 findSubMetamodel', id, this, this.currentMetamodel);
+        if (debug) console.log('2834 findSubMetamodel', id, this, this.currentMetamodel);
         let metamodels =  this.currentMetamodel?.getSubMetamodels();
-        if (!debug) console.log('2836 findSubMetamodel', metamodels);
+        if (debug) console.log('2836 findSubMetamodel', metamodels);
         if (!metamodels) {
             return null;
         } else {

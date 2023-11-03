@@ -582,7 +582,7 @@ const page = (props: any) => {
       <>
         <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "34px", backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
-          <div className="buttonrow d-flex justify-content-between " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
+          <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
             <div className="me-4">
               {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
               {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
@@ -594,9 +594,9 @@ const page = (props: any) => {
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
               <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a new Model Project from GitHub" > {loadnewModelproject} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file"  > {loadjsonfile} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (export/import) from file" style={{ whiteSpace: "nowrap"  }}> {loadfile} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a new Model Project template from GitHub" > {loadnewModelproject} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
               {/* <button
                 className="btn btn-sm bg-light text-secondary py-1 px-2"
                 style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
@@ -611,7 +611,7 @@ const page = (props: any) => {
               </button> */}
 
             </div>
-            <div className="d-flex justify-content-end align-items-center bg-light border border-2 border-solid border-primary py-1 mt-0 me-" style={{ minHeight: "34px" }}>
+            <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
               <div className=" d-flex align-items-center me-0 pe-0">
                 <i className="fa fa-folder text-secondary px-1"></i>
                 <div className=""  style={{ whiteSpace: "nowrap" }}></div>

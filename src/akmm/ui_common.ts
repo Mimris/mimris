@@ -3219,6 +3219,25 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying relationships is completed\n";
         report += printf(format, msg);
     }
+    // // Handle relships has SubModel and has SubMetamodel
+    // const mType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
+    // const mmType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
+    // const hasSubMetamodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
+    // const hasSubModelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, mmType, mType);
+    // const hasSubMmRels = model.getRelationshipsByType(hasSubMetamodelType);
+    // const hasSubMdlRels = model.getRelationshipsByType(hasSubModelType);
+    // for (let i=0; i<mviews?.length; i++) {
+    //     const mview = mviews[i];
+    //     for (let j=0; j<hasSubMmRels.length; j++) {
+    //         const rel = hasSubMmRels[j];
+    //         const relviews = mview.findRelationshipViewsByRel2(rel);
+    //         if (!relviews || relviews.length === 0) {
+    //             const rview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+    //             mview.relshipviews.push(rview);
+    //             myMetis.relshipviews.push(rview);
+    //         }
+    //     }
+    // }
     if (debug) console.log('2825 myMetis', myMetis);
 
     // Dispatch metis

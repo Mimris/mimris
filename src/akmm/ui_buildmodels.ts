@@ -362,10 +362,10 @@ let includeNoType = false;
         if (relview.points === "") 
           relview.points = [];
         let fromObjview = relview.fromObjview;
-        if (!modelview.findObjectView(fromObjview.id)) 
+        if (!fromObjview || !modelview.findObjectView(fromObjview.id)) 
           continue;
         let toObjview = relview.toObjview;
-        if (!modelview.findObjectView(toObjview.id))
+        if (!toObjview || !modelview.findObjectView(toObjview.id))
           continue;
         const rel = relview.relship;
         if (rel) {

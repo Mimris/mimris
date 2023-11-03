@@ -27,6 +27,7 @@ export class cxMetis {
     viewstyles:         cxViewStyle[] | null;
     geometries:         cxGeometry[] | null;
     models:             cxModel[] | null = null;
+    submodels:          cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
     datatypes:          cxDatatype[] | null = null;
     inputpatterns:      cxInputPattern[] | null = null;
@@ -1349,6 +1350,15 @@ export class cxMetis {
                 this.models.push(model);
         }
     }
+    addSubModel(model: cxModel) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (model?.category === constants.gojs.C_MODEL) {
+            if (this.submodels == null)
+                this.submodels = new Array();
+            if (!this.findSubModel(model.id))
+                this.submodels.push(model);
+        }
+    }
     addModelView(modelview: cxModelView) {
         if (modelview.category === constants.gojs.C_MODELVIEW) {
             //modelview.setMetis(this);
@@ -1670,6 +1680,9 @@ export class cxMetis {
     }
     getModels(): cxModel[] | null {
         return this.models;
+    }
+    getSubModels(): cxModel[] | null {
+        return this.submodels;
     }
     getModelsByMetamodel(metamodel: cxMetaModel, includeDeleted: boolean): cxModel[] {
         let models = new Array();
@@ -2254,6 +2267,19 @@ export class cxMetis {
                 }
                 i++;
             }
+        }
+        return null;
+    }
+    findSubModel(id: string): cxModel | null {
+        let submodels = this.submodels;
+        if (!submodels) return null;
+        let i = 0;
+        let submodel = null;
+        for (i = 0; i < submodels.length; i++) {
+            submodel = submodels[i];
+            if (submodel.isDeleted()) continue;
+            if (submodel.id === id)
+                return submodel;
         }
         return null;
     }
@@ -3699,7 +3725,7 @@ export class cxMetaModel extends cxMetaObject {
     getSubMetamodels() : cxMetaModel[] | null {
         return this.submetamodels;
     }
-    getSubModels() : cxMetaModel[] | null {
+    getSubModels() : cxModel[] | null {
         return this.submodels;
     }
     getCategories(): cxUnitCategory[] | null {

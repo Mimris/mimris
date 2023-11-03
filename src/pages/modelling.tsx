@@ -25,7 +25,7 @@ const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: wh
   
 const page = (props: any) => {
 
-  if ((debug)) console.log('38 modelling ', props)
+  if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
   function dispatchLocalStore(locStore) {
@@ -65,7 +65,7 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    // if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+    if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
       if (memoryLocState?.phData) {
         const locStore = memoryLocState;
         if (debug) console.log('modelling 134 ', locStore);
@@ -83,14 +83,15 @@ const page = (props: any) => {
         }
       } else {
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
+          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             const timer = setTimeout(() => {
               setRefresh(!refresh);
             }, 100);
           }
         }
       }
-    // }
+    } 
+
 
   }, [])
 
@@ -102,11 +103,11 @@ const page = (props: any) => {
       let focusProj = null;
       try {
         const queryParam = new URLSearchParams(window.location.search);
-        if ((debug)) console.log('75 modelling queryParam', query, queryParam)
+        if (debug) console.log('75 modelling queryParam', query, queryParam)
         const queryParams = queryParam.get('focus');
         // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
         const params = JSON.parse(queryParams);
-        if ((debug)) console.log('78 modelling params', params)
+        if (debug) console.log('78 modelling params', params)
         const githubFile = params?.githubFile;
 
         if (githubFile) {
@@ -203,7 +204,7 @@ const page = (props: any) => {
                   <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                     <Modelling />
                   </div>
-              <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks props={props}/>
               </div>
               </div>

@@ -40,11 +40,11 @@ const curObjectviews = curModelview.objectviews
 if (debug) console.log('39 currentObjectviews', curMetamodel, curModel, curModelview, curObjects, curObjectviews)
 const mapObjectsviews = curObjectviews?.map((ov: { id: string; name: string; objectRef?: string }) => {
   const curObject = curObjects.find(o => (ov.objectRef && o.id === ov.objectRef) && o)
-  if ((debug)) console.log('41 curObject', curObject, curMetamodel)
+  if (debug) console.log('41 curObject', curObject, curMetamodel)
   const curObjecttype = curMetamodel?.objecttypes.find((ot: { id: string; }) => ot.id === curObject?.typeRef)
 
   if (curObjecttype?.name === 'EntityType') {
-    if ((debug)) console.log('42 curObject', curObject, curObject.osduType)
+    if (debug) console.log('42 curObject', curObject, curObject.osduType)
     const fillcolordata = setColorsTopEntityTypes(curObject?.osduType)
     console.log('49 fillcolordata', fillcolordata)
     const data = {id: ov.id, fillcolor: fillcolordata}

@@ -134,12 +134,14 @@ const Navbar = (props) => {
 					</button>
 				</div>
 			</div>
-			<Link className="navbar-brand p-4 mt-2 ms-auto" href="http://www.kavca.no" target="_blank">
-				<div className="d-flex justify-content-center align-items-baseline">
-					<img src="images/Kavca-logo2.png" width="22" height="24" className="" alt="Kavca logo" />
-					<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
-				</div>
-			</Link>
+			<div className="navbar-nav ms-auto">
+				<Link className="navbar-brand p-4 mt-2 ms-auto" href="http://www.kavca.no" target="_blank">
+					<div className="d-flex justify-content-center align-items-baseline">
+						<img src="images/Kavca-logo2.png" width="20" height="20" className="" alt="Kavca logo" />
+						<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
+					</div>
+				</Link>
+			</div>
 
 		<style jsx>{`
 		  	nav {

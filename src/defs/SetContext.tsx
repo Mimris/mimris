@@ -37,20 +37,12 @@ const SetContext = (props: any) =>  {
     const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
     // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
     const focus = await navigator.clipboard.writeText(`http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`);
-    if ((debug)) console.log('29 focus', focus);
+    if (debug) console.log('29 focus', focus);
     // return focus    
   }
 
   const contextRepoDiv = 
   <div className="context-list d-flex justify-content-around align-items-center ps-4 pt-0" style={{ backgroundColor: "#e5e5e5", whiteSpace: "nowrap" }}>
-    <span className="me-1 bg-light">
-        <i className="fas fa-copy text-secondary " 
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-          title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
-          style={{ }} 
-          onClick={copyToClipboard}>
-        </i>
-      </span>
     Focus :
     <span className="border rounded-2">
       Proj:
@@ -147,6 +139,14 @@ const SetContext = (props: any) =>  {
         {phFocus?.focusTask?.name}
       </span>
     </span>
+    <span className="mx-1 bg-">
+        <i className="fas fa-copy text-secondary " 
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
+          style={{ }} 
+          onClick={copyToClipboard}>
+        </i>
+      </span>
   </div>
 
   return (

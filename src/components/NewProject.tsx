@@ -62,3 +62,4 @@ const NewProject = (props: any) => {
             </Modal>
         </>
     );
+}

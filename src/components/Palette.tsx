@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';

@@ -20,12 +20,10 @@ import TargetMeta from "./TargetMeta";
 import GenGojsModel from './GenGojsModel'
 import LoadServer from '../components/loadModelData/LoadServer'
 import LoginServer from './loadModelData/LoginServer'
-// import LoadLocal from '../components/loadModelData/LoadLocal'
 import LoadRecovery from '../components/loadModelData/LoadRecovery'
 import LoadFile from './loadModelData/LoadFile'
 import LoadGitHub from '../components/loadModelData/LoadGitHub'
-import LoadNewModelProjectFromGithub from '../components/loadModelData/LoadNewModelProjectFromGithub'
-// import LoadSaveGit from '../components/loadModelData/LoadSaveGit'
+import LoadNewModelProjectFromGithub from './loadModelData/LoadNewModelProjectFromGitHub'
 import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile } from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
@@ -33,15 +31,11 @@ import { SaveModelToLocState } from "./utils/SaveModelToLocState";
 import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./ReportModule";
 import ProjectDetailsModal from "./modals/ProjectDetailsModal";
-// import ImpExpJSONFile from '../components/loadModelData/ImpExpJSONFile'
 import useLocalStorage from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import CreateNewModel  from './akmm-api/CreateNewModel';
-// import loadModel from "./utils/LoadGithubmodel";
-// import EditFocusMetamodel from '../components/loadModelData/EditFocusMetamodel'
-// import Tab from '../components/loadModelData/Tab'
-// import {loadDiagram} from './akmm/diagram/loadDiagram'
+
 
 import * as akm from '../akmm/metamodeller';
 import * as uib from '../akmm/ui_buildmodels';

@@ -14,7 +14,7 @@ import GenGojsModel from '../GenGojsModel';
 
 const debug = false
 
-const LoadGitHub = (props: any) => {
+const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   console.log('11 LoadNewModel....', props)
@@ -267,8 +267,8 @@ const LoadGitHub = (props: any) => {
       <span><button className="btn bg-secondary py-1 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg me-2 ms-0 "></i>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
-        <ModalBody className="pl-1 pt-1 d-flex flex-column">
-          <div className="bg-light" >
+        <ModalBody className="pl-1 pt-1 d-fle">
+          <div className="bg-secondary" >
               
             <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Start Models:</strong>
               {/* ----Repository user name input------------------------------- */}
@@ -318,5 +318,5 @@ const LoadGitHub = (props: any) => {
   )
 }
 
-export default LoadGitHub;
+export default LoadNewModelProjectFromGitHub;
 

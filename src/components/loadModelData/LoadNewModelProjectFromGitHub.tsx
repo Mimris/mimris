@@ -203,7 +203,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('206  ', usernameText, repoText, pathText, 'repos', repos)
+    if (debug) console.log('206  ', usernameText, repoText, pathText, 'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
@@ -239,7 +239,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //   } else {
   //     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
   //   }
-  //   if (!debug) console.log('242 ', usernameText, repoText, branchText, pathText,  githubLink)
+  //   if (debug) console.log('242 ', usernameText, repoText, branchText, pathText,  githubLink)
   // }, []);
 
   let modeloptionss = models?.map((mod) => {

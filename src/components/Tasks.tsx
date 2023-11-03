@@ -388,11 +388,12 @@ function Tasks(props) {
           style={{ backgroundColor: "lightyellow"}} 
           ref={containerRef}
           >
-          <div className="header d-flex  "
-            style={{ backgroundColor: "lightyellow", position: "relative", width: "100%", height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -5%)", overflow: "hidden", zIndex: 9999 }}
+          <div className="header d-flex justify-content-between align-items-center "
+            style={{ backgroundColor: "lightyellow", position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -5%)", overflow: "hidden", zIndex: 9999 }}
             >
-              <div className="buttons position-relative me-1 float-end" style={{ transform: "scale(0.9)"}}>
-                <button 
+              <div className="ps-2  text-success font-weight-bold fs-5 " >Modelling Tasks</div>
+              <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
+                {/* <button 
                   className="btn text-success mt-0 pe-2 py-0 btn-sm"
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"
                   title="Open Modal with current task!"
@@ -407,8 +408,8 @@ function Tasks(props) {
                   onClick={handleNewWindow} 
                   style={{ backgroundColor: "lightyellow"}} >
                   <i className="fa fa-lg fa-external-link-alt"></i>
-                </button> 
-                <button 
+                </button>  */}
+                {/* <button 
                   className="btn text-success me-0 px-1 py-0 btn-sm" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"
                   title="Close Task pane!"
@@ -416,7 +417,7 @@ function Tasks(props) {
                   style={{ backgroundColor: "lightyellow"}}
                   >
                     {(!expandedTaskPane) ? <i className="fa fa-lg fa-arrow-left"></i> : <i className="fa fa-lg fa-arrow-right"></i>}
-                </button>
+                </button> */}
                 <button 
                   className="btn text-success me-0 px-1 py-0 btn-sm" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -427,7 +428,6 @@ function Tasks(props) {
                     <i className="fa fa-lg fa-arrow-right"></i>
                 </button>
               </div>
-              <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
           </div>
           <div className="flex-d">
             <div>
@@ -479,7 +479,7 @@ function Tasks(props) {
 
   return (
     <>
-      <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "70vh" : "40vh")  }}>
+      <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "40vh" : "40vh")  }}>
         {genTasksHeaderDiv}
       </div>
       <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >

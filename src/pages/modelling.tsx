@@ -204,7 +204,7 @@ const page = (props: any) => {
                   <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                     <Modelling />
                   </div>
-              <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks props={props}/>
               </div>
               </div>

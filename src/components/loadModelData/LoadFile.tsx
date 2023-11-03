@@ -190,11 +190,15 @@ const LoadFile = (props: any) => {
     const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
     const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
     const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
-
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
+    console.log('194 Loadfile', metamodels, data)
+    // replace the _MM in curMetamodel.name
+    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id)
+    const filename = newmm?.name.replace('_MM', '-Startmodel')
 
-    console.log('130 Loadfile', data)
-    SaveAllToFile(data, 'New Project', '_PR')
+    console.log('199 Loadfile', newmm, filename)
+
+    SaveAllToFile(data, filename, '_PR')
   }
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {

@@ -10,13 +10,14 @@ import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, s
 // import { loadDataModel } from '../../actions/actions';
 
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import GenGojsModel from '../GenGojsModel';
 
 const debug = false
 
 const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
-  console.log('11', props)
+  console.log('11 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -194,6 +195,7 @@ const LoadGitHub = (props: any) => {
         if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
         if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
       }
+      GenGojsModel(data.phData, dispatch)
     }
   }
 

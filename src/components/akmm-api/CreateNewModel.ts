@@ -3,36 +3,35 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { v4 as uuidv4 } from 'uuid';
+import GenGojsModel from '../GenGojsModel';
 
 const CreateNewModel = (props: any) => {
   console.log('8 SaveNewModel props', props);
 
   // const dispatch = useDispatch();
-  
-
-  
   // const { buttonLabel, className } = props;
   // const [modal, setModal] = useState(true);
   // const toggle = () => setModal(!modal);
 
   const ph = props;
-const models = ph?.phData?.metis?.models;
-const metamodels = ph?.phData?.metis?.metamodels;
-const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id);
-const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id);
-const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef);
-console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
-const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
-const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
+  const models = ph?.phData?.metis?.models;
+  const metamodels = ph?.phData?.metis?.metamodels;
+  const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id);
+  const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id);
+  const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef);
+  console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
+  const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
+  const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
    console.log('28 CreateNewModel', modelobjectsoftypemetamodel, objectviewoftypemetamodel)
 
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
   console.log('31 CreateNewModel', metamodels, metamodelGenerated)
 
-  const createNewModelJson = (props: any) => {
+  const createNewModelJson = () => {
 
     const submodels = [curmodel]
     const submetamodels = metamodels?.filter(smm => smm.name === 'AKM-Core_MM' && smm.id !== metamodelGenerated?.id)
+
     // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
     // create an empty model object with an empty modelview all with uuids
     console.log('45 CreateNewModel', submodels, submetamodels)
@@ -64,9 +63,11 @@ const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobje
       modified: false,
     }
 
-    console.log('75 CreateNewModel', newmodel)
+    console.log('69 CreateNewModel', newmodel)
     const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
     const adminMetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
+    const coremetamodel = metamodels.find(m => m.name === 'AKM-CORE_MM')
+    console.log('73 CreateNewModel', adminmodel, adminMetamodel, coremetamodel)
 
     const data = {
       phData: { 
@@ -80,12 +81,16 @@ const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobje
               subMetamodelRefs: [submetamodels[0]?.id],
               subModelRefs: [submodels[0]?.id],
               submodels: submodels,
-              submetamodels: submetamodels,
+              // submetamodels: submetamodels,
             },
-            adminMetamodel
+            adminMetamodel,
+            // (coremetamodel.name !== metamodelGenerated.name) && coremetamodel
           ], 
           name: 'New-Project', 
           description: 'New Project to start modelling',
+          currentModelRef: newmodel.id,
+          currentModelviewRef: newmodel.modelviews[0].id,
+          currentMetamodelRef: metamodelGenerated?.id,
           },
       },
       phFocus: {
@@ -105,7 +110,7 @@ const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobje
     return data
   }
 
-  const modelJson = createNewModelJson(props);
+  const modelJson = createNewModelJson();
   console.log('116 CreateNewModel', modelJson)
 
   return modelJson ;

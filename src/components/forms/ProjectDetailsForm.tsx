@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 
   import useLocalStorage  from '../../hooks/use-local-storage'
   import { SaveModelToLocState } from "../utils/SaveModelToLocState";
+import { set } from "immer/dist/internal";
 
 const debug = false;
 
@@ -41,15 +42,30 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     // setPath(props.phFocus?.focusProj.path);
     // setFile(props.phFocus?.focusProj.file);
     // setBranch(props.phFocus?.focusProj.branch);
+    // setFocusProj(props.props.phData?.metis.name)
   }, []);
 
   const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org+repo+path+file+branch;
   const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
 
+      const updateFocusProj = (value) => {
+      setFocusProj(value);
+      // update metis object
+      //dialog box and ask for description and update metis object
+      const dialog = window.confirm("Pls update name and descr of the project?");
+      if (dialog) {
+        const namenew = window.prompt("Please enter the name of the project", "Name");
+        const descriptionnew = window.prompt("Please enter the description of the project", "Description");
+        props.props.phData.metis.name = namenew;
+        props.props.phData.metis.description = descriptionnew;
+      }
+    }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
     const data = { id: idnew, name: namenew, org, repo, path, file, branch, projectNumber };
+
     // Todo: has to set id but show name in the list  ( look at Context button)
     const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
     
@@ -61,6 +77,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     return () => clearTimeout(timer);
   };
 
+    
   return (
     <>  
       <div>Project:</div>

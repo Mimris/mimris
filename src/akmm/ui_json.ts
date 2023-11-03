@@ -12,6 +12,7 @@ export class jsnExportMetis {
     description:                string;
     metamodels:                 jsnMetaModel[];
     models:                     jsnModel[];
+    submodels:                  jsnModel[];
     allowGenerateCurrentMetamodel: boolean;
     pasteViewsOnly:             boolean;
     deleteViewsOnly:            boolean;
@@ -30,6 +31,7 @@ export class jsnExportMetis {
         this.allowGenerateCurrentMetamodel  = metis.allowGenerateCurrentMetamodel;
         this.metamodels                     = [];
         this.models                         = [];
+        this.submodels                      = [];
         this.currentMetamodelRef            = "";
         this.currentModelRef                = "";
         this.currentModelviewRef            = "";
@@ -55,6 +57,14 @@ export class jsnExportMetis {
                 for (let i = 0; i < cnt; i++) {
                     const model = models[i];
                     this.addModel(model, includeViews);
+                }
+            }
+            const submodels = metis.getSubModels();
+            if (submodels) {
+                const cnt = submodels.length;
+                for (let i = 0; i < cnt; i++) {
+                    const model = submodels[i];
+                    this.addSubModel(model, includeViews);
                 }
             }
             if (metis.currentMetamodel)
@@ -86,6 +96,12 @@ export class jsnExportMetis {
         if (model && model.metamodel) {
             const jModel = new jsnModel(model, includeViews);
             this.models.push(jModel);
+        }
+    }
+    addSubModel(model: akm.cxModel, includeViews: boolean) {
+        if (model && model.metamodel) {
+            const jModel = new jsnModel(model, includeViews);
+            this.submodels.push(jModel);
         }
     }
 }
@@ -179,6 +195,8 @@ export class jsnMetaModel {
     metamodelRefs:      string[];
     subMetamodelRefs:   string[];
     subModelRefs:       string[];
+    subMetamodels:      jsnMetaModel[] | null;
+    subModels:          jsnModel[] | null;
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
     objecttypes:        jsnObjectType[];
@@ -208,6 +226,8 @@ export class jsnMetaModel {
         this.metamodelRefs = [];
         this.subMetamodelRefs = [];
         this.subModelRefs = [];
+        this.subMetamodels = [];
+        this.subModels = [];
         this.viewstyles = [];
         this.geometries = [];
         this.objecttypes = [];
@@ -252,10 +272,22 @@ export class jsnMetaModel {
         if (subModels) {
             const cnt = subModels.length;
             for (let i = 0; i < cnt; i++) {
-                const submodel = subModels[i];
-                this.subModelRefs.push(submodel.id);
+                const subModel = subModels[i];
+                this.subModelRefs.push(subModel.id);
+                const jsnSubmodel = new jsnModel(subModel, false);
+                this.subModels.push(jsnSubmodel);
             }
         }
+        // for (let j = 0; j < subMetamodels.length; j++) {
+        //     const subMetaModel = metamodel.submetamodels[j];
+        //     if (subMetaModel) {
+
+        //         const jMetamodel = new jsnMetaModel(subMetaModel, false);
+        //         this.subMetamodels.push(jMetamodel);
+        //     }
+        //     const jMetamodel = new jsnMetaModel(subMetaModel, false);
+        //     this.subMetamodels.push(jMetamodel);
+        // }
         const objtypes = metamodel.getObjectTypes();
         if (objtypes) {
             const cnt = objtypes.length;
@@ -417,9 +449,23 @@ export class jsnMetaModel {
     }
     addSubModel(model: akm.cxModel) {
         if (model) {
+            for (let i=0; i<this.subModelRefs.length; i++) {
+                const ref = this.subModelRefs[i];
+                if (ref === model.id) {
+                    // Model is already in list
+                    return;
+                }
+            }
             this.subModelRefs.push(model.id);
+            // const jModel = new jsnModel(model, false);
+            // this.subModels.push(jModel);
         }
     }
+    // addSubMetaModel(mmodel: jsnMetaModel) {
+    //     if (mmodel) {
+    //         this.subMetamodels.push(mmodel);
+    //     }
+    // }
     addObjectType(objtype: akm.cxObjectType, includeViews: boolean) {
         if (utils.objExists(objtype) &&
             !objtype.isDeleted()

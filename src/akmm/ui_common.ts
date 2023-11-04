@@ -2819,13 +2819,14 @@ export function deleteRelationshipView(relshipView: akm.cxRelationshipView, mode
     }
 }
 
-function isMemberOfSubmodel(obj: akm.cxObjectView): boolean {
-    const inputrels = obj.inputrels;
-    for (let i=0; i<inputrels?.length; i++) {
-        const rel = inputrels[i];
-        const fromObj = rel.fromObject;
-        if (fromObj.type.name === constants.types.AKM_MODEL) {
-            return true;
+function isMemberOfSubmodel(objview: akm.cxObjectView): boolean {
+    if (objview.group) { // then objview is a member of a group
+        const mview = objview.modelview; // Current modelview
+        const grpView = mview?.findObjectView(objview.group); // The group (view)
+        const grpObj = grpView?.object; // The group (object)
+        if (grpObj) {  // If the group (object) exists
+            if (grpObj.type.name === constants.types.AKM_MODEL) // If the group is a model
+                return true;
         }
     }
     return false;
@@ -2903,10 +2904,6 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 // Do nothing
                 continue;
             }
-            if (isMemberOfSubmodel(obj)) {
-                // Do nothing
-                continue;
-            }
             obj.inputrels = new Array();
             obj.outputrels = new Array();
             const typeRef = obj.typeRef;
@@ -2965,7 +2962,18 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         let objectviews = [];
         for (let i=0; i<modelviews?.length; i++) {
             const modelview = modelviews[i];
-            const oviews = modelview.objectviews;
+            const objviews = modelview.objectviews;
+            const oviews = [];
+            for (let j=0; j<objviews?.length; j++) {
+                const oview = objviews[j];
+                const obj = oview.object;
+                if (!obj) continue;
+                oview.modelview = modelview;
+                if (debug) console.log('2970 oview', oview.name);
+                if (isMemberOfSubmodel(oview))
+                    continue;
+                oviews.push(oview);
+            }
             if (i==0)
                 objectviews = oviews;
             else {
@@ -3167,9 +3175,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     { // Handle the relationship views
         msg = "Verifying Relationship views\n";
         // Handle the relationship views in all modelviews
-        const mviews = model.modelviews;
-        for (let i=0; i<mviews?.length; i++) {
-            const mview = mviews[i];
+        for (let i=0; i<modelviews?.length; i++) {
+            const mview = modelviews[i];
             if (mview /*&& mview.id === modelview.id*/) {
                 const rviews = mview.relshipviews;
                 if (debug) console.log('2690 modelview', mview);
@@ -3242,25 +3249,26 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying relationships is completed\n";
         report += printf(format, msg);
     }
-    // // Handle relships has SubModel and has SubMetamodel
-    // const mType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
-    // const mmType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
-    // const hasSubMetamodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
-    // const hasSubModelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, mmType, mType);
-    // const hasSubMmRels = model.getRelationshipsByType(hasSubMetamodelType);
-    // const hasSubMdlRels = model.getRelationshipsByType(hasSubModelType);
-    // for (let i=0; i<mviews?.length; i++) {
-    //     const mview = mviews[i];
-    //     for (let j=0; j<hasSubMmRels.length; j++) {
-    //         const rel = hasSubMmRels[j];
-    //         const relviews = mview.findRelationshipViewsByRel2(rel);
-    //         if (!relviews || relviews.length === 0) {
-    //             const rview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
-    //             mview.relshipviews.push(rview);
-    //             myMetis.relshipviews.push(rview);
-    //         }
-    //     }
-    // }
+    // Handle missing relships of type hasSubModel and hasSubMetamodel
+    const mType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
+    const mmType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
+    const hasSubMetamodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
+    const hasSubModelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, mmType, mType);
+    const hasSubMmRels = model.getRelationshipsByType(hasSubMetamodelType);
+    const hasSubMdlRels = model.getRelationshipsByType(hasSubModelType);
+
+    for (let i=0; i<modelviews?.length; i++) {
+        const mview = modelviews[i];
+        for (let j=0; j<hasSubMdlRels.length; j++) {
+            const rel = hasSubMdlRels[j];
+            const relviews = mview.findRelationshipViewsByRel2(rel);
+            if (!relviews || relviews.length === 0) {
+                const rview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                mview.relshipviews.push(rview);
+                myMetis.relshipviews.push(rview);
+            }
+        }
+    }
     if (debug) console.log('2825 myMetis', myMetis);
 
     // Dispatch metis

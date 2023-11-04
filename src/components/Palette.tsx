@@ -89,8 +89,8 @@ const Palette = (props: any) => {
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1',  mmodel);
-    const coremetamodel = props.myMetis?.metamodels.find(m => m.name === 'AKM-CORE_MM')
-    const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-CORE_MM')
+    const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
     const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);
     setSelMetamodelName(additionalmetamodel?.name)

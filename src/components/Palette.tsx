@@ -84,12 +84,15 @@ const Palette = (props: any) => {
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1',  mmodel);
-    const coremetamodel = props.myMetis?.metamodels.find(m => m.name === 'AKM-CORE_MM')
-    const seltypes =  coremetamodel?.objecttypes.map((t: any) => t?.name);
-    if (!debug) console.log('115 Palette', coremetamodel);
-    setAddMetamodelName(coremetamodel?.name)
-    setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, coremetamodel));  // build the palette for current metamodel
-    if (!debug) console.log('92 Palette useEffect 2', filteredOtNodeDataArray, buildFilterOtNodeDataArray(seltypes, mmodel));
+    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-CORE_MM')
+    const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
+    const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
+    const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);
+    if (debug) console.log('115 Palette', additionalmetamodel);
+    setAddMetamodelName(additionalmetamodel?.name)
+
+    setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for current metamodel
+    if (debug) console.log('92 Palette useEffect 2', filteredOtNodeDataArray, buildFilterOtNodeDataArray(seltypes, mmodel));
     // setFilteredOtNodeDataArray(buildFilter(role, task, metamodelList, seltypes, mmodel.submetamodels[0]));  // build the palette for current metamodel
 
     const timer = setTimeout(() => {

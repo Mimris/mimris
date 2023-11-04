@@ -173,7 +173,7 @@ const page = (props: any) => {
       getQuery() 
       setMount(true)
     // }, [])
-  }, [props.focus, props.phFocus, props.phSource, props.phUser, refresh]);
+  }, []);
 
 
   const contextDiv = ( // the top context area (green)

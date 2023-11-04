@@ -5,6 +5,8 @@ import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { v4 as uuidv4 } from 'uuid';
 import GenGojsModel from '../GenGojsModel';
 
+const debug = false;
+
 const CreateNewModel = (props: any) => {
   console.log('8 SaveNewModel props', props);
 
@@ -22,10 +24,10 @@ const CreateNewModel = (props: any) => {
   console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
   const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
   const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
-   console.log('28 CreateNewModel', modelobjectsoftypemetamodel, objectviewoftypemetamodel)
+   console.log('28 CreateNewModel', objectviewoftypemetamodel)
 
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
-  console.log('31 CreateNewModel', metamodels, metamodelGenerated)
+  console.log('31 CreateNewModel', metamodelGenerated)
 
   const createNewModelJson = () => {
 
@@ -34,8 +36,7 @@ const CreateNewModel = (props: any) => {
 
     // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
     // create an empty model object with an empty modelview all with uuids
-    console.log('45 CreateNewModel', submodels, submetamodels)
-
+    if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
     const newmodel = {
       id: uuidv4(),
@@ -67,7 +68,10 @@ const CreateNewModel = (props: any) => {
     const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
     const adminMetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-CORE_MM')
-    console.log('73 CreateNewModel', adminmodel, adminMetamodel, coremetamodel)
+    const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
+    console.log('73 CreateNewModel', metamodelGenerated, adminMetamodel, coremetamodel, additionalmetamodel, metamodels)
+    console.log('74 CreateNewModel', metamodelGenerated?.name, adminMetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
 
     const data = {
       phData: { 
@@ -84,7 +88,7 @@ const CreateNewModel = (props: any) => {
               // submetamodels: submetamodels,
             },
             adminMetamodel,
-            // (coremetamodel.name !== metamodelGenerated.name) && coremetamodel
+            additionalmetamodel,
           ], 
           name: 'New-Project', 
           description: 'New Project to start modelling',

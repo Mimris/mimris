@@ -388,10 +388,10 @@ function Tasks(props) {
           style={{ backgroundColor: "lightyellow"}} 
           ref={containerRef}
           >
-          <div className="header d-flex justify-content-between align-items-center "
+          <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
             style={{ backgroundColor: "lightyellow", position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -5%)", overflow: "hidden", zIndex: 9999 }}
             >
-              <div className="ps-2  text-success font-weight-bold fs-5 " >Modelling Tasks</div>
+              <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
               <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
                 {/* <button 
                   className="btn text-success mt-0 pe-2 py-0 btn-sm"
@@ -419,13 +419,13 @@ function Tasks(props) {
                     {(!expandedTaskPane) ? <i className="fa fa-lg fa-arrow-left"></i> : <i className="fa fa-lg fa-arrow-right"></i>}
                 </button> */}
                 <button 
-                  className="btn text-success me-0 px-1 py-0 btn-sm" 
+                  className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"
                   title="Close Task pane!"
                   onClick={handleMinimize} 
-                  style={{ backgroundColor: "lightyellow"}}
+                  // style={{ backgroundColor: "lightyellow"}}
                   >
-                    <i className="fa fa-lg fa-arrow-right"></i>
+                    <i className="fa fa-lg fa-arrow-right bg-"></i>
                 </button>
               </div>
           </div>

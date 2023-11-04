@@ -1864,8 +1864,8 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
     }
     metamodel.addSubModel(model);
     model.addModelView(modelview);
-    myMetis.addModel(model);
-    myMetis.addModelView(modelview);
+    // myMetis.addModel(model);
+    // myMetis.addModelView(modelview);
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));

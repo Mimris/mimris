@@ -8,9 +8,9 @@ import rehypeRaw from "rehype-raw";
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json';
-import StartCOREStateJson from '../startupModel/AKM-Start-CORE_PR.json';
-import StartIRTVStateJson from '../startupModel/AKM-Start-IRTV_PR.json';
-import StartOSDUStateJson from '../startupModel/AKM-Start-OSDU_PR.json';
+// import StartCOREStateJson from '../startupModel/AKM-Start-CORE_PR.json';
+// import StartIRTVStateJson from '../startupModel/AKM-Start-IRTV_PR.json';
+// import StartOSDUStateJson from '../startupModel/AKM-Start-OSDU_PR.json';
 
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";

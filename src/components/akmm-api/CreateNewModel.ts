@@ -70,8 +70,8 @@ const CreateNewModel = (props: any) => {
     const coremetamodel = metamodels.find(m => m.name === 'AKM-CORE_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
-    console.log('73 CreateNewModel', metamodelGenerated, adminMetamodel, coremetamodel, additionalmetamodel, metamodels)
-    console.log('74 CreateNewModel', metamodelGenerated?.name, adminMetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
+    console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, additionalmetamodel, metamodels)
+    console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
 
     const data = {
       phData: { 

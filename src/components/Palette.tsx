@@ -161,14 +161,14 @@ const Palette = (props: any) => {
       <select
         className="select-field mx-1 text-secondary"
         style={{ width: "98%" }}
-        value={selMetamodelName}
+        // value={selMetamodelName}
         // value={metamodelList?.findIndex((t) => t?.id === task.id)}
         onChange={(e) => getMetamodels(e.target.value)}
       >
         <option value="" key="-1">
           Additional Metamodels
         </option>
-        {metamodelList?.map((t, i) => (
+        {metamodelList?.map((t, i) => (t?.name !== mmodel?.name) && (
           <option key={i} value={i}>
             {t?.name}
           </option>

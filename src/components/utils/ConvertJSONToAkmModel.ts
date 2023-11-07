@@ -194,14 +194,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             // osduMod.properties = {...osduMod.properties, allOf}
             delete osduMod.properties
             console.log('142 allOf', allOf)
-    
             // hardcoded content add ../abstract/AbstractSystemProperties.json to the file
             const aspObj = JSON.parse(`{ "$ref": "../abstract/AbstractSystemProperties.1.0.0.json" }`) // insert abstractSystemProperties into the jsonobject
-    
             osduMod['allOf'] = [...allOf, aspObj]
             if (debug) console.log('150 ', osduMod, aspObj)
-                
-
         }
 
         console.log('155 osduMod', osduMod )

@@ -17,7 +17,7 @@ const debug = false
 const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
-  console.log('11 LoadNewModel....', props)
+  if (debug) console.log('11 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`

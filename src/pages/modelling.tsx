@@ -4,6 +4,7 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { Router, useRouter } from "next/router";
 import useLocalStorage from '../hooks/use-local-storage'
+import useSessionStorage from '../hooks/use-session-storage'
 
 import Page from '../components/page';
 import Layout from '../components/Layout';
@@ -19,6 +20,7 @@ import GenGojsModel from "../components/GenGojsModel";
 import Issues from "../components/Project";
 
 import { searchGithub } from '../components/githubServices/githubService' 
+
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
@@ -39,6 +41,7 @@ const page = (props: any) => {
 
   if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
+    const [isReloading, setIsReloading] = useState(false);
   // const [visible, setVisible] = useState(false)
   const [refresh, setRefresh] = useState(true);
   const [params, setParams] = useState(null);
@@ -46,9 +49,11 @@ const page = (props: any) => {
   const [refreshContext, setRefreshContext] = useState(true);
   const [render, setRender] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
   const [focus, setFocus] = useState(props.phFocus)
-  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+  const [memoryAkmmUser, setMemoryAkmmUser] = useSessionStorage('akmmUser', ''); //props);
+  // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const [akmmUser, setAkmmUser] = useState(props.phUser);
 
@@ -66,9 +71,10 @@ const page = (props: any) => {
 
   useEffect(() => {
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+      if (debug) console.log('73 modelling page reloaded', memoryLocState);
       if (memoryLocState?.phData) {
         const locStore = memoryLocState;
-        if (debug) console.log('modelling 134 ', locStore);
+        if (debug) console.log('modelling 1 ', locStore);
         if (locStore) {
           const data = locStore;
           // {
@@ -80,10 +86,15 @@ const page = (props: any) => {
           // };
           if (debug) console.log('143 modelling ', data);
           dispatchLocalStore(data);
+          // window.location.reload();
         }
       } else {
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+            if (!isReloading) {
+              setIsReloading(true);
+              window.location.reload();
+            }
             const timer = setTimeout(() => {
               setRefresh(!refresh);
             }, 100);
@@ -91,8 +102,6 @@ const page = (props: any) => {
         }
       }
     } 
-
-
   }, [])
 
   useEffect(() => {
@@ -103,11 +112,11 @@ const page = (props: any) => {
       let focusProj = null;
       try {
         const queryParam = new URLSearchParams(window.location.search);
-        if (debug) console.log('75 modelling queryParam', query, queryParam)
+        if (debug) console.log('111 modelling queryParam', query, queryParam)
         const queryParams = queryParam.get('focus');
         // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
         const params = JSON.parse(queryParams);
-        if (debug) console.log('78 modelling params', params)
+        if (debug) console.log('115 modelling params', params)
         const githubFile = params?.githubFile;
 
         if (githubFile) {
@@ -119,6 +128,7 @@ const page = (props: any) => {
             file: githubFile.filename,
           } 
           const orgrepo = githubFile.org+'/'+githubFile.repo 
+          console.log('127 modelling orgrepo:', orgrepo)
           const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
           const githubData = await res.data
           const sha = await res.data.sha
@@ -147,7 +157,7 @@ const page = (props: any) => {
 
           
         } else if (focus && !githubFile) {
-          if (debug) console.log('94 modelling', focus);
+          if (debug) console.log('155 modelling', focus);
           if (params) {
             const data = {
               phFocus: {
@@ -166,10 +176,10 @@ const page = (props: any) => {
           }
         }
       } catch (error) {
-        console.log('169 modelling query error ', error);
+        console.log('174 modelling query error ', error);
       }
     }
-      if (debug) console.log('89 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
+      if (debug) console.log('177 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
       getQuery() 
       setMount(true)
     // }, [])

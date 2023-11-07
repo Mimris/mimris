@@ -107,6 +107,9 @@ const LoadFile = (props: any) => {
     console.log('199 Loadfile', newmm, filename)
 
     SaveAllToFile(data, filename, '_PR')
+    const metamodelname = newmm?.name.replace('_MM', '')
+    SaveMetamodelToFile(newmm, metamodelname, '_MM')
+    
   }
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {

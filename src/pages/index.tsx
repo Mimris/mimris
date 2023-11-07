@@ -14,6 +14,7 @@ import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 import styles from '../styles/Home.module.css'
 import useLocalStorage  from '../hooks/use-local-storage'
+import useSessionStorage from "../hooks/use-session-storage";
 import SelectContext from '../components/utils/SelectContext';
 
 const debug = false
@@ -24,7 +25,7 @@ const page = (props: any) => {
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
   
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
   const [mount, setMount] = useState(false)
 
   function dispatchLocalStore(locStore) { 

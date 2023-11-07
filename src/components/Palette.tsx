@@ -52,7 +52,7 @@ const Palette = (props: any) => {
     .map((m: any) => ({ id: m?.id, name: m?.name }));
 
   // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
-  if (!debug) console.log('47', model, mmodel, metamodels,  metamodelList);
+  if (debug) console.log('47', model, mmodel, metamodels,  metamodelList);
 
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel = props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
@@ -111,13 +111,13 @@ const Palette = (props: any) => {
 
   // if (!metamodels) return null;
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
-    if (!debug) console.log('106 Palette', mmodel, props.myMetis);
+    if (debug) console.log('106 Palette', mmodel, props.myMetis);
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
-    if (!debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
+    if (debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
 
-    if (!debug) console.log('118 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
+    if (debug) console.log('118 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
 
     if (types?.length > 0) {
       const otsArr = types.map(wot =>
@@ -145,7 +145,7 @@ const Palette = (props: any) => {
     const selmmodel = metamodelList[selectedIndex];
     const mmodel = metamodels.find(m => m.id === selmmodel?.id);
     const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
-    if (!debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
+    if (debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
     const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
     if (debug) console.log('149 Palette', filteredNodeDataArray);
     const timer = setTimeout(() => {
@@ -199,7 +199,7 @@ const Palette = (props: any) => {
       <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" style={(filteredOtNodeDataArray?.length === 0) ? { height: "80vh" } : { height: "45vh" }} >
         <div className="modellingtask bg-light w-100" >
           {otDiv}
-        <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
+          <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
         </div>
         {/* Lower palette with selected metamodel or first metamodel */}
         <GoJSPaletteApp

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-  import useLocalStorage  from '../../hooks/use-local-storage'
-  import { SaveModelToLocState } from "../utils/SaveModelToLocState";
+import useLocalStorage  from '../../hooks/use-local-storage'
+import useSessionStorage from "../../hooks/use-session-storage";
+
+import { SaveModelToLocState } from "../utils/SaveModelToLocState";
 import { set } from "immer/dist/internal";
 
 const debug = false;
@@ -31,7 +33,7 @@ function ProjectDetailsForm(props) {
   const [focusIssue, setFocusIssue] = useState(props.props.phFocus?.focusIssue);
 
 
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', null); //props);
 
     
 if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, focusModelview, focusObject, focusObjectview, focusOrg, focusProj, focusRole, focusTask, focusIssue);

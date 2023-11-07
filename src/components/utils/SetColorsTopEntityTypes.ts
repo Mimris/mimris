@@ -15,17 +15,17 @@ const setColorsTopEntityTypes = (osduType: string) => {
         case 'WorkProductComponent':
             return '#FFD701';
         case 'Abstract':
-            return '#BOC4DE';
+            return '#B0C4DE';
         case 'Content':
             return '#F9C846';
         case 'ReferenceData':
             return '#40E0D0';
-        // case 'Type':
-        //     return '#87CEFE';
-        // case 'Dataset':
-        //     return '#F9C846';
-        // case 'Manifest':
-        //     return '#F9C846';
+        case 'Type':
+            return '#87CEFE';
+        case 'Dataset':
+            return '#F9C846';
+        case 'Manifest':
+            return '#F9C846';
         default:
             return null;
     }
@@ -51,7 +51,7 @@ const mapObjectsviews = curObjectviews?.map((ov: { id: string; name: string; obj
     console.log('51 data', ov.name, curObject.osduType, curObjecttype.name, data)
     dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); // for propLink object set mark as deleted
   }
-  if (debug) console.log('52 curObjecttype', curObjecttype)
+  if (!debug) console.log('52 curObjecttype', curObjecttype)
 })
 
 // return mapObjectsviews

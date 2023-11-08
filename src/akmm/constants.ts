@@ -4,6 +4,10 @@
 
 // Define View kinds
 
+export let core = {
+     AKM_CORE_MM:   "AKM-Core_MM",
+}
+  
 export let params = {
      MEMBERSCALE:   "1",
 }
@@ -160,8 +164,8 @@ export let types = {
           AKM_HAS_PORT          : "hasPort",
           AKM_HAS_PROPERTY      : "has",
           AKM_HAS_PROPERTIES    : "hasContent",
-          AKM_HAS_SUBMODEL      : "has", // "hasSubModel",
-          AKM_HAS_SUBMETAMODEL  : "has", // "hasSubMetamodel",
+          AKM_HAS_SUBMODEL      : "hasSub", // "hasSubModel",
+          AKM_HAS_SUBMETAMODEL  : "hasSub", // "hasSubMetamodel",
           AKM_HAS_VIEWSTYLE     : "has",
           AKM_RELATIONSHIP_TYPE : "relationshipType",
           AKM_IS                : "Is",
@@ -217,7 +221,7 @@ export let types = {
 export let props = {
           DRAFT               : "proposedType"
 }
-  
+
 // Define Firestore constants
 
 export const fs = {

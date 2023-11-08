@@ -105,13 +105,13 @@ const Palette = (props: any) => {
 
   // if (!metamodels) return null;
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
-    if (!debug) console.log('106 Palette', mmodel, props.myMetis);
+    if (debug) console.log('106 Palette', mmodel, props.myMetis);
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
-    if (!debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
+    if (debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
 
-    if (!debug) console.log('118 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
+    if (debug) console.log('118 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
 
     if (types?.length > 0) {
       const otsArr = types.map(wot =>

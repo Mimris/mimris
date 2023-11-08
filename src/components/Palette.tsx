@@ -37,6 +37,7 @@ const Palette = (props: any) => {
   const [task, setTask] = useState('')
   const [types, setTypes] = useState([])
   const [addMetamodelName, setAddMetamodelName] = useState(false)
+  const [selMetamodelName, setSelMetamodelName] = useState('')
 
   let focusModel = props.phFocus?.focusModel
 
@@ -44,10 +45,14 @@ const Palette = (props: any) => {
   const metamodels = props.metis?.metamodels
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
-  const mmodelRefs = mmodel?.metamodelRefs;
-  // const metamodelList = metamodels.map((m: any) => mmodelRefs.find(mmr => (mmr === m.id) && ({ id: m?.id, name: m?.name })));
-  const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
-  if (debug) console.log('47', model, mmodel);
+  // const mmodelRefs = mmodel?.metamodelRefs;
+  
+  const metamodelList = metamodels
+    .filter((m: any) => m?.id !== undefined)
+    .map((m: any) => ({ id: m?.id, name: m?.name }));
+
+  // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
+  if (!debug) console.log('47', model, mmodel, metamodels,  metamodelList);
 
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel = props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
@@ -88,6 +93,7 @@ const Palette = (props: any) => {
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
     const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);
+    setSelMetamodelName(additionalmetamodel?.name)
     if (debug) console.log('115 Palette', additionalmetamodel);
     setAddMetamodelName(additionalmetamodel?.name)
 
@@ -133,17 +139,15 @@ const Palette = (props: any) => {
 
   if (debug) console.log('127 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
-  function getModellingTask(selectedIndex) {
-    const taskObj = metamodelList[selectedIndex];
-    // setTask(taskObj);
-    const curmm = { id: taskObj?.id, name: taskObj?.name };
-    if (debug) console.log('140 Palette', taskObj, curmm, mmodel);
-    const curmmodel = mmodel.submetamodels?.find((m: any) => m?.id === taskObj?.id);
-    const coremmodel = metamodels?.find((m: any) => m?.id === taskObj?.id);
-    const thistypes = curmmodel?.objecttypes?.map((t: any) => t?.name) || [];
-    if (debug) console.log('143 Palette',  thistypes, curmmodel);
-    const filteredNodeDataArray = buildFilterOtNodeDataArray(thistypes, coremmodel);
-    if (debug) console.log('147 Palette', filteredNodeDataArray);
+  function getMetamodels(selectedIndex) {
+    setSelMetamodelName(metamodelList[selectedIndex].name)
+    console.log('143 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName);
+    const selmmodel = metamodelList[selectedIndex];
+    const mmodel = metamodels.find(m => m.id === selmmodel?.id);
+    const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
+    if (!debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
+    const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
+    if (debug) console.log('149 Palette', filteredNodeDataArray);
     const timer = setTimeout(() => {
       setFilteredOtNodeDataArray(filteredNodeDataArray);
       setRefreshPalette(!refreshPalette);
@@ -153,15 +157,16 @@ const Palette = (props: any) => {
 
   const otDiv = (metamodelList && metamodelList.length > 0) && (
     <>
-      <label className="label-field px-1">Additional Metamodels:</label>
+      {/* <label className="label-field px-1">Additional Metamodels:</label> */}
       <select
         className="select-field mx-1 text-secondary"
-        style={{ width: "96%" }}
-        value={metamodelList?.findIndex((t) => t.id === task.id)}
-        onChange={(e) => getModellingTask(e.target.value)}
+        style={{ width: "98%" }}
+        value={selMetamodelName}
+        // value={metamodelList?.findIndex((t) => t?.id === task.id)}
+        onChange={(e) => getMetamodels(e.target.value)}
       >
         <option value="" key="-1">
-          Select Metamodel
+          Additional Metamodels
         </option>
         {metamodelList?.map((t, i) => (
           <option key={i} value={i}>
@@ -194,7 +199,7 @@ const Palette = (props: any) => {
       <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" style={(filteredOtNodeDataArray?.length === 0) ? { height: "80vh" } : { height: "45vh" }} >
         <div className="modellingtask bg-light w-100" >
           {otDiv}
-        <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{addMetamodelName}</div>
+        <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
         </div>
         {/* Lower palette with selected metamodel or first metamodel */}
         <GoJSPaletteApp

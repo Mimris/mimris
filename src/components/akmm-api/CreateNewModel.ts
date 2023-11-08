@@ -66,12 +66,12 @@ const CreateNewModel = (props: any) => {
 
     console.log('69 CreateNewModel', newmodel)
     const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
-    const adminMetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
+    const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-CORE_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
-    console.log('73 CreateNewModel', metamodelGenerated, adminMetamodel, coremetamodel, additionalmetamodel, metamodels)
-    console.log('74 CreateNewModel', metamodelGenerated?.name, adminMetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
+    console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, additionalmetamodel, metamodels)
+    console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
 
     const data = {
       phData: { 
@@ -84,10 +84,10 @@ const CreateNewModel = (props: any) => {
               ...metamodelGenerated, 
               subMetamodelRefs: [submetamodels[0]?.id],
               subModelRefs: [submodels[0]?.id],
-              submodels: submodels,
-              // submetamodels: submetamodels,
+              subModels: submodels,
+              // subMetamodels: submetamodels,
             },
-            adminMetamodel,
+            adminmetamodel,
             additionalmetamodel,
           ], 
           name: 'New-Project', 

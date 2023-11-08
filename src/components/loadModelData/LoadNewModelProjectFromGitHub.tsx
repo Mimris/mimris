@@ -228,6 +228,10 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     setRefresh(!refresh)
   };
 
+  useEffect(() => {
+    if (debug) console.log('230 ', usernameText, repoText, branchText, pathText,  githubLink)
+  }, [refresh]);
+
   // useEffect(() => {
   //   // setOrgText(props.ph.phFocus?.focusProj?.org)
   //   // setRepoText(props.ph.phFocus?.focusProj?.repo)

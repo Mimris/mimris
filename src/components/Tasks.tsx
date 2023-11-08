@@ -97,14 +97,14 @@ function Tasks(props) {
   // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
   // set  metamodel
   const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
-  if (!debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
+  if (debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
   const motherobjviews = mothermodel?.objectviews;
   const motherrelships = mothermodel?.relshipviews;
 
-  if (!debug) console.log('93 Tasks', mothermodel, mothermodelviews);
+  if (debug) console.log('93 Tasks', mothermodel, mothermodelviews);
 
   let parentTask: any = null;
   // useEffect(() => {
@@ -313,7 +313,7 @@ function Tasks(props) {
     console.log('371 Tasks', mothermodelviews, mothermodel.objects);
     const modview = 
       mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
-        if (!debug) console.log('371 Tasks', mv);
+        if (debug) console.log('371 Tasks', mv);
         parent = mv;
         // nolabel objectviews that has no parent objectview i.e. top containers(groups)
         const noLabelovs = mv?.objectviews?.filter((ov: any) =>
@@ -354,7 +354,7 @@ function Tasks(props) {
           return parent1;
         };    
         const ovsTree = buildTree(parent, topObjviews);
-        if (!debug) console.log('355 buildTree', ovsTree, parent, topObjviews);
+        if (debug) console.log('355 buildTree', ovsTree, parent, topObjviews);
         topGroupOvsDiv = 
           <details key={index}>
             <summary className="text-success d-flex align-items-center m-0 bg-light" >

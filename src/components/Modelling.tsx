@@ -163,7 +163,7 @@ const page = (props: any) => {
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
 
   let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
-  let myMetis, myModel, myGoModel, myGoObjectPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
+  let myMetis, myModel, myGoModel, myGoObjectPalette, myGoRelshipPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
   let myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, myTargetMetamodelPalette
   let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
 
@@ -222,13 +222,13 @@ const page = (props: any) => {
   gojsmodelobjects = (myGoModel) &&// props.phGojs?.gojsModelObjects // || []
   {
     nodeDataArray: myGoObjectPalette,
-    linkDataArray: myGoObjectPalette.links
+    linkDataArray: myGoRelshipPalette || []
   }
   if (debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
   {
     nodeDataArray: myGoModel.nodes,
-    linkDataArray: myGoModel.links
+    linkDataArray: myGoModel.links 
   }
   gojstargetmetamodel = (myTargetMetamodel) &&    // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   {
@@ -508,46 +508,46 @@ const page = (props: any) => {
             </div>
           </TabPane>
 
-          {/* Solution Modelling ------------------------------------*/}
-          {/* <TabPane tabId="3">
-            <div className="workpad p-1 pt-2 bg-white">
-              <Row >
-                <Col xs="auto m-0 p-0 pr-0">
-                  <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
-                    <TargetMeta
-                      gojsModel={gojsmodel}
-                      gojsMetamodel={gojsmetamodel}
-                      gojsTargetMetamodel={gojstargetmetamodel}
-                      myMetis={myMetis}
-                      myGoModel={myGoModel}
-                      myGoMetamodel={myGoMetamodel}
-                      metis={metis}
-                      phFocus={phFocus}
-                      dispatch={dispatch}
-                      modelType='model'
-                    />
-                  </div>
-                </Col>
-                <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                  <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+            {/* Solution Modelling ------------------------------------*/}
+            {/* <TabPane tabId="3">
+              <div className="workpad p-1 pt-2 bg-white">
+                <Row >
+                  <Col xs="auto m-0 p-0 pr-0">
+                    <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                      <TargetMeta
+                        gojsModel={gojsmodel}
+                        gojsMetamodel={gojsmetamodel}
+                        gojsTargetMetamodel={gojstargetmetamodel}
+                        myMetis={myMetis}
+                        myGoModel={myGoModel}
+                        myGoMetamodel={myGoMetamodel}
+                        metis={metis}
+                        phFocus={phFocus}
+                        dispatch={dispatch}
+                        modelType='model'
+                      />
+                    </div>
+                  </Col>
+                  <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                    <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
 
-                    <TargetModeller
-                      gojsModel={gojsmodel}
-                      gojsTargetModel={gojstargetmodel}
-                      gojsMetamodel={gojsmetamodel}
-                      myMetis={myMetis}
-                      myGoModel={myGoModel}
-                      myGoMetamodel={myGoMetamodel}
-                      metis={metis}
-                      phFocus={phFocus}
-                      dispatch={dispatch}
-                      modelType='model'
-                    />
-                  </div>
-                </Col>
-              </Row>
-            </div>         
-          </TabPane> */}
+                      <TargetModeller
+                        gojsModel={gojsmodel}
+                        gojsTargetModel={gojstargetmodel}
+                        gojsMetamodel={gojsmetamodel}
+                        myMetis={myMetis}
+                        myGoModel={myGoModel}
+                        myGoMetamodel={myGoMetamodel}
+                        metis={metis}
+                        phFocus={phFocus}
+                        dispatch={dispatch}
+                        modelType='model'
+                      />
+                    </div>
+                  </Col>
+                </Row>
+              </div>         
+            </TabPane> */}
         </TabContent>
       </>
     )

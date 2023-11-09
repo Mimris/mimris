@@ -3,6 +3,7 @@ import { use, useEffect } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useRouter } from "next/router";
 import useLocalStorage from '../hooks/use-local-storage'
+import useSessionStorage from "../hooks/use-session-storage";
 
 import Page from '../components/page';
 
@@ -16,7 +17,7 @@ const debug = false;
 const page = (props: any) => {
     const { query } = useRouter();
     const dispatch = useDispatch();
-    const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+    const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
 
     function dispatchLocalStore(locStore) {
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })

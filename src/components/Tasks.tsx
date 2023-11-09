@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 import { useEffect, useState, useRef, use} from 'react';
 import { useSelector, useDispatch} from 'react-redux';
 
@@ -96,7 +96,7 @@ function Tasks(props) {
   const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
   // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
   // set  metamodel
-  const mothermodel = (curmetamodel.submodels) && curmetamodel.submodels[0];
+  const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
   if (debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
@@ -104,7 +104,7 @@ function Tasks(props) {
   const motherobjviews = mothermodel?.objectviews;
   const motherrelships = mothermodel?.relshipviews;
 
-  if (debug) console.log('93 Tasks', curmodel, curmetamodel, mothermodel, mothermodelviews, motherobjects, motherobjviews, motherrelships);
+  if (debug) console.log('93 Tasks', mothermodel, mothermodelviews);
 
   let parentTask: any = null;
   // useEffect(() => {
@@ -169,7 +169,7 @@ function Tasks(props) {
     });
   };
 
-  const handleClick = () => {
+  const handleClick = (task, role) => {
     if (task) {
       dispatch({
         type: "SET_FOCUS_TASK",
@@ -276,7 +276,7 @@ function Tasks(props) {
     if (debug) console.log('281 ', obj, oType, role);
 
     return (oType === 'Task')
-      ? taskItem(obj, role)
+      ? taskItem(obj, role, ov?.id)
       : (oType === 'Container')
         ? containerItem(obj)
         : null;
@@ -307,80 +307,89 @@ function Tasks(props) {
     );
   };
 
-  const genTasksDiv = mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
-    if (debug) console.log('371 Tasks', mv);
+  const genTasksDiv = () => {
+    let parent, topGroupOvsDiv;
+    if (!mothermodelviews) return null;
+    console.log('371 Tasks', mothermodelviews, mothermodel.objects);
+    const modview = 
+      mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
+        if (debug) console.log('371 Tasks', mv);
+        parent = mv;
+        // nolabel objectviews that has no parent objectview i.e. top containers(groups)
+        const noLabelovs = mv?.objectviews?.filter((ov: any) =>
+          (!motherobjects?.filter((o: any) => o.typeName === 'Label').find((o: any) => o.id === ov?.objectRef) && ov)
+        );
+        let topObjviews = noLabelovs?.filter((ov: any) =>
+          (!mv.objectviews?.find((ov2: any) => ov2?.id === ov?.group) && ov)
+        );
+        if (debug) console.log('305 buildTree', parent, mv, mv.objectviews, noLabelovs, topObjviews);
+        if (!topObjviews) topObjviews = mothermodel.objects ;  
+        //  build a tree of the objectviews in this modelview  
+        const buildTree = (parent: any, children: any) => {  // build a tree of the objectviews in this modelview (children is the children of the parent)
+          if (debug) console.log('308 buildTree', parent.name, children);
+          const ovs = children;
 
-    const parent = mv;
+          const parentobj = (parent === mv) ? {id: mv.id, name: mv.name, description: mv.description} : motherobjects?.find((o: any) => o.id === parent.objectRef); // find the object of this parent objectview
+          if (debug) console.log('314 buildTree', mv.name, parent, children, parentobj);
 
-    // nolabel objectviews that has no parent objectview i.e. top containers(groups)
-    const noLabelovs = mv?.objectviews?.filter((ov: any) =>
-      (!motherobjects?.filter((o: any) => o.typeName === 'Label').find((o: any) => o.id === ov?.objectRef) && ov)
-    );
-    const topObjviews = noLabelovs?.filter((ov: any) =>
-      (!mv.objectviews?.find((ov2: any) => ov2?.id === ov?.group) && ov)
-    );
-    if (debug) console.log('305 buildTree', parent, mv, mv.objectviews, noLabelovs, topObjviews);
+          // children are the objectviews that has this parent objectview as group
+          const children2 = children.map((ov: any) =>  {
+            const grandchildren = mv.objectviews?.filter((ov2: any) => ov2.group === ov.id);
+            const simplifiedChild = {
+              id: ov.id, 
+              name: ov.name, 
+              description: motherobjects?.find((o: any) => o.id === ov.objectRef)?.description, 
+              typeName: motherobjects?.find((o: any) => o.id === ov.objectRef)?.typeName,
+              objectRef: ov.objectRef,
+              children: grandchildren
+            };
+            if (debug) console.log('321 buildTree', ov, grandchildren, simplifiedChild);
+          return  buildTree(simplifiedChild, grandchildren); // recursively build the tree for all children with children
+          }) ; //
+          if (debug) console.log('332 buildTree', children2);
 
-    //  build a tree of the objectviews in this modelview  
-    const buildTree = (parent: any, children: any) => {  // build a tree of the objectviews in this modelview (children is the children of the parent)
-      if (debug) console.log('308 buildTree', parent.name, children);
-      const ovs = children;
-
-      const parentobj = (parent === mv) ? {id: mv.id, name: mv.name, description: mv.description} : motherobjects?.find((o: any) => o.id === parent.objectRef); // find the object of this parent objectview
-      if (debug) console.log('314 buildTree', mv.name, parent, children, parentobj);
-
-      // children are the objectviews that has this parent objectview as group
-      const children2 = children.map((ov: any) =>  {
-        const grandchildren = mv.objectviews?.filter((ov2: any) => ov2.group === ov.id);
-        const simplifiedChild = {
-          id: ov.id, 
-          name: ov.name, 
-          description: motherobjects?.find((o: any) => o.id === ov.objectRef)?.description, 
-          typeName: motherobjects?.find((o: any) => o.id === ov.objectRef)?.typeName,
-          objectRef: ov.objectRef,
-          children: grandchildren
-        };
-        if (debug) console.log('321 buildTree', ov, grandchildren, simplifiedChild);
-      return  buildTree(simplifiedChild, grandchildren); // recursively build the tree for all children with children
-      }) ; //
-      if (debug) console.log('332 buildTree', children2);
-
-      const parent1 = { id: parent.id, name: parent.name, description: parentobj?.description, typeName: parentobj?.typeName,  objectRef: parent.objectRef, children: children2 };  // convert parent object with id, name, description, typeName, objectRef (from object) and children
-      if (debug) console.log('337 buildTree', parentobj, parent1,  children2);
-      if (debug) console.log('342 buildTree', parent1);
-      return parent1;
-    };    
-
-    const ovsTree = buildTree(parent, topObjviews);
-    if (debug) console.log('347 buildTree', ovsTree, topObjviews, parent);
-
-    const topGroupOvsDiv = 
-      <details key={index}>
-        <summary className="text-success d-flex align-items-center m-0 bg-light" >
-          <span className="ms-0 d-flex justify-content-between" >
-            <div key={index} className="" >
-              <i className="fa fa-folder mt-1" aria-hidden="true"></i>
-              <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
+          const parent1 = { id: parent.id, name: parent.name, description: parentobj?.description, typeName: parentobj?.typeName,  objectRef: parent.objectRef, children: children2 };  // convert parent object with id, name, description, typeName, objectRef (from object) and children
+          if (debug) console.log('337 buildTree', parentobj, parent1,  children2);
+          if (debug) console.log('342 buildTree', parent1);
+          return parent1;
+        };    
+        const ovsTree = buildTree(parent, topObjviews);
+        if (debug) console.log('355 buildTree', ovsTree, parent, topObjviews);
+        topGroupOvsDiv = 
+          <details key={index}>
+            <summary className="text-success d-flex align-items-center m-0 bg-light" >
+              <span className="ms-0 d-flex justify-content-between" >
+                <div key={index} className="" >
+                  <i className="fa fa-folder mt-1" aria-hidden="true"></i>
+                  <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
+                </div>
+                {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
+              </span>
+            </summary>
+            <div key={index} className="m-0 p-2">
+              {renderTree(ovsTree)}
             </div>
-            {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
-          </span>
-        </summary>
-        <div key={index} className="m-0 p-2">
-          {renderTree(ovsTree)}
-        </div>
-      </details>
-    ;
-    
+          </details>;
+        return (
+          <div  key={index}>
+            <hr className="my-0"/>
+              {/* Render the top containers of this modelview */}
+              <div  key={index} className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
+                {topGroupOvsDiv}
+              </div>
+          </div>
+        );
+      })
     return (
-      <div  key={index} >
+      <div  >
         <hr className="my-0"/>
           {/* Render the top containers of this modelview */}
-          <div  key={index} className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
+          <div  className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
             {topGroupOvsDiv}
           </div>
       </div>
     );
-  });
+  };
 
   const genTasksHeaderDiv  =  
     <>
@@ -470,13 +479,13 @@ function Tasks(props) {
           </div>
           <div className="tasks" style={{maxHeight: "80vh" ,overflow: "scroll"}}>
              <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> 
-              {genTasksDiv}
+              {genTasksDiv()}
             </div>
           </div>
         </div>
-    </>
+    </> 
   ;
-
+    
   return (
     <>
       <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "40vh" : "40vh")  }}>

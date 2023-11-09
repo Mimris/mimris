@@ -122,8 +122,8 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
    
       if (debug) console.log('172', buttonLabel);
 
-      // upload files and import them as objects to the project 
-      const upload = async (e) => {        
+      // import files and import them as objects to the project 
+      const importfile = async (e) => {        
         // Convert the FileList into an array and iterate
         let files = Array.from(e.target.files)
         console.log('125', files);
@@ -168,8 +168,8 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                     <h5>AKM objecttypes</h5>
                     <div className="selectbox3 mb-2 border">
                       <h6>Import OSDU JSON-file as AKM model types</h6>
-                      <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
-                      <input className="select-input w-100" type="file" accept=".json" onChange={ upload } multiple />
+                      <h6>(This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
+                      <input className="select-input w-100" type="file" accept=".json" onChange={ importfile } multiple />
                       {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
                       <div className="d-flex align-items-center my-2 border">
                         <label className="" htmlFor="inclProps ">Include Properties</label>

@@ -50,6 +50,7 @@ const Project = (props) => {
   const [focus, setFocus] = useState(props.props.phFocus.focusProj.focus)
   const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj.ghtype)
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
+  
 
 
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
@@ -72,7 +73,7 @@ const Project = (props) => {
   // list issues form github
   const fetchIssues = async () => {
     try {
-      if (debug) console.log('89 issues fetch', issueUrl)
+      if (debug) console.log('75 issues fetch', issueUrl)
       const res = await fetch(issueUrl);
       const data = await res.json();
       if (debug) console.log('54 issues', res, data)

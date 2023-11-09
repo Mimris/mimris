@@ -12,6 +12,8 @@ const SetContext = (props: any) =>  {
   const phFocus = props.ph?.phFocus;
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
   const org = (phFocus?.focusProj?.org) && phFocus.focusProj?.org;
+  const branch = (phFocus?.focusProj?.branch) && phFocus.focusProj?.branch;
+  const path = (phFocus?.focusProj?.path) && phFocus.focusProj?.path;
   const projectNumber = (phFocus?.focusProj?.projectNumber) && phFocus.focusProj?.projectNumber;
 
   if (!phFocus) return null;
@@ -69,7 +71,7 @@ const SetContext = (props: any) =>  {
       >
         <Link
           className="text-primary"
-          href={`https:/github.com/${org}/${repo}`}
+          href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`}
           target="_blank"
         >
           <span >{repo}</span>

@@ -4,6 +4,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import useLocalStorage from '../hooks/use-local-storage'
+import useSessionStorage from "../hooks/use-session-storage";
+
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 
@@ -22,6 +24,7 @@ import { gojs } from "../akmm/constants";
 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import { eventChannel } from "redux-saga";
 
 const debug = false;
 
@@ -55,11 +58,16 @@ const Modeller = (props: any) => {
   const [projectName, setProjectName] = useState(props.metis.name); // the value to be displayed
   const [mvName, setMvName] = useState(); // the value to be displayed
 
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', null); //props);
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
   const [exportSvg, setExportSvg] = useState(null);
   const [diagramReady, setDiagramReady] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('Objects in this Modelview');
+  const [ofilteredArr, setOfilteredArr] = useState([]);
+  const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
+
 
 
   const diagramRef = useRef(null);
@@ -340,17 +348,19 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
   let ndArr = props.gojsModelObjects?.nodeDataArray
-  let ldArr = props.gojsModelObjects?.linkDataArray
+  let ldArr = props.gojsModelObjects?.linkDataArray || []
+
+  const ndTypes = ndArr?.map((nd: any) => nd.typename)
+  const uniqueTypes = [...new Set(ndTypes)].sort();
+
+  if (debug) console.log('349 Modeller ndTypes', uniqueTypes);
   // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
-  if (debug) console.log('269 nodeArray_all', nodeArray_all, objectsNotDeleted);
+  if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
-  // // filter out all objects of type Property
-  const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'EntityType'))
-  const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property'))
-  if (debug) console.log('185 Palette noPropertyObj', noPropertyObj);
+ 
 
   const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
     if (debug) console.log('Palette handleSetOfilter', filter);
@@ -378,12 +388,40 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     </>
 
   // // filter out all objects of type 
-  let ofilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container'))
+  // setOfilteredArr(objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container')))
   if (debug) console.log('354 Palette ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
-  if (ofilter === 'Sorted') ofilteredArr = roleTaskObj
-  if (ofilter === '!Property') ofilteredArr = noPropertyObj
+  // if (ofilter === 'Sorted') setOfilteredArr = roleTaskObj
+  // if (ofilter === '!Property') ofilteredArr = noPropertyObj
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
-  let gojsobjects = { nodeDataArray: ofilteredArr, linkDataArray: ldArr }
+
+  // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
+
+  useEffect(() => {
+    const initialArr = objectsNotDeleted?.filter((node: { typename: string; name: string; }) => node);
+    const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
+    const sortedByType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)))
+    console.log('403 Palette ofilteredOnTypes', initialArr, sortedArr, sortedByType, uniqueTypes, selectedOption);
+
+    if  (selectedOption === 'Objects in this Modelview') {
+      const nodesInThisModelview = props.gojsModelObjects?.nodeDataArray?.filter((node: { modelviewRef: any; }) => node && (node.modelviewRef === focusModelview?.id))
+      const nodeArr = nodesInThisModelview;
+      setGojsobjects({ nodeDataArray: nodeArr, linkDataArray: ldArr });
+    } else if (selectedOption === 'All Sorted Alphabetical') {
+      setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
+    } else if (selectedOption === 'All Sorted by Type') {
+      const nodeArr = sortedByType.flat();
+      console.log('409 Palette ofilteredOnTypes', sortedByType, nodeArr);
+      setGojsobjects({ nodeDataArray: nodeArr, linkDataArray: ldArr });
+    } else {
+      const selOfilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes[selectedOption]));
+      if (debug) console.log('394 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes[selectedOption]);
+      // setOfilteredArr(selOfilteredArr);
+      setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
+      if (debug) console.log('407 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
+      setRefresh(!refresh)
+    }
+    if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
+  }, [selectedOption])
 
   if (debug) console.log('360  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
 
@@ -444,6 +482,39 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       onExportSvgReady={handleExportSvgReady}
     />
 
+  const handleSelectOTypes = (event: any) => {
+    if (debug) console.log('Palette handleSelectOTypes', event.target.value);
+    setSelectedOption(event)
+   
+  }
+
+    const  SelectOTypes =  (
+      <>
+        <select
+          className="select-field mx-1 text-secondary"
+          style={{ width: "98%" }}
+          // value={uniqueTypes[selectedOption]}
+          onChange={(e) => handleSelectOTypes(e.target.value)}
+        >
+          <option value="" key="01">
+            Filter/Sort Objects
+          </option>
+          <option key="02">
+            Objects in this Modelview
+          </option>
+          <option key="03">
+            All Sorted Alphabetical
+          </option>
+          <option key="04">
+            All Sorted by Type
+          </option>
+          {uniqueTypes.map((t: any, index) => (
+            <option key={index} value={index}>{t}</option>
+          ))}
+        </select>
+      </>
+    );
+
   const modelviewTabDiv = // this is the modelview tabs
     <>
       <Nav tabs >
@@ -479,6 +550,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{selectedObjDiv}</div> */}
       <div className="workpad p-1 pt-2 bg-white">
         {/* {selectTaskDiv} */}
+          <div className="modellingtask bg-light w-100" >
+        {SelectOTypes}
+          <div className="mmname mx-0 px-3 my-1 bg-light" style={{ fontSize: "16px", minWidth: "184px", maxWidth: "212px" }}>{uniqueTypes[selectedOption]}</div>
+        </div>
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"
           nodeDataArray={gojsobjects.nodeDataArray}
@@ -630,3 +705,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 }
 
 export default Modeller;
+
+
+

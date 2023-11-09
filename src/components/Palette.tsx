@@ -161,14 +161,14 @@ const Palette = (props: any) => {
       <select
         className="select-field mx-1 text-secondary"
         style={{ width: "98%" }}
-        value={selMetamodelName}
+        // value={selMetamodelName}
         // value={metamodelList?.findIndex((t) => t?.id === task.id)}
         onChange={(e) => getMetamodels(e.target.value)}
       >
         <option value="" key="-1">
           Additional Metamodels
         </option>
-        {metamodelList?.map((t, i) => (
+        {metamodelList?.map((t, i) => (t?.name !== mmodel?.name) && (
           <option key={i} value={i}>
             {t?.name}
           </option>
@@ -199,7 +199,7 @@ const Palette = (props: any) => {
       <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" style={(filteredOtNodeDataArray?.length === 0) ? { height: "80vh" } : { height: "45vh" }} >
         <div className="modellingtask bg-light w-100" >
           {otDiv}
-        <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
+          <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
         </div>
         {/* Lower palette with selected metamodel or first metamodel */}
         <GoJSPaletteApp

@@ -186,6 +186,7 @@ const page = (props: any) => {
   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
   myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
   if (debug) console.log('188 Modelling ', myGoObjectPalette);
   myMetis?.setGojsModel(myGoModel);
   myMetis?.setCurrentMetamodel(myMetamodel);
@@ -200,6 +201,7 @@ const page = (props: any) => {
     nodeDataArray: myGoMetamodel?.nodes,
     linkDataArray: myGoMetamodel?.links
   }
+
   gojsmetamodelmodel = (myGoMetamodelModel) &&
   {
     nodeDataArray: myGoMetamodelModel?.nodes,
@@ -220,7 +222,7 @@ const page = (props: any) => {
   gojsmodelobjects = (myGoModel) &&// props.phGojs?.gojsModelObjects // || []
   {
     nodeDataArray: myGoObjectPalette,
-    linkDataArray: []//myGoObjectPalette.links
+    linkDataArray: myGoObjectPalette.links
   }
   if (debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 

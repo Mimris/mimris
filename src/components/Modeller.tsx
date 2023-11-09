@@ -421,8 +421,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
       console.log('422 Palette ofilteredOnTypes', sortedByType);
       setGojsobjects({ nodeDataArray: sortedByType, linkDataArray: ldArr });
     } else {
-      const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes[selectedOption]));
-      if (!debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr,uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
+      const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
+      if (!debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
       // setOfilteredArr(selOfilteredArr);
       setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
       if (!debug) console.log('421 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);

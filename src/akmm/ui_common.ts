@@ -2819,9 +2819,29 @@ export function deleteRelationshipView(relshipView: akm.cxRelationshipView, mode
     }
 }
 
-function isMemberOfSubmodel(objview: akm.cxObjectView): boolean {
-    if (objview.group) { // then objview is a member of a group
-        const mview = objview.modelview; // Current modelview
+function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): boolean {
+    if (objview?.group) { // then objview is a member of a group
+        let mview = objview.modelview; // Current modelview
+        if (!mview) {
+            const obj = objview.object; // The object
+            const models = myMetis.models;
+            for (let i=0; i<models?.length; i++) {
+                const model = models[i];
+                if (model) {
+                    const modelviews = myMetis.modelviews;
+                    for (let j=0; j<modelviews?.length; j++) {
+                        const mview2 = modelviews[j];
+                        const objviews = mview2.objectviews;
+                        for (let k=0; k<objviews?.length; k++) {
+                            const objview2 = objviews[k];
+                            if (objview2?.object?.id === obj.id) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         const grpView = mview?.findObjectView(objview.group); // The group (view)
         const grpObj = grpView?.object; // The group (object)
         if (grpObj) {  // If the group (object) exists
@@ -2875,6 +2895,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                         msg += "The container view '" + oview.name + "' is now a group (isGroup = true)\n";
                     }
                 }
+                const obj = oview.object;
+                if (obj) {
+                    if (obj.type.name === constants.types.AKM_MODEL) {
+                        const modelObj = obj;
+                        oview.viewkind = 'Container';
+                        oview.isGroup = true;
+                    }
+                }
             }
         }
     }
@@ -2901,8 +2929,18 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 }
             }
             if (obj.type.name === constants.types.AKM_MODEL) {
-                // Do nothing
                 continue;
+            }
+            // If obj is member of a submodel, then do not verify it
+            let isPartOfSubmodel = false;
+            const objviews = obj.objectviews;
+            for (let i=0; i < objviews?.length; i++) {
+                const oview = objviews[i];
+                if (isMemberOfSubmodel(myMetis, oview)) {
+                    isPartOfSubmodel = true;
+                    // Do nothing
+                    continue;
+                }
             }
             obj.inputrels = new Array();
             obj.outputrels = new Array();
@@ -2917,15 +2955,20 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 if (debug) console.log('2458 Type of object not found:', obj);
                 objtype = metamodel.findObjectTypeByName(typeName);
                 if (!objtype) {
-                    objtype = myMetis.findObjectTypeByName(defObjTypename);
-                }        
-                obj.type = objtype;
-                obj.typeRef = objtype.id;
-                obj.typeName = objtype.name;
-                objChanged = true;
-                msg += "\tObject type changed to: '" + objtype.name + "'\n";
-                report += printf(format, msg);
-                msg = "";
+                    // Check submodels
+                    if (!isPartOfSubmodel) {
+                        objtype = myMetis.findObjectTypeByName(defObjTypename);
+                    }
+                }      
+                if (objtype) {  
+                    obj.type = objtype;
+                    obj.typeRef = objtype.id;
+                    obj.typeName = objtype.name;
+                    objChanged = true;
+                    msg += "\tObject type changed to: '" + objtype.name + "'\n";
+                    report += printf(format, msg);
+                    msg = "";
+                }
             }
             if (objtype) {
                 const objviews = obj.objectviews;
@@ -2970,7 +3013,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 if (!obj) continue;
                 oview.modelview = modelview;
                 if (debug) console.log('2970 oview', oview.name);
-                if (isMemberOfSubmodel(oview))
+                if (isMemberOfSubmodel(myMetis, oview))
                     continue;
                 oviews.push(oview);
             }
@@ -3282,7 +3325,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "End Verification\n";
 
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
 
     if (debug) console.log('2841 verifyAndRepairModel ENDED, myMetis', myMetis);

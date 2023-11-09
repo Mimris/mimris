@@ -52,7 +52,7 @@ const Palette = (props: any) => {
     .map((m: any) => ({ id: m?.id, name: m?.name }));
 
   // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
-  if (!debug) console.log('47', model, mmodel, metamodels,  metamodelList);
+  if (debug) console.log('47', model, mmodel, metamodels,  metamodelList);
 
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel = props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
@@ -145,7 +145,7 @@ const Palette = (props: any) => {
     const selmmodel = metamodelList[selectedIndex];
     const mmodel = metamodels.find(m => m.id === selmmodel?.id);
     const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
-    if (!debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
+    if (debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
     const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
     if (debug) console.log('149 Palette', filteredNodeDataArray);
     const timer = setTimeout(() => {

@@ -311,7 +311,7 @@ const LoadGitHub = (props: any) => {
     // const pathText = props.ph.phFocus?.focusProj?.path
     // const branchText = props.ph.phFocus?.focusProj?.branch
     // const refres = () => {
-      if (debug) console.log('284 ', orgText, repoText, branchText, pathText)
+      if (!debug) console.log('314 LoadGitHub ', orgText, repoText, branchText, pathText)
       loadRepos(repoText, pathText);
       loadModels(orgText, pathText)
       // }

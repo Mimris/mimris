@@ -64,7 +64,7 @@ const Modeller = (props: any) => {
 
   const [exportSvg, setExportSvg] = useState(null);
   const [diagramReady, setDiagramReady] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState('Objects in this Modelview');
   const [ofilteredArr, setOfilteredArr] = useState([]);
   const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
@@ -397,22 +397,31 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    if (selectedOption === '') {
-      const initOfilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'EntityType'));
-      setSelectedOption(0)
-      setGojsobjects({ nodeDataArray: initOfilteredArr, linkDataArray: ldArr });
+    const initialArr = objectsNotDeleted?.filter((node: { typename: string; name: string; }) => node);
+    const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
+    const sortedByType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)))
+    console.log('403 Palette ofilteredOnTypes', initialArr, sortedArr, sortedByType, uniqueTypes, selectedOption);
+
+    if  (selectedOption === 'Objects in this Modelview') {
+      const nodesInThisModelview = props.gojsModelObjects?.nodeDataArray?.filter((node: { modelviewRef: any; }) => node && (node.modelviewRef === focusModelview?.id))
+      const nodeArr = nodesInThisModelview;
+      setGojsobjects({ nodeDataArray: nodeArr, linkDataArray: ldArr });
+    } else if (selectedOption === 'All Sorted Alphabetical') {
+      setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
+    } else if (selectedOption === 'All Sorted by Type') {
+      const nodeArr = sortedByType.flat();
+      console.log('409 Palette ofilteredOnTypes', sortedByType, nodeArr);
+      setGojsobjects({ nodeDataArray: nodeArr, linkDataArray: ldArr });
     } else {
       const selOfilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes[selectedOption]));
       if (debug) console.log('394 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes[selectedOption]);
-      setOfilteredArr(selOfilteredArr);
+      // setOfilteredArr(selOfilteredArr);
       setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
       if (debug) console.log('407 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
       setRefresh(!refresh)
     }
     if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
   }, [selectedOption])
-
-  
 
   if (debug) console.log('360  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
 
@@ -487,8 +496,17 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           // value={uniqueTypes[selectedOption]}
           onChange={(e) => handleSelectOTypes(e.target.value)}
         >
-          <option value="" key="-1">
-            Filter by Object Type
+          <option value="" key="01">
+            Filter/Sort Objects
+          </option>
+          <option key="02">
+            Objects in this Modelview
+          </option>
+          <option key="03">
+            All Sorted Alphabetical
+          </option>
+          <option key="04">
+            All Sorted by Type
           </option>
           {uniqueTypes.map((t: any, index) => (
             <option key={index} value={index}>{t}</option>

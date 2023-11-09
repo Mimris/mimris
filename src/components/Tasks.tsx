@@ -169,7 +169,7 @@ function Tasks(props) {
     });
   };
 
-  const handleClick = () => {
+  const handleClick = (task, role) => {
     if (task) {
       dispatch({
         type: "SET_FOCUS_TASK",
@@ -276,7 +276,7 @@ function Tasks(props) {
     if (debug) console.log('281 ', obj, oType, role);
 
     return (oType === 'Task')
-      ? taskItem(obj, role)
+      ? taskItem(obj, role, ov?.id)
       : (oType === 'Container')
         ? containerItem(obj)
         : null;

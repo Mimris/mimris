@@ -571,6 +571,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (group) {
                 const parentgroup = group;
                 node.group = parentgroup.key;
+                node.objectview.group = parentgroup.objectview.id;
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 // Handle hasMember relationships:
                 if (group?.objecttype?.id !== containerType?.id && hasMemberType) {

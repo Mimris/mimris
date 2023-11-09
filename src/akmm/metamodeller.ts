@@ -780,12 +780,14 @@ export class cxMetis {
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
                 let reltype = this.findRelationshipType(reltype0?.id);
-                if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
-                        && reltype.name !== constants.types.AKM_IS) {                
-                    if (!reltype) {
-                        this.addRelationshipType(reltype0);
+                if (reltype) {
+                    if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
+                            && reltype.name !== constants.types.AKM_IS) {                
+                        if (!reltype) {
+                            this.addRelationshipType(reltype0);
+                        }
+                        metamodel.addRelationshipType0(reltype);
                     }
-                    metamodel.addRelationshipType0(reltype);
                 }
             });
         }

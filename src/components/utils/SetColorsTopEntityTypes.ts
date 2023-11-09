@@ -51,7 +51,7 @@ const mapObjectsviews = curObjectviews?.map((ov: { id: string; name: string; obj
     console.log('51 data', ov.name, curObject.osduType, curObjecttype.name, data)
     dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); // for propLink object set mark as deleted
   }
-  if (!debug) console.log('52 curObjecttype', curObjecttype)
+  if (debug) console.log('52 curObjecttype', curObjecttype)
 })
 
 // return mapObjectsviews

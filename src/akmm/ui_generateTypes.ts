@@ -1430,7 +1430,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 if (!obj /*|| obj.markedAsDeleted*/) 
                     continue;
                 switch (obj.type.name) {
-                    case 'Property':
                     case 'Datatype':
                     case 'Value':
                     case 'FieldType':

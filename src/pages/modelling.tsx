@@ -110,56 +110,34 @@ const page = (props: any) => {
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
+      let queryParam = null;
       try {
-        const queryParam = new URLSearchParams(window.location.search);
-        if (debug) console.log('111 modelling queryParam', query, queryParam)
-        const queryParams = queryParam.get('focus');
-        // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
-        const params = JSON.parse(queryParams);
-        if (debug) console.log('115 modelling params', params)
-        const githubFile = params?.githubFile;
+        queryParam = new URLSearchParams(window.location.search);
 
-        if (githubFile) {
-          focusProj = {
-            org: githubFile.org,
-            repo: githubFile.repo,
-            branch: githubFile.branch,
-            path: githubFile.path,
-            file: githubFile.filename,
-          } 
-          const orgrepo = githubFile.org+'/'+githubFile.repo 
-          console.log('127 modelling orgrepo:', orgrepo)
-          const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
-          const githubData = await res.data
-          const sha = await res.data.sha
+        if (queryParam) {
+          if (!debug) console.log('120 modelling queryParam', query, queryParam)
+          const queryParams = queryParam.get('focus');
+          // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
+          const params = JSON.parse(queryParams);
+          if (!debug) console.log('124 modelling params', params)
+          const githubFile = params?.githubFile;
+          if (!debug) console.log('126 modelling githubFile', githubFile)
+          if (githubFile) {
+            focusProj = {
+              org: githubFile.org,
+              repo: githubFile.repo,
+              branch: githubFile.branch,
+              path: githubFile.path,
+              file: githubFile.filename,
+            } 
+            const orgrepo = githubFile.org+'/'+githubFile.repo 
+            console.log('127 modelling orgrepo:', orgrepo)
+            const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
+            const githubData = await res.data
+            const sha = await res.data.sha
 
-          const data = {
-            phData: githubData.phData,
-            phFocus: {
-              ...props.phFocus,
-              focusProj: focusProj,
-              focusModel:  params.focusModel,
-              focusModelview: params.focusModelview,
-              focusObject: params.focusObject,
-              focusObjectview:  params.focusObjectview,
-              focusRole: params.focusRole,
-              focusTask: params.focusTask,
-            },
-            phSource: props.phSource,
-            phUser: props.phUser,
-            lastUpdate: props.lastUpdate,
-          };
-          // dispatchLocalStore(data); // dispatch to store the latest [0] from local storage
-          dispatch({ type: 'LOAD_TOSTORE_DATA', data: data })
-          const timer = setTimeout(() => {
-            setRefresh(!refresh);
-          } , 1000);
-
-          
-        } else if (focus && !githubFile) {
-          if (debug) console.log('155 modelling', focus);
-          if (params) {
             const data = {
+              phData: githubData.phData,
               phFocus: {
                 ...props.phFocus,
                 focusProj: focusProj,
@@ -170,17 +148,47 @@ const page = (props: any) => {
                 focusRole: params.focusRole,
                 focusTask: params.focusTask,
               },
+              phSource: props.phSource,
+              phUser: props.phUser,
+              lastUpdate: props.lastUpdate,
             };
-          
-          dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+            // dispatchLocalStore(data); // dispatch to store the latest [0] from local storage
+            dispatch({ type: 'LOAD_TOSTORE_DATA', data: data })
+            const timer = setTimeout(() => {
+              setRefresh(!refresh);
+            } , 1000);
+
+            
+          } else if (focus && !githubFile) {
+            if (debug) console.log('155 modelling', focus);
+            if (params) {
+              const data = {
+                phFocus: {
+                  ...props.phFocus,
+                  focusProj: focusProj,
+                  focusModel:  params.focusModel,
+                  focusModelview: params.focusModelview,
+                  focusObject: params.focusObject,
+                  focusObjectview:  params.focusObjectview,
+                  focusRole: params.focusRole,
+                  focusTask: params.focusTask,
+                },
+              };
+            
+            dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+            }
           }
         }
       } catch (error) {
-        console.log('174 modelling query error ', error);
+        console.log('117 modelling query error ', error);
       }
+
     }
       if (debug) console.log('177 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
-      getQuery() 
+      const timer = setTimeout(() => {
+        getQuery()
+      } 
+      , 1000);
       setMount(true)
     // }, [])
   }, []);

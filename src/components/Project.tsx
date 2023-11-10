@@ -42,14 +42,14 @@ const Project = (props) => {
   const [selectedProject, setSelectedProject] = useState('');
 
 
-  const [org, setOrg] = useState(props.props.phFocus.focusProj.org)
-  const [repo, setRepo] = useState(props.props.phFocus.focusProj.repo)
-  const [path, setPath] = useState(props.props.phFocus.focusProj.path)
-  const [file, setFile] = useState(props.props.phFocus.focusProj.file)
-  const [branch, setBranch] = useState(props.props.phFocus.focusProj.branch)
-  const [focus, setFocus] = useState(props.props.phFocus.focusProj.focus)
-  const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj.ghtype)
-  const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
+  const [org, setOrg] = useState(props.props.phFocus.focusProj?.org)
+  const [repo, setRepo] = useState(props.props.phFocus.focusProj?.repo)
+  const [path, setPath] = useState(props.props.phFocus.focusProj?.path)
+  const [file, setFile] = useState(props.props.phFocus.focusProj?.file)
+  const [branch, setBranch] = useState(props.props.phFocus.focusProj?.branch)
+  const [focus, setFocus] = useState(props.props.phFocus.focusProj?.focus)
+  const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj?.ghtype)
+  const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
   
 
 

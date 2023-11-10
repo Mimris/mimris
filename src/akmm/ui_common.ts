@@ -2897,7 +2897,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 }
                 const obj = oview.object;
                 if (obj) {
-                    if (obj.type.name === constants.types.AKM_MODEL) {
+                    if (obj.type?.name === constants.types.AKM_MODEL) {
                         const modelObj = obj;
                         oview.viewkind = 'Container';
                         oview.isGroup = true;
@@ -3325,7 +3325,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "End Verification\n";
 
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 
     if (debug) console.log('2841 verifyAndRepairModel ENDED, myMetis', myMetis);

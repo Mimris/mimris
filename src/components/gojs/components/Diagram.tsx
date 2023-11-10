@@ -450,9 +450,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
             function (e: any, obj: any) {
-              const currentNode = obj.part.data;
-              if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
-              let selection = e.diagram.selection
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentNode = obj.part.data;
+                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
+                selection = myDiagram.selection
+              }
               if (debug) console.log('420 selection', selection);
               const myFromNodes = [];
               const myFromLinks = [];
@@ -648,6 +651,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = obj.part.data;
+              if (node) myDiagram.select(myDiagram.findPartForKey(node.key));
               const ilist = iconList()
               const iconLabels = ilist.map(il => (il) && il.label)
               if (debug) console.log('719', iconLabels, ilist);
@@ -751,10 +755,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentNode = obj.part.data;
+                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
+                selection = myDiagram.selection
+              }
               if (confirm('Do you really want to delete the current selection?')) {
                 const myGoModel = myMetis.gojsModel;
                 myMetis.deleteViewsOnly = false;
-                myMetis.currentNode = obj.part.data;
+                const node = obj.part.data;
+                if (node) myDiagram.select(myDiagram.findPartForKey(node.key));
                 myDiagram.selection.each(function (sel) {
                   const inst = sel.data;
                   if (inst.category === constants.gojs.C_OBJECT) {
@@ -804,6 +815,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentNode = obj.part.data;
+                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
+                selection = myDiagram.selection
+              }
               if (confirm('Do you really want to delete the current selection?')) {
                 const myModel = myMetis.currentModel;
                 myMetis.deleteViewsOnly = true;
@@ -1025,7 +1042,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Reset to Typeview",
             function (e: any, obj: any) {
-              const node = obj.part.data;
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentNode = obj.part.data;
+                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
+                selection = myDiagram.selection
+              }
               const myGoModel = myMetis.gojsModel;
               myDiagram.selection.each(function (sel) {
                 const inst = sel.data;
@@ -1034,13 +1056,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   uid.resetToTypeview(inst, myMetis, myDiagram);
                 }
               })
+              // myDiagram.clearSelection();
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.isSelected) {
-                if (node.category === constants.gojs.C_OBJECT) {
-                    return true;
-                }
+              if (node.category === constants.gojs.C_OBJECT) {
+                  return true;
               }
               return false;
             }),

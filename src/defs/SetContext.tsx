@@ -28,7 +28,7 @@ const SetContext = (props: any) =>  {
         path: phFocus.focusProj.path,
         filename: phFocus.focusProj.file,
       },
-      focusModel: phFocus.focusModel,
+      focusModel: (phFocus.focusModel.description) ? {id: phFocus.focusModel.id, name:phFocus.focusModel.name} : phFocus.focusModel, // just in case the whole model is written to the focus
       focusModelview: phFocus.focusModelview,
       focusObject: phFocus.focusObject,
       focusObjectview: phFocus.focusObjectview,
@@ -38,8 +38,10 @@ const SetContext = (props: any) =>  {
     console.log('27 paramFocus', paramFocus, phFocus.focusProj);
     const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
     // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
-    const focus = await navigator.clipboard.writeText(`http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`);
-    if (!debug) console.log('29 focus', focus);
+    const focusUrl = `http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`;
+    if (!debug) console.log('42 focus', focusUrl);
+    const focus = await navigator.clipboard.writeText(focusUrl);
+    if (!debug) console.log('44 focus', focus);
     // return focus    
   }
 
@@ -58,7 +60,7 @@ const SetContext = (props: any) =>  {
           target="_blank"
         >
           <span >
-            {phFocus.focusProj.name}
+            {phFocus.focusProj?.name}
           </span>
         </Link>
       </span>

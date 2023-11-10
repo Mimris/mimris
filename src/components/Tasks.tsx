@@ -442,13 +442,13 @@ function Tasks(props) {
             <div>
               Role:{" "}
               <span className="font-weight-bold text-success bg-white p-1">
-                {focusRole.name}
+                {focusRole?.name}
               </span>
             </div>
             <div>
               Task:{" "}
               <span className="font-weight-bold text-success bg-white p-1">
-                {focusTask.name}
+                {focusTask?.name}
               </span>
             </div>
             <div className="mb-3">

@@ -209,8 +209,15 @@ export function handleSelectDropdownChange(selected, context) {
     }
     case "Change Icon": {
       const icon = (selectedOption) && selectedOption;
+      const instances = [];
       myDiagram.selection.each(function(sel) {
         const inst = sel.data;
+        if (inst) instances.push(inst);
+      });
+      if (instances.length === 0) {
+        instances.push(modalContext.currentNode);
+      }
+      instances.map(inst => {
         if (inst.category === constants.gojs.C_OBJECT) {
           let objview = inst.objectview;
           if (debug) console.log('206 objview', objview, node, myMetis);

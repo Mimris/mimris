@@ -32,14 +32,14 @@ const SetContext = (props: any) =>  {
       focusModelview: phFocus.focusModelview,
       focusObject: phFocus.focusObject,
       focusObjectview: phFocus.focusObjectview,
-      focusRole: phFocus.focusRole,
-      focusTask: phFocus.focusTask,
+      focusRole: '', //phFocus.focusRole,
+      focusTask: '' //phFocus.focusTask,
     };
     console.log('27 paramFocus', paramFocus, phFocus.focusProj);
     const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
     // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
     const focus = await navigator.clipboard.writeText(`http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`);
-    if (debug) console.log('29 focus', focus);
+    if (!debug) console.log('29 focus', focus);
     // return focus    
   }
 
@@ -142,7 +142,7 @@ const SetContext = (props: any) =>  {
       </span>
     </span>
     <span className="mx-1 bg-">
-        <i className="fas fa-copy text-secondary " 
+        <i className="fas fa-copy fa-lg text-secondary " 
           data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
           style={{ }} 

@@ -10,6 +10,7 @@ import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, s
 // import { loadDataModel } from '../../actions/actions';
 
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { set } from 'immer/dist/internal';
 // import { load } from 'cheerio';
 
 const debug = false
@@ -311,9 +312,15 @@ const LoadGitHub = (props: any) => {
     // const pathText = props.ph.phFocus?.focusProj?.path
     // const branchText = props.ph.phFocus?.focusProj?.branch
     // const refres = () => {
-      if (!debug) console.log('314 LoadGitHub ', orgText, repoText, branchText, pathText)
+      if (debug) console.log('314 LoadGitHub ', orgText, repoText, branchText, pathText)
       loadRepos(repoText, pathText);
       loadModels(orgText, pathText)
+      
+    if (pathText === undefined || pathText === '') {
+      setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
+    } else {
+      setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
+    }
       // }
       // setTimeout(refres, 2000);
       // setRefresh(!refresh)

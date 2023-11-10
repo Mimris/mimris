@@ -405,16 +405,16 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     const initialArr = objectsNotDeleted;
     console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
   if (selectedOption === 'In this modelview') {
-      const objectviewsInThisModelview = modelview.objectviews
-      const objectsInThisModelview = model.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
+      const objectviewsInThisModelview = modelview?.objectviews
+      const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
     
-      const mvfilteredArr = objectsInThisModelview.map(o => initialArr?.find((node: { id: any; }) => node && (node.typename === o.typeName && node.name === o.name)))
+      const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node.typename === o.typeName && node.name === o.name)))
       setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
-      if (!debug) console.log('413 Palette ofilteredOnTypes', objectsInThisModelview, mvfilteredArr, gojsobjects);
+      if (debug) console.log('413 Palette ofilteredOnTypes', objectsInThisModelview, mvfilteredArr, gojsobjects);
     } else if (selectedOption === 'Sorted alfabetical') {
       const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-      if (!debug) console.log('417 Palette ofilteredOnTypes', sortedArr, gojsobjects);
+      if (debug) console.log('417 Palette ofilteredOnTypes', sortedArr, gojsobjects);
     } else if (selectedOption === 'Sorted by type') {
       const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
       const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
@@ -422,10 +422,10 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
       setGojsobjects({ nodeDataArray: sortedByType, linkDataArray: ldArr });
     } else {
       const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
-      if (!debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
+      if (debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
       // setOfilteredArr(selOfilteredArr);
       setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
-      if (!debug) console.log('421 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
+      if (debug) console.log('421 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
     }
     setRefresh(!refresh)
     if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
@@ -492,7 +492,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     />
 
   const handleSelectOTypes = (event: any) => {
-    if (!debug) console.log('495 Palette handleSelectOTypes', event.target?.value);
+    if (debug) console.log('495 Palette handleSelectOTypes', event.target?.value);
     setSelectedOption(event)
   }
 
@@ -681,7 +681,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               <Modal.Title>Report Module</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-transparent">
-              <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel.id} edit={true}/>
+              <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>

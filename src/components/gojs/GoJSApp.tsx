@@ -932,6 +932,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
       case "SelectionDeleting": {
+        const newNode = myMetis.currentNode;
+        if (newNode) myDiagram.select(myDiagram.findPartForKey(newNode.key));
         if (debug) console.log('727 myMetis', myMetis);
         const deletedFlag = true;
         let renameTypes = false;

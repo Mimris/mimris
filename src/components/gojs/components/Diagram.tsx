@@ -450,6 +450,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
             function (e: any, obj: any) {
+              const currentNode = obj.part.data;
+              if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
               let selection = e.diagram.selection
               if (debug) console.log('420 selection', selection);
               const myFromNodes = [];
@@ -483,7 +485,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
-                return o.diagram.commandHandler.canCopySelection();
+                 return true;
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
@@ -751,8 +753,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
                 const myGoModel = myMetis.gojsModel;
-                const currentModel = myMetis.currentModel;
                 myMetis.deleteViewsOnly = false;
+                myMetis.currentNode = obj.part.data;
                 myDiagram.selection.each(function (sel) {
                   const inst = sel.data;
                   if (inst.category === constants.gojs.C_OBJECT) {
@@ -797,14 +799,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               if (node.isSelected) {
                 return o.diagram.commandHandler.canDeleteSelection();
-              } 
-              return false;
+              } else 
+                return true;
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
                 const myModel = myMetis.currentModel;
                 myMetis.deleteViewsOnly = true;
+                myMetis.currentNode = obj.part.data;
                 const jsnModel = new jsn.jsnModel(myModel, true);
                 const modifiedModels = new Array();
                 modifiedModels.push(jsnModel);
@@ -820,10 +823,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) 
-                  return o.diagram.commandHandler.canDeleteSelection();
-              } 
-              return false;
+                return true;
+              }
             }),
           makeButton("----------"),
           makeButton("Add Port",

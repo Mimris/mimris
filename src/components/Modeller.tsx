@@ -25,6 +25,7 @@ import { gojs } from "../akmm/constants";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { eventChannel } from "redux-saga";
+import { set } from "immer/dist/internal";
 
 const debug = false;
 
@@ -397,33 +398,41 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    const initialArr = objectsNotDeleted?.filter((node: { typename: string; name: string; }) => node);
-    const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
-    const sortedByType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)))
-    console.log('403 Palette ofilteredOnTypes', initialArr, sortedArr, sortedByType, uniqueTypes, selectedOption);
+    setSelectedOption('In this modelview')
+  }, [])
 
-    if  (selectedOption === 'Objects in this Modelview') {
-      const nodesInThisModelview = props.gojsModelObjects?.nodeDataArray?.filter((node: { modelviewRef: any; }) => node && (node.modelviewRef === focusModelview?.id))
-      const nodeArr = nodesInThisModelview;
-      setGojsobjects({ nodeDataArray: nodeArr, linkDataArray: ldArr });
-    } else if (selectedOption === 'All Sorted Alphabetical') {
+  useEffect(() => {
+    const initialArr = objectsNotDeleted;
+    console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
+  if (selectedOption === 'In this modelview') {
+      const objectviewsInThisModelview = modelview.objectviews
+      const objectsInThisModelview = model.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
+    
+      const mvfilteredArr = objectsInThisModelview.map(o => initialArr?.find((node: { id: any; }) => node && (node.typename === o.typeName && node.name === o.name)))
+      setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
+      if (!debug) console.log('413 Palette ofilteredOnTypes', objectsInThisModelview, mvfilteredArr, gojsobjects);
+    } else if (selectedOption === 'Sorted alfabetical') {
+      const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-    } else if (selectedOption === 'All Sorted by Type') {
-      const nodeArr = sortedByType.flat();
-      console.log('409 Palette ofilteredOnTypes', sortedByType, nodeArr);
-      setGojsobjects({ nodeDataArray: nodeArr, linkDataArray: ldArr });
+      if (!debug) console.log('417 Palette ofilteredOnTypes', sortedArr, gojsobjects);
+    } else if (selectedOption === 'Sorted by type') {
+      const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
+      const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
+      console.log('422 Palette ofilteredOnTypes', sortedByType);
+      setGojsobjects({ nodeDataArray: sortedByType, linkDataArray: ldArr });
     } else {
-      const selOfilteredArr = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes[selectedOption]));
-      if (debug) console.log('394 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes[selectedOption]);
+      const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
+      if (!debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
       // setOfilteredArr(selOfilteredArr);
       setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
-      if (debug) console.log('407 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
-      setRefresh(!refresh)
+      if (!debug) console.log('421 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
     }
+    setRefresh(!refresh)
     if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
+    if (debug) console.log('433 Modeller', gojsobjects);
   }, [selectedOption])
 
-  if (debug) console.log('360  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
+  if (debug) console.log('436  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
 
   const objArr = taskNodeDataArray
   // Hack: if viewkind === 'Container' then set isGroup to true
@@ -483,9 +492,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     />
 
   const handleSelectOTypes = (event: any) => {
-    if (debug) console.log('Palette handleSelectOTypes', event.target.value);
+    if (!debug) console.log('495 Palette handleSelectOTypes', event.target?.value);
     setSelectedOption(event)
-   
   }
 
     const  SelectOTypes =  (
@@ -496,20 +504,20 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           // value={uniqueTypes[selectedOption]}
           onChange={(e) => handleSelectOTypes(e.target.value)}
         >
-          <option value="" key="01">
+          <option value="In this modelview" key="01">
             Filter/Sort Objects
           </option>
-          <option key="02">
+          <option  value="In this modelview" key="02">
             Objects in this Modelview
           </option>
-          <option key="03">
+          <option value="Sorted alfabetical" key="03">
             All Sorted Alphabetical
           </option>
-          <option key="04">
+          <option value="Sorted by type" key="04">
             All Sorted by Type
           </option>
           {uniqueTypes.map((t: any, index) => (
-            <option key={index} value={index}>{t}</option>
+            <option key={index} value={t}>{t}</option>
           ))}
         </select>
       </>
@@ -552,7 +560,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         {/* {selectTaskDiv} */}
           <div className="modellingtask bg-light w-100" >
         {SelectOTypes}
-          <div className="mmname mx-0 px-3 my-1 bg-light" style={{ fontSize: "16px", minWidth: "184px", maxWidth: "212px" }}>{uniqueTypes[selectedOption]}</div>
+          <div className="mmname mx-0 px-3 my-1 bg-light" style={{ fontSize: "16px", minWidth: "184px", maxWidth: "212px" }}>{selectedOption}</div>
         </div>
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"

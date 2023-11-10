@@ -654,6 +654,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 title: "Select Icon",
                 case: "Change Icon",
                 iconList: iconList(),
+                currentNode: node,
                 myDiagram: myDiagram
               }
               myMetis.currentNode = node;
@@ -663,10 +664,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.isSelected) {
                 if (node.category === constants.gojs.C_OBJECT) {
                     return true;
-                }
               }
               return false;
             }),

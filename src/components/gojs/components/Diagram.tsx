@@ -1879,6 +1879,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Clear Breakpoints",
             function (e: any, obj: any) {
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentLink = obj.part.data;
+                if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
+                selection = myDiagram.selection
+              }
               const modifiedRelshipViews = new Array();
               myDiagram.selection.each(function (sel) {
                 const link = sel.data;

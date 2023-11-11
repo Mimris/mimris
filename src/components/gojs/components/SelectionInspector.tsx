@@ -69,7 +69,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, instview1, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenType, chosenInst, description, currentType, properties, pointerProps;
+    let item, chosenInst, description, currentType, properties, pointerProps;
+    let chosenType = null as akm.cxObjectType;
     let typename = "";
     let typedescription = "";
     switch(category) {
@@ -208,8 +209,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     {
       if (category === constants.gojs.C_OBJECT) {
         if (chosenType) {
+          try {
           properties = chosenType.getProperties(false);
           // pointerProps = chosenType.getPointerProperties(false);
+          } catch {
+            // Do nothing
+          }
         } 
         else if (type?.name === 'Method') {
           inst = myMetis.findObject(inst.id);
@@ -220,12 +225,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           let includeConnected = false;
           inst = myMetis.findObject(inst.id);
           type = myMetis.findObjectType(type.id);
-          const typeProps = type?.getProperties(includeInherited);
-          const inheritedProps = inst?.getInheritedProperties(myModel);
-          if (inheritedProps?.length>0)
-            properties = typeProps.concat(inheritedProps);
-          else
-            properties = typeProps;
+          try {
+            const typeProps = type?.getProperties(includeInherited);
+            const inheritedProps = inst?.getInheritedProperties(myModel);
+            if (inheritedProps?.length>0)
+              properties = typeProps.concat(inheritedProps);
+            else
+              properties = typeProps;
+          } catch {
+            // Do nothing
+          }
         }
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {

@@ -350,6 +350,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
   let ndArr = props.gojsModelObjects?.nodeDataArray
   let ldArr = props.gojsModelObjects?.linkDataArray || []
+  // let ndArr = props.gojsModel?.nodeDataArray
+  // let ldArr = props.gojsModel?.linkDataArray || []
 
   const ndTypes = ndArr?.map((nd: any) => nd.typename)
   const uniqueTypes = [...new Set(ndTypes)].sort();
@@ -564,6 +566,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"
+          // nodeDataArray={gojsmodel.nodeDataArray}
+          // linkDataArray={gojsmodel.linkDataArray}
           nodeDataArray={gojsobjects.nodeDataArray}
           linkDataArray={gojsobjects.linkDataArray}
           metis={props.metis}

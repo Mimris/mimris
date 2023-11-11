@@ -390,9 +390,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
         }
         // Hack
-        if (k === 'memberscale') {
-          continue;
-        }
+        // if (k === 'memberscale') {
+        //   continue;
+        // }
         // End hack
       }
       if (chosenType) {

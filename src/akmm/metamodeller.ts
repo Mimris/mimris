@@ -5666,31 +5666,35 @@ export class cxObjectType extends cxType {
         return objtypes;
     }
     findSupertypes(level: number): cxObjectType[] | null {
-        if (!level) level = 0;
-        const supertypes = new Array();
-        const rtypes = this.outputreltypes;
-        if (debug) console.log('5005 this, rtypes', this, rtypes);
-        if (rtypes) {
-            for (let i=0; i<rtypes?.length; i++) {
-                const rtype = rtypes[i];
-                if (rtype?.relshipkind === constants.relkinds.GEN) {
-                    const stype = rtype.toObjtype;
-                    if (stype) {
-                        supertypes.push(stype);
-                        if (level > 5) 
-                            return supertypes;
-                        if (debug) console.log('5015 this, supertypes', this, supertypes);
-                        const stypes = stype.findSupertypes(++level);
-                        if (stypes) {
-                            for (let j=0; j<stypes.length; j++) {
-                                const stype = stypes[j];
-                                supertypes.push(stype);
+        let supertypes = new Array();
+        try {
+            if (!level) level = 0;
+            const rtypes = this.outputreltypes;
+            if (debug) console.log('5005 this, rtypes', this, rtypes);
+            if (rtypes) {
+                for (let i=0; i<rtypes?.length; i++) {
+                    const rtype = rtypes[i];
+                    if (rtype?.relshipkind === constants.relkinds.GEN) {
+                        const stype = rtype.toObjtype;
+                        if (stype) {
+                            supertypes.push(stype);
+                            if (level > 5) 
+                                return supertypes;
+                            if (debug) console.log('5015 this, supertypes', this, supertypes);
+                            const stypes = stype.findSupertypes(++level);
+                            if (stypes) {
+                                for (let j=0; j<stypes.length; j++) {
+                                    const stype = stypes[j];
+                                    supertypes.push(stype);
+                                }
+                                if (debug) console.log('5022 this, supertype', this, supertypes);
                             }
-                            if (debug) console.log('5022 this, supertype', this, supertypes);
                         }
                     }
                 }
             }
+        } catch (error) {
+            console.log('5027 error', error);
         }
         return supertypes;
     }
@@ -7512,8 +7516,12 @@ export class cxInstance extends cxMetaObject {
     getInheritedTypes(): cxType[] | null {
         const typelist = [];
         const type = this.getType() as cxObjectType;
-        const types = type && type.findSupertypes(0);
-        if (debug) console.log('6697 types', types);
+        let types = [];
+        try {
+            types = type?.findSupertypes(0);
+        } catch (error) {
+            types = [];
+        }
         for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
             if (tname !== constants.types.AKM_ELEMENT) 
@@ -7946,10 +7954,14 @@ export class cxObject extends cxInstance {
         }
         // Then handle the type itself
         const type = this.type;
-        const supertypes = type?.getSupertypes();
-        for (let i=0; i<supertypes?.length; i++) {
-            const stype = supertypes[i];
-            typelist.push(stype);
+        try {
+            const supertypes = type?.getSupertypes();
+            for (let i=0; i<supertypes?.length; i++) {
+                const stype = supertypes[i];
+                typelist.push(stype);
+            }
+        } catch (error) {
+            console.log('6470 error', error);
         }
         if (debug) console.log('6472 typelist', typelist);
         return typelist;

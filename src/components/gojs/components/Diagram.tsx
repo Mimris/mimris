@@ -764,8 +764,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (confirm('Do you really want to delete the current selection?')) {
                 const myGoModel = myMetis.gojsModel;
                 myMetis.deleteViewsOnly = false;
-                const node = obj.part.data;
-                if (node) myDiagram.select(myDiagram.findPartForKey(node.key));
                 myDiagram.selection.each(function (sel) {
                   const inst = sel.data;
                   if (inst.category === constants.gojs.C_OBJECT) {

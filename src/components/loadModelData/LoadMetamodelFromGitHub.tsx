@@ -163,7 +163,7 @@ const LoadMetamodelFromGithub = (props: any) => {
         //   }    
         // }
         let datatmp = props.ph
-        if (!debug) console.log('166 ',  mmodel.name, props.ph.phData?.metis?.metamodels.find(mm => mm.name ), props.ph.phData?.metis?.metamodels)
+        if (debug) console.log('166 ',  mmodel.name, props.ph.phData?.metis?.metamodels.find(mm => mm.name ), props.ph.phData?.metis?.metamodels)
         if (mmodel?.name === props.ph.phData?.metis?.metamodels.find(mm => mm.name === mmodel?.name)?.name && mmodel?.id !== props.ph.phData?.metis?.metamodels.find(mm => mm.name === mmodel?.name)?.id) {
 
           const tmpmmodel = props.ph.phData?.metis?.metamodels.find(mm => mm.name === mmodel.name)
@@ -173,7 +173,7 @@ const LoadMetamodelFromGithub = (props: any) => {
             name: tmpmmodel.name+'_old',
           }    
           let oldmmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === oldmmodel?.id) // current mmodel index
-          if (!debug) console.log('174 ', oldmmindex, oldmmodel, props.ph.phData?.metis?.metamodels)
+          if (debug) console.log('174 ', oldmmindex, oldmmodel, props.ph.phData?.metis?.metamodels)
           // find the model refering to the metamodel and change the metamodelRef to the new metamodel
           let oldmodel;
           let oldmindex = props.ph.phData?.metis?.models?.findIndex(m => m.metamodelRef === oldmmodel?.id) // current mmodel index
@@ -185,7 +185,7 @@ const LoadMetamodelFromGithub = (props: any) => {
               metamodelRef: mmodel.id,
             }    
           }
-          if (!debug) console.log('185 ', oldmindex, oldmodel, props.ph.phData?.metis?.models)
+          if (debug) console.log('185 ', oldmindex, oldmodel, props.ph.phData?.metis?.models)
 
           datatmp = {
             phData: {
@@ -208,7 +208,7 @@ const LoadMetamodelFromGithub = (props: any) => {
         }
         const mmlength = props.ph.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
-        if (!debug) console.log('192 ', mmindex, mmlength, mmodel, datatmp)
+        if (debug) console.log('192 ', mmindex, mmlength, mmodel, datatmp)
         const data = {
           phData: {
               ...datatmp?.phData,

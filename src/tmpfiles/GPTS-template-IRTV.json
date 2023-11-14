@@ -1,0 +1,151 @@
+
+Create a model of objects and relationships between objects for the given topic,
+Generate the roles, tasks, information and views with id = uuid name and description.
+
+Refer to the objecttypes and relshiptypes given below:
+
+Metamodel:
+id: '32b03aab-bd61-4924-4d6c-ce36e4537774', name: 'AKM-IRTV_MM'
+
+Objecttypes:
+id: 'ddc75a39-9367-48e4-de12-079bae5362f9', name: 'Information'
+id: '49ba147f-1d9a-4b9e-9467-7fcc5b830244', name: 'Role'
+id: '3979fb2c-71e3-4054-745d-ee062b3689e5', name: 'Task'
+id: 'ba774700-c196-4f6e-c7e2-d742e1449a28', name: 'View'
+id: '5f1fa0f1-d89f-4a62-5b93-3a433acb833e', name: 'Container'
+
+relshiptypes:
+id: '73d06934-f8af-48c5-a344-287d0b725792', name: 'performs'
+id: 'aaa500aa-d964-4644-db73-0ea86a8745ca', name: 'manages'
+id: 'd22a1ce6-904f-46f1-29a3-c04b2b84f661', name: 'hasInput'
+id: '640eec34-6109-48f3-0576-11461c396da6', name: 'hasOutput'
+id: '2fb581fc-6c9c-47d6-e479-9502ffa6c3e5', name: 'fills'
+id: '66487d8d-c42a-41d4-14f1-b2c2d07af0bb', name: 'worksOn'
+id: '0f0059c3-ee1f-423c-e3e3-b18416fc772d', name: 'includes'
+id: '33f22bdf-7c68-4b69-0a22-eb62951044af', name: 'applies'
+id: '160579ac-1c16-44f8-2a44-7a4576c1e797', name: 'contains'
+
+Please make the response in json format.
+
+Use the following json template: {
+    "models": [
+        {
+            "id": "",
+            "name": "",
+            "description": "",
+            "metamodelRef": "",
+            "includeSystemtypes": true,
+            "includeRelshipkind": false,
+            "objects": [
+                {
+                    "id": "",
+                    "name": "",
+                    "description": "",
+                    "abstract": false,
+                    "viewkind": "",
+                    "typeRef": "",
+                    "typeName": "",
+                    "typeDescription": "",
+                    "modified": false,
+                    "nameId": "",
+                    "category": "Object",
+                    "relshipkind": "Association",
+                    "valueset": null,
+                    "copiedFromId": "",
+                    "proposedType": ""
+                }
+            ],
+            "relships": [
+                {
+                    "id": "",
+                    "name": "",
+                    "description": "",
+                    "relshipkind": "Association",
+                    "fromobjectRef": "",
+                    "toobjectRef": "",
+                    "typeRef": "",
+                    "nameFrom": "",
+                    "nameTo": "",
+                    "markedAsDeleted": false,
+                    "modified": true
+                }
+            ],
+            "modelviews": [
+                {
+                    "id": "",
+                    "name": "",
+                    "objectviews": [
+                        {
+                            "id": "",
+                            "name": "",
+                            "description": "",
+                            "objectRef": "",
+                            "typeviewRef": "",
+                            "group": "",
+                            "viewkind": "",
+                            "isGroup": true,
+                            "isExpanded": true,
+                            "isSelected": false,
+                            "loc": "",
+                            "template": "",
+                            "figure": "",
+                            "geometry": "",
+                            "fillcolor": "",
+                            "fillcolor2": "",
+                            "strokecolor": "",
+                            "strokecolor2": "",
+                            "strokewidth": "1",
+                            "textcolor": "",
+                            "icon": "",
+                            "size": "",
+                            "scale": 1,
+                            "memberscale": 1,
+                            "textscale": "1",
+                            "arrowscale": "1.3",
+                            "markedAsDeleted": false,
+                            "modified": true
+                        },
+                    ],
+                    "relshipviews": [
+                        {
+                            "id": "",
+                            "name": "",
+                            "description": "",
+                            "relshipRef": "",
+                            "typeviewRef": "",
+                            "template": "",
+                            "arrowscale": "1.3",
+                            "strokecolor": "black",
+                            "strokewidth": "1",
+                            "textcolor": "black",
+                            "textscale": "1",
+                            "dash": "None",
+                            "fromArrow": "",
+                            "toArrow": "OpenTriangle",
+                            "fromArrowColor": "",
+                            "toArrowColor": "white",
+                            "fromobjviewRef": "",
+                            "toobjviewRef": "",
+                            "fromPortid": "",
+                            "toPortid": "",
+                            "points": [],
+                            "routing": "Normal",
+                            "curve": "0",
+                            "corner": "0",
+                            "markedAsDeleted": "",
+                            "modified": true
+                        },
+                    ],
+                    "description": "",
+                    "modelRef": "",
+                    "includeInheritedReltypes": false,
+                    "UseUMLrelshipkinds": false,
+                    "objecttypeviews": [],
+                    "relshiptypeviews": [],
+                    "markedAsDeleted": false,
+                    "modified": false
+                }
+            ],
+        }
+    ]
+}

@@ -292,16 +292,16 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
-        if (!debug) console.log('295 InitialLayoutCompleted: myMetis', myMetis);
+        if (debug) console.log('295 InitialLayoutCompleted: myMetis', myMetis);
         const modelview = myMetis.currentModelview;
         const objviews = modelview.objectviews;
-        if (!debug) console.log('298 InitialLayoutCompleted: objviews', objviews);
+        if (debug) console.log('298 InitialLayoutCompleted: objviews', objviews);
         const nodes = myDiagram.nodes;
         for (let it = nodes.iterator; it?.next();) {
           const node = it.value;     
           node.scale = node.data.scale;     
           node.loc = node.data.loc;
-          if (!debug) console.log('300 InitialLayoutCompleted: node', node);
+          if (debug) console.log('300 InitialLayoutCompleted: node', node);
         }
         break;
       }

@@ -36,7 +36,7 @@ const CreateNewModel = (props: any) => {
 
     // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
     // create an empty model object with an empty modelview all with uuids
-    if (!debug) console.log('39 CreateNewModel', submodels, submetamodels)
+    if (debug) console.log('39 CreateNewModel', submodels, submetamodels)
 
     const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)

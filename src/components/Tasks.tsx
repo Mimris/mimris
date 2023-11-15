@@ -64,14 +64,14 @@ function Tasks(props) {
   // set  metamodel
   const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
   // if (!mothermodel) return null;
-  if (!debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
+  if (debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
   const motherobjviews = mothermodel?.objectviews;
   const motherrelships = mothermodel?.relshipviews;
 
-  if (!debug) console.log('93 Tasks', mothermodel, mothermodelviews);
+  if (debug) console.log('93 Tasks', mothermodel, mothermodelviews);
 
     useEffect(() => {
     if (props.asPage) {
@@ -292,12 +292,12 @@ function Tasks(props) {
     if (!item) return null;
     const itemDiv = renderItem(item, item.typeName);
     const children = item.children;
-    if (debug) console.log('306 renderItem',item,  children);
+    if (debug) console.log('295 renderItem',item,  children);
 
     if (children?.length === 0) return renderItem(item, item.typeName)
         
     const childItems = children?.map((child, index) => {
-      if (debug) console.log('308 renderItems', child);
+      if (debug) console.log('300 renderItems', child);
       return (item.typeName === 'Task')
       ? <div key={index} className="ps-2">{renderTree(child)}</div> 
       : <div key={index} className="ps-1">{renderTree(child)}</div> 
@@ -314,10 +314,10 @@ function Tasks(props) {
   const genTasksDiv = () => {
     let parent, topGroupOvsDiv;
     if (!mothermodelviews) return null;
-    console.log('371 Tasks', mothermodelviews, mothermodel.objects);
+    if (debug) console.log('317 Tasks', mothermodelviews, mothermodel.objects);
     const modview = 
       mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
-        if (debug) console.log('371 Tasks', mv);
+        if (debug) console.log('320 Tasks', mv);
         parent = mv;
         // nolabel objectviews that has no parent objectview i.e. top containers(groups)
         const noLabelovs = mv?.objectviews?.filter((ov: any) =>

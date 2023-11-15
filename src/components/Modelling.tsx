@@ -55,7 +55,7 @@ const page = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (!debug) console.log('57 Modelling:', props)//, props);        
+  if (debug) console.log('57 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
@@ -226,7 +226,7 @@ const page = (props: any) => {
     nodeDataArray: myGoObjectPalette,
     linkDataArray: myGoRelshipPalette || []
   }
-  if (!debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
+  if (debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
   {
     nodeDataArray: myGoModel.nodes,

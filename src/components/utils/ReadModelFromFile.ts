@@ -256,7 +256,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
 
         // if (filename.includes('_MO')) { // if modelff is a model, then it is a model file with model
-        //     if (!debug) console.log('248 ReadModelFromFile _MV found', data)
+        //     if (debug) console.log('248 ReadModelFromFile _MV found', data)
         //     if (!impModels) { //|| !impRelships) {
         //         const r = window.confirm("This Model import has no model object. Click OK to cancel?")
         //         if (r === false) { return null } // if user clicks cancel, then do nothing
@@ -399,7 +399,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             }
         }
 
-        if (!debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+        if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource) 

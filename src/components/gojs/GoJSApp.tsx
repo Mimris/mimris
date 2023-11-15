@@ -291,6 +291,20 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('268 event name', name);
 
     switch (name) {
+      case "InitialLayoutCompleted": {
+        if (!debug) console.log('295 InitialLayoutCompleted: myMetis', myMetis);
+        const modelview = myMetis.currentModelview;
+        const objviews = modelview.objectviews;
+        if (!debug) console.log('298 InitialLayoutCompleted: objviews', objviews);
+        const nodes = myDiagram.nodes;
+        for (let it = nodes.iterator; it?.next();) {
+          const node = it.value;     
+          node.scale = node.data.scale;     
+          node.loc = node.data.loc;
+          if (!debug) console.log('300 InitialLayoutCompleted: node', node);
+        }
+        break;
+      }
       case 'TextEdited': {
         const sel = e.subject.part;
         const data = sel.data;
@@ -1219,6 +1233,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objview.size = node.size;
                   myDiagram.model?.setDataProperty(n.data, "size", node.data.size);
                 }
+                node.data.loc = node.location;
                 // End hack
               }
               const jsnObjview = new jsn.jsnObjectView(objview);

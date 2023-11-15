@@ -115,13 +115,13 @@ const page = (props: any) => {
         queryParam = new URLSearchParams(window.location.search);
 
         if (queryParam) {
-          if (!debug) console.log('120 modelling queryParam', query, queryParam)
+          if (debug) console.log('120 modelling queryParam', query, queryParam)
           const queryParams = queryParam.get('focus');
           // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
           const params = JSON.parse(queryParams);
-          if (!debug) console.log('124 modelling params', params)
+          if (debug) console.log('124 modelling params', params)
           const githubFile = params?.githubFile;
-          if (!debug) console.log('126 modelling githubFile', githubFile)
+          if (debug) console.log('126 modelling githubFile', githubFile)
           if (githubFile) {
             focusProj = {
               org: githubFile.org,

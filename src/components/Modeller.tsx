@@ -405,7 +405,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   useEffect(() => {
     const initialArr = objectsNotDeleted;
-    console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
+    if (debug) console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
   if (selectedOption === 'In this modelview') {
       const objectviewsInThisModelview = modelview?.objectviews
       const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
@@ -420,7 +420,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     } else if (selectedOption === 'Sorted by type') {
       const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
       const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
-      console.log('422 Palette ofilteredOnTypes', sortedByType);
+      if (debug) console.log('422 Palette ofilteredOnTypes', sortedByType);
       setGojsobjects({ nodeDataArray: sortedByType, linkDataArray: ldArr });
     } else {
       const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));

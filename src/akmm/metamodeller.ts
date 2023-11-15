@@ -8923,6 +8923,7 @@ export class cxObjectView extends cxMetaObject {
     text: string;
     loc: string;
     size: string;
+    scale: string;
     scale1: string;
     memberscale: string;
     arrowscale: string;
@@ -8960,6 +8961,7 @@ export class cxObjectView extends cxMetaObject {
         this.viewkind = "";
         this.loc = "";
         this.size = "";
+        this.scale = "1";
         this.scale1 = "1";
         this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
@@ -9182,9 +9184,10 @@ export class cxObjectView extends cxMetaObject {
         return this.size;
     }
     setScale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
+        if (scale == undefined || scale == "" || scale == null) 
             scale = "1";
-        this.scale1 = scale;
+        this.scale = scale;
+        this.scale1 = scale;        
     }
     getScale(): string {
         const scale = this.scale1;

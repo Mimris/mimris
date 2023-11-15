@@ -91,6 +91,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
+                        node.objectview.group = parentgroup.objectview.id;
                         myDiagram.model.setDataProperty(data, "group", node.group);
                         node.scale1 = new String(node.getMyScale(myGoModel));
                         data.scale1 = Number(node.scale1);
@@ -150,6 +151,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myDiagram.model.setDataProperty(data, "name", name);
                 myDiagram.model.setDataProperty(n, "scale", data.scale1);
                 myDiagram.model.setDataProperty(data, "objectview", objview);
+                myDiagram.model.setDataProperty(data, "group", node.group);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
                 if (context.pasted) {
@@ -848,11 +850,11 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             if (
                 (nx > gx) // Check upper left corner of node
                 && 
-                (nx < gx + gw * scale ) // Check upper right corner of node
+                (nx <= gx + gw * scale ) // Check upper right corner of node
                 &&
                 (ny > gy) // Check lower left corner of node
                 && 
-                (ny < gy + gh * scale) // Check lower right corner of node
+                (ny <= gy + gh * scale) // Check lower right corner of node
             ) {
                 let grp = {
                     "name": node.name, 

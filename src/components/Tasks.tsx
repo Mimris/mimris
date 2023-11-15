@@ -310,7 +310,7 @@ function Tasks(props) {
   const genTasksDiv = () => {
     let parent, topGroupOvsDiv;
     if (!mothermodelviews) return null;
-    console.log('371 Tasks', mothermodelviews, mothermodel.objects);
+    if (debug) console.log('371 Tasks', mothermodelviews, mothermodel.objects);
     const modview = 
       mothermodelviews?.map((mv: any, index: number) => { // map over all modelviews of this model
         if (debug) console.log('371 Tasks', mv);

@@ -98,7 +98,7 @@ export default function HeaderButtons(props) {
                         </button >
                     </span>
                     {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
+                    {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
                     <span className="btn px-2 py-0 mt-0 pt-1 bg-light text-secondary float-right"
                         onClick={props.toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'}
                     </span>

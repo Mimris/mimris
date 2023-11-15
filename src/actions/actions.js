@@ -36,6 +36,7 @@ import {
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
   SET_FOCUS_REFRESH,
+  SET_FOCUS_ISSUE,
   SET_USER_SHOWDELETED,
   SET_USER_SHOWMODIFIED,
   SET_VISIBLE_CONTEXT,
@@ -375,6 +376,13 @@ export const setFocusTask = (data) => {
   // console.log('action-Task-data', JSON.parse(data.value));
   return {
     type: SET_FOCUS_TASK,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusIssue = (data) => {
+  // console.log('action-type-data', data);
+  return {
+    type: SET_FOCUS_ISSUE,
     data: JSON.parse(data.value)
   }
 }

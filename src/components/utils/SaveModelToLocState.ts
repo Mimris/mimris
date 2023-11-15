@@ -23,7 +23,7 @@ export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) =>
         foundmv = props.phData?.metis.models[0].modelviews.some((modelview: any) => {
             return props.phFocus?.focusModelview?.id === modelview?.id;
         });
-        if (!debug) console.log('27 SaveModeltoLocState ', found, props.phData?.metis.models[0].modelviews, props.phFocus?.focusModelview?.id)
+        if (debug) console.log('27 SaveModeltoLocState ', found, props.phData?.metis.models[0].modelviews, props.phFocus?.focusModelview?.id)
         if (!foundmv) {
             localfocusModelview = { id: props.phData?.metis.models[0].modelviews[0].id, name: props.phData?.metis.models[0].modelviews[0].name };
         } else {
@@ -36,7 +36,7 @@ export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) =>
         localfocusModelview = props.phFocus.focusModelview;
     }
 
-    if (!debug) console.log('33 SaveModeltoLocState ', localfocusModelview, props.phFocus.focusModel, props.phFocus.focusModelview, props.phData?.metis.models[0].modelviews[0].id, props.phData?.metis.models[0].modelviews[0].name)
+    if (debug) console.log('33 SaveModeltoLocState ', localfocusModelview, props.phFocus.focusModel, props.phFocus.focusModelview, props.phData?.metis.models[0].modelviews[0].id, props.phData?.metis.models[0].modelviews[0].name)
     let locState
     if (memoryLocState && Array.isArray(memoryLocState) && memoryLocState.length > 0) {
         let mdata = //(memoryLocState && Array.isArray(memoryLocState)) 
@@ -52,7 +52,7 @@ export const SaveModelToLocState = (props, memoryLocState, setMemoryLocState) =>
         if (debug) console.log('46 SaveModeltoLocState', mdata);
         if (typeof window !== 'undefined') locState = mdata // Save Project to Memorystate in LocalStorage at every refresh
     } else {
-        if (!debug) console.log('49 SaveModeltoLocState', props.phFocus);
+        if (debug) console.log('49 SaveModeltoLocState', props.phFocus);
         locState = [{phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser}] // Save Project to Memorystate in LocalStorage at every refresh
     }
     if (debug) console.log('52 SaveModeltoLocState', locState);

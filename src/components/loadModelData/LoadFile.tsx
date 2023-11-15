@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
+import { v4 as uuidv4 } from 'uuid';
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
 // import { loadState, saveState } from '../utils/LocalStorage'
@@ -11,11 +12,12 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
 import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
+import CreateNewModel  from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
+import { UniqueDirectiveNamesRule } from 'graphql';
 
 const LoadFile = (props: any) => {
-
 
   // if (typeof window === 'undefined') return null
 
@@ -25,10 +27,10 @@ const LoadFile = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
-  if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
+  // if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
 
-  const modelNames = props.ph.phData?.metis?.models?.map(mn => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels?.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models?.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
 
   if (debug) console.log('26 LoadLocal', props, typeof (window));
 
@@ -45,15 +47,15 @@ const LoadFile = (props: any) => {
   // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
-    console.log('37 LoadFile', data);
-
+    if (debug) console.log('37 LoadFile', data);
     SaveAllToFile(data, projectname, '_PR')
     // SaveAllToFile(data, projectname, 'AKMM-Project')
   }
+
   // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
   function handleSaveAllToFileDate() {
     const projectname = props.ph.phData.metis.name
-    console.log('37 LoadFile', data);
+    if (debug) console.log('37 LoadFile', data);
 
     // SaveAllToFileDate(data, projectname, 'Project')
     SaveAllToFileDate(data, projectname, '_PR')
@@ -89,14 +91,34 @@ const LoadFile = (props: any) => {
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
 
+  function handleSaveNewModel() {
+    const ph = props.ph
+    const models = ph?.phData?.metis?.models
+    const metamodels = ph?.phData?.metis?.metamodels
+    const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
+    const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
+    const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
+    const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
+    console.log('194 Loadfile', metamodels, data)
+    // replace the _MM in curMetamodel.name
+    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id)
+    const filename = newmm?.name.replace('_MM', '-Startmodel')
+
+    console.log('199 Loadfile', newmm, filename)
+
+    SaveAllToFile(data, filename, '_PR')
+    const metamodelname = newmm?.name.replace('_MM', '')
+    SaveMetamodelToFile(newmm, metamodelname, '_MM')
+    
+  }
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const modelview = model.modelviews?.find(mv => mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
     WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
-    // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+      // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
+      // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
   const { buttonLabel, className } = props;
@@ -141,6 +163,7 @@ const LoadFile = (props: any) => {
         onClick={handleSaveModelviewToFile}>Save Current Modelview to File: ..._MV.json (Metamodel & Objects included)
       </button >
     </div>
+
   const buttonSaveMetamodelToFileDiv =
     <div>
       <button
@@ -151,17 +174,37 @@ const LoadFile = (props: any) => {
       </button >
     </div>
 
+  // const buttonSaveMetamodelWithSubToFileDiv =
+  //   <div>
+  //     <button
+  //       className="btn-secondary border rounded border-secondary mr-2  w-100  "
+  //       data-toggle="tooltip" data-placement="top" data-bs-html="true"
+  //       title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
+  //       onClick={handleSaveMetamodelWithSubToProjectfile}>Create New Startfile from this Modelviews Metamodelobject to: New-Project_PR.json
+  //     </button >
+  //   </div>
+
+  const buttonSaveModelprojectToFileDiv =
+    <div>
+      <button
+        className="btn-secondary border rounded border-secondary mr-2  w-100  "
+        data-toggle="tooltip" data-placement="top" data-bs-html="true"
+        title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
+        onClick={handleSaveNewModel}>Create New Startfile from this modelview: New-Project_PR.json
+      </button >
+    </div>
+
   if (debug) console.log('172', buttonLabel);
 
   return (
     <>
-      <button className="btn px-2 bg-light text-secondary" onClick={toggle}>{buttonLabel}</button>
+      <span><button className="btn bg-light text-secondary py-1 px-2" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button></span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">
-          Current Source: <strong> {props.ph.phSource}</strong>
-          <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
-          <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
+         <span> Current Source : <strong> {props.ph.phSource} </strong></span>
+          {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
+          <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
           <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="loadsave px-2 pb-1 mb-0">
@@ -194,8 +237,16 @@ const LoadFile = (props: any) => {
                   <input className="select-input" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border">
-                  <h6>Export to file </h6>
+                  <h6>Export Metamodel to file </h6>
                   {buttonSaveMetamodelToFileDiv}
+                </div>
+                {/* <div className="selectbox mb-2 border">
+                  <h6>Export start project with Metamodel, sub-metamodels and sub-models to file </h6>
+                  {buttonSaveMetamodelWithSubToFileDiv}
+                </div> */}
+                <div className="selectbox mb-2 border">
+                  <h6>Export start projectModalDiv </h6>
+                  {buttonSaveModelprojectToFileDiv}
                 </div>
               </div>
             </div>

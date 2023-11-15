@@ -4,7 +4,7 @@ import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 
 function ProjectDetailsModal(props) {
 
-  console.log("6 ProjectDetailsModal", props.props.phFocus);
+  // console.log("6 ProjectDetailsModal", props.props.phFocus);
   const [showModal, setShowModal] = useState(false);
   const toggle = () => setShowModal(!showModal);
 
@@ -25,9 +25,9 @@ function ProjectDetailsModal(props) {
 
   return (
     <>
-      <button className=" rounded mt-2 px-2 text-primary"   onClick={toggle}>Edit Project Details
+      <button className="button rounded mt-2 px-2 text-primary"   onClick={toggle}>Edit Project Details
       </button>
-      <Modal isOpen={showModal} toggle={toggle}  >
+      <Modal className="project-modal" isOpen={showModal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
         <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />

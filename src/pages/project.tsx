@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from "next/router";
 import { loadData, setfocusRefresh } from '../actions/actions'
 import useLocalStorage from '../hooks/use-local-storage'
+import useSessionStorage from "../hooks/use-session-storage";
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -36,9 +37,10 @@ const page = (props: any) => {
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
   if (debug) console.log('28 project', props, query)
 
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [mount, setMount] = useState(false)
+
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
@@ -52,12 +54,12 @@ const page = (props: any) => {
   const [path, setPath] = useState(props.phFocus.focusProj.path)
   const [file, setFile] = useState(props.phFocus.focusProj.file)
   const [branch, setBranch] = useState(props.phFocus.focusProj.branch)
-  const [focus, setFocus] = useState(props.phFocus.focusProj.focus)
+  const [focus, setFocus] = useState(props.phFocus)
   const [ghtype, setGhtype] = useState(props.phFocus.focusProj.ghtype)
   const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
 
 
-  console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
+  if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -77,62 +79,63 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }
 
-  useEffect(() => {
+  useEffect(() => {  // if no query params, then load from memoryLocState
 
-    if (!debug) console.log('82 project useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('82 project useEffect 1', query.repo)//memoryLocState[0], props.phFocus.focusModelview.name)
     const getQueryParams = async () => {
       try {
 
-        // let data = {}
-        if (debug) console.log('68 project', props.phFocus.focusProj.file)
-        if (props.phFocus.focusProj.file === 'AKM-INIT-Startup__PR.json') {
-          if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-            if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-              if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-                const locStore = (memoryLocState[0])
-                if (locStore) {
-                  dispatchLocalStore(locStore)
-                  // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-                  // console.log('modelling 73 ', data)
-                }
-              }
+        if ((window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") { // if page is refreshed
+          console.log('Page is refreshed');
+        
+          // let data = {}
+          if (debug) console.log('68 project', props.phFocus.focusProj.file)
+          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+            if (memoryLocState && memoryLocState.phData) {
+              // if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+                // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+                  const locStore = memoryLocState
+                  if (locStore) {
+                    dispatchLocalStore(locStore)
+                    // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+                    // console.log('modelling 73 ', data)
+                  }
+                // }
+              // }
             }
+          } else {
+            setOrg(props.phFocus.focusProj.org)
+            setRepo(props.phFocus.focusProj.repo)
+            setPath(props.phFocus.focusProj.path)
+            setFile(props.phFocus.focusProj.file)
+            setBranch(props.phFocus.focusProj.branch)
+            setFocus(props.phFocus.focusProj.focus)
+            setProjectNumber(props.phFocus.focusProj.projectNumber)
+            setGhtype(props.phFocus.focusProj.ghtype)
+            setProjectNumber(props.phFocus.focusProj.projectNumber)
+            const timer = setTimeout(() => {
+              setRefresh(!refresh)
+            }
+              , 100);
+            return () => clearTimeout(timer);
           }
-        } else {
-          setOrg(props.phFocus.focusProj.org)
-          setRepo(props.phFocus.focusProj.repo)
-          setPath(props.phFocus.focusProj.path)
-          setFile(props.phFocus.focusProj.file)
-          setBranch(props.phFocus.focusProj.branch)
-          setFocus(props.phFocus.focusProj.focus)
-          setProjectNumber(props.phFocus.focusProj.projectNumber)
-          setGhtype(props.phFocus.focusProj.ghtype)
-          setProjectNumber(props.phFocus.focusProj.projectNumber)
-          const timer = setTimeout(() => {
-            setRefresh(!refresh)
-          }
-            , 100);
-          return () => clearTimeout(timer);
         }
-
       } catch (err) {
         setError(err);
       }
     }
-    // if (!query.repo) {
     getQueryParams();
-    // }
   }, [query.repo === ''])
 
 
   useEffect(() => { // when the page loads, set the focus
-    console.log('61 project', query, query?.repo)
+    if (debug) console.log('61 project', query, query?.repo)
     const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus, projectNumber: query.projectNumber, ghtype: query.ghtype  }
-    console.log('65 project', data);
+    if (debug) console.log('65 project', data);
     (query.repo) && dispatch({ type: 'SET_FOCUS_PROJ', data });
 
     const { org, repo, path, file, branch, focus, ghtype, projectNumber } = query;
-    console.log('69 project', org, repo, path, file, branch)
+    if (debug) console.log('69 project', org, repo, path, file, branch)
     dispatch({ type: 'LOAD_DATAGITHUB', data: query });
     const timer = setTimeout(() => {
       dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
@@ -143,60 +146,32 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
     GenGojsModel(props, dispatch);
-    // const timer = setTimeout(() => {
-    //   toggleRefresh()
-    // }, 200);
-    // return () => clearTimeout(timer);
   }, [props.phFocus?.focusRefresh?.id])
 
-  // useEffect(() => {
-  //   toggleRefresh(); // refresh the page
-  // }, []);
-
-  useEffect(() => {
-    async function fetchData() { // fetch issues
-      if (query.repo?.length > 0) {
-        try {
-        const { data } = await axios.get(issueUrl);
-        setIssues(data);
-        console.log('55 issues', data)
-        } catch (err) {
-          setError(err);
-        }
-      }
-    }
-    fetchData(); // call the function 
-    if (error) {
-      alert(error.response.data.message) // alert the error message
-    }
-  // }, [query.repo]);
-  }, [query.repo !== '' && query.repo !== undefined]);
-
 
   // useEffect(() => {
-  //   if (debug) console.log('54 modelling dispatchGithub', query, props.phFocus)
-  //   if (!props.phFocus.focusProj.org) {
-  //    prompt('Click OK to set focus project')
+  //   async function fetchData() { // fetch issues
+  //     if (query.repo?.length > 0) {
+  //       try {
+  //       const { data } = await axios.get(issueUrl);
+  //       setIssues(data);
+  //       console.log('55 issues', data)
+  //       } catch (err) {
+  //         setError(err);
+  //       }
+  //     }
   //   }
-
-  //   // if (!focus) focus =phFocus?.focusProj.focus || prompt("focus?");
-  //   // if (!ghtype) ghtype = prompt("ghtype?");
-  //   if (debug) console.log('62 GithubParams', org, repo, path, file, branch, focus, ghtype)
-  //   // dispatch({type: 'SET_FOCUS_PROJ', data: {org: org, repo: repo, path: path, file: file, branch: branch, focus: focus, ghtype: ghtype} })
-  //   const data = {id: org+repo+path+file, name: repo, org: org, repo: repo, path: path, file: file, branch: branch, focus: focus} 
-  //   if (debug) console.log('65 GithubParams', data)
-  //   dispatch({ type: 'SET_FOCUS_PROJ', data: data })
-  //   const org1 = {id: org, name: org}
-  //   dispatch({ type: 'SET_FOCUS_ORG', data: org1 })
-  //   const repo1 = {id: 'role', name: ''}
-  //   dispatch({ type: 'SET_FOCUS_REPO', data: repo1 })
-
-  // }, [props.phFocus.focusProj.org]);
+  //   fetchData(); // call the function 
+  //   if (error) {
+  //     alert(error.response.data.message) // alert the error message
+  //   }
+  // // }, [query.repo]);
+  // }, [query.repo !== '' && query.repo !== undefined]);
 
   const generatedUrl = `https://akmmclient-main.vercel.app/project?org=${org}&repo=${repo}&path=${path}&file=${file}&branch=${branch}&projectNumber=${projectNumber}&focus=${focus}&ghtype=${ghtype}`
   // https://akmmclient-main.vercel.app/project?org=kavca&repo=osdu-akm-models&path=production&file=AKM-Production-Measurements-Conceptmodel_PR.json
-  const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
-  // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup__PR.json&branch=main`
+  const akmIrtvPopsMetamodelUrl = `http://localhost:3000/modelling?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup_PR.json&branch=main`
+  // const akmIrtvPopsMetamodelUrl = `https://akmmclient-main.vercel.app/project?org=kavca&repo=kavca-akm-models&path=akm-metamodels&file=AKM-IRTV-POPS-Startup_PR.json&branch=main`
 
   const contextDiv = (
     <div className="contextarea d-flex" style={{ backgroundColor: "#cdd", width: "99%", maxHeight: "24px" }}>
@@ -254,7 +229,7 @@ const page = (props: any) => {
                 </div>
                 <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
                   <div className='text-muted'>Issues for this repo:</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}</Link>}
+                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
                 </div>
                 <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
                   <div className='text-muted'>Project Canban for this repo:</div>
@@ -354,7 +329,7 @@ const page = (props: any) => {
   )
 }
 
-export default connect((state: any) => state)(page)
+export default connect(state => state)(page)
 
 
 

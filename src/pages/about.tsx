@@ -129,7 +129,7 @@ const page = (props: any) => {
         color: white;
       }
 
-            `}</style>
+      `}</style>
     </div>
   )
 }

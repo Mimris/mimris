@@ -14,6 +14,7 @@ import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 import styles from '../styles/Home.module.css'
 import useLocalStorage  from '../hooks/use-local-storage'
+import useSessionStorage from "../hooks/use-session-storage";
 import SelectContext from '../components/utils/SelectContext';
 
 const debug = false
@@ -24,7 +25,7 @@ const page = (props: any) => {
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
   
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
   const [mount, setMount] = useState(false)
 
   function dispatchLocalStore(locStore) { 
@@ -38,21 +39,22 @@ const page = (props: any) => {
 // */
 
 useEffect(() => { 
-  if (debug) console.log('73 modelling useEffect 1', memoryLocState[0], props.phFocus.focusModelview.name)
+  if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
   // let data = {}
   if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
-    if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+    // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
     if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-      if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-          const locStore = (memoryLocState[0]) 
+      // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+      if (memoryLocState) {
+          const locStore = (memoryLocState) 
           if (locStore) {
             dispatchLocalStore(locStore)
             // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
             // console.log('modelling 73 ', data)
           }
         } 
-      }
-    }   
+      // }   
+    }
   }
   setMount(true)
 }, [])  

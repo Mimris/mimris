@@ -12,6 +12,7 @@ export class jsnExportMetis {
     description:                string;
     metamodels:                 jsnMetaModel[];
     models:                     jsnModel[];
+    submodels:                  jsnModel[];
     allowGenerateCurrentMetamodel: boolean;
     pasteViewsOnly:             boolean;
     deleteViewsOnly:            boolean;
@@ -30,6 +31,7 @@ export class jsnExportMetis {
         this.allowGenerateCurrentMetamodel  = metis.allowGenerateCurrentMetamodel;
         this.metamodels                     = [];
         this.models                         = [];
+        this.submodels                      = [];
         this.currentMetamodelRef            = "";
         this.currentModelRef                = "";
         this.currentModelviewRef            = "";
@@ -55,6 +57,14 @@ export class jsnExportMetis {
                 for (let i = 0; i < cnt; i++) {
                     const model = models[i];
                     this.addModel(model, includeViews);
+                }
+            }
+            const submodels = metis.getSubModels();
+            if (submodels) {
+                const cnt = submodels.length;
+                for (let i = 0; i < cnt; i++) {
+                    const model = submodels[i];
+                    this.addSubModel(model, includeViews);
                 }
             }
             if (metis.currentMetamodel)
@@ -88,6 +98,12 @@ export class jsnExportMetis {
             this.models.push(jModel);
         }
     }
+    addSubModel(model: akm.cxModel, includeViews: boolean) {
+        if (model && model.metamodel) {
+            const jModel = new jsnModel(model, includeViews);
+            this.submodels.push(jModel);
+        }
+    }
 }
 export class jsnExportMetaModel {
     metamodels: jsnMetaModel[];
@@ -108,6 +124,7 @@ export class jsnDatatype {
     datatypeRef:        string | undefined;
     allowedValues:      string[];
     defaultValue:       string;
+    readOnly:           boolean;
     value:              string;
     inputPattern:       string;
     viewFormat:         string;
@@ -121,6 +138,7 @@ export class jsnDatatype {
         this.datatypeRef     = dtype.isOfDatatype?.id;
         this.allowedValues   = dtype.allowedValues;
         this.defaultValue    = dtype.defaultValue;
+        this.readOnly        = dtype.readOnly;
         this.value           = dtype.value;
         this.inputPattern    = dtype.inputPattern;
         this.viewFormat      = dtype.viewFormat;
@@ -175,6 +193,10 @@ export class jsnMetaModel {
     name:               string;
     description:        string;
     metamodelRefs:      string[];
+    subMetamodelRefs:   string[];
+    subModelRefs:       string[];
+    subMetamodels:      jsnMetaModel[] | null;
+    subModels:          jsnModel[] | null;
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
     objecttypes:        jsnObjectType[];
@@ -202,6 +224,10 @@ export class jsnMetaModel {
         this.name = metamodel.name;
         this.description = (metamodel.description) ? metamodel.description : "";
         this.metamodelRefs = [];
+        this.subMetamodelRefs = [];
+        this.subModelRefs = [];
+        this.subMetamodels = [];
+        this.subModels = [];
         this.viewstyles = [];
         this.geometries = [];
         this.objecttypes = [];
@@ -226,14 +252,46 @@ export class jsnMetaModel {
         this.modified = false;
 
         // Code
-        const subMetamodels = metamodel.getSubMetamodels();
-        if (subMetamodels) {
-            const cnt = subMetamodels.length;
+        let metamodels = metamodel.getContainedMetamodels();
+        if (metamodels) {
+            const cnt = metamodels.length;
             for (let i = 0; i < cnt; i++) {
-                const metamodel = subMetamodels[i];
+                const metamodel = metamodels[i];
                 this.metamodelRefs.push(metamodel.id);
             }
         }
+        let subMetamodels = metamodel.getSubMetamodels();
+        if (subMetamodels) {
+            const cnt = subMetamodels.length;
+            for (let i = 0; i < cnt; i++) {
+                const subMetamodel = subMetamodels[i];
+                if (subMetamodel.id !== this.id) {
+                    this.subMetamodelRefs.push(subMetamodel.id);
+                    const jsnSubMetamodel = new jsnMetaModel(subMetamodel, false);
+                    this.subMetamodels.push(jsnSubMetamodel);
+                }
+            }
+        }
+        let subModels = metamodel.getSubModels();
+        if (subModels) {
+            const cnt = subModels.length;
+            for (let i = 0; i < cnt; i++) {
+                const subModel = subModels[i];
+                this.subModelRefs.push(subModel.id);
+                const jsnSubmodel = new jsnModel(subModel, false);
+                this.subModels.push(jsnSubmodel);
+            }
+        }
+        // for (let j = 0; j < subMetamodels.length; j++) {
+        //     const subMetaModel = metamodel.submetamodels[j];
+        //     if (subMetaModel) {
+
+        //         const jMetamodel = new jsnMetaModel(subMetaModel, false);
+        //         this.subMetamodels.push(jMetamodel);
+        //     }
+        //     const jMetamodel = new jsnMetaModel(subMetaModel, false);
+        //     this.subMetamodels.push(jMetamodel);
+        // }
         const objtypes = metamodel.getObjectTypes();
         if (objtypes) {
             const cnt = objtypes.length;
@@ -248,6 +306,14 @@ export class jsnMetaModel {
             for (let i = 0; i < cnt; i++) {
                 const objtype = objtypes0[i];
                 this.addObjectType0(objtype, includeViews);
+            }
+        }
+        const objtypegeos = metamodel.getObjtypeGeos();
+        if (objtypegeos) {
+            const cnt = objtypegeos.length;
+            for (let i = 0; i < cnt; i++) {
+                const objtypegeo = objtypegeos[i];
+                this.addObjtypeGeo(objtypegeo);
             }
         }
         const reltypes = metamodel.getRelshipTypes();
@@ -277,7 +343,7 @@ export class jsnMetaModel {
             if (debug) console.log('195 reltypes0', reltypes0);
             const cnt = reltypes0.length;
             for (let i = 0; i < cnt; i++) {
-                const reltype = reltypes[i];
+                const reltype = reltypes0[i];
                 if (!reltype) continue;
                 if (!reltype.fromObjtype) {
                     if (reltype.fromobjtypeRef) {
@@ -385,6 +451,25 @@ export class jsnMetaModel {
             this.metamodelRefs.push(metamodel.id);
         }
     }
+    addSubModel(model: akm.cxModel) {
+        if (model) {
+            for (let i=0; i<this.subModelRefs.length; i++) {
+                const ref = this.subModelRefs[i];
+                if (ref === model.id) {
+                    // Model is already in list
+                    return;
+                }
+            }
+            this.subModelRefs.push(model.id);
+            // const jModel = new jsnModel(model, false);
+            // this.subModels.push(jModel);
+        }
+    }
+    // addSubMetaModel(mmodel: jsnMetaModel) {
+    //     if (mmodel) {
+    //         this.subMetamodels.push(mmodel);
+    //     }
+    // }
     addObjectType(objtype: akm.cxObjectType, includeViews: boolean) {
         if (utils.objExists(objtype) &&
             !objtype.isDeleted()
@@ -888,6 +973,7 @@ export class jsnProperty {
     defaultValue:       string;
     inputPattern:       string;
     viewFormat:         string;
+    readOnly:           boolean;
     example:            string;
     markedAsDeleted:    boolean;
     modified:           boolean;
@@ -898,6 +984,7 @@ export class jsnProperty {
         this.inputPattern    = "";
         this.viewFormat      = "";
         this.example         = "";
+        this.readOnly        = prop.readOnly;
         this.markedAsDeleted = prop.markedAsDeleted;
         this.modified        = prop.modified;
         // Code
@@ -1278,7 +1365,7 @@ export class jsnTypeDefinition {
         // Code
         // let typeRef     = object.getType().id;
         const proptypes   = new Array();
-        const rels: akm.cxRelationship[] = typedef.findOutputRelships(glb.myModel, undefined);
+        const rels: akm.cxRelationship[] = typedef.getOutputRelships(glb.myModel, undefined);
         if (utils.isArrayEmpty(rels)) {
             return;
         } else {
@@ -1316,7 +1403,7 @@ export class jsnPropertyDefinition {
         this.datatype    = "";
         this.datatypeRef = "";
         // Then find datatype if it exists
-        const rels = proptype.findOutputRelships(glb.myModel);
+        const rels = proptype.getOutputRelships(glb.myModel);
         if (utils.isArrayEmpty(rels)) {
             return;
         } else {
@@ -1513,7 +1600,8 @@ export class jsnObjectView {
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
-    isCollapsed:     boolean;
+    isExpanded:     boolean;
+    isSelected:      boolean;
     loc:             string;
     size:            string;
     scale:           number;
@@ -1542,7 +1630,8 @@ export class jsnObjectView {
         this.group           = objview?.group;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
-        this.isCollapsed     = objview?.isCollapsed;
+        this.isExpanded     = objview?.isExpanded;
+        this.isSelected     = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
         this.figure          = objview?.figure;
@@ -1874,8 +1963,16 @@ export class jsnImportMetis {
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);
         reltypeview.setDash(item.dash);
+        reltypeview.setTextcolor(item.textcolor);
+        reltypeview.setTextscale(item.textscale);
+        reltypeview.setArrowscale(item.arrowscale);
         reltypeview.setFromArrow(item.fromarrow);
         reltypeview.setToArrow(item.toarrow);
+        reltypeview.setFromArrowColor(item.fromArrowColor);
+        reltypeview.setToArrowColor(item.toArrowColor);
+        reltypeview.setRouting(item.routing);
+        reltypeview.setCorner(item.corner);
+        reltypeview.setCurve(item.curve);
         jsnMetis.addRelationshipTypeView(reltypeview);
         metamodel.addRelationshipTypeView(reltypeview);
         if (debug) console.log("1794 Importing reltypeview: " + item.id + ", " + item.name);
@@ -2019,7 +2116,7 @@ export class jsnImportMetis {
         if (item.objectRef) {
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
-                const objview = new akm.cxObjectView(item.id, item.name, object, item.description);
+                const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
                 objview.setObject(object);

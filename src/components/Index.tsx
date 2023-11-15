@@ -194,6 +194,33 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.11.09</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Select Sort/filter in Objects.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.11.03</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - New Button - "NEW MODELPROJECT" - in Modeling Bar. This opens a dialog to choose a new modelproject from a list of templates from GitHub.<br />
+                      - Tree new startup models from GitHub - "AKM-CORE-Startup_PR" - "AKM-IRTV-Startup_PR" - "AKM-OSDU-Startup_PR". These startup-models are used for "Type definition modeling", "Concept modeling" and "Import av OSDU Schema JSON-files".<br />
+                      - New Guide/Help button "Tasks" - to the right in the Modeling Bar. Here you will find a list of tasks with descriptions, to be performed in the modelling process.<br />
+                      - New Copy button in the Modeling Bar. This button copy the current model and focus that can be pasted as a link i.e. in a e-email. <br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.07.19</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - ExportSVG button for saving current modelview as SVG-file<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2023.02.10</CardTitle>
               <CardText >
                     &bull; New features:<br />

@@ -42,7 +42,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
 
-
   constructor(props: object) {
     super(props);
     if (debug) console.log('47 GoJSPaletteApp', props.nodeDataArray);
@@ -127,7 +126,17 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           })
         }
         // find  all objectviews in currentModelview of object
-        let objview = myMetis.currentModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
+        const myModelview = myMetis.currentModelview;
+        let objview = myModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
+        const myDiagram = myModelview.diagram;
+        const nodes = myDiagram?.nodes;
+        for (let it = nodes?.iterator; it?.next();) {
+            const node = it.value;
+            if (node.data.object.id == object.id) {
+              node.isSelected = true;
+              // node.isHighlighted = true;
+            }
+        }
         // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
         let dataov = { id: '', name: '' };
         if (objview && objview[0]?.id) {

@@ -4,6 +4,10 @@
 
 // Define View kinds
 
+export let core = {
+     AKM_CORE_MM:   "AKM-Core_MM",
+}
+  
 export let params = {
      MEMBERSCALE:   "1",
 }
@@ -124,6 +128,9 @@ export let gojs = {
 
 export let types = {
      // AKM types
+          AKM_ELEMENT           : "Element",
+          AKM_METAMODEL         : "Metamodel",
+          AKM_MODEL             : "Model",
           AKM_COLLECTION        : "Collection",
           AKM_CONTAINER         : "Container",
           AKM_ENTITY_TYPE       : "EntityType",
@@ -148,6 +155,7 @@ export let types = {
           AKM_UNIT              : "Unit",
           AKM_LABEL             : "Label",
           AKM_GENERIC           : "Generic",
+          
           AKM_CONTAINS          : "contains",
           AKM_ANNOTATES         : "annotates",
           AKM_HAS_COLLECTION    : "has",
@@ -156,6 +164,9 @@ export let types = {
           AKM_HAS_PORT          : "hasPort",
           AKM_HAS_PROPERTY      : "has",
           AKM_HAS_PROPERTIES    : "hasContent",
+          AKM_HAS_SUBMODEL      : "hasSub", // "hasSubModel",
+          AKM_HAS_SUBMETAMODEL  : "hasSub", // "hasSubMetamodel",
+          AKM_HAS_VIEWSTYLE     : "has",
           AKM_RELATIONSHIP_TYPE : "relationshipType",
           AKM_IS                : "Is",
           AKM_IS_OF_DATATYPE    : "isOf",
@@ -210,7 +221,7 @@ export let types = {
 export let props = {
           DRAFT               : "proposedType"
 }
-  
+
 // Define Firestore constants
 
 export const fs = {

@@ -93,6 +93,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
         if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
+      if (debug) console.log('98 phFocus', props.phFocus);
+      if (props.phFocus && props.phFocus.focusModelview && props.phFocus.focusModelview.id) {
+        const fModelview = myMetis.findModelView(focusModelview?.id);
+        if (fModelview) {
+          let fObjview = props.phFocus?.focusObjectview?.id
+          fObjview = fModelview.findObjectView(fObjview);
+          fModelview.setFocusObjectview(fObjview);
+        }
+      }
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);

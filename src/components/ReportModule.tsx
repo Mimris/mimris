@@ -14,22 +14,27 @@ const debug = false
 
 const ReportModule = (props) => {
 
+  if (debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
+  
+  const ph = props.props.props || props.props 
+  if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
+
+  if (!ph?.phData?.metis?.models) return <>No models</>
+  if (!props.modelInFocusId) return <>No objects</> 
+
+
   const dispatch = useDispatch()
   const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
   function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
-  const ph = props.props
-  if (debug) console.log('20 ReportModule', props)
-
-  if (!ph?.phData?.metis?.models) return <></>
 
   const [activeTab, setActiveTab] = useState(0);
 
   const tabsDiv = (
     <>
-      <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 " style={{ textAlign: "left", backgroundColor: "#cdd", outline: "0", borderStyle: "none" }}
+      {/* <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 bg-transparent" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
         onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
-      </button>
+      </button> */}
       {visibleTabsDiv ?
         <Tabs onSelect={index => setActiveTab(index)} >
           <TabList style={{ margin: '0px' }}>
@@ -40,35 +45,53 @@ const ReportModule = (props) => {
                 <Tab ><FaCompass /></Tab> */}
           </TabList>
           <TabPanel className='p-1 border border-dark' >
-            <Context props={ph} />
+            <Context props={props} reportType={props.reportType}/>
           </TabPanel>
           <TabPanel className='p-1 border border-dark' >
-            <MarkdownEditor props={ph} />
+            <MarkdownEditor props={props} />
           </TabPanel>
           <TabPanel>
           </TabPanel>
         </Tabs>
-        : <div className="btn-verticalm-0  pl-2 "
-          style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px", backgroundColor: "#cdd" }}>
+        : <div className="btn-vertical m-0  pl-2 bg-transparent "
+          style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px" }}>
           <span style={{ backgroundColor: "#cdd" }}> C o n t e x t & F o c u s </span>
         </div>
       }
     </>
   )
 
-  return (
+  let bgr: String = '#ddd'
+  if (props.reportType === 'task') {
+    bgr = '#cdd'
+  } 
+
+  const reportDiv = 
     <>
       {visibleTabsDiv ?
-        <div className="report-module pe-1" style={{ minWidth: '700px', maxWidth: '800px', width: 'auto', overflowX: 'hidden', backgroundColor: "#cdd" }} >
-          <div className="report-module--tabs p-1 border border-dark rounded bg-light"
-            style={{ height: '84vh', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none', backgroundColor: "#cdd" }}>
+          <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
+            style={{ height: '100%', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>
-        </div>
-        : <div className="border border-dark" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
+
+        : <div className="border border-dark bg-transparent" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
       }
     </>
+
+  return (
+    (props.reportType === 'task') ? // task modal
+    // <div style={{ backgroundColor: '#faa' }}>
+      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+        {reportDiv}
+      </div>
+    // </div>
+    :
+    // <div >
+      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+        {reportDiv}
+      </div>
+    // </div>
   )
 }
 export default ReportModule  

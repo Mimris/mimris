@@ -31,8 +31,6 @@ We continue modeling objects and relationships and may end up with a model like 
 
 ![alt text](/images/posts/modelling/image_model006.png)
 
-
-
 ### Modifying object and relationship views
 
 How objects and relationships appear in the model when they are created is decided by the typeview definitions of the respective types. The appearance in the model can be overridden by defining object and relationship views. 

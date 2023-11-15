@@ -1,5 +1,5 @@
 ---
-title: ' A Concept model and test of the Solution Model'
+title: ' A Concept model and test of the Solution Model (eScooter example)'
 date: 'June 8, 2022'
 excerpt: 'An example of dynamic change of a Concept model and the Solution Model. The purpose of this tutorial is to show how to make enhancement to an existing Consept Model of rental service for e-Scooters and generate a metamodel and test the metamodel with a test Solution Model .'
 cover_image: 'images/posts/escooter/image_020-1.png'
@@ -9,10 +9,10 @@ cover_image: 'images/posts/escooter/image_020-1.png'
     </summary>
 
 A test Solution Model is a model that is used to test the Concept Model and the generated Metamodel.
-The purpose of the test model is to "instanciate" the Concepts and create examples to test if the Concept Model is working as expected.
+The purpose of the test model is to "instantiate" the Concepts and create examples to test if the Concept Model is working as expected.
 If changes are needed, we go back to the Concept Model and make the changes necessary and regenerate the metamodel for a new test.
 
-If we are satisfied, we can export the type definitions to i.e. GraphQL typedefinition file and create Queries / Mutations from the Tasks.
+If we are satisfied, we can export the type definitions to i.e. GraphQL type-definition file and create Queries / Mutations from the Tasks.
 
 </details>
 

@@ -9,9 +9,10 @@
     .source     { grid-area: source; }
     .view       { grid-area: view; }
     .item       { grid-area: item; }
-    .task       { grid-area: task; }
+    .task       { grid-area: task; }*/
     .tasksarea		{ grid-area: tasksarea;	}
-    .iconbar    { grid-area: iconbar; }
+    .issuesarea		{ grid-area: issuesarea;	}
+    /* .iconbar    { grid-area: iconbar; }
     .taskList   { grid-area: taskList; }
     .taskCurrent{ grid-area: taskCurrent; } */
     /* .focusModelview      	{ grid-area: focusModelview; } */
@@ -52,7 +53,7 @@
   grid-template-columns: auto 1fr auto;
   grid-template-areas:
   "contextarea contextarea contextarea "
-  "tasksarea workarea right-aside";
+  "issuesarea workarea tasksarea";
 }
 @media only screen and (max-width: 360px) {
  .workplace {

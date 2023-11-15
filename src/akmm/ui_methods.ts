@@ -57,8 +57,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     if (!toObj || toObj.markedAsDeleted)
                         continue;
                     const toObjtype = toObj.type;
-                    const toObjtypeview = toObjtype.typeview;
-                    const toTypeviewData = toObjtypeview.data;
+                    const toObjtypeview = toObjtype?.typeview;
+                    const toTypeviewData = toObjtypeview?.data;
                     const toObjviews = toObj.objectviews;
                     // Find toObj in modelview
                     const objviews = modelview.findObjectViewsByObject(toObj);
@@ -96,7 +96,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         modelview.addObjectView(toObjview);
                         myMetis.addObjectView(toObjview);
                         const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
-                        if (toObjviews) {
+                        if (toObjviews && toTypeviewData) {
                             const oview = toObjviews[0];
                             for (let prop in toTypeviewData) {
                                 if (oview[prop] !== "") {
@@ -105,7 +105,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                                 } else
                                     myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                             }
-                        } else {
+                        } else if (toTypeviewData) {
                             for (let prop in toTypeviewData) {
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                             }
@@ -175,7 +175,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
     }
 }
 
-function conditionIsFulfilled(object, context): boolean {
+function conditionIsFulfilled(object: akm.cxObject, context: any): boolean {
     let retval = true;
     const myMetis = context.myMetis;
     const myMetamodel    = context.myMetamodel;
@@ -204,27 +204,28 @@ function conditionIsFulfilled(object, context): boolean {
     return retval;
 }
 
-export function traverse(object: akm.cxObject, context: any) {
+export function traverse(obj: akm.cxObject, context: any): boolean {
+    const method         = context.args.method;
+    if (!method) 
+        return;
+    let retval           = true;
     const myMetis        = context.myMetis;
     const myMetamodel    = context.myMetamodel;
-    const method         = context.args.method;
-    if (!method) return;
     const objects        = context.objects;
     const relships       = context.relships;
-    const reldir         = method["reldir"];   // Either 'in' or 'out'
+    const reldir         = method["reldir"];   // Either 'in' or 'out' or ''
     const reltypename    = method["reltype"];
     let pre_action       = method["preaction"];
     let post_action      = method["postaction"];
-
-    if (debug) console.log('211 objects, relships', objects, relships);
-    if (conditionIsFulfilled(object, context)) {
+    let noObjects        = objects.length;
+    if (conditionIsFulfilled(obj, context)) {
         if (pre_action) {
             if (typeof(pre_action === 'string')) {
                 context.mode = "preaction";
                 context.action = pre_action;
-                execMethod(object, context);
+                execMethod(obj, context);
             } else 
-                pre_action(object, context);
+                pre_action(obj, context);
         }
     }    
     let reltype;
@@ -237,21 +238,29 @@ export function traverse(object: akm.cxObject, context: any) {
     }
     const useinp = (reldir === 'in');
     const useoutp = (reldir === 'out');
-    let rels  = useinp ? object.inputrels : object.outputrels;
-    if (!rels) 
-        rels = object.inputrels;
-    if (rels) 
-        rels.concat(object.outputrels);
-    else
-        rels = object.outputrels;
+    const useany = (!useinp && !useoutp);
+    let rels = [];
+    if (useinp && obj.inputrels)
+        rels = obj.inputrels;
+    if (useoutp && obj.outputrels)
+        rels = obj.outputrels;
+    if (useany) {
+        rels = obj.inputrels;
+        if (rels)
+            rels = rels.concat(obj.outputrels);
+        else 
+            rels = obj.outputrels;
+    }
     if (rels) {
         if (debug) console.log('226 rels', rels);
         let foundRel = false;
         for (let i=0; i<rels.length; i++) {
-            const rel = rels[i];
+            let rel = rels[i];
+            if (!rel) continue;
             // Check if reltype is specified
             if (reltype && (rel?.type.id !== reltype?.id))
                 continue;
+            // Check if this is a 'new' relship
             for (let i=0; i<relships.length; i++) {
                 const r = relships[i];
                 if (rel.id === r.id) {
@@ -262,31 +271,29 @@ export function traverse(object: akm.cxObject, context: any) {
             if (!foundRel)
                 relships.push(rel);
             let toObj;
-            if (rel.toObject.id === object.id) {
-                toObj = rel.fromObject as akm.cxObject;
-                if (debug) console.log('260 useinp: toObj', toObj);
-            } else if (rel.fromObject.id === object.id) {
-                toObj = rel.toObject as akm.cxObject;
-                if (debug) console.log('263 useoutp: toObj', toObj);
+            if ((useinp || useany) && (rel.toObject.id === obj.id)) {
+                toObj = rel.fromObject as akm.cxObject;  ' <------  '
+            } else if ((useoutp || useany) && (rel.fromObject.id === obj.id)) {
+                toObj = rel.toObject as akm.cxObject;    '  ------> '
             }
-            if (debug) console.log('265 rel, toObj', rel, toObj);
             let foundObj = false;
+            // Navigate towards toObj
             if (toObj) {
                 for (let i=0; i<objects.length; i++) {
                     const obj = objects[i];
                     if (obj.id === toObj.id) {
                         foundObj = true;
+                        // Has already been traversed
                         break;
                     }
                 }
-            }
+            }            
             if (!foundObj && toObj) {
-                objects.push(toObj);
-            }           
-            if (debug) console.log('282 toObj, objects, relships', toObj, objects, relships);
-            // Recursive traverse       
-            if (!foundObj && toObj) {
-                traverse(toObj, context);
+                objects.push(toObj);            
+                // Recursive traverse       
+                method.level++;
+                retval = traverse(toObj, context);
+                method.level--;
                 if (conditionIsFulfilled(toObj, context)) {
                     if (post_action) {
                         if (typeof(post_action === 'string')) {
@@ -300,6 +307,112 @@ export function traverse(object: akm.cxObject, context: any) {
             }
         }
     } 
+    return retval;
+}
+
+export function traverseViews(objview: akm.cxObjectView, context: any): boolean {
+    const method         = context.args.method;
+    if (!method) 
+        return false;
+    let retval           = true;
+    const myMetis        = context.myMetis;
+    const myMetamodel    = context.myMetamodel;
+    const objectviews    = context.objectviews;
+    const reldir         = method["reldir"];   // Either 'in' or 'out' or ''
+    const reltypename    = method["reltype"];
+    let pre_action       = method["preaction"];
+    let post_action      = method["postaction"];
+    let noObjViews       = objectviews.length;
+    if (conditionIsFulfilled(objview.object, context)) {
+        if (pre_action) {
+            if (typeof(pre_action === 'string')) {
+                context.mode = "preaction";
+                context.action = pre_action;
+                execMethod(objview.object, context);
+            } else 
+                pre_action(objview.object, context);
+        }
+    }    
+    let reltype;
+    if (reltypename) { // Check if reltype is specified
+        try {
+            reltype = myMetamodel.findRelationshipTypeByName(reltypename);
+        } catch {
+            reltype = myMetis.findRelationshipTypeByName(reltypename);
+        }
+    }
+    const useinp = (reldir === 'in');
+    const useoutp = (reldir === 'out');
+    const useany = (!useinp && !useoutp);
+    let relviews = [];
+    if (useinp && objview.inputrelviews)
+        relviews = objview.inputrelviews;
+    if (useoutp && objview.outputrelviews)
+        relviews = objview.outputrelviews;
+    if (useany) {
+        relviews = objview.inputrelviews;
+        if (relviews)
+            relviews = relviews.concat(objview.outputrelviews);
+        else 
+            relviews = objview.outputrelviews;
+    }
+    if (relviews) {
+        if (debug) console.log('226 rels', rels);
+        let foundRelview = false;
+        for (let i=0; i<relviews.length; i++) {
+            let relview = relviews[i];
+            if (!relview) continue;
+             // Check if reltype is specified
+            if (reltype && (relview.relship?.type?.name !== reltypename))
+                continue;
+            // Check if this is a 'new' relview
+            for (let i=0; i<relviews.length; i++) {
+                const rv = relviews[i];
+                if (relview.id === rv.id) {
+                    foundRelview = true;
+                    break;
+                }
+            }
+            if (!foundRelview)
+                relviews.push(relview);
+            let toObjview;
+            if (relview.toObjview?.id === objview.id) {
+                toObjview = relview.fromObjview as akm.cxObjectView;
+            } else if (relview.fromObjview.id === objview.id) {
+                toObjview = relview.toObjview as akm.cxObjectView;
+            }
+            let foundObjview = false;
+            // Navigate towards toObjview
+            if (toObjview) {
+                for (let i=0; i<objectviews.length; i++) {
+                    const objview = objectviews[i];
+                    if (objview.id === toObjview.id) {
+                        foundObjview = true;
+                        // Has already been traversed
+                        break;
+                    }
+                }
+            }
+            if (!foundObjview && toObjview) {
+                objectviews.push(toObjview);
+                // Recursive traverse       
+                method.level++;
+                retval = traverseViews(toObjview, context);
+                method.level--;
+                if (conditionIsFulfilled(toObjview.object, context)) {
+                    if (post_action) {
+                        if (typeof(post_action === 'string')) {
+                            context.mode = "postaction";
+                            context.action = post_action;
+                            execMethod(toObjview.object, context);
+                        } else 
+                            post_action(toObjview.object, context);
+                    }
+                }
+            }
+        }
+    } 
+    return retval;
 }
 
 export function generateosduId(context: any) {
@@ -394,7 +507,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             const rel = rels[i];
             let child;
             if (reltype) {
-                if (rel?.type?.id !== reltype?.id)
+                if (rel?.type?.name !== reltype?.name)
                     continue;
             }
             if (useinp) 
@@ -404,7 +517,7 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
             if (debug) console.log('403 child', child);
             if (child) {
                 if (objtype) {
-                    if (child.type.id === objtype.id)
+                    if (child.type.name === objtype.name)
                         objects.push(child);
                 } else
                     objects.push(child);
@@ -482,6 +595,9 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         return retval;
     const pi = 3.14159265
     let mtd = prop.method;
+    let dtype = prop.datatype;
+    if (!dtype)
+        dtype = myMetis.findDatatype(prop.datatypeRef);
     if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let expression = mtd?.expression;
     if (expression) { 
@@ -489,7 +605,22 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         expression = substitutePropnamesInExpression(object, expression, myMetis);
         if (debug) console.log('455 expression', expression);
         try {
-            retval = eval(expression);
+            if (expression === 'now') {
+                if (dtype?.name === 'date') {
+                    const d = new Date();
+                    let year = d.getFullYear();
+                    let month = d.getMonth()+1;
+                    if (month < 10) month = '0' + month;
+                    let day = d.getDate();
+                    if (day < 10) day = '0' + day;
+                    retval = year + '-' + month + '-' + day; 
+                } else if (dtype?.name === 'time') {
+                    const d = new Date();
+                    retval = d.getTime();      
+                }
+            } else {
+                retval = eval(expression);
+            }
             if (!retval)
                 retval = expression;
         } catch(e) {
@@ -553,7 +684,7 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
 
 export function askForMethod(context: any) {
     if (debug) console.log('433 context', context);
-    const currentType = context.myObject.type;
+    const currentType = context.currentObject.type;
     const myDiagram = context.myDiagram;
     const modalContext = {
         what:           "selectDropdown",
@@ -576,16 +707,26 @@ export function askForMethod(context: any) {
 }
 
 export function executeMethod(context: any) {
-    const object = context.myObject;
-    let objects = context.objects;
-    if (!context.objects) 
-        context.objects = [];
-    if (!context.relships) 
-        context.relships = [];
-    if (objects?.length > 10)
-        return;
-    if (debug) console.log('501 object, context', object, context);
-    traverse(object, context);                  
+    if (context.currentObjectview) {
+        let objectviews = context.objectviews;
+        if (!context.objectviews) 
+            context.objectviews = [];
+        if (!context.relshipviews) 
+            context.relshipviews = [];
+        if (objectviews?.length > 50)
+            return;
+        traverseViews(context.currentObjectview, context);
+    }
+    else if (context.currentObject) {
+        let objects = context.objects;
+        if (!context.objects) 
+            context.objects = [];
+        if (!context.relships) 
+            context.relships = [];
+        if (objects?.length > 50)
+            return;
+        traverse(context.currentObject, context);
+    }
 }
 
 function execMethod(object: akm.cxObject, context: any) {

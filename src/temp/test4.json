@@ -1,0 +1,66 @@
+{
+    "githubFile": {
+        "org": "kavca",
+        "repo": "kavca-akm-models",
+        "branch": "main",
+        "filename": "AKM-Core-Type-Definitions_PR.json"
+    },
+    "focusModel": {
+        "id": "05d5b929-b985-49ac-cf92-cc095a03889z",
+        "name": "AKM-Type-Definitions_TD"
+    },
+    "focusModelview": {
+        "id": "43db7adf-eec3-4ff5-0821-90dfa52cc133",
+        "name": "2-IRTV"
+    },
+    "focusObject": {
+        "id": "0723a094-6437-43f7-c3a0-2263bf481421",
+        "name": "AKM-IRTV_MM"
+    },
+    "focusObjectview": {
+        "id": "5bb786c2-b545-4245-6998-2d95e56a8e04",
+        "name": "AKM-IRTV_MM"
+    },
+    "focusRole": {
+        "id": "Modeller1",
+        "name": "Modeller 1",
+    },
+    "focusTask": {
+        "id": "New-types",
+        "name": "New-types"
+    }
+},
+
+
+{
+    "githubFile": {
+        "org": "kavca",
+        "repo": "osdu-akm-models",
+        "branch": "main",
+        "filename": "OSDU-Production-Test_PR.json"
+    },
+    "focusModel": {
+        "id": "a6b38aaf-2809-41b1-bcb8-384379a16059",
+        "name": "Production-Test_CM"
+    },
+    "focusModelview": {
+        "id": "787c1c28-cddb-4bbe-c04e-e36bbd1ad6ce",
+        "name": "2-P&ID"
+    },
+    "focusObject": {
+        "id": "1df58c2e-54bd-409b-67a0-3c2842b64701",
+        "name": "Valve"
+    },
+    "focusObjectview": {
+        "id": "a68952ce-cf8e-4050-a76f-fe88264a87ce",
+        "name": "Valve"
+    },
+    "focusRole": {
+        "id": "Modeller1",
+        "name": "Modeller 1"
+    },
+    "focusTask": {
+        "id": "New-types",
+        "name": "New-types"
+    }
+}

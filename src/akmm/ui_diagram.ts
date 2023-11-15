@@ -12,6 +12,38 @@ const printf = require('printf');
 
 const $ = go.GraphObject.make;
 
+export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
+    if (modelview) {
+        modelview.focusObjectview = objview;
+    }
+}
+
+export function clearFocus(modelview: akm.cxModelView) {
+    if (modelview) {
+        modelview.focusObjectview = null;
+    }
+}
+
+export function openCloseAllGroups(myDiagram: any, open: boolean) {
+    const nodes = myDiagram.nodes;
+    const modifiedObjectViews = [];
+    for (let it = nodes.iterator; it?.next();) {
+        const node = it.value;
+        if (node.data.isGroup) {
+            node.isSubGraphExpanded = open;
+            const objview = node.data.objectview;
+            objview.isExpanded = open;
+            const jsnObjview = new jsn.jsnObjectView(objview, true);
+            modifiedObjectViews.push(jsnObjview);
+        }
+    }
+    modifiedObjectViews.map(ov => {
+        let data = ov;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    });
+}
+
 export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     const mmname = prompt("Enter Metamodel name");
     if (mmname == null || mmname == "") {
@@ -66,7 +98,7 @@ export function replaceCurrentMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     askForMetamodel(context);
 }
 
-export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any, isSubMetamodel: boolean) {
     // Select metamodel among all metamodels (except the current)
     const args = {
         "metamodel":          "", 
@@ -77,6 +109,7 @@ export function addMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
         "myCurrentMetamodel": myMetis.currentMetamodel,
         "myCurrentModel":     myMetis.currentModel,
         "myDiagram":          myDiagram,
+        "isSubMetamodel":     isSubMetamodel,
         "case":               "Add Metamodel",
         "title":              "Select Metamodel to Add",
         "dispatch":           myDiagram.dispatch,
@@ -179,8 +212,24 @@ export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
     askForModel(context);
 }
 
+export function generateSubModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const objview = myMetis.findObjectView(node.objectview?.id);
+    // Ask for model name
+    const modelname = prompt("Enter Model name");
+    // Check if it already exists
+    const model = myMetis.findModelByName(modelname);
+    if (model) {
+        alert("Model already exists");
+        return;
+    }
+    // Find what metampdel is used
+    const metamodel = objview.model?.metamodel;
+    // Create a new model
+    const newModel = new akm.cxModel(utils.createGuid(), modelname, myMetis.currentTargetMetamodel, "");
+}
+
+
 export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (debug) console.log('163 node', node);
     const objview = myMetis.findObjectView(node.objectview?.id);
     // Select model among all models (except the current)
     const args = {
@@ -323,6 +372,7 @@ export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
       alert("New operation was cancelled");
     } else {
       const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
+      modelView.diagram = myDiagram;
       model.addModelView(modelView);
       myMetis.addModelView(modelView);
       if (debug) console.log('102 myMetis', myMetis);
@@ -474,7 +524,6 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 }
 
 export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (debug) console.log('415 selection', myDiagram.selection);
     const icon = uit.findImage(node.icon);
     const modalContext = {
       what:       "editObjectview",
@@ -588,6 +637,60 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;
 }
+
+export function sortSelection(myDiagram) {
+    const selection = myDiagram.selection;
+    const mySelection = [];
+    let myLocs = [];
+    for (let it = selection.iterator; it?.next();) {
+      let n = it.value;
+      mySelection.push(n.data);
+      const nodeLoc = n.data.loc?.split(" ");
+      const nx = parseInt(nodeLoc[0]);            
+      const ny = parseInt(nodeLoc[1]);            
+      const myLoc = {name: ny, loc: n.data.loc, nx: nx, ny: ny};
+      myLocs.push(myLoc);
+    }
+    const myObjectViews = [];
+    mySelection.sort(utils.compare);
+    myLocs.sort(utils.compare);
+    for (let i = 1; i < myLocs.length; i++) {
+      const myLoc = myLocs[i];
+      if (myLocs[i].ny === myLocs[i-1].ny) {
+        if (myLoc.name < myLocs[i-1].name) {
+          myLocs[i] = myLocs[i-1];
+          myLocs[i-1] = myLoc;
+    //   if (myLocs[i].ny === myLocs[i-1].ny) {
+    //     if (myLocs[i].nx > myLocs[i-1].nx) {
+    //         if (myLoc.name < myLocs[i-1].name) {
+    //             myLocs[i] = myLocs[i-1];
+    //             myLocs[i-1] = myLoc;
+    //         }
+        // } else if (myLocs[i].nx < myLocs[i-1].nx) {
+        //     if (myLoc.name < myLocs[i-1].name) {
+        //         myLocs[i] = myLocs[i-1];
+        //         myLocs[i-1] = myLoc;
+        //     }    
+        }
+      }
+    }
+    for (let i = 0; i < mySelection.length; i++) {
+      const node = mySelection[i];
+      node.loc = myLocs[i].loc;
+      const objview = node.objectview;
+      objview.loc = node.loc;
+      const jsnObjview = new jsn.jsnObjectView(objview);
+      myObjectViews.push(jsnObjview);
+    }
+    myObjectViews.map(mn => {
+      let data = (mn) && mn
+      if (mn.id) {
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      }
+    })
+}
+
 
 export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any) {
     const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
@@ -711,14 +814,16 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     let n = myDiagram.findNodeForKey(node.key);
     let links = n.findLinksOutOf();
     if (debug) console.log('596 links', links);
-    for (let it = links?.iterator; it?.next();) {
-        let lv = it.value;
-        const ltypename = lv.data.name;
-        linktypeNames.push(ltypename);
+    if (links.count > 0) {
+        for (let it = links?.iterator; it?.next();) {
+            let lv = it.value;
+            const ltypename = lv.data.name;
+            linktypeNames.push(ltypename);
+        }
+        if (debug) console.log('603 linktypeNames', linktypeNames);
+        let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
+        linktypeNames = uniqueSet;
     }
-    if (debug) console.log('603 linktypeNames', linktypeNames);
-    let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
-    linktypeNames = uniqueSet;
     let reltypeNames = [];
     const myMetamodel = myMetis.currentMetamodel;
     if (debug) console.log('608 myMetamodel', myMetamodel);
@@ -737,9 +842,9 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             objtypenames.push(n.data.objecttype.name);
         }
     }
-    uniqueSet = utils.removeArrayDuplicates(objtypenames);
+    let uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;
-    uniqueSet = utils.removeArrayDuplicates(objtypes);
+    uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
     if (debug) console.log('626 objtypenames, objtypes', objtypenames, objtypes);
     if (debug) console.log('627 myMetis', myMetis);
@@ -751,7 +856,7 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
         let toType = objtypes[i];
         toType = myMetis.findObjectType(toType.id);
         if (debug) console.log('632 fromType, toType', fromType, toType);
-        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+        const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
         if (i == 0) {
             // First time
             reltypes = rtypes;
@@ -771,8 +876,8 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     if (reltypeNames.length > 0) {
         uniqueSet = utils.removeArrayDuplicates(reltypeNames);
         reltypeNames = uniqueSet;
-        let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
-        reltypeNames = difference;
+        // let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
+        // reltypeNames = difference;
         reltypeNames.sort();
     }
     if (debug) console.log('655 reltypeNames', reltypeNames);
@@ -815,7 +920,7 @@ function askForMetamodel(context: any) {
     if (debug) console.log('756 allMetaModels', allMetaModels, myMetamodel);
     for (let i=0; i<allMetaModels.length; i++) {
         const metaModel = allMetaModels[i];
-        if (!metaModel)
+        if (!metaModel || !metaModel.id)
             continue;
         if (metaModel.markedAsDeleted)
             continue;
@@ -937,46 +1042,48 @@ function addMetamodel2(context: any) {
     const metamodel = context.args.metamodel;
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
+    const isSubMetamodel = context.isSubMetamodel;
     if (debug) console.log('271 currentMetamodel, metamodel', currentMetamodel, metamodel);
-
-    const objecttypes = metamodel.objecttypes;
-    for (let i=0; i<objecttypes?.length; i++) {
-        const objecttype = objecttypes[i];
-        if (!objecttype) continue;
-        if (currentMetamodel.findObjectType(objecttype.id)) 
-            continue;
-        else 
-            currentMetamodel.addObjectType(objecttype);
+    if (isSubMetamodel) {
+        currentMetamodel.addSubMetamodel(metamodel);
+    } else {
+        const objecttypes = metamodel.objecttypes;
+        for (let i=0; i<objecttypes?.length; i++) {
+            const objecttype = objecttypes[i];
+            if (!objecttype) continue;
+            if (currentMetamodel.findObjectType(objecttype.id)) 
+                continue;
+            else 
+                currentMetamodel.addObjectType(objecttype);
+        }
+        const relshiptypes = metamodel.relshiptypes;
+        for (let i=0; i<relshiptypes?.length; i++) {
+            const relshiptype = relshiptypes[i];
+            if (!relshiptype) continue;
+            if (currentMetamodel.findRelationshipType(relshiptype.id)) 
+                continue;
+            else 
+                currentMetamodel.addRelationshipType(relshiptype);
+        }
+        const objecttypes0 = metamodel.objecttypes0;
+        for (let i=0; i<objecttypes0?.length; i++) {
+            const objecttype = objecttypes0[i];
+            if (!objecttype) continue;
+            if (currentMetamodel.findObjectType0(objecttype.id)) 
+                continue;
+            else 
+                currentMetamodel.addObjectType0(objecttype);
+        }
+        const relshiptypes0 = metamodel.relshiptypes0;
+        for (let i=0; i<relshiptypes0?.length; i++) {
+            const relshiptype = relshiptypes0[i];
+            if (!relshiptype) continue;
+            if (currentMetamodel.findRelationshipType0(relshiptype.id)) 
+                continue;
+            else 
+                currentMetamodel.addRelationshipType0(relshiptype);
+        }
     }
-    const relshiptypes = metamodel.relshiptypes;
-    if (debug) console.log('894 relshiptypes', relshiptypes);
-    for (let i=0; i<relshiptypes?.length; i++) {
-        const relshiptype = relshiptypes[i];
-        if (!relshiptype) continue;
-        if (currentMetamodel.findRelationshipType(relshiptype.id)) 
-            continue;
-        else 
-            currentMetamodel.addRelationshipType(relshiptype);
-    }
-    const objecttypes0 = metamodel.objecttypes0;
-    for (let i=0; i<objecttypes0?.length; i++) {
-        const objecttype = objecttypes0[i];
-        if (!objecttype) continue;
-        if (currentMetamodel.findObjectType0(objecttype.id)) 
-            continue;
-        else 
-            currentMetamodel.addObjectType0(objecttype);
-    }
-    const relshiptypes0 = metamodel.relshiptypes0;
-    for (let i=0; i<relshiptypes0?.length; i++) {
-        const relshiptype = relshiptypes0[i];
-        if (!relshiptype) continue;
-        if (currentMetamodel.findRelationshipType0(relshiptype.id)) 
-            continue;
-        else 
-            currentMetamodel.addRelationshipType0(relshiptype);
-    }
-    // currentMetamodel.addSubMetamodel(metamodel);
     const jsnMetamodel = new jsn.jsnMetaModel(currentMetamodel, true);
     if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
     const modifiedMetamodels = new Array();
@@ -1099,13 +1206,16 @@ function deleteMetamodel2(context: any) {
             myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
         }       
     }
-    // const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-    // let data = JSON.parse(JSON.stringify(jsnMetamodel));
-    let data = {id: metamodel.id, markedAsDeleted: true};
-    if (!debug) console.log('1105 data', data, metamodel.name);
-    myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    if (myMetis.currentTargetMetamodel?.id === metamodel.id) {
+        myMetis.currentTargetMetamodel = null;
+        myMetis.currentTargetMetamodelRef = "";
+    }
     uic.purgeMetaDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = { metis: jsnMetis }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 function clearMetamodel2(context: any) {
@@ -1303,7 +1413,6 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     model.markedAsDeleted = true;
     modifiedModels.map(mn => {
         let data = {id: model.id, markedAsDeleted: true};
-        if (!debug) console.log('1311 data', data);
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     alert("The model '" + model.name + "' has been deleted!");
@@ -1320,7 +1429,6 @@ function clearModel1(context: any) {
         if (debug) console.log('367 model, myMetis', model, myMetis);
     }
 }
-
 
 const breakString = (str, limit) => {
     let brokenString = '';
@@ -1357,9 +1465,9 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     msg += printf(format2, "descr.", breakString(d.object.description, 64));
     // msg += "-------------------\n";
     // msg = "Object \Type props:\n";
-    d.object.type.properties.map(prop => {  
-        propval = prop.name;
-        console.log('1338 propval', propval);
+    d.object.type.properties?.map(prop => {  
+        propval = prop?.name;
+        if (debug) console.log('1338 propval', propval);
         msg += printf(format2, prop.name, d.object[propval]);
     });
     msg += "- - - - - - - ObjectType - - - - - - - -\n";

@@ -1,69 +1,167 @@
-
 // import SelectContext from '../components/SelectContext'
 // Todo:  change name to ViewContext
 import { useState } from 'react'
 import Link from 'next/link';
+import { useRouter } from "next/router";
+
+const debug = false
 
 const SetContext = (props: any) =>  {
+  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
  
   const phFocus = props.ph?.phFocus;
-  const phData = props.ph?.phData;
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
   const org = (phFocus?.focusProj?.org) && phFocus.focusProj?.org;
+  const branch = (phFocus?.focusProj?.branch) && phFocus.focusProj?.branch;
+  const path = (phFocus?.focusProj?.path) && phFocus.focusProj?.path;
   const projectNumber = (phFocus?.focusProj?.projectNumber) && phFocus.focusProj?.projectNumber;
 
-  //  dconsole.log('11 SetContext: phFocus', props.ph.phFocus.focusObject?.name, phFocus.focusObject?.name, props);
-  const [toggle, setToggle] = useState(true);
+  if (!phFocus) return null;
 
-  const toggleContext = () => {
-    setToggle(!toggle);
+  const copyToClipboard = async () => { 
+    const host = window.location.host;
+    const paramFocus = {
+      githubFile: {
+        org: phFocus.focusProj.org,
+        repo: phFocus.focusProj.repo, 
+        branch: phFocus.focusProj.branch, 
+        path: phFocus.focusProj.path,
+        filename: phFocus.focusProj.file,
+      },
+      focusModel: (phFocus.focusModel.description) ? {id: phFocus.focusModel.id, name:phFocus.focusModel.name} : phFocus.focusModel, // just in case the whole model is written to the focus
+      focusModelview: phFocus.focusModelview,
+      focusObject: phFocus.focusObject,
+      focusObjectview: phFocus.focusObjectview,
+      focusRole: '', //phFocus.focusRole,
+      focusTask: '' //phFocus.focusTask,
+    };
+    console.log('27 paramFocus', paramFocus, phFocus.focusProj);
+    const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
+    // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
+    const focusUrl = `http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`;
+    if (debug) console.log('42 focus', focusUrl);
+    const focus = await navigator.clipboard.writeText(focusUrl);
+    if (debug) console.log('44 focus', focus);
+    // return focus    
   }
 
   const contextRepoDiv = 
-    <div className="context-list d-flex justify-content-around flex-grow-1 px-1"> Context :
-      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item "> Modelview: <strong>{ phFocus?.focusModelview?.name } </strong> </span> 
-      <span className="context-item"> Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> </span> |
-      <span className="context-item"> Object: <strong>{phFocus?.focusObject?.name}</strong> </span> |
-    </div>
-
-  const contextModelDiv = 
-    <div className="context-list d-flex justify-content-around align-items-center flex-grow-1"> Context 2:
-      <span className="context-item"> Org: <strong>{phFocus?.focusProj?.org}</strong> </span> | 
-      <span  data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Repo for this model" > Repo: <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> <strong>{repo}</strong> </Link></span> |
-      <span data-bs-toggle="tooltip" data-bs-placement="top" title="Link to GitHub Project for this model" > Proj: {<Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank">  <strong>{phFocus.focusProj.name}</strong></Link>}</span> |
-      <span className="context-item"> Model: <strong>{ phFocus?.focusModel?.name }</strong> </span> |
-      <span className="context-item"> Role: <strong>{phFocus?.focusRole?.name}</strong> </span> |
-      <span className="context-item"> Task: <strong>{phFocus?.focusTask?.name}</strong> </span>
+  <div className="context-list d-flex justify-content-around align-items-center ps-4 pt-0" style={{ backgroundColor: "#e5e5e5", whiteSpace: "nowrap" }}>
+    Focus :
+    <span className="border rounded-2">
+      Proj:
+      <span
+        className="border rounded-2 px-1"
+        style={{ backgroundColor: "#fff"  }}
+      >
+        <Link
+          className="text-primary"
+          href={`https:/github.com/orgs/${org}/projects/${projectNumber}`}
+          target="_blank"
+        >
+          <span >
+            {phFocus.focusProj?.name}
+          </span>
+        </Link>
+      </span>
+    </span>
+    <span className="border rounded-2">
+      Repo:
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+      >
+        <Link
+          className="text-primary"
+          href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}`}
+          target="_blank"
+        >
+          <span >{repo}</span>
+        </Link>
+      </span>
+    </span>
+    <span className="context-item">
+      <span className="px-1 border rounded-2">
+        Model:
+      </span>
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+      >
+        {phFocus?.focusModel?.name}
+      </span>
+    </span>
+    <span 
+      className="border rounded-2">
+      Modelview:
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+      >
+        {phFocus?.focusModelview?.name}
+      </span>
+    </span>
+    <span 
+      className="border rounded-2">
+      Object:
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+      >
+        {phFocus?.focusObject?.name}
+      </span>
+    </span>
+    <span 
+      className="border rounded-2">
+      Objectview:
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+      >
+        {phFocus?.focusObjectview?.name}
+      </span>
+    </span>
+    <span 
+      className="border rounded-2"
+      >
+      Role:
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+      >
+        {phFocus?.focusRole?.name}
+      </span>
+    </span>
+    <span
+      className="border rounded-2"
+      >
+      Task:
+      <span
+        className="border rounded-2 px-1"
+         style={{ backgroundColor: "#fff" }}
+        >
+        {phFocus?.focusTask?.name}
+      </span>
+    </span>
+    <span className="mx-1 bg-">
+        <i className="fas fa-copy fa-lg text-secondary " 
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
+          style={{ }} 
+          onClick={copyToClipboard}>
+        </i>
+      </span>
   </div>
 
-  const contextDiv = (toggle) ? {contextRepoDiv} : {contextModelDiv}
-  
   return (
     <>
-      {toggle ? contextRepoDiv : contextModelDiv}
-      <button className="btn btn-sm my-0 py-0 bg-light text-dark" onClick={toggleContext} style={{height: "24px", backgroundColor: "#cdd"}}>
-        {(toggle) ? <span>&gt;</span> : <span >&lt;</span> }
-        {/* {(toggle) ? <span className="toggle-btn.active arrow arrow::before active">  </span> : <span className="toggle-btn arrow arrow::after"></span> } */}
-      </button> 
+      <div className="d-flex justify-content-between align-items-center ms-2" >
+        <span className="ms-5 bg-light">{contextRepoDiv}</span>
+      </div>
+
     </>
   )
 }
           
+
 export default SetContext
-
-
-
-      // {/* <span className="context-item">Objecttype: <strong>{phFocus?.focusObjecttype?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Objecttypeview: <strong>{phFocus?.focusObjecttypeview?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Relshipview: <strong>{phFocus?.focusRelshipview?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Relship: <strong>{phFocus?.focusRelship?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Relshiptype: <strong>{phFocus?.focusRelshiptype?.name}</strong> </span>| */}
-      // {/* <span className="context-item"><SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> </span>| */}
-      // {/* <span className="context-item">FocusModel: <strong>{phFocus?.focusModel?.name}</strong> </span>|
-      // <span className="context-item">FocusModelview: <strong>{phFocus?.focusModelview?.name}</strong> </span>| */}
-      // {/* <span className="context-item">Tab: <strong>{phFocus?.focusTab}</strong> </span>  */}
-      // {/* <span className="context-item">Template: <strong>{phFocus?.focusTemplateModel?.name}</strong> </span>|
-      // <span className="context-item">TemplateModelview: <strong>{phFocus?.focusTemplateModelview?.name}</strong> </span>|
-      // <span className="context-item">TargetModel: <strong>{phFocus?.focusTargetModel?.name}</strong> </span>|
-      // <span className="context-item">TargetModelview: <strong>{phFocus?.focusTargetModelview?.name}</strong> </span>| */}

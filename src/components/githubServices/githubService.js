@@ -42,27 +42,31 @@ const axiosConfigRaw2 = {
   baseURL: 'https://raw.githubusercontent.com/',
 }
 
-export function searchGithub(searchText, path, filename, branch='main', searchtype='paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
-  if (debug) console.log('46 searchGithub', searchText, path, filename, searchtype);
+export function searchGithub(repo, path, filename, branch='main', searchtype='paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
+  if (debug) console.log('46 searchGithub', repo, path, branch, filename, searchtype);
   // search/repositories?q=akm-models
   let query = ''
   if (searchtype == 'repos') {
-    query = `search/repositories?q=${searchText}`
+    query = `search/repositories?q=${repo}`
   } else if (searchtype == 'branches') {
-    query = `repos/${searchText}/branches`
+    query = `repos/${repo}/branches`
   } else if (searchtype == 'models') {
-    query = `repos/${searchText}/contents/${path}`
+    query = `repos/${repo}/contents/${path}`
   } else if (searchtype == 'file') {
-    query = `${searchText}/${branch}/${path}/${filename}`
+    if (!path) {
+      query = `${repo}/${branch}/${filename}`
+    } else {
+      query = `${repo}/${branch}/${path}/${filename}`
+    }
   } else if (searchtype == 'paramfile') {
-    query = `${searchText}/${branch}/${path}/${filename}`
+    query = `${repo}/${branch}/${path}/${filename}`
   } else if (searchtype == 'fileSHA') {
-    query = `repos/${searchText}/git/blobs/${filename}`
+    query = `repos/${repo}/git/blobs/${filename}`
   } else if (searchtype == 'modelfile') {
-    query = `${searchText}${filename}`
+    query = `${repo}${filename}`
   } else if (searchtype == 'issues') {
-    console.log('50 searcGithub issues', searchText);
-    query = `${searchText}/issues`
+    console.log('50 searcGithub issues', repo);
+    query = `${repo}/issues`
   }
   if (debug) console.log('50 searcGithub ', query);
   return axios.get(
@@ -70,10 +74,10 @@ export function searchGithub(searchText, path, filename, branch='main', searchty
     axiosConfigRaw2
   );
 }
-export function searchRepos(searchText, path) {  // search/repositories?q=akm-models
-  if (debug)  console.log('74 searchRepos search/repositories', searchText, path);
+export function searchRepos(repo, path) {  // search/repositories?q=akm-models
+  if (debug)  console.log('74 searchRepos search/repositories', repo, path);
   return axios.get(
-    `search/repositories?q=${searchText}`,
+    `search/repositories?q=${repo}`,
     axiosConfig
   );
 }
@@ -92,18 +96,18 @@ export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-m
   );
 }
 
-export function searchModels(searchText, path) {
+export function searchModels(repo, path) {
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches
-  const query = `${searchText}`;
+  const query = `${repo}`;
   if (debug) console.log('48 searchRepos https://api.github.com/', query);
   return axios.get(
     `${query}`,
     axiosConfig
   );
 }
-export function searchModelRaw(searchText, sha) {
+export function searchModelRaw(repo, sha) {
   // https://raw.githubusercontent.com/Kavca/equinor-osdu-akmpoc/main/
-  const query = `repos/${searchText}/commits/${sha}`;
+  const query = `repos/${repo}/commits/${sha}`;
   if (debug) console.log('68 searchRepos', query);
   return axios.get(
     `${query}`,
@@ -112,10 +116,10 @@ export function searchModelRaw(searchText, sha) {
 }
 
 
-export function searchModel(searchText, path) {
+export function searchModel(repo, path) {
 
-  const query = `${searchText}`;
-  // const query =  `${searchText}/${path}`;
+  const query = `${repo}`;
+  // const query =  `${repo}/${path}`;
   if (debug) console.log('44 searchRepos', query);
   return axios.get(
     `${query}`,

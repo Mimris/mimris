@@ -1,7 +1,7 @@
 ---
 title: 'Overview'
 date: 'Oct 18, 2021'
-excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It is based on the AKM Modeller Core, which includes model and metamodel definitions, and a graphical user interface. It is available for Windows, macOS and Linux.'
+excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It is based on the AKM Modeller Core, which includes model and metamodel definitions, and a graphical user interface.'
 cover_image: 'images/posts/overview/image001.png'
 ---
 
@@ -13,8 +13,8 @@ It can be customized to support any subject area, if the area can be described b
 The user interface is implemented as a graphic modelling environment where each concept is visualized graphically to ease communication between users. The visualization of objects and relationships is customizable.
 
 The Modeller differentiates between a meta-model (a modelling language) and a model. 
-The meta-model defines the object types and relationship types - e.g. may Person and Car be your object types, 
-while owns or rents may be your relevant relationship types between those object types. 
+The meta-model defines the object types and relationship types - e.g. may <b>Person</b> and <b>Car</b> be your object types, 
+while <b>owns</b> or <b>rents</b> may be your relevant relationship types between those object types. 
 Based on such a meta-model you may build a model of actual persons and cars and connect the relationships between the persons and their cars.
 
 table of contents
@@ -38,10 +38,10 @@ The models in AKMM are organized in Projects, as shown in the figure below.
 
 ![alt text](/images/posts/overview/image001.png)
 
-A Project may contain one or more Metamodels, and one or more Models. 
+A <b>Project</b> may contain one or more <b>Metamodels</b>, and one or more <b>Models</b>. 
 A Model is based on one Metamodel, but several Models may share the same Metamodel. 
 
-To see the content of a model, Modelviews are used. A Modelview shows visualizations of objects and relationships.
+To see the content of a model, <b>Modelviews</b> are used. A Modelview shows visualizations of objects and relationships.
 
 ---
  - [-back to the top-](#introduction)
@@ -51,14 +51,17 @@ To see the content of a model, Modelviews are used. A Modelview shows visualizat
 
 A fundamental concept in AKMM is the Metamodel as illustrated in the figure below.
 
-On the base level the Metamodel consists of Object types and Relationship types, and the
-definition of how they play together.
-A Relationship type points to two object types, the FROM object type and the TO object type,
-which tells us that a relationship in AKMM has a direction, which normally is shown in the
-model views with an arrow pointing to the TO object.
-In addition, the Metamodel contains Object Typeviews, that define how the objects of a given
-type are visualized, and Relationship Typeviews that define how relationships of a given type
-are visualized.
+On the base level the Metamodel consists of <b>Object types</b> and <b>Relationship types</b>, 
+and the definition of how they play together. <br>
+A Relationship type points to two object types, 
+the FROM object type and the TO object type, <br>
+which tells us that a relationship in AKMM has a direction, <br> 
+which normally is shown in the model views with an arrow pointing to the TO object. <br>
+In addition, 
+the Metamodel contains Object Typeviews, <br>
+that define how the objects of a given type are visualized, <br>
+and Relationship Typeviews <br>
+that define how relationships of a given type are visualized.
 
 ![alt text](/images/posts/overview/image002.png)
 

@@ -50,7 +50,7 @@ export const getServerSideProps = async pageContext => {
   const query = encodeURIComponent('*[ _type == "post" ]');
   const url = `https://x7wbre1b.api.sanity.io/v1/data/query/production?query=${query}`;
   const result = await fetch(url).then(res => res.json());
-  console.log('48', url, result);   
+  if (debug) console.log('48', url, result);   
   if (!result.result || !result.result.length) {
     return {
       props: {

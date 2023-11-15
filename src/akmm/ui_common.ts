@@ -4,9 +4,9 @@ const debug = false;
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as uid from './ui_diagram';
-import * as uic from './ui_common';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
+import { LinkReshapingTool } from 'gojs';
 const constants = require('./constants');
 const printf = require('printf');
 
@@ -42,18 +42,19 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             const pastedobj = myMetis.findObject(obj.id);
             if (objtype.name === constants.types.AKM_CONTAINER) {
                 const guid = utils.createGuid();
-                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                obj = new akm.cxObject(guid, data.name, objtype, data.object.description);
             }
             else if (!pastedobj) {
                 // This is not a pasted object, create a new one
                 let guid = obj.id;
-                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                obj = new akm.cxObject(guid, data.name, objtype, data.object.description);
                 myMetis.pasteViewsOnly = false;
             } else {
                 obj = pastedobj;
             }
         } else {
-            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
+            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.object.description);
+            copyProperties(obj, data.object);
         }
         if (debug) console.log('56 obj, myMetis', obj, myMetis);
         if (obj) {
@@ -90,6 +91,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (group) { 
                         const parentgroup = group;
                         node.group = parentgroup.key;
+                        node.objectview.group = parentgroup.objectview.id;
                         myDiagram.model.setDataProperty(data, "group", node.group);
                         node.scale1 = new String(node.getMyScale(myGoModel));
                         data.scale1 = Number(node.scale1);
@@ -149,6 +151,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myDiagram.model.setDataProperty(data, "name", name);
                 myDiagram.model.setDataProperty(n, "scale", data.scale1);
                 myDiagram.model.setDataProperty(data, "objectview", objview);
+                myDiagram.model.setDataProperty(data, "group", node.group);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
                 if (context.pasted) {
@@ -514,6 +517,21 @@ export function copyRelationship(fromRel: akm.cxRelationship, fromObj: akm.cxObj
     return toRel;
 }
 
+export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
+    for (let prop in fromObj) {
+        if (prop === 'id') continue;
+        if (prop === 'name') continue;
+        if (prop === 'description') continue;
+        if (prop === 'inputrels') continue;
+        if (prop === 'outputrels') continue;
+        if (prop === 'objectviews') continue;
+        if (prop === 'relshipviews') continue;
+        if (prop === 'modified') continue;
+        if (prop === 'generatedTypeId') continue;
+        toObj[prop] = fromObj[prop];
+    }
+}
+
 export function deleteObjectType(data: any, context: any) {   
 }
 
@@ -807,7 +825,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     const nh = parseInt(nodeSize[1]);
     const myNode = nod;
     let nodes = model.nodes;
-    let uniqueSet = utils.removeArrayDuplicates(nodes);
+    let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
     nodes = uniqueSet;
     if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
     // Go through all the groups
@@ -832,11 +850,11 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             if (
                 (nx > gx) // Check upper left corner of node
                 && 
-                (nx < gx + gw * scale ) // Check upper right corner of node
+                (nx <= gx + gw * scale ) // Check upper right corner of node
                 &&
                 (ny > gy) // Check lower left corner of node
                 && 
-                (ny < gy + gh * scale) // Check lower right corner of node
+                (ny <= gy + gh * scale) // Check lower right corner of node
             ) {
                 let grp = {
                     "name": node.name, 
@@ -850,7 +868,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         }
     }
     if (debug) console.log('847 groups', groups);
-    uniqueSet = utils.removeArrayDuplicates(groups);
+    uniqueSet = utils.removeArrayDuplicatesById(groups, "groupId");
     groups = uniqueSet;
 
     groups.sort(function(a, b) {
@@ -941,7 +959,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
             let nodeObjview = node.objectview;
             if (nodeObjview) {
                 nodeObjview.setGroup("");
-                let rels = nodeObj.findInputRelships(myModel, constants.RELKINDS.COMP);
+                let rels = nodeObj.getInputRelships(myModel, constants.RELKINDS.COMP);
                 if (rels) {
                     for (let i = 0; i < rels.length; i++) {
                         let rel = rels[i];
@@ -1136,40 +1154,63 @@ export function scaleSubnodes(node: any, nodes: any[]): any[] {
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    if (debug) console.log('974 createRelationship', data, context);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; 
-    const myMetamodel = myMetis.currentMetamodel;
+    const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+    let   myMetamodel = myMetis.currentMetamodel;
     const myModelview = context.myModelview;
     const fromNode = myGoModel.findNode(data.from);
-    if (debug) console.log('980 myMetis', myMetis);
-    if (debug) console.log('981 fromNode, data.from', fromNode, data.from);
     let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const fromPort = data.fromPort;
     const toNode = myGoModel.findNode(data.to);
     let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
     const toPort = data.toPort;
-    if (debug) console.log('985 createRelationship', myGoModel, fromNode, toNode);
     let reltype;
     if (!reltype) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetamodel.findObjectType(fromType?.id);
-        if (debug) console.log('994 fromType', fromType);
+        toType   = myMetamodel.findObjectType(toType?.id);
         if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
+        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (fromType) {
             fromType.allObjecttypes = myMetamodel.objecttypes;
             fromType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        toType   = myMetamodel.findObjectType(toType?.id);
-        if (debug) console.log('1001 toType', toType);
-        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (toType) {
             toType.allObjecttypes = myMetamodel.objecttypes;
             toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        if (debug) console.log('1007 includeInherited', myModelview.includeInheritedReltypes);
+        let metamodel = myMetamodel;
+        let metamodel2 = myMetamodel;
+        const submetamodels = myMetamodel.submetamodels;
+        if (!fromType) {
+            for (let i=0; i<submetamodels.length; i++) {
+                let mmodel = submetamodels[i];
+                fromType = mmodel.findObjectType(fromNode?.object?.typeRef);
+                if (fromType) {
+                    metamodel = mmodel;
+                    break;
+                }
+            }
+        }
+        if (!toType) {
+            for (let i=0; i<submetamodels.length; i++) {
+                let mmodel = submetamodels[i];
+                toType   = mmodel.findObjectType(toNode?.object?.typeRef);
+                if (toType) { 
+                    metamodel2 = mmodel;
+                    break;
+                }
+            }
+        }
+        myMetamodel = metamodel;
+        const relshiptypes = metamodel.relshiptypes;
+        for (let i=0; i<relshiptypes.length; i++) {
+            const rtype = relshiptypes[i];
+            myMetis.fixObjectTypeRefs(rtype);
+        }
         if (fromType && toType) {
             const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
             let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;
@@ -1177,22 +1218,34 @@ export function createRelationship(data: any, context: any) {
             if (myModelview.includeInheritedReltypes) {
                 includeInherited = true;
             }
-            const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            if (debug) console.log('1017 fromType, toType, reltypes', fromType, toType, reltypes);
+            let reltypes = [];
+            if (metamodel.id === metamodel2.id) {
+                reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+            } else {
+                const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+                for (let i=0; i<rtypes.length; i++) {
+                    const rtype = rtypes[i];
+                    if (rtype.name === 'generic') {
+                        reltypes.push(rtype);
+                    }
+                    if (rtype.name === 'refersTo') {
+                        reltypes.push(rtype);
+                    }
+                }
+            }
+
             if (reltypes) {
                 const choices1: string[] = [];
                 if (defText.length > 0) choices1.push(defText);
                 let choices2: string[]  = [];
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
-                    if (rtype.name === defText) {
-                        continue;
-                    }
                     choices2.push(rtype.name);  
                 }  
                 choices2 = [...new Set(choices2)];
                 choices2.sort();
-                const choices = choices1.concat(choices2);
+                let choices = choices1.concat(choices2);
+                choices = utils.removeArrayDuplicates(choices);
                 // Calling routine to select reltype from list
                 const args = {
                     data: data,
@@ -1211,6 +1264,7 @@ export function createRelationship(data: any, context: any) {
                     title: "Select Relationship Type",
                     case: "Create Relationship",
                     myDiagram: myDiagram,
+                    myMetamodel: metamodel,
                     context: context,
                     data: data,
                     typename: defText,
@@ -1221,20 +1275,17 @@ export function createRelationship(data: any, context: any) {
                     nodeTo: nodeTo,
                     portTo: toPort,
                 } 
-                if (debug) console.log('choices, 1218 args', args);
                 context.handleOpenModal(choices, modalContext);
-                if (debug) console.log('1221 modalContext', modalContext);                
             }
         }
     }
 }
 
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
-    if (debug) console.log('1265 createRelshipCallback', args);
     const myDiagram = args.context.myDiagram;
     const myGoModel = args.context.myGoModel;
     const myMetis   = args.context.myMetis; 
-    const myMetamodel = myMetis.currentMetamodel;
+    const myMetamodel = args.metamodel;
     const myModel  = args.context.myModel;
     const myModelview = myMetis.currentModelview;
     let data       = args.data;
@@ -1248,16 +1299,14 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const objTo    = nodeTo.data.object;
     const portTo   = args.toPort;
     const context  = args.context;
-    let reltype  = data.relshiptype;
-    if (debug) console.log('1261 data, reltype, myModelview', data, reltype, myModelview);
-    reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1261 reltype, myMetamodel', reltype, myMetamodel);
+    const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+    let reltype    = data.relshiptype;
+    reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
     if (!reltype) {
         alert("Relationship type given does not exist! 1")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('1293 typename, data, reltype', typename, data, reltype);
     const rel = myModel.findRelationship2(objFrom, objTo, reltype, typename, portFrom, portTo);
     if (rel) {
         alert("Relationship already exists!\nOperation is cancelled.")
@@ -1269,9 +1318,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     data.type = "";
     data.name = reltype.nameFrom;
     const reltypeview = reltype.typeview;
-    if (debug) console.log('1305 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
-    if (debug) console.log('1307 data, relshipview', data, relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
@@ -1284,9 +1331,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.fromPortid = data.fromPort;
         relshipview.toPortid = data.toPort;
         let name = data.name;  
-        if (debug) console.log('1320 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(name).valueOf());
-        if (debug) console.log('1322 relshipview', relshipview);
         const id = relshipview.id;
         if (context.myModelview.askForRelshipName){
             name = prompt('Enter relationship name', name);
@@ -1297,8 +1342,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.name = name;
         relship.name = name;
         data.name = name;
-        if (debug) console.log('1333 data, relshipview', data, relshipview);
-        if (debug) console.log('1334 myModelview, relshipview', myModelview, relshipview);
         updateLink(data, relshipview.typeview, myDiagram);
 
         let link = myGoModel.findLink(data.key);
@@ -1312,7 +1355,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         // Dispatch
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
-        if (debug) console.log('1347 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1321,7 +1363,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1356 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
@@ -1331,7 +1372,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })              
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);
-        if (debug) console.log('1366 myModelview, jsnModelview', myModelview, jsnModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
           let data = mn;
@@ -1341,20 +1381,16 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         link = myDiagram.findLinkForKey(data.key);
         if (link) {
             const lnk = link.data;
-            if (debug) console.log('1376 link, lnk, relshipview', link, lnk, relshipview);
             if (name === " ") {
                 myDiagram.model.setDataProperty(lnk, "name", ".");  // Hack
             } else {
                 myDiagram.model.setDataProperty(lnk, "name", name);
             }
             if (link.strokeWidth == 0) link.strokeWidth = 1;
-            if (debug) console.log('1383 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);            
             if (link.strokeWidth == 0) link.strokeWidth = 1;
             myDiagram.model.setDataProperty(lnk, "category", "Relationship");
-            if (debug) console.log('1386 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
         }
     }        
-    if (debug) console.log('1389 data, relshipview, modelview', data, relshipview, myModelview);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1412,6 +1448,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         relshipview.setFromObjectView(fromObjview);
         relshipview.setToObjectView(toObjview);
         relshipview.setModified();
+        relshipview.setPoints(data.points);
         relship.addRelationshipView(relshipview);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
@@ -1527,7 +1564,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                         myDiagram.requestUpdate();
                         if (debug) console.log('1293 myMetamodel', myMetamodel);
                     }
-                    console.log('1295 reltype', reltype);
+                    if (debug) console.log('1295 reltype', reltype);
                     return reltype;
                 }
             }
@@ -1674,14 +1711,14 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
         if (!relview.arrowscale)
             relview.arrowscale = "1.3";
         const typeview = relview.typeview;
-        // if (typeview) {
-        //     const viewdata = typeview.data;
-        //     for (let prop in viewdata) {
-        //         if (relview[prop] === viewdata[prop]) {
-        //             relview[prop] = "";
-        //         }
-        //     }
-        // }
+        if (typeview) {
+            const viewdata = typeview.data;
+            for (let prop in viewdata) {
+                if (relview[prop] === viewdata[prop]) {
+                    relview[prop] = "";
+                }
+            }
+        }
         if (relview.strokewidth === "") {
             relview.strokewidth = "1";
         }
@@ -1714,7 +1751,6 @@ export function clearRelationshipPoints(modelview: akm.cxModelView, myMetis: akm
 
 export function createLink(data: any, context: any): any {
     // Creates both relship and relship view
-    if (debug) console.log('1719 createLink', data, context);
     if (!data.key)
         data.key = utils.createGuid();
     const myMetis = context.myMetis;
@@ -1741,10 +1777,7 @@ export function createLink(data: any, context: any): any {
         const toPort = data.toPort;
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
-        if (debug) console.log('1746 createLink', data.relshiptype.name, fromType, toType);
-        reltype = myMetis.findRelationshipTypeByName2(data.relshiptype.name, fromType, toType);
-        const typename = reltype?.name;
-        if (debug) console.log('1749 reltype', reltype);
+        reltype = data.relshiptype;
         if (reltype && reltype.isInstantiable()) {
             // Create the relationship
             const myGoModel = context.myGoModel;
@@ -1765,7 +1798,6 @@ export function createLink(data: any, context: any): any {
                 // Find relationship if it already exists
                 const myModel = context.myModel;
                 let relship = myModel.findRelationship2(fromObj, toObj, reltype.nameFrom, reltype, fromPort, toPort);
-                if (debug) console.log('1770 relship', relship);
                 if (!relship) {
                     relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
                     if (relship) {
@@ -1778,20 +1810,16 @@ export function createLink(data: any, context: any): any {
                         myMetis.addRelationship(relship);
                     }
                 }
-                if (debug) console.log('1783 relship', relship);
                 if (relship) {
                     let typeview = data.relshiptype.typeview;
                     if (!typeview) typeview = reltype.getDefaultTypeView();
-                    if (debug) console.log('1787 typeview', typeview);
                     let relviewName = relship.name;
                     if (relviewName === "") relviewName = data.relshiptype.name;
                     relshipview = new akm.cxRelationshipView(utils.createGuid(), relviewName, relship, "");
-                    if (debug) console.log('1791 relshipview', relshipview);
                     if (relshipview) {
                         const myModelview = context.myModelview;
                         const diagram = context.myDiagram;
                         relshipview.setModified();
-                        // relshipview.setName(relviewName);
                         relshipview.setTypeView(typeview);
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
@@ -1804,7 +1832,6 @@ export function createLink(data: any, context: any): any {
                         myMetis.addRelationshipView(relshipview);
                         data.relshipview = relshipview;
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
-                        if (debug) console.log('1809 typeview, relshipview', typeview, relshipview);
                     }
                 }
             }
@@ -1820,11 +1847,19 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
             const myDiagram = context.myDiagram;
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;
-            const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
+            let link;
+            const links = myDiagram.links;
+            for (let it = links.iterator; it?.next();) {
+                const l = it.value;
+                if (l.key === lnk.key) {
+                    link = l.data;
+                    break;
+                }
+            }
             if (debug) console.log('1801 lnk, link', lnk, link);
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView
-                relview = myMetis.findRelationshipView(relview.id);
+                relview = myMetis.findRelationshipView(relview?.id);
                 const rel = relview?.relship;    // cxRelationship   
                 if (debug) console.log('1806 rel, relview', rel, relview);
                 if (rel && relview) {
@@ -1840,11 +1875,14 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     // After relink   
                     link.category = lnk.category;
                     link.name = name;        
-                    link.setFromNode(lnk.from);
                     rel.fromPortid = lnk.fromPort;
                     rel.toPortid = lnk.toPort;
                     relview.fromPortid = lnk.fromPort;
                     relview.toPortid = lnk.toPort;
+                    link.from = lnk.from;
+                    link.to = lnk.to;
+                    link.fromNode = fromNode
+                    link.toNode = toNode;
                     link.fromPort = lnk.fromPort;
                     link.toPort = lnk.toPort;
                     const fromObjView = fromNode.objectview;
@@ -1852,7 +1890,6 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     relview.fromPortid = lnk.fromPort;
                     relview.toPortid = lnk.toPort;
                     rel.fromObject = myMetis.findObject(fromObjView.object.id);  
-                    link.setToNode(lnk.to);
                     const toObjView = toNode.objectview;
                     relview.toObjview = toObjView;
                     rel.toObject = myMetis.findObject(toObjView.object.id); 
@@ -1863,12 +1900,20 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     if (debug) console.log('1840 fromobj2, toObj2', fromObj2, toObj2);  
                     const myLink = myDiagram.findLinkForKey(link.key);
                     myLink.category = link.template;
-                    uic.setLinkProperties(relview, myMetis, myDiagram);
+                    setLinkProperties(relview, myMetis, myDiagram);
                     // Do the dispatches          
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     context.modifiedRelshipViews.push(jsnRelview);
                     const jsnRel = new jsn.jsnRelationship(rel);
                     context.modifiedRelships.push(jsnRel);
+                    const jsnFromObj1 = new jsn.jsnObject(fromObj1);
+                    context.modifiedObjects.push(jsnFromObj1);
+                    const jsnToObj1 = new jsn.jsnObject(toObj1);
+                    context.modifiedObjects.push(jsnToObj1);
+                    const jsnFromObj2 = new jsn.jsnObject(fromObj2);
+                    context.modifiedObjects.push(jsnFromObj2);
+                    const jsnToObj2 = new jsn.jsnObject(toObj2);
+                    context.modifiedObjects.push(jsnToObj2);
                 }
             }
         }
@@ -2169,6 +2214,7 @@ export function addHasMemberRelshipView(rel: any, myModelview: akm.cxModelView):
     let relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
     relview.setFromObjectView(fromObjview);
     relview.setToObjectView(toObjview);
+    myModelview.addRelationshipView(relview);
     return relview;
 }
 
@@ -2177,18 +2223,28 @@ export function setLinkProperties(relview: akm.cxRelationshipView, myMetis: akm.
     const fromObjview = relview.fromObjview;
     const toObjview = relview.toObjview;
     if (fromObjview && toObjview) {
-        let link = uid.getLinkByViewId(relview.id, myDiagram);
-        if (!link) {
-            link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+        const links = myDiagram.links;
+        let found = false;
+        let link = null as gjs.goRelshipLink;
+        for (let it = links.iterator; it?.next();) {
+            const lnk = it.value;
+            if (lnk.data.relshipview.id === relview.id) {
+                link = myGoModel.findLinkByViewId(relview.id);
+                found = true;
+                break;
+            }    
+        }   
+        let newlink = null; 
+        if (!found) {
+            newlink = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+            link = newlink;
             link.loadLinkContent(myGoModel);
             link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
             link.from = link.fromNode?.key;
             link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
             link.to = link.toNode?.key;
             myGoModel.addLink(link);
-            myDiagram.startTransaction('add link')
             myDiagram.model.addLinkData(link);
-            myDiagram.commitTransaction('add link');
         }
     }
 }
@@ -2302,7 +2358,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'groupLayout') retVal = false;
     // if (k === 'id') retVal = false;
     if (k === 'inputrels') retVal = false;
-    if (k === 'isCollapsed') retVal = false;
+    if (k === 'isExpanded') retVal = false;
     if (k === 'isGroup') retVal = false;
     if (k === 'isMetamodel') retVal = false;
     if (k === 'isTemplate') retVal = false;
@@ -2687,27 +2743,45 @@ export function purgeDuplicatedRelshipViews(modelview: akm.cxModelView, metis: a
     const newRelshipviews = new Array();
     for (let i=0; i<relshipviews?.length; i++) {
         const relshipview = relshipviews[i];
-        const fromObjview = relshipview.fromObjview;
-        const toObjview = relshipview.toObjview;
+        if (relshipview.markedAsDeleted) 
+            continue;
+        const relship = relshipview.relship;
+        let found = false;
         for (let j=0; j<relshipviews2?.length; j++) {
             const relshipview2 = relshipviews2[j];
-            if (relshipview2.markedAsDeleted) {
-                setLinkProperties(relshipview2, metis, diagram);
+            if (relshipview2.markedAsDeleted) 
                 continue;
-            }
-            const fromObjview2 = relshipview2.fromObjview;
-            const toObjview2 = relshipview2.toObjview;
-            if (fromObjview.id === fromObjview2.id && toObjview.id === toObjview2.id) {
-                if (relshipview.id === relshipview2.id) {
+            const relship2 = relshipview2.relship;
+            if (relship2.id === relship.id) {
+                if (!found) {
+                    found = true;
                     newRelshipviews.push(relshipview);
-                    continue;
+                } else {
+                    relshipview2.markedAsDeleted = true;
+                    newRelshipviews.push(relshipview);
                 }
-                relshipview2.markedAsDeleted = true;
             }
         }
     }
     modelview.relshipviews = newRelshipviews;
 }
+
+export function purgeDuplicatedLinks(links: any[]): any[] {
+    for (let it1 = links.iterator; it1?.next();) {
+        const link1 = it1.value;
+        const rview1= link1.data.relshipview;
+        for (let it2 = links.iterator; it2?.next();) {
+            const link2 = it2.value;
+            if (link1 === link2) continue;
+            const rview2 = link2.data.relshipview;
+            if (rview1.id === rview2.id) {
+                // links.remove(link2);
+                continue;
+            }
+        }
+    }
+    return links;
+}   
 
 export function deleteRelationship(relship: akm.cxRelationship, modelview: akm.cxModelView, myMetis: akm.cxMetis) {
     let relships = modelview.relships;
@@ -2745,6 +2819,39 @@ export function deleteRelationshipView(relshipView: akm.cxRelationshipView, mode
             break;
         }
     }
+}
+
+function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): boolean {
+    if (objview?.group) { // then objview is a member of a group
+        let mview = objview.modelview; // Current modelview
+        if (!mview) {
+            const obj = objview.object; // The object
+            const models = myMetis.models;
+            for (let i=0; i<models?.length; i++) {
+                const model = models[i];
+                if (model) {
+                    const modelviews = myMetis.modelviews;
+                    for (let j=0; j<modelviews?.length; j++) {
+                        const mview2 = modelviews[j];
+                        const objviews = mview2.objectviews;
+                        for (let k=0; k<objviews?.length; k++) {
+                            const objview2 = objviews[k];
+                            if (objview2?.object?.id === obj.id) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        const grpView = mview?.findObjectView(objview.group); // The group (view)
+        const grpObj = grpView?.object; // The group (object)
+        if (grpObj) {  // If the group (object) exists
+            if (grpObj.type.name === constants.types.AKM_MODEL) // If the group is a model
+                return true;
+        }
+    }
+    return false;
 }
 
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {
@@ -2790,6 +2897,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                         msg += "The container view '" + oview.name + "' is now a group (isGroup = true)\n";
                     }
                 }
+                const obj = oview.object;
+                if (obj) {
+                    if (obj.type?.name === constants.types.AKM_MODEL) {
+                        const modelObj = obj;
+                        oview.viewkind = 'Container';
+                        oview.isGroup = true;
+                    }
+                }
             }
         }
     }
@@ -2815,6 +2930,20 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     if (debug) console.log('2443 msg', msg);
                 }
             }
+            if (obj.type.name === constants.types.AKM_MODEL) {
+                continue;
+            }
+            // If obj is member of a submodel, then do not verify it
+            let isPartOfSubmodel = false;
+            const objviews = obj.objectviews;
+            for (let i=0; i < objviews?.length; i++) {
+                const oview = objviews[i];
+                if (isMemberOfSubmodel(myMetis, oview)) {
+                    isPartOfSubmodel = true;
+                    // Do nothing
+                    continue;
+                }
+            }
             obj.inputrels = new Array();
             obj.outputrels = new Array();
             const typeRef = obj.typeRef;
@@ -2828,15 +2957,20 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 if (debug) console.log('2458 Type of object not found:', obj);
                 objtype = metamodel.findObjectTypeByName(typeName);
                 if (!objtype) {
-                    objtype = myMetis.findObjectTypeByName(defObjTypename);
-                }        
-                obj.type = objtype;
-                obj.typeRef = objtype.id;
-                obj.typeName = objtype.name;
-                objChanged = true;
-                msg += "\tObject type changed to: '" + objtype.name + "'\n";
-                report += printf(format, msg);
-                msg = "";
+                    // Check submodels
+                    if (!isPartOfSubmodel) {
+                        objtype = myMetis.findObjectTypeByName(defObjTypename);
+                    }
+                }      
+                if (objtype) {  
+                    obj.type = objtype;
+                    obj.typeRef = objtype.id;
+                    obj.typeName = objtype.name;
+                    objChanged = true;
+                    msg += "\tObject type changed to: '" + objtype.name + "'\n";
+                    report += printf(format, msg);
+                    msg = "";
+                }
             }
             if (objtype) {
                 const objviews = obj.objectviews;
@@ -2873,7 +3007,18 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         let objectviews = [];
         for (let i=0; i<modelviews?.length; i++) {
             const modelview = modelviews[i];
-            const oviews = modelview.objectviews;
+            const objviews = modelview.objectviews;
+            const oviews = [];
+            for (let j=0; j<objviews?.length; j++) {
+                const oview = objviews[j];
+                const obj = oview.object;
+                if (!obj) continue;
+                oview.modelview = modelview;
+                if (debug) console.log('2970 oview', oview.name);
+                if (isMemberOfSubmodel(myMetis, oview))
+                    continue;
+                oviews.push(oview);
+            }
             if (i==0)
                 objectviews = oviews;
             else {
@@ -2885,6 +3030,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         for (let i=0; i<objectviews?.length; i++) {
             const oview = objectviews[i];
             if (oview) {
+                const obj = oview.object;
+                if (obj && obj.type.name === constants.types.AKM_MODEL)
+                    continue;
                 if (!oview.id) {
                     msg += "\tObject view '" + oview.name + "' has no id\n";
                     continue;
@@ -3072,9 +3220,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     { // Handle the relationship views
         msg = "Verifying Relationship views\n";
         // Handle the relationship views in all modelviews
-        const mviews = model.modelviews;
-        for (let i=0; i<mviews?.length; i++) {
-            const mview = mviews[i];
+        for (let i=0; i<modelviews?.length; i++) {
+            const mview = modelviews[i];
             if (mview /*&& mview.id === modelview.id*/) {
                 const rviews = mview.relshipviews;
                 if (debug) console.log('2690 modelview', mview);
@@ -3147,6 +3294,26 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying relationships is completed\n";
         report += printf(format, msg);
     }
+    // Handle missing relships of type hasSubModel and hasSubMetamodel
+    const mType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
+    const mmType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
+    const hasSubMetamodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
+    const hasSubModelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, mmType, mType);
+    const hasSubMmRels = model.getRelationshipsByType(hasSubMetamodelType);
+    const hasSubMdlRels = model.getRelationshipsByType(hasSubModelType);
+
+    for (let i=0; i<modelviews?.length; i++) {
+        const mview = modelviews[i];
+        for (let j=0; j<hasSubMdlRels.length; j++) {
+            const rel = hasSubMdlRels[j];
+            const relviews = mview.findRelationshipViewsByRel2(rel);
+            if (!relviews || relviews.length === 0) {
+                const rview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                mview.relshipviews.push(rview);
+                myMetis.relshipviews.push(rview);
+            }
+        }
+    }
     if (debug) console.log('2825 myMetis', myMetis);
 
     // Dispatch metis
@@ -3160,7 +3327,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "End Verification\n";
 
     report += printf(format, msg);
-    console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 
     if (debug) console.log('2841 verifyAndRepairModel ENDED, myMetis', myMetis);
@@ -3223,13 +3390,17 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
                 metamodels.splice(i, 1);
                 msg += "A corrupt metamodel has been removed\n";
                 i--;
+            } else {
+                // Purge objtypegeos
+                mm.objtypegeos = mm.purgeObjtypeGeos();
             }
+
         }
     }    
 
     // repairRelationshipTypes(myMetis);
     purgeUnusedRelshiptypes(myMetis);
-    repairRelationshipTypeViews(myMetis);
+    repairRelationshipTypeViews(myMetis, myDiagram);
     if (debug) console.log('2852 myMetis', myMetis);
 
     // Dispatch metis
@@ -3241,7 +3412,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     if (debug) console.log('2860 data', data, myMetis);
 
     report += printf(format, msg);
-    console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 
     if (debug) console.log('2866 verifyAndRepairMetamodel ENDED, myMetis', myMetis);
@@ -3319,7 +3490,7 @@ export function repairRelationshipTypes(myMetis: akm.cxMetis) {
     }
 }
 
-export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
+export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any) {
     // Create an empty list of relationship type views
     // For each metamodel: go through each reltype and get the reltypeview
     // Store the combination of metamodel, reltype and reltypeview in a list
@@ -3366,6 +3537,22 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis) {
             }
         }
     }
+    // Go through reltypeviews and fix some bugs
+    let modifiedRelshipTypeViews = new Array();
+    for (let i=0; i<reltypeviews?.length; i++) {
+        const reltypeview = reltypeviews[i];
+        if (reltypeview.fromArrow === " ") reltypeview.fromArrow = "";
+        if (reltypeview.toArrow === " ")   reltypeview.toArrow = "";
+        if (reltypeview.fromArrowColor === " ") reltypeview.fromArrowColor = "";
+        if (reltypeview.toArrowColor === " ")   reltypeview.toArrowColor = "";
+        modifiedRelshipTypeViews.push(reltypeview);
+    }
+    modifiedRelshipTypeViews?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+    })
+
     if (debug) console.log('2896 myMetis', myMetis);
     // Create a list of all reltypes
     // Go through all metamodels and check each reltype
@@ -3663,6 +3850,8 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
         let found = false;
         for (let j=0; j<nodes.length; j++) {
             const node = nodes[j];
+            node.scale = node.getMyScale(goModel);
+            node.scale1 = node.scale;
             if (debug) console.log('3073 node', node);
         }
     }

@@ -3,7 +3,7 @@
 */
 
 import * as go from 'gojs';
-import { ReactDiagram } from 'gojs-react';
+import { ReactDiagram, ReactPalette } from 'gojs-react';
 import * as React from 'react';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
@@ -295,7 +295,20 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
     if (debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
+    // https://github.com/NorthwoodsSoftware/gojs-react-basic/blob/master/src/components/DiagramWrapper.tsx
+
     return (
+      // <ReactPalette
+      //   ref={this.diagramRef}
+      //   divClassName={divclassname}
+      //   initDiagram={this.initPalette}
+      //   nodeDataArray={this.props?.nodeDataArray}
+      //   linkDataArray={this.props?.linkDataArray}
+      //   modelData={this.props.modelData}
+      //   onModelChange={this.props.onModelChange}
+      //   skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+      //   style={this.props.diagramStyle}
+      // />
       <ReactDiagram
         ref={this.diagramRef}
         divClassName={divclassname}

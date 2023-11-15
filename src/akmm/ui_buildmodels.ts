@@ -210,9 +210,11 @@ let includeNoType = false;
     if (showRelshipNames == undefined) 
       showRelshipNames = true;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
+    // load object views
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       if (debug) console.log('208 modelview, objviews:', modelview, objviews);
+      const focusObjview = modelview?.focusObjectview;
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -227,6 +229,12 @@ let includeNoType = false;
           objview.markedAsDeleted = true;
           if (!objview.textcolor)
             objview.textcolor = "black";
+        }
+        if (true) {
+          if (objview.id === focusObjview?.id) 
+            objview.isSelected = true;
+          else
+            objview.isSelected = false;
         }
         let objtype;
         objtype = obj?.type;
@@ -319,6 +327,10 @@ let includeNoType = false;
           const node = nodes[i] as gjs.goObjectNode;
           if (!node.object) continue;
           const objview = node.objectview;
+          if (objview.id === focusObjview?.id) {
+            objview.isSelected = true;
+            node.isSelected = true;
+          }
           const obj = node.object;
           const objtype = obj.type;
           if (objtype?.name === 'Label') {
@@ -327,6 +339,8 @@ let includeNoType = false;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
           node.name = objview.name;
+          if (node.object['proposedType'])
+            node.typename = node.object['proposedType'];
           myGoModel.addNode(node);
       }
       if (debug) console.log('312 myGoModel', myGoModel);
@@ -348,10 +362,10 @@ let includeNoType = false;
         if (relview.points === "") 
           relview.points = [];
         let fromObjview = relview.fromObjview;
-        if (!modelview.findObjectView(fromObjview.id)) 
+        if (!fromObjview || !modelview.findObjectView(fromObjview.id)) 
           continue;
         let toObjview = relview.toObjview;
-        if (!modelview.findObjectView(toObjview.id))
+        if (!toObjview || !modelview.findObjectView(toObjview.id))
           continue;
         const rel = relview.relship;
         if (rel) {
@@ -405,8 +419,10 @@ let includeNoType = false;
           modifiedRelviews.push(jsnRelview);
     
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+          const name = link.name;
           if (debug) console.log('382 modelview, link:', modelview, link);
           link.loadLinkContent(myGoModel);
+          link.name = name;
           // link.corner = relview.corner ? relview.corner : "0";
           link.curve = relview.curve ? relview.curve : "None";
           link.routing = relview.routing ? relview.routing : "Normal";
@@ -422,11 +438,6 @@ let includeNoType = false;
         }
         if (debug) console.log('397 myGoModel', myGoModel);
       }
-      // modifiedRelviews.map(mn => {
-      //   let data = mn;
-      //   props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      // })
-      // if (debug) console.log('403 modifiedRelviews', modifiedRelviews);
     }
     modelview.relshipviews = relshipviews;
     if (debug) console.log('406 buildGoModel - myGoModel', myGoModel);
@@ -459,7 +470,7 @@ let includeNoType = false;
     if (!metamodel)
       return;
     if (debug) console.log('435 metamodel', metamodel);
-    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
+    metamodel.objecttypes = utils.removeArrayDuplicatesById(metamodel?.objecttypes, "id");
     if (metamodel.objecttypes) {
       if (debug) console.log('438 metamodel', metamodel);
       const myGoMetamodel = new gjs.goModel(utils.createGuid(), "myMetamodel", null);
@@ -485,7 +496,7 @@ let includeNoType = false;
             }
           }
           let typeview = objtype.typeview as akm.cxObjectTypeView;
-          let strokecolor = objtype.typeview?.strokecolor;
+          let strokecolor = typeview?.strokecolor;
           let fillcolor = typeview?.fillcolor;
           if (objtype) {
             if (!objtype.markedAsDeleted) 
@@ -503,7 +514,7 @@ let includeNoType = false;
 
             // added 2023-04-24 sf
             if (showModified) {
-              console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
+              if (debug) console.log('493 ui_buildmodels ', showModified, objtype.modified, objtype);
               if (objtype.modified) {
                   objtype.strokecolor = "green";
                   includeObjtype = true;
@@ -528,7 +539,7 @@ let includeNoType = false;
           }
         }
       }
-      // metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
+      // metamodel.relshiptypes = utils.removeArrayDuplicatesById(metamodel?.relshiptypes, "id");
       let relshiptypes = metamodel.relshiptypes;
       if (debug) console.log('491 relshiptypes', relshiptypes);
       if (relshiptypes) {
@@ -718,21 +729,22 @@ let includeNoType = false;
 
                     // Refer to metamodel
                     let mMeta = m.metamodel;
-                    let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
-                    if (mmRef) {
-                      const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
-                      adminModel.addRelationship(relToMM);
-                      myMetis.addRelationship(relToMM);
+                    if (mMeta) {
+                      let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta?.name);
+                      if (mmRef) {
+                        const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
+                        adminModel.addRelationship(relToMM);
+                        myMetis.addRelationship(relToMM);
 
-                      // Create relshipview from Model to Metamodel
-                      const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
-                      rvToMMv.setFromObjectView(mObjview);
-                      rvToMMv.setToObjectView(mmObjview);
-                      relToMM.addRelationshipView(rvToMMv);
-                      rvToMMv.strokecolor = 'blue';
-                      adminModelview.addRelationshipView(rvToMMv);
-                      myMetis.addRelationshipView(rvToMMv);
-
+                        // Create relshipview from Model to Metamodel
+                        const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
+                        rvToMMv.setFromObjectView(mObjview);
+                        rvToMMv.setToObjectView(mmObjview);
+                        relToMM.addRelationshipView(rvToMMv);
+                        rvToMMv.strokecolor = 'blue';
+                        adminModelview.addRelationshipView(rvToMMv);
+                        myMetis.addRelationshipView(rvToMMv);
+                      }
                     }
 
                     // Add relship from Project object to Model object
@@ -857,7 +869,7 @@ let includeNoType = false;
 
   export function buildMinimisedMetis(metis, curmod) { 
     // stripped down metis to, where only current models and metamodels include all their objects and relationships, the rest has only id and name (needed for _ADMIN modellen)
-    console.log('812 buildMinimisedMetis', metis, curmod);
+    if (debug) console.log('812 buildMinimisedMetis', metis, curmod);
     const models = metis.models;
     const metamodels = metis.metamodels;
 
@@ -910,7 +922,7 @@ let includeNoType = false;
       curmod, 
       ...strippedModels?.slice(curmodIndex+1, strippedModels.length),
     ]
-    console.log('865 curModelWithStrippedModels', curModelWithStrippedModels);
+    if (debug) console.log('865 curModelWithStrippedModels', curModelWithStrippedModels);
     const curTargetModelWithStrippedModels = (curtargetmodel) ? [
       ...curModelWithStrippedModels.slice(0,curtargetmodelIndex),
       curtargetmodel,

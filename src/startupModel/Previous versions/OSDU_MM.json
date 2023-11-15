@@ -1646,8 +1646,7 @@
       "datatypeRef": "",
       "allowedValues": [
         "Object",
-        "Container",
-        "Subprocess"
+        "Container"
       ],
       "defaultValue": "Object",
       "value": "",

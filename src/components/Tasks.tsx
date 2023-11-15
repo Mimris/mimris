@@ -312,7 +312,7 @@ const genTasksDiv = (): JSX.Element | null => {
   if (!mothermodelviews) return null;
   if (debug) console.log('313 Tasks', mothermodelviews, mothermodel.objects);
   const modview = mothermodelviews?.map((mv: any, index: number) => { // filter and map over  modelviews for this metamodel and of the core model
-      if (!debug) console.log('316 Tasks', mv, curmetamodel.id);
+      if (debug) console.log('316 Tasks', mv, curmetamodel.id);
       parent = mv;
       // nolabel objectviews that has no parent objectview i.e. top containers(groups)
       const noLabelovs = mv?.objectviews?.filter((ov: any) =>

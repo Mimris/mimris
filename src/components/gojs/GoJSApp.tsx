@@ -301,7 +301,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           const node = it.value;     
           node.scale = node.data.scale;     
           node.loc = node.data.loc;
+<<<<<<< HEAD
           if (debug) console.log('300 InitialLayoutCompleted: node', node);
+=======
+          if (debug) console.log('304 InitialLayoutCompleted: node', node);
+>>>>>>> main23
         }
         break;
       }
@@ -316,19 +320,19 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key = data.key;
           let text = data.name;
           const category = data.category;
-          if (debug) console.log('281 data', data);
+          if (debug) console.log('319 data', data);
           // Object type
           if (category === constants.gojs.C_OBJECTTYPE) {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
             const myNode = sel;
-            if (debug) console.log('290 myNode, text', myNode, text);
+            if (debug) console.log('326 myNode, text', myNode, text);
             if (myNode) {
               data.name = text;
-              if (debug) console.log('293 data, field, text', data, field, text);
+              if (debug) console.log('329 data, field, text', data, field, text);
               uic.updateObjectType(data, field, text, context);
-              if (debug) console.log('295 TextEdited', data);
+              if (debug) console.log('331 TextEdited', data);
               const objtype = myMetis.findObjectType(data.objecttype?.id);
               if (objtype) {
                 let data = {id: objtype.id, name: text};

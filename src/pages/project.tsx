@@ -17,9 +17,10 @@ import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';
 import SelectContext from '../components/utils/SelectContext';
+import Project from '../components/Project';
 import ProjectDetailsModal from '../components/modals/ProjectDetailsModal';
 
-import HeaderButtons from '../components/utils/HeaderButtons';
+import HeaderButtons from '../components/utils/ModellingHeaderButtons';
 
 const debug = false
 
@@ -216,81 +217,88 @@ const page = (props: any) => {
               </div> */}
             {contextDiv}
             {/* <HeaderButtons phData={props.phData} phFocus={props.phFocus} refresh={refresh} setRefresh={setRefresh} toggleRefresh={toggleRefresh} dispatch={dispatch} />   */}
-            <div className="workplace-focus gap " >
-              <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
-                <h6 className='text-muted pt-2'>Links to Github :</h6>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                  <div className='text-muted'>Repository :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-                </div>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
-                  <div className='text-muted'>GitHub Docs :</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
-                </div>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
-                  <div className='text-muted'>Issues for this repo:</div>
-                  {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
-                </div>
-                <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
-                  <div className='text-muted'>Project Canban for this repo:</div>
-                  {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
-                </div>
-                <h6 className='text-muted pt-2'>Other GitHub links :</h6>
-                {/* <div className='bg-light px-2 m-1 w-100'> 
-                  <div className='text-muted'>GitHub :</div>
-                  {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
-                </div> */}
-
-                {/* <div className='bg-light px-2 m-1 w-100'> 
-                  <div className='text-muted'>Path :</div>
-                  {(repo)
-                    ? (path)
-                      ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
-                      : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
-                    : <></>
-                  }
-                </div> */}
-               {/* Listing GitHub Issues */}
-              <div >
-                <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
-                {(issues.length > 0) && issues.map((issue) => (
-                  <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
-                    <div className='d-flex justify-content-between'>
-                      <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
-                      <div className='text-muted'>{issue.user.name}</div>
+            <div className='row'>
+              <div className='col-3'>
+                <Project props={props} />
+              </div>
+              <div className='col'>
+                <div className="workplace-focus gap " >
+                  <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
+                    <h6 className='text-muted pt-2'>Links to Github :</h6>
+                    <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                      <div className='text-muted'>Repository :</div>
+                      {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                     </div>
-                    <h6>{issue.title}</h6>
-                    {/* <p className='text-secondary m-2'>{issue.body}</p> */}
-                    <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                    <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
+                      <div className='text-muted'>GitHub Docs :</div>
+                      {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
+                    </div>
+                    <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
+                      <div className='text-muted'>Issues for this repo:</div>
+                      {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+                    </div>
+                    <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
+                      <div className='text-muted'>Project Canban for this repo:</div>
+                      {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
+                    </div>
+                    <h6 className='text-muted pt-2'>Other GitHub links :</h6>
+                    {/* <div className='bg-light px-2 m-1 w-100'> 
+                      <div className='text-muted'>GitHub :</div>
+                      {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
+                    </div> */}
+
+                    {/* <div className='bg-light px-2 m-1 w-100'> 
+                      <div className='text-muted'>Path :</div>
+                      {(repo)
+                        ? (path)
+                          ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
+                          : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
+                        : <></>
+                      }
+                    </div> */}
+                  {/* Listing GitHub Issues */}
+                  <div >
+                    <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
+                    {(issues.length > 0) && issues.map((issue) => (
+                      <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                        <div className='d-flex justify-content-between'>
+                          <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
+                          <div className='text-muted'>{issue.user.name}</div>
+                        </div>
+                        <h6>{issue.title}</h6>
+                        {/* <p className='text-secondary m-2'>{issue.body}</p> */}
+                        <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              </div>
-              {/* List the modelling params and link to modelling page */}
-              <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
-                {projectParamsDiv}
-                {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
-                <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
-                  <button className='rounded mt-2 px-2 '>
-                    <Link className='text-primary ' href="/modelling">Start Modelling</Link>
-                  </button>
-                  <ProjectDetailsModal props={props} />
-                  {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
+                  </div>
+                  {/* List the modelling params and link to modelling page */}
+                  <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>
+                    {projectParamsDiv}
+                    {/* {(refresh) ? <>{projectParamsDiv}</> : <> {projectParamsDiv} </>} */}
+                    <div className="d-flex justify-content-between rounded bg-light m-2 p-2 ">
+                      <button className='rounded mt-2 px-2 '>
+                        <Link className='text-primary ' href="/modelling">Start Modelling</Link>
+                      </button>
+                      <ProjectDetailsModal props={props} />
+                      {/* <ProjectDetailsModal props={props} onSubmit={(details) => console.log(details)} /> */}
+                    </div>
+                    <div className="rounded bg-light m-2 p-2">
+                      <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>
+                      <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{generatedUrl} </span>
+                    </div>
+                    {/* <div className="rounded bg-light m-2 p-2">
+                      <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>
+                      <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{akmIrtvPopsMetamodelUrl} </span>
+                      <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
+                    </div> */}
+                    {projectFormDiv}
+                  </div>
                 </div>
-                <div className="rounded bg-light m-2 p-2">
-                  <div className='ronded p-1 text-secondary '>Copy the text below, to send the project-link to others:</div>
-                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{generatedUrl} </span>
-                </div>
-                {/* <div className="rounded bg-light m-2 p-2">
-                  <div className='ronded p-1 text-secondary '>Click the link below to open the IRTV-POPS-Startup project. </div>
-                  <span className='rounded  p-2' style={{ fontSize: '0.6rem', backgroundColor: '#dde' }}>{akmIrtvPopsMetamodelUrl} </span>
-                  <a href={akmIrtvPopsMetamodelUrl} target="_blank">Open IRTV-POPS-Startup</a>
-                </div> */}
-                {projectFormDiv}
               </div>
+              {/* <div className="aside-right  " style={{ minWidth: "2rem" }} >
+              </div> */}
             </div>
-            {/* <div className="aside-right  " style={{ minWidth: "2rem" }} >
-            </div> */}
             <div className="footer">
               <Footer />
             </div>

@@ -67,6 +67,7 @@ const Context = (props, edit) => {
     // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
     if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
+
     useEffect(() => {
       setFormValues(curobject);
       setFormValuesObjectview(curobjectview);
@@ -268,7 +269,9 @@ const Context = (props, edit) => {
     const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
     const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
-    const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key));
+    const includedKeysDescr = ['id', 'name', 'description'];
+    const objectPropertiesMain = (curobject) ? Object.keys(curobject).filter(key => includedKeysMain.includes(key)) : Object.keys(curmodelview).filter(key => includedKeysDescr.includes(key));
+    console.log('272 objectPropertiesMain', objectPropertiesMain, curobject, curobjectview, curmodelview, curmm, curobjModelviews, parentobject);
 
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
     'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']

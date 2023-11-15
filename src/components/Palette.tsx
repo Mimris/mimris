@@ -42,7 +42,7 @@ const Palette = (props: any) => {
   let focusModel = props.phFocus?.focusModel
 
   const models = props.metis?.models
-  const metamodels = props.metis?.metamodels
+  const metamodels = props.metis?.metamodels || [];
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;
@@ -89,7 +89,7 @@ const Palette = (props: any) => {
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1',  mmodel);
-    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-CORE_MM')
+    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
     const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -241,12 +241,12 @@ const Palette = (props: any) => {
       </div>
     </>
 
-  if (debug) clog('265 Palette', props);
-  return (
+  if (debug) clog('244 Palette', props);
+  return (props.metis) ? (
     <>
       {palette}
     </>
-  )
+  ) : <>No metamodels found</>;
 }
 
 export default Palette;

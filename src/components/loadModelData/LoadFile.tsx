@@ -190,7 +190,7 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
-        onClick={handleSaveNewModel}>Create New Startfile from this modelview: New-Project_PR.json
+        onClick={handleSaveNewModel}>Create New Startfile and Metamodelfile
       </button >
     </div>
 
@@ -245,7 +245,7 @@ const LoadFile = (props: any) => {
                   {buttonSaveMetamodelWithSubToFileDiv}
                 </div> */}
                 <div className="selectbox mb-2 border">
-                  <h6>Export start projectModalDiv </h6>
+                  <h6>Export startmodel and metamodel </h6>
                   {buttonSaveModelprojectToFileDiv}
                 </div>
               </div>

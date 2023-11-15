@@ -1544,7 +1544,7 @@ export function linkInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
 }
 
 export function diagramInfo(model: any) {  // Tooltip info for the diagram's model
-    if (debug) console.log('451 diagramInfo', model);
+    if (debug) console.log('1547 diagramInfo', model);
     let str = "Model:\n";
     str += model.nodeDataArray.length + " nodes, ";
     str += model.linkDataArray.length + " links";

@@ -17,7 +17,7 @@ import SelectContext from '../components/utils/SelectContext'
 import Tasks from '../components/Tasks'
 import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
-import Issues from "../components/Project";
+import Project from "../components/Project";
 
 import { searchGithub } from '../components/githubServices/githubService' 
 
@@ -217,7 +217,7 @@ const page = (props: any) => {
                 {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
                 <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
-                  <Issues props={props}/>
+                  <Project props={props}/>
                 </div>
                   <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                     <Modelling />

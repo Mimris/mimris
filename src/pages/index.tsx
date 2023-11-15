@@ -24,6 +24,7 @@ const page = (props: any) => {
   // console.log(props)
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
+  const [refresh, setRefresh] = useState(false) 
   
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
   const [mount, setMount] = useState(false)
@@ -35,40 +36,46 @@ const page = (props: any) => {
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
   }
  // /**
-// * Set up the Context items and link to select Context modal,
-// */
+  // * Set up the Context items and link to select Context modal,
+  // */
 
-useEffect(() => { 
-  if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
-  // let data = {}
-  if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
-    // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-    if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-      // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-      if (memoryLocState) {
-          const locStore = (memoryLocState) 
-          if (locStore) {
-            dispatchLocalStore(locStore)
-            // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-            // console.log('modelling 73 ', data)
-          }
-        } 
-      // }   
+  useEffect(() => { 
+    if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
+    // let data = {}
+    if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
+      // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+      if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+        // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+        if (memoryLocState) {
+            const locStore = (memoryLocState) 
+            if (locStore) {
+              dispatchLocalStore(locStore)
+              // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+              // console.log('modelling 73 ', data)
+            }
+          } 
+        // }   
+      }
     }
-  }
-  setMount(true)
-}, [])  
+    setMount(true)
+  }, [])  
 
-const contextDiv = (
-  <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
-    <SetContext className='setContext' ph={props} />
-    <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
-      {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
-      <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-      <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
+  const contextDiv = (
+    <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
+      <SetContext className='setContext' ph={props} />
+      <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
+        {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
+        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
+        <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
+      </div>
     </div>
-  </div>
-) 
+  ) 
+
+  const indexDiv = (
+    <>
+      <Index props={props} dispatch={dispatch}/>
+    </>
+  )
   
   return (
     <div>
@@ -85,7 +92,7 @@ const contextDiv = (
                 <TasksHelp />
               </div> */}
               <div className="workarea">
-                  <Index />
+                  {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>
             </div>
             <div className="footer">

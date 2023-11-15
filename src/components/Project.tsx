@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/router'
 import Link from 'next/link';
 import { Modal, Button } from 'react-bootstrap';
 import { is, set } from 'immer/dist/internal';
@@ -15,21 +16,24 @@ import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json';
 // import ProjectDetailsModal from './modals/ProjectDetailsModal';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import { setfocusRefresh } from '../actions/actions';
-import { start } from 'repl';
+import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 
 // import { fetchIssues } from '../api/github';
 
 const debug = false;
 
 const Project = (props) => {
-  if (debug) console.log('18 Tasks props', props.props.phData, props);
-  const dispatch = useDispatch();
+  if (debug) console.log('25 Tasks props', props.props.phData, props);
+  const dispatch = props.dispatch;
+
+  const router = useRouter();
+	const currentRoute = router.pathname;
 
   const containerRef = useRef(null);
   const modalRef = useRef(null);
   const projectModalRef = useRef(null);
   
-  const [minimized, setMinimized] = useState(true);
+  const [minimized, setMinimized] = useState(false);
   // const [maximized, setMaximized] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -40,6 +44,8 @@ const Project = (props) => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState('');
+  const [refresh, setRefresh] = useState(false);
+  // const [toggleRefresh, setToggleRefresh] = useState(false);
 
 
   const [org, setOrg] = useState(props.props.phFocus.focusProj?.org)
@@ -51,8 +57,10 @@ const Project = (props) => {
   const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj?.ghtype)
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
   
-
-
+  useEffect(() => {
+  if (currentRoute === '/modelling') setMinimized(true);
+  }, []);
+  
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
@@ -218,12 +226,25 @@ const Project = (props) => {
       );
   }
 
+      const modellingButtonsDiv = 
+      <>
+        <ModellingHeaderButtons props= {props}  />
+      </>
+  //refresh={refresh} setRefresh={setRefresh}
+
   return (
       <div className="project p-1" 
         ref={containerRef}
+        style={{height: "100%", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px"}}
+      >
+      {/* <div className="project p-1" 
+        ref={containerRef}
         style={{height: "100%", width: "25rem", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px",
         position: "absolute", top: "50%", left: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
-      >
+      > */}
+      {/* <div className="p-2 d-flex justify-content-between">
+        {(refresh) ? <> {modellingButtonsDiv} </> : (<>{modellingButtonsDiv}</>)}
+      </div> */}
         {/* <div className="issueslist p-1" style={{ backgroundColor: "lightyellow", width: "26rem", position: "absolute", height: "94%", top: "50%", right: "0%", transform: "translate(-0%, -45%)", zIndex: 9999 }}> */}
         <div className="header m-0 p-0 d-flex justify-content-between align-items-center" style={{backgroundColor: "#eee", minWidth: "8rem"}}>
           <div className="ps-2 text-success font-weight-bold fs-3" >Project </div>
@@ -241,15 +262,23 @@ const Project = (props) => {
             </button>
           </div>
         </div>               
-        <div className="m-1 p-1 fs-5" style={{backgroundColor: "#eef"}}>Name:  {props.props.phFocus.focusProj.name}</div>
-        <div className="d-flex justify-content-between align-items-center">
-          <button className="button rounded m-1 px-2 text-light" 
-            style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
-            onClick={handleShowProjectModal} >
-            Edit Project Details
-          </button>
-        </div>
-        {/* <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Name:  {props.props.phData.metis.name}</div>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Description:  {props.props.phData.metis.description}</div>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Repository:  {props.props.phFocus.focusProj.repo}</div>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub Path:  {props.props.phFocus.focusProj.path}</div>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub File:  {props.props.phFocus.focusProj.file}</div>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub Branch:  {props.props.phFocus.focusProj.branch}</div>
+        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub Proj. no.:  {props.props.phFocus.focusProj.projectNumber}</div>
+        { (currentRoute !== '/') &&
+          <div className="d-flex justify-content-between align-items-center">
+            <button className="button rounded m-1 px-2 text-light" 
+              style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
+              onClick={handleShowProjectModal} >
+              Edit Project Details
+            </button>
+          </div>
+        } 
+        <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
           <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
               <div className='bg-light my-1 px-2 '> 
                 <div className='text-muted'>Repository :</div>
@@ -265,7 +294,7 @@ const Project = (props) => {
                 {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
               </div>
           </div>
-        </details> */}
+        </details>
         <hr className="m-1"/>
         <div className="issueslist" >
             <button className="button bg-secondary rounded me-auto m-1 px-2 text-light" 

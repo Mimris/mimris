@@ -19,7 +19,7 @@ function ProjectDetailsForm(props) {
   const [org, setOrg] = useState(props.props.phFocus?.focusProj?.org || props.props.phFocus?.focusOrg.name);
   const [repo, setRepo] = useState(props.props.phFocus?.focusProj.repo);
   const [path, setPath] = useState(props.props.phFocus?.focusProj.path);
-  const [file, setFile] = useState(props.props.phFocus?.focusProj.file || props.props.phSource+'.json');
+  const [file, setFile] = useState( props.props.phData.metis.name || props.props.phFocus?.focusProj.file || props.props.phSource+'.json');
   const [branch, setBranch] = useState(props.props.phFocus?.focusProj.branch);
 
   const [focusModel, setFocusModel] = useState(props.props.phFocus?.focusModel);
@@ -141,7 +141,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
               </div>
             </div>
             <div>
-              <div>Context Focus:</div>
+              {/* <div>Context Focus:</div>
               <div>
                 <div>
                   <label>Model:</label>
@@ -215,7 +215,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
                     onChange={(e) => setFocusIssue(e.target.value)}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <button type="submit">Save</button>

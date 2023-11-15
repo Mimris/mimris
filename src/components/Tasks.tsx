@@ -28,6 +28,7 @@ function Tasks(props) {
 
   // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props);
+  if (!props.taskFocusModel) return null;
   const dispatch = useDispatch();
 
 
@@ -48,7 +49,31 @@ function Tasks(props) {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedTaskPane, setExpandedTaskPane] = useState(false);
 
-  useEffect(() => {
+
+
+  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
+  const models = useSelector(state => state.phData?.metis?.models);
+  let focusModel = useSelector(state => state.phFocus?.focusModel);
+  const focusModelview = useSelector(state => state.phFocus.focusModelview);
+  const focusTask = useSelector(state => state.phFocus.focusTask);
+  const focusRole = useSelector(state => state.phFocus.focusRole);
+  const curmodel = (taskFocusModel?.id) ?  models?.find(m => m?.id === taskFocusModel?.id) : models?.find(m => m?.id === focusModel?.id);
+  if  (debug) console.log('91 Tasks', models, focusModel, taskFocusModel, curmodel);
+  const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
+  // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
+  // set  metamodel
+  const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
+  // if (!mothermodel) return null;
+  if (!debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
+  const mothermodelviews = mothermodel?.modelviews;
+  const modelviews = curmodel?.modelviews;
+  const motherobjects = mothermodel?.objects;
+  const motherobjviews = mothermodel?.objectviews;
+  const motherrelships = mothermodel?.relshipviews;
+
+  if (!debug) console.log('93 Tasks', mothermodel, mothermodelviews);
+
+    useEffect(() => {
     if (props.asPage) {
     setExpandedTaskPane(true);
     }
@@ -84,27 +109,6 @@ function Tasks(props) {
   const handleCloseModal = () => setShowModal(false);
 
   const [formValues, setFormValues] = useState({});
-
-  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
-  const models = useSelector(state => state.phData?.metis?.models);
-  let focusModel = useSelector(state => state.phFocus?.focusModel);
-  const focusModelview = useSelector(state => state.phFocus.focusModelview);
-  const focusTask = useSelector(state => state.phFocus.focusTask);
-  const focusRole = useSelector(state => state.phFocus.focusRole);
-  const curmodel = (taskFocusModel?.id) ?  models?.find(m => m?.id === taskFocusModel?.id) : models?.find(m => m?.id === focusModel?.id);
-  if  (debug) console.log('91 Tasks', models, focusModel, taskFocusModel, curmodel);
-  const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
-  // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
-  // set  metamodel
-  const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
-  if (debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
-  const mothermodelviews = mothermodel?.modelviews;
-  const modelviews = curmodel?.modelviews;
-  const motherobjects = mothermodel?.objects;
-  const motherobjviews = mothermodel?.objectviews;
-  const motherrelships = mothermodel?.relshipviews;
-
-  if (debug) console.log('93 Tasks', mothermodel, mothermodelviews);
 
   let parentTask: any = null;
   // useEffect(() => {

@@ -350,6 +350,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
   let ndArr = props.gojsModelObjects?.nodeDataArray
   let ldArr = props.gojsModelObjects?.linkDataArray || []
+  if (debug) console.log('353 Modeller ndArr', ndArr, ldArr, props);
   // let ndArr = props.gojsModel?.nodeDataArray
   // let ldArr = props.gojsModel?.linkDataArray || []
 
@@ -406,7 +407,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   useEffect(() => {
     const initialArr = objectsNotDeleted;
     if (debug) console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
-  if (selectedOption === 'In this modelview') {
+    if (selectedOption === 'In this modelview') {
       const objectviewsInThisModelview = modelview?.objectviews
       const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
     
@@ -682,7 +683,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
           <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#acc" }} >
             <Modal.Header closeButton>
-              <Modal.Title>Report Module</Modal.Title>
+              <Modal.Title>Details</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-transparent">
               <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>

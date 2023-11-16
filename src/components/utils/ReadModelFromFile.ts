@@ -13,6 +13,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     reader.fileName = (e.target.files[0]?.name)
     if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
+
     reader.onload = async (e) => { 
         const text = (e.target.result)
         let importedfile = JSON.parse(text)
@@ -30,7 +31,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const impModelview = (impModelviews) && impModelviews[0] // max one modelview in modelview file for now
         const impMetamodel = (impMetamodels) && impMetamodels[0] // max one model in modelview file for now
         // ---------------------  Set up current model for merging of imported data ---------------------
-        const metis = props.phData.metis
+        // const metis = props.phData.metis
         const focus = props.phFocus
         const curmod = metis.models.find(m => m.id === focus.focusModel?.id)
         if (!curmod) return null

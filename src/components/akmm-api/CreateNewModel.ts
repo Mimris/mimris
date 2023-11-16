@@ -15,13 +15,14 @@ const CreateNewModel = (props: any) => {
   // const [modal, setModal] = useState(true);
   // const toggle = () => setModal(!modal);
 
-  const ph = props;
-  const models = ph?.phData?.metis?.models;
-  const metamodels = ph?.phData?.metis?.metamodels;
+  const ph = props.props;
+  const models = props?.props?.phData?.metis?.models;
+  const metamodels = props?.props?.phData?.metis?.metamodels;
+  console.log('21 CreateNewModel', props.props, models, metamodels);
   const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id);
   const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id);
   const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef);
-  console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
+  console.log('23 CreateNewModel', ph, models, curmodel, curmodelview, curMetamodel);
   const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
   const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
    console.log('28 CreateNewModel', objectviewoftypemetamodel)
@@ -38,10 +39,10 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('39 CreateNewModel', submodels, submetamodels)
 
-    const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
-    const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
-    const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM' || m.name === 'AKM-CORE_MM')
-    const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    const adminmodel = models?.find(m => m.name === '_ADMIN_MODEL')
+    const adminmetamodel = metamodels?.find(m => m.id === adminmodel?.metamodelRef)
+    const coremetamodel = metamodels?.find(m => m.name === 'AKM-Core_MM' || m.name === 'AKM-CORE_MM')
+    const irtvmetamodel = metamodels?.find(m => m.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     console.log('560 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, additionalmetamodel, metamodels)
     console.log('561 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
@@ -589,7 +590,7 @@ const CreateNewModel = (props: any) => {
         focusProject: {
           ...ph.phFocus.focusProject,
           id: newproject.id, 
-          name: newproject.name
+          name: newproject.name,
         },
         focusObject: {id: '', name: ''},
         focusRelship: {id: '', name: ''},

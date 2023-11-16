@@ -47,9 +47,7 @@ const Palette = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;
   
-  const metamodelList = metamodels
-    .filter((m: any) => m?.id !== undefined)
-    .map((m: any) => ({ id: m?.id, name: m?.name }));
+  const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined)?.map((m: any) => ({ id: m?.id, name: m?.name }));
 
   // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
   if (debug) console.log('47', model, mmodel, metamodels,  metamodelList);

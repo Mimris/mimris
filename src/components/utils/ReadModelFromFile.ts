@@ -1,11 +1,39 @@
 // @ts-nocheck
-
-import { setFocusModel } from "../../actions/actions";
-import { i } from "./SvgLetters";
+// import { setFocusModel } from "../../actions/actions";
+// import { i } from "./SvgLetters";
+import { useState } from 'react';
 
 const debug = false
 
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
+
+    const [focus, setFocus] = useState(null)
+    const [curmod, setCurmod] = useState(null)
+    const [curmmod, setCurmmod] = useState(null)
+    const [modelviews, setModelviews] = useState(null)
+    const [curmodview, setCurmodview] = useState(null)
+
+    const [impMetamodel, setImpMetamodel] = useState(null)
+    const [impModel, setImpModel] = useState(null)
+    const [impModelview, setImpModelview] = useState(null)
+    const [impObjects, setImpObjects] = useState(null)
+    const [impRelships, setImpRelships] = useState(null)
+    const [impModels, setImpModels] = useState(null)
+
+
+    setFocus(props.phFocus)
+    setCurmod(props.phData.metis.models.find(m => m.id === focus.focusModel?.id))   
+    setCurmmod(props.phData.metis.metamodels.find(m => m.id === curmod.metamodelRef))
+    setModelviews(curmod.modelviews)
+    setCurmodview(modelviews.find(mv => mv.id === focus.focusModelview?.id))
+
+        // const curmod = metis.models.find(m => m.id === focus.focusModel?.id)
+        // if (!curmod) return null
+        // const curmmod = metis.metamodels.find(m => m.id === curmod.metamodelRef)
+        // const modelviews = curmod.modelviews
+        // const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
+        
+    let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
     
     e.preventDefault();
     const reader = new FileReader();
@@ -13,6 +41,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     reader.fileName = (e.target.files[0]?.name)
     if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
+
 
     reader.onload = async (e) => { 
         const text = (e.target.result)
@@ -32,14 +61,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const impMetamodel = (impMetamodels) && impMetamodels[0] // max one model in modelview file for now
         // ---------------------  Set up current model for merging of imported data ---------------------
         // const metis = props.phData.metis
-        const focus = props.phFocus
-        const curmod = metis.models.find(m => m.id === focus.focusModel?.id)
-        if (!curmod) return null
-        const curmmod = metis.metamodels.find(m => m.id === curmod.metamodelRef)
-        const modelviews = curmod.modelviews
-        const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
-        
-        let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
+
 
         // ---------------------  Set up imported model for merging of imported data ---------------------
         let data = importedfile

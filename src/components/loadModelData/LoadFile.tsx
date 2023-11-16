@@ -20,11 +20,12 @@ import { UniqueDirectiveNamesRule } from 'graphql';
 const LoadFile = (props: any) => {
 
   // if (typeof window === 'undefined') return null
-
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
+  const [refresh, setRefresh] = useState(false);
   const debug = false
   const dispatch = useDispatch()
-  const refresh = props.refresh
-  const setRefresh = props.setRefresh
+
   function toggleRefresh() { setRefresh(!refresh); }
 
   // if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);

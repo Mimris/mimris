@@ -301,11 +301,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const node = it.value;     
           node.scale = node.data.scale;     
           node.loc = node.data.loc;
-<<<<<<< HEAD
-          if (debug) console.log('300 InitialLayoutCompleted: node', node);
-=======
           if (debug) console.log('304 InitialLayoutCompleted: node', node);
->>>>>>> main23
         }
         break;
       }

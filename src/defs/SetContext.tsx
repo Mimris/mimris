@@ -28,18 +28,19 @@ const SetContext = (props: any) =>  {
         path: phFocus.focusProj.path,
         filename: phFocus.focusProj.file,
       },
-      focusModel: (phFocus.focusModel.description) ? {id: phFocus.focusModel.id, name:phFocus.focusModel.name} : phFocus.focusModel, // just in case the whole model is written to the focus
-      focusModelview: phFocus.focusModelview,
-      focusObject: phFocus.focusObject,
-      focusObjectview: phFocus.focusObjectview,
-      focusRole: '', //phFocus.focusRole,
-      focusTask: '' //phFocus.focusTask,
+      // focusModel: (phFocus.focusModel.description) ? {id: phFocus.focusModel.id, name:phFocus.focusModel.name} : phFocus.focusModel, // just in case the whole model is written to the focus
+      // focusModelview: phFocus.focusModelview,
+      // focusObject: phFocus.focusObject,
+      // focusObjectview: phFocus.focusObjectview,
+      // focusRole: '', //phFocus.focusRole,
+      // focusTask: '' //phFocus.focusTask,
     };
+    const urlParams = encodeURIComponent(JSON.stringify(paramFocus));
     console.log('27 paramFocus', paramFocus, phFocus.focusProj);
     const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
     // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
-    const focusUrl = `http://${tmphost}/modelling?focus=${JSON.stringify(paramFocus)}`;
-    if (debug) console.log('42 focus', focusUrl);
+    const focusUrl = `http://${tmphost}/modelling?focus=${urlParams}`;
+    if (!debug) console.log('42 focus', focusUrl);
     const focus = await navigator.clipboard.writeText(focusUrl);
     if (debug) console.log('44 focus', focus);
     // return focus    
@@ -48,6 +49,14 @@ const SetContext = (props: any) =>  {
   const contextRepoDiv = 
   <div className="context-list d-flex justify-content-around align-items-center ps-4 pt-0" style={{ backgroundColor: "#e5e5e5", whiteSpace: "nowrap" }}>
     Focus :
+      <span className="mx-1 bg-">
+      <i className="fas fa-copy fa-lg text-secondary " 
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
+        style={{ }} 
+        onClick={copyToClipboard}>
+      </i>
+    </span>
     <span className="border rounded-2">
       Proj:
       <span
@@ -143,14 +152,7 @@ const SetContext = (props: any) =>  {
         {phFocus?.focusTask?.name}
       </span>
     </span>
-    <span className="mx-1 bg-">
-        <i className="fas fa-copy fa-lg text-secondary " 
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-          title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
-          style={{ }} 
-          onClick={copyToClipboard}>
-        </i>
-      </span>
+
   </div>
 
   return (

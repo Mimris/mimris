@@ -107,10 +107,10 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
       const [inclProps, setInclProps ] = useState(true)
+      const [inclPropLinks, setInclPropLinks ] = useState(true)
 
-      const handleInclPropChange = () => {
-        setInclProps(!inclProps);
-      };
+      const handleInclPropChange = () => { setInclProps(!inclProps);};
+      const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
     
       const buttonSaveJSONToFileDiv = 
         <button className="btn-success btn-sm text-secondary fs-5 w-100  " 
@@ -146,6 +146,13 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
         res.map(r => {
           ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, r)         
         })
+
+        const postprocess = () => {
+          ConnectImportedTopEntityTypes("JSON",props.ph, dispatch)
+          // SetColorsTopEntityTypes(props.ph, dispatch)
+        }
+        setTimeout(postprocess, 1000)
+
       }
 
       return (
@@ -174,6 +181,8 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                       <div className="d-flex align-items-center my-2 border">
                         <label className="" htmlFor="inclProps ">Include Properties</label>
                         <input className="ms-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                        <label className="ms-4" htmlFor="inclProps ">Include Property Links</label>
+                        <input className="ms-2 " type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks}/>
                       </div>
                       {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                     </div>
@@ -190,7 +199,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                     <div className="selectbox3 mb-2">
                       <h6>Connect imported EntityTypes</h6> 
                       <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                        title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes (Propertylinks)
+                        title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}>Generate Relationships between EntityTypes (Propertylinks)
                       </Button>
                     </div>
                     <div className="selectbox3 mb-2">
@@ -219,11 +228,9 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                     <div className="selectbox2 mb-2 border bg-light">
                       <h6>Link to the OSDU Open Subsurface Data Universe - Software Data Definitions and Services - Data Definitions</h6>
                       <h6>(This will open a new tab in your browser)</h6>
-                      <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
-                  
+                      <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>               
                     </div>
               </div>
-    
             </ModalBody>
             {/* <div className="ml-2">{emailDivMailto}</div> */}
             <ModalFooter>

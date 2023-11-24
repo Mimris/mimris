@@ -162,8 +162,8 @@ let groupTemplateNames = [];
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
-        new go.Binding("source", "icon", findImage),
-        {
+    new go.Binding("source", "icon", findImage),
+    {
             name: "Picture",
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -217,6 +217,8 @@ function makeNotation(kind: string) {
 
 function makeImage(kind: string) {
     switch(kind) {
+        case 'Image':
+            return makeImageImage();
         case 'Icon':
             return makeIconImage();
         case 'Geometry':
@@ -226,6 +228,22 @@ function makeImage(kind: string) {
         default:
             return makeIconImage();
     }
+}
+
+function makeImageImage() {
+    return $(go.Picture,  // the image -------------------------------------
+        new go.Binding("source", "image", findImage),
+        {
+            column: 2, 
+            margin: new go.Margin(2, 0, 0, 0),
+            desiredSize: new go.Size(25, 25),
+            alignment: go.Spot.Right,
+            imageStretch: go.GraphObject.Uniform,
+            cursor: "move",
+        },
+        new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+    )                                
 }
 
 function makeIconImage() {
@@ -304,7 +322,7 @@ export function groupTop1(contextMenu: any, notation: string) {
         {
             name: "HEADER", 
             defaultAlignment: go.Spot.TopLeft, 
-    },
+        },
         $(go.Panel, "Table",  // the header
             {
                 contextMenu: contextMenu , 
@@ -351,7 +369,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                 new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
                 new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
             ) ,     
-            makeImage("Icon"),
+            makeImage("Image"),
             $(go.TextBlock, textStyle(), // the typename  --------------------
             {
                 row: 2,
@@ -395,8 +413,7 @@ export function groupTop2(contextMenu: any, notation: string) {
             {
                 stretch: go.GraphObject.Fill,
                 defaultAlignment: go.Spot.TopLeft
-            },
-            
+            },            
             $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Table",  // the header
                 {
@@ -447,7 +464,7 @@ export function groupTop2(contextMenu: any, notation: string) {
 
             $(go.Picture,  // the image -------------------------------------
                 // This is closed container - showing an image
-                new go.Binding("source", "icon", findImage),
+                new go.Binding("source", "image", findImage),
                 {
                     row: 1,
                     stretch: go.GraphObject.Fill,

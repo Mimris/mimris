@@ -419,6 +419,8 @@ export class goObjectNode extends goNode {
     textcolor: string;
     textscale: string;
     icon: string;
+    href: string;
+    image: string;
     isGroup: boolean | "";
     isExpanded: boolean | "";
     isSelected: boolean | "";
@@ -448,6 +450,8 @@ export class goObjectNode extends goNode {
         this.textcolor      = objview.textcolor;
         this.textscale      = objview.textscale;
         this.icon           = objview.icon;
+        this.href           = objview.href;
+        this.image          = objview.image;
         this.isGroup        = objview.isGroup;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
@@ -1174,6 +1178,8 @@ export class paletteNode {
     strokecolor: string;
     strokewidth: string;
     icon: string;
+    href: string;
+    image: string;
     constructor(key: string, type: any, category: string, name: string, description: string) {
         this.key = key;
         this.type = type;
@@ -1191,5 +1197,7 @@ export class paletteNode {
         this.strokecolor = "black";
         this.strokewidth = "1";
         this.icon = "";
+        this.href = "";
+        this.image = "";
     }
 }

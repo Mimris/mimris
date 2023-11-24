@@ -151,7 +151,7 @@ export let types = {
           AKM_VALUE             : "Value",
           AKM_INPUTPATTERN      : "InputPattern",
           AKM_VIEWFORMAT        : "ViewFormat",
-          AKM_FIELDTYPE         : "FieldType",
+          AKM_FIELDTYPE         : "Fieldtype",
           AKM_UNIT              : "Unit",
           AKM_LABEL             : "Label",
           AKM_GENERIC           : "Generic",

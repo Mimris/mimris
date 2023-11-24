@@ -686,7 +686,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const node = myDiagram.findNodeForKey(selObj.key);
       if (node) node.isSelected = true;
-      if (debug) console.log('576 selObj', selObj, myMetis);
       // Do a fix
       const oview = myMetis.findObjectView(selObj.objectview.id);
       oview.group = selObj.objectview?.group;
@@ -702,7 +701,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (!obj)
         break;
       const type = obj?.type;
-      if (debug) console.log('589 selObj, obj, type', selObj, obj, type);
       let properties;
       if (type?.name === 'Method') {
         properties = obj.setAndGetAllProperties(myMetis);
@@ -735,12 +733,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
           })
         }
-      } else 
+      } else {
         properties = type?.getProperties(false);
-      if (debug) console.log('597 properties', properties);
+      }
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
-      if (debug) console.log('600 obj, jsnObject', obj, jsnObject);
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
         if (!prop)
@@ -750,6 +747,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (dtype && dtype.name !== 'boolean') {
           const pattern = dtype.inputPattern;
           const value = obj[prop.name];
+          // Doing value check:
           if (pattern && value) {
               const regex = new RegexParser(pattern);
             if (debug) console.log('643 regex:', regex);
@@ -764,10 +762,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         obj[prop.name] = expr;
         jsnObject[prop.name] = expr;
       }
-      if (debug) console.log('625 obj, jsnObject, node', obj, jsnObject, node);
       const n = myDiagram.findNodeForKey(node.key)
       const data = n ? n.data : node.data;
-      if (debug) console.log('628 node', node);
       // Special handling of the draft property
       if (node[constants.props.DRAFT]) {
         myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
@@ -778,14 +774,24 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (!uic.isPropIncluded(k, type))   continue;
         if (k === 'abstract') obj[k] = selObj[k];
         // if (k === 'viewkind') obj[k] = selObj[k];
-        if (debug) console.log('635 prop', k);
-        if (debug) console.log('636 node', node, data, obj, k);
         myDiagram.model.setDataProperty(data, k, obj[k]);
+        switch(k) {
+          case 'strokecolor':
+          case 'fillcolor':
+          case 'textcolor':
+            const val = obj[k];
+            if (val !== "") {
+              oview[k] = val;
+              const jsnObjview = new jsn.jsnObjectView(oview);
+              let data = JSON.parse(JSON.stringify(jsnObjview));
+              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }) 
+              myDiagram.model.setDataProperty(data, k, oview[k]);
+            }                  
+          }
       }
       if (jsnObject) {
         // Do dispatch
         let data = JSON.parse(JSON.stringify(jsnObject));
-        if (debug) console.log('912 jsnObject, data', jsnObject, data);
         myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       }
       if (n) n.isSelected = false;

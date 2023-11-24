@@ -729,10 +729,47 @@ export function executeMethod(context: any) {
     }
 }
 
+function deleteObject(object: akm.cxObjectType, modifiedObjects: any[], modifiedRelships: any[], myDiagram: any) {
+    object.markedAsDeleted = true;
+    const jsnObject = new jsn.jsnObject(object);
+    modifiedObjects.push(jsnObject);
+    const relships = object.outputrels;
+    if (relships) {
+        for (let i=0; i<relships.length; i++) {
+            const relship = relships[i];
+            relship.markedAsDeleted = true;
+            const jsnRelship = new jsn.jsnRelship(relship);
+            modifiedRelships.push(jsnRelship);
+        }
+    }
+}
+
+export function deleteView(objectview: akm.cxObjectView, modifiedObjectViews: any[], modifiedRelshipViews: any[], myDiagram: any) {
+    objectview.markedAsDeleted = true;
+    const jsnObjectView = new jsn.jsnObjectView(objectview);
+    modifiedObjectViews.push(jsnObjectView);
+    const relviews = objectview.outputrelviews;
+    if (relviews) {
+        for (let i=0; i<relviews.length; i++) {
+            const relview = relviews[i];
+            relview.markedAsDeleted = true;
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelview);
+            const link = uid.getLinkByViewId(relview.id, myDiagram);
+            if (link) myDiagram.model.removeLinkData(link);
+        }
+    }
+    const node = uid.getNodeByViewId(objectview.id, myDiagram);
+    if (node) myDiagram.model.removeNodeData(node);
+}
+
 function execMethod(object: akm.cxObject, context: any) {
     const myDiagram = context.myDiagram;
-    myDiagram.startTransaction('execMethod');
     const nodes = myDiagram.nodes;
+    const modifiedObjectViews = new Array();
+    const modifiedRelshipViews = new Array();
+    const modifiedObjects = new Array();
+    const modifiedRelships = new Array();
     for (let it = nodes.iterator; it?.next();) {
         const node = it.value;
         if (node.data.object.id == object.id) {
@@ -743,8 +780,37 @@ function execMethod(object: akm.cxObject, context: any) {
                 case 'Select':
                     node.isSelected = true;
                     break;
-            }
+                case 'deleteView':
+                    const objview = node.data.objectview;
+                    deleteView(objview, modifiedObjectViews, modifiedRelshipViews, context);
+                    break;
+                case 'deleteObject':
+                    deleteObject(object, modifiedObjects, modifiedRelships, context);
+                    break;
+                case 'deleteRelship':            }
         }
     }
-    myDiagram.commitTransaction('execMethod');
+    modifiedObjectViews.map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        }
+    })
+    modifiedRelshipViews.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      })
+    modifiedObjects?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+    })
+    modifiedRelships?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      })
 }
+

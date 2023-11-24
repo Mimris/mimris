@@ -502,8 +502,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Paste View",
             function (e: any, obj: any) {
-              if (debug) console.log('484 myMetis', myMetis);
-              const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = true;
               const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
               e.diagram.commandHandler.pasteSelection(point);
@@ -742,6 +740,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
+          makeButton("Add to Selection",
+            function (e: any, obj: any) {
+              uid.addToSelection(obj, myDiagram);
+            },
+            function (o: any) {
+                return false;
+            }),
           makeButton("Cut",
             function (e: any, obj: any) {
               e.diagram.commandHandler.cutSelection();
@@ -813,33 +818,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                const currentNode = obj.part.data;
-                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
-                selection = myDiagram.selection
-              }
               if (confirm('Do you really want to delete the current selection?')) {
-                const myModel = myMetis.currentModel;
-                myMetis.deleteViewsOnly = true;
-                myMetis.currentNode = obj.part.data;
-                const jsnModel = new jsn.jsnModel(myModel, true);
-                const modifiedModels = new Array();
-                modifiedModels.push(jsnModel);
-                modifiedModels.map(mn => {
-                  let data = mn;
-                  data = JSON.parse(JSON.stringify(data));
-                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                })
-                if (debug) console.log('603 Delete View', jsnModel, myMetis);
-                e.diagram.commandHandler.deleteSelection();
+                // Why do I do this ???
+                if (false) {
+                  const myModel = myMetis.currentModel;
+                  myMetis.deleteViewsOnly = true;
+                  myMetis.currentNode = obj.part.data;
+                  const jsnModel = new jsn.jsnModel(myModel, true);
+                  const modifiedModels = new Array();
+                  modifiedModels.push(jsnModel);
+                  modifiedModels.map(mn => {
+                    let data = mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                  })
+                  if (debug) console.log('603 Delete View', jsnModel, myMetis);
+                  // End Why
+                }
+                myDiagram.commandHandler.deleteSelection();
               }
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
+              if (node.isSelected) {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } else 
+                return false;
             }),
           makeButton("----------"),
           makeButton("Add Port",
@@ -2564,12 +2568,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               const links = uic.addMissingRelationshipViews(modelview, myMetis);
-              myDiagram.startTransaction('Add missing relationship views');
               for (let i = 0; i < links.length; i++) {
                 const link = links[i];
                 myDiagram.model.addLinkData(link);
               }
-              myDiagram.commitTransaction('Add missing relationship views');
               return;
             },
             function (o: any) {
@@ -3377,7 +3379,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let obj = this.state.selectedData?.object;
       const obj1 = this.myMetis.findObject(obj?.id);
       if (debug) console.log('2879 obj, obj1', obj, obj1);
-      if (obj?.type?.name === 'Method')
+      if (obj1?.type?.name === 'Method')
         useTabs = false;
       if (obj1?.hasInheritedProperties(myModel)) {
         includeInherited = true;

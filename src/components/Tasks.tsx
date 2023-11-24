@@ -97,22 +97,14 @@ function Tasks(props) {
   // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
   // set  metamodel
   const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
-<<<<<<< HEAD
-  if (debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
-=======
   if (debug) console.log('100 Tasks', models,  curmodel, curmetamodel, mothermodel);
->>>>>>> c846ab60a1286c6fc111d97c734eeaa8ff5cdd3c
   const mothermodelviews = mothermodel?.modelviews;
   const modelviews = curmodel?.modelviews;
   const motherobjects = mothermodel?.objects;
   const motherobjviews = mothermodel?.objectviews;
   const motherrelships = mothermodel?.relshipviews;
 
-<<<<<<< HEAD
-  if (debug) console.log('93 Tasks', mothermodel, mothermodelviews);
-=======
   if (debug) console.log('107 Tasks', mothermodel, mothermodelviews);
->>>>>>> c846ab60a1286c6fc111d97c734eeaa8ff5cdd3c
 
   let parentTask: any = null;
   // useEffect(() => {

@@ -292,22 +292,14 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
-<<<<<<< HEAD
         const modelview = myMetis.currentModelview;
         const objviews = modelview.objectviews;
-=======
-        if (debug) console.log('295 InitialLayoutCompleted: myMetis', myMetis);
-        const modelview = myMetis.currentModelview;
-        const objviews = modelview.objectviews;
-        if (debug) console.log('298 InitialLayoutCompleted: objviews', objviews);
->>>>>>> c846ab60a1286c6fc111d97c734eeaa8ff5cdd3c
         const nodes = myDiagram.nodes;
         // Fix nodes (scale, loc and size, ++)
         for (let it = nodes.iterator; it?.next();) {
           const node = it.value;     
           node.scale = node.data.scale;     
           node.loc = node.data.loc;
-<<<<<<< HEAD
           node.size = node.data.size;
           const objview = node.data.objectview;
           if (objview) {
@@ -318,9 +310,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
           const link = it.value;
-=======
-          if (debug) console.log('304 InitialLayoutCompleted: node', node);
->>>>>>> c846ab60a1286c6fc111d97c734eeaa8ff5cdd3c
         }
         break;
       }

@@ -464,17 +464,18 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const icon = uit.findImage(node?.icon);
-    const modalContext = {
-      what:       "editObject",
-      title:      "Edit Object",
-      icon:       icon,
-      myDiagram:  myDiagram
-    }
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
-    if (debug) console.log('427 node, modalContext', node, modalContext);
-    if (debug) console.log('428 myMetis', myMetis);
-    myDiagram.handleOpenModal(node, modalContext);
+    if (debug) console.log('469 myMetis', myMetis);
+    const modalContext = {
+        what:       "editObject",
+        title:      "Edit Object",
+        icon:       icon,
+        myMetis:    myMetis,
+        myDiagram:  myDiagram
+      }
+      if (debug) console.log('477 node, modalContext', node, modalContext);
+      myDiagram.handleOpenModal(node, modalContext);
 }
 
 export function editPort(port: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -484,6 +485,7 @@ export function editPort(port: any, myMetis: akm.cxMetis, myDiagram: any) {
       what:       "editPort",
       title:      "Edit Port",
       icon:       icon,
+      myMetis:    myMetis,
       myDiagram:  myDiagram
     }
     myMetis.currentNode = port;
@@ -515,6 +517,7 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
       what:       "editObjectType",
       title:      "Edit Object Type",
       icon:       icon,
+      myMetis:    myMetis,
       myDiagram:  myDiagram
     }
     myMetis.currentNode = node;
@@ -529,6 +532,7 @@ export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) 
       what:       "editObjectview",
       title:      "Edit Object View",
       icon:       icon,
+      myMetis:    myMetis,
       myDiagram:  myDiagram
     }
     myMetis.currentNode = node;
@@ -542,6 +546,7 @@ export function editTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
       what:       "editTypeview",
       title:      "Edit Typeview",
       icon:       icon,
+      myMetis:    myMetis,
       myDiagram:  myDiagram
     }
     myMetis.currentNode = node;
@@ -555,6 +560,7 @@ export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
       what:       "editModelview",
       title:      "Edit Modelview",
       icon:       icon,
+      myMetis:    myMetis,
       myDiagram:  myDiagram
     }
     myMetis.currentNode = node;
@@ -691,6 +697,18 @@ export function sortSelection(myDiagram) {
     })
 }
 
+export function addToSelection(obj: any, myDiagram: any) {
+    let myCollection = new go.Set<go.Part>();
+    const node = obj.part;
+    let currentNode = myDiagram.findPartForKey(node.key);
+    myCollection.add(currentNode.part);
+    let selection = myDiagram.selection;
+    for (let it = selection.iterator; it?.next();) {
+      let n = it.value;
+      myCollection.add(n.part);
+    }
+    myDiagram.selectCollection(myCollection);
+}
 
 export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any) {
     const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
@@ -887,7 +905,7 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
 export function getNodeByViewId(viewId: string, myDiagram: any): any {
     let node = null;
     const it = myDiagram.nodes;
-    for (let it = myDiagram.nodes; it.next();) {
+    for (let it = myDiagram.nodes; it?.next();) {
         const n = it.value;
         if (n.data.objectview?.id === viewId) {
             node = n.data;
@@ -899,8 +917,7 @@ export function getNodeByViewId(viewId: string, myDiagram: any): any {
 
 export function getLinkByViewId(viewId: string, myDiagram: any): any {
     let link = null;
-    const it = myDiagram.links;
-    for (let it = myDiagram.links; it.next();) {
+    for (let it = myDiagram.links; it?.next();) {
         const l = it.value;
         if (l.data.relshipview?.id === viewId) {
             link = l.data;
@@ -948,6 +965,7 @@ function askForMetamodel(context: any) {
         what:           "selectDropdown",
         title:          context.title,
         case:           context.case,
+        myMetis:        myMetis,
         myDiagram:      myDiagram,
         context:        context,
       }
@@ -1373,6 +1391,7 @@ function askForModel(context: any) {
         what:           "selectDropdown",
         title:          context.title,
         case:           context.case,
+        myMetis:        myMetis,
         myDiagram:      myDiagram,
         context:        context,
       } 

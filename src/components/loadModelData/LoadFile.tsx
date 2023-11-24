@@ -227,7 +227,8 @@ const LoadFile = (props: any) => {
                   <div className="selectbox bg-white mb-2 border">
                     <div className="ml-2">{emailDivGmail}</div>
                     <div className="ml-2">{emailDivMailto}</div>
-                  </div> */}
+                  </div> 
+                */}
               </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}

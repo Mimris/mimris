@@ -27,6 +27,7 @@ const CreateNewModel = (props: any) => {
    console.log('28 CreateNewModel', objectviewoftypemetamodel)
 
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
+
   console.log('31 CreateNewModel', metamodelGenerated)
 
   const createNewModelJson = () => {
@@ -38,10 +39,13 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
+    const newModelName = (metamodelGenerated.name === 'AKM-CORE_MM') ? 'New-Model_TD' : 'New-Model_CM'
+    const newModelDesc = (metamodelGenerated.name === 'AKM-CORE_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
+
     const newmodel = {
       id: uuidv4(),
-      name: 'New-Model',
-      description: 'New Model to start modelling',
+      name: newModelName,
+      description: newModelDesc,
       metamodelRef: metamodelGenerated?.id,
       sourceMetamodelRef: "",
       targetMetamodelRef: "",

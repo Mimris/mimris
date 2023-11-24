@@ -1,0 +1,43 @@
+{
+    "objects": [
+        {
+            "id": "role-geophysicist",
+            "name": "Geophysicist",
+            "typeRef": "49ba147f-1d9a-4b9e-9467-7fcc5b830244",
+            "typeName": "Role",
+            "description": "Responsible for seismic data collection and preliminary analysis."
+        },
+        {
+            "id": "task-seismic-data-collection",
+            "name": "Seismic Data Collection",
+            "typeRef": "3979fb2c-71e3-4054-745d-ee062b3689e5",
+            "typeName": "Task",
+            "description": "Collecting seismic data using various techniques and equipment."
+        },
+        {
+            "id": "info-seismic-data",
+            "name": "Seismic Data",
+            "typeRef": "ddc75a39-9367-48e4-de12-079bae5362f9",
+            "typeName": "Information",
+            "description": "Raw data collected from seismic surveys."
+        }
+    ],
+    "relships": [
+        {
+            "id": "rel-geophysicist-seismic-data-collection",
+            "name": "performs",
+            "typeRef": "73d06934-f8af-48c5-a344-287d0b725792",
+            "fromobjectRef": "role-geophysicist",
+            "toobjectRef": "task-seismic-data-collection",
+            "description": "Geophysicist performs Seismic Data Collection"
+        },
+        {
+            "id": "rel-seismic-data-collection-seismic-data",
+            "name": "hasOutput",
+            "typeRef": "640eec34-6109-48f3-0576-11461c396da6",
+            "fromobjectRef": "task-seismic-data-collection",
+            "toobjectRef": "info-seismic-data",
+            "description": "Seismic Data Collection outputs Seismic Data"
+        }
+    ]
+}

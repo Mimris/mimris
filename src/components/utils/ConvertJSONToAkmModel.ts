@@ -1,6 +1,5 @@
 // @ts-nocheck
 
-const debug = false
 import * as utils from '../../akmm/utilities';
 import camelCase from 'camelcase';
 import { ConnectImportedTopEntityTypes } from './ConnectImportedTopEntityTypes';
@@ -9,6 +8,7 @@ import { cxValue } from '../../akmm/metamodeller';
 // import ObjectTable from '../table/ObjectTable';
 // import { FaAudioDescription } from 'react-icons/fa';
 
+const debug = false
 // read json file and convert OSDU Json format to AKM model
 export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps: boolean, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; ph: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: string; }; }; }; }, dispatch: Dispatch<any>, jsonFile: string) => {
     // console.log('11', jsonFile)
@@ -44,9 +44,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     
     const createObject = (oId: any, oName: string, otypeRef: string, oKey: string, osduType: string, jsonType='object', cNewVal: {}) => {
         // console.log(' 44 createObject', oName, existObj);
-        if (debug) console.log('51 createObject', oName, cNewVal);
+        if (!debug) console.log('47 createObject', oName, cNewVal, modelType);
         const importedObject = (modelType === 'AKM') // dont include json attributes
             ?   {
+                    ...cNewVal, // want only attributes 
                     id: oId,
                     name: oName,
                     // typeName: type,
@@ -57,10 +58,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     externalID: oKey,
                     osduId: oKey,
                     osduType: osduType,
-                    
                     // jsonType: jsonType,
                     // jsonKey: oName,
-                    ...cNewVal // want only attributes 
+                    ...cNewVal, // want only attributes 
+
                 }
             :   {
                     id: oId,
@@ -75,11 +76,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     osduId: oKey,
                     jsonType: jsonType,
                     jsonKey: oName,
-
                     ...cNewVal // want only attributes
                 }            
 
-        if (debug) console.log('68 Create object: ', importedObject.name, importedObject);             
+        if (!debug) console.log('82 Create object: ', importedObject.name, importedObject);             
         dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
         
         return importedObject
@@ -112,7 +112,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
             // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
 
-        if (debug) console.log('100 Create relship', fromobjectId, fromobjectName, importedRel.name, toobjectId, toobjectName );
+        if (!debug) console.log('100 Create relship', fromobjectId, fromobjectName, importedRel.name, toobjectId, toobjectName );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 
@@ -308,7 +308,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         const osduObjects = osduArray?.map( (osduObj, index) => {
             const [oId, oKey, oVal] = osduObj
             let oName = oKey?.split('|')?.slice(-1)[0] // objectName ; split and slice it, pick last element
-            if (debug) console.log('309 :', oName, oKey, oVal);
+            if (debug) console.log('311 :', oName, oKey, oVal);
             // const cNewVal = filterObject(oVal) // filter away subobjects, we only want attributes in cNewVal (objects are handled in the next iteration)
             const cNewVal = filterObject(oVal) // filter away subobjects, we only want attributes in cNewVal (objects are handled in the next iteration)
             const parentName = oKey?.split('|')?.slice(-2,-1)[0] // parentName ; split and slice it, pick second last element
@@ -317,7 +317,9 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             // first we create the objects ----------------------------------------------------------------------
             if (index === 0) { // the first object is the in the json file (topObj)
                 //  Set tobObjName = all before dot
-                let topObjName = oName.split('.')[0] // remove the version number from the name
+                console.log('320 topObjName', oName, oKey, oVal);
+                let topObjName = oName.split('.')[0] //.replace(/\s/g, '') // remove the version number from the name
+               console.log('322 topObjName', topObjName);
                 // get type from the objects $id attribute and pick the second last element of the path which is the folder name
                 const entityPathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : '' ;// filter out the pathelement from the file path i.e master-data 
                 osduType = camelCase(entityPathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
@@ -330,15 +332,17 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 if (topObjName.includes('Abstract')) {
                     if (topObjName == 'AbstractWorkProductComponent') { // we don't want to create a type WorkproductComponent. It is already a type.
                         // lieve it as it is
+                    } else if (topObjName == 'AbstractCommonResources') { // we don't want to create a type MasterData. It is already a type.
+                        // topObjName = topObjName.replace('AbstractCommonResources', 'OSDUCommonResources')
+                        cNewVal.abstract = true
                     } else {
                         topObjName = topObjName.replace('Abstract', '')
                         cNewVal.abstract = true
                     }
                 }
-                // if (debug) console.log('301 :', oName, oKey, osduType,  oVal, cNewVal);
+                if (debug) console.log('339 ConvertJSON...:',topObjName, oName, oKey, osduType,  oVal, cNewVal);
                 createObject(oId, topObjName, objecttypeRef, oKey, osduType, jsonType, cNewVal) // create the top object   
-                console.log('337 topObject', oId, oName, objecttypeRef,oKey, osduType, jsonType, cNewVal);
-
+                console.log('345 topObject', topObjName, oId, oName, objecttypeRef,oKey, osduType, jsonType, cNewVal);
             } else if (parentName === 'properties') { // this is property and proplink objects    
                 if (debug) console.log('343 parent = properties :', oName, oVal);
                 if (oVal['x-osdu-relationship']) { // if the value is a relationship (this can replace all if statements for proplink below)
@@ -380,18 +384,15 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkID === 'StartMarker') {cNewVal.linkID = 'Marker'}
                         if (cNewVal.linkID === 'StopMarker') {cNewVal.linkID = 'Marker'}
                         if (cNewVal.linkID === 'StartBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
-                        if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
-                        
+                        if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}             
                         createObject(oId, propLinkName, objecttypeRef, oKey,  osduType, jsonType, cNewVal) // create the relationship objects
                         if (debug) console.log('386 not ID ', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     });
-                  
                 } else if (oVal.type === 'array') { // if the value is an array we create a collection object
                     // oName includes char Set as the last characters of the name
                     if (debug) console.log('392  array Set: ', oId, oName, objecttypeRef, oKey, jsonType, cNewVal, oVal);
                     if (debug) console.log('393 :', parentName.substring(parentName.length-3))
-
                     if ((oName.substring(oName.length-3) === 'Set') || (oName === 'Markers')){ // make a collection object
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'Collection')?.id
                         cNewVal.viewkind = 'container'
@@ -402,23 +403,23 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (oName === 'MarkerID' || oName === 'IntervalID')  {
                             // do nothing
                         } else {
-                            if (debug) console.log('275  array', oId, oName, oKey, jsonType, cNewVal);
+                            if (debug) console.log('402  array', oId, oName, oKey, jsonType, cNewVal);
                             objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
                             let linkID = oName.replace('ID', '') // remove iD from the name
                             const propLinkName = 'has' + oName
                             cNewVal.linkID = oName
-                            if (debug) console.log('277  array', oName, linkID, cNewVal);
+                            if (debug) console.log('407  array', oName, linkID, cNewVal);
                             createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, cNewVal) // create the collection objects
-                            if (debug) console.log('309  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
+                            if (debug) console.log('409  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
                             findOwnerandCreateRelationship(osduObj)
                         }
                     } else if (cNewVal['$ref']) { // if the value is a reference we create a EntityType object
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropCollection')?.id  // change from EntityType
                         createObject(oId, oName, objecttypeRef, oKey,  osduType, jsonType, cNewVal) // create the reference objects
-                        if (debug) console.log('319  array $ref', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
+                        if (debug) console.log('415  array $ref', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else { // if the value is an array we create a PropCollection object
-                        if (debug) console.log('421  array', oId, oName, oKey, jsonType);
+                        if (debug) console.log('418  array', oId, oName, oKey, jsonType);
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropCollection')?.id // changed from EntityType
                         if (oName === 'Markers') oName =  oName.substring(0, oName.length-1) // remove the last character from the name
                         createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, cNewVal) // create the reference objects
@@ -458,6 +459,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkID === 'StopMarker') {cNewVal.linkID = 'Marker'}
                         if (cNewVal.linkID === 'StartBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
                         if (cNewVal.linkID === 'StopBoundaryInterpretation') {cNewVal.linkID = 'HorizonInterpretation'}
+                        if (cNewVal.linkID === 'AbstractCommonResources') {cNewVal.linkID = 'HorizonInterpretation'}
                         // if (cNewVal.linkID === 'GeologicUnitInterpretation') {cNewVal.linkID = 'GeologicUnitInterpretation'} // TODO: check if this is correct
                         if (debug) console.log('346  ', cNewVal);
 
@@ -468,7 +470,15 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         cNewVal.linkID = oName
                         const propLinkName = 'has'+oName
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                        createObject(oId, propLinkName, objecttypeRef, oKey,  osduType, jsonType, cNewVal) // create the property objects
+                        createObject(oId, propLinkName, objecttypeRef, oKey,  osduType, jsonType, cNewVal) // create the propertyLin objects
+                        if (debug) console.log('472 TYPE', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
+                        findOwnerandCreateRelationship(osduObj)
+                    } else if (oName.substring(0, 8) === 'Abstract'){ // check if last part of the oName is the characters "Type", its a link to another object "ObjectName"with TYPE included
+                        cNewVal.linkID = oName
+                        if (cNewVal.linkID === 'AbstractCommonResources') {cNewVal.linkID = 'OSDUCommonResources'}
+                        const propLinkName = 'has'+oName
+                        objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
+                        createObject(oId, propLinkName, objecttypeRef, oKey,  osduType, jsonType, cNewVal) // create the propertyLink objects
                         if (debug) console.log('472 TYPE', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else if (inclProps) { // if the name does not contain ID or Type, we create a property object
@@ -548,8 +558,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             } else { // the rest we GenericObjects
                     objecttypeRef= '5cc540c0-ea91-4401-74bb-4f7cb52a2366'   // we put all the rest as the generic type for now
                     if (debug) console.log('538 Object not interpreted...', oId, oName, objecttypeRef, oKey, osduType, jsonType, cNewVal);  
-                    createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, cNewVal) // create the reference objects  
-                    findOwnerandCreateRelationship(osduObj)
+                    // createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, cNewVal) // create the reference objects  
+                    // findOwnerandCreateRelationship(osduObj)
             }
         })
 
@@ -696,7 +706,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     if (debug) console.log('496 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                     if (fromobjectId && toobjectId) createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)  
                 }
-            } else if (oName === 'items') { // if the greatgrandparent is items, we have to fine owner and create a relationship between the object and the owner object
+            } else if (oName === 'items') { // if the greatgrandparent is items, we have to find owner and create a relationship between the object and the owner object
                 const ownerObj = osduArray.find(o => o[1] === parentKey)
                 const fromobjectId = ownerObj[0]
                 const fromobjectName = ownerObj[1].split('|').slice(-1)[0]
@@ -704,7 +714,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 const toobjectName = oName
                 if (debug) console.log('689 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                 if (fromobjectId && toobjectId) createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)                
-            } else if (oName === 'required') { // if the greatgrandparent is required, we have to fine owner and create a relationship between the object and the owner object
+            } else if (oName === 'required') { // if the greatgrandparent is required, we have to find owner and create a relationship between the object and the owner object
                 const ownerObj = osduArray.find(o => o[1] === parentKey)
                 const fromobjectId = ownerObj[0]
                 const fromobjectName = ownerObj[1].split('|').slice(-1)[0]
@@ -725,7 +735,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 if (typeof obj[i] == 'object') continue;
                 const tmpkey = i
                 // if (i === 'type') tmpkey = 'osduType' // type is a akmm attribute probably not the same as osdu attribute
-
+                if (i === 'name') continue; // name is set in the createObject function
                 newobj = {
                     ...newobj,
                     [tmpkey]: obj[i]

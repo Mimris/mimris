@@ -292,14 +292,22 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
+<<<<<<< HEAD
         const modelview = myMetis.currentModelview;
         const objviews = modelview.objectviews;
+=======
+        if (debug) console.log('295 InitialLayoutCompleted: myMetis', myMetis);
+        const modelview = myMetis.currentModelview;
+        const objviews = modelview.objectviews;
+        if (debug) console.log('298 InitialLayoutCompleted: objviews', objviews);
+>>>>>>> c846ab60a1286c6fc111d97c734eeaa8ff5cdd3c
         const nodes = myDiagram.nodes;
         // Fix nodes (scale, loc and size, ++)
         for (let it = nodes.iterator; it?.next();) {
           const node = it.value;     
           node.scale = node.data.scale;     
           node.loc = node.data.loc;
+<<<<<<< HEAD
           node.size = node.data.size;
           const objview = node.data.objectview;
           if (objview) {
@@ -310,6 +318,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
           const link = it.value;
+=======
+          if (debug) console.log('304 InitialLayoutCompleted: node', node);
+>>>>>>> c846ab60a1286c6fc111d97c734eeaa8ff5cdd3c
         }
         break;
       }
@@ -324,19 +335,19 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key = data.key;
           let text = data.name;
           const category = data.category;
-          if (debug) console.log('281 data', data);
+          if (debug) console.log('319 data', data);
           // Object type
           if (category === constants.gojs.C_OBJECTTYPE) {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
             const myNode = sel;
-            if (debug) console.log('290 myNode, text', myNode, text);
+            if (debug) console.log('326 myNode, text', myNode, text);
             if (myNode) {
               data.name = text;
-              if (debug) console.log('293 data, field, text', data, field, text);
+              if (debug) console.log('329 data, field, text', data, field, text);
               uic.updateObjectType(data, field, text, context);
-              if (debug) console.log('295 TextEdited', data);
+              if (debug) console.log('331 TextEdited', data);
               const objtype = myMetis.findObjectType(data.objecttype?.id);
               if (objtype) {
                 let data = {id: objtype.id, name: text};

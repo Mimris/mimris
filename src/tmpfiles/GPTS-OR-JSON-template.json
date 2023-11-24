@@ -1,0 +1,36 @@
+{
+    "objects": [
+        {
+            "id": "",
+            "name": "",
+            "description": "",
+            "abstract": false,
+            "viewkind": "",
+            "typeRef": "",
+            "typeName": "",
+            "typeDescription": "",
+            "modified": false,
+            "nameId": "",
+            "category": "Object",
+            "relshipkind": "Association",
+            "valueset": null,
+            "copiedFromId": "",
+            "proposedType": ""
+        }
+    ],
+    "relships": [
+        {
+            "id": "",
+            "name": "",
+            "description": "",
+            "relshipkind": "Association",
+            "fromobjectRef": "",
+            "toobjectRef": "",
+            "typeRef": "",
+            "nameFrom": "",
+            "nameTo": "",
+            "markedAsDeleted": false,
+            "modified": true
+        }
+    ],
+}

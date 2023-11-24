@@ -6268,18 +6268,7 @@ export class cxObjectTypeView extends cxMetaObject {
             let data: any = this.data;
             for (prop in data) {
                 if (objview[prop] == undefined || objview[prop] === "") continue;
-                if (prop === 'arrowscale')      data[prop] = objview[prop];
-                if (prop === 'memberscale')     data[prop] = objview[prop];
-                if (prop === 'template')        data[prop] = objview[prop];
-                if (prop === 'geometry')        data[prop] = objview[prop];
-                if (prop === 'figure')          data[prop] = objview[prop];
-                if (prop === 'fillcolor')       data[prop] = objview[prop];
-                if (prop === 'fillcolor2')       data[prop] = objview[prop];
-                if (prop === 'strokecolor')     data[prop] = objview[prop];
-                if (prop === 'strokecolor2')     data[prop] = objview[prop];
-                if (prop === 'textcolor')       data[prop] = objview[prop];
-                if (prop === 'strokewidth')     data[prop] = objview[prop];
-                if (prop === 'icon')            data[prop] = objview[prop];
+                data[prop] = objview[prop];
             }
             if (debug) console.log('5580 data', data,);
             for (prop in data) {

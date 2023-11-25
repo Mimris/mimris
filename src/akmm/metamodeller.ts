@@ -6192,7 +6192,6 @@ export class cxObjtypeviewData {
     geometry: string;
     icon: string;
     image: string;
-    href: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6210,7 +6209,6 @@ export class cxObjtypeviewData {
         this.geometry = "";
         this.icon = "";
         this.image = "";
-        this.href = "";
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "black";
@@ -6233,7 +6231,6 @@ export class cxObjectTypeView extends cxMetaObject {
     geometry: string;
     icon: string;
     image: string;
-    href: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6262,7 +6259,6 @@ export class cxObjectTypeView extends cxMetaObject {
         this.viewkind    = "";
         this.icon        = 'images/types/'+type?.name;
         this.image       = "";
-        this.href        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
             const abs = type.abstract;
@@ -6509,17 +6505,6 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.image;
         else if (this.data.image)
             return this.data.image;
-        return "";
-    }
-    setHref(href: string) { 
-        this.data.href = href;
-        this.href = href;
-    }
-    getHref(): string {
-        if (this.href)
-            return this.href;
-        else if (this.data.href)
-            return this.data.href;
         return "";
     }
 }
@@ -8943,7 +8928,6 @@ export class cxObjectView extends cxMetaObject {
     textcolor: string;
     textscale: string;
     icon: string;
-    href: string;
     image: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
@@ -8983,7 +8967,6 @@ export class cxObjectView extends cxMetaObject {
         this.strokewidth = "1";
         this.textcolor = "";
         this.icon = "";
-        this.href = "";
         this.image = "";
     }
     // Methods
@@ -9090,14 +9073,6 @@ export class cxObjectView extends cxMetaObject {
     getIcon(): string {
         if (this.icon)
             return this.icon;
-        return "";
-    }
-    setHref(href: string) {
-        this.href = href;
-    }
-    getHref(): string {
-        if (this.href)
-            return this.href;
         return "";
     }
     setImage(image: string) {

@@ -1621,6 +1621,7 @@ export class jsnObjectView {
     textcolor:       string;
     textscale:       string;
     icon:            string;
+    image:           string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
         this.name            = objview?.name;
@@ -1630,8 +1631,8 @@ export class jsnObjectView {
         this.group           = objview?.group;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
-        this.isExpanded     = objview?.isExpanded;
-        this.isSelected     = objview?.isSelected;
+        this.isExpanded      = objview?.isExpanded;
+        this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
         this.figure          = objview?.figure;
@@ -1643,6 +1644,7 @@ export class jsnObjectView {
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
+        this.image           = objview?.image;
         this.size            = objview?.size;
         this.scale           = Number(objview?.scale1);
         this.memberscale     = Number(objview?.memberscale);

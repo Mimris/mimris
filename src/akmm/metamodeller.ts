@@ -6191,6 +6191,7 @@ export class cxObjtypeviewData {
     figure: string;
     geometry: string;
     icon: string;
+    image: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6207,6 +6208,7 @@ export class cxObjtypeviewData {
         this.figure = "";
         this.geometry = "";
         this.icon = "";
+        this.image = "";
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "black";
@@ -6228,6 +6230,7 @@ export class cxObjectTypeView extends cxMetaObject {
     figure: string;
     geometry: string;
     icon: string;
+    image: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6255,6 +6258,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textscale   = "";
         this.viewkind    = "";
         this.icon        = 'images/types/'+type?.name;
+        this.image       = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
             const abs = type.abstract;
@@ -6479,6 +6483,28 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.icon;
         else if (this.data.icon)
             return this.data.icon;
+        return "";
+    }
+    setIcon(icon: string) { 
+        this.data.icon = icon;
+        this.icon = icon;
+    }
+    getIcon(): string {
+        if (this.icon)
+            return this.icon;
+        else if (this.data.icon)
+            return this.data.icon;
+        return "";
+    }
+    setImage(image: string) { 
+        this.data.image = image;
+        this.image = image;
+    }
+    getImage(): string {
+        if (this.image)
+            return this.image;
+        else if (this.data.image)
+            return this.data.image;
         return "";
     }
 }
@@ -8902,6 +8928,7 @@ export class cxObjectView extends cxMetaObject {
     textcolor: string;
     textscale: string;
     icon: string;
+    image: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTVIEWS;  // Firestore collection
@@ -8940,6 +8967,7 @@ export class cxObjectView extends cxMetaObject {
         this.strokewidth = "1";
         this.textcolor = "";
         this.icon = "";
+        this.image = "";
     }
     // Methods
     setModelView(modelview: cxModelView) {
@@ -9045,6 +9073,14 @@ export class cxObjectView extends cxMetaObject {
     getIcon(): string {
         if (this.icon)
             return this.icon;
+        return "";
+    }
+    setImage(image: string) {
+        this.icon = icon;
+    }
+    getImage(): string {
+        if (this.image)
+            return this.image;
         return "";
     }
     setIsGroup(flag: boolean) {

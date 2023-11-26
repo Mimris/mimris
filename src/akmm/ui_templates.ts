@@ -3253,8 +3253,8 @@ export function addPortTemplates() {
 // Function to identify images related to an image id
 export function findImage(image: string) {
     if (debug) console.log("3238 findImage: ", image);
-    // if (!image)
-    //     return "";
+    if (image == "")
+         return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image?.includes('//')) { // this is an http:// or https:// image
         if (debug) console.log('3249 Diagram', image);

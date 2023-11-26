@@ -297,13 +297,21 @@ class GoJSApp extends React.Component<{}, AppState> {
         const nodes = myDiagram.nodes;
         // Fix nodes (scale, loc and size, ++)
         for (let it = nodes.iterator; it?.next();) {
-          const node = it.value;     
-          node.scale = node.data.scale;     
-          node.loc = node.data.loc;
-          node.size = node.data.size;
-          const objview = node.data.objectview;
+          const node = it.value;   
+          const data = node.data;
+          if (data.category === "Object type") 
+            continue;  
+          node.scale = data.scale;     
+          node.loc = data.loc;
+          node.size = data.size;
+          const objview = data.objectview;
           if (objview) {
             node.fillcolor = objview.fillcolor;
+          }
+          const object = data.object;
+          if (object?.image) {
+            data.image = objview.image;
+            myDiagram.model.setDataProperty(data, "image", data.image);
           }
         }
         // Fix links 

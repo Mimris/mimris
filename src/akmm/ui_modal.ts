@@ -984,7 +984,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
           }
           if (obj['image'] !== "") {
-            myDiagram.model.setDataProperty(data, prop, obj['image']);
+            myDiagram.model.setDataProperty(data, 'image', obj['image']);
           }
         }
         myDiagram.requestUpdate;

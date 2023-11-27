@@ -257,6 +257,7 @@ export let admin = {
      AKM_METAMODEL:           "Metamodel",
      AKM_MODEL:               "Model",
      AKM_MODELVIEW:           "Modelview",
+     AKM_INSTANCES_MODEL:     "_INSTANCES_MODEL",
      AKM_HAS_METAMODEL:       "has",
      AKM_HAS_MODEL:           "has",
      AKM_HAS_MODELVIEW:       "has",

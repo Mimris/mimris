@@ -8763,8 +8763,10 @@ export class cxModelView extends cxMetaObject {
             return null;
         for (let i=0; i<oviews.length; i++) {
             const ov = oviews[i];
-            if (ov?.object?.id === obj.id) {
-                objviews.push(ov);
+            if (ov && obj) {
+                if (ov.object?.id === obj.id) {
+                    objviews.push(ov);
+                }
             }
         }
         return objviews;

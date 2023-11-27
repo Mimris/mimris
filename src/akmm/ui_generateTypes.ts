@@ -1371,7 +1371,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 for (let i=0; i<submodelObjects?.length; i++) {
                     const submodelObject = submodelObjects[i];
                     if (submodelObject) {
-                        const model = myMetis.findModelByName(submodelObject.name);
+                        let model = myMetis.findModelByName(submodelObject.name);
+                        if (!model) {
+                            model = new akm.cxModel(utils.createGuid(), submodelObject.name, submodelObject.description);
+                            myMetis.addModel(model);
+                        }
                         if (model) {
                             targetMetamodel.addSubModel(model);
                         }
@@ -1899,11 +1903,20 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
         }
     }
     // Check if the model already exists
-    let model = myMetis.findModelByName(object.name);
-    let modelview = model ? model.modelviews[0] : null;
+    let model, modelview;
+    model = myMetis.findModelByName(object.name) as akm.cxModel;
     if (!model) {
         model = new akm.cxModel(utils.createGuid(), object.name, subMetamodel, object.description);
         modelview = new akm.cxModelView(utils.createGuid(), object.name, model, "");
+    } else {
+        let modelviews = model.modelviews;
+        if (modelviews?.length) {
+            modelview = modelviews[0];
+        } else {
+            modelview = new akm.cxModelView(utils.createGuid(), object.name, model, "");
+            model.addModelView(modelview);
+        }
+        modelview = model.modelviews[0];
     }
     // Fill the model with its content
     // objview is the group 
@@ -1930,8 +1943,8 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
     }
     metamodel.addSubModel(model);
     model.addModelView(modelview);
-    // myMetis.addModel(model);
-    // myMetis.addModelView(modelview);
+    myMetis.addModel(model);
+    myMetis.addModelView(modelview);
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));

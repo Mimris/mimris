@@ -6,12 +6,14 @@ import { ConnectImportedTopEntityTypes } from './ConnectImportedTopEntityTypes';
 import { Dispatch } from 'redux';
 import { cxValue } from '../../akmm/metamodeller';
 import { type } from 'os';
+import { set } from 'immer/dist/internal';
+import { setColorsTopEntityTypes } from './SetColorsTopEntityTypes';
 // import ObjectTable from '../table/ObjectTable';
 // import { FaAudioDescription } from 'react-icons/fa';
 
 const debug = false
 // read json file and convert OSDU Json format to AKM model
-export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps: boolean, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; ph: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: string; }; }; }; }, dispatch: Dispatch<any>, jsonFile: string) => {
+export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps: boolean, inclPropLinks: boolean, inclAbstractPropLinks: boolean, inclGeneric: boolean, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; ph: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: string; }; }; }; }, dispatch: Dispatch<any>, jsonFile: string) => {
     // console.log('11', jsonFile)
 
     // export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, dispatch, e) => {
@@ -20,7 +22,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     //     console.log('13 ', files, e)
     //     const reader = new FileReader()
 
-    const curModel = props.phData.metis.models.find((m: { id: any; }) => m.id === props.phFocus.focusModel.id)
+    const curModel = props.phData?.metis.models.find((m: { id: any; }) => m.id === props.phFocus.focusModel.id)
     const objects = curModel.objects
     if (debug) console.log('14 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
     
@@ -46,28 +48,19 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     const createObject = (oId: any, oName: string, otypeRef: string, oKey: string, osduType: string, jsonType='object', oValProps: {}) => {
         // console.log(' 44 createObject', oName, existObj);
         if (!debug) console.log('47 createObject', oName, oValProps, modelType);
-        let typeColor: string;
+        let typeColor: string = 'green'
+        // let typeColor: string = setColorsTopEntityTypes(osduType)
+        let textColor: string = 'red';    
+        let typeStrokeColor: string = 'gray';
+        let typeIcon: string = 'images/Icon-Default.svg';
+        let typeImage: string = 'default';
+        let typeShape: string = 'default';
+        let typeSize: string = 'default';
+        let typeWidth: string = 'default';
+        let typeHeight: string = 'default';
+        let typeFont: string = 'default';
 
-        switch (oValProps) {
-            case 'reference-data':
-                typeColor = '#FF0000';
-                break;
-            case 'master-data':
-                typeColor = '#0000FF';
-                break;
-            case 'work-product':
-                typeColor = '#00FF00';
-                break;
-            case 'work-product-component':
-                typeColor = '#000000';
-                break;
-            case 'abstract':
-                typeColor = '#FF00FF';
-                break;
-            default:
-                typeColor = '#FFFF00';
-                break;
-        }
+        if (!debug && osduType === 'Masterdata') console.log('53 createObject', oName, osduType, typeColor);
 
         const importedObject = (modelType === 'AKM') // don't include json attributes
             ?   {
@@ -84,7 +77,12 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     osduType: osduType,
                     // jsonType: jsonType,
                     // jsonKey: oName,
-                    typeColor: typeColor,
+                    fillcolor: typeColor,
+                    textcolor: textColor,
+                    strokecolor: typeStrokeColor,
+                    icon: typeIcon,
+                    image: typeImage,
+                    
                     ...oValProps, // additional attributes 
 
                 }
@@ -356,13 +354,15 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 processArray(oId, oName, oKey, oVal, jsonType, osduObj, oValProps);
             } else if (oVal.type === 'string' || oVal.type === 'nunber' || oVal === 'integer' ) { // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type    
                 processPrimitiveType(oId, oName, oKey, oVal, jsonType, osduObj, oValProps);
-            } else {
+            } else if (inclProps) {
                 objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'Property')?.id
                 createObject(oId, oName, objecttypeRef, oKey,  osduType, jsonType, oValProps) // create Property
                 if (debug) console.log('483  array', oId, oName, objecttypeRef,oKey, jsonType, oValProps);
                 findOwnerandCreateRelationship(osduObj)
+            } else {
+                console.log('465  object not imported', oId, oName, objecttypeRef,oKey, jsonType, oValProps);
             }
-        } else if (oVal['$ref']) {
+        } else if (oVal['$ref'] && inclPropLinks && inclAbstractPropLinks) {
             if (debug) console.log('339 $ref ', oName, oVal);
             const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
             const typeRest = oVal['$ref'].split('/').slice(-1)[0];
@@ -378,24 +378,25 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             if (debug) console.log('352  items', parentName.substring(oName.length - 3));
             if (parentName.substring(parentName.length - 3) === 'Set') {
                 const linkedName = parentName.substring(0, parentName.length - 3);
-                createLinkedObject(linkedName, oId, oKey, osduType, jsonType, oValProps);
+                createLinkedObject(linkedName, oId,  oVal, oKey, osduType, jsonType, oValProps);
             } else if (parentName === 'Markers' || parentName === 'Intervals' || parentName?.includes('IDs')) {
                 const oMName = parentName.substring(0, parentName.length - 1);
-                createCollectionObject(oMName, oId, oKey, osduType, jsonType, oValProps);
+                createCollectionObject(oMName, oId, oKey, oVal, osduType, jsonType, oValProps);
+                if (!debug) console.log('391 ConvertJSON...',oMName, oId, oKey, osduType, jsonType, oValProps);
             } else if (oVal.allOf) {
                 gchildKeyNameId = Object.keys(oVal?.allOf[0]?.properties).find(k => k.includes('ID'));
                 gchildKeyName = gchildKeyName?.replace('ID', '');
                 if (gchildKeyName) {
-                createAllOfObject(gchildKeyName, gchildKeyNameId, oId, oKey, osduType, jsonType, oValProps);
+                createAllOfObject(gchildKeyName, gchildKeyNameId, oId, oKey, oVal,  osduType, jsonType, oValProps);
                 }
             }
-        } else if (oName === 'required') {
+        } else if (inclProps && oName === 'required') {
             if (debug) console.log('367 required ', oName, oVal, oValProps);
             const newlist = oVal.map(v => ({ name: v, required: true }));
             const newCVal = { required: newlist };
             if (debug) console.log('542 required ', oValProps);
             createRequiredObject(oId, oKey, osduType, jsonType, newCVal, osduObj);
-        } else { // the rest we GenericObjects
+        } else if (inclGeneric) { // the rest we GenericObjects
             if (debug) console.log('373 required ', oName, oVal, oValProps);
             objecttypeRef= '5cc540c0-ea91-4401-74bb-4f7cb52a2366'   // we put all the rest as the generic type for now
             if (debug) console.log('538 Object not interpreted...', oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);  
@@ -619,8 +620,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     }
 
     function processPropertyLinks( oId: string, oName: string, oKey: any, oVal: any, jsonType: string, osduObj: any, oValProps: any) {
-        if (!debug) console.log('343 parent = properties :', oName, oVal);
-        if (oVal['x-osdu-relationship']) {
+        if (debug) console.log('343 parent = properties :', oName, oVal);
+        if (inclPropLinks && oVal['x-osdu-relationship']) {
             oVal['x-osdu-relationship'].forEach((rel: { type: string }) => {
             objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
             if (debug) console.log('348  relationship', rel, objecttypeRef);
@@ -700,56 +701,54 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             }
             const propLinkName = 'has' + oName;
             createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (!debug) console.log('386 not ID ', oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
+            if (debug) console.log('386 not ID ', oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
             findOwnerandCreateRelationship(osduObj);
             });
         }
     }
 
-    function processArray(oVal: any, oId: string, oName: string, oKey: string, jsonType: string, osduObj: any, oValProps: any) {
-        if (debug) console.log('392  array Set: ', oId, oName, objecttypeRef, oKey, jsonType, oValProps, oVal);
-        if (debug) console.log('393 :', parentName.substring(parentName.length-3));
+    function processArray(oId: string, oName: string, oKey: string, oVal: any, jsonType: string, osduObj: any, oValProps: any) {
+        if (!debug) console.log('717  array Set: ', oId, oName, objecttypeRef, oKey, jsonType, oValProps, oVal);
+        if (debug) console.log('718 :', parentName.substring(parentName.length-3));
 
         switch (true) {
             case (oName.substring(oName.length-3) === 'Set' || oName === 'Markers'):
-            objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'Collection')?.id;
-            oValProps.viewkind = 'container';
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (debug) console.log('399  array Set', oId, oName, objecttypeRef, oKey, jsonType, oValProps);
-            findOwnerandCreateRelationship(osduObj);
-            break;
+                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'Collection')?.id;
+                oValProps.viewkind = 'container';
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                if (debug) console.log('399  array Set', oId, oName, objecttypeRef, oKey, jsonType, oValProps);
+                findOwnerandCreateRelationship(osduObj);
+                break;
 
             case (oName.includes('ID') || oName.includes('IDs')):
-            if (oName === 'MarkerID' || oName === 'IntervalID') {
+                if (oName === 'MarkerID' || oName === 'IntervalID') {
                 // do nothing
-            } else {
-                if (debug) console.log('402  array', oId, oName, oKey, jsonType, oValProps);
-                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
-                let linkID = oName.replace('ID', ''); // remove ID from the name
-                const propLinkName = 'has' + oName;
-                oValProps.linkID = oName;
-                if (debug) console.log('407  array', oName, linkID, oValProps);
-                createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                if (debug) console.log('409  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
-                findOwnerandCreateRelationship(osduObj);
-            }
-            break;
-
+                } else {
+                    if (debug) console.log('402  array', oId, oName, oKey, jsonType, oValProps);
+                    objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
+                    let linkID = oName.replace('ID', ''); // remove ID from the name
+                    const propLinkName = 'has' + oName;
+                    oValProps.linkID = oName;
+                    if (debug) console.log('407  array', oName, linkID, oValProps);
+                    createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                    if (debug) console.log('409  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
+                    findOwnerandCreateRelationship(osduObj);
+                }
+                break;
             case (oValProps['$ref']):
-            objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropCollection')?.id;
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (debug) console.log('415  array $ref', oId, oName, objecttypeRef, oKey, jsonType, oValProps);
-            findOwnerandCreateRelationship(osduObj);
-            break;
-
+                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropCollection')?.id;
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                if (!debug) console.log('747  array $ref', oId, oName, objecttypeRef, oKey, jsonType, oValProps);
+                findOwnerandCreateRelationship(osduObj);
+                break;
             default:
-            if (debug) console.log('418  array', oId, oName, oKey, jsonType);
-            objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropCollection')?.id;
-            if (oName === 'Markers') oName = oName.substring(0, oName.length-1); // remove the last character from the name
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (debug) console.log('425  array else', oId, oName, objecttypeRef, oKey, jsonType, oValProps);
-            findOwnerandCreateRelationship(osduObj);
-            break;
+                if (debug) console.log('418  array', oId, oName, oKey, jsonType);
+                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'Collection')?.id;
+                if (oName === 'Markers') oName = oName.substring(0, oName.length-1); // remove the last character from the name
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                if (debug) console.log('425  array else', oId, oName, objecttypeRef, oKey, jsonType, oValProps);
+                findOwnerandCreateRelationship(osduObj);
+                break;
         }
     }
 
@@ -765,14 +764,14 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
             if (debug) console.log('352 ID', oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
             findOwnerandCreateRelationship(osduObj);
-        } else if (oName.substring(oName.length - 4) === 'Type') {
+        } else if (inclPropLinks && oName.substring(oName.length - 4) === 'Type') {
             oValProps.linkID = oName;
             const propLinkName = 'has' + oName;
             objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
             createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
             if (debug) console.log('472 TYPE', oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
             findOwnerandCreateRelationship(osduObj);
-        } else if (oName.substring(0, 8) === 'Abstract') {
+        } else if (inclPropLinks && oName.substring(0, 8) === 'Abstract') {
             oValProps.linkID = oName;
             if (oValProps.linkID === 'AbstractCommonResources') {
             oValProps.linkID = 'OSDUCommonResources';
@@ -790,7 +789,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         }
         }
     
-    function createLinkedObject(linkedName: string, oId: string, oKey: string, osduType: string, jsonType: string, oValProps: any, osduObj: any) {
+    function createLinkedObject(linkedName: string, oId: string, oKey: string, oVal: any, osduType: string, jsonType: string, oValProps: any, osduObj: any) {
         const propLinkName = `has${linkedName}`;
         const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
         oValProps.linkID = linkedName;
@@ -799,17 +798,17 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         findOwnerandCreateRelationship(osduObj);
         }
 
-    function createCollectionObject(oMName: string, oId: string, oKey: string, osduType: string, jsonType: string, oValProps: any, osduObj: any) {
+    function createCollectionObject(oMName: string, oId: string, oKey: string, oVal: any, osduType: string, jsonType: string, oValProps: any, osduObj: any) {
         const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropCollection')?.id;
         const reltypeRef = containsType?.id;
         const reltypeName = containsType?.name;
         const relshipKind = 'Association';
         createObject(oId, oMName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-        if (debug) console.log('398 Markers/Intervals=Collections', oId, oMName, objecttypeRef, oKey, jsonType, oValProps);
+        if (!debug) console.log('398 Markers/Intervals=Collections', oId, oMName, objecttypeRef, oKey, jsonType, oValProps);
         findOwnerandCreateRelationship(osduObj);
     }
 
-    function createAllOfObject(gchildKeyName: string, gchildKeyNameId: string, oId: string, oKey: string, osduType: string, jsonType: string, oValProps: any, osduObj: any) {
+    function createAllOfObject(gchildKeyName: string, gchildKeyNameId: string, oId: string, oKey: string, oVal: any,  osduType: string, jsonType: string, oValProps: any, osduObj: any) {
         const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === 'PropLink')?.id;
         const entityName = `Is${gchildKeyName}`;
         oValProps.title = gchildKeyNameId;

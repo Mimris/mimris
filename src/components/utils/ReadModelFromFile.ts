@@ -12,13 +12,14 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
+    if (!debug) console.log('13 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
+        console.log('19 ReadModelFromFile', text)
         let importedfile = JSON.parse(text)
         const filename = reader.fileName 
-        console.log('18 ReadModelFromFile', filename, importedfile)
+        console.log('22 ReadModelFromFile', filename, importedfile)
 
         const impObjecttypes = importedfile.objecttypes || null
         const impRelshiptypes = importedfile.relshiptypes || null
@@ -367,7 +368,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             }
             console.log('307 ReadModelFromFile', data)
         } else if (filename.includes('_OR')) { // its a Object relationship file, merge with existing project'
-            console.log('339 ReadModelFromFile', data)
+            console.log('370 ReadModelFromFile', data)
+            if (!data.objects) data.objects = []
+            if (!data.relships) data.relships = []
+            console.log('373 ReadModelFromFile', data)
             let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
             let mlength = props.phData?.metis?.models.length
             // check if imported file has objects and relships
@@ -376,25 +380,25 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     phData: {
                         ...props.phData,
                         metis: {
-                            ...props.phData.metis,
-                            models: [
-                                ...props.phData.metis.models?.slice(0, mindex),
-                                {
-                                    ...props.phData.metis.models[mindex],
-                                    objects: [
-                                        ...props.phData.metis.models[mindex].objects,
-                                        ...data.objects,
-                                    ],
-                                    relships: [
-                                        ...props.phData.metis.models[mindex].relships,
-                                        ...data.relships,
-                                    ],
-                                },
-                                ...props.phData.metis.models?.slice(mindex + 1, mlength),
+                        ...props.phData.metis,
+                        models: [
+                            ...props.phData.metis.models?.slice(0, mindex),
+                            {
+                            ...props.phData.metis.models[mindex],
+                            objects: [
+                                ...props.phData.metis.models[mindex].objects,
+                                ...data.objects,
                             ],
+                            relships: [
+                                ...props.phData.metis.models[mindex].relships,
+                                ...data.relships,
+                            ],
+                            },
+                            ...props.phData.metis.models?.slice(mindex + 1, mlength),
+                        ],
                         },
                     },
-                }
+                };
             }
             console.log('399 ReadModelFromFile', data)
         } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'

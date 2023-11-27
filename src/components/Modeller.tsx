@@ -400,7 +400,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    setSelectedOption('In this modelview')
+    setSelectedOption('Sorted alfabetical')
+    // setSelectedOption('In this modelview')
   }, [])
 
   useEffect(() => {

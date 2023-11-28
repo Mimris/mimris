@@ -11,7 +11,7 @@ import * as utils from '../../akmm/utilities';
 // then add a relship between the two objects i.e. the "rest EntityType" and the top EntityType
 
 
-export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps: boolean, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; }, dispatch: Dispatch<any>) => {
+export const ConnectImportedTopEntityTypes = async (modelType: string,  props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; }, dispatch: Dispatch<any>) => {
     const debug = false
 
     // if (debug) console.log('13 ', props);

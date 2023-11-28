@@ -400,7 +400,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    setSelectedOption('In this modelview')
+    setSelectedOption('Sorted alfabetical')
+    // setSelectedOption('In this modelview')
   }, [])
 
   useEffect(() => {
@@ -601,9 +602,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <button className="btn bg-secondary mt-1 py-0 mx-1 px-2"
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" style={{ fontSize: "12px" }}
         onClick={() => {
-          dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted });
-          dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
-        }} > {(showDeleted) ? ' Hide deleted' : 'Show deleted'}
+          dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted });setRefresh(!refresh)
+          // dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
+        }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
       </button>
       {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
       <span className="sourceName m-2 px-2" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee" }}>

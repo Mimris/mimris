@@ -16,7 +16,7 @@ const debug = false
 
 const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
-  const [refresh, setRefresh] = useState(true);
+  const [refresh, setRefresh] = useState(props.refresh);
   if (debug) console.log('11 LoadNewModel....', props)
 
   // const username = 'kavca'
@@ -307,8 +307,8 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
               <label className=" d-inline-flex justify-content-left"> 
                 <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
               </label>
-                <span className="p-5">
-                  <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              <span className="p-5">
+                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                   title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
                 </Button>
               </span>

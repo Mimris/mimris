@@ -700,7 +700,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       if (!obj)
         break;
-      const type = obj?.type;
+      let type = obj?.type;
       let properties;
       if (type?.name === 'Method') {
         properties = obj.setAndGetAllProperties(myMetis);
@@ -758,6 +758,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           })
         }      
       } else {
+        type = myMetis.findObjectType(type?.id);
         properties = type?.getProperties(false);
       }
       const jsnObject = new jsn.jsnObject(obj);

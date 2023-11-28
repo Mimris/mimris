@@ -178,7 +178,7 @@ const importFile = async (e) => {
         if (debug) console.log('12 files', filess);
         let res = await Promise.all(filess);
         res.map(r => {
-          ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclGeneric, props.ph, dispatch, r)         
+          ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, r)         
         })
       
 }
@@ -251,15 +251,18 @@ const importFile = async (e) => {
                     directory="true"
                   />
                   {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
-                  <div className="d-flex align-items-center my-2 border">
+                  <div className="d-flex justify-content-between align-items-center my-2 border">
                     <label className="" htmlFor="inclProps ">Include Properties</label>
-                    <input className="ms-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
-                    <label className="ms-4" htmlFor="inclPropLinks ">Include Property Links</label>
-                    <input className="ms-2 " type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks}/>
-                    <label className="ms-auto" htmlFor="inclPropLinks ">Debug (Generic objects)</label>
-                    <input className="ms-2 " type="checkbox" checked={inclGeneric} onChange={handleInclGeneric}/>
-                    <label className="ms-auto" htmlFor="inclAbstractPropLinks ">Include Abstract Property Links</label>
+                    <input className="me-0 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                    <span className="ms-4 bg-secondary">|</span>
+                    <label className="ms-4  text-secondary" htmlFor="inclPropLinks ">Include Property Links</label>
+                    <input className="ms-0 " type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks}/>
+                    <span className="ms-4 bg-secondary">|</span>
+                    <label className="ms-4  text-secondary" htmlFor="inclAbstractPropLinks ">Include Abstract Property Links</label>
                     <input className="ms-2 " type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks}/>
+                    <span className="ms-4 bg-secondary">|</span>
+                    <label className="ms-4 text-secondary" htmlFor="inclPropLinks ">Debug (Generic objects)</label>
+                    <input className="ms-0 " type="checkbox" checked={inclGeneric} onChange={handleInclGeneric}/>
                   </div>
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>

@@ -23,7 +23,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     //     const reader = new FileReader()
 
     const curModel = props.phData?.metis.models.find((m: { id: any; }) => m.id === props.phFocus.focusModel.id)
-    const objects = curModel.objects
+    if (!curModel) return
+    const objects = curModel?.objects
     if (debug) console.log('14 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
     
     const curMetamodel = props.phData.metis.metamodels.find((mm: { id: any; }) => mm.id === curModel.metamodelRef)
@@ -48,11 +49,11 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
     const createObject = (oId: any, oName: string, otypeRef: string, oKey: string, osduType: string, jsonType='object', oValProps: {}) => {
         // console.log(' 44 createObject', oName, existObj);
         if (!debug) console.log('47 createObject', oName, oValProps, modelType);
-        let typeColor: string = 'green'
-        // let typeColor: string = setColorsTopEntityTypes(osduType)
-        let textColor: string = 'red';    
+        // let typeColor: string = 'green'
+        let typeColor: string = setColorsTopEntityTypes(osduType)
+        let textColor: string ;    
         let typeStrokeColor: string = 'gray';
-        let typeIcon: string = 'images/Icon-Default.svg';
+        let typeIcon: string = `images/model/${oName}.jpeg`;
         let typeImage: string = 'default';
         let typeShape: string = 'default';
         let typeSize: string = 'default';
@@ -60,13 +61,13 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         let typeHeight: string = 'default';
         let typeFont: string = 'default';
 
-        if (!debug && osduType === 'Masterdata') console.log('53 createObject', oName, osduType, typeColor);
+        if (!debug && osduType === 'Masterdata') console.log('53 createObject', oName, oValProps, osduType, typeColor);
 
         const importedObject = (modelType === 'AKM') // don't include json attributes
             ?   {
-                    ...oValProps, // want only attributes 
                     id: oId,
                     name: oName,
+                    description: oValProps?.title+': '+oValProps?.description,
                     // typeName: type,
                     typeRef: otypeRef,
                     abstract: false,
@@ -82,14 +83,13 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     strokecolor: typeStrokeColor,
                     icon: typeIcon,
                     image: typeImage,
-                    
                     ...oValProps, // additional attributes 
 
                 }
             :   {
                     id: oId,
                     name: oName,
-                    // description: description,
+                    description: oValProps?.description,
                     // typeName: type,
                     typeRef: otypeRef,
                     abstract: false,
@@ -337,7 +337,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         const [oId, oKey, oVal] = osduObj
         let oName = oKey?.split('|')?.slice(-1)[0] // objectName ; split and slice it, pick last element, which is the object name
         if (debug) console.log('311 :', oName, oKey, oVal);
-        // const oValProps = filterObject(oVal) // filter away subobjects, we only want attributes in oValProps (objects are handled in the next iteration)
         const oValProps = filterObject(oVal) // filter away subobjects, we only want attributes in oValProps (objects are handled in the next iteration)
         const parentName = oKey?.split('|')?.slice(-2,-1)[0] // parentName ; split and slice it, pick second last element
         const jsonType = (Array.isArray(oVal)) ? 'isArray' : 'isObject';
@@ -345,7 +344,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
         // first we create the objects ----------------------------------------------------------------------
         if (index === 0) { // the first object is the main-object (topObj)
-            processTopObject(oId, oName, oKey, oVal, jsonType, osduObj);
+            processTopObject(oId, oName, oKey, oVal, jsonType, osduObj, oValProps);
         } else if (parentName === 'properties') { // this is property and proplink objects    
             if (debug) console.log('343 parent = properties :', oName, oVal);
             if (oVal['x-osdu-relationship']) { // if the value is a relationship (this can replace all if statements for proplink below)
@@ -598,13 +597,12 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         return attribute
     }
 
-    function processTopObject(oId: string, oName: string, oKey: string, oVal: any, jsonType: string, osduObj: any) {
+    function processTopObject(oId: string, oName: string, oKey: string, oVal: any, jsonType: string, osduObj: an, oValProps: any) {
         if (debug) console.log('320 topObjName', oName, oKey, oVal);
         let topObjName = oName.split('.')[0];
         console.log('322 topObjName', topObjName);
         const entityPathElement = oVal.$id ? oVal.$id.split('/').slice(-2)[0] : '';
         const osduType = camelCase(entityPathElement, { pascalCase: true });
-        const oValProps: any = {};
         if (osduType === 'Abstract') {
             oValProps.abstract = true;
         }
@@ -630,8 +628,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
             // } else {
             //     oValProps.linkID = oName;
             // }
+
             if (rel.EntityType) oValProps.linkID = rel.EntityType;
             if (rel.GroupType) oValProps.groupType = rel.GroupType;
+            // Todo: check if this is needed It may be that rel.EntityType covers all cases??????
             switch (oValProps.linkID) {
                 case 'Company':
                 case 'Owner':
@@ -693,6 +693,25 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 case 'StopBoundaryInterpretation':
                     oValProps.linkID = 'HorizonInterpretation';
                     break;
+                case 'DefaultVerticalMeasurement':
+                    oValProps.linkID = 'VerticalMeasurement';
+                    break;
+                case 'PrimaryMaterial':
+                    oValProps.linkID = 'MaterialType';
+                    break;
+                case 'TargetFormation':
+                    oValProps.linkID = 'GeologicalFormation';
+                    break;
+                case 'Condition':
+                    oValProps.linkID = 'WellCondition';
+                    break;
+                case 'Fluiddirection':
+                    oValProps.linkID = 'WellFluidDirection';
+                    break;
+                case 'KickOffWellbore':
+                    oValProps.linkID = 'Wellbore';
+                    break;
+      
                 // case 'AbstractCommonResources':
                 // oValProps.linkID = 'OSDUCommonResources';
                 // break;
@@ -828,6 +847,25 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         if (debug) console.log('539 required', oId, entityName, objecttypeRef, oKey, jsonType, oValProps);
         findOwnerandCreateRelationship(osduObj);
     }
+
+    function extractRegex(inputString, regex) { // extract the GroupType and EntityType from the string
+        // const regex = /^[\w\-\.]+:(reference-data\-\-WellBusinessIntention):[\w\-\.\:\%]+:[0-9]*$/;
+        // const match = inputString.match(regex);
+            // Split the string by colon and return the reference-data and WellBusinessIntention parts
+            const parts = inputString.split(':');
+            const GroupAndType = parts[1].split('--');
+            return {
+                GroupType: referenceDataAndIntention[0],
+                EntityType: referenceDataAndIntention[1]
+            };
+
+    }
+
+    // Example usage
+    // const input = "user-name:reference-data--WellBusinessIntention:some%data:12345";
+    // const result = extractReferenceDataAndWellBusinessIntention(input);
+    // console.log(result); 
+    // Output: { referenceData: 'reference-data', wellBusinessIntention: 'WellBusinessIntention' }
 }
 
 

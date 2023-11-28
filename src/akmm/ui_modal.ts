@@ -805,11 +805,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           case 'textcolor':
             const val = obj[k];
             if (val !== "") {
-              oview[k] = val;
-              const jsnObjview = new jsn.jsnObjectView(oview);
-              let data = JSON.parse(JSON.stringify(jsnObjview));
-              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }) 
-              myDiagram.model.setDataProperty(data, k, oview[k]);
+              myDiagram.model.setDataProperty(data, k, val);
             }                  
           }
       }

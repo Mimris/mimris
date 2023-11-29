@@ -55,14 +55,14 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     if (!myInst) myInst = obj;
     myInstview = myMetis.findObjectView(instview?.id);
     typeview = inst?.type?.typeview;
-    if (myInstview) {
-      for (let prop in typeview?.data) {
-        myInstview[prop] = obj[prop];
-      }
-    }
     if (debug) console.log('68 inst, myInst', inst, myInst);
     if (context?.what === "editObjectview") {
-        myItem = myInstview;
+        if (myInstview) {
+          myItem = myInstview;
+          for (let prop in typeview?.data) {
+            myItem[prop] = obj[prop];
+          }
+        }
     } else if (context?.what === "editTypeview") {
         myItem = myInst.type?.typeview; 
         if (debug) console.log('73 editTypeview', typeview, myItem);
@@ -584,10 +584,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const modifiedReltypes     = new Array();    
   const modifiedObjTypeviews = new Array();    
   const modifiedRelTypeviews = new Array();    
-  // const modifiedObjviews     = new Array();    
+  const modifiedObjviews     = new Array();    
   const modifiedRelviews     = new Array();    
   const modifiedObjects      = new Array();    
-  // const modifiedRelships     = new Array();    
+  const modifiedRelships     = new Array();    
   // const modifiedModels       = new Array();    
   const modifiedModelviews   = new Array();    
   switch(what) {
@@ -792,6 +792,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (node[constants.props.DRAFT]) {
         myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
       }
+      const fillcolor1 = obj?.fillcolor;
+      const strokecolor1 = obj?.strokecolor;
+      const textcolor1 = obj?.textcolor;
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;
@@ -799,16 +802,32 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (k === 'abstract') obj[k] = selObj[k];
         // if (k === 'viewkind') obj[k] = selObj[k];
         myDiagram.model.setDataProperty(data, k, obj[k]);
+        let val = obj[k];
         switch(k) {
           case 'strokecolor':
+            val = strokecolor1;
+            oview[k] = val;
+            break;
           case 'fillcolor':
+            val = fillcolor1;
+            oview[k] = val;
+            break;
           case 'textcolor':
-            const val = obj[k];
-            if (val !== "") {
-              myDiagram.model.setDataProperty(data, k, val);
-            }                  
-          }
+            val = textcolor1;
+            oview[k] = val;
+            break;
+        }
+        if (val !== "") {
+          myDiagram.model.setDataProperty(data, k, val);
+        }                         
       }
+      const jsnObjview = new jsn.jsnObjectView(oview);
+      modifiedObjviews.push(jsnObjview);
+      modifiedObjviews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      })
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
       if (jsnObject) {

@@ -697,10 +697,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         obj = myMetis.findObject(obj?.id);
       } else {
         obj = selObj;
+        obj = myMetis.findObject(obj?.id);
       }
       if (!obj)
         break;
-      const type = obj?.type;
+      let type = obj?.type;
       let properties;
       if (type?.name === 'Method') {
         properties = obj.setAndGetAllProperties(myMetis);
@@ -758,10 +759,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           })
         }      
       } else {
+        type = myMetis.findObjectType(type?.id);
         properties = type?.getProperties(false);
       }
-      const jsnObject = new jsn.jsnObject(obj);
-      jsnObject["text"] = obj.text;
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
         if (!prop)
@@ -784,7 +784,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         const expr = obj.getPropertyValue(prop, myMetis);
         obj[prop.name] = expr;
-        jsnObject[prop.name] = expr;
+        // jsnObject[prop.name] = expr;
       }
       const n = myDiagram.findNodeForKey(node.key)
       const data = n ? n.data : node.data;
@@ -805,14 +805,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           case 'textcolor':
             const val = obj[k];
             if (val !== "") {
-              oview[k] = val;
-              const jsnObjview = new jsn.jsnObjectView(oview);
-              let data = JSON.parse(JSON.stringify(jsnObjview));
-              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }) 
-              myDiagram.model.setDataProperty(data, k, oview[k]);
+              myDiagram.model.setDataProperty(data, k, val);
             }                  
           }
       }
+      const jsnObject = new jsn.jsnObject(obj);
+      jsnObject["text"] = obj.text;
       if (jsnObject) {
         // Do dispatch
         let data = JSON.parse(JSON.stringify(jsnObject));

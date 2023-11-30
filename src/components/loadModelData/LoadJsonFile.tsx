@@ -114,7 +114,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   const handleInclPropChange = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
-  const handleInclAbstractPropLinks = () => { setInclAbstractPropertyLinks(!inclAbstractPropLinks);};
+  const handleInclAbstractPropLinks = () => { setInclAbstractPropLinks(!inclAbstractPropLinks);};
   const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
 
   const buttonSaveJSONToFileDiv = 

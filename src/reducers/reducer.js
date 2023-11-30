@@ -873,6 +873,7 @@ function reducer(state = InitialState, action) {
       let curRelshipIndex = curModel?.relships?.findIndex((r) => r?.id === curRelship?.id);
       const curRelshipLength = curModel?.relships?.length;
       if (curRelshipIndex < 0) { curRelshipIndex = curRelshipLength }
+      console.log('876 UPDATE_RELSHIP_PROPERTIES', action.data.nameFrom, curRelshipLength, curRelshipIndex, curRelship, action.data);
 
       const retval_UPDATE_RELSHIP_PROPERTIES = {
         ...state,
@@ -898,6 +899,7 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (debug) console.log('773 retval_UPDATE_RELSHIP_PROPERTIES', retval_UPDATE_RELSHIP_PROPERTIES)
       return retval_UPDATE_RELSHIP_PROPERTIES
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
@@ -979,7 +981,7 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       // const action_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === action.data.id) //incoming action meta model
-      let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === action?.data?.id)  // current metamodel index
+      let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm?.id === action?.data?.id)  // current metamodel index
       if (debug) console.log('1009 UPDATE_METAMODEL_PROPERTIES', curmmindex_mm);
 
       if (curmmindex_mm < 0) curmmindex_mm = state.phData.metis.metamodels.length

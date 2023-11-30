@@ -43,6 +43,7 @@ const Palette = (props: any) => {
 
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
+  if (!metamodels) return null;
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;

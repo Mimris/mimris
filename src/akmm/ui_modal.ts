@@ -821,7 +821,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, k, val);
         }                         
       }
-      const jsnObjview = new jsn.jsnObjectView(oview);
+        // Do dispatch
+        const jsnObjview = new jsn.jsnObjectView(oview);
       modifiedObjviews.push(jsnObjview);
       modifiedObjviews.map(mn => {
         let data = mn;
@@ -831,7 +832,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
       if (jsnObject) {
-        // Do dispatch
         let data = JSON.parse(JSON.stringify(jsnObject));
         myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       }

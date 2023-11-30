@@ -296,6 +296,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const objviews = modelview.objectviews;
         const nodes = myDiagram.nodes;
         // Fix nodes (scale, loc and size, ++)
+        const modifiedObjViews = new Array();
         for (let it = nodes.iterator; it?.next();) {
           const node = it.value;   
           const data = node.data;
@@ -304,21 +305,25 @@ class GoJSApp extends React.Component<{}, AppState> {
           node.scale = data.scale;     
           node.loc = data.loc;
           node.size = data.size;
-          const objview = data.objectview;
-          if (objview) {
-            node.fillcolor = objview.fillcolor;
-          }
           const object = data.object;
-          if (object?.image) {
-            data.image = objview.image;
-            myDiagram.model.setDataProperty(data, "image", data.image);
+          const objview = data.objectview;
+          const image = object?.image ? object.image : objview?.image;
+          if (image) {
+            myDiagram.model.setDataProperty(data, "image", image);
           }
+          const jsnObjview = new jsn.jsnObjectView(objview);
+          modifiedObjViews.push(jsnObjview);
         }
         // Fix links 
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
           const link = it.value;
         }
+        modifiedObjViews.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        })
         break;
       }
       case 'TextEdited': {
@@ -1295,7 +1300,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
-        if(debug)console.log('1255 selected', data, sel);
+        console.log('1313 selected', data, sel);
         if (false) {
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {

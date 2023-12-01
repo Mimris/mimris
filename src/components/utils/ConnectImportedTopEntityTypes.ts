@@ -36,9 +36,9 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
     const refersTo = curRelTypes.find((co: { name: string; }) => (co.name === 'refersTo') && co)
     const hasType = curRelTypes.find((co: { name: string; }) => (co.name === 'has') && co)
     const IsType = curRelTypes.find((co: { name: string; }) => (co.name === 'Is') && co)
-    const relshipType = curRelTypes.find((cr: { name: string; }) => (cr.name === 'RelationshipType') && cr)
-
- 
+    const relshipType = curRelTypes.find((cr: { name: string; }) => (cr.name === 'relationshipType') && cr)
+    if(!debug) console.log('43 ', relshipType.id, relshipType.name, refersTo, hasType, IsType)
+    
     let reltypeRef = relshipType?.id // default relship between two top objects
     let reltypeName = "refersTo" 
     
@@ -60,16 +60,16 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                     title: title?.replace(/\s+/g, ''),
                     typeRef: reltypeRef,
                     cardinality: "",
-                    cardinalityFrom: undefined,
-                    cardinalityTo: undefined,
+                    // cardinalityFrom: undefined,
+                    // cardinalityTo: undefined,
                     description: description,
                     fromobjectRef: fromobjectId,
                     nameFrom: fromobjectName,
                     generatedTypeId: "",
                     markedAsDeleted: false,
-                    modified: true,
+                    modified: false,
                     relshipkind: relshipkind,
-                    relshipviews: undefined,
+                    // relshipviews: undefined,
                     toobjectRef: toobjectId,
                     nameTo: toobjectName,
                 }  

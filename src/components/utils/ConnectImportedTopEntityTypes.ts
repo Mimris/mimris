@@ -153,15 +153,15 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 reltypeName = refersTo?.name || hasType?.name
                 relDescription = `${fromobjectName} refersTo ${toobjectName}`;
             }    
-
             if (debug) console.log('152 ', relId, reltypeName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
             if (debug) console.log('153 ', reltypeName,  'from: ', fromobjectName, 'to:', toobjectName);
             if ((toobjectId) && (fromobjectId) && (!existRelship)) {
                 if (debug)console.log('155 ', fromtypeRef, fromtypeName, fromobjectName, totypeRef, totypeName, toobjectName);
                 if ((fromobjectId) !== (toobjectId)) {
-                    if (debug) console.log('157 ', reltypeName, fromtypeName, fromobjectName, totypeName, toobjectName);
-                    if (totypeName.include('Abstract')) {
-                    // if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
+                if (debug) console.log('157 ', reltypeName, fromtypeName, fromobjectName, totypeName, toobjectName);
+
+                    if (o["$ref"]?.includes('abstract')) {
+                        // if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
                         if (debug) console.log('160 ', fromtypeName, fromobjectName, totypeName, toobjectName);
                         reltypeName = 'Is'
                         createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)

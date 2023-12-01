@@ -1191,6 +1191,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               part.size = "160 70";
             }
           }
+          let object = part.object;
+          if (object) {
+            part.fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
+            part.strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
+            part.textcolor = object.textcolor ? object.textcolor : part.textcolor;
+          }
           const isLabel = (part.typename === 'Label');
           if (debug) console.log('916 node', node);
           if (debug) console.log('917 myMetis', myMetis);

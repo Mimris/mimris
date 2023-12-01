@@ -965,76 +965,49 @@ let includeNoType = false;
     return metis2;
   }
 
-  export function buildInstancesModel(myMetis: akm.cxMetis, dispatch: any, myModel: akm.cxModel) {
-    const modifiedModels = new Array();
-    let instancesModel = myMetis.findModelByName(constants.admin.AKM_INSTANCES_MODEL) as akm.cxModel;
-    let instancesModelview;
-    if (instancesModel) {
-      if (instancesModel.modelviews)
-        instancesModelview = instancesModel.modelviews[0] as akm.cxModelView;
-    }
-    let id;
-    if (instancesModel && instancesModelview) {
-      instancesModel.markedAsDeleted = true;
-      instancesModel.objects = [];
-      instancesModel.relshipsm = [];
-      instancesModelview.markedAsDeleted = true;
-      instancesModelview.objectviews = [];
-      instancesModelview.relshipviews = [];
-    }
-
-    // Create new instances model
-    if (!id) {
-      id = utils.createGuid();
-      const metamodel = myModel.metamodel;
-      instancesModel = new akm.cxModel(id, constants.admin.AKM_INSTANCES_MODEL, metamodel, "The automatically generated instances model");
-      // Create modelview
-      let instancesModelview = new akm.cxModelView(utils.createGuid(), '_INSTANCES', instancesModel, '');
+  export function buildInstancesModelview(myMetis: akm.cxMetis, dispatch: any, myModel: akm.cxModel) {
+    // Find instances modelview
+    let instancesModelview = myModel.findModelViewByName('_INSTANCES');
+    if (instancesModelview) {
+      instancesModelview.objectviews = null;
+      instancesModelview.relshipviews = null;
+    } else {
+      // Create new instances modelview
+      instancesModelview = new akm.cxModelView(utils.createGuid(), '_INSTANCES', myModel, '');
       instancesModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
-      instancesModel.addModelView(instancesModelview);
-      // Create object views
-      const objects = myModel?.objects;
-      for (let i=0; i<objects?.length; i++) {
-        const obj = objects[i];
-        if (obj && !obj.markedAsDeleted) {
-          instancesModel?.addObject(obj);
-          const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, '');
-          instancesModelview?.addObjectView(objview);
-        }
-      }
-      // Create relship views
-      const relships = myModel?.relships;
-      for (let i=0; i<relships?.length; i++) {
-        const relship = relships[i];
-        if (relship && !relship.markedAsDeleted) {
-          instancesModel?.addRelationship(relship);
-          let fromObjviews = instancesModelview?.findObjectViewsByObject(relship.fromObject);
-          let toObjviews = instancesModelview?.findObjectViewsByObject(relship.toObject);
-          const relview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, '');
-          if (fromObjviews && fromObjviews.length > 0 && toObjviews && toObjviews.length > 0) {
-            relview.fromObjview = fromObjviews[0];
-            relview.toObjview = toObjviews[0];
-            instancesModelview?.addRelationshipView(relview);
-          }
-        }
-      }
-      myMetis.addModel(instancesModel);
+      myModel.addModelView(instancesModelview);
       myMetis.addModelView(instancesModelview);
     }
+    // Create object views
+    const objects = myModel?.objects;
+    for (let i=0; i<objects?.length; i++) {
+      const obj = objects[i];
+      if (obj && !obj.markedAsDeleted) {
+        const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, '');
+        instancesModelview?.addObjectView(objview);
+      }
+    }
+    // Create relship views
+    const relships = myModel?.relships;
+    for (let i=0; i<relships?.length; i++) {
+      const relship = relships[i];
+      if (relship && !relship.markedAsDeleted) {
+        let fromObjviews = instancesModelview?.findObjectViewsByObject(relship.fromObject);
+        let toObjviews = instancesModelview?.findObjectViewsByObject(relship.toObject);
+        const relview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, '');
+        if (fromObjviews && fromObjviews.length > 0 && toObjviews && toObjviews.length > 0) {
+          relview.fromObjview = fromObjviews[0];
+          relview.toObjview = toObjviews[0];
+          instancesModelview?.addRelationshipView(relview);
+        }
+      }
+    }
+    if (instancesModelview) {
     // Do a dispatch
-
-    // const jsnModel = new jsn.jsnModel(instancesModel, true);
-    // modifiedModels.push(jsnModel);
-    // modifiedModels.map(mn => {
-    //   let data = mn;
-    //   data = JSON.parse(JSON.stringify(data));
-    //   dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
-    // });
-
-    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    let data = {metis: jsnMetis}
-    data = JSON.parse(JSON.stringify(data));
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-
-    return instancesModel;
+      const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      let data = {metis: jsnMetis}
+      data = JSON.parse(JSON.stringify(data));
+      dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    }
+    return instancesModelview;
   }

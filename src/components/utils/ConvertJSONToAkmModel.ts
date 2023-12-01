@@ -147,34 +147,35 @@ export const ReadConvertJSONFromFileToAkm = async (
         toobjectId: any,
         toobjectName: any
     ) => {
-        const importedRel = fromobjectId
-            ? {
-                  id: relId,
-                  name: typeName,
-                  title: title.replace(/\s+/g, ""),
-                  cardinality: "",
-                  cardinalityFrom: undefined,
-                  cardinalityTo: undefined,
-                  description: description,
-                  fromobjectRef: fromobjectId,
-                  nameFrom: fromobjectName,
-                  generatedTypeId: "",
-                  // id: parentKey+oKey,
-                  markedAsDeleted: false,
-                  modified: true,
-                  relshipkind: relKind,
-                  relshipviews: undefined,
-                  toobjectRef: toobjectId,
-                  nameTo: toobjectName,
-                  typeRef: reltypeRef,
-              }
-            : {};
 
+        let typeTextColor: string = "gray";
+        let typeStrokeColor: string = "gray";
+
+        const importedRel = (fromobjectId) &&
+            {
+                id: relId,
+                name: typeName,
+                title: title.replace(/\s+/g, ""), // remove all white spaces
+                cardinality: "",
+                // cardinalityFrom: undefined,
+                // cardinalityTo: undefined,
+                description: description,
+                fromobjectRef: fromobjectId,
+                nameFrom: fromobjectName,
+                generatedTypeId: "",
+                // id: parentKey+oKey,
+                markedAsDeleted: false,
+                modified: false,
+                relshipkind: relKind,
+                // relshipviews: undefined,
+                toobjectRef: toobjectId,
+                nameTo: toobjectName,
+                typeRef: reltypeRef,
+                textcolor: typeTextColor,
+                strokecolor: typeStrokeColor,
+            }
         // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
-
-        if (debug)
-            console.log("100 Create relship", fromobjectId, fromobjectName, importedRel.name, toobjectId, toobjectName);
-
+        if (!debug) console.log("178 Create relship", fromobjectId, fromobjectName, importedRel, toobjectId, toobjectName);
         fromobjectId && toobjectId && dispatch({ type: "UPDATE_RELSHIP_PROPERTIES", data: importedRel });
     };
 

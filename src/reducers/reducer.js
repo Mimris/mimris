@@ -873,7 +873,7 @@ function reducer(state = InitialState, action) {
       let curRelshipIndex = curModel?.relships?.findIndex((r) => r?.id === curRelship?.id);
       const curRelshipLength = curModel?.relships?.length;
       if (curRelshipIndex < 0) { curRelshipIndex = curRelshipLength }
-      console.log('876 UPDATE_RELSHIP_PROPERTIES', action.data.nameFrom, curRelshipLength, curRelshipIndex, curRelship, action.data);
+      if (debug) console.log('876 UPDATE_RELSHIP_PROPERTIES', action.data.nameFrom, curRelshipLength, curRelshipIndex, curRelship, action.data);
 
       const retval_UPDATE_RELSHIP_PROPERTIES = {
         ...state,

@@ -36,9 +36,12 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
     const refersTo = curRelTypes.find((co: { name: string; }) => (co.name === 'refersTo') && co)
     const hasType = curRelTypes.find((co: { name: string; }) => (co.name === 'has') && co)
     const IsType = curRelTypes.find((co: { name: string; }) => (co.name === 'Is') && co)
+    const relshipType = curRelTypes.find((cr: { name: string; }) => (cr.name === 'RelationshipType') && cr)
+
  
-    let reltypeRef = hasType?.id // default partof relship in JSON structure
-    let reltypeName = hasType?.name // default partof relship in JSON structure
+    let reltypeRef = relshipType?.id // default relship between two top objects
+    let reltypeName = "refersTo" 
+    
 
     let relDescription: string, relTitle: string
     let fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any
@@ -50,8 +53,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
         // check if relship already exists
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
 
-        const rel = (fromobjectId) 
-            ?   {
+        const rel = (fromobjectId && toobjectId) 
+            &&   {
                     id: relId,
                     name: typeName,
                     title: title?.replace(/\s+/g, ''),
@@ -70,7 +73,6 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                     toobjectRef: toobjectId,
                     nameTo: toobjectName,
                 }  
-            :   {}
 
         if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel );
         if (!relship) {
@@ -109,7 +111,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
     const genrel = propLinks.forEach(o => {
         // use the linkID to find the top object
-        if (debug) console.log('109 ', o.name, o.title, o.id, o.linkID, o);
+        if (!debug) console.log('109 ', o.name, o.title, o.id, o.linkID, o);
         if (debug) console.log('110 ', o.linkID);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkID)
         if (debug) console.log('112 ', o, o.linkID, targetObject);
@@ -158,13 +160,15 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 if (debug)console.log('155 ', fromtypeRef, fromtypeName, fromobjectName, totypeRef, totypeName, toobjectName);
                 if ((fromobjectId) !== (toobjectId)) {
                     if (debug) console.log('157 ', reltypeName, fromtypeName, fromobjectName, totypeName, toobjectName);
-                    if (fromtypeName === 'Abstract' || totypeName === 'Abstract') {
+                    if (totypeName.include('Abstract')) {
                     // if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
                         if (debug) console.log('160 ', fromtypeName, fromobjectName, totypeName, toobjectName);
-                        // do nothing
+                        reltypeName = 'Is'
+                        createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     } else {
                         if (debug) console.log('163 ', fromtypeName, fromobjectName, totypeName, toobjectName);
-                        createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Associaton', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                        reltypeName = 'refersTo'
+                        createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     }
                 }
             }
@@ -241,7 +245,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 if (debug) console.log('238 ', relId, reltypeName,'from : ', fromobjectName, 'to : ', toobjectName);
                 
                 if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
-                    createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                    createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                 }
              }
 

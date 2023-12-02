@@ -206,6 +206,7 @@ let includeNoType = false;
     if (!modelview) return;
     if (!modelview.includeInheritedReltypes)
       modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
+    model.setMyMetis(metis);
     let showRelshipNames = modelview.showRelshipNames;
     if (showRelshipNames == undefined) 
       showRelshipNames = true;

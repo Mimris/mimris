@@ -302,11 +302,16 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = node.data;
           if (data.category === "Object type") 
             continue;  
-          node.scale = data.scale;     
+            node.scale = data.scale;     
           node.loc = data.loc;
           node.size = data.size;
           const object = data.object;
           const objview = data.objectview;
+          if (object) {
+            node.fillcolor = object.fillcolor ? object.fillcolor : node.fillcolor;
+            node.strokecolor = object.strokecolor ? object.strokecolor : node.strokecolor;
+            node.textcolor = object.textcolor ? object.textcolor : node.textcolor;
+          }
           const image = object?.image ? object.image : objview?.image;
           if (image) {
             myDiagram.model.setDataProperty(data, "image", image);

@@ -142,15 +142,18 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
       
             relId = (existRelship) ? existRelship.id : utils.createGuid();
             // reltypeRef = refersTo?.id
-            reltypeRef = refersTo?.id || hasType?.id
+            reltypeRef = relshipType?.id //refersTo?.id || hasType?.id
             if (o.title === 'ColumnStratigraphicHorizonTopID') {
                 reltypeName = hasType?.name+'Top'
                 relDescription = `${fromobjectName} has Top ${toobjectName}`;
             } else if (o.title === 'ColumnStratigraphicHorizonBaseID') {
                 reltypeName = hasType?.name+'Base'
                 relDescription = `${fromobjectName} has Base ${toobjectName}`;
+            } else if (o['$ref']?.includes('abstract')) {
+                reltypeName = 'Is'
+                relDescription = `${fromobjectName} Is ${toobjectName}`;
             } else {
-                reltypeName = refersTo?.name || hasType?.name
+                reltypeName = 'refersTo'//refersTo?.name || hasType?.name
                 relDescription = `${fromobjectName} refersTo ${toobjectName}`;
             }    
             if (debug) console.log('152 ', relId, reltypeName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
@@ -162,11 +165,11 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
 
                     if (o["$ref"]?.includes('abstract')) {
                         // if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
-                        if (debug) console.log('160 ', fromtypeName, fromobjectName, totypeName, toobjectName);
+                        if (!debug) console.log('160 ', fromtypeName, fromobjectName, totypeName, toobjectName);
                         reltypeName = 'Is'
                         createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     } else {
-                        if (debug) console.log('163 ', fromtypeName, fromobjectName, totypeName, toobjectName);
+                        if (!debug) console.log('163 ', fromtypeName, fromobjectName, totypeName, toobjectName);
                         reltypeName = 'refersTo'
                         createRel(relId, reltypeName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     }

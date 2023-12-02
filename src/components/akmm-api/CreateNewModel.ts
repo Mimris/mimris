@@ -39,8 +39,8 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
-    const newModelName = (metamodelGenerated.name === 'AKM-CORE_MM') ? 'New-Model_TD' : 'New-Model_CM'
-    const newModelDesc = (metamodelGenerated.name === 'AKM-CORE_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
+    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') ? 'New-Model_TD' : 'New-Model_CM'
+    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
 
     const newmodel = {
       id: uuidv4(),
@@ -68,14 +68,14 @@ const CreateNewModel = (props: any) => {
       modified: false,
     }
 
-    console.log('69 CreateNewModel', newmodel)
+    if(debug)console.log('69 CreateNewModel', newmodel)
     const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
-    const coremetamodel = metamodels.find(m => m.name === 'AKM-CORE_MM')
+    const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
-    const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
-    console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, additionalmetamodel, metamodels)
-    console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
+    // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
+    if(!debug)console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
+    if(debug)console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
 
     const data = {
       phData: { 
@@ -92,7 +92,8 @@ const CreateNewModel = (props: any) => {
               // subMetamodels: submetamodels,
             },
             adminmetamodel,
-            additionalmetamodel,
+            (coremetamodel !== metamodelGenerated) && coremetamodel,
+            (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
           ], 
           name: 'New-Project', 
           description: 'New Project to start modelling',

@@ -199,20 +199,17 @@ let includeNoType = false;
     return nodeArray;
   }
 
-  export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, 
-                               includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
+  export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
     if (debug) console.log('197 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
-    if (!modelview.includeInheritedReltypes)
-      modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
-    model.setMyMetis(metis);
-    let showRelshipNames = modelview.showRelshipNames;
-    if (showRelshipNames == undefined) 
-      showRelshipNames = true;
-    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
-    // load object views
-    let objviews = modelview?.getObjectViews();
+    if (!modelview.includeInheritedReltypes) modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
+      // model.setMyMetis(metis);
+      let showRelshipNames = modelview.showRelshipNames;
+      if (showRelshipNames == undefined) showRelshipNames = true;
+      const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
+      // load object views
+      let objviews = modelview?.getObjectViews();
     if (objviews) {
       if (debug) console.log('208 modelview, objviews:', modelview, objviews);
       const focusObjview = modelview?.focusObjectview;

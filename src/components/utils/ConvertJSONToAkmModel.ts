@@ -75,9 +75,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (debug) console.log("47 createObject", oName, oValProps, modelType);
         // let typeColor: string = 'green'
         let typeColor: string = setColorsTopEntityTypes(osduType);
-        let typeTextColor: string = "black";
-        let typeStrokeColor: string = "gray";
-        let typeIcon: string = `images/model/${oName}.jpeg`;
+        let typeTextColor: string = "";
+        let typeStrokeColor: string = "";
+        let typeIcon: string = `images/types/${oName}.jpeg`;
         let typeImage: string = `images/model/${oName}.jpeg`;
         // let typeShape: string = "default";
         // let typeSize: string = "default";

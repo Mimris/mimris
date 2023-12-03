@@ -79,59 +79,39 @@ export const ReadConvertJSONFromFileToAkm = async (
         let typeStrokeColor: string = "gray";
         let typeIcon: string = `images/model/${oName}.jpeg`;
         let typeImage: string = `images/model/${oName}.jpeg`;
-        let typeShape: string = "default";
-        let typeSize: string = "default";
-        let typeWidth: string = "default";
-        let typeHeight: string = "default";
-        let typeFont: string = "default";
-
+        // let typeShape: string = "default";
+        // let typeSize: string = "default";
+        // let typeWidth: string = "default";
+        // let typeHeight: string = "default";
+        // let typeFont: string = "default";
 
         if (!debug && osduType === "Masterdata") console.log("53 createObject", oName, oValProps, osduType, typeColor);
 
-        const importedObject =
-
-        
-            modelType === "AKM" // don't include json attributes
-                ? {
-                      id: oId,
-                      name: oName,
-                      description: oValProps?.title + ": " + oValProps?.description,
-                      // typeName: type,
-                      typeRef: otypeRef,
-                      abstract: false,
-                      markedAsDeleted: false,
-                      modified: true,
-                      externalID: oKey,
-                      osduId: oKey,
-                      osduType: osduType,
-                      // jsonType: jsonType,
-                      // jsonKey: oName,
-                      fillcolor: typeColor,
-                      textcolor: typeTextColor,
-                      strokecolor: typeStrokeColor,
-                      icon: typeIcon,
-                      image: typeImage,
-                      ...oValProps, // additional attributes
-                  }
-                : {
-                      id: oId,
-                      name: oName,
-                      description: oValProps?.description,
-                      // typeName: type,
-                      typeRef: otypeRef,
-                      abstract: false,
-                      markedAsDeleted: false,
-                      modified: true,
-                      externalID: oKey,
-                      osduId: oKey,
-                      jsonType: jsonType,
-                      jsonKey: oName,
-                      ...oValProps, // // additional attributes
-                  };
+        const importedObject = //(modelType === "AKM") // don't include json attributes
+            {
+                id: oId,
+                name: oName,
+                description: oValProps?.title + ": " + oValProps?.description,
+                // typeName: type,
+                typeRef: otypeRef,
+                abstract: false,
+                markedAsDeleted: false,
+                modified: true,
+                externalID: oKey,
+                osduId: oKey,
+                osduType: osduType,
+                // jsonType: jsonType,
+                // jsonKey: oName,
+                fillcolor: typeColor,
+                textcolor: typeTextColor,
+                strokecolor: typeStrokeColor,
+                icon: typeIcon,
+                image: typeImage,
+                ...oValProps, // additional attributes
+            }
 
         if (debug) console.log("82 Create object: ", importedObject.name, importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
-
         return importedObject;
     };
 
@@ -423,7 +403,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             } else {
                 console.log("536  object not imported", oName);
             }
-        } else if (oVal["$ref"] && inclPropLinks && inclAbstractPropLinks) {
+        } else if (oVal["$ref"] && (inclPropLinks || inclAbstractPropLinks)) {
             if (debug) console.log("339 $ref ", oName, oValProps);
             const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
             const typeRest = oVal["$ref"].split("/").slice(-1)[0];

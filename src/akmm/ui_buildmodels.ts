@@ -203,15 +203,6 @@ let includeNoType = false;
     if (debug) console.log('197 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
-<<<<<<< HEAD
-    if (!modelview.includeInheritedReltypes) modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
-      // model.setMyMetis(metis);
-      let showRelshipNames = modelview.showRelshipNames;
-      if (showRelshipNames == undefined) showRelshipNames = true;
-      const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
-      // load object views
-      let objviews = modelview?.getObjectViews();
-=======
     if (!modelview.includeInheritedReltypes)
       modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
     // model.setMyMetis(metis);
@@ -221,7 +212,6 @@ let includeNoType = false;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     // load object views
     let objviews = modelview?.getObjectViews();
->>>>>>> 2ba41dcbe5fb7107dccabec9544fdd522258c869
     if (objviews) {
       if (debug) console.log('208 modelview, objviews:', modelview, objviews);
       const focusObjview = modelview?.focusObjectview;

@@ -3860,3 +3860,45 @@ export function isGenericMetamodel(myMetis: akm.cxMetis) {
         return true;
     return false;
 }
+
+export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
+    const object = data.object;
+    const objview = data.objectview;
+    const typeview = data.typeview;
+    if (object) {
+      let fillcolor = "";
+      let strokecolor = "";
+      let textcolor = "";
+      if (object.fillcolor) {
+        fillcolor = object.fillcolor;
+      } else if (objview.fillcolor1) {
+        fillcolor = objview.fillcolor1;
+      } else if (typeview.fillcolor) {
+        fillcolor = typeview.fillcolor;
+      }
+      if (object.strokecolor) {
+        strokecolor = object.strokecolor;
+      } else if (objview.strokecolor1) {
+        strokecolor = objview.strokecolor1;
+      } else if (typeview.strokecolor) {
+        strokecolor = typeview.strokecolor;
+      }
+      if (object.textcolor) {
+        textcolor = object.textcolor;
+      } else if (objview.textcolor1) {
+        textcolor = objview.textcolor1;
+      } else if (typeview.textcolor) {
+        textcolor = typeview.textcolor;
+      }
+      objview.fillcolor = fillcolor;
+      objview.strokecolor = strokecolor;
+      objview.textcolor = textcolor;
+      data.fillcolor = fillcolor;
+      myDiagram.model.setDataProperty(data, "fillcolor", fillcolor);
+      data.strokecolor = strokecolor;
+      myDiagram.model.setDataProperty(data, "strokecolor", strokecolor);
+      data.textcolor = textcolor;
+      myDiagram.model.setDataProperty(data, "textcolor", textcolor);
+    }
+    return objview;
+}

@@ -160,7 +160,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
             if (debug) console.log('153 ', relName,  'from: ', fromobjectName, 'to:', toobjectName);
             if ((toobjectId) && (fromobjectId) && (!existRelship)) {
                 if (debug)console.log('155 ', fromtypeRef, fromrelName, fromobjectName, totypeRef, torelName, toobjectName);
-                if ((fromobjectId) !== (toobjectId)) {
+                // if ((fromobjectId) !== (toobjectId)) {
                 if (debug) console.log('157 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
 
                     if (o["$ref"]?.includes('abstract')) {
@@ -169,11 +169,11 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                         relName = 'Is'
                         createRel(relId, relName, relDescription, relTitle, relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     } else {
-                        if (!debug) console.log('163 ', fromrelName, fromobjectName, torelName, toobjectName);
+                        if (!debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
                         relName = 'refersTo'
                         createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                     }
-                }
+                // }
             }
         }          
     });
@@ -244,10 +244,11 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 relTitle = '';
              
                 
-                if (debug) console.log('237 ', relId, relName, description, 'title:', relTitle, reltypeRef,'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
+                if (!debug) console.log('247 ', relId, relName, description, 'title:', relTitle, reltypeRef,'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
                 if (debug) console.log('238 ', relId, relName,'from : ', fromobjectName, 'to : ', toobjectName);
                 
-                if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
+                // if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
+                if (fromobjectId && toobjectId && !existRelship) {
                     createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
                 }
              }

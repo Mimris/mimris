@@ -400,14 +400,14 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    setSelectedOption('Sorted alfabetical')
+    setSelectedOption('Sorted by type')
     // setSelectedOption('In this modelview')
   }, [])
 
   useEffect(() => {
     const initialArr = objectsNotDeleted;
     if (debug) console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
-  if (selectedOption === 'In this modelview') {
+    if (selectedOption === 'In this modelview') {
       const objectviewsInThisModelview = modelview?.objectviews
       const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
     

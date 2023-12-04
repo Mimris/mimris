@@ -282,7 +282,7 @@ const importFile = async (e) => {
                     title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}>Generate Relationships between EntityTypes (Propertylinks)
                   </Button>
                 </div>
-                <div className="selectbox3 mb-2">
+                {/* <div className="selectbox3 mb-2">
                   <h6>Set colors on EntityTypes</h6> 
                   <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                     title="Setting colors on EntityTypes!" 
@@ -290,7 +290,7 @@ const importFile = async (e) => {
                   >
                     Set OSDU Colors
                   </Button>
-                </div>
+                </div> */}
             </div>
             <div className="loadsave--JsonToFile select mb-1 p-2  border border-dark" >
                 {/* <h5>OSDU JSON filestructure</h5>

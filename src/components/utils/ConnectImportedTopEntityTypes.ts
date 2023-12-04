@@ -55,7 +55,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
         let relDescription = description || '';
         let strokeColor = '';
         if (linkObj && linkObj.description && typeof linkObj.description === 'string' && linkObj.description.includes('DEPRECATED:')) {
-            relDescription = 'DEPRECATED:' + relDescription;
+            relName = 'DEPRECATED:' + relName;
+            relDescription = relDescription + ' ' + linkObj.description;
             strokeColor = 'red';
         }
         const rel = (fromobjectId && toobjectId) 

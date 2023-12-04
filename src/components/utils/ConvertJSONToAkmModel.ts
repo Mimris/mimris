@@ -418,7 +418,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 // if the parent ends with Set, it is a collection
                 const linkedName = parentName.substring(0, parentName.length - 3);
                 createLinkedObject(linkedName, oId, oVal, oKey, osduType, jsonType, oValProps);
-            } else if ( parentName === "Markers" || parentName === "Intervals" || parentName === "VerticalMeasurements" ||parentName?.includes("IDs")) {
+            } else if ( parentName === "Markers" || parentName === "Intervals" || parentName === "VerticalMeasurements" || parentName?.includes("IDs")) {
                 const oMName = parentName.substring(0, parentName.length - 1);
                 createCollectionObject(oMName, oId, oKey, oVal, osduType, jsonType, oValProps);
                 if (debug) console.log("391 ConvertJSON...", oMName, oId, oKey, osduType, jsonType, oValProps);

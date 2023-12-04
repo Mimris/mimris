@@ -48,11 +48,16 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
     let title: string, description: string
     let relId: any, relshipkind: string
 
-    const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkID: any) => {  
+    const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkObj) => {  
         if (debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName,  toobjectId, toobjectName);
         // check if relship already exists
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
-
+        let relDescription = description || '';
+        let strokeColor = '';
+        if (linkObj && linkObj.description && typeof linkObj.description === 'string' && linkObj.description.includes('DEPRECATED:')) {
+            relDescription = 'DEPRECATED:' + relDescription;
+            strokeColor = 'red';
+        }
         const rel = (fromobjectId && toobjectId) 
             &&   {
                     id: relId,
@@ -62,7 +67,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                     cardinality: "",
                     // cardinalityFrom: undefined,
                     // cardinalityTo: undefined,
-                    description: description,
+                    description: relDescription,
+                    strokeColor: strokeColor,
                     fromobjectRef: fromobjectId,
                     nameFrom: fromobjectName,
                     generatedTypeId: "",
@@ -79,14 +85,14 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
             if (fromobjectId && toobjectId) { 
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
                 if (debug) console.log('76 CreatedRel', fromobjectId, toobjectId, rel );
-                const fromObj = {id: linkID, markedAsDeleted: true}
+                const fromObj = {id: linkObj.id, markedAsDeleted: true}
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
                 // TODO: delete propLink relationship ?
             } else if (!toobjectId) {
-                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: {id: linkID, markedAsDeleted: true} }); // for propLink object set mark as deleted
+                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: {id: linkObj.id, markedAsDeleted: true} }); // for propLink object set mark as deleted
             }
         } else {
-            const fromObj = {id: linkID, markedAsDeleted: true}
+            const fromObj = {id: linkObj.id, markedAsDeleted: true}
             dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
         }
     }
@@ -156,6 +162,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 relName = 'refersTo'//refersTo?.name || hasType?.name
                 relDescription = `${fromobjectName} refersTo ${toobjectName}`;
             }    
+
             if (debug) console.log('152 ', relId, relName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
             if (debug) console.log('153 ', relName,  'from: ', fromobjectName, 'to:', toobjectName);
             if ((toobjectId) && (fromobjectId) && (!existRelship)) {
@@ -167,11 +174,11 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                         // if (fromrelName === 'Abstract' || torelName === 'Abstract' || torelName === 'ReferenceData') {
                         if (!debug) console.log('160 ', fromrelName, fromobjectName, torelName, toobjectName);
                         relName = 'Is'
-                        createRel(relId, relName, relDescription, relTitle, relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                        createRel(relId, relName, relDescription, relTitle, relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                     } else {
                         if (!debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
-                        relName = 'refersTo'
-                        createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                        relName = o.name //'refersTo'
+                        createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                     }
                 // }
             }
@@ -249,7 +256,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 
                 // if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
                 if (fromobjectId && toobjectId && !existRelship) {
-                    createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                    createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 }
              }
 

@@ -264,6 +264,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let hideNameAndDescr = false;
     let useFillColor = false;
     let useStrokeColor = false;
+    let fillcolor1 = "";
+    let strokecolor1 = "";
+    let textcolor1 = "";
     let useItem = false;
     let isLabel = false;
     let test = null;
@@ -589,8 +592,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         {
           if (
             (useFillColor && k === 'fillcolor') ||
+            (useFillColor && k === 'fillcolor1') ||
             (useFillColor && k === 'fillcolor2') ||
             (useStrokeColor && k === 'strokecolor') ||
+            (useStrokeColor && k === 'strokecolor1') ||
             (useStrokeColor && k === 'strokecolor2')
           ) {
             if (val === "" && what === "editObjectview") {
@@ -728,6 +733,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
               break;
             case 'fillcolor':
+            case 'fillcolor1':
             case 'fillcolor2':
               if (!useFillColor) {
                 values = colornames;
@@ -736,6 +742,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               break;
             case 'strokecolor':
+            case 'strokecolor1':
             case 'strokecolor2':
               if (!useStrokeColor) {
                 values = colornames;
@@ -749,6 +756,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
               break;
             case 'textcolor':
+            case 'textcolor1':
             case 'fromArrowColor':
             case 'toArrowColor':
                 values = colornames;

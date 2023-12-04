@@ -6201,11 +6201,14 @@ export class cxObjtypeviewData {
     icon: string;
     image: string;
     fillcolor: string;
+    fillcolor1: string;
     fillcolor2: string;
     strokecolor: string;
+    strokecolor1: string;
     strokecolor2: string;
     strokewidth: string;
     textcolor: string;
+    textcolor1: string;
     textscale: string;
     constructor() {
         // this.abstract = false;
@@ -6218,11 +6221,14 @@ export class cxObjtypeviewData {
         this.icon = "";
         this.image = "";
         this.fillcolor = "";
+        this.fillcolor1 = "";
         this.fillcolor2 = "";
         this.strokecolor = "black";
+        this.strokecolor1 = "black";
         this.strokecolor2 = "black";
         this.strokewidth = "";
         this.textcolor = "black";
+        this.textcolor1 = "black";
         this.textscale = "";
     }
 }
@@ -6240,11 +6246,14 @@ export class cxObjectTypeView extends cxMetaObject {
     icon: string;
     image: string;
     fillcolor: string;
+    fillcolor1: string;
     fillcolor2: string;
     strokecolor: string;
+    strokecolor1: string;
     strokecolor2: string;
     strokewidth: string;
     textcolor: string;
+    textcolor1: string;
     textscale: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
@@ -6258,11 +6267,14 @@ export class cxObjectTypeView extends cxMetaObject {
         this.arrowscale  = "";
         this.memberscale = "";
         this.fillcolor   = "";
-        this.fillcolor2   = "";
+        this.fillcolor1  = "";
+        this.fillcolor2  = "";
         this.strokecolor = "";
+        this.strokecolor1 = "";
         this.strokecolor2 = "";
         this.strokewidth = "";
         this.textcolor   = "";
+        this.textcolor1  = "";
         this.textscale   = "";
         this.viewkind    = "";
         this.icon        = 'images/types/'+type?.name;
@@ -6392,6 +6404,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.fillcolor;
         return "white";
     }
+    setFillcolor1(fillcolor: string) {
+        this.data.fillcolor1 = fillcolor;
+        this.fillcolor1 = fillcolor;
+    }
+    getFillcolor1(): string {
+        if (this.fillcolor1)
+            return this.fillcolor1;
+        else if (this.data.fillcolor1)
+            return this.data.fillcolor1;
+        return "white";
+    }
     setFillcolor2(fillcolor: string) {
         this.data.fillcolor2 = fillcolor;
         this.fillcolor2 = fillcolor;
@@ -6412,6 +6435,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.textcolor;
         else if (this.data.textcolor)
             return this.data.textcolor;
+        return "black";
+    }
+    setTextcolor1(color: string) {
+        this.data.textcolor1 = color;
+        this.textcolor1 = color;
+    }
+    getTextcolor1(): string {
+        if (this.textcolor1)
+            return this.textcolor1;
+        else if (this.data.textcolor1)
+            return this.data.textcolor1;
         return "black";
     }
     setTextscale(scale: string) {
@@ -6436,6 +6470,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.strokecolor;
         else if (this.data.strokecolor)
             return this.data.strokecolor;
+        return "black";
+    }
+    setStrokecolor1(strokecolor: string) {
+        this.data.strokecolor1 = strokecolor;
+        this.strokecolor1 = strokecolor;
+    }
+    getStrokecolor1(): string {
+        if (this.strokecolor1)
+            return this.strokecolor1;
+        else if (this.data.strokecolor1)
+            return this.data.strokecolor1;
         return "black";
     }
     setStrokecolor2(strokecolor: string) {
@@ -7900,12 +7945,18 @@ export class cxInstance extends cxMetaObject {
 export class cxObject extends cxInstance {
     ports: cxPort[] | null;
     objectviews: cxObjectView[] | null;
+    fillcolor: string;
+    strokecolor: string;
+    textcolor: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
         this.ports = [];
         this.objectviews = null;
+        this.fillcolor = "";
+        this.strokecolor = "";
+        this.textcolor = "";
         // Handle properties
         const props = this.type?.properties;
         for (let i=0; i<props?.length; i++) {
@@ -9328,8 +9379,10 @@ export class cxRelationshipView extends cxMetaObject {
     textscale:      string;
     arrowscale:     string;
     strokecolor:    string;
+    strokecolor1:   string;
     strokewidth:    string;
     textcolor:      string;
+    textcolor1:     string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -9354,8 +9407,10 @@ export class cxRelationshipView extends cxMetaObject {
         this.textscale = "";
         this.arrowscale = "";
         this.strokecolor = "";
+        this.strokecolor1 = "";
         this.strokewidth = "";
         this.textcolor = "";
+        this.textcolor1 = "";
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";

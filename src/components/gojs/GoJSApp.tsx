@@ -306,12 +306,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           node.loc = data.loc;
           node.size = data.size;
           const object = data.object;
-          const objview = data.objectview;
-          if (object) {
-            node.fillcolor = object.fillcolor ? object.fillcolor : node.fillcolor;
-            node.strokecolor = object.strokecolor ? object.strokecolor : node.strokecolor;
-            node.textcolor = object.textcolor ? object.textcolor : node.textcolor;
-          }
+          const objview = uic.setObjviewColors(data, myDiagram);          
           const image = object?.image ? object.image : objview?.image;
           if (image) {
             myDiagram.model.setDataProperty(data, "image", image);
@@ -324,11 +319,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = links.iterator; it?.next();) {
           const link = it.value;
         }
-        modifiedObjViews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-        })
         break;
       }
       case 'TextEdited': {
@@ -1187,6 +1177,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('1149 n.data', n.data, n);
           const node = myDiagram.findNodeForKey(n.data.key);
           let typeview = n.data.typeview;
+          let fillcolor = "";
+          let strokecolor = "";
+          let textcolor = "";
           let part = node.data;
           part.scale = node.scale;
           if (part.size === "") {
@@ -1198,9 +1191,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           let object = part.object;
           if (object) {
-            part.fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
-            part.strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
-            part.textcolor = object.textcolor ? object.textcolor : part.textcolor;
+            fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
+            strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
+            textcolor = object.textcolor ? object.textcolor : part.textcolor;
           }
           const isLabel = (part.typename === 'Label');
           if (debug) console.log('916 node', node);
@@ -1237,9 +1230,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('952 myMetis', myMetis);
-            const objview = uic.createObject(part, context);
+            uic.createObject(part, context);
             if (debug) console.log('954 myMetis', myMetis);
             if (debug) console.log('955 part, objview', part, objview);
+            const objview = uic.setObjviewColors(part, myDiagram);          
             if (objview) {
               const object = objview.object;
               object.name = part.name;
@@ -1269,15 +1263,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const jsnObjview = new jsn.jsnObjectView(objview);
               modifiedObjectViews.push(jsnObjview);
-
-              // const modifiedObjViews = new Array();
-              // modifiedObjViews.push(jsnObjview);
-              // modifiedObjViews.map(mn => {
-              //   let data = mn;
-              //   data = JSON.parse(JSON.stringify(data));
-              //   myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              // })
-
               uic.addItemToList(modifiedObjectViews, jsnObjview);
               // if (debug) console.log('966 objview, jsnObjview', objview, jsnObjview, modifiedObjectViews);
 

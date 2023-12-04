@@ -339,8 +339,10 @@ export class goNode extends goMetaObject {
     scale1:          string;
     memberscale:     string;
     strokecolor:     string;
+    strokecolor1:    string;
     strokecolor2:    string;
     fillcolor:       string;
+    fillcolor1:      string;
     fillcolor2:      string;
     viewkind:        string;
     markedAsDeleted: boolean;
@@ -355,8 +357,10 @@ export class goNode extends goMetaObject {
         this.scale1 = "1";
         this.memberscale = "";
         this.strokecolor = "";
+        this.strokecolor1 = "";
         this.strokecolor2 = "";
         this.fillcolor = "";
+        this.fillcolor1 = "";
         this.fillcolor2 = "";
         this.viewkind = "";
         this.markedAsDeleted = false;
@@ -417,6 +421,7 @@ export class goObjectNode extends goNode {
     geometry: string;
     strokewidth: string;
     textcolor: string;
+    textcolor1: string;
     textscale: string;
     icon: string;
     image: string;
@@ -442,11 +447,14 @@ export class goObjectNode extends goNode {
         this.figure         = objview.figure;
         this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
+        this.fillcolor1      = objview.fillcolor1;
         this.fillcolor2      = objview.fillcolor2;
         this.strokecolor    = objview.strokecolor;
+        this.strokecolor1   = objview.strokecolor1;
         this.strokecolor2   = objview.strokecolor2;
         this.strokewidth    = objview.strokewidth;
         this.textcolor      = objview.textcolor;
+        this.textcolor1     = objview.textcolor1;
         this.textscale      = objview.textscale;
         this.icon           = objview.icon;
         this.image          = objview.image;

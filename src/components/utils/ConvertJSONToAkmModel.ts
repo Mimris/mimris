@@ -430,7 +430,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             createObjectAndRelationships(oId, entityName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
         } else if (oName === "items") {
             if (debug) console.log("387 items  ", oName, oValProps);
-            let gchildKeyName: string, gchildKeyNameId: string;
+            // let gchildKeyName: string, gchildKeyNameId: string;
             if (debug) console.log("385  items", parentName.substring(oName.length - 3));
             if (parentName.substring(parentName.length - 3) === "Set") {
                 // if the parent ends with Set, it is a collection
@@ -445,14 +445,20 @@ export const ReadConvertJSONFromFileToAkm = async (
                 parentName?.includes("IDs")) {
                 const oMName = parentName.substring(0, parentName.length - 1);
                 createCollectionObject(oMName, oId, oKey, oVal, osduType, jsonType, oValProps);
-                if (debug) console.log("391 ConvertJSON...", oMName, oId, oKey, osduType, jsonType, oValProps);
+                if (!debug) console.log("448 ConvertJSON...", oMName, oId, oKey, osduType, jsonType, oValProps);
             } else if (oVal.allOf) {
                 if (debug) console.log("394  items", oName, oValProps);
-                gchildKeyNameId = Object.keys(oVal?.allOf[0]?.properties).find((k) => k.includes("ID"));
-                gchildKeyName = gchildKeyName?.replace("ID", "");
-                if (gchildKeyName) {
-                    createAllOfObject(gchildKeyName, gchildKeyNameId, oId, oKey, oVal, osduType, jsonType, oValProps);
+                if (parentName.substring(0, parentName.length-1)=== 's') { // we create a object in collection without s at the end
+                    const oOName = parentName.substring(0, parentName.length - 1); // remove s from end of parentName
+                    const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "EntityType")?.id;
+                    if (!debug) console.log("454 ConvertJSON...", oId, oOName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                    createObjectAndRelationships(oId, oOName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 }
+                // gchildKeyNameId = Object.keys(oVal?.allOf[0]?.properties).find((k) => k.includes("ID"));
+                // gchildKeyName = gchildKeyName?.replace("ID", "");
+                // if (gchildKeyName) {
+                //     createAllOfObject(gchildKeyName, gchildKeyNameId, oId, oKey, oVal, osduType, jsonType, oValProps);
+                // }
             }
         } else if (inclProps && oName === "required") {
             if (debug) console.log("406 required ", oName, oVal, oValProps);
@@ -1161,8 +1167,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         const reltypeName = containsType?.name;
         const relshipKind = "Association";
         createObject(oId, oMName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-        if (debug)
-            console.log("398 Markers/Intervals=Collections", oId, oMName, objecttypeRef, oKey, jsonType, oValProps);
+        if (debug)console.log("398 Markers/Intervals=Collections", oId, oMName, objecttypeRef, oKey, jsonType, oValProps);
         findOwnerandCreateRelationship(osduObj);
     }
 

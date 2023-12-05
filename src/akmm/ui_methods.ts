@@ -7,6 +7,7 @@ const debug = false;
 // import * as go from 'gojs';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
+import * as uic from '../akmm/ui_common';
 import * as uid from '../akmm/ui_diagram';
 import * as jsn from './ui_json';
 // import * as uic from '../akmm/ui_common';
@@ -28,7 +29,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
     let object = objview.object;
     if (object)
         object = myMetis.findObject(object.id);
-    if (objview && object) {
+    if (objview && object && objview.loc) {
         const nodeLoc = objview.loc.split(" ");
         const nx = parseInt(nodeLoc[0]);
         const ny = parseInt(nodeLoc[1]);
@@ -72,6 +73,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             if (toObjtype.isContainer())
                                 oview.viewkind = constants.viewkinds.CONT;
                             toObjview = oview;
+                            const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
+                            toObjview = uic.setObjviewColors(goNode, myDiagram);
                             const jsnObjview = new jsn.jsnObjectView(toObjview);
                             modifiedObjectViews.push(jsnObjview);
                         }
@@ -114,6 +117,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         const locx = useinp ? nx - 300 : nx + 300;
                         const locy = ny - diff + cnt * 100;
                         const loc = locx + " " + locy;
+                        const name = toObj.name;
                         toObjview.loc = loc;
                         goNode.loc = loc;
                         if (debug) console.log('114 goNode', goNode);
@@ -121,36 +125,39 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         myDiagram.model.addNodeData(goNode);
                         const gjsNode = myDiagram.findNodeForKey(goNode?.key)
                         gjsNode.isSelected = true;
+                        if (toObjview) {
+                            // const node = goModel.findNodeByViewId(toObjview.id);
+                            toObjview = uic.setObjviewColors(goNode, myDiagram);
+                            objectviews.push(toObjview);
+                        }
+                        // The objectview has been created
                         const jsnObjview = new jsn.jsnObjectView(toObjview);
                         modifiedObjectViews.push(jsnObjview);
-                    }
-                    if (toObjview)
-                        objectviews.push(toObjview);
-                    // The objectview has been created
-                    // Now create a relship view and a link from object to toObj
-                    const oviewFrom = useinp ? toObjview : objview;
-                    const oviewTo = useinp ? objview : toObjview;
-                    const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
-                    if (!relviews2 || relviews2?.length == 0) {
-                        const id2 = utils.createGuid();
-                        const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
-                        relview.fromObjview = oviewFrom;
-                        relview.toObjview = oviewTo;
-                        rel.addRelationshipView(relview);
-                        modelview.addRelationshipView(relview);
-                        myMetis.addRelationshipView(relview);
-                        const jsnRelView = new jsn.jsnRelshipView(relview);
-                        modifiedRelshipViews.push(jsnRelView);
-                        myDiagram.startTransaction("add relship view");
-                        const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
-                        goLink.loadLinkContent(goModel);
-                        goLink.fromNode = uid.getNodeByViewId(oviewFrom.id, myDiagram);
-                        goLink.from = goLink.fromNode?.key;
-                        if (debug) console.log('147 node, goLink', node, goLink);
-                        goModel.addLink(goLink);
-                        myDiagram.model.addLinkData(goLink);
-                        myDiagram.commitTransaction("add relship view");
-                    }                   
+                        // Now create a relship view and a link from object to toObj
+                        const oviewFrom = useinp ? toObjview : objview;
+                        const oviewTo = useinp ? objview : toObjview;
+                        const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
+                        if (!relviews2 || relviews2?.length == 0) {
+                            const id2 = utils.createGuid();
+                            const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
+                            relview.fromObjview = oviewFrom;
+                            relview.toObjview = oviewTo;
+                            rel.addRelationshipView(relview);
+                            modelview.addRelationshipView(relview);
+                            myMetis.addRelationshipView(relview);
+                            const jsnRelView = new jsn.jsnRelshipView(relview);
+                            modifiedRelshipViews.push(jsnRelView);
+                            myDiagram.startTransaction("add relship view");
+                            const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+                            goLink.loadLinkContent(goModel);
+                            goLink.fromNode = uid.getNodeByViewId(oviewFrom.id, myDiagram);
+                            goLink.from = goLink.fromNode?.key;
+                            if (debug) console.log('147 node, goLink', node, goLink);
+                            goModel.addLink(goLink);
+                            myDiagram.model.addLinkData(goLink);
+                            myDiagram.commitTransaction("add relship view");
+                        } 
+                    }                  
                 }
             }
         }

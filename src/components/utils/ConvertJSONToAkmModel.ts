@@ -365,7 +365,6 @@ export const ReadConvertJSONFromFileToAkm = async (
         const parentName = oKey?.split("|")?.slice(-2, -1)[0]; // parentName ; split and slice it, pick second last element
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";
         // ==================== -------------------- ==================== -------------------- ====================
-
         // first we create the objects ----------------------------------------------------------------------
         if (index === 0) {
             // the first object is the main-object (topObj)
@@ -393,22 +392,30 @@ export const ReadConvertJSONFromFileToAkm = async (
                 // if the value is a primitive type
                 if (!debug) console.log("394 ", oId, oName, oKey, oValProps);
                 createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-            } else if (inclProps && oVal.type === "string" || oVal.type === "number" || oVal === "integer") {
+            } else if (inclProps && oVal.type === "string" || oVal.type === "number" || oVal.type === "integer" || oVal.type === "object") {  //Todo: object should be handeled different
                 // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type
                 // objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
                 if (!debug) console.log("408 ",oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj);
                 // createObjectAndRelationships(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 processPrimitiveType(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+            } else if (oVal["$ref"] && inclAbstractPropLinks) {
+                if (debug) console.log("339 $ref ", oName, oValProps);
+                const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
+                const typeRest = oVal["$ref"].split("/").slice(-1)[0];
+                oValProps.title = typeRest?.split(".")[0];
+                oValProps.linkID = typeRest?.split(".")[0]?.replace("Abstract", "");
+                const entityName = `Is${oValProps.title}`;
+                createObjectAndRelationships(oId, entityName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 // }
-            } else if (inclProps) {
-                //
-                if (!debug) console.log("510 ", oName, oValProps);
-                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps); // create Property
-                if (debug) console.log("525  array", oId, oName, objecttypeRef, oKey, jsonType, oValProps);
-                findOwnerandCreateRelationship(osduObj, curModel);
-            } else {
-                console.log("411  object not imported", oName);
+                // } else if (inclProps) {
+                //     //
+                //     if (!debug) console.log("510 ", oName, oValProps);
+                //     objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
+                //     createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps); // create Property
+                //     if (debug) console.log("525  array", oId, oName, objecttypeRef, oKey, jsonType, oValProps);
+                //     findOwnerandCreateRelationship(osduObj, curModel);
+                // } else {
+                //     console.log("411  object not imported", oName);
             }
         } else if (oVal["$ref"] && inclAbstractPropLinks) {
             if (debug) console.log("339 $ref ", oName, oValProps);
@@ -453,7 +460,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             const newCVal = { required: newlist };
             const reqType = "required";
             if (debug) console.log("542 required ", oValProps);
-            createPropertyObject(oId, reqType, osduType, jsonType, newCVal, osduObj);
+            createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
         } else if (inclGeneric) {
             // the rest we GenericObjects
             if (debug) console.log("412 rest ", oName, oVal, oValProps);

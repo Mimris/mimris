@@ -27,7 +27,7 @@ export const setColorsTopEntityTypes = (osduType: string) => {
         case 'Manifest':
             return '#F9C846';
         default:
-            return '#DDDDDD';
+            return '';
     }
 }
 

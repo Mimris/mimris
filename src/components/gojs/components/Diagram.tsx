@@ -3378,23 +3378,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   public render() {
     // Handle property dialogs
     let useTabs = true;
-    if (debug) console.log('2863 Diagram: ', this.props.nodeDataArray);
-    if (debug) console.log('2864 Diagram: ', this.props.linkDataArray);
     let selObj = this.state.selectedData;
     if (debug) console.log('2866 selObj: ', selObj);
     const myMetis = this.myMetis;
     const myModel = myMetis.currentModel;
     const myMetamodel = myModel.metamodel;
-    let modalContent, inspector, selector, header, category, typename;
+    let modalContent, header, category;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('2872 modalContext ', modalContext);
     let selpropgroup = [{ tabName: 'Default' }];
     if (modalContext?.what === 'editObject') {
       let includeInherited = false;
       let includeConnected = false;
       let obj = this.state.selectedData?.object;
       const obj1 = this.myMetis.findObject(obj?.id);
-      if (debug) console.log('2879 obj, obj1', obj, obj1);
       if (obj1?.type?.name === 'Method')
         useTabs = false;
       if (obj1?.hasInheritedProperties(myModel)) {
@@ -3415,8 +3411,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
       const connectedRoles = obj1.getConnectedObjectRoles(myMetis);
-      if (debug) console.log('2900 context, obj1, namelist', context, obj1, namelist);
-      if (debug) console.log('2901 connectedRoles', connectedRoles);
       selpropgroup = [];
       for (let i = 0; i < namelist.length; i++) {
         let name = namelist[i];
@@ -3429,8 +3423,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
       }
-      if (debug) console.log('2913 modalContext, selpropgroup, namelist', modalContext, selpropgroup, namelist);
-      // selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ];
     }
     switch (modalContext?.what) {
       case 'selectDropdown':
@@ -3526,40 +3518,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         header = modalContext.title;
         category = selObj.category;
         if (selObj !== null && this.myMetis != null) {
-          if (false) {
-            // code for extracting the g element from the svg
-            // https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/tiger.html
-            if (this.state.selectedData.icon?.includes('<svg')) {
-              const svgString = this.state.selectedData.icon;
-              console.log('3012 svgString', svgString);
-              // const xmldoc = new DOMParser().parseFromString(svgString, 'text/xml');
-              const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
-              // get g element
-              const g = svg?.getElementsByTagName('g')[0];
-              // get path elements
-              const paths = g?.getElementsByTagName('path');
-
-              console.log('3018 g', g, 'paths ', paths);
-              // get all paths path data
-              const pathData = [];
-              for (let i = 0; i < paths?.length; i++) {
-                pathData.push(paths[i].getAttribute('d'));
-              }
-              console.log('3025 pathData', pathData);
-              // concatinating of the paths in array
-              const pathD =
-                pathData.reduce((acc, val) => {
-                  return acc + val;
-                }, '');
-              console.log('3028 pathD', pathD);
-              // selectedData = { ...this.state.selectedData, geometry: pathD };
-              // this.setState({ selectedData });
-              // if (this.state.selectedData.geometry === '') {
-              selectedData = { selectedData: { ...this.state.selectedData, objectview: { ...this.state.selectedData.objectview, geometry: pathD } } };
-              // }
-              if (debug) console.log('3038 selectedData, modalContext: ', this.state.selectedData, modalContext);
-            }
-          }
           modalContent =
             <div className="modal-prop">
               <SelectionInspector
@@ -3570,7 +3528,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 activeTab={this.state.currentActiveTab}
               />
             </div>
-          if (debug) console.log('3021 selectedData, modalContent: ', this.state.selectedData, modalContent);
         }
         break;
       case 'editRelationshipType':
@@ -3583,7 +3540,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         typename = (modalContext.typename) ? '(' + modalContext.typename + ')' : '(' + this.state.selectedData.object?.typeName + ')'
 
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2615 Diagram ', this.state.selectedData, this.state.modalContext, modalContext);
           modalContent =
             <div className="modal-prop" >
               <SelectionInspector
@@ -3646,13 +3602,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </TabPane>
         </TabContent>
       </>
-
-
-
-    if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
-    if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ',
-      this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
-
     return (
       <div>
         <ReactDiagram

@@ -2482,6 +2482,8 @@ export function isOsduAttribute(k: string): boolean {
     switch (k) {
         case '$id':
         case '$schema':
+        case 'osduId':
+        case 'osduType':
         case 'x-osdu-license':
         case 'x-osdu-review-status':
         case 'x-osdu-schema-source':

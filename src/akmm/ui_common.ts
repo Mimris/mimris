@@ -2477,6 +2477,23 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     return retVal;
 }
 
+export function isOsduAttribute(k: string): boolean {
+    let retVal = false;
+    switch (k) {
+        case '$id':
+        case '$schema':
+        case 'x-osdu-license':
+        case 'x-osdu-review-status':
+        case 'x-osdu-schema-source':
+            retVal = true;
+            break;
+        default:
+            break;
+    }
+    return retVal;
+}
+
+
 function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
     const metamodels = metis.metamodels;
     for (let i=0; i<metamodels?.length; i++) {

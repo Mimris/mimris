@@ -457,7 +457,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               if (!found) {
                 // Check if k should NOT be included in the modal
                 if (!uic.isPropIncluded(k, type)) {
-                  continue;
+                  if (!uic.isOsduAttribute(k))
+                    continue;
                 }
               }
             } 

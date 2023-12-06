@@ -115,8 +115,8 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
   const [inclGeneric, setInclGeneric ] = useState(false)
   const [inclAbstract, setInclAbstract ] = useState(false)
-  const [inclReference, setinclReference ] = useState(false)
-  const [inclMasterdata, setinclMasterdata ] = useState(false)
+  const [inclReference, setInclReference ] = useState(false)
+  const [inclMasterdata, setInclMasterdata ] = useState(false)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(false)
   
 
@@ -198,7 +198,7 @@ const importDirectory = async (fileOrDirectory) => {
           inclAbstract,
           inclReference,
           inclMasterdata,
-          inclWorkProduct,
+          // inclWorkProduct,
           inclWorkProductComponent,
            
           "AKM", 
@@ -312,43 +312,45 @@ const importFile = async (e) => {
                     directory="true"
                   />
                   {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
-                    Include EntityTypes:
+                  <div className='mt-2'> Include EntityTypes:</div>
                   <div className="d-flex justify-content-between align-items-center my-2 border label-input-container"> 
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }} >
                       <label className="flex-grow-1 text-secondary" htmlFor="inclMasterdata">Master data</label>
                       <input className="checkbox-input" type="checkbox" checked={inclMasterdata} onChange={handleInclMasterdata} />
                     </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }} >
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
                       <label className="flex-grow-1 text-secondary " htmlFor="inclWorkProductComp" >Work Product Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
                     </span>
-                    <span className="bg-light d-flex align-items-center p-2" style={{ height: "100%" }} >
-                      <label className="flex-grow-1" htmlFor="inclAbstract">Abstract</label>
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
                     </span>
-                    <span className="bg-light d-flex align-items-center p-2" style={{ height: "100%" }} >
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference</label>
+                    <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclReference} onChange={handleInclReference} />
-                    </span>
-                  </div>
-                  <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
-                    <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
-                      <label className="flex-grow-1" htmlFor="inclProps">Include Properties</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclProps} onChange={handleInclProps} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Include Property Links</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Include Abstract Property Links</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
                       <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
                     </span>
+                  </div>
+                  <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                  <div className='mt-2'> Include Properties and Links (relationships):</div>
+                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
+                    <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
+                      <label className="flex-grow-1" htmlFor="inclProps">Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclProps} onChange={handleInclProps} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Property Links</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract Property Links</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
+                    </span>
+
                   </div>
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>

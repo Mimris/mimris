@@ -32,7 +32,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     inclAbstract: boolean,
     inclReference: boolean,
     inclMasterdata: boolean,
-    inclWorkProduct: boolean,
+    // inclWorkProduct: boolean,
     inclWorkProductComponent: boolean,
 
 
@@ -366,8 +366,15 @@ export const ReadConvertJSONFromFileToAkm = async (
     // map through the osduArray and create objects and relationships between the objects
     const osduObjects = osduArray?.map((osduObj, index) => {
         const [oId, oKey, oVal] = osduObj;
+        if (!debug) console.log("369 :", oKey, oVal, osduObj);
+
+        if (!inclMasterdata && oVal['x-osdu-schema-source']?.includes("master-data")) return; // skip masterdata
+        // if (!inclWorkProduct && oVal['x-osdu-schema-source'].includes("work-product")) return; // skip work-product
+        if (!inclWorkProductComponent && oVal['x-osdu-schema-source']?.includes("work-product-component")) return; // skip work-product-component
+        if (!inclReference && oVal['x-osdu-schema-source']?.includes("reference")) return; // skip reference
+        if (!inclAbstract && oVal['x-osdu-schema-source']?.includes("abstract")) return; // skip abstract
+
         let oName = oKey?.split("|")?.slice(-1)[0]; // objectName ; split and slice it, pick last element, which is the object name
-        if (debug) console.log("456 :", oName, oKey, oVal);
         const oValProps = filterObject(oVal); // filter away subobjects, we only want attributes in oValProps (objects are handled in the next iteration)
         const parentName = oKey?.split("|")?.slice(-2, -1)[0]; // parentName ; split and slice it, pick second last element
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";

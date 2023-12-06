@@ -512,8 +512,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         const myToNodes = [];
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
-          const key = n.key;
-          const myLoc = new String(n.data.loc);
           if (!(n instanceof go.Node)) continue;
           const myToNode = {
             "key": n.data.key,

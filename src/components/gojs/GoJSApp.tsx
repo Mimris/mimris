@@ -302,7 +302,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = node.data;
           if (data.category === "Object type") 
             continue;  
-            node.scale = data.scale;     
+          node.scale = data.scale;     
           node.loc = data.loc;
           node.size = data.size;
           const object = data.object;
@@ -515,10 +515,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key = n.key;
           const myLoc = new String(n.data.loc);
           if (!(n instanceof go.Node)) continue;
-          const nod = myGoModel.findNode(key);
-          if (nod) {
-            let newScale = new String(n.data.scale1);
-            if (debug) console.log('447 n.data, nod, myScale', n.data, nod, newScale);
+          // const nod = myGoModel.findNode(key);
+          // if (nod) {
+          //   let newScale = new String(n.data.scale1);
+            // if (debug) console.log('447 n.data, nod, myScale', n.data, nod, newScale);
             const myToNode = {
               "key": n.data.key,
               "name": n.data.name,
@@ -527,7 +527,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               "scale": new String(n.data.scale1)
             }
             myToNodes.push(myToNode);
-          }
+          // }
         }
 
         // First do the move and scale the nodes. 

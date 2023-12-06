@@ -515,21 +515,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key = n.key;
           const myLoc = new String(n.data.loc);
           if (!(n instanceof go.Node)) continue;
-          // const nod = myGoModel.findNode(key);
-          // if (nod) {
-          //   let newScale = new String(n.data.scale1);
-            // if (debug) console.log('447 n.data, nod, myScale', n.data, nod, newScale);
-            const myToNode = {
-              "key": n.data.key,
-              "name": n.data.name,
-              "group": n.data.group,
-              "loc": new String(n.data.loc),
-              "scale": new String(n.data.scale1)
-            }
-            myToNodes.push(myToNode);
-          // }
+          const myToNode = {
+            "key": n.data.key,
+            "name": n.data.name,
+            "group": n.data.group,
+            "loc": new String(n.data.loc),
+            "scale": new String(n.data.scale1)
+          }
+          myToNodes.push(myToNode);
         }
-
         // First do the move and scale the nodes. 
         let selcnt = 0;
         let refloc;

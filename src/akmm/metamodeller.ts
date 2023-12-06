@@ -8641,6 +8641,15 @@ export class cxModelView extends cxMetaObject {
         this.isTemplate = false;
         this.diagrams = null;
     }
+    clearRelviewPoints() {
+        const relshipviews = this.relshipviews;
+        if (relshipviews) {
+            for (let i=0; i<relshipviews.length; i++) {
+                const relview = relshipviews[i];
+                relview.points = null;
+            }
+        }
+    }
     setModel(model: cxModel) {
         this.model = model;
     }

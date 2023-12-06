@@ -2781,6 +2781,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               let layout = "";
               if (myMetis.modelType === 'Modelling') {
+                myModelview.clearRelviewPoints();
                 const myGoModel = myMetis.gojsModel;
                 layout = myGoModel.modelView?.layout;
               } else if (myMetis.modelType === 'Metamodelling') {
@@ -2794,31 +2795,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Save Layout",
             function (e: any, obj: any) {
-              const myMetamodel = myMetis.currentMetamodel;
-              const nodes = myDiagram.nodes;
-              const objtypegeos = [];
-              for (let it = nodes.iterator; it?.next();) {
-                const node = it.value;
-                const data = node.data;
-                const objtype = data.objecttype;
-                if (objtype) {
-                  const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, "", "");
-                  objtypeGeo.setLoc(data.loc);
-                  objtypeGeo.setSize(data.size);
-                  objtypeGeo.setModified();
-                  objtypegeos.push(objtypeGeo);
+              if (myMetis.modelType === 'Metamodelling') {
+                const myMetamodel = myMetis.currentMetamodel;
+                const nodes = myDiagram.nodes;
+                const objtypegeos = [];
+                for (let it = nodes.iterator; it?.next();) {
+                  const node = it.value;
+                  const data = node.data;
+                  const objtype = data.objecttype;
+                  if (objtype) {
+                    const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, "", "");
+                    objtypeGeo.setLoc(data.loc);
+                    objtypeGeo.setSize(data.size);
+                    objtypeGeo.setModified();
+                    objtypegeos.push(objtypeGeo);
+                  }
+                }
+                myMetamodel.objtypegeos = objtypegeos;
+              } else if (myMetis.modelType === 'Modelling') {
+                const myModelview = myMetis.currentModelview;
+                const nodes = myDiagram.nodes;
+                for (let it = nodes.iterator; it?.next();) {
+                  const node = it.value;
+                  const data = node.data;
+                  let objview = data.objectview;
+                  objview = myModelview.findObjectView(objview.id);
+                  if (objview) {
+                    objview.loc = data.loc;
+                  }
                 }
               }
-              myMetamodel.objtypegeos = objtypegeos;
               const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
               let data = {metis: jsnMetis}
               data = JSON.parse(JSON.stringify(data));
               myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
-            },
+          },
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling') 
                 return true;
-              return false;
+              else
+                return true;
             }),
           makeButton("Set Link Routing",
             function (e: any, obj: any) {

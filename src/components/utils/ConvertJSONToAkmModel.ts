@@ -15,11 +15,8 @@ import { create } from "domain";
 const debug = false;
 // read json file and convert OSDU Json format to AKM model
 export const ReadConvertJSONFromFileToAkm = async (
-    modelType: string,
-    inclProps: boolean,
-    inclPropLinks: boolean,
-    inclAbstractPropLinks: boolean,
-    inclGeneric: boolean,
+    jsonFile: string,
+    dispatch: Dispatch<any>,
     props: {
         phData: { metis: { models: any[]; metamodels: any[] } };
         phFocus: { focusModel: { id: any } };
@@ -28,8 +25,18 @@ export const ReadConvertJSONFromFileToAkm = async (
             phFocus: { focusModel: { id: string } };
         };
     },
-    dispatch: Dispatch<any>,
-    jsonFile: string
+    inclProps: boolean,
+    inclPropLinks: boolean,
+    inclAbstractPropLinks: boolean,
+    inclGeneric: boolean,
+    inclAbstract: boolean,
+    inclReference: boolean,
+    inclMasterdata: boolean,
+    inclWorkProduct: boolean,
+    inclWorkProductComponent: boolean,
+
+
+    modelType: string,
 ) => {
     // console.log('11', jsonFile)
 

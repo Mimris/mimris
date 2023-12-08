@@ -147,7 +147,6 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             myMetis.addRelationshipView(relview);
                             const jsnRelView = new jsn.jsnRelshipView(relview);
                             modifiedRelshipViews.push(jsnRelView);
-                            myDiagram.startTransaction("add relship view");
                             const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
                             goLink.loadLinkContent(goModel);
                             goLink.fromNode = uid.getNodeByViewId(oviewFrom.id, myDiagram);
@@ -155,7 +154,6 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             if (debug) console.log('147 node, goLink', node, goLink);
                             goModel.addLink(goLink);
                             myDiagram.model.addLinkData(goLink);
-                            myDiagram.commitTransaction("add relship view");
                         } 
                     }                  
                 }

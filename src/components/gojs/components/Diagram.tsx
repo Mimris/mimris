@@ -646,6 +646,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
+
+            makeButton("Add Connected Objects 2",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+            if (node.category === constants.gojs.C_OBJECT) {
+              let object = node.object;
+              if (!object) return;
+              object = myMetis.findObject(object.id);
+              const method = new akm.cxMethod(utils.createGuid(), 'generateosduId', "");
+              method["reldir"] = '';
+              method["reltype"] = 'hasPart';
+              method["typecondition"] = null;
+              method["valuecondition"] = null;
+              method["preaction"] = "generateosduId";
+              method["propname"] = "osduId";
+              method["noLevels"] = "1";
+              const args = {
+                "method": method
+              }
+              const context = {
+                "myMetis": myMetis,
+                "myModel": myMetis.currentModel,
+                "myDiagram": myDiagram,
+                "myObject": object,
+                "args": args
+              }
+              ui_mtd.executeMethod(context);
+            }
+          },
+          function (o: any) {
+            const node = o.part.data;
+            if (node.category === constants.gojs.C_OBJECT) {
+              return false;
+            }
+            return false;
+          }),
+
           makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -3383,7 +3420,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const myMetis = this.myMetis;
     const myModel = myMetis.currentModel;
     const myMetamodel = myModel.metamodel;
-    let modalContent, header, category;
+    let modalContent,header, category, typename;
     const modalContext = this.state.modalContext;
     let selpropgroup = [{ tabName: 'Default' }];
     if (modalContext?.what === 'editObject') {

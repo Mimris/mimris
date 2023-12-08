@@ -7478,10 +7478,13 @@ export class cxInstance extends cxMetaObject {
     }
     // Methods
     setAndGetAllProperties(metis: cxMetis): cxProperty[] | null {
-        const typeprops = this.type?.getProperties(true);
+        let type = metis.findObjectType(this.type.id);
+        if (!type)
+            return null;
+        const typeprops = type.getProperties(true);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
-        if (this.type?.name === 'Method') {
+        if (type.name === 'Method') {
             const mtdtype = this["methodtype"];
             if (mtdtype) {
                 const metamodel = metis.currentMetamodel;

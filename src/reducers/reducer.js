@@ -1504,43 +1504,41 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_DATATYPE_PROPERTIES;
 
     case UPDATE_METHODTYPE_PROPERTIES:
-      if (debug) console.log('1621 UPDATE_METHODTYPE_PROPERTIES', action);
-      let curmomttot3 = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-      if (debug) console.log('1623', curmoddtot3)
-      let curmmmtot = state.phData?.metis?.metamodels?.find(m => m.id === curmomttot3.targetMetamodelRef)
-      curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmomttot3.targetMetamodelRef)
-      curddot = curmmmtot?.methodtypes?.find(ot => ot.id === action?.data?.id)
-      lengthotdd = curmmmtot?.methodtypes?.length
-      indexddot = curmmmtot?.methodtypes?.findIndex(ot => ot.id === curmtot?.id)
-      if (indexddot < 0) { indexddot = lengthotdd }
-      if (debug) console.log('1630 reducer', lengthotdd, curmtddot, indexddot);
-      let retval_UPDATE_METHODTYPE_PROPERTIES = {
-        ...state,
-        phData: {
-          ...state.phData,
-          metis: {
-            ...state.phData.metis,
-            metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmddindexot),
-              {
-                ...state.phData.metis.metamodels[curmmddindexot],
-                methods: [
-                  ...curmtddot?.methodtypes.slice(0, indexddot),
-                  {
-                    ...curmtddot?.methodtypes[indexddot],
-                    ...action.data,
-                  },
-                  ...curmtddot?.methods.slice(indexddot + 1, curmmtdot?.methods.length)
-                ]
-              },
-              ...state.phData.metis.metamodels.slice(curmmddindexot + 1, state.phData.metis.metamodels.length),
-            ]
+        let curmomttot3 = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+        let curmmmtot = state.phData?.metis?.metamodels?.find(m => m.id === curmomttot3.targetMetamodelRef)
+        let curmmmtindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmomttot3.targetMetamodelRef)
+        let curmtot = curmmmtot?.methodtypes?.find(ot => ot.id === action?.data?.id)
+        const lengthotmt = curmmmtot?.methodtypes?.length
+        let indexdotmt = curmmmtot?.methodtypes?.findIndex(ot => ot.id === curmtot?.id)
+        if (indexdotmt < 0) { indexdotmt = lengthotmt }
+        if (debug) console.log('1630 reducer', lengthotmt, curmtddot, indexdotmt);
+        let retval_UPDATE_METHODTYPE_PROPERTIES = {
+          ...state,
+          phData: {
+            ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0, curmmmtindexot),
+                {
+                  ...state.phData.metis.metamodels[curmmmtindexot],
+                  methods: [
+                    ...curmmmtot?.methodtypes.slice(0, indexdotmt),
+                    {
+                      ...curmmmtot?.methodtypes[indexdotmt],
+                      ...action.data,
+                    },
+                    ...curmmmtot?.methods.slice(indexdotmt + 1, curmmmtot?.methods.length)
+                  ]
+                },
+                ...state.phData.metis.metamodels.slice(curmmmtindexot + 1, state.phData.metis.metamodels.length),
+              ]
+            },
           },
-        },
-      }
-      if (debug) console.log('1660 retval', retval_UPDATE_METHODTYPE_PROPERTIES);
-      return retval_UPDATE_METHODTYPE_PROPERTIES;
-
+        }
+        if (debug) console.log('1660 retval', retval_UPDATE_METHODTYPE_PROPERTIES);
+        return retval_UPDATE_METHODTYPE_PROPERTIES;
+  
     case UPDATE_PROPERTY_PROPERTIES:
       // if (debug) console.log('501 UPDATE_PROPERTY_PROPERTIES', action);
       let curmopot = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
@@ -1575,18 +1573,16 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      
     case UPDATE_METHOD_PROPERTIES:
-      if (debug) console.log('1541 UPDATE_METHOD_PROPERTIES', action);
       let curmoddtot = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-      if (debug) console.log('1543', curmoddtot)
       let metamodelRef = curmoddtot.metamodelRef;
-      curmmddot = state.phData?.metis?.metamodels?.find(m => m.id === metamodelRef)
-      curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelRef)
-      curddot = curmmddot?.methods?.find(ot => ot.id === action?.data?.id)
-      lengthotdd = curmmddot?.methods?.length
-      indexddot = curmmddot?.methods?.findIndex(ot => ot.id === curddot?.id)
-      if (indexddot < 0) { indexddot = lengthotdd }
-      if (debug) console.log('1551 reducer', lengthotdd, indexddot, state.phData);
+      let curmtddot = state.phData?.metis?.metamodels?.find(m => m.id === metamodelRef)
+      let curmtddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelRef)
+      let curmddot = curmtddot?.methods?.find(ot => ot.id === action?.data?.id)
+      let lengthotmdd = curmtddot?.methods?.length
+      let indexmddot = curmtddot?.methods?.findIndex(ot => ot.id === curmddot?.id)
+      if (indexmddot < 0) { indexmddot = lengthotmdd }
       let retval_UPDATE_METHOD_PROPERTIES = {
         ...state,
         phData: {
@@ -1594,19 +1590,19 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmddindexot),
+              ...state.phData.metis.metamodels.slice(0, curmtddindexot),
               {
-                ...state.phData.metis.metamodels[curmmddindexot],
+                ...state.phData.metis.metamodels[curmtddindexot],
                 methods: [
-                  ...curmmddot?.methods.slice(0, indexddot),
+                  ...curmtddot?.methods.slice(0, indexmddot),
                   {
-                    ...curmmddot?.methods[indexddot],
+                    ...curmtddot?.methods[indexmddot],
                     ...action.data,
                   },
-                  ...curmmddot?.methods.slice(indexddot + 1, curmmddot?.methods.length)
+                  ...curmtddot?.methods.slice(indexmddot + 1, curmtddot?.methods.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmddindexot + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmtddindexot + 1, state.phData.metis.metamodels.length),
             ]
           },
         },

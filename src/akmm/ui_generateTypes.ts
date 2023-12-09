@@ -734,10 +734,9 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
 //     }
 // }
 
-export function generateMethodType(obj: akm.cxObject, context: any) {
+export function generateMethodType(obj: akm.cxObject, context: any): akm.cxMethodType {
     const myMetis  = context.myMetis;
     const myModel  = context.myModel;
-    const myDiagram = context.myDiagram;
     const object   = myMetis.findObject(obj.id);
     const name     = object.name;
     const descr    = object.description;
@@ -746,16 +745,11 @@ export function generateMethodType(obj: akm.cxObject, context: any) {
         return null;
     let mtdtype   = myTargetMetamodel?.findMethodTypeByName(name);
     if (!mtdtype) {
-        if (debug) console.log('582 mtdtype name:', name);
-        const mtype = myMetis.findMethodTypeByName(name);
-        if (debug) console.log('584 dtype:', mtype);
-        if (mtype) {
-            myTargetMetamodel.addMethodType(mtype);
-        } else {
-            mtdtype = new akm.cxMethodType(utils.createGuid(), name, descr);
-            myTargetMetamodel.addMethodType(mtdtype);
-            myMetis.addMethodType(mtdtype);  
-        }      
+        mtdtype = new akm.cxMethodType(utils.createGuid(), name, descr);
+        myTargetMetamodel.addMethodType(mtdtype);
+        myMetis.addMethodType(mtdtype);  
+    } else {
+        mtdtype.properties = new Array();
     }
     if (debug) console.log('593 mtdtype', mtdtype, myTargetMetamodel);
     if (mtdtype) {
@@ -764,16 +758,7 @@ export function generateMethodType(obj: akm.cxObject, context: any) {
         getAllPropertytypes(obj, typeprops, myModel);
         if (debug) console.log('598 typeprops, myMetis', typeprops, myMetis);
         addProperties(mtdtype, typeprops, context);
-        if (debug) console.log('600 mtdtype', mtdtype);
-        const jsnMtdType = new jsn.jsnMethodType(mtdtype);
-        if (debug) console.log('602 jsnMtdType', jsnMtdType);
-        const modifiedObjectTypes = new Array();
-        modifiedObjectTypes.push(jsnMtdType);
-        modifiedObjectTypes.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_METHODTYPE_PROPERTIES', data })
-        });
+        return mtdtype;
     }
 }
 
@@ -1183,6 +1168,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const myDiagram   = context.myDiagram;
     let targetMetamodel = context.myTargetMetamodel as akm.cxMetaModel;
     const modifiedMethods      = new Array();
+    const modifiedMethodTypes  = new Array();
     const modifiedObjectTypes  = new Array();
     const modifiedObjTypeViews = new Array();
     const modifiedTypeGeos     = new Array();
@@ -1232,8 +1218,18 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (objects) {
         for (let i=0; i<objects.length; i++) {
             let obj = objects[i];
-            if (obj && !obj.markedAsDeleted)
-                generateMethodType(obj, context);
+            if (obj && !obj.markedAsDeleted) {
+                let mtdType = targetMetamodel.findMethodTypeByName(obj.name);
+                if (mtdType) {
+                    const mtdId = mtdType.id;
+                    mtdType.properties = [];
+                    mtdType = generateMethodType(obj, context);
+                    targetMetamodel.addMethodType(mtdType);
+                    myMetis.addMethodType(mtdType);
+                    const jsnMtdType = new jsn.jsnMethodType(mtdType);
+                    modifiedMethodTypes.push(jsnMtdType);
+                }
+            }
         }
     }
     // For each Method object call generateMethod
@@ -1679,6 +1675,17 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     myMetis.addMetamodel(targetMetamodel);
 
     // Do the dispatches
+    modifiedMethods.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_METHOD_PROPERTIES', data })
+    });
+    modifiedMethodTypes.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_METHODTYPE_PROPERTIES', data })
+    });
+
     modifiedObjectTypes.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));

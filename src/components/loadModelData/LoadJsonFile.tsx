@@ -116,7 +116,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclGeneric, setInclGeneric ] = useState(false)
   const [inclAbstract, setInclAbstract ] = useState(false)
   const [inclReference, setInclReference ] = useState(false)
-  const [inclMasterdata, setInclMasterdata ] = useState(false)
+  const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(false)
   
 
@@ -234,8 +234,13 @@ const importFile = async (e) => {
             inclProps, 
             inclPropLinks, 
             inclAbstractPropLinks, 
-            inclGeneric, 
-
+            inclGeneric,
+            inclAbstract,
+            inclReference,
+            inclMasterdata,
+            // inclWorkProduct,
+            inclWorkProductComponent,
+            
             "AKM", 
           ) 
         })
@@ -350,7 +355,6 @@ const importFile = async (e) => {
                       <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract Property Links</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
                     </span>
-
                   </div>
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>

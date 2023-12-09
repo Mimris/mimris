@@ -118,7 +118,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
     const genrel = propLinks.forEach(o => {
         // use the linkID to find the top object
-        if (!debug) console.log('109 ', o.name, o.title, o.id, o.linkID, o);
+        if (debug) console.log('109 ', o.name, o.title, o.id, o.linkID, o);
         if (debug) console.log('110 ', o.linkID);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkID)
         if (debug) console.log('112 ', o, o.linkID, targetObject);
@@ -170,11 +170,11 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
                 if (debug) console.log('170 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
                 if (o["$ref"]?.includes('abstract')) {
                     // if (fromrelName === 'Abstract' || torelName === 'Abstract' || torelName === 'ReferenceData') {
-                    if (!debug) console.log('160 ', fromrelName, fromobjectName, torelName, toobjectName);
+                    if (debug) console.log('160 ', fromrelName, fromobjectName, torelName, toobjectName);
                     relName = 'Is'
                     createRel(relId, relName, relDescription, relTitle, relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 } else {
-                    if (!debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
+                    if (debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
                     relName = o.name //'refersTo'
                     createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 }

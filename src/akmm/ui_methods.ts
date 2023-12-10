@@ -18,7 +18,7 @@ import * as constants from '../akmm/constants';
 const RegexParser = require("regex-parser");
 
 export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, 
-                                    goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number) {
+                                    goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, reltypeNames: string) {
     if (noLevels < 1)
         return;
     const objectviews = [];
@@ -47,6 +47,20 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         continue;
                     if (rel.markedAsDeleted)
                         continue;
+                    if (reltypeNames) {
+                        let found = false;
+                        // split names by comma
+                        const names = reltypeNames.split(",");
+                        for (let j=0; j<names.length; j++) {
+                            const name = names[j];
+                            if (rel.type.name === name) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                            continue;
+                    }
                     rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
                     let toObj;
                     if (useinp) 

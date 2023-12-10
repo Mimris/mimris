@@ -198,6 +198,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public handleOpenModal(node, modalContext) {
+    // Is implemented in "render" at the bottom of this file
     this.setState({
       selectedData: node,
       modalContext: modalContext,
@@ -646,43 +647,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-
-            makeButton("Add Connected Objects 2",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-            if (node.category === constants.gojs.C_OBJECT) {
-              let object = node.object;
-              if (!object) return;
-              object = myMetis.findObject(object.id);
-              const method = new akm.cxMethod(utils.createGuid(), 'generateosduId', "");
-              method["reldir"] = '';
-              method["reltype"] = 'hasPart';
-              method["typecondition"] = null;
-              method["valuecondition"] = null;
-              method["preaction"] = "generateosduId";
-              method["propname"] = "osduId";
-              method["noLevels"] = "1";
-              const args = {
-                "method": method
-              }
-              const context = {
-                "myMetis": myMetis,
-                "myModel": myMetis.currentModel,
-                "myDiagram": myDiagram,
-                "myObject": object,
-                "args": args
-              }
-              ui_mtd.executeMethod(context);
-            }
-          },
-          function (o: any) {
-            const node = o.part.data;
-            if (node.category === constants.gojs.C_OBJECT) {
-              return false;
-            }
-            return false;
-          }),
-
           makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -3413,7 +3377,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   };
 
   public render() {
-    // Handle property dialogs
+    // Implements handleOpenModal (property dialogs)
     let useTabs = true;
     let selObj = this.state.selectedData;
     if (debug) console.log('2866 selObj: ', selObj);
@@ -3427,7 +3391,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let includeInherited = false;
       let includeConnected = false;
       let obj = this.state.selectedData?.object;
-      const obj1 = this.myMetis.findObject(obj?.id);
+      let obj1 = this.myMetis.findObject(obj?.id);
+      if (!obj1) obj1 = obj;
       if (obj1?.type?.name === 'Method')
         useTabs = false;
       if (obj1?.hasInheritedProperties(myModel)) {
@@ -3448,6 +3413,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
       const connectedRoles = obj1.getConnectedObjectRoles(myMetis);
+      // Define the tabs
       selpropgroup = [];
       for (let i = 0; i < namelist.length; i++) {
         let name = namelist[i];

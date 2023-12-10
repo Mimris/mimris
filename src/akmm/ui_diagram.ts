@@ -641,7 +641,11 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const objview = node?.objectview;
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
-    ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels);
+    let reltypes = 'all';
+    reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
+    if (reltypes === 'all') 
+        reltypes = '';
+    ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels, reltypes);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;

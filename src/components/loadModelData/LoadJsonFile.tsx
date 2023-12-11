@@ -112,6 +112,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   const [inclProps, setInclProps ] = useState(false)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
+  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
   const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
   const [inclGeneric, setInclGeneric ] = useState(false)
   const [inclAbstract, setInclAbstract ] = useState(false)
@@ -122,6 +123,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   const handleInclProps = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
+  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties);};
   const handleInclAbstractPropLinks = () => { setInclAbstractPropLinks(!inclAbstractPropLinks);};
   const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
   const handleInclAbstract = () => { setInclAbstract(!inclAbstract);};
@@ -193,6 +195,7 @@ const importDirectory = async (fileOrDirectory) => {
           props.ph,
           inclProps, 
           inclPropLinks, 
+          inclXOsduProperties,
           inclAbstractPropLinks, 
           inclGeneric,
           inclAbstract,
@@ -273,8 +276,6 @@ const importFile = async (e) => {
     //   return entry;
     // };
 
-
-
     // const getDirectoryEntries = async (entry) => {
     //   const entries = [];
     //   for await (const item of entry.values()) {
@@ -327,13 +328,13 @@ const importFile = async (e) => {
                       <label className="flex-grow-1 text-secondary " htmlFor="inclWorkProductComp" >Work Product Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
                     </span>
-                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract Components</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
-                    </span>
                     <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }} >
                       <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclReference} onChange={handleInclReference} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract Components</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
@@ -354,6 +355,10 @@ const importFile = async (e) => {
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract Property Links</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x-osdu-.... Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
                     </span>
                   </div>
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}

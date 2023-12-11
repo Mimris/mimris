@@ -14,12 +14,11 @@ import * as jsn from './ui_json';
 // import * as gen from '../akmm/ui_generateTypes';
 import * as utils from '../akmm/utilities';
 import * as constants from '../akmm/constants';
-import { use } from 'react';
 // import exp from 'constants';
 const RegexParser = require("regex-parser");
 
-export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, goModel: gjs.goModel, 
-                                    myMetis: akm.cxMetis, noLevels: number, reltypeNames: string, reldir: string) {
+export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, 
+                                    goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number) {
     if (noLevels < 1)
         return;
     const objectviews = [];
@@ -38,157 +37,128 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
-        let useinp, useoutp;
-        if (reldir === 'in') {
-            useinp = true;
-            useoutp = false;
-        } else if (reldir === 'out') {
-            useinp = false;
-            useoutp = true;
-        } else {
-            useinp = true;
-            useoutp = true;
-        }
-        let rels = [];
-        if (useinp)
-            rels = object.inputrels;
-        else if (useoutp) 
-            rels = object.outputrels;
-        else {
-            rels = object.inputrels;
-            rels = rels.concat(object.outputrels);
-        }
-        if (rels) {
-            let cnt = 0;
-            for (let i=0; i<rels.length; i++) {
-                let rel = rels[i];
-                if (!rel)
-                    continue;
-                if (rel.markedAsDeleted)
-                    continue;
-                if (reltypeNames) {
-                    let found = false;
-                    // split names by comma
-                    const names = reltypeNames.split(",");
-                    for (let j=0; j<names.length; j++) {
-                        const name = names[j];
-                        if (rel.type.name === name) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
+        for (let useinp = 0; useinp < 2; useinp++) {
+            let rels  = useinp ? object.inputrels : object.outputrels;
+            if (rels) {
+                let cnt = 0;
+                for (let i=0; i<rels.length; i++) {
+                    let rel = rels[i];
+                    if (!rel)
                         continue;
-                }
-                rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
-                let toObj;
-                if (useinp) 
-                    toObj = rel.fromObject as akm.cxObject;
-                else
-                    toObj = rel.toObject as akm.cxObject;
-                if (debug) console.log('46 toObj', toObj);
-                toObj = myMetis.findObject(toObj.id);
-                if (!toObj || toObj.markedAsDeleted)
-                    continue;
-                const toObjtype = toObj.type;
-                const toObjtypeview = toObjtype?.typeview;
-                const toTypeviewData = toObjtypeview?.data;
-                const toObjviews = toObj.objectviews;
-                // Find toObj in modelview
-                const objviews = modelview.findObjectViewsByObject(toObj);
-                let toObjview;
-                if (objviews && objviews.length >0) {
-                    for (let j=0; j<objviews.length; j++) {   
-                        const oview = objviews[j];
-                        if (oview.markedAsDeleted) {
-                            oview.markedAsDeleted = false;
+                    if (rel.markedAsDeleted)
+                        continue;
+                    rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
+                    let toObj;
+                    if (useinp) 
+                        toObj = rel.fromObject as akm.cxObject;
+                    else
+                        toObj = rel.toObject as akm.cxObject;
+                    if (debug) console.log('46 toObj', toObj);
+                    toObj = myMetis.findObject(toObj.id);
+                    if (!toObj || toObj.markedAsDeleted)
+                        continue;
+                    const toObjtype = toObj.type;
+                    const toObjtypeview = toObjtype?.typeview;
+                    const toTypeviewData = toObjtypeview?.data;
+                    const toObjviews = toObj.objectviews;
+                    // Find toObj in modelview
+                    const objviews = modelview.findObjectViewsByObject(toObj);
+                    let toObjview;
+                    if (objviews && objviews.length >0) {
+                        for (let j=0; j<objviews.length; j++) {   
+                            const oview = objviews[j];
+                            if (oview.markedAsDeleted) {
+                                oview.markedAsDeleted = false;
+                            }
+                            if (toObjtype.isContainer())
+                                oview.viewkind = constants.viewkinds.CONT;
+                            toObjview = oview;
+                            const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
+                            toObjview = uic.setObjviewColors(goNode, myDiagram);
+                            const jsnObjview = new jsn.jsnObjectView(toObjview);
+                            modifiedObjectViews.push(jsnObjview);
                         }
-                        if (toObjtype.isContainer())
-                            oview.viewkind = constants.viewkinds.CONT;
-                        toObjview = oview;
+                        // Create relship views and links to the found objviews if they do not exist
+                        let relviews;
+                        if (useinp) {
+                            relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
+                            if (relviews.length == 0) i++;
+                        } else { // output rels
+                            relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
+                            if (relviews?.length == 0) i++;
+                        }
+                        if (debug) console.log('1637 rel, relview', rel, relviews);                    
+                        // if (relviews.length > 0)
+                        //     continue;    
+                    } else {
+                        cnt++;
+                        // Create an objectview of toObj and then a node
+                        const id1 = utils.createGuid();
+                        toObjview = new akm.cxObjectView(id1, toObj.name, toObj, "");
+                        toObj.addObjectView(toObjview);
+                        modelview.addObjectView(toObjview);
+                        myMetis.addObjectView(toObjview);
                         const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
-                        toObjview = uic.setObjviewColors(goNode, myDiagram);
+                        if (toObjviews && toTypeviewData) {
+                            const oview = toObjviews[0];
+                            for (let prop in toTypeviewData) {
+                                if (oview[prop] !== "") {
+                                    toObjview[prop] = oview[prop];
+                                    myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
+                                } else
+                                    myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
+                            }
+                        } else if (toTypeviewData) {
+                            for (let prop in toTypeviewData) {
+                                myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
+                            }
+                        }
+                        const diff = 100; // noLevels>0 ? 50 : 100;
+                        const locx = useinp ? nx - 300 : nx + 300;
+                        const locy = ny - diff + cnt * 100;
+                        const loc = locx + " " + locy;
+                        const name = toObj.name;
+                        toObjview.loc = loc;
+                        goNode.loc = loc;
+                        if (debug) console.log('114 goNode', goNode);
+                        goModel.addNode(goNode);
+                        myDiagram.model.addNodeData(goNode);
+                        const gjsNode = myDiagram.findNodeForKey(goNode?.key)
+                        gjsNode.isSelected = true;
+                        if (toObjview) {
+                            // const node = goModel.findNodeByViewId(toObjview.id);
+                            toObjview = uic.setObjviewColors(goNode, myDiagram);
+                            objectviews.push(toObjview);
+                        }
+                        // The objectview has been created
                         const jsnObjview = new jsn.jsnObjectView(toObjview);
                         modifiedObjectViews.push(jsnObjview);
-                    }
-                    // Create relship views and links to the found objviews if they do not exist
-                    let relviews;
-                    if (useinp) {
-                        relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
-                        if (relviews.length == 0) i++;
-                    } else { // output rels
-                        relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
-                        if (relviews?.length == 0) i++;
-                    }
-                    if (debug) console.log('1637 rel, relview', rel, relviews);                    
-                    // if (relviews.length > 0)
-                    //     continue;    
-                } else {
-                    cnt++;
-                    // Create an objectview of toObj and then a node
-                    const id1 = utils.createGuid();
-                    toObjview = new akm.cxObjectView(id1, toObj.name, toObj, "");
-                    toObj.addObjectView(toObjview);
-                    modelview.addObjectView(toObjview);
-                    myMetis.addObjectView(toObjview);
-                    const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
-                    if (toObjviews && toTypeviewData) {
-                        const oview = toObjviews[0];
-                        for (let prop in toTypeviewData) {
-                            if (oview[prop] !== "") {
-                                toObjview[prop] = oview[prop];
-                                myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
-                            } else
-                                myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
-                        }
-                    } else if (toTypeviewData) {
-                        for (let prop in toTypeviewData) {
-                            myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
-                        }
-                    }
-                    const diff = 100; // noLevels>0 ? 50 : 100;
-                    const locx = useinp ? nx - 300 : nx + 300;
-                    const locy = ny - diff + cnt * 100;
-                    const loc = locx + " " + locy;
-                    const name = toObj.name;
-                    toObjview.loc = loc;
-                    goNode.loc = loc;
-                    if (debug) console.log('114 goNode', goNode);
-                    goModel.addNode(goNode);
-                    myDiagram.model.addNodeData(goNode);
-                    const gjsNode = myDiagram.findNodeForKey(goNode?.key)
-                    gjsNode.isSelected = true;
-                    if (toObjview) {
-                        // const node = goModel.findNodeByViewId(toObjview.id);
-                        toObjview = uic.setObjviewColors(goNode, myDiagram);
-                        objectviews.push(toObjview);
-                    }
-                    // The objectview has been created
-                    const jsnObjview = new jsn.jsnObjectView(toObjview);
-                    modifiedObjectViews.push(jsnObjview);
-                    // Now create a relship view and a link from object to toObj
-                    const oviewFrom = useinp ? toObjview : objview;
-                    const oviewTo = useinp ? objview : toObjview;
-                    const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
-                    if (!relviews2 || relviews2?.length == 0) {
-                        const id2 = utils.createGuid();
-                        const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
-                        relview.fromObjview = oviewFrom;
-                        relview.toObjview = oviewTo;
-                        rel.addRelationshipView(relview);
-                        modelview.addRelationshipView(relview);
-                        myMetis.addRelationshipView(relview);
-                        const jsnRelView = new jsn.jsnRelshipView(relview);
-                        modifiedRelshipViews.push(jsnRelView);
-                        const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
-                        goLink.loadLinkContent(goModel);
-                        goLink.fromNode = uid.getNodeByViewId(oviewFrom.id, myDiagram);
-                        goLink.from = goLink.fromNode?.key;
-                        if (debug) console.log('147 node, goLink', node, goLink);
-                        goModel.addLink(goLink);
-                        myDiagram.model.addLinkData(goLink);
-                    } 
-                }                  
+                        // Now create a relship view and a link from object to toObj
+                        const oviewFrom = useinp ? toObjview : objview;
+                        const oviewTo = useinp ? objview : toObjview;
+                        const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
+                        if (!relviews2 || relviews2?.length == 0) {
+                            const id2 = utils.createGuid();
+                            const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
+                            relview.fromObjview = oviewFrom;
+                            relview.toObjview = oviewTo;
+                            rel.addRelationshipView(relview);
+                            modelview.addRelationshipView(relview);
+                            myMetis.addRelationshipView(relview);
+                            const jsnRelView = new jsn.jsnRelshipView(relview);
+                            modifiedRelshipViews.push(jsnRelView);
+                            myDiagram.startTransaction("add relship view");
+                            const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+                            goLink.loadLinkContent(goModel);
+                            goLink.fromNode = uid.getNodeByViewId(oviewFrom.id, myDiagram);
+                            goLink.from = goLink.fromNode?.key;
+                            if (debug) console.log('147 node, goLink', node, goLink);
+                            goModel.addLink(goLink);
+                            myDiagram.model.addLinkData(goLink);
+                            myDiagram.commitTransaction("add relship view");
+                        } 
+                    }                  
+                }
             }
         }
         myDiagram.requestUpdate();
@@ -207,7 +177,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         noLevels--;
         for (let i=0; i<objectviews?.length; i++) {
             const oview = objectviews[i];
-            addConnectedObjects(modelview, oview, goModel, myMetis, noLevels, reltypeNames, reldir);
+            addConnectedObjects(modelview, oview, goModel, myMetis, noLevels);
         }
     }
 }

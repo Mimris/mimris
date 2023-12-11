@@ -1224,7 +1224,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Select connected objects",
+            makeButton("Select connected objects",
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
@@ -1260,6 +1260,57 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               return true;
+            }),
+            makeButton("Add connected objects 2",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+
+                let noLevels = '1';
+                noLevels = prompt('Enter no of sublevels to follow', noLevels);
+                let reltypes = 'all';
+                reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
+                if (reltypes === 'all') 
+                    reltypes = '';
+                let objtypes = 'all';
+                    objtypes = prompt('Enter object types to connect to (comma seperated)', objtypes);
+                    if (objtypes === 'all') 
+                    objtypes = '';
+                let reldir = 'any';
+                reldir = prompt('Enter relationship direction to follow (in | out | any)', reldir);
+            
+                let objectview = node.objectview as akm.cxObjectView;
+                const objectviews = new Array();
+                objectviews.push(objectview);
+                const relshipviews = new Array();
+                const method = new akm.cxMethod(utils.createGuid(), 'addConnectedObjects', "");
+                method["reltype"] = reltypes;
+                method["reldir"] = reldir;
+                method["objtypecondition"] = null;
+                method["valuecondition"] = null;
+                method["preaction"] = "";
+                method["postaction"] = "Select";
+                method["propname"] = "";
+                method["level"] = 1;
+                method["noObjects"] = 0;
+                const args = {
+                  "method": method
+                }
+                const context = {
+                  "myMetis": myMetis,
+                  "myModel": myMetis.currentModel,
+                  "myModelview": myMetis.currentModelview,
+                  "myDiagram": myDiagram,
+                  "args": args,
+                  "objectviews": objectviews,
+                  "relshipviews": relshipviews,
+                  "currentObjectview": objectview,
+                }
+                ui_mtd.executeMethod(context);
+              }
+            },
+            function (o: any) {
+              return false;
             }),
           makeButton("Generate osduIds",
             function (e: any, obj: any) {

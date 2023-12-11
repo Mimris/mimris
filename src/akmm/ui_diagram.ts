@@ -2,7 +2,6 @@
 const debug = false; 
 import * as go from 'gojs';
 import * as utils from './utilities';
-import * as uib from './ui_buildmodels';
 import * as uic from './ui_common';
 import * as uit from './ui_templates';
 import * as ui_mtd from './ui_methods';
@@ -371,8 +370,6 @@ export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
     const modelviewName = prompt("Enter Modelview name:", "");
     if (modelviewName == null || modelviewName === "") {
       alert("New operation was cancelled");
-    } else  if (modelviewName === '_INSTANCES') {
-        uib.buildInstancesModelview(myMetis, myDiagram.dispatch, model);
     } else {
       const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
       modelView.diagram = myDiagram;
@@ -641,13 +638,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const objview = node?.objectview;
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
-    let reltypes = 'all';
-    reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
-    if (reltypes === 'all') 
-        reltypes = '';
-    let reldir = 'any';
-    reldir = prompt('Enter relationship direction to follow (in | out | any)', reldir);
-    ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir);
+    ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;

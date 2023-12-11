@@ -695,7 +695,7 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
         // Handle deleteViewsOnly
         if (myMetis.deleteViewsOnly) {
             relview.markedAsDeleted = deletedFlag;
-            relship?.removeRelationshipView(relview);
+            // relship?.removeRelationshipView(relview);
             if (debug) console.log('707 deleteLink', relship, relview);
             return;
         }
@@ -713,7 +713,7 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
                         rview.markedAsDeleted = deletedFlag;
                         if (debug) console.log('725 rview', rview);
                         // Handle relshiptypeview
-                        deleteRelshipTypeView(rview, deletedFlag);
+                        // deleteRelshipTypeView(rview, deletedFlag);
                     }
                 }
            }
@@ -1168,116 +1168,113 @@ export function createRelationship(data: any, context: any) {
     let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
     const toPort = data.toPort;
     let reltype;
-    if (!reltype) {
-        let fromType = fromNode?.objecttype;
-        let toType   = toNode?.objecttype;
-        fromType = myMetamodel.findObjectType(fromType?.id);
-        toType   = myMetamodel.findObjectType(toType?.id);
-        if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
-        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
-        if (fromType) {
-            fromType.allObjecttypes = myMetamodel.objecttypes;
-            fromType.allRelationshiptypes = myMetamodel.relshiptypes;
+    let fromType = fromNode?.objecttype;
+    let toType   = toNode?.objecttype;
+    fromType = myMetamodel.findObjectType(fromType?.id);
+    toType   = myMetamodel.findObjectType(toType?.id);
+    if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
+    if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
+    if (fromType) {
+        fromType.allObjecttypes = myMetamodel.objecttypes;
+        fromType.allRelationshiptypes = myMetamodel.relshiptypes;
+    }
+    if (toType) {
+        toType.allObjecttypes = myMetamodel.objecttypes;
+        toType.allRelationshiptypes = myMetamodel.relshiptypes;
+    }
+    let metamodel = myMetamodel;
+    let metamodel2 = myMetamodel;
+    const submetamodels = myMetamodel.submetamodels;
+    if (!fromType) {
+        for (let i=0; i<submetamodels.length; i++) {
+            let mmodel = submetamodels[i];
+            fromType = mmodel.findObjectType(fromNode?.object?.typeRef);
+            if (fromType) {
+                metamodel = mmodel;
+                break;
+            }
         }
-        if (toType) {
-            toType.allObjecttypes = myMetamodel.objecttypes;
-            toType.allRelationshiptypes = myMetamodel.relshiptypes;
+    }
+    if (!toType) {
+        for (let i=0; i<submetamodels.length; i++) {
+            let mmodel = submetamodels[i];
+            toType   = mmodel.findObjectType(toNode?.object?.typeRef);
+            if (toType) { 
+                metamodel2 = mmodel;
+                break;
+            }
         }
-        let metamodel = myMetamodel;
-        let metamodel2 = myMetamodel;
-        const submetamodels = myMetamodel.submetamodels;
-        if (!fromType) {
-            for (let i=0; i<submetamodels.length; i++) {
-                let mmodel = submetamodels[i];
-                fromType = mmodel.findObjectType(fromNode?.object?.typeRef);
-                if (fromType) {
-                    metamodel = mmodel;
-                    break;
+    }
+    myMetamodel = metamodel;
+    const relshiptypes = metamodel.relshiptypes;
+    for (let i=0; i<relshiptypes.length; i++) {
+        const rtype = relshiptypes[i];
+        myMetis.fixObjectTypeRefs(rtype);
+    }
+    if (fromType && toType) {
+        const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
+        let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;
+        let includeInherited = false;
+        if (myModelview.includeInheritedReltypes) {
+            includeInherited = true;
+        }
+        let reltypes = [];
+        if (metamodel.id === metamodel2.id) {
+            reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+        } else {
+            const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+            for (let i=0; i<rtypes.length; i++) {
+                const rtype = rtypes[i];
+                if (rtype.name === 'generic') {
+                    reltypes.push(rtype);
+                }
+                if (rtype.name === 'refersTo') {
+                    reltypes.push(rtype);
                 }
             }
         }
-        if (!toType) {
-            for (let i=0; i<submetamodels.length; i++) {
-                let mmodel = submetamodels[i];
-                toType   = mmodel.findObjectType(toNode?.object?.typeRef);
-                if (toType) { 
-                    metamodel2 = mmodel;
-                    break;
-                }
+        if (reltypes) {
+            const choices1: string[] = [];
+            if (defText.length > 0) choices1.push(defText);
+            let choices2: string[]  = [];
+            for (let i=0; i<reltypes.length; i++) {
+                const rtype = reltypes[i];
+                choices2.push(rtype.name);  
+            }  
+            choices2 = [...new Set(choices2)];
+            choices2.sort();
+            let choices = choices1.concat(choices2);
+            choices = utils.removeArrayDuplicates(choices);
+            // Calling routine to select reltype from list
+            const args = {
+                data: data,
+                typename: defText,
+                fromType: fromType,
+                toType: toType,
+                nodeFrom: nodeFrom,
+                nodeTo: nodeTo,
+                fromPort: fromPort,
+                toPort: toPort,
+                diagramModel: myDiagram.diagramModel,
+                context: context
             }
-        }
-        myMetamodel = metamodel;
-        const relshiptypes = metamodel.relshiptypes;
-        for (let i=0; i<relshiptypes.length; i++) {
-            const rtype = relshiptypes[i];
-            myMetis.fixObjectTypeRefs(rtype);
-        }
-        if (fromType && toType) {
-            const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
-            let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;
-            let includeInherited = false;
-            if (myModelview.includeInheritedReltypes) {
-                includeInherited = true;
-            }
-            let reltypes = [];
-            if (metamodel.id === metamodel2.id) {
-                reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            } else {
-                const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-                for (let i=0; i<rtypes.length; i++) {
-                    const rtype = rtypes[i];
-                    if (rtype.name === 'generic') {
-                        reltypes.push(rtype);
-                    }
-                    if (rtype.name === 'refersTo') {
-                        reltypes.push(rtype);
-                    }
-                }
-            }
-
-            if (reltypes) {
-                const choices1: string[] = [];
-                if (defText.length > 0) choices1.push(defText);
-                let choices2: string[]  = [];
-                for (let i=0; i<reltypes.length; i++) {
-                    const rtype = reltypes[i];
-                    choices2.push(rtype.name);  
-                }  
-                choices2 = [...new Set(choices2)];
-                choices2.sort();
-                let choices = choices1.concat(choices2);
-                choices = utils.removeArrayDuplicates(choices);
-                // Calling routine to select reltype from list
-                const args = {
-                    data: data,
-                    typename: defText,
-                    fromType: fromType,
-                    toType: toType,
-                    nodeFrom: nodeFrom,
-                    nodeTo: nodeTo,
-                    fromPort: fromPort,
-                    toPort: toPort,
-                    diagramModel: myDiagram.diagramModel,
-                    context: context
-                }
-                const modalContext = {
-                    what: "selectDropdown",
-                    title: "Select Relationship Type",
-                    case: "Create Relationship",
-                    myDiagram: myDiagram,
-                    myMetamodel: metamodel,
-                    context: context,
-                    data: data,
-                    typename: defText,
-                    fromType: fromType,
-                    toType: toType,
-                    nodeFrom: nodeFrom,
-                    portFrom: fromPort,
-                    nodeTo: nodeTo,
-                    portTo: toPort,
-                } 
-                context.handleOpenModal(choices, modalContext);
-            }
+            const modalContext = {
+                what: "selectDropdown",
+                title: "Select Relationship Type",
+                case: "Create Relationship",
+                myDiagram: myDiagram,
+                myMetamodel: metamodel,
+                context: context,
+                data: data,
+                typename: defText,
+                fromType: fromType,
+                toType: toType,
+                nodeFrom: nodeFrom,
+                portFrom: fromPort,
+                nodeTo: nodeTo,
+                portTo: toPort,
+            } 
+            context.handleOpenModal(choices, modalContext);
         }
     }
 }
@@ -1347,7 +1344,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
 
         let link = myGoModel.findLink(data.key);
         uid.resetToTypeview(link, myMetis, myDiagram); 
-
+        relshipview.markedAsDeleted = false;
         relship.addRelationshipView(relshipview);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
@@ -2084,6 +2081,7 @@ export function createLink(data: any, context: any): any {
                         relshipview.textscale = "";
                         relshipview.fromport = fromPort;
                         relshipview.toport = toPort;
+                        relshipview.markedAsDeleted = false;
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
                         data.relshipview = relshipview;

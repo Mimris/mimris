@@ -1324,6 +1324,7 @@ export class cxMetis {
                     if (debug) console.log("1076 item, relview: ", item, relview);
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
+                    relview.markedAsDeleted = item.markedAsDeleted;
                     relview.template = item.template;
                     if (debug) console.log("1078 item, relview: ", item.markedAsDeleted, relview.markedAsDeleted);
                     if (debug) console.log("1079 item, relview: ", item, relview);

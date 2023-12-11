@@ -318,6 +318,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
           const link = it.value;
+          const data = link.data;
+          if (data.category === "Relationship") {
+            const relview = data.relshipview;
+            relview.markedAsDeleted = data.markedAsDeleted;
+          }
         }
         break;
       }

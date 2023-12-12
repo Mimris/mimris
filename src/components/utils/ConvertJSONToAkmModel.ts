@@ -447,7 +447,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 // } else {
                 //     console.log("411  object not imported", oName);
             } else {
-                console.log("450  object not imported", oName);
+                console.log("450  object not imported", oName, oVal, oValProps);
             }
         } else if (oVal["$ref"] && inclAbstractPropLinks) {
             if (debug) console.log("436 $ref ", oName, oValProps);
@@ -516,6 +516,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 oName.includes("x-osdu-review-status") ||
                 oName.includes("x-osdu-virtual-properties") ||
                 oName.includes("x-osdu-inheriting-from-kind") ||
+                oName.includes("x-osdu-side-car-type-to") ||
                 oName.includes("x-osdu-supported-file-formats")
             )
             ) {

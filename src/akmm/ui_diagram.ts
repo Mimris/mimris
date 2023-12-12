@@ -644,7 +644,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     let reltypes = 'all';
     reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
     if (reltypes === 'all') 
-        reltypes = '';
+        reltypes = 'all';
     let reldir = 'any';
     reldir = prompt('Enter relationship direction to follow (in | out | any)', reldir);
     ui_mtd.addConnectedObjects(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir);

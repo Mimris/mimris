@@ -28,6 +28,8 @@ export const setColorsTopEntityTypes = (osduType: string) => {
             return '#F9C846';
         case 'Items':
             return '#DDDDDD';
+        case 'object':
+            return '#DDDDDD'; 
         default:
             return '';
     }

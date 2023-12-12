@@ -54,11 +54,13 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
         let relDescription = description || '';
         let strokeColor = '';
-        if (linkObj && linkObj.description && typeof linkObj.description === 'string' && linkObj.description.includes('DEPRECATED:')) {
-            relName = 'DEPRECATED:' + relName;
-            relDescription = relDescription + ' ' + linkObj.description;
-            strokeColor = 'red';
-        }
+        if (linkObj.description && linkObj.description.includes('DEPRECATED:')) return // skip deprecated relationships 
+        // if (linkObj && linkObj.description && typeof linkObj.description === 'string' && linkObj.description.includes('DEPRECATED:')) {
+        //     relName = 'DEPRECATED:' + relName;
+        //     relDescription = relDescription + ' ' + linkObj.description;
+        //     strokeColor = 'red';
+        // }
+        
         const rel = (fromobjectId && toobjectId) 
             &&   {
                     id: relId,

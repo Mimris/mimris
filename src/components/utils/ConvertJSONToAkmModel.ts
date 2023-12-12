@@ -417,7 +417,8 @@ export const ReadConvertJSONFromFileToAkm = async (
             } else if (inclProps &&  // proplinks and properties
                 oVal.type === "string" || 
                 oVal.type === "number" || 
-                oVal.type === "integer"
+                oVal.type === "integer" ||
+                oVal.type === "boolean"
                 ) 
                 {  
                 // if the value is a primitive type
@@ -428,7 +429,8 @@ export const ReadConvertJSONFromFileToAkm = async (
                 // if the value is an object
                 if (debug) console.log("417 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
                 processEntityType(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-            } else if (oVal["$ref"] && inclAbstractPropLinks) {
+            } else if (oVal && typeof oVal["$ref"] === 'string' && inclAbstractPropLinks) {
+                // Perform necessary operations with oValProps
                 if (!debug) console.log("433 $ref ", oName, oValProps);
                 const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
                 const typeRest = oVal["$ref"].split("/").slice(-1)[0];
@@ -436,18 +438,8 @@ export const ReadConvertJSONFromFileToAkm = async (
                 oValProps.linkID = typeRest?.split(".")[0]?.replace("Abstract", "");
                 const entityName = `Is${oValProps.title}`;
                 createObjectAndRelationships( oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-                // }
-                // } else if (inclProps) {
-                //     //
-                //     if (debug) console.log("510 ", oName, oValProps);
-                //     objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
-                //     createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps); // create Property
-                //     if (debug) console.log("525  array", oId, oName, objecttypeRef, oKey, jsonType, oValProps);
-                //     findOwnerandCreateRelationship(osduObj, curModel);
-                // } else {
-                //     console.log("411  object not imported", oName);
             } else {
-                console.log("450  object not imported", oName, oVal, oValProps);
+                console.log("450  object not imported", oName, oVal, oVal['$ref'], oValProps, inclAbstractPropLinks);
             }
         } else if (oVal["$ref"] && inclAbstractPropLinks) {
             if (debug) console.log("436 $ref ", oName, oValProps);

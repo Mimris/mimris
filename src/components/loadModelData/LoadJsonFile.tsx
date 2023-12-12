@@ -202,8 +202,7 @@ const importDirectory = async (fileOrDirectory) => {
           inclReference,
           inclMasterdata,
           // inclWorkProduct,
-          inclWorkProductComponent,
-           
+          inclWorkProductComponent,      
           "AKM", 
         );
       };
@@ -236,6 +235,7 @@ const importFile = async (e) => {
             props.ph,
             inclProps, 
             inclPropLinks, 
+            inclXOsduProperties,
             inclAbstractPropLinks, 
             inclGeneric,
             inclAbstract,

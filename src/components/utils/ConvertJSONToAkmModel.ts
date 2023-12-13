@@ -30,6 +30,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     inclPropLinks: boolean,
     inclXOsduProperties: boolean,
     inclAbstractPropLinks: boolean,
+    inclArrayProperties: boolean,
     inclGeneric: boolean,
     inclAbstract: boolean,
     inclReference: boolean,
@@ -49,7 +50,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     const curModel = props.phData?.metis.models.find((m: { id: any }) => m.id === props.phFocus.focusModel.id);
     if (!curModel) return;
     const objects = curModel?.objects;
-    if (debug) console.log("14 ", props.phFocus.focusModel, curModel, props.phData.metis.models);
+    if (debug) console.log("14 ", jsonFile);
 
     const curMetamodel = props.phData.metis.metamodels.find((mm: { id: any }) => mm.id === curModel.metamodelRef);
     const curObjTypes = curMetamodel.objecttypes;
@@ -205,7 +206,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     // if (debug) console.log('121 osduSchema', osduSchema)
 
     const osduSchema = JSON.parse(jsonFile.toString()); // imported JSON file
-    if (debug) console.log("121 osduSchema", osduSchema);
+    if (!debug) console.log("121 osduSchema", osduSchema);
 
     let parentId = null; //topModel.id || osduSchema["$id"]
     let mainArray = [];
@@ -405,7 +406,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             } else if (inclProps && oVal["x-osdu-frame-of-reference"]) {// if the value is a frame of reference we create a property object
                 if (debug) console.log("399 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-            } else if (oVal["x-osdu-indexing"] || oVal.type === "array") { // if the value is x-osdu-indexing or an array we create a collection object 
+            } else if (inclArrayProperties && oVal["x-osdu-indexing"] || oVal.type === "array") { // if the value is x-osdu-indexing or an array we create a collection object 
                 // its and array of objects, we use Collection objecttype
                 // } else if (oVal.type === 'array') { // if the value is an array we create a collection object
                 osduType = "Collection";
@@ -1167,7 +1168,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             //     if (debug) console.log("352 ID", oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
             //     findOwnerandCreateRelationship(osduObj, curModel);
             // } else 
-        if (inclPropLinks && oName.substring(oName.length - 4) === "Type") {
+        if (inclPropLinks && oName.length > 4 && oName.substring(oName.length - 4) === "Type") {
             oValProps.linkID = oName;
             const propLinkName = "has" + oName;
             objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;

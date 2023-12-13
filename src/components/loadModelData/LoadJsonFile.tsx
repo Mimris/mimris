@@ -114,6 +114,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
   const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
   const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
+  const [inclArrayProperties, setInclArrayProperties ] = useState(false)
   const [inclGeneric, setInclGeneric ] = useState(false)
   const [inclAbstract, setInclAbstract ] = useState(false)
   const [inclReference, setInclReference ] = useState(true)
@@ -130,6 +131,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const handleInclReference = () => { setInclReference(!inclReference);};
   const handleInclMasterdata = () => { setInclMasterdata(!inclMasterdata);};
   const handleInclWorkProductComponent = () => { setInclWorkProductComponent(!inclWorkProductComponent);};
+  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
 
 
 // const fetchData = async () => {
@@ -196,7 +198,8 @@ const importDirectory = async (fileOrDirectory) => {
           inclProps, 
           inclPropLinks, 
           inclXOsduProperties,
-          inclAbstractPropLinks, 
+          inclAbstractPropLinks,
+          inclArrayProperties, 
           inclGeneric,
           inclAbstract,
           inclReference,
@@ -219,11 +222,11 @@ const importFile = async (e) => {
         let files = Array.from(e.target.files)
         console.log('125', files);
         let filess = files.map(file => {
-          if (debug) console.log('126 file', file);          
+          if (debug) console.log('126 file', file);
             let reader = new FileReader();
-            return new Promise((resolve) => {              
-                reader.onload = () => resolve(reader.result);              
-                reader.readAsText(file);             
+            return new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result);
+                reader.readAsText(file);
             });        
         });
         if (debug) console.log('12 files', filess);
@@ -236,14 +239,14 @@ const importFile = async (e) => {
             inclProps, 
             inclPropLinks, 
             inclXOsduProperties,
-            inclAbstractPropLinks, 
+            inclAbstractPropLinks,
+            inclArrayProperties, 
             inclGeneric,
             inclAbstract,
             inclReference,
             inclMasterdata,
             // inclWorkProduct,
             inclWorkProductComponent,
-            
             "AKM", 
           ) 
         })
@@ -359,6 +362,10 @@ const importFile = async (e) => {
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x-osdu-.... Properties</label>
                       <input className="checkbox-input" type="checkbox" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
                     </span>
                   </div>
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}

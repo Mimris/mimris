@@ -117,7 +117,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclArrayProperties, setInclArrayProperties ] = useState(false)
   const [inclGeneric, setInclGeneric ] = useState(false)
   const [inclAbstract, setInclAbstract ] = useState(false)
-  const [inclReference, setInclReference ] = useState(true)
+  const [inclReference, setInclReference ] = useState(false)
   const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
 
@@ -165,21 +165,37 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   if (debug) console.log('172', buttonLabel);
 
   // import files and import them as objects to the project 
-const importFilesRecursive = async (files) => {
-  for (const file of files) {
-    if (file.isDirectory) {
-      const subFiles = await file.getFiles();
-      await importFilesRecursive(subFiles);
-    } else if (file.type === 'application/json') {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const fileContent = reader.result;
-        ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
-      };
-      reader.readAsText(file);
+// const importFilesRecursive = async (files) => {
+//   for (const file of files) {
+//     if (file.isDirectory) {
+//       const subFiles = await file.getFiles();
+//       await importFilesRecursive(subFiles);
+//     } else if (file.type === 'application/json') {
+//       const reader = new FileReader();
+//       reader.onload = async () => {
+//         const fileContent = reader.result;
+//         ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
+//       };
+//       reader.readAsText(file);
+//     }
+//   }
+// };
+
+const importDirectories = async (dir) => {
+  
+  const getSubDir = Array.from(dir.target.files).filter(file => file.isDirectory);
+  if (getSubDir.length === 0) {
+    await importDirectory(dir);
+    return;
+  } else {
+        
+    for (const directory of subDir) {
+      await importDirectory(directory);
+      const subDirectories = await getSubDirectories(directory); // Replace 'getSubDirectories' with the actual function to get subdirectories
+      await importDirectories(subDirectories);
     }
   }
-};
+}
 
 const importDirectory = async (fileOrDirectory) => {
   const files = Array.from(fileOrDirectory.target.files);
@@ -315,7 +331,7 @@ const importFile = async (e) => {
                     className="select-input w-100"
                     type="file"
                     accept=".json"
-                    onChange={importDirectory}
+                    onChange={importDirectories}
                     webkitdirectory="true"
                     directory="true"
                   />

@@ -120,7 +120,6 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclReference, setInclReference ] = useState(true)
   const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
-  
 
   const handleInclProps = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};

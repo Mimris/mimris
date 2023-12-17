@@ -321,10 +321,10 @@ const importFile = async (e) => {
             <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <h5>AKM objecttypes</h5>
-                <div className="selectbox3 mb-2 border">
-                  <h6>Import OSDU JSON-file as AKM model types</h6>
-                  <h6>(This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
-                  <label className="pt-3" htmlFor="directory">File(s)</label>
+                <div className="selectbox3 mb-1 border">
+                  <h6>Import OSDU JSON-file as AKM model types.
+                  (This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
+                  <label className="pt-1" htmlFor="directory">File(s)</label>
                   <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
                   <label className="pt-3" htmlFor="directory">or Directory</label>
                   <input
@@ -422,8 +422,7 @@ const importFile = async (e) => {
                   <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
                 </div> */}
                 <div className="selectbox2 mb-2 border">
-                  <h6>Export model as OSDU Json file </h6>
-                  <h6>(The file will be found in the download folder)</h6>
+                  <h6>Export model as OSDU Json file (The file will be found in the download folder)</h6>
                   {buttonSaveJSONToFileDiv}
                 </div>
             </div>

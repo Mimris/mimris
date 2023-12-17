@@ -90,9 +90,10 @@
   background: rgba(255,255,255,0.3);
   width: fit-content;
   height: fit-content;
+
   /* position: calc(40% - 0px); */
   top: 1%;
-  left: 40%;
+  left: 30%;
   /* transform: translate(-40%, -30%); */
 }
 
@@ -112,15 +113,19 @@
   background: rgba(255,255,255,0.6);
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
   min-height: 50vh;
+  max-height: 80vh;
+  scroll-behavior: ease-in-out;
 }
 .modal-body {
   /* max-width: auto; */
   width: fit-content;
-  min-width: 50vh;
-  height: fit-content;
+  min-width: 40vh;
+  max-width: 100vh;
+  max-height: auto;
+  /* height: fit-content; */
   background: rgba(225,225,225,0.5);
   padding: 8px;
-  position: calc(50% - 30px);
+  position: calc(40% - 30px);
   backdrop-filter: blur(5px);
 }
  

@@ -17,7 +17,8 @@ const debug = false
 const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(props.refresh);
-  if (debug) console.log('11 LoadNewModel....', props)
+
+  if (debug) console.log('20 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -51,7 +52,14 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
-  function toggleRefresh() { setRefresh(!refresh); }
+  // const [toggleRefresh, setToggleRefresh] = useState(props.toggleRefresh);
+
+  // const refreshCanvas = () => {
+  //   setTimeout(() => {
+  //     setToggleRefresh(prevToggleRefresh => !prevToggleRefresh);
+  //   }, 3000);
+  // }
+  // const toggleRefresh = () => setToggleRefresh(!toggleRefresh);
 
   const data = {
     phData:   props.ph.phData,
@@ -67,14 +75,14 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //   loadModels(usernameText, pathText)
   // }, [])
 
-  const onUsernameChange = (text) => {
-    if (text?.length > 0) {
-      if (debug) console.log('50 onUsernameChange', text)
-      setUsernameText(text);
-      setGithubLink(`http://github.com/${text}/${repoText}`);
-      if (debug) console.log('55 onUsernameChange', usernameText)
-    }
-  };
+  // const onUsernameChange = (text) => {
+  //   if (text?.length > 0) {
+  //     if (debug) console.log('50 onUsernameChange', text)
+  //     setUsernameText(text);
+  //     setGithubLink(`http://github.com/${text}/${repoText}`);
+  //     if (debug) console.log('55 onUsernameChange', usernameText)
+  //   }
+  // };
 
   const onRepoChange = (text) => {
     (text) ? setRepoText(text): setRepoText('');
@@ -309,7 +317,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
               </label>
               <span className="p-5">
                 <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+                  title="Click here when done!" onClick={() => {toggle(); }}>Done
                 </Button>
               </span>
 

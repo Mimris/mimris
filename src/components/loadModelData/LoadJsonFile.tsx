@@ -16,6 +16,9 @@ import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopEntityTypes';
 import SetColorsTopEntityTypes from '../utils/SetColorsTopEntityTypes';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
+// import LoadOpenSubsurfaceDataUniverseJson from './LoadGitLabJson'
+
+
 
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     
@@ -26,7 +29,6 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const refresh = props.refresh
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
-
 
   const modelNames = props.ph.phData?.metis?.models.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
@@ -42,7 +44,6 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
       lastUpdate: new Date().toISOString()
   }
 
-
   // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
@@ -50,18 +51,17 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     
     SaveAllToFile(data, projectname, 'Project')
     // SaveAllToFile(data, projectname, 'AKMM-Project')
-  } 
+  }
+
   // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
   // function handleSaveAllToFileDate() {
   //   const projectname = props.ph.phData.metis.name
-  //   console.log('37 LoadFile', data);
-    
+  //   console.log('37 LoadFile', data);   
   //   SaveAllToFileDate(data, projectname, 'Project')
   //   // SaveAllToFileDate(data, projectname, 'AKMM-Project')
   // }
-  
+  // Save current modelview (without instances) to a file in downloads folder
 
-  // Save current modelview (without instances) to a file in downloads foler 
   function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
@@ -101,48 +101,101 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
+
+
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+  const [gitLabJson, setGitLabJson] = useState(null);
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
   const [inclProps, setInclProps ] = useState(false)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
+  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
   const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
+  const [inclArrayProperties, setInclArrayProperties ] = useState(false)
   const [inclGeneric, setInclGeneric ] = useState(false)
+  const [inclAbstract, setInclAbstract ] = useState(false)
+  const [inclReference, setInclReference ] = useState(false)
+  const [inclMasterdata, setInclMasterdata ] = useState(true)
+  const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
 
-  const handleInclPropChange = () => { setInclProps(!inclProps);};
+  const handleInclProps = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
+  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties);};
   const handleInclAbstractPropLinks = () => { setInclAbstractPropLinks(!inclAbstractPropLinks);};
   const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
+  const handleInclAbstract = () => { setInclAbstract(!inclAbstract);};
+  const handleInclReference = () => { setInclReference(!inclReference);};
+  const handleInclMasterdata = () => { setInclMasterdata(!inclMasterdata);};
+  const handleInclWorkProductComponent = () => { setInclWorkProductComponent(!inclWorkProductComponent);};
+  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
+
+
+// const fetchData = async () => {
+//   try {
+//     const response = await fetch('https://community.opengroup.org/osdu/data/data-definitions/-/raw/master/Generated/master-data/ActivityPlan.1.2.0.json', { mode: 'no-cors' });
+//     console.log('128 LoadJsonfile', response); // Do something with the data
+//     if (response.ok) {
+//       const data = await response.json();
+//       console.log('129 LoadJsonfile', data); // Do something with the data
+//     } else {
+//       console.log('131 Error fetching data: ' + response);
+//       throw new Error('132 Error fetching data: ' + response.status);
+//     }
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
+// const handleLoadGitLabJson = async () => {
+//   fetchData();
+// };
+
 
   const buttonSaveJSONToFileDiv = 
     <button className="btn-success btn-sm text-secondary fs-5 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
-      >Save Current Model to File (not implemented yet)
+      >Save Current Model to Excel-file (not implemented yet)
       {/* onClick={handleSaveJSONToFile}>Save Current Model to File  */}
     </button >
 
   if (debug) console.log('172', buttonLabel);
 
   // import files and import them as objects to the project 
-const importFilesRecursive = async (files) => {
-  for (const file of files) {
-    if (file.isDirectory) {
-      const subFiles = await file.getFiles();
-      await importFilesRecursive(subFiles);
-    } else if (file.type === 'application/json') {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const fileContent = reader.result;
-        ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
-      };
-      reader.readAsText(file);
+// const importFilesRecursive = async (files) => {
+//   for (const file of files) {
+//     if (file.isDirectory) {
+//       const subFiles = await file.getFiles();
+//       await importFilesRecursive(subFiles);
+//     } else if (file.type === 'application/json') {
+//       const reader = new FileReader();
+//       reader.onload = async () => {
+//         const fileContent = reader.result;
+//         ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
+//       };
+//       reader.readAsText(file);
+//     }
+//   }
+// };
+
+const importDirectories = async (dir) => {
+  
+  const getSubDir = Array.from(dir.target.files).filter(file => file.isDirectory);
+  if (getSubDir.length === 0) {
+    await importDirectory(dir);
+    return;
+  } else {
+        
+    for (const directory of subDir) {
+      await importDirectory(directory);
+      const subDirectories = await getSubDirectories(directory); // Replace 'getSubDirectories' with the actual function to get subdirectories
+      await importDirectories(subDirectories);
     }
   }
-};
+}
 
 const importDirectory = async (fileOrDirectory) => {
   const files = Array.from(fileOrDirectory.target.files);
@@ -153,7 +206,23 @@ const importDirectory = async (fileOrDirectory) => {
       const reader = new FileReader();
       reader.onload = async () => {
         const fileContent = reader.result;
-        ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric,  props.ph, dispatch, fileContent);
+        ReadConvertJSONFromFileToAkm(
+          fileContent, 
+          dispatch, 
+          props.ph,
+          inclProps, 
+          inclPropLinks, 
+          inclXOsduProperties,
+          inclAbstractPropLinks,
+          inclArrayProperties, 
+          inclGeneric,
+          inclAbstract,
+          inclReference,
+          inclMasterdata,
+          // inclWorkProduct,
+          inclWorkProductComponent,      
+          "AKM", 
+        );
       };
       reader.readAsText(file);
     } else {
@@ -168,55 +237,71 @@ const importFile = async (e) => {
         let files = Array.from(e.target.files)
         console.log('125', files);
         let filess = files.map(file => {
-          if (debug) console.log('126 file', file);          
+          if (debug) console.log('126 file', file);
             let reader = new FileReader();
-            return new Promise((resolve) => {              
-                reader.onload = () => resolve(reader.result);              
-                reader.readAsText(file);             
+            return new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result);
+                reader.readAsText(file);
             });        
         });
         if (debug) console.log('12 files', filess);
         let res = await Promise.all(filess);
         res.map(r => {
-          ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, r)         
+          ReadConvertJSONFromFileToAkm(
+            r,          
+            dispatch, 
+            props.ph,
+            inclProps, 
+            inclPropLinks, 
+            inclXOsduProperties,
+            inclAbstractPropLinks,
+            inclArrayProperties, 
+            inclGeneric,
+            inclAbstract,
+            inclReference,
+            inclMasterdata,
+            // inclWorkProduct,
+            inclWorkProductComponent,
+            "AKM", 
+          ) 
         })
       
 }
 
-// const openDirectoryPicker = async () => {
-//   try {
-//     const fileHandle = await window.showDirectoryPicker();
-//     const entries = await getDirectoryEntries(fileHandle);
-//     await importFilesRecursive(entries);
-//   } catch (error) {
-//     console.error("Error selecting directory:", error);
-//   }
-// };
+  if (false) {
+    // const openDirectoryPicker = async () => {
+    //   try {
+    //     const fileHandle = await window.showDirectoryPicker();
+    //     const entries = await getDirectoryEntries(fileHandle);
+    //     await importFilesRecursive(entries);
+    //   } catch (error) {
+    //     console.error("Error selecting directory:", error);
+    //   }
+    // };
 
-// const directoryButton = document.createElement('button');
-// directoryButton.style.display = 'none';
-// document.body.appendChild(directoryButton);
+    // const directoryButton = document.createElement('button');
+    // directoryButton.style.display = 'none';
+    // document.body.appendChild(directoryButton);
 
-// directoryButton.addEventListener('click', openDirectoryPicker);
+    // directoryButton.addEventListener('click', openDirectoryPicker);
 
-// directoryButton.click();
-// };
+    // directoryButton.click();
+    // };
 
-// const getDirectoryEntry = async (directory) => {
-//   const fileHandle = await window.showDirectoryPicker();
-//   const entry = await fileHandle.getDirectoryHandle(directory);
-//   return entry;
-// };
+    // const getDirectoryEntry = async (directory) => {
+    //   const fileHandle = await window.showDirectoryPicker();
+    //   const entry = await fileHandle.getDirectoryHandle(directory);
+    //   return entry;
+    // };
 
-
-
-// const getDirectoryEntries = async (entry) => {
-//   const entries = [];
-//   for await (const item of entry.values()) {
-//     entries.push(item);
-//   }
-//   return entries;
-// };
+    // const getDirectoryEntries = async (entry) => {
+    //   const entries = [];
+    //   for await (const item of entry.values()) {
+    //     entries.push(item);
+    //   }
+    //   return entries;
+    // };
+  }
 
   return (
     <>
@@ -236,33 +321,67 @@ const importFile = async (e) => {
             <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <h5>AKM objecttypes</h5>
-                <div className="selectbox3 mb-2 border">
-                  <h6>Import OSDU JSON-file as AKM model types</h6>
-                  <h6>(This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
-                  <label className="pt-3" htmlFor="directory">File(s)</label>
+                <div className="selectbox3 mb-1 border">
+                  <h6>Import OSDU JSON-file as AKM model types.
+                  (This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
+                  <label className="pt-1" htmlFor="directory">File(s)</label>
                   <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
                   <label className="pt-3" htmlFor="directory">or Directory</label>
                   <input
                     className="select-input w-100"
                     type="file"
                     accept=".json"
-                    onChange={importDirectory}
+                    onChange={importDirectories}
                     webkitdirectory="true"
                     directory="true"
                   />
                   {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
-                  <div className="d-flex justify-content-between align-items-center my-2 border">
-                    <label className="" htmlFor="inclProps ">Include Properties</label>
-                    <input className="me-0 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
-                    <span className="ms-4 bg-secondary">|</span>
-                    <label className="ms-4  text-secondary" htmlFor="inclPropLinks ">Include Property Links</label>
-                    <input className="ms-0 " type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks}/>
-                    <span className="ms-4 bg-secondary">|</span>
-                    <label className="ms-4  text-secondary" htmlFor="inclAbstractPropLinks ">Include Abstract Property Links</label>
-                    <input className="ms-2 " type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks}/>
-                    <span className="ms-4 bg-secondary">|</span>
-                    <label className="ms-4 text-secondary" htmlFor="inclPropLinks ">Debug (Generic objects)</label>
-                    <input className="ms-0 " type="checkbox" checked={inclGeneric} onChange={handleInclGeneric}/>
+                  <div className='mt-2'> Include EntityTypes:</div>
+                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container"> 
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclMasterdata">Master data</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclMasterdata} onChange={handleInclMasterdata} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary " htmlFor="inclWorkProductComp" >Work Product Components</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference Components</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclReference} onChange={handleInclReference} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract Components</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
+                    </span>
+                  </div>
+                  <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                  <div className='mt-2'> Include Properties and Links (relationships):</div>
+                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
+                    <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
+                      <label className="flex-grow-1" htmlFor="inclProps">Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclProps} onChange={handleInclProps} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Property Links</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract Property Links</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x-osdu-.... Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
+                    </span>
                   </div>
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>
@@ -274,7 +393,10 @@ const importFile = async (e) => {
                     <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
                   </label>
                 </div> */}
-
+                    {/* <LoadGitLabJsonButton /> */}
+                {/* <button className="btn bg-primary py-1 px-2" onClick={handleLoadGitLabJson}>
+                  Load GitLab JSON
+                </button> */}
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <div className="selectbox3 mb-2">
                   <h6>Connect imported EntityTypes</h6> 
@@ -300,8 +422,7 @@ const importFile = async (e) => {
                   <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
                 </div> */}
                 <div className="selectbox2 mb-2 border">
-                  <h6>Export model as OSDU Json file </h6>
-                  <h6>(The file will be found in the download folder)</h6>
+                  <h6>Export model as OSDU Json file (The file will be found in the download folder)</h6>
                   {buttonSaveJSONToFileDiv}
                 </div>
             </div>

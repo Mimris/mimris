@@ -95,7 +95,7 @@ const CreateNewModel = (props: any) => {
             (coremetamodel !== metamodelGenerated) && coremetamodel,
             (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
           ], 
-          name: 'New-Project', 
+            name: `<New ${metamodelGenerated?.name.slice(0, -3)} Modelproject>`, 
           description: 'New Project to start modelling',
           currentModelRef: newmodel.id,
           currentModelviewRef: newmodel.modelviews[0].id,

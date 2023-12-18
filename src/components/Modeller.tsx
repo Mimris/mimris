@@ -26,6 +26,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { eventChannel } from "redux-saga";
 import { set } from "immer/dist/internal";
+import { setColorsTopEntityTypes } from "./utils/SetColorsTopEntityTypes";
 
 const debug = false;
 
@@ -354,11 +355,17 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // let ldArr = props.gojsModel?.linkDataArray || []
 
   const ndTypes = ndArr?.map((nd: any) => nd.typename)
+  
   const uniqueTypes = [...new Set(ndTypes)].sort();
 
   if (debug) console.log('349 Modeller ndTypes', uniqueTypes);
   // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr
+
+  // if OSDU import then set fillcolor according to osduType
+  nodeArray_all?.forEach((node: any) => {
+    node.fillcolor = setColorsTopEntityTypes(node.object.osduType)
+    })
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
@@ -409,11 +416,11 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     if (debug) console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
     if (selectedOption === 'In this modelview') {
       const objectviewsInThisModelview = modelview?.objectviews
-      const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
+      const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id))
     
-      const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node.typename === o.typeName && node.name === o.name)))
+      const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name))).filter((node: any) => node)
+      if (!debug) console.log('422 Palette ofilteredOnTypes', mvfilteredArr);
       setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
-      if (debug) console.log('413 Palette ofilteredOnTypes', objectsInThisModelview, mvfilteredArr, gojsobjects);
     } else if (selectedOption === 'Sorted alfabetical') {
       const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
@@ -421,8 +428,31 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     } else if (selectedOption === 'Sorted by type') {
       const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
       const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
-      if (debug) console.log('422 Palette ofilteredOnTypes', sortedByType);
-      setGojsobjects({ nodeDataArray: sortedByType, linkDataArray: ldArr });
+      // Sort the sortedByType within each type using the node.object.osduType
+      // check if the osduType is a topEntity attribute, if so then sort by the order of the topEntity attributes
+
+      const osduTypeFound = initialArr?.find((node: { object: { osduType: string; }; }) => node && (node.object.osduType));
+
+      const sortedArr = (osduTypeFound) ? 
+        sortedByType?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => (a.object.osduType > b.object.osduType) ? 1 : -1)
+          ?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => {
+            const typeOrder = {
+              'MasterData': 0,
+              'WorkProductComponent': 1,
+              'ReferenceData': 2,
+              'Abstract': 3,
+              'PropLink': 4,
+              'Property': 5,
+              'Collection': 6,
+              'Item': 7,
+            };
+            return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
+          })
+        : sortedByType;
+
+      if (!debug) console.log('422 Palette ofilteredOnTypes', sortedArr);
+      setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
+
     } else {
       const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
       if (debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);

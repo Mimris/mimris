@@ -635,6 +635,67 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
+          makeButton("Add connected objects 1",
+            function (e: any, obj: any) {
+              const myGoModel = myMetis.gojsModel;
+              let node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                node = myGoModel.findNodeByObjectId(node.object.id);
+                let noLevels = 1;
+                noLevels = prompt('Enter no of sublevels to follow', noLevels);
+                let reltypes = 'all';
+                reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
+                if (reltypes === 'all') 
+                    reltypes = '';
+                let objtypes = 'all';
+                objtypes = prompt('Enter object types to connect to (comma seperated)', objtypes);
+                if (objtypes === 'all') 
+                    objtypes = '';
+                let reldir = 'any';
+                reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
+                const objectviews = new Array();
+                const relshipviews = new Array();
+                const objects = new Array();
+                const relships = new Array();
+                let object = node.object as akm.cxObject;
+                objects.push(object);
+                let objectview = node.objectview as akm.cxObjectView;
+                objectviews.push(objectview);
+                const method = new akm.cxMethod(utils.createGuid(), 'addConnectedObjects', "");
+                method["methodtype"] = "Traverse";
+                method["reldir"] = reldir;
+                method["objtypes"] = objtypes;
+                method["reltypes"] = reltypes;
+                method["expression"] = "";
+                method["nolevels"] = noLevels;
+                method["valuecondition"] = null;
+                method["preaction"] = "addConnectedObject";
+                method["postaction"] = "Select";
+                const args = {
+                  "method": method
+                }
+                const context = {
+                  "myDiagram": myDiagram,
+                  "myMetis": myMetis,
+                  "myMetamodel": myMetis.currentMetamodel,
+                  "myModel": myMetis.currentModel,
+                  "myModelview": myMetis.currentModelview,
+                  "myGoModel": myMetis.gojsModel,
+                  "args": args,
+                  "objects": objects,
+                  "relships": relships,
+                  "objectviews": objectviews,
+                  "relshipviews": relshipviews,
+                  "currentObject": object,
+                  "currentObjectview": objectview,
+                  "traverseViews": false,
+                }
+                ui_mtd.executeMethod(context);
+              }
+            },
+            function (o: any) {
+              return false;
+            }),
           makeButton("Add Connected Objects",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1224,23 +1285,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-            makeButton("Select connected objects",
+          makeButton("Select connected objects 1",
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
+                let noLevels = 1;
+                noLevels = prompt('Enter no of sublevels to follow', noLevels);
+                let reldir = '';
+                reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
+                let reltypes = '';
+                reltypes = prompt('Enter relationship type to follow', reltypes);
+                const myModelview = myMetis.currentModelview;
                 let objectview = node.objectview as akm.cxObjectView;
+                objectview = myModelview.findObjectView(objectview.id);
                 const objectviews = new Array();
                 objectviews.push(objectview);
                 const relshipviews = new Array();
                 const method = new akm.cxMethod(utils.createGuid(), 'selectConnected', "");
-                method["reltype"] = '';
                 method["reldir"] = '';
-                method["typecondition"] = null;
+                method["objtypes"] = '';
+                method["reltypes"] = reltypes;
                 method["valuecondition"] = null;
-                method["preaction"] = "";
-                method["postaction"] = "Select";
+                method["nolevels"] = noLevels;
+                method["preaction"] = "Select";
+                method["postaction"] = "";
                 method["propname"] = "";
-                method["level"] = 1;
                 method["noObjects"] = 0;
                 const args = {
                   "method": method
@@ -1254,62 +1323,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "objectviews": objectviews,
                   "relshipviews": relshipviews,
                   "currentObjectview": objectview,
+                  "traverseViews": true,
+                  "level": 0,
                 }
                 ui_mtd.executeMethod(context);
               }
             },
             function (o: any) {
-              return true;
+              return false; 
             }),
-            makeButton("Add connected objects 2",
+          makeButton("Select Connected Objects",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-
-                let noLevels = '1';
-                noLevels = prompt('Enter no of sublevels to follow', noLevels);
-                let reltypes = 'all';
-                reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
-                if (reltypes === 'all') 
-                    reltypes = '';
-                let objtypes = 'all';
-                    objtypes = prompt('Enter object types to connect to (comma seperated)', objtypes);
-                    if (objtypes === 'all') 
-                    objtypes = '';
-                let reldir = 'any';
-                reldir = prompt('Enter relationship direction to follow (in | out | any)', reldir);
-            
-                let objectview = node.objectview as akm.cxObjectView;
-                const objectviews = new Array();
-                objectviews.push(objectview);
-                const relshipviews = new Array();
-                const method = new akm.cxMethod(utils.createGuid(), 'addConnectedObjects', "");
-                method["reltype"] = reltypes;
-                method["reldir"] = reldir;
-                method["objtypecondition"] = null;
-                method["valuecondition"] = null;
-                method["preaction"] = "";
-                method["postaction"] = "Select";
-                method["propname"] = "";
-                method["level"] = 1;
-                method["noObjects"] = 0;
-                const args = {
-                  "method": method
-                }
-                const context = {
-                  "myMetis": myMetis,
-                  "myModel": myMetis.currentModel,
-                  "myModelview": myMetis.currentModelview,
-                  "myDiagram": myDiagram,
-                  "args": args,
-                  "objectviews": objectviews,
-                  "relshipviews": relshipviews,
-                  "currentObjectview": objectview,
-                }
-                ui_mtd.executeMethod(context);
-              }
+              uid.selectConnectedObjects(node, myMetis, myDiagram);
             },
             function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                return true;
+              }
               return false;
             }),
           makeButton("Generate osduIds",
@@ -1321,8 +1353,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 object = myMetis.findObject(object.id);
                 const method = new akm.cxMethod(utils.createGuid(), 'generateosduId', "");
                 method["reldir"] = 'out';
-                method["reltype"] = 'hasPart';
-                method["typecondition"] = null;
+                method["objtypes"] = 'all';
+                method["reltypes"] = 'hasPart';
+                method["objtypecondition"] = null;
+                method["reltypecondition"] = null;
                 method["valuecondition"] = null;
                 method["preaction"] = "generateosduId";
                 method["propname"] = "osduId";
@@ -2833,6 +2867,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               let layout = "";
               if (myMetis.modelType === 'Modelling') {
+                const myModelview = myMetis.currentModelview;
                 myModelview.clearRelviewPoints();
                 const myGoModel = myMetis.gojsModel;
                 layout = myGoModel.modelView?.layout;
@@ -2841,6 +2876,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 layout = myMetamodel.layout;
               }
               setLayout(myDiagram, layout);
+              // Save layout
+              const nodes = myDiagram.nodes;
+              for (let it = nodes.iterator; it?.next();) {
+                const node = it.value;
+                const data = node.data;
+                let objview = data.objectview;
+                objview = myModelview.findObjectView(objview.id);
+                if (objview) {
+                  objview.loc = data.loc;
+                }
+              }
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
             },
             function (o: any) {
               return true;

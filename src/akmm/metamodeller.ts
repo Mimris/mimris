@@ -7738,17 +7738,11 @@ export class cxInstance extends cxMetaObject {
             let context;
             switch (mtdtype) {
                 case constants.types.MTD_AGGREGATEVALUE: {
-                    if (debug) console.log('7383 method', method);
-                    const reltype = metis.findRelationshipTypeByName(method["reltype"]);
-                    const otypename = method["objtype"];
-                    let objtype = null;
-                    if (otypename !== 'any' && otypename !== 'null')
-                        objtype = metis.findObjectTypeByName(otypename);
                     context = {
                         "myMetis":      metis,
-                        "reltype":      reltype,
+                        "reltypes":     method["reltypes"],
                         "reldir":       method["reldir"],
-                        "objtype":      objtype,
+                        "objtypes":     method["objtypes"],
                         "prop":         prop,
                     }
                     value = ui_mtd.aggregateValue(inst, context);
@@ -8616,7 +8610,7 @@ export class cxModelView extends cxMetaObject {
         this.focusObjectview = null;
         this.scale = "1";
         this.memberscale = constants.params.MEMBERSCALE;
-        this.layout = "Tree";
+        this.layout = "ForceDirected";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;

@@ -228,7 +228,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             //     parentRelType  = new akm.cxRelationshipType(utils.createGuid(), constants.types.AKM_IS, objtype, parentObjType, "");
             // }
             if (!parentType)
-                parentType = currentObj.type;
+                parentType = currentObj.type as akm.cxObjectType;
             // Connect objtype to parentType
             // First check if it already exists
             if (!parentRelType)

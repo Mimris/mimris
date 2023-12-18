@@ -200,7 +200,6 @@ let includeNoType = false;
   }
 
   export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
-    if (debug) console.log('197 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
     if (!modelview.includeInheritedReltypes)
@@ -211,18 +210,17 @@ let includeNoType = false;
       showRelshipNames = true;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     // load object views
-    let objviews = modelview?.getObjectViews();
+    let objviews = modelview?.getObjectViews() as akm.cxObjectView[];
     if (objviews) {
-      if (debug) console.log('208 modelview, objviews:', modelview, objviews);
       const focusObjview = modelview?.focusObjectview;
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
-        let objview = objviews[i];
+        let objview = objviews[i] as akm.cxObjectView;
         if (!objview.id) 
           continue;
         if (objview.name === objview.id)
           continue;
-        const obj = objview.object;
+        const obj = objview.object as akm.cxObject;
         if (!model.findObject(obj?.id)) 
           continue;
         if (!objview.typeview && !objview.object) {
@@ -237,12 +235,10 @@ let includeNoType = false;
             objview.isSelected = false;
         }
         let objtype;
-        objtype = obj?.type;
-        if (debug) console.log('226 obj, objview', obj, objview);
+        objtype = obj?.type as akm.cxObjectType;
         if (!objtype) {
           includeObjview = true;
           includeNoType = true;
-          if (debug) console.log('230 includeObjview, includeNoType', includeObjview, includeNoType);
         } else {
           if (obj && obj?.markedAsDeleted == undefined)
             obj.markedAsDeleted = false;
@@ -267,7 +263,6 @@ let includeNoType = false;
           }
           // added 2023-04-23 sf
           if (showModified) {
-            if (debug) console.log('255 ui_buildmodels ', showModified, objview.modified, objview);
             if (objview.modified) {
               if (objview.object?.modified) {
                 objview.strokecolor = "green";
@@ -301,7 +296,6 @@ let includeNoType = false;
         }
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
-          if (debug) console.log('274 objview:', objview);
           if (!includeDeleted && objview.markedAsDeleted)
             continue;
           if (!includeNoObject && !objview.object)
@@ -310,7 +304,6 @@ let includeNoType = false;
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           node.scale = objview.scale1;
-          if (debug) console.log('285 node', node);
           if (node.template === "")
             node.template = 'textAndIcon';
           myGoModel.addNode(node);
@@ -318,21 +311,19 @@ let includeNoType = false;
           if (node.fillcolor === "") {
             node.fillcolor = "lightgrey";
           }
-          if (debug) console.log('293 buildGoModel - node', node, myGoModel);
         }
       }
       const nodes = myGoModel.nodes;
-      if (debug) console.log('297 buildGoModel - nodes', nodes);
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i] as gjs.goObjectNode;
           if (!node.object) continue;
-          const objview = node.objectview;
+          const objview = node.objectview as akm.cxObjectView;
           if (objview.id === focusObjview?.id) {
             objview.isSelected = true;
             node.isSelected = true;
           }
-          const obj = node.object;
-          const objtype = obj.type;
+          const obj = node.object as akm.cxObject;
+          const objtype = obj.type as akm.cxObjectType;
           if (objtype?.name === 'Label') {
             node.text = objview.name;
           }
@@ -343,31 +334,29 @@ let includeNoType = false;
             node.typename = node.object['proposedType'];
           myGoModel.addNode(node);
       }
-      if (debug) console.log('312 myGoModel', myGoModel);
     }
     // load relship views
-    const relshipviews = [];
+    const relshipviews = [] as akm.cxRelationshipView[];
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (debug) console.log('318 modelview, relviews', modelview, relviews);
       const modifiedRelviews = [];
       let lng = relviews.length;
       for (let i = 0; i < lng; i++) {
         let includeRelview = false;
-        let relview = relviews[i];
+        let relview = relviews[i] as akm.cxRelationshipView;
         if (relview?.fromArrow === 'None' || relview?.fromArrow === ' ') 
           relview.fromArrow = '';
         if (relview?.toArrow === 'None' || relview?.toArrow === ' ') 
           relview.toArrow = '';
         if (relview.points === "") 
           relview.points = [];
-        let fromObjview = relview.fromObjview;
+        let fromObjview = relview.fromObjview as akm.cxObjectView;
         if (!fromObjview || !modelview.findObjectView(fromObjview.id)) 
           continue;
-        let toObjview = relview.toObjview;
+        let toObjview = relview.toObjview as akm.cxObjectView;
         if (!toObjview || !modelview.findObjectView(toObjview.id))
           continue;
-        const rel = relview.relship;
+        const rel = relview.relship as akm.cxRelationship;
         if (rel) {
           if (rel.markedAsDeleted == undefined)
             rel.markedAsDeleted = false;
@@ -405,16 +394,13 @@ let includeNoType = false;
         }
         if (!includeDeleted && !includeNoObject && !includeNoType && relview)
           relcolor = relview?.typeview?.strokecolor;
-          if (debug) console.log('368 rel, relview, relcolor:', rel, relview, relcolor);
           if (!relcolor) relcolor = 'black';
-        if (debug) console.log('370 rel, relview, relcolor:', rel, relview, relcolor);
         if (includeRelview) {
           if (relview.strokewidth === "NaN") relview.strokewidth = "1";
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
           relview = uic.updateRelationshipView(relview);
           relshipviews.push(relview);
-          if (debug) console.log('377 rel, relview, relcolor:', rel, relview, relcolor);
           const jsnRelview = new jsn.jsnRelshipView(relview);
           modifiedRelviews.push(jsnRelview);
     
@@ -432,19 +418,13 @@ let includeNoType = false;
             link.strokecolor = relcolor;
             link.strokewidth = "1";
           }
-          if (debug) console.log('393 link, relview:', link, relview);
-          if (debug) console.log('394 GenGojsModel: props', props);
           myGoModel.addLink(link);
         }
-        if (debug) console.log('397 myGoModel', myGoModel);
       }
     }
     modelview.relshipviews = relshipviews;
-    if (debug) console.log('406 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
-    if (debug) console.log('409 myGoModel.links', myGoModel.links);
-    if (debug) console.log('410 myGoModel', myGoModel);
     return myGoModel;
   }
 

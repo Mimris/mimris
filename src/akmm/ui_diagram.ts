@@ -648,8 +648,11 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const objview = node?.objectview;
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
-    let reltypes = '';
+    let reltypes = 'All';
     reltypes = prompt('Enter relationship type to follow', reltypes);
+    if (reltypes === 'All') {
+        reltypes = '';
+    }
     let reldir = 'out';
     reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
     addConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir);
@@ -666,8 +669,11 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     const objview = node?.objectview;
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
-    let reltypes = '';
+    let reltypes = 'All';
     reltypes = prompt('Enter relationship type to follow', reltypes);
+    if (reltypes === 'All') {
+        reltypes = '';
+    }
     let reldir = 'out';
     reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
     const objectviews = [];
@@ -1626,7 +1632,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
         }
         let reltype;
         if (reltypes) { // Check if reltype is specified
-            // get reltype from comma separated list
+            // get reltype from comma separated list (to be done)
             const reltypename = reltypes.split(',')[0];        
             try {
                 reltype = myMetamodel.findRelationshipTypeByName(reltypename);

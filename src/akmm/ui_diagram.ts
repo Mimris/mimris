@@ -653,9 +653,12 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     if (reltypes === 'All') {
         reltypes = '';
     }
-    let reldir = 'out';
-    reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
-    addConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir);
+    let reldir = 'All';
+    reldir = prompt('Enter relationship direction to follow (in | out | ll)', reldir);
+    if (reldir === 'All') {
+        addConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, 'out');
+        addConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, 'in');
+    }
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;

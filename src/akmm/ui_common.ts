@@ -3642,7 +3642,7 @@ export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram
     if (debug) console.log('2860 data', data, myMetis);
 }
 
-function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
+export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
@@ -3772,7 +3772,7 @@ function propIsColor(prop: string): boolean {
 //     return false;
 // }
 
-function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipView, relship: akm.cxRelationship, data: any, diagram: any) {
+export function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipView, relship: akm.cxRelationship, data: any, diagram: any) {
     let reltype = relship.getType();
     let reltypeView = relview.getTypeView() as akm.cxRelationshipTypeView;
     if (!reltypeView) {

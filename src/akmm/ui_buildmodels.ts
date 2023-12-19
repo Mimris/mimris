@@ -829,20 +829,6 @@ let includeNoType = false;
           }
         }
       }
-      if (debug) console.log('792 adminModel, adminModelview', adminModel, adminModelview);
-
-      // commented out by sf 2023-02-21  there is no firstTime because its already loaded into store ??????????
-      // if (firstTime) {
-      //   // Do a dispatch 
-      //   const jsnModel = new jsn.jsnModel(adminModel, true);
-      //   const modifiedModels = []
-      //   modifiedModels.push(jsnModel);
-      //   modifiedModels.map(mn => {
-      //       let data = mn;
-      //       data = JSON.parse(JSON.stringify(data));
-      //       dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
-      //   });
-      // }
       return adminModel;
     }
   }

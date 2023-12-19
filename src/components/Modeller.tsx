@@ -364,7 +364,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   // if OSDU import then set fillcolor according to osduType
   nodeArray_all?.forEach((node: any) => {
-    node.fillcolor = setColorsTopEntityTypes(node.object.osduType)
+    node.fillcolor = setColorsTopEntityTypes(node.object?.osduType)
     })
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)

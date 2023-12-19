@@ -1613,6 +1613,38 @@ export function diagramInfo(model: any) {  // Tooltip info for the diagram's mod
     return str;
 }
 
+function relshipsSortedByNameTypeAndToNames(relships: akm.cxRelationship[], reldir: string) {
+    relships?.sort((a, b) => {
+        const typeA = a.type.name;
+        const typeB = b.type.name;
+        const nameA = a.name;
+        const nameB = b.name;
+        let toObjA, toObjB, toTypeA, toTypeB;
+        if (reldir === 'in') {
+            toTypeA = a.fromObject.type.name;
+            toObjA = a.fromObject.name;
+            toTypeB = b.fromObject.type.name;
+            toObjB = b.fromObject.name;
+        } else {
+            toTypeA = a.toObject.type.name;
+            toObjA = a.toObject.name;
+            toTypeB = b.toObject.type.name;
+            toObjB = b.toObject.name;
+        }
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        
+        if (typeA < typeB) return -1;
+        if (typeA > typeB) return 1;
+            
+        if (toObjA < toObjB) return -1;
+        if (toObjA > toObjB) return 1;
+
+        return 0;
+    });
+    return relships;
+}
+
 function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
     goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, reltypes: string, reldir: string) {
     if (noLevels < 1)
@@ -1643,12 +1675,16 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                 reltype = myMetis.findRelationshipTypeByName(reltypename);
             }
         }
-        let rels: akm.cxRelationship[];
+        // Find all relationships of object sorted by name, type name and toObj name
         let useinp = (reldir === 'in');
-        if (useinp) 
+        let rels: akm.cxRelationship[];
+        if (useinp) {
             rels = object.inputrels;
-        else 
+            rels = relshipsSortedByNameTypeAndToNames(rels, reldir)
+        } else {
             rels = object.outputrels;
+            rels = relshipsSortedByNameTypeAndToNames(rels, reldir)
+        }
         if (rels) {
             let cnt = 0;
             for (let i=0; i<rels.length; i++) {

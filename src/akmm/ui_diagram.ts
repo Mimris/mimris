@@ -677,11 +677,15 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     if (reltypes === 'All') {
         reltypes = '';
     }
-    let reldir = 'out';
-    reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
     const objectviews = [];
-    const relshipviews = [];
-    selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir, objectviews);
+    let reldir = 'All';
+    reldir = prompt('Enter relationship direction to follow (in | out | All)', reldir);
+    if (reldir === 'All') {
+        selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
+        selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, 'in', objectviews);
+    } else {
+        selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir, objectviews);
+    }
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     gjsNode.isSelected = false;
     gjsNode.isHighlighted = true;

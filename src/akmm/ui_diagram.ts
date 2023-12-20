@@ -1862,6 +1862,7 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
                 reltype = myMetis.findRelationshipTypeByName(reltypename);
             }
         }
+        // Find all relationships of object sorted by name, type name and toObj name
         let useinp = (reldir === 'in');
         for (let i=0; i<2; i++) {
             let rels: akm.cxRelationship[];
@@ -1903,13 +1904,13 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
                                 continue;
                             }
                         }  
-                        if (!found)
+                        if (!found && objectviews)
                             objectviews.push(oview);           
                     }                                                                              
                 }
             }
+            myDiagram.requestUpdate();
         }
-        myDiagram.requestUpdate();
     }
     if (noLevels > 1) {
         for (let i=0; i<objectviews?.length; i++) {

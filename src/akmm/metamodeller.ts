@@ -5659,6 +5659,7 @@ export class cxObjectType extends cxType {
                         const stype = rtype.toObjtype;
                         if (stype) {
                             supertypes.push(stype);
+                            supertypes = [...new Set(supertypes)];
                             if (level > 5) 
                                 return supertypes;
                             if (debug) console.log('5015 this, supertypes', this, supertypes);
@@ -5667,6 +5668,7 @@ export class cxObjectType extends cxType {
                                 for (let j=0; j<stypes.length; j++) {
                                     const stype = stypes[j];
                                     supertypes.push(stype);
+                                    supertypes = [...new Set(supertypes)];
                                 }
                                 if (debug) console.log('5022 this, supertype', this, supertypes);
                             }
@@ -5675,7 +5677,7 @@ export class cxObjectType extends cxType {
                 }
             }
         } catch (error) {
-            console.log('5027 error', error);
+            console.log('5680 error', error);
         }
         return supertypes;
     }

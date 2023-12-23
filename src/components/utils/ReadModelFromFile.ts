@@ -331,6 +331,8 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             }
         } else if (filename.includes('_MO')) { // its a model, modelview or metamodel file, merge with existing project
             console.log('332 ReadModelFromFile', data )//, data.models[0].modelviews.length)
+            if (!Array.isArray(data.models))
+                data.models = [data.models];
             if (data.models[0].modelviews.length === 0) { // if modelview exists, then add it to   data.phData.metis.models
                 console.log('334 ReadModelFromFile', data.models[0].modelviews.length)
                 data.models[0].modelviews[0] = 

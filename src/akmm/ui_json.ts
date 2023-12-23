@@ -870,6 +870,7 @@ export class jsnObjectTypeView {
     textscale:       string;
     memberscale:     string;
     icon:            string;
+    image:           string;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(objtypeview: akm.cxObjectTypeView) {
@@ -891,6 +892,7 @@ export class jsnObjectTypeView {
         this.textscale       = objtypeview.getTextscale();
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
+        this.image           = objtypeview.getImage();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
         if (objtypeview.description)

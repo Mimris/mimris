@@ -722,6 +722,8 @@ export class goObjectTypeNode extends goNode {
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
     typedescription: string;
+    icon: string;
+    image: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = constants.gojs.C_OBJECTTYPE;

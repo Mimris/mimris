@@ -710,7 +710,6 @@ export class cxMetis {
                 }
             });
         }
-        if (debug) console.log('695 this', this);
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
@@ -719,7 +718,6 @@ export class cxMetis {
             });
             metamodel.purgeObjtypeGeos();
         }
-        if (debug) console.log('703 this', this);
         let objecttypeviews: any[] = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
@@ -729,30 +727,16 @@ export class cxMetis {
         }
 
         let relshiptypes: any[] = item.relshiptypes;
-        if (debug) console.log('361 relshiptypes', relshiptypes);
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
                 if (debug) console.log('371 reltype', reltype);
                 if (reltype) {
                     this.importRelshipType(reltype, metamodel);
                     const reltypes = metamodel.relshiptypes;
-                    if (debug) console.log('376 reltypes', reltypes); 
-                    reltypes.forEach(rtype => {
-                        if (rtype.id === reltype?.id) {
-                            rtype.fromObjtype = reltype.fromObjtype;
-                            rtype.fromobjtypeRef = reltype.fromobjtypeRef;
-                            rtype.toObjtype = reltype.toObjtype;
-                            rtype.toobjtypeRef = reltype.toobjtypeRef;
-                            rtype.relshipkind = reltype.relshipkind;
-                            rtype.removeDuplicateProperties();
-                            if (debug) console.log('379 rtype', rtype);
-                        }
-                    })
                 }
             });
         }
         let relshiptypes0: any[] = item.relshiptypes0;
-        if (debug) console.log('736 relshiptypes0', relshiptypes0);
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
                 let reltype = this.findRelationshipType(reltype0?.id);
@@ -767,7 +751,6 @@ export class cxMetis {
                 }
             });
         }
-        if (debug) console.log('658 metamodel', metamodel);
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {

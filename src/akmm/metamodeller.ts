@@ -2684,13 +2684,13 @@ export class cxMetis {
             if (!fromObjtype) {
                 fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
             }
-            if (!fromType.inherits(fromObjtype)) 
+            if (!fromType.inherits(fromObjtype, 0)) 
                 continue;
             let toObjtype = reltype.getToObjType();
             if (!fromObjtype) {
                 toObjtype = this.findObjectType(reltype.toobjtypeRef);
             }
-            if (!toType.inherits(toObjtype)) 
+            if (!toType.inherits(toObjtype, 0)) 
                 continue;
             reltypes.push(reltype);            
         }
@@ -2722,7 +2722,7 @@ export class cxMetis {
                         } else
                             continue;
                     } 
-                    if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
+                    if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
                         // if (fromObjType.id === toObjType.id) {
                             if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                                 fromObjType.name === constants.types.AKM_GENERIC) {
@@ -4642,7 +4642,7 @@ export class cxMetaModel extends cxMetaObject {
                     } else
                         continue;
                 } 
-                if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
+                if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
                     // if (fromObjType.id === toObjType.id) {
                         if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                             fromObjType.name === constants.types.AKM_GENERIC) {
@@ -5664,7 +5664,9 @@ export class cxObjectType extends cxType {
         }
         return supertypes;
     }
-    inherits(type: cxObjectType, includeSystemTypes: boolean): boolean {   
+    inherits(type: cxObjectType, level: int): boolean {   
+        if (!level) level = 0;
+        if (level > 5) return false;
         // Check if this (objecttype) inherits from type
         let retval = false;
         if (this.id === type.id) {
@@ -5679,14 +5681,9 @@ export class cxObjectType extends cxType {
                         if (supertype.id === type.id) {
                             retval = true;
                             break;
-                        // } else if (supertype.name === constants.types.AKM_ELEMENT 
-                        //           || supertype.name === constants.types.AKM_ENTITY) { 
-                        //     if (includeSystemTypes) {
-                        //         retval = true;
-                        //         break;
-                        //     }
                         } else {
-                            retval = supertype.inherits(type, includeSystemTypes);
+                            level++;
+                            retval = supertype.inherits(type, level);
                         }
                     }
                 }
@@ -5743,7 +5740,7 @@ export class cxObjectType extends cxType {
         if (otypes && otypes.length > 0) {
             for (let j = 0; j < otypes.length; j++) {
                 const otype = otypes[j];
-                if (objtype.inherits(otype, false)) {
+                if (objtype.inherits(otype, 0)) {
                     const rtype: cxRelationshipType | null = this.findRelshipTypeByKind1(relkind, otype, this.allRelationshiptypes);
                     if (rtype)
                         return rtype;
@@ -5942,7 +5939,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.fromObjtype.id === objtype.id) 
                 return true;
             if (includeGen) {
-                if (objtype.inherits(this.fromObjtype, true)) {
+                if (objtype.inherits(this.fromObjtype, 0)) {
                     return true;
                 }
             }
@@ -5954,7 +5951,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.toObjtype.id === objtype.id) 
                 return true;
                 if (includeGen) {
-                    if (objtype.inherits(this.toObjtype)) {
+                    if (objtype.inherits(this.toObjtype, 0)) {
                         return true;
                     }
                 }
@@ -5968,8 +5965,8 @@ export class cxRelationshipType extends cxObjectType {
             return retval;
         if (this.toObjtype.name !== constants.types.AKM_ELEMENT &&
             this.toObjtype.name !== constants.types.AKM_ENTITY_TYPE) {
-            if (fromType.inherits(this.toObjtype) &&
-                toType.inherits(this.toObjtype)) {
+            if (fromType.inherits(this.toObjtype, 0) &&
+                toType.inherits(this.toObjtype, 0)) {
                 retval = true;
             }
         }

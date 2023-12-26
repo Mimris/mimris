@@ -16,7 +16,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
-        console.log('19 ReadModelFromFile', text)
+        if (debug) console.log('19 ReadModelFromFile', text)
         let importedfile = JSON.parse(text)
         const filename = reader.fileName 
         console.log('22 ReadModelFromFile', filename, importedfile)

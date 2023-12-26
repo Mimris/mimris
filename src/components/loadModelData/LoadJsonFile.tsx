@@ -18,8 +18,6 @@ import SetColorsTopEntityTypes from '../utils/SetColorsTopEntityTypes';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 // import LoadOpenSubsurfaceDataUniverseJson from './LoadGitLabJson'
 
-
-
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     
   if (!props.ph.phData?.metis.models) return null
@@ -401,7 +399,10 @@ const importFile = async (e) => {
                 <div className="selectbox3 mb-2">
                   <h6>Connect imported EntityTypes</h6> 
                   <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                    title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}>Generate Relationships between EntityTypes (Propertylinks)
+                    title="Find Propertylinks that refers to EntityTypes and convert to relationships!"
+                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}
+                  >
+                    Convert Propertylinks (objects) with Relationships between EntityTypes 
                   </Button>
                 </div>
                 {/* <div className="selectbox3 mb-2">

@@ -11,17 +11,17 @@ import * as utils from '../../akmm/utilities';
 // then add a relship between the two objects i.e. the "rest EntityType" and the top EntityType
 
 
-export const ConnectImportedTopEntityTypes = async (modelType: string,  props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; }, dispatch: Dispatch<any>) => {
+export const ConnectImportedTopEntityTypes = async (modelType: string, props: { phData: { metis: { models: any[]; metamodels: any[]; }; }; phFocus: { focusModel: { id: any; }; }; }, dispatch: Dispatch<any>) => {
     const debug = false
 
-    // if (debug) console.log('13 ', props);
+    if (!debug) console.log('13 ', props);
 
     const curModel = props.phData.metis.models.find((m: { id: any; }) => m.id === props.phFocus.focusModel.id)
     const curObjects = curModel.objects
     const curRelships = curModel.relships
 
     if (debug) console.log('23 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
-    
+
     const curMetamodel = props.phData.metis.metamodels.find((mm: { id: any; }) => mm.id === curModel.metamodelRef)
     const curObjTypes = curMetamodel.objecttypes
     const curRelTypes = curMetamodel.relshiptypes
@@ -37,19 +37,19 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
     const hasType = curRelTypes.find((co: { name: string; }) => (co.name === 'has') && co)
     // const IsType = curRelTypes.find((co: { name: string; }) => (co.name === 'Is') && co)
     const relshipType = curRelTypes.find((cr: { name: string; }) => (cr.name === 'relationshipType') && cr)
-    if(!debug) console.log('43 ', relshipType.id, relshipType.name, refersTo, hasType)
-    
+    if (debug) console.log('43 ', relshipType.id, relshipType.name, refersTo, hasType)
+
     let reltypeRef = relshipType?.id // default relship between two top objects
-    let relName = "refersTo" 
-    
+    let relName = "refersTo"
+
 
     let relDescription: string, relTitle: string
     let fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any
     let title: string, description: string
     let relId: any, relshipkind: string
 
-    const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkObj) => {  
-        if (debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName,  toobjectId, toobjectName);
+    const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkObj) => {
+        if (!debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
         // check if relship already exists
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
         let relDescription = description || '';
@@ -58,57 +58,57 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
             relName = relName + 'DEPRECATED:';
             relDescription = relDescription;
             strokeColor = 'red';
-        }   
-        
-        const rel = (fromobjectId && toobjectId) 
-            &&   {
-                    id: relId,
-                    name: relName,
-                    title: title?.replace(/\s+/g, ''),
-                    typeRef: reltypeRef,
-                    cardinality: "",
-                    // cardinalityFrom: undefined,
-                    // cardinalityTo: undefined,
-                    description: relDescription,
-                    strokeColor: strokeColor,
-                    fromobjectRef: fromobjectId,
-                    nameFrom: fromobjectName,
-                    generatedTypeId: "",
-                    markedAsDeleted: false,
-                    modified: false,
-                    relshipkind: relshipkind,
-                    // relshipviews: undefined,
-                    toobjectRef: toobjectId,
-                    nameTo: toobjectName,
-                }  
+        }
 
-        if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel );
+        const rel = (fromobjectId && toobjectId)
+            && {
+            id: relId,
+            name: relName,
+            title: title?.replace(/\s+/g, ''),
+            typeRef: reltypeRef,
+            cardinality: "",
+            // cardinalityFrom: undefined,
+            // cardinalityTo: undefined,
+            description: relDescription,
+            strokeColor: strokeColor,
+            fromobjectRef: fromobjectId,
+            nameFrom: fromobjectName,
+            generatedTypeId: "",
+            markedAsDeleted: false,
+            modified: false,
+            relshipkind: relshipkind,
+            // relshipviews: undefined,
+            toobjectRef: toobjectId,
+            nameTo: toobjectName,
+        }
+
+        if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel);
         if (!relship) {
-            if (fromobjectId && toobjectId) { 
+            if (fromobjectId && toobjectId) {
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
-                if (debug) console.log('76 CreatedRel', fromobjectId, toobjectId, rel );
-                const fromObj = {id: linkObj.id, markedAsDeleted: true}
+                if (debug) console.log('76 CreatedRel', fromobjectId, toobjectId, rel);
+                const fromObj = { id: linkObj.id, markedAsDeleted: true }
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
                 // TODO: delete propLink relationship ?
             } else if (!toobjectId) {
-                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: {id: linkObj.id, markedAsDeleted: true} }); // for propLink object set mark as deleted
+                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: { id: linkObj.id, markedAsDeleted: true } }); // for propLink object set mark as deleted
             }
         } else {
-            const fromObj = {id: linkObj.id, markedAsDeleted: true}
+            const fromObj = { id: linkObj.id, markedAsDeleted: true }
             dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
         }
     }
 
     // console.log('56 :', stringifyEntries(deepEntries(topModel))); 
 
-    const propLinkObjects = utils.findObjectsByType(curModel.objects, curObjTypes, 'PropLink' ) // find all PropLink objects, this is temporary objedts representing on end of a relship
+    const propLinkObjects = utils.findObjectsByType(curModel.objects, curObjTypes, 'PropLink') // find all PropLink objects, this is temporary objedts representing on end of a relship
     if (debug) console.log('85 :', curModel.objects, propLinkObjects);
     // then find objects a name that includes the text 'ID' 
     // const propLinkObjectsWithId =  propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('ID') && o)
     // const propLinkObjectsWithType =  propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('Type') && o)
     // const propLinkObjectsWithSet = propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('Set') && o)
     // const propLinkObjectsWithPattern = propLinkObjects.filter((o: { items: { pattern: any; }; }) => o.items?.pattern && o)
-    
+
     // const propLinks = [...propLinkObjectsWithId, ...propLinkObjectsWithType, ...propLinkObjectsWithSet, ...propLinkObjectsWithPattern]
     const propLinks = propLinkObjects
     // const propLinks = (propLinkObjectsWithId.length > 0) ? propLinkObjectsWithId : propLinkObjectsWithSet
@@ -126,19 +126,20 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
         // check if the relationship exists between the objects
         // let existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, hasType?.id) // check if the relationship exists between the objects
         let existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, relshipType?.id) // check if the relationship with is type exists between the objects
-        if (debug) console.log('116 ', o.name, targetObject && targetObject.id, existRelship);
+        if (existRelship !== undefined) return; // if exists, skip
+        if (!debug) console.log('129 ', o.name, targetObject && targetObject.id, existRelship);
         if (debug) console.log('117 ', o.name);
-        
+
         // find top level object
         if (targetObject) { // if no targetObject, skip this relationship
-            topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
+            topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects, curRelships) : null;
             if (debug) console.log('122 ', o.name, targetObject) //, curObjects, curRelships);  
             if (debug) console.log('123 ', topLevelObject, curObjects, o) //, curObjects, curRelships);  
             // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
-            if (debug) console.log('125 ', targetObject, o.name, curObjects, topLevelObject );  
+            if (debug) console.log('125 ', targetObject, o.name, curObjects, topLevelObject);
             // if (debug) console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);            
             fromobjectId = topLevelObject?.id
-            fromobjectName = topLevelObject?.name 
+            fromobjectName = topLevelObject?.name
             const fromtypeRef = curObjects.find((o: { id: any; }) => o.id === fromobjectId)?.typeRef
             const fromrelName = curObjTypes.find((ot: { id: any; }) => ot.id === fromtypeRef)?.name
             relTitle = o.title
@@ -147,66 +148,60 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
             toobjectName = targetObject?.name
             const totypeRef = curObjects.find((o: { id: any; }) => o.id === toobjectId)?.typeRef
             const torelName = curObjTypes.find((ot: { id: any; }) => ot.id === totypeRef)?.name
-      
+
             relId = (existRelship) ? existRelship.id : utils.createGuid();
             reltypeRef = relshipType?.id //refersTo?.id || hasType?.id
 
             if (o.title === 'ColumnStratigraphicHorizonTopID') {
-                relName = hasType?.name+'Top'
+                relName = hasType?.name + 'Top'
                 relDescription = `${fromobjectName} has Top ${toobjectName}`;
             } else if (o.title === 'ColumnStratigraphicHorizonBaseID') {
-                relName = hasType?.name+'Base'
+                relName = hasType?.name + 'Base'
                 relDescription = `${fromobjectName} has Base ${toobjectName}`;
-            // } else if (o['$ref']?.includes('abstract')) {
-            //     relName = 'Is'
-            //     relDescription = `${fromobjectName} Is ${toobjectName}`;
-            // } else {
-            //     relName = 'refersTo'//refersTo?.name || hasType?.name
-            //     relDescription = `${fromobjectName} refersTo ${toobjectName}`;
-            }    
+            }
 
             if (debug) console.log('152 ', relId, relName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
-            if (debug) console.log('153 ', relName,  'from: ', fromobjectName, 'to:', toobjectName);
-            if ((toobjectId) && (fromobjectId) && (!existRelship)) {
-                if (debug) console.log('170 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
+            if (!debug) console.log('153 ', relName, 'from: ', fromobjectId, 'to:', toobjectId, 'existRelship', existRelship);
+            if (toobjectId && fromobjectId) {
+                if (!debug) console.log('165 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
                 if (o["$ref"]?.includes('abstract')) {
                     // if (fromrelName === 'Abstract' || torelName === 'Abstract' || torelName === 'ReferenceData') {
                     if (debug) console.log('160 ', fromrelName, fromobjectName, torelName, toobjectName);
                     relName = 'Is'
-                    createRel(relId, relName, relDescription, relTitle, relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
+                    createRel(relId, relName, relDescription, relTitle, relshipkind = 'Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 } else {
-                    if (debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
+                    if (!debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
                     relName = o.name //'refersTo'
-                    createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
+                    createRel(relId, relName, relDescription, relTitle, relshipkind = 'Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 }
             }
-        }          
+        }
     });
-    
+
     // console.log('171 ', genrel); 
     // $ref.......Find RelshipType objects with a $ref attribute and and generate a relship between this top oject and the $ref object
-    const propLinkObjectsWithRef =  propLinkObjects.filter((o: { [x: string]: any; }) => o['$ref'] )  // find objects with a $ref
+    const propLinkObjectsWithRef = propLinkObjects.filter((o: { [x: string]: any; }) => o['$ref'])  // find objects with a $ref
     if (debug) console.log('174 ', propLinkObjects, propLinkObjectsWithRef);
 
     const genref = propLinkObjectsWithRef.forEach((o: { [x: string]: string; id: any; }) => {
         if (debug) console.log('177 ', o['$ref'])//, curObjects, curRelships);
         //remove the the ../abstract and .1.0.0.json and find another object with the rest name
-       
+
         const lastElement = o['$ref'].split('/').pop()  // find last element in $ref path
         const firstElement = lastElement.split('.')[0]   // find what is before the first "."    
         const removedAbstract = (firstElement === 'AbstractWorkProductComponent' || 'AbstractCommonResources') ? firstElement : firstElement.replace('Abstract', '')
         const targetObject = utils.findObjectByName(curModel.objects, {}, removedAbstract)
-    
+
         if (debug) console.log('185 ', o, firstElement, targetObject);
         // check if the relationship exists between the objects
         const existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, relshipType?.id) || null
 
         if (targetObject) { // if no targetObject, skip this relationship
 
-            if (debug) console.log('191 ', o, targetObject, relshipType.id, relshipType.name);  
-            topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
+            if (debug) console.log('191 ', o, targetObject, relshipType.id, relshipType.name);
+            topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects, curRelships) : null;
 
-            if (debug) console.log('194 ', topLevelObject.name, targetObject.name);  
+            if (debug) console.log('194 ', topLevelObject.name, targetObject.name);
             // console.log('98 ', topDataObject, topLevelObject.id, topLevelObject.name);  
             if (!topLevelObject) console.log('171 topLevelObject does not exist');
             if (debug) console.log('197 ', o, topLevelObject, targetObject.name);
@@ -226,40 +221,40 @@ export const ConnectImportedTopEntityTypes = async (modelType: string,  props: {
             const fromType = curObjTypes.find((ot: { id: any; }) => ot.id === curFromtypeRef)
             const toType = curObjTypes.find((ot: { id: any; }) => ot.id === curTotypeRef)
             if (debug) console.log('213 ', fromType, toType);
-            
+
             // let reltype = curRelTypes.find(rt => ((rt.name === 'Is') && (rt.fromobjtypeRef === fromType.id) && (rt.toobjtypeRef === toType.id)) && rt)
             let reltype = curRelTypes.find((rt: { id: string; }) => (rt.id === '5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24') && rt)
 
-            if (debug) console.log('218 ', fromobjectName, curRelships.find((r: { fromobjectRef: any; }) => r.fromobjectRef === fromobjectId), toobjectId, curRelships.find((r: { toobjectRef: any; }) => r.toobjectRef === toobjectId) )
+            if (debug) console.log('218 ', fromobjectName, curRelships.find((r: { fromobjectRef: any; }) => r.fromobjectRef === fromobjectId), toobjectId, curRelships.find((r: { toobjectRef: any; }) => r.toobjectRef === toobjectId))
             if (debug) console.log('219 ', fromobjectName, fromType?.id, toobjectName, toType?.id, reltype.name, reltype);
             if (debug) console.log('220 ', curMetamodel);
 
             // check if a relationship with name = 'Is' already exists between the from and to objects
             // console.log('178 ', fromobjectId, fromobjectName, toobjectId, toobjectName, relId, reltype.id, reltype.name);
 
-             if (curRelships.find((r: { fromobjectRef: any; toobjectRef: any; reltypeRef: any; }) => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype?.id)) {
-                 // relship exists do nothing
-                 console.log('227 Relship exisit ', fromobjectName, toobjectName, reltype.name);
-             } else {
+            if (curRelships.find((r: { fromobjectRef: any; toobjectRef: any; reltypeRef: any; }) => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype?.id)) {
+                // relship exists do nothing
+                console.log('227 Relship exisit ', fromobjectName, toobjectName, reltype.name);
+            } else {
                 if (debug) console.log('229 ', fromType?.id, reltype);
                 reltypeRef = reltype?.id
                 relName = reltype?.name
 
                 let relDescription = `${fromobjectName} Is ${toobjectName}`;
                 relTitle = '';
-             
-                
-                if (!debug) console.log('247 ', relId, relName, description, 'title:', relTitle, reltypeRef,'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
-                if (debug) console.log('238 ', relId, relName,'from : ', fromobjectName, 'to : ', toobjectName);
-                
+
+
+                if (debug) console.log('247 ', relId, relName, description, 'title:', relTitle, reltypeRef, 'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
+                if (debug) console.log('238 ', relId, relName, 'from : ', fromobjectName, 'to : ', toobjectName);
+
                 // if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
                 if (fromobjectId && toobjectId && !existRelship) {
-                    createRel(relId, relName, relDescription, relTitle, relshipkind='Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
+                    createRel(relId, relName, relDescription, relTitle, relshipkind = 'Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 }
-             }
+            }
 
-        }     
-            
+        }
+
     });
 
 }

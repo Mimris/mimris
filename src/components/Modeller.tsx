@@ -399,7 +399,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   // // filter out all objects of type 
   // setOfilteredArr(objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container')))
-  if (debug) console.log('354 Palette ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
+  if (debug) console.log('354 Modeller ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
   // if (ofilter === 'Sorted') setOfilteredArr = roleTaskObj
   // if (ofilter === '!Property') ofilteredArr = noPropertyObj
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
@@ -413,18 +413,18 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   useEffect(() => {
     const initialArr = objectsNotDeleted;
-    if (debug) console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
+    if (debug) console.log('409 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
     if (selectedOption === 'In this modelview') {
       const objectviewsInThisModelview = modelview?.objectviews
       const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id))
     
       const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name))).filter((node: any) => node)
-      if (!debug) console.log('422 Palette ofilteredOnTypes', mvfilteredArr);
+      if (debug) console.log('422 Modeller ofilteredOnTypes', mvfilteredArr);
       setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
     } else if (selectedOption === 'Sorted alfabetical') {
       const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-      if (debug) console.log('417 Palette ofilteredOnTypes', sortedArr, gojsobjects);
+      if (debug) console.log('417 Modeller ofilteredOnTypes', sortedArr, gojsobjects);
     } else if (selectedOption === 'Sorted by type') {
       const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
       const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
@@ -450,15 +450,15 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
           })
         : sortedByType;
 
-      if (!debug) console.log('422 Palette ofilteredOnTypes', sortedArr);
+      if (debug) console.log('453 Modeller ofilteredOnTypes', sortedArr);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
 
     } else {
       const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
-      if (debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
+      if (debug) console.log('417 Modeller ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
       // setOfilteredArr(selOfilteredArr);
       setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
-      if (debug) console.log('421 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
+      if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr, gojsobjects);
     }
     setRefresh(!refresh)
     if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)

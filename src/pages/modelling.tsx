@@ -227,7 +227,7 @@ const page = (props: any) => {
                     <Modelling />
                   </div>
               <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks props={props}/>
+                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>
               </div>
               <div className="footer">

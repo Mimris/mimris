@@ -352,10 +352,10 @@ const importFile = async (e) => {
                       <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
                     </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    {/* <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
                       <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
-                    </span>
+                    </span> */}
                   </div>
                   <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
                   <div className='mt-2'> Include Properties and Links (relationships):</div>

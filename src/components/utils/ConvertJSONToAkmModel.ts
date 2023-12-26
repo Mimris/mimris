@@ -388,13 +388,13 @@ export const ReadConvertJSONFromFileToAkm = async (
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";
 
         // ==================== -------------------- ==================== -------------------- ====================
-        // first we create the objects ----------------------------------------------------------------------
+        // first we create the objects ----------------------------------------------------------------------------
         if (debug) console.log("382 start ---- ", oId, oKey, oVal, jsonType, osduObj, oValProps)
         if (index === 0) {
             // the first object is the main-object (topObj)
             if (debug) console.log('385 ', oId, oName, oKey, oVal, jsonType, osduObj, oValProps);
             processTopObject(oId, oName, oKey, jsonType, osduObj, oValProps, oVal,);
-        } else if (parentName === "properties") {
+        } else if (parentName === "properties" || parentName === "items") {
             // this is property and proplink objects
             if (debug) console.log("388 parent = properties :", oName, oValProps);
             if (oVal["x-osdu-relationship"]) {

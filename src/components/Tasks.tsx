@@ -91,7 +91,8 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const focusModelview = useSelector(state => state.phFocus.focusModelview);
   const focusTask = useSelector(state => state.phFocus.focusTask);
   const focusRole = useSelector(state => state.phFocus.focusRole);
-  const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
+  const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
+  // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   if  (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);
   const curmetamodel = metamodels?.find((m: { id: any; }) => m?.id === curmodel?.metamodelRef);
 

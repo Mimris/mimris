@@ -710,7 +710,6 @@ export class cxMetis {
                 }
             });
         }
-        if (debug) console.log('695 this', this);
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
@@ -719,7 +718,6 @@ export class cxMetis {
             });
             metamodel.purgeObjtypeGeos();
         }
-        if (debug) console.log('703 this', this);
         let objecttypeviews: any[] = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
@@ -729,30 +727,16 @@ export class cxMetis {
         }
 
         let relshiptypes: any[] = item.relshiptypes;
-        if (debug) console.log('361 relshiptypes', relshiptypes);
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
                 if (debug) console.log('371 reltype', reltype);
                 if (reltype) {
                     this.importRelshipType(reltype, metamodel);
                     const reltypes = metamodel.relshiptypes;
-                    if (debug) console.log('376 reltypes', reltypes); 
-                    reltypes.forEach(rtype => {
-                        if (rtype.id === reltype?.id) {
-                            rtype.fromObjtype = reltype.fromObjtype;
-                            rtype.fromobjtypeRef = reltype.fromobjtypeRef;
-                            rtype.toObjtype = reltype.toObjtype;
-                            rtype.toobjtypeRef = reltype.toobjtypeRef;
-                            rtype.relshipkind = reltype.relshipkind;
-                            rtype.removeDuplicateProperties();
-                            if (debug) console.log('379 rtype', rtype);
-                        }
-                    })
                 }
             });
         }
         let relshiptypes0: any[] = item.relshiptypes0;
-        if (debug) console.log('736 relshiptypes0', relshiptypes0);
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
                 let reltype = this.findRelationshipType(reltype0?.id);
@@ -767,7 +751,6 @@ export class cxMetis {
                 }
             });
         }
-        if (debug) console.log('658 metamodel', metamodel);
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
@@ -2701,13 +2684,13 @@ export class cxMetis {
             if (!fromObjtype) {
                 fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
             }
-            if (!fromType.inherits(fromObjtype)) 
+            if (!fromType.inherits(fromObjtype, 0)) 
                 continue;
             let toObjtype = reltype.getToObjType();
             if (!fromObjtype) {
                 toObjtype = this.findObjectType(reltype.toobjtypeRef);
             }
-            if (!toType.inherits(toObjtype)) 
+            if (!toType.inherits(toObjtype, 0)) 
                 continue;
             reltypes.push(reltype);            
         }
@@ -2739,7 +2722,7 @@ export class cxMetis {
                         } else
                             continue;
                     } 
-                    if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
+                    if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
                         // if (fromObjType.id === toObjType.id) {
                             if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                                 fromObjType.name === constants.types.AKM_GENERIC) {
@@ -4659,7 +4642,7 @@ export class cxMetaModel extends cxMetaObject {
                     } else
                         continue;
                 } 
-                if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
+                if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
                     // if (fromObjType.id === toObjType.id) {
                         if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                             fromObjType.name === constants.types.AKM_GENERIC) {
@@ -5659,6 +5642,7 @@ export class cxObjectType extends cxType {
                         const stype = rtype.toObjtype;
                         if (stype) {
                             supertypes.push(stype);
+                            supertypes = [...new Set(supertypes)];
                             if (level > 5) 
                                 return supertypes;
                             if (debug) console.log('5015 this, supertypes', this, supertypes);
@@ -5667,6 +5651,7 @@ export class cxObjectType extends cxType {
                                 for (let j=0; j<stypes.length; j++) {
                                     const stype = stypes[j];
                                     supertypes.push(stype);
+                                    supertypes = [...new Set(supertypes)];
                                 }
                                 if (debug) console.log('5022 this, supertype', this, supertypes);
                             }
@@ -5675,11 +5660,13 @@ export class cxObjectType extends cxType {
                 }
             }
         } catch (error) {
-            console.log('5027 error', error);
+            console.log('5680 error', error);
         }
         return supertypes;
     }
-    inherits(type: cxObjectType, includeSystemTypes: boolean): boolean {   
+    inherits(type: cxObjectType, level: int): boolean {   
+        if (!level) level = 0;
+        if (level > 5) return false;
         // Check if this (objecttype) inherits from type
         let retval = false;
         if (this.id === type.id) {
@@ -5694,14 +5681,9 @@ export class cxObjectType extends cxType {
                         if (supertype.id === type.id) {
                             retval = true;
                             break;
-                        // } else if (supertype.name === constants.types.AKM_ELEMENT 
-                        //           || supertype.name === constants.types.AKM_ENTITY) { 
-                        //     if (includeSystemTypes) {
-                        //         retval = true;
-                        //         break;
-                        //     }
                         } else {
-                            retval = supertype.inherits(type, includeSystemTypes);
+                            level++;
+                            retval = supertype.inherits(type, level);
                         }
                     }
                 }
@@ -5758,7 +5740,7 @@ export class cxObjectType extends cxType {
         if (otypes && otypes.length > 0) {
             for (let j = 0; j < otypes.length; j++) {
                 const otype = otypes[j];
-                if (objtype.inherits(otype, false)) {
+                if (objtype.inherits(otype, 0)) {
                     const rtype: cxRelationshipType | null = this.findRelshipTypeByKind1(relkind, otype, this.allRelationshiptypes);
                     if (rtype)
                         return rtype;
@@ -5957,7 +5939,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.fromObjtype.id === objtype.id) 
                 return true;
             if (includeGen) {
-                if (objtype.inherits(this.fromObjtype, true)) {
+                if (objtype.inherits(this.fromObjtype, 0)) {
                     return true;
                 }
             }
@@ -5969,7 +5951,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.toObjtype.id === objtype.id) 
                 return true;
                 if (includeGen) {
-                    if (objtype.inherits(this.toObjtype)) {
+                    if (objtype.inherits(this.toObjtype, 0)) {
                         return true;
                     }
                 }
@@ -5983,8 +5965,8 @@ export class cxRelationshipType extends cxObjectType {
             return retval;
         if (this.toObjtype.name !== constants.types.AKM_ELEMENT &&
             this.toObjtype.name !== constants.types.AKM_ENTITY_TYPE) {
-            if (fromType.inherits(this.toObjtype) &&
-                toType.inherits(this.toObjtype)) {
+            if (fromType.inherits(this.toObjtype, 0) &&
+                toType.inherits(this.toObjtype, 0)) {
                 retval = true;
             }
         }

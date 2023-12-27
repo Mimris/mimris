@@ -1,14 +1,8 @@
 // @ts-nocheck
-<<<<<<< HEAD
-// import { setFocusModel } from "../../actions/actions";
-// import { i } from "./SvgLetters";
-import { useState } from 'react';
-=======
 
 import { CONSTRAINT } from "sqlite3";
 import { setFocusModel } from "../../actions/actions";
 import { i } from "./SvgLetters";
->>>>>>> main23
 
 const debug = false
 
@@ -73,13 +67,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         // ---------------------  Set up imported model for merging of imported data ---------------------
         let data = importedfile
-<<<<<<< HEAD
-        // let data = (importedfile.models)
-=======
         // let data = (importedfile.phData)
         //     ?  importedfile // if phData exists, then use importedfile
         //     :  (importedfile.models) 
->>>>>>> main23
         //         ?   { // if no phData, then create phData.metis
         //                 phData: {
         //                     metis: {
@@ -87,11 +77,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         //                     }
         //                 }
         //             }
-<<<<<<< HEAD
-        //         : importedfile
-=======
         //         :   importedfile
->>>>>>> main23
 
         // ---------------------  add mv if missing in import ---------------------
         // if (!data.phData?.metis.models[0].modelviews) { // if modelview does not exist, then add it to   data.phData.metis.models
@@ -328,16 +314,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 },
             }
         } else if (filename.includes('_MO')) { // its a model, modelview or metamodel file, merge with existing project
-<<<<<<< HEAD
-            console.log('290 ReadModelFromFile', data, data.models[0].modelviews.length)
-            if (data.models[0].modelviews.length === 0) { // if modelview exists, then add it to   data.phData.metis.models
-                console.log('292 ReadModelFromFile', data.models[0].modelviews.length)
-                data.models[0].modelviews[0] = 
-                {
-                    id: 'mv1',
-                    name: 'mv1',
-                    markedAsDeleted: false,
-=======
             console.log('332 ReadModelFromFile', data )//, data.models[0].modelviews.length)
             if (!Array.isArray(data.models))
                 data.models = [data.models];
@@ -348,7 +324,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     id: 'mv1',
                     markedAsDeleted: false,
                     name: 'mv1',
->>>>>>> main23
                     modified: false,
                     modelRef: data.models[0].id,
                     UseUMLrelshipkinds: false,
@@ -379,14 +354,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             }
             console.log('307 ReadModelFromFile', data)
         } else if (filename.includes('_OR')) { // its a Object relationship file, merge with existing project'
-<<<<<<< HEAD
-            console.log('339 ReadModelFromFile', data)
-=======
             console.log('370 ReadModelFromFile', data)
             if (!data.objects) data.objects = []
             if (!data.relships) data.relships = []
             console.log('373 ReadModelFromFile', data)
->>>>>>> main23
             let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
             let mlength = props.phData?.metis?.models.length
             // check if imported file has objects and relships
@@ -395,28 +366,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     phData: {
                         ...props.phData,
                         metis: {
-<<<<<<< HEAD
-                            ...props.phData.metis,
-                            models: [
-                                ...props.phData.metis.models?.slice(0, mindex),
-                                {
-                                    ...props.phData.metis.models[mindex],
-                                    objects: [
-                                        ...props.phData.metis.models[mindex].objects,
-                                        ...data.objects,
-                                    ],
-                                    relships: [
-                                        ...props.phData.metis.models[mindex].relships,
-                                        ...data.relships,
-                                    ],
-                                },
-                                ...props.phData.metis.models?.slice(mindex + 1, mlength),
-                            ],
-                        },
-                    },
-                }
-            }
-=======
                         ...props.phData.metis,
                         models: [
                             ...props.phData.metis.models?.slice(0, mindex),
@@ -438,7 +387,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 };
             }
             console.log('399 ReadModelFromFile', data)
->>>>>>> main23
         } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'
             data = {
                 phData: {

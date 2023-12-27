@@ -17,7 +17,7 @@ import Project from "../components/Project";
 
 
 const page = (props) => {
-  console.log('12', props);
+  // console.log('12', props);
   const dispatch = props.dispatch
   const [refresh, setRefresh] = useState(true)
   // function toggleRefresh() { setRefresh(!refresh); }

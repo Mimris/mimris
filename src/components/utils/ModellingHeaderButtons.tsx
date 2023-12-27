@@ -36,7 +36,7 @@ export default function HeaderButtons(props) {
     const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype)
     const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype)
     const phSource = useSelector(phSource => props.phSource)
-    if (!debug) console.log('69 Modelling', props, focusModel, focusModelview);
+    if (debug) console.log('69 Modelling', props, focusModel, focusModelview);
 
     const refresh = useSelector(refresh => props.refresh)
     const setRefresh = useSelector(setRefresh => props.setRefresh)

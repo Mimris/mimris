@@ -42,7 +42,7 @@ const LoadGitHub = (props: any) => {
   const [githubLink, setGithubLink] = useState('http://github.com/');
   
   // const [searchText, setSearchText] = useState('');
-  // const [orgText, setorgText] = useState('Kavca');
+  // const [usernameText, setUsernameText] = useState('Kavca');
   const [orgText, setOrgText] = useState(props.ph.phFocus?.focusProj?.org);
   const [repoText, setRepoText] = useState(props.ph.phFocus?.focusProj?.repo);
   const [pathText, setPathText] = useState(props.ph.phFocus?.focusProj?.path);
@@ -51,7 +51,7 @@ const LoadGitHub = (props: any) => {
     // setRepoText(props.ph.phFocus?.focusProj?.repo)
     // setPathText(props.ph.phFocus?.focusProj?.path)
     // setBranchText(props.ph.phFocus?.focusProj?.branch)
-    // setorgText(props.ph.phFocus?.focusProj?.username)
+    // setUsernameText(props.ph.phFocus?.focusProj?.username)
   // const [orgText, setOrgText] = useState('Kavca');
   // const [repoText, setRepoText] = useState('kavca-akm-models');
   // const [pathText, setPathText] = useState('models');
@@ -101,7 +101,7 @@ const LoadGitHub = (props: any) => {
   const onModelChange = (text) => {
     if (debug) console.log('71 onModelChange', text)
     const rep = `${orgText}/${repoText}`;
-    // const rep = `repos/${orgText}/${repoText}/contents/${pathText}`;
+    // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     const filename = `${text}`; // add slash
 
     loadModel(rep, filename);
@@ -250,11 +250,11 @@ const LoadGitHub = (props: any) => {
     }
   }
 
-  const loadModels = async () => {
+  const loadModels = async (usernameText, pathText) => {
     setLoading(true);
-    const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${orgText}/${repoText}/contents/${pathText}` : `repos/${orgText}/${repoText}/contents`;
+    const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('131  u', orgText, 'r', repoText,'p', pathText,'repos', repos)
+    if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
@@ -306,7 +306,7 @@ const LoadGitHub = (props: any) => {
     setRepoText(props.ph.phFocus?.focusProj?.repo)
     setPathText(props.ph.phFocus?.focusProj?.path)
     setBranchText(props.ph.phFocus?.focusProj?.branch)
-    // setorgText(props.ph.phFocus?.focusProj?.username)
+    // setUsernameText(props.ph.phFocus?.focusProj?.username)
     // const orgText = props.ph.phFocus?.focusProj?.org
     // const repoText = props.ph.phFocus?.focusProj?.repo
     // const pathText = props.ph.phFocus?.focusProj?.path
@@ -314,7 +314,7 @@ const LoadGitHub = (props: any) => {
     // const refres = () => {
       if (debug) console.log('314 LoadGitHub ', orgText, repoText, branchText, pathText)
       loadRepos(repoText, pathText);
-      loadModels()
+      loadModels(orgText, pathText)
       
     if (pathText === undefined || pathText === '') {
       setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)

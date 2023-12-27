@@ -274,7 +274,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const genTasksDiv = (): JSX.Element | null => { 
     return subModels?.map((sm: any, index: number) => { 
-      if (!debug) console.log('274 Tasks', sm);
+      if (debug) console.log('274 Tasks', sm);
       const sourceMetamodel = metamodels?.find((mm: { id: any; }) => mm.id === sm.metamodelRef);
 
       let subTasks = sm.objects;

@@ -25,9 +25,10 @@ const CreateNewModel = (props: any) => {
   console.log('23 CreateNewModel', ph, models, curmodel, curmodelview, curMetamodel);
   const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
   const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
-   console.log('28 CreateNewModel', objectviewoftypemetamodel)
+  console.log('28 CreateNewModel', objectviewoftypemetamodel)
 
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
+
   console.log('31 CreateNewModel', metamodelGenerated)
 
   const createNewModelJson = () => {
@@ -47,10 +48,13 @@ const CreateNewModel = (props: any) => {
     console.log('560 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, additionalmetamodel, metamodels)
     console.log('561 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name, additionalmetamodel?.name)
 
+    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') ? 'New-Model_TD' : 'New-Model_CM'
+    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
+
     const newmodel = {
       id: uuidv4(),
-      name: 'New-Model',
-      description: 'New Model to start modelling',
+      name: newModelName,
+      description: newModelDesc,
       metamodelRef: metamodelGenerated?.id,
       sourceMetamodelRef: "",
       targetMetamodelRef: "",
@@ -560,55 +564,61 @@ const CreateNewModel = (props: any) => {
       modified: false,
     }
 
-    console.log('554 CreateNewModel', newmodel)
-
-    const newproject = {  
-      id: uuidv4(),
-      name: 'New-Project',
-      description: 'New Project to start modelling',
-      currentModelRef: newmodel.id,
-      currentModelviewRef: newmodel.modelviews[0].id,
-      currentMetamodelRef: metamodelGenerated?.id,
-      models: [newmodel, adminmodel],
-      metamodels: [metamodelGenerated, adminmetamodel, additionalmetamodel],
-      lastUpdate: new Date().toISOString()
-    }
+    if (debug) console.log('69 CreateNewModel', newmodel)
+    const adminmodel = models.find(m => m.name === '_ADMIN_MODEL')
+    const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
+    const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
+    const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
+    if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
+    if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
 
     const data = {
-      phData: { 
-        ...ph.phData,
+      phData: {
         metis: {
           ...ph.phData.metis,
-          ...newproject,
+          models:
+            [newmodel, adminmodel],
+          metamodels: [
+            {
+              ...metamodelGenerated,
+              subMetamodelRefs: [submetamodels[0]?.id],
+              subModelRefs: [submodels[0]?.id],
+              subModels: submodels,
+              // subMetamodels: submetamodels,
+            },
+            adminmetamodel,
+            (coremetamodel !== metamodelGenerated) && coremetamodel,
+            (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
+          ],
+          name: `<New ${metamodelGenerated?.name.slice(0, -3)} Modelproject>`,
+          description: 'New Project to start modelling',
+          currentModelRef: newmodel.id,
+          currentModelviewRef: newmodel.modelviews[0].id,
+          currentMetamodelRef: metamodelGenerated?.id,
         },
-
       },
       phFocus: {
         ...ph.phFocus,
-        focusModel: {id: newmodel.id, name: newmodel.name},
-        focusModelview: {id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name},
-        focusProject: {
-          ...ph.phFocus.focusProject,
-          id: newproject.id, 
-          name: newproject.name,
-        },
-        focusObject: {id: '', name: ''},
-        focusRelship: {id: '', name: ''},
-        focusObjectview: {id: '', name: ''},
-        focusRelshipview: {id: '', name: ''},
+        focusModel: { id: newmodel.id, name: newmodel.name },
+        focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },
+        focusObject: { id: '', name: '' },
+        focusRelship: { id: '', name: '' },
+        focusObjectview: { id: '', name: '' },
+        focusRelshipview: { id: '', name: '' },
       },
       phUser: ph.phUser,
       phSource: 'New Project Template',
       lastUpdate: new Date().toISOString()
     }
-    console.log('112 CreateNewModel', data) 
+    console.log('112 CreateNewModel', data)
     return data
   }
 
   const modelJson = createNewModelJson();
   console.log('116 CreateNewModel', modelJson)
 
-  return modelJson ;
+  return modelJson;
 };
 
 export default CreateNewModel;

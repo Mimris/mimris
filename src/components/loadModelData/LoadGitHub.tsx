@@ -326,31 +326,6 @@ const LoadGitHub = (props: any) => {
       // setRefresh(!refresh)
   }, []);
 
-  // Todo: loadModel should be done by clicking on a button, not by useEffect
-  // useEffect(() => {
-  //   // setBranchText('')
-  //   console.log('245 useEffect 1', orgText, repoText, branchText, pathText,  githubLink, model)
-  //   if (orgText?.length > 0) {
-  //     loadRepos(repoText, pathText);
-  //     loadModels(orgText, pathText)
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   // setModels([]);
-  //   // setDirs([]);
-  //   setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
-  //   loadModels(orgText, pathText)
-  // }, [orgText, repoText, pathText]);
-
-  // useEffect(() => {
-  //   if (debug) console.log('170 useEffect 3', model)
-  //   loadModels(orgText, pathText)
-  //   const  refres = () => {
-  //     setRefresh(!refresh)
-  //   }
-  //   setTimeout(refres, 3000);
-  // } , [model]);
 
   let modeloptionss = models?.map((mod) => {
     return {

@@ -3,21 +3,33 @@
         {
             "id": "role-geophysicist",
             "name": "Geophysicist",
+<<<<<<< HEAD
             "typeRef": "0006897b-07c2-4824-683f-2c10146e1a4a",
+=======
+            "typeRef": "49ba147f-1d9a-4b9e-9467-7fcc5b830244",
+>>>>>>> main23
             "typeName": "Role",
             "description": "Responsible for seismic data collection and preliminary analysis."
         },
         {
             "id": "task-seismic-data-collection",
             "name": "Seismic Data Collection",
+<<<<<<< HEAD
             "typeRef": "a7661dac-4deb-4668-81f3-0248d46f1c7e",
+=======
+            "typeRef": "3979fb2c-71e3-4054-745d-ee062b3689e5",
+>>>>>>> main23
             "typeName": "Task",
             "description": "Collecting seismic data using various techniques and equipment."
         },
         {
             "id": "info-seismic-data",
             "name": "Seismic Data",
+<<<<<<< HEAD
             "typeRef": "05ea3e5c-e9a1-43f5-31a4-042acc4dbdbb",
+=======
+            "typeRef": "ddc75a39-9367-48e4-de12-079bae5362f9",
+>>>>>>> main23
             "typeName": "Information",
             "description": "Raw data collected from seismic surveys."
         }
@@ -26,7 +38,11 @@
         {
             "id": "rel-geophysicist-seismic-data-collection",
             "name": "performs",
+<<<<<<< HEAD
             "typeRef": "f46856b9-3041-41bd-239b-3db729390a73",
+=======
+            "typeRef": "73d06934-f8af-48c5-a344-287d0b725792",
+>>>>>>> main23
             "fromobjectRef": "role-geophysicist",
             "toobjectRef": "task-seismic-data-collection",
             "description": "Geophysicist performs Seismic Data Collection"
@@ -34,7 +50,11 @@
         {
             "id": "rel-seismic-data-collection-seismic-data",
             "name": "hasOutput",
+<<<<<<< HEAD
             "typeRef": "ef25d26e-2324-4633-2d9a-1e9f2ca82ea4",
+=======
+            "typeRef": "640eec34-6109-48f3-0576-11461c396da6",
+>>>>>>> main23
             "fromobjectRef": "task-seismic-data-collection",
             "toobjectRef": "info-seismic-data",
             "description": "Seismic Data Collection outputs Seismic Data"

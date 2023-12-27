@@ -131,32 +131,36 @@ const page = (props: any) => {
               file: githubFile.filename,
             } 
             const orgrepo = githubFile.org+'/'+githubFile.repo 
-            console.log('127 modelling orgrepo:', orgrepo)
+            console.log('134 modelling orgrepo:', orgrepo)
             const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
             const githubData = await res.data
             const sha = await res.data.sha
-
-            const data = {
-              phData: githubData.phData,
-              phFocus: {
-                ...props.phFocus,
-                focusProj: focusProj,
-                focusModel:  params.focusModel,
-                focusModelview: params.focusModelview,
-                focusObject: params.focusObject,
-                focusObjectview:  params.focusObjectview,
-                focusRole: params.focusRole,
-                focusTask: params.focusTask,
-              },
-              phSource: props.phSource,
-              phUser: props.phUser,
-              lastUpdate: props.lastUpdate,
-            };
+            console.log('138 modelling githubData:', githubData, sha)
+            // const data = {
+            //   githubData
+            // }
+            // const data = {
+            //   phData: githubData.phData,
+            //   phFocus: {
+            //     ...props.phFocus,
+            //     focusProj: focusProj,
+            //     focusModel:  params.focusModel,
+            //     focusModelview: params.focusModelview,
+            //     focusObject: params.focusObject,
+            //     focusObjectview:  params.focusObjectview,
+            //     focusRole: params.focusRole,
+            //     focusTask: params.focusTask,
+            //   },
+            //   phSource: props.phSource,
+            //   phUser: props.phUser,
+            //   lastUpdate: props.lastUpdate,
+            // };
             // dispatchLocalStore(data); // dispatch to store the latest [0] from local storage
-            dispatch({ type: 'LOAD_TOSTORE_DATA', data: data })
-            const timer = setTimeout(() => {
-              setRefresh(!refresh);
-            } , 1000);
+            console.log('159 modelling', data)
+            dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
+            // const timer = setTimeout(() => {
+            //   setRefresh(!refresh);
+            // } , 2000);
 
             
           } else if (focus && !githubFile) {
@@ -223,7 +227,7 @@ const page = (props: any) => {
                     <Modelling />
                   </div>
               <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks props={props}/>
+                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>
               </div>
               <div className="footer">

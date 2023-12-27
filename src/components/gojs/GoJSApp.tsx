@@ -292,16 +292,37 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
-        if (debug) console.log('295 InitialLayoutCompleted: myMetis', myMetis);
         const modelview = myMetis.currentModelview;
         const objviews = modelview.objectviews;
-        if (debug) console.log('298 InitialLayoutCompleted: objviews', objviews);
         const nodes = myDiagram.nodes;
+        // Fix nodes (scale, loc and size, ++)
+        const modifiedObjViews = new Array();
         for (let it = nodes.iterator; it?.next();) {
-          const node = it.value;     
-          node.scale = node.data.scale;     
-          node.loc = node.data.loc;
-          if (debug) console.log('304 InitialLayoutCompleted: node', node);
+          const node = it.value;   
+          const data = node.data;
+          if (data.category === "Object type") 
+            continue;  
+          node.scale = data.scale;     
+          node.loc = data.loc;
+          node.size = data.size;
+          const object = data.object;
+          const objview = uic.setObjviewColors(data, myDiagram);          
+          const image = object?.image ? object.image : objview?.image;
+          if (image) {
+            myDiagram.model.setDataProperty(data, "image", image);
+          }
+          const jsnObjview = new jsn.jsnObjectView(objview);
+          modifiedObjViews.push(jsnObjview);
+        }
+        // Fix links 
+        const links = myDiagram.links;
+        for (let it = links.iterator; it?.next();) {
+          const link = it.value;
+          const data = link.data;
+          if (data.category === "Relationship") {
+            const relview = data.relshipview;
+            relview.markedAsDeleted = data.markedAsDeleted;
+          }
         }
         break;
       }
@@ -496,24 +517,16 @@ class GoJSApp extends React.Component<{}, AppState> {
         const myToNodes = [];
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
-          const key = n.key;
-          const myLoc = new String(n.data.loc);
           if (!(n instanceof go.Node)) continue;
-          const nod = myGoModel.findNode(key);
-          if (nod) {
-            let newScale = new String(n.data.scale1);
-            if (debug) console.log('447 n.data, nod, myScale', n.data, nod, newScale);
-            const myToNode = {
-              "key": n.data.key,
-              "name": n.data.name,
-              "group": n.data.group,
-              "loc": new String(n.data.loc),
-              "scale": new String(n.data.scale1)
-            }
-            myToNodes.push(myToNode);
+          const myToNode = {
+            "key": n.data.key,
+            "name": n.data.name,
+            "group": n.data.group,
+            "loc": new String(n.data.loc),
+            "scale": new String(n.data.scale1)
           }
+          myToNodes.push(myToNode);
         }
-
         // First do the move and scale the nodes. 
         let selcnt = 0;
         let refloc;
@@ -946,8 +959,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
       case "SelectionDeleting": {
-        const newNode = myMetis.currentNode;
-        if (newNode) myDiagram.select(myDiagram.findPartForKey(newNode.key));
+        // const newNode = myMetis.currentNode;
         if (debug) console.log('727 myMetis', myMetis);
         const deletedFlag = true;
         let renameTypes = false;
@@ -1162,6 +1174,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('1149 n.data', n.data, n);
           const node = myDiagram.findNodeForKey(n.data.key);
           let typeview = n.data.typeview;
+          let fillcolor = "";
+          let strokecolor = "";
+          let textcolor = "";
           let part = node.data;
           part.scale = node.scale;
           if (part.size === "") {
@@ -1170,6 +1185,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else {
               part.size = "160 70";
             }
+          }
+          let object = part.object;
+          if (object) {
+            fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
+            strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
+            textcolor = object.textcolor ? object.textcolor : part.textcolor;
           }
           const isLabel = (part.typename === 'Label');
           if (debug) console.log('916 node', node);
@@ -1206,9 +1227,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('952 myMetis', myMetis);
-            const objview = uic.createObject(part, context);
+            let objview = uic.createObject(part, context);
             if (debug) console.log('954 myMetis', myMetis);
             if (debug) console.log('955 part, objview', part, objview);
+            objview = uic.setObjviewColors(part, myDiagram);          
             if (objview) {
               const object = objview.object;
               object.name = part.name;
@@ -1238,15 +1260,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const jsnObjview = new jsn.jsnObjectView(objview);
               modifiedObjectViews.push(jsnObjview);
-
-              // const modifiedObjViews = new Array();
-              // modifiedObjViews.push(jsnObjview);
-              // modifiedObjViews.map(mn => {
-              //   let data = mn;
-              //   data = JSON.parse(JSON.stringify(data));
-              //   myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              // })
-
               uic.addItemToList(modifiedObjectViews, jsnObjview);
               // if (debug) console.log('966 objview, jsnObjview', objview, jsnObjview, modifiedObjectViews);
 
@@ -1280,7 +1293,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
-        console.log('1255 selected', data, sel);
+        console.log('1313 selected', data, sel);
         if (false) {
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {

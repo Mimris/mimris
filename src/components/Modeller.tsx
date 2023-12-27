@@ -26,6 +26,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { eventChannel } from "redux-saga";
 import { set } from "immer/dist/internal";
+import { setColorsTopEntityTypes } from "./utils/SetColorsTopEntityTypes";
 
 const debug = false;
 
@@ -355,11 +356,17 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // let ldArr = props.gojsModel?.linkDataArray || []
 
   const ndTypes = ndArr?.map((nd: any) => nd.typename)
+  
   const uniqueTypes = [...new Set(ndTypes)].sort();
 
   if (debug) console.log('349 Modeller ndTypes', uniqueTypes);
   // let ndArr = props.gojsModel?.nodeDataArray
   const nodeArray_all = ndArr
+
+  // if OSDU import then set fillcolor according to osduType
+  nodeArray_all?.forEach((node: any) => {
+    node.fillcolor = setColorsTopEntityTypes(node.object?.osduType)
+    })
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
@@ -393,7 +400,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   // // filter out all objects of type 
   // setOfilteredArr(objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container')))
-  if (debug) console.log('354 Palette ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
+  if (debug) console.log('354 Modeller ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
   // if (ofilter === 'Sorted') setOfilteredArr = roleTaskObj
   // if (ofilter === '!Property') ofilteredArr = noPropertyObj
   // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
@@ -401,34 +408,58 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    setSelectedOption('In this modelview')
+    setSelectedOption('Sorted by type')
+    // setSelectedOption('In this modelview')
   }, [])
 
   useEffect(() => {
     const initialArr = objectsNotDeleted;
-    if (debug) console.log('409 Palette ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
+    if (debug) console.log('409 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
     if (selectedOption === 'In this modelview') {
       const objectviewsInThisModelview = modelview?.objectviews
-      const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov.objectRef === obj.id))
+      const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id))
     
-      const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node.typename === o.typeName && node.name === o.name)))
+      const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name))).filter((node: any) => node)
+      if (debug) console.log('422 Modeller ofilteredOnTypes', mvfilteredArr);
       setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
-      if (debug) console.log('413 Palette ofilteredOnTypes', objectsInThisModelview, mvfilteredArr, gojsobjects);
     } else if (selectedOption === 'Sorted alfabetical') {
       const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-      if (debug) console.log('417 Palette ofilteredOnTypes', sortedArr, gojsobjects);
+      if (debug) console.log('417 Modeller ofilteredOnTypes', sortedArr, gojsobjects);
     } else if (selectedOption === 'Sorted by type') {
       const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
       const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
-      if (debug) console.log('422 Palette ofilteredOnTypes', sortedByType);
-      setGojsobjects({ nodeDataArray: sortedByType, linkDataArray: ldArr });
+      // Sort the sortedByType within each type using the node.object.osduType
+      // check if the osduType is a topEntity attribute, if so then sort by the order of the topEntity attributes
+
+      const osduTypeFound = initialArr?.find((node: { object: { osduType: string; }; }) => node && (node.object.osduType));
+
+      const sortedArr = (osduTypeFound) ? 
+        sortedByType?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => (a.object.osduType > b.object.osduType) ? 1 : -1)
+          ?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => {
+            const typeOrder = {
+              'MasterData': 0,
+              'WorkProductComponent': 1,
+              'ReferenceData': 2,
+              'Abstract': 3,
+              'PropLink': 4,
+              'Property': 5,
+              'Collection': 6,
+              'Item': 7,
+            };
+            return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
+          })
+        : sortedByType;
+
+      if (debug) console.log('453 Modeller ofilteredOnTypes', sortedArr);
+      setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
+
     } else {
       const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
-      if (debug) console.log('417 Palette ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
+      if (debug) console.log('417 Modeller ofilteredOnTypes', selOfilteredArr, uniqueTypes,  uniqueTypes[selectedOption], selectedOption);
       // setOfilteredArr(selOfilteredArr);
       setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
-      if (debug) console.log('421 Palette ofilteredOnTypes', selOfilteredArr, gojsobjects);
+      if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr, gojsobjects);
     }
     setRefresh(!refresh)
     if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
@@ -602,9 +633,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <button className="btn bg-secondary mt-1 py-0 mx-1 px-2"
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" style={{ fontSize: "12px" }}
         onClick={() => {
-          dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted });
-          dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
-        }} > {(showDeleted) ? ' Hide deleted' : 'Show deleted'}
+          dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted });setRefresh(!refresh)
+          // dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
+        }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
       </button>
       {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
       <span className="sourceName m-2 px-2" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee" }}>

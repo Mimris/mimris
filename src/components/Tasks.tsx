@@ -24,7 +24,7 @@ interface ObjView {
   group: number;
 }
 
-function Tasks(props) {
+function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; props: any; }) {
 
   // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props);
@@ -49,35 +49,12 @@ function Tasks(props) {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedTaskPane, setExpandedTaskPane] = useState(false);
 
-
-  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
-  const models = useSelector(state => state.phData?.metis?.models);
-  let focusModel = useSelector(state => state.phFocus?.focusModel);
-  const focusModelview = useSelector(state => state.phFocus.focusModelview);
-  const focusTask = useSelector(state => state.phFocus.focusTask);
-  const focusRole = useSelector(state => state.phFocus.focusRole);
-  const curmodel = (taskFocusModel?.id) ?  models?.find(m => m?.id === taskFocusModel?.id) : models?.find(m => m?.id === focusModel?.id);
-  if  (debug) console.log('91 Tasks', models, focusModel, taskFocusModel, curmodel);
-  const curmetamodel = metamodels?.find(m => m?.id === curmodel?.metamodelRef);
-  // const mothermodel = models?.find(m => m?.name.endsWith('_TD'));
-  // set  metamodel
-  const mothermodel = (curmetamodel?.subModels) && curmetamodel?.subModels[0];
-  // if (!mothermodel) return null;
-  if (debug) console.log('91 Tasks', models,  curmodel, curmetamodel, mothermodel);
-  const mothermodelviews = mothermodel?.modelviews;
-  const modelviews = curmodel?.modelviews;
-  const motherobjects = mothermodel?.objects;
-  const motherobjviews = mothermodel?.objectviews;
-  const motherrelships = mothermodel?.relshipviews;
-
-  if (debug) console.log('93 Tasks', mothermodel, mothermodelviews);
-
-    useEffect(() => {
-    if (props.asPage) {
-    setExpandedTaskPane(true);
-    }
-    openOneLevel();
-  } , []);
+  // useEffect(() => {
+  //   if (props.asPage) {
+  //   setExpandedTaskPane(true);
+  //   }
+  //   openOneLevel();
+  // } , []);
 
   useEffect(() => {
     setMinimized(true);
@@ -109,6 +86,30 @@ function Tasks(props) {
 
   const [formValues, setFormValues] = useState({});
 
+  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
+  const models = useSelector(state => state.phData?.metis?.models);
+  let focusModel = useSelector(state => state.phFocus?.focusModel);
+  const focusModelview = useSelector(state => state.phFocus.focusModelview);
+  const focusTask = useSelector(state => state.phFocus.focusTask);
+  const focusRole = useSelector(state => state.phFocus.focusRole);
+  const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
+  // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
+  if  (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);
+  const curmetamodel = metamodels?.find((m: { id: any; }) => m?.id === curmodel?.metamodelRef);
+
+
+  // set  submodel
+  const subModels = curmetamodel?.subModels;
+  if (!subModels) return null;
+  // const subModel = subModels[0];
+  if (debug) console.log('100 Tasks', models,  curmodel, curmetamodel);
+  // const subModelviews = subModel?.modelviews;
+  const modelviews = curmodel?.modelviews;
+  // const subModelObjects = subModel?.objects;
+  // const subModelobjviews = subModel?.objectviews;
+  // const subModelrelships = subModel?.relshipviews;
+
+  // if (debug) console.log('107 Tasks', subModel, subModelviews);
 
   let parentTask: any = null;
   // useEffect(() => {
@@ -119,6 +120,7 @@ function Tasks(props) {
     setExpandedTaskPane(!expandedTaskPane);
     // setMaximized(false);
   };
+
   const handleMinimize = () => {
     setMinimized(true);
     setMaximized(false);
@@ -173,7 +175,7 @@ function Tasks(props) {
     });
   };
 
-  const handleClick = (task, role) => {
+  const handleClick = (task: { id: any; name: any; }, role: { id: any; name: any; }) => {
     if (task) {
       dispatch({
         type: "SET_FOCUS_TASK",
@@ -212,11 +214,19 @@ function Tasks(props) {
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
   let curParentObj: any = null;
-      // find mv.objectviews that has no parent objectview and not of type Label i.e. top containers(groups)
+      // find to.objectviews that has no parent objectview and not of type Label i.e. top containers(groups)
+  // Define a type for the item
+  type ItemType = {
+    id: string;
+    name: string;
+    description: string;
+    typeName: string;
+    children: ItemType[];
+  };
 
-  const taskItem = (task, role, index) => 
+  const taskItem = (task: ItemType) => 
     <li
-      key={task?.id+index}
+      key={task?.id}
       className="p-0 me-0"
       onClick={() => setSelectedTask(task)}
       style={{backgroundColor: "lightyellow" }}
@@ -225,7 +235,6 @@ function Tasks(props) {
       <details className="m-y p-0 pe-1">
         <summary
           className="text-success d-flex align-items-top p-0 m-0"
-
         >
           <i className="fa fa-tasks mt-1 ms-2" aria-hidden="true"></i>
           <span className="ms-2">{task?.name}</span>
@@ -253,154 +262,48 @@ function Tasks(props) {
       </details>
     </li>
 
-  const containerItem = (container) =>
-    <div >
-      <details>
-        {/* <summary className="text-success d-flex align-items-center m-0 bg-light" > */}
-        <summary
-          className="text-success d-flex align-items-center m-0 bg-light"
-
-        >
-          <i className="fa fa-folder mt- ms-2" aria-hidden="true"></i>
-          <span className="ms-2" >{container.name} </span>
-        </summary>
-        <div className="m-0 p-2 bg-ligt">
-          <ReactMarkdown rehypePlugins={[rehypeRaw]} >{container?.description}</ReactMarkdown>
-          <hr />
-        </div>
-      </details>
-    </div>
-
-  const renderItem = (ov: any, oType: string) => {
-    if (debug) console.log('271 gcObjv', ov, oType);
-    if (!ov) return null;
-    if (!oType) return null;
-    const obj = motherobjects.find((o) => o.id === ov?.objectRef);
-    const role = '' // Todo: find role obj referenced to this objectview
-    if (debug) console.log('276 ', obj, oType, role);
-
-    return (oType === 'Task')
-      ? taskItem(obj, role, ov?.id)
-      : (oType === 'Container')
-        ? containerItem(obj)
-        : null;
+  const renderItem = (o: ItemType) => {
+    if (debug) console.log('273 gcObj', o);
+    if (!o) return null;
+    const obj = o;
+    if (debug) console.log('276 ', obj);
+    const oDiv = taskItem(obj)
+    if (debug) console.log('286 renderItem', oDiv);
+    return oDiv;
   };
 
-  //  Render top containers of this modelview and all their children recursively -------------------------------
-  const renderTree = (item) => {
-    if (debug) console.log('387 renderItems', item);
-    if (!item) return null;
-    const itemDiv = renderItem(item, item.typeName);
-    const children = item.children;
-    if (debug) console.log('391 renderItem',item,  children);
+  const genTasksDiv = (): JSX.Element | null => { 
+    return subModels?.map((sm: any, index: number) => { 
+      if (!debug) console.log('274 Tasks', sm);
+      const sourceMetamodel = metamodels?.find((mm: { id: any; }) => mm.id === sm.metamodelRef);
 
-    if (children?.length === 0) return renderItem(item, item.typeName)
-        
-    const childItems = children?.map((child, index) => {
-      if (debug) console.log('396 renderItems', child);
-      return (item.typeName === 'Task')
-      ? <div key={index} className="ps-2">{renderTree(child)}</div> 
-      : <div key={index} className="ps-1">{renderTree(child)}</div> 
-    });
+      let subTasks = sm.objects;
+      if (debug) console.log('278 Tasks', subTasks);
 
-    return (
-      <>
-        {itemDiv}
-        {childItems}
-      </>
-    );
-  };
-
-const genTasksDiv = (): JSX.Element | null => {
-  let parent: any, topGroupOvsDiv: JSX.Element | null;
-  if (!mothermodelviews) return null;
-  if (debug) console.log('313 Tasks', mothermodelviews, mothermodel.objects);
-  const modview = mothermodelviews?.map((mv: any, index: number) => { // filter and map over  modelviews for this metamodel and of the core model
-      if (debug) console.log('316 Tasks', mv, curmetamodel.id);
-      parent = mv;
-      // nolabel objectviews that has no parent objectview i.e. top containers(groups)
-      const noLabelovs = mv?.objectviews?.filter((ov: any) =>
-      (!motherobjects?.filter((o: any) => o.typeName === 'Label').find((o: any) => o.id === ov?.objectRef) && ov)
-      );
-      let topObjviews = noLabelovs?.filter((ov: any) =>
-      (!mv.objectviews?.find((ov2: any) => ov2?.id === ov?.group) && ov)
-      );
-      if (!(mv.objectviews.find ((ov: any) => ov.name === curmetamodel.name) || (mv.name === '1-AKM Core'))) return null;
-      // if (!(mv.name === '1-AKM Core' || mv.id === curmetamodel.id)) return null; // skip the Task modelview
-      if (debug) console.log('325 buildTree', parent, mv, mv.objectviews, noLabelovs, topObjviews);
-      // if (!topObjviews) topObjviews = mv.objectviews //mothermodel.objects ;  
-
-      //  build a tree of the objectviews in this modelview  
-      const buildTree = (parent: any, children: any): any => {  // build a tree of the objectviews in this modelview (children is the children of the parent)
-        if (debug) console.log('329 buildTree', parent.name, children);
-        if (!children) return null;
-        const ovs = children;
-        const parentobj = (parent === mv) ? {id: mv.id, name: mv.name, description: mv.description} : motherobjects?.find((o: any) => o.id === parent.objectRef); // find the object of this parent objectview
-        if (debug) console.log('333 buildTree', mv.name, parent, children, parentobj);
-        // children are the objectviews that has this parent objectview as group
-        const children2 = children.map((ov: any) =>  {
-          const grandchildren = mv.objectviews?.filter((ov2: any) => ov2.group === ov.id);
-          const simplifiedChild = {
-            id: ov.id, 
-            name: ov.name, 
-            description: motherobjects?.find((o: any) => o.id === ov.objectRef)?.description, 
-            typeName: motherobjects?.find((o: any) => o.id === ov.objectRef)?.typeName,
-            objectRef: ov.objectRef,
-            children: grandchildren
-          };
-          if (debug) console.log('346 buildTree', ov, grandchildren, simplifiedChild);
-        return  buildTree(simplifiedChild, grandchildren); // recursively build the tree for all children with children
-        }) ; //
-        if (debug) console.log('349 buildTree', children2);
-        const parent1 = { id: parent.id, name: parent.name, description: parentobj?.description, typeName: parentobj?.typeName,  objectRef: parent.objectRef, children: children2 };  // convert parent object with id, name, description, typeName, objectRef (from object) and children
-        if (debug) console.log('352 buildTree', parentobj, parent1,  children2);
-        if (debug) console.log('353 buildTree', parent1);
-        return parent1;
-      };    
+      const tasksDiv = subTasks.map((subtask: ItemType) => {
+        return renderItem(subtask);
+      });
       
-      const ovsTree = buildTree(parent, topObjviews);
-      if (debug) console.log('357 buildTree', ovsTree, parent, topObjviews);
-      
-      const topGroupOvsDiv = 
+      return (
         <details key={index}>
           <summary className="text-success d-flex align-items-center m-0 bg-light" >
             <span className="ms-0 d-flex justify-content-between" >
               <div key={index} className="" >
                 <i className="fa fa-folder mt-1" aria-hidden="true"></i>
-                <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{mv.description}</span>  ({mv.name})</span>
+                <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{sm.name}</span> ()
+                {/* ({sourceMetamodel?.name}) */}
+                </span>
               </div>
-              {/* <div className="ms-4" style={{ whiteSpace: "nowrap" }}>{mv.description} </div> */}
             </span>
           </summary>
           <div key={index} className="m-0 p-2">
-            {renderTree(ovsTree)}
+            {tasksDiv}
           </div>
-        </details>;
-
-      return (
-        <div  key={index}>
-          <hr className="my-0"/>
-            {/* Render the top containers of this modelview */}
-            <div  key={index} className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
-              {topGroupOvsDiv}
-            </div>
-        </div>
+        </details>
       );
     })
+  }
 
-
-    
-    if (debug) console.log('387 Tasks', modview);
-    return (
-      <div  >
-        <hr className="my-0"/>
-          {/* Render the top containers of this modelview */}
-          <div  className=" m-1" style={{ backgroundColor: "lightyellow"}}> 
-            {modview}
-          </div>
-      </div>
-    );
-  };
 
   const genTasksHeaderDiv  =  
     <>
@@ -489,7 +392,7 @@ const genTasksDiv = (): JSX.Element | null => {
             <hr className="m-0 p-2" />          
           </div>
           <div className="tasks" style={{maxHeight: "80vh" ,overflow: "scroll"}}>
-             <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {mothermodel?.name}</span> 
+             <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span> 
               {genTasksDiv()}
             </div>
           </div>
@@ -507,7 +410,8 @@ const genTasksDiv = (): JSX.Element | null => {
           <Modal.Title>Focus task </Modal.Title>
         </Modal.Header>
         <Modal.Body className="bg-transparent">
-          <ReportModule props={props.props} reportType="task" edit={false} modelInFocusId={mothermodel?.id} />
+          <ReportModule props={props.props} reportType="task" edit={false} />
+         {/* modelInFocusId={subModels[0].id} /> */}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
@@ -628,9 +532,9 @@ const genTasksDiv = (): JSX.Element | null => {
 }
 
 
-function type(metamodels, model, motherobjects, curov) {
-  const retval = metamodels?.find(mm => mm.id === model?.metamodelRef)
-    ?.objecttypes?.find(ot => ot.id === motherobjects?.find(o => o.id === curov?.objectRef)?.typeRef)?.name;
+function type(metamodels: any[], model: { metamodelRef: any; }, subModelobjects: any[], curov: { objectRef: any; }) {
+  const retval = metamodels?.find((mm: { id: any; }) => mm.id === model?.metamodelRef)
+    ?.objecttypes?.find((ot: { id: any; }) => ot.id === subModelobjects?.find((o: { id: any; }) => o.id === curov?.objectRef)?.typeRef)?.name;
   if (debug) console.log('377 Tasks ', retval);
   return retval;
 }

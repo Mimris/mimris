@@ -58,8 +58,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis as akm.cxMetis;
     const activeTab = this.props.activeTab;
-    const myMetamodel = myMetis.currentMetamodel;
-    const myModel = myMetis.currentModel;
+    const myMetamodel = myMetis.currentMetamodel as akm.cxMetamodel;
+    const myModel = myMetis.currentModel as akm.cxModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
@@ -78,14 +78,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst = selObj.object;
         inst1 = myMetis.findObject(inst?.id);   
         if (inst1) inst = inst1;
-        instview = selObj.objectview;
-        instview1 = myMetis.findObjectView(instview?.id);
+        instview = selObj.objectview as akm.cxObjectView;
+        instview1 = myMetis.findObjectView(instview?.id) as akm.cxObjectView;
         if (instview1) instview = instview1;
-        type = selObj.objecttype;
-        type1 = myMetis.findObjectType(type?.id);
+        type = selObj.objecttype as akm.cxObjectType;
+        type1 = myMetis.findObjectType(type?.id) as akm.cxObjectType;
         if (type1) type = type1;
-        objtypeview = type?.typeview;
-        objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        objtypeview = type?.typeview as akm.cxObjectTypeView;
+        objtypeview = myMetis.findObjectTypeView(objtypeview?.id) as akm.cxObjectTypeView;
         typeview = objtypeview;
         break;
       case constants.gojs.C_OBJECTTYPE:
@@ -217,7 +217,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         } 
         else if (type?.name === 'Method') {
-          inst = myMetis.findObject(inst.id);
+          const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
+          if (inst1) inst = inst1;
           properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
           chosenInst = inst;
         } else {
@@ -254,7 +255,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
         if (chosenInst) { 
           const v = chosenInst[prop.name];
-          if (!v) chosenInst[prop.name] = "";  // Sets empty string if undefined
+          // Sets empty string if undefined:
+          if (!v) chosenInst[prop.name] = "";  
         }
       }
     }
@@ -340,6 +342,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     //   }
     // }
     }
+    
     for (let k in test) {
       // Filter some system attributes
       {
@@ -455,7 +458,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               if (!found) {
                 // Check if k should NOT be included in the modal
                 if (!uic.isPropIncluded(k, type)) {
-                  continue;
+                  if (!uic.isOsduAttribute(k))
+                    continue;
                 }
               }
             } 
@@ -509,76 +513,80 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   val = item[k];
                 break;
               }
-          }
-        
-          // Get property values
-          if (properties?.length > 0) {
-            for (let i=0; i<properties.length; i++) {
-              let p = properties[i];
-              let prop = myMetis.findProperty(p.id);
-              if (!prop) {
-                prop = new akm.cxProperty(utils.createGuid(), p.name, p.description);
-                myMetis.addProperty(prop);
+            }        
+        }
+  
+        // Get property values
+        if (properties?.length > 0) {
+          for (let i=0; i<properties.length; i++) {
+            let prop = properties[i] as akm.cxProperty;
+            if (prop) {
+              if (prop.name !== k)
+                continue;
+              if (prop.readOnly) {
+                readonly = true;
               }
-              properties[i] = prop;
-              if (prop  && prop.name === k) {
-                let dtype = prop.getDatatype();
-                if (!dtype) {
-                  const dtypeRef = prop.getDatatypeRef();
-                  if (dtypeRef) {
-                    dtype = myMetis.findDatatype(dtypeRef);
-                  }
+              if (prop.isRequired) {
+                required = true;
+              }
+              prop = myMetamodel.findProperty(prop.id);
+              let dtype = prop?.getDatatype() as akm.cxDatatype;
+              if (!dtype) {
+                const dtypeRef = prop?.getDatatypeRef();
+                if (dtypeRef) {
+                  dtype = myMetamodel.findDatatype(dtypeRef);
                 }
-                if (dtype) {
-                  const dtype1 = dtype.getIsOfDatatype();
-                  if (dtype1) {
-                    dtype = dtype1;
-                  }
+              }
+              if (dtype) {
+                const dtype1 = dtype.getIsOfDatatype();
+                if (dtype1) {
+                  dtype = dtype1;
                 }
-                if (dtype) {
-                  fieldType   = dtype.fieldType;
-                  viewFormat  = dtype.viewFormat
-                  pattern     = dtype.inputPattern;
-                  defValue    = dtype.defaultValue;
-                  values      = dtype.allowedValues;
-                  description = prop.description;
-                }
-                // Handle methodRef
-                const mtdRef = prop.methodRef;
-                if (mtdRef) {
-                  disabled = true;
-                  if (inst.category === constants.gojs.C_OBJECT) {
-                    const obj = myMetis.findObject(inst.id);
-                    if (obj) inst = obj;
-                  } else if (inst.category === constants.gojs.C_RELATIONSHIP) {
-                    const rel = myMetis.findRelationship(inst.id);
-                    if (rel) inst = rel;
-                  }
-                  try {
-                    val = item.getPropertyValue(prop, myMetis);
-                  } catch {
-                    // Do nothing
-                  }
-                }
-                // Handle connected objects
+              }
+              if (dtype) {
+                fieldType   = dtype.fieldType;
+                viewFormat  = dtype.viewFormat
+                pattern     = dtype.inputPattern;
+                defValue    = dtype.defaultValue;
+                values      = dtype.allowedValues;
+                description = prop.description;
+              }
+              // Handle methodRef
+              const mtdRef = prop?.methodRef;
+              if (mtdRef) {
+                disabled = true;
                 if (inst.category === constants.gojs.C_OBJECT) {
-                  const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-                  if (objs?.length > 1)
-                    val = '';
-                  for (let i=0; i<objs?.length; i++) {
-                    const obj = objs[i];
-                    if (obj) {
-                      if (i == 0)
-                        val = obj.name;
-                      else
-                        val += ' | ' + obj.name;
-                    }
+                  const obj = myMetis.findObject(inst.id);
+                  if (obj) inst = obj;
+                } else if (inst.category === constants.gojs.C_RELATIONSHIP) {
+                  const rel = myMetis.findRelationship(inst.id);
+                  if (rel) inst = rel;
+                }
+                try {
+                  val = item.getPropertyValue(prop, myMetis);
+                } catch {
+                  // Do nothing
+                }
+              }
+              // Handle connected objects
+              if (inst.category === constants.gojs.C_OBJECT) {
+                const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+                if (objs?.length > 1)
+                  val = '';
+                for (let i=0; i<objs?.length; i++) {
+                  const obj = objs[i];
+                  if (obj) {
+                    if (i == 0)
+                      val = obj.name;
+                    else
+                      val += ' | ' + obj.name;
                   }
                 }
               }
             }
           }
         }
+
         // Handle color values
         {
           if (
@@ -731,7 +739,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'strokecolor':
             case 'strokecolor2':
-                if (!useStrokeColor) {
+              if (!useStrokeColor) {
                 values = colornames;
                 defValue = 'black';
                 fieldType = 'select';
@@ -782,18 +790,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (val === "") {
               const d = new Date();
               val = d.toISOString().slice(0,10);
+            } 
+            if (readonly) {
+              disabled = true;
             }
           }
-          // if (fieldType === 'time') {
-          //   pattern = "";
-          //   const isNow = (val === "now");
-          //   if (val === "" || isNow) {
-          //     const d = new Date();
-          //     val = d.getTime();
-          //     if (isNow)
-          //       disabled = true;
-          //   }
-          // }
+          if (fieldType === 'time') { 
+            pattern = "";
+            if (val === "") {
+              const d = new Date();
+              val = d.getTime();
+            }
+              if (readonly) {
+                disabled = true;
+            }
+          }
           if (k === 'name') {
             fieldType = 'text';
           }

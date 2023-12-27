@@ -419,6 +419,7 @@ export class goObjectNode extends goNode {
     textcolor: string;
     textscale: string;
     icon: string;
+    image: string;
     isGroup: boolean | "";
     isExpanded: boolean | "";
     isSelected: boolean | "";
@@ -427,14 +428,15 @@ export class goObjectNode extends goNode {
     parent: string;
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
+        this.name           = objview.name;
         this.category       = constants.gojs.C_OBJECT;
-        this.objectview     = objview;
-        this.object         = null;
-        this.objecttype     = null;
-        this.leftPorts      = null;
-        this.rightPorts     = null;
-        this.topPorts       = null;
-        this.bottomPorts    = null;
+        this.objectview     = objview as akm.cxObjectView;
+        this.object         = null as akm.cxObject;
+        this.objecttype     = null as akm.cxObjectType;
+        this.leftPorts      = null as akm.cxPort[];
+        this.rightPorts     = null as akm.cxPort[];
+        this.topPorts       = null as akm.cxPort[];
+        this.bottomPorts    = null as akm.cxPort[];
         this.typename       = "";
         this.typedescription = "";
         this.template       = objview.template;
@@ -448,19 +450,20 @@ export class goObjectNode extends goNode {
         this.textcolor      = objview.textcolor;
         this.textscale      = objview.textscale;
         this.icon           = objview.icon;
+        this.image          = objview.image;
         this.isGroup        = objview.isGroup;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
         this.isExpanded    = objview.isExpanded;
         this.isSelected    = objview.isSelected;
         this.groupLayout    = "Tree";
-        this.group          = objview.group;
+        this.group          = objview.group as akm.cxObjectView;
         this.parent         = "";
 
         if (objview) {
-            const object = objview.getObject();
-            if (object) {
-                this.object = object;
+            const object = objview.getObject() as akm.cxObject;
+            if (object && object instanceof akm.cxObject) {
+                this.object = object as akm.cxObject;
                 this.name = object.getName();
                 const objtype = object.getType() as akm.cxObjectType;
                 if (objtype) {
@@ -719,6 +722,8 @@ export class goObjectTypeNode extends goNode {
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
     typedescription: string;
+    icon: string;
+    image: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = constants.gojs.C_OBJECTTYPE;
@@ -862,12 +867,12 @@ export class goRelshipLink extends goLink {
         this.nameTo          = "";
 
         if (relview) {
-            const relship = relview.getRelationship();
-            if (relship) {
+            const relship = relview.getRelationship() as akm.cxRelationship;
+            if (relship && relship instanceof akm.cxRelationship) {
                 this.relship = relship;
                 this.name = relship.getName();
                 const reltype = relship.getType() as akm.cxRelationshipType;
-                if (reltype) {
+                if (reltype && reltype instanceof akm.cxRelationshipType) {
                     this.relshiptype = relship.type;
                     this.typename = reltype.getName();
                     this.typedescription = this.relshiptype.getDescription();
@@ -1174,6 +1179,7 @@ export class paletteNode {
     strokecolor: string;
     strokewidth: string;
     icon: string;
+    image: string;
     constructor(key: string, type: any, category: string, name: string, description: string) {
         this.key = key;
         this.type = type;
@@ -1191,5 +1197,6 @@ export class paletteNode {
         this.strokecolor = "black";
         this.strokewidth = "1";
         this.icon = "";
+        this.image = "";
     }
 }

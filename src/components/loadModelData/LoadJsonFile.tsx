@@ -322,17 +322,6 @@ const importFile = async (e) => {
                 <div className="selectbox3 mb-1 border">
                   <h6>Import OSDU JSON-file as AKM model types.
                   (This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
-                  <label className="pt-1" htmlFor="directory">File(s)</label>
-                  <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
-                  <label className="pt-3" htmlFor="directory">or Directory</label>
-                  <input
-                    className="select-input w-100"
-                    type="file"
-                    accept=".json"
-                    onChange={importDirectories}
-                    webkitdirectory="true"
-                    directory="true"
-                  />
                   {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
                   <div className='mt-2'> Include EntityTypes:</div>
                   <div className="d-flex justify-content-between align-items-center my-2 border label-input-container"> 
@@ -381,6 +370,17 @@ const importFile = async (e) => {
                       <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
                     </span>
                   </div>
+                                    <label className="pt-1" htmlFor="directory">File(s)</label>
+                  <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
+                  <label className="pt-3" htmlFor="directory">or Directory</label>
+                  <input
+                    className="select-input w-100"
+                    type="file"
+                    accept=".json"
+                    onChange={importDirectories}
+                    webkitdirectory="true"
+                    directory="true"
+                  />
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>
                 {/* <div className="selectbox3 mb-2 border bg-secondary">

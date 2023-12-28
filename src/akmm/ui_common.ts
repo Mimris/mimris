@@ -2485,6 +2485,7 @@ export function isOsduAttribute(k: string): boolean {
         case 'x-osdu-license':
         case 'x-osdu-review-status':
         case 'x-osdu-schema-source':
+        case '
             retVal = true;
             break;
         default:

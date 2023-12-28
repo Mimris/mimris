@@ -1362,8 +1362,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 }
                 // Follow 'hasSubModel' relationships
                 toType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
-                const submodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, fromType, toType);
-                const submodelObjects = getSubModelObjects(obj, submodelType);
+                const hasSubmodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, fromType, toType);
+                const submodelObjects = getSubModelObjects(obj, hasSubmodelType);
                 for (let i=0; i<submodelObjects?.length; i++) {
                     const submodelObject = submodelObjects[i];
                     if (submodelObject) {

@@ -2485,6 +2485,11 @@ export function isOsduAttribute(k: string): boolean {
         case 'x-osdu-license':
         case 'x-osdu-review-status':
         case 'x-osdu-schema-source':
+        case 'externalId':
+        case 'title':
+        case 'groupType':
+        case 'linkID':
+        case 'pattern':
             retVal = true;
             break;
         default:

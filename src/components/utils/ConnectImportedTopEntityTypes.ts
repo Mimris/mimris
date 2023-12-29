@@ -160,17 +160,17 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
                 relDescription = `${fromobjectName} has Base ${toobjectName}`;
             }
 
-            if (debug) console.log('152 ', relId, relName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
-            if (debug) console.log('153 ', relName, 'from: ', fromobjectId, 'to:', toobjectId, 'existRelship', existRelship);
+            if (debug) console.log('163 ', relId, relName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
+            if (debug) console.log('164 ', relName, 'from: ', fromobjectId, 'to:', toobjectId, 'existRelship', existRelship);
             if (toobjectId && fromobjectId) {
-                if (debug) console.log('165 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
+                if (debug) console.log('166 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
                 if (o["$ref"]?.includes('abstract')) {
                     // if (fromrelName === 'Abstract' || torelName === 'Abstract' || torelName === 'ReferenceData') {
-                    if (debug) console.log('160 ', fromrelName, fromobjectName, torelName, toobjectName);
+                    if (debug) console.log('169 ', fromrelName, fromobjectName, torelName, toobjectName);
                     relName = 'Is'
                     createRel(relId, relName, relDescription, relTitle, relshipkind = 'Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 } else {
-                    if (debug) console.log('163 --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
+                    if (!debug) console.log('173 ConnectImp --- ', relName, relTitle, fromrelName, fromobjectName, torelName, toobjectName);
                     relName = o.name //'refersTo'
                     createRel(relId, relName, relDescription, relTitle, relshipkind = 'Association', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o)
                 }

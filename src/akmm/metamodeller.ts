@@ -163,8 +163,36 @@ export class cxMetis {
                     this.importModel(model);
                 }
             })
+        }  
+        // handle submodels
+        let mmodels = importedData.metamodels;
+        if (mmodels && mmodels.length) {
+            mmodels.forEach(mmodel => {
+                const subModels = mmodel.subModels;
+                if (subModels && subModels.length) {
+                    subModels.forEach(subModel => {
+                        const submodel = this.findModel(subModel.id);
+                        if (submodel) {
+                            const metamodel = this.findMetamodel(mmodel.id);
+                            if (metamodel) {
+                                metamodel.addSubModel(submodel);
+                            }
+                        }
+                    })
+                } else {
+                    const subModelRefs = mmodel.subModelRefs;
+                    if (subModelRefs && subModelRefs.length) {
+                        subModelRefs.forEach(subModelRef => {
+                            const subModel = this.findModel(subModelRef);
+                            if (subModel) {    
+                                const metamodel = this.findMetamodel(mmodel.id); 
+                                metamodel.addSubModel(subModel);                  
+                            }
+                        })
+                    }
+                }
+            })
         }
-        
         // Handle objects 
         const objects: any[] = (importedData) && importedData.objects;
         if (objects && objects.length) {
@@ -258,7 +286,7 @@ export class cxMetis {
                     otypeview.name = otype.name;
             }
         }
-        const mmodels = this.metamodels;
+        mmodels = this.metamodels;
         if (false) {
         // Postprocess relshiptypeviews
         for (let i=0; i<mmodels?.length; i++) {
@@ -3481,6 +3509,7 @@ export class cxMetaModel extends cxMetaObject {
     metamodels:  cxMetaModel[] | null;
     submetamodels:  cxMetaModel[] | null;
     submodels:   cxModel[] | null;
+    submodelRefs:   string[] | null;
     viewstyle:   cxViewStyle | null;
     viewstyles:  cxViewStyle[] | null;
     geometries:  cxGeometry[] | null;
@@ -3814,8 +3843,8 @@ export class cxMetaModel extends cxMetaObject {
         if (metamodel?.category === constants.gojs.C_METAMODEL) {
             if (this.metamodels == null)
                 this.metamodels = new Array();
-            if (!this.findMetamodel(metamodel.id))
-                this.metamodels.push(metamodel);
+            this.metamodels.push(metamodel);
+            this.metamodels = [...new Set(this.metamodels)];
         }
     }
     addContainedMetamodel(metamodel: cxMetaModel) {

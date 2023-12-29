@@ -265,11 +265,7 @@ export class jsnMetaModel {
             const cnt = subMetamodels.length;
             for (let i = 0; i < cnt; i++) {
                 const subMetamodel = subMetamodels[i];
-                if (subMetamodel.id !== this.id) {
-                    this.subMetamodelRefs.push(subMetamodel.id);
-                    const jsnSubMetamodel = new jsnMetaModel(subMetamodel, false);
-                    this.subMetamodels.push(jsnSubMetamodel);
-                }
+                this.subMetamodelRefs.push(subMetamodel.id);
             }
         }
         let subModels = metamodel.getSubModels();
@@ -282,16 +278,6 @@ export class jsnMetaModel {
                 this.subModels.push(jsnSubmodel);
             }
         }
-        // for (let j = 0; j < subMetamodels.length; j++) {
-        //     const subMetaModel = metamodel.submetamodels[j];
-        //     if (subMetaModel) {
-
-        //         const jMetamodel = new jsnMetaModel(subMetaModel, false);
-        //         this.subMetamodels.push(jMetamodel);
-        //     }
-        //     const jMetamodel = new jsnMetaModel(subMetaModel, false);
-        //     this.subMetamodels.push(jMetamodel);
-        // }
         const objtypes = metamodel.getObjectTypes();
         if (objtypes) {
             const cnt = objtypes.length;

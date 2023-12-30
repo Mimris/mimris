@@ -11,6 +11,7 @@
         "Gojs",
         "immer",
         "IRTV",
+        "loadjsonfile",
         "metamodel",
         "Metamodelling",
         "metamodels",

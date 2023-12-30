@@ -13,7 +13,7 @@ import LoadFile from '../loadModelData/LoadFile'
 import LoadJsonFile from '../loadModelData/LoadJsonFile'
 import LoadGitHub from '../loadModelData/LoadGitHub'
 import LoadRecovery from '../loadModelData/LoadRecovery';
-import { ReadModelFromFile } from './ReadModelFromFile';
+import {ReadModelFromFile} from './ReadModelFromFile';
 import LoadNewModelProjectFromGithub from '../loadModelData/LoadNewModelProjectFromGitHub';
 import LoadMetamodelFromGithub from '../loadModelData/LoadMetamodelFromGitHub';
 
@@ -58,11 +58,11 @@ export default function HeaderButtons(props) {
     // if (debug) console.log('383 Modelling', activeTab);
     const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+    const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Localfile'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadgithub = (typeof window !== 'undefined')    && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadjsonfile = (typeof window !== 'undefined')  && <LoadJsonFile buttonLabel='OSDU' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -85,7 +85,6 @@ export default function HeaderButtons(props) {
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span> */}
             {/* <span className="pt-1 pr-1" > </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
             <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
@@ -96,17 +95,18 @@ export default function HeaderButtons(props) {
           <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
             <div className=" d-flex align-items-center me-0 pe-0">
               <i className="fa fa-folder text-secondary px-1"></i>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
               <div className=""  style={{ whiteSpace: "nowrap" }}></div>
             </div>
-            <div className="">
+            {/* <div className="">
               <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, props.dispatch, e)} style={{width: "380px"}}/>
               </div>
-            </div>
+            </div> */}
             <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
+              onClick={handleSaveAllToFile}><i className="fa fa-save me-2 ms-0 "></i>Save
             </button>
           </div>
           <span className="btn px- py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>

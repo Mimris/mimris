@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 import React, { useState } from "react";
 import { CONSTRAINT } from "sqlite3";
 import { setFocusModel } from "../../actions/actions";
@@ -6,7 +6,7 @@ import { i } from "./SvgLetters";
 
 const debug = false
 
-export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
+const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
 
     const [focus, setFocus] = useState(null)
     const [curmod, setCurmod] = useState(null)
@@ -34,32 +34,33 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         // const modelviews = curmod.modelviews
         // const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
         
-    let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
-    
-    e.preventDefault();
-    const reader = new FileReader();
-    reader.fileName = '' // reset fileName
-    reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
-    if (!reader.fileName) return null
+    class CustomFileReader extends FileReader {
+        fileName: string = '';
+    }
+
+    const reader = new CustomFileReader();
+    reader.fileName = ''; // reset fileName
+    reader.fileName = e.target.files[0]?.name;
+    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName);
+    if (!reader.fileName) return null;
 
 
     reader.onload = async (e) => { 
-        const text = (e.target.result)
-        if (debug) console.log('19 ReadModelFromFile', text)
-        let importedfile = JSON.parse(text)
-        const filename = reader.fileName 
-        console.log('22 ReadModelFromFile', filename, importedfile)
+        const text = (e.target.result);
+        if (debug) console.log('19 ReadModelFromFile', text);
+        let importedfile = JSON.parse(text.toString());
+        const filename = reader.fileName;
+        console.log('22 ReadModelFromFile', filename, importedfile);
 
-        const impObjecttypes = importedfile.objecttypes || null
-        const impRelshiptypes = importedfile.relshiptypes || null
-        const impModelviews = importedfile.modelviews || null
-        const impMetamodels = importedfile.metamodels || null
-        const impObjects= importedfile.objects || null
-        const impRelships = importedfile.relships || null
-        const impModels = importedfile.models || null
+        const impObjecttypes = importedfile.objecttypes || null;
+        const impRelshiptypes = importedfile.relshiptypes || null;
+        const impModelviews = importedfile.modelviews || null;
+        const impMetamodels = importedfile.metamodels || null;
+        const impObjects = importedfile.objects || null;
+        const impRelships = importedfile.relships || null;
+        const impModels = importedfile.models || null;
         // const impModel = (impModels) && impModels[0]  // max one model in modelview file for now
-        const impModelview = (impModelviews) && impModelviews[0] // max one modelview in modelview file for now
+        const impModelview = (impModelviews) && impModelviews[0]; // max one modelview in modelview file for now
         const impMetamodel = (impMetamodels) && impMetamodels[0] // max one model in modelview file for now
         // ---------------------  Set up current model for merging of imported data ---------------------
         // const metis = props.phData.metis
@@ -173,17 +174,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 if (!r.cardinalityTo) { r.cardinalityTo = 'n'; }
             });
         }
-
-
-
-
-        console.log('100 ReadModelFromFile', data)
-
-        if (debug) console.log('187 ReadModelFromFile 1', data.phData?.metis)
-
+        if (debug) console.log('177 ReadModelFromFile', data)
+        if (debug) console.log('178 ReadModelFromFile 1', data.phData?.metis)
         // -------------map over objecttypes in modelff and add typeName from objecttypes
         function addTypenameFromObjectTypes(objecttypes, objects) { // obecttypes and objects is imported from file
-            if (debug) console.log('67 ReadModelFromFile',  objecttypes, objects)
+            if (debug) console.log('101 ReadModelFromFile',  objecttypes, objects)
             objects?.forEach(o => {
                 const otindex = objecttypes?.findIndex(ot => (ot) && ot.id === o.typeRef)
                 if (otindex >= 0) {
@@ -476,4 +471,4 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
     reader.readAsText(e.target.files[0])
   }
 
-
+export default ReadModelFromFile

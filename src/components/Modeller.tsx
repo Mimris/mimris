@@ -450,7 +450,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
           })
         : sortedByType;
 
-      if (!debug) console.log('422 Palette ofilteredOnTypes', sortedArr);
+      if (debug) console.log('422 Palette ofilteredOnTypes', sortedArr);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
 
     } else {

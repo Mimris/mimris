@@ -1005,6 +1005,7 @@ export class cxMetis {
             objtypeview.setStrokecolor2(item.strokecolor2);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
+            objtypeview.setImage(item.image);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
             if (debug) console.log('222 objtypeview', objtypeview, item);
@@ -2712,13 +2713,13 @@ export class cxMetis {
             if (!fromObjtype) {
                 fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
             }
-            if (!fromType.inherits(fromObjtype, 0)) 
+            if (!fromType.inherits(fromObjtype)) 
                 continue;
             let toObjtype = reltype.getToObjType();
             if (!fromObjtype) {
                 toObjtype = this.findObjectType(reltype.toobjtypeRef);
             }
-            if (!toType.inherits(toObjtype, 0)) 
+            if (!toType.inherits(toObjtype)) 
                 continue;
             reltypes.push(reltype);            
         }
@@ -2750,7 +2751,7 @@ export class cxMetis {
                         } else
                             continue;
                     } 
-                    if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
+                    if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
                         // if (fromObjType.id === toObjType.id) {
                             if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                                 fromObjType.name === constants.types.AKM_GENERIC) {
@@ -4671,7 +4672,7 @@ export class cxMetaModel extends cxMetaObject {
                     } else
                         continue;
                 } 
-                if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
+                if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
                     // if (fromObjType.id === toObjType.id) {
                         if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                             fromObjType.name === constants.types.AKM_GENERIC) {
@@ -5769,7 +5770,7 @@ export class cxObjectType extends cxType {
         if (otypes && otypes.length > 0) {
             for (let j = 0; j < otypes.length; j++) {
                 const otype = otypes[j];
-                if (objtype.inherits(otype, 0)) {
+                if (objtype.inherits(otype)) {
                     const rtype: cxRelationshipType | null = this.findRelshipTypeByKind1(relkind, otype, this.allRelationshiptypes);
                     if (rtype)
                         return rtype;
@@ -5968,7 +5969,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.fromObjtype.id === objtype.id) 
                 return true;
             if (includeGen) {
-                if (objtype.inherits(this.fromObjtype, 0)) {
+                if (objtype.inherits(this.fromObjtype)) {
                     return true;
                 }
             }
@@ -5980,7 +5981,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.toObjtype.id === objtype.id) 
                 return true;
                 if (includeGen) {
-                    if (objtype.inherits(this.toObjtype, 0)) {
+                    if (objtype.inherits(this.toObjtype)) {
                         return true;
                     }
                 }
@@ -5994,8 +5995,8 @@ export class cxRelationshipType extends cxObjectType {
             return retval;
         if (this.toObjtype.name !== constants.types.AKM_ELEMENT &&
             this.toObjtype.name !== constants.types.AKM_ENTITY_TYPE) {
-            if (fromType.inherits(this.toObjtype, 0) &&
-                toType.inherits(this.toObjtype, 0)) {
+            if (fromType.inherits(this.toObjtype) &&
+                toType.inherits(this.toObjtype)) {
                 retval = true;
             }
         }

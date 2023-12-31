@@ -266,6 +266,10 @@ export class jsnMetaModel {
             for (let i = 0; i < cnt; i++) {
                 const subMetamodel = subMetamodels[i];
                 this.subMetamodelRefs.push(subMetamodel.id);
+                if (subMetamodel.id !== this.id) {
+                    const jsnSubMetamodel = new jsnMetaModel(subMetamodel, false);
+                    this.subMetamodels.push(jsnSubMetamodel);
+                }
             }
         }
         let subModels = metamodel.getSubModels();

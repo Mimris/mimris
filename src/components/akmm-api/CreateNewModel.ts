@@ -23,7 +23,7 @@ const CreateNewModel = (props: any) => {
   const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef);
   console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
   const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
-  const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
+  const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef)); //?? maybe find the one with contains relationship
   console.log('28 CreateNewModel', objectviewoftypemetamodel)
 
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
@@ -82,13 +82,13 @@ const CreateNewModel = (props: any) => {
         metis: {
           ...ph.phData.metis,
           models:
-            [newmodel, adminmodel],
+            [newmodel, adminmodel], // add admin to the new model
           metamodels: [
             {
               ...metamodelGenerated,
-              subMetamodelRefs: [submetamodels[0]?.id],
-              subModelRefs: [submodels[0]?.id],
-              subModels: submodels,
+              // subMetamodelRefs: [submetamodels[0]?.id],
+              // subModelRefs: [submodels[0]?.id],
+              // subModels: submodels,
               // subMetamodels: submetamodels,
             },
             adminmetamodel,

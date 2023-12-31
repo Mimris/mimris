@@ -1673,6 +1673,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     let jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
     modifiedMetamodels.push(jsnMetamodel);
     myMetis.addMetamodel(targetMetamodel);
+    myMetis.metamodels = [...new Set(myMetis.metamodels)];
 
     // Do the dispatches
     modifiedMethods.map(mn => {
@@ -1955,7 +1956,9 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
+// The following dispatch fails ): The submodels are not added to the metamodel
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+// End of failure
 }
 
 function buildTemporaryModelView(context: any): akm.cxModelView {

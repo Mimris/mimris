@@ -3412,8 +3412,18 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
             } else {
                 // Purge objtypegeos
                 mm.objtypegeos = mm.purgeObjtypeGeos();
+                // Repair container views
+                const objtypeviews = mm.objecttypeviews;
+                for (let i=0; i<objtypeviews?.length; i++) {
+                    const objtypeview = objtypeviews[i];
+                    if (objtypeview) {
+                        const objtype = mm.findObjectType(objtypeview.typeRef);
+                        if (objtype && objtype.name === constants.types.AKM_CONTAINER) {
+                            objtypeview.image = './../images/blank.png';
+                        }
+                    }
+                }
             }
-
         }
     }    
 

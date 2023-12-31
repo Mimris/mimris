@@ -93,24 +93,22 @@ const LoadFile = (props: any) => {
 
   function handleSaveNewModel() {
     const ph = props.ph
-    const models = ph?.phData?.metis?.models
+    // const models = ph?.phData?.metis?.models
     const metamodels = ph?.phData?.metis?.metamodels
-    const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
-    const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
+    // const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
+    // const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
+    // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
     console.log('194 Loadfile', metamodels, data)
     // replace the _MM in curMetamodel.name
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id)
     const filename = newmm?.name.replace('_MM', '-Startmodel')
-
     console.log('199 Loadfile', newmm, filename)
-
     SaveAllToFile(data, filename, '_PR')
-    const metamodelname = newmm?.name.replace('_MM', '')
-    SaveMetamodelToFile(newmm, metamodelname, '_MM')
-    
+    const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
+    SaveMetamodelToFile(newmm, metamodelname, '_MM')  
   }
+
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name

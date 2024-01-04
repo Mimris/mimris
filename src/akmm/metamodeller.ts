@@ -2338,11 +2338,29 @@ export class cxMetis {
                 if (objecttypeview) {
                     if (objecttypeview.id === id)
                         return objecttypeview;
-                    else if (objecttypeview.getFirestoreId() === id)
-                        return objecttypeview;
                 }
                 i++;
             }
+        }
+        return null;
+    }
+    getObjectTypeViewsByObjectType(objtype: cxObjectType): cxObjectTypeView[] | null {
+        const typeviews = this.getObjectTypeViews();
+        if (!typeviews) {
+            return null;
+        } else {
+            let i = 0;
+            let objecttypeview: cxObjectTypeView = null;
+            const views = new Array();
+            while (i < typeviews.length) {
+                objecttypeview = typeviews[i];
+                if (objecttypeview) {
+                    if (objecttypeview.typeRef === objtype.id)
+                        views.push(objecttypeview);
+                }
+                i++;
+            }
+            return views;
         }
         return null;
     }
@@ -3034,6 +3052,26 @@ export class cxMetis {
                 }
             }
         }
+    }
+    purgeObjectTypeViews(): cxObjectTypeView[] | null {
+        const metamodels = this.getMetamodels();
+        for (let i=0; i<metamodels.length; i++) {
+            let metamodel = metamodels[i];
+            const objecttypes = metamodel.getObjectTypes();
+            for (let j=0; j<objecttypes.length; j++) {
+                let objtype = this.objecttypes[j];
+                const typeviewRef = objtype.typeview.id;
+                const typeviews = metamodel.getObjectTypeViewsByObjectType(objtype);
+                if (typeviews.length < 2) continue;
+                for (let k=0; k<typeviews.length; k++) {
+                    let tview = typeviews[k];
+                    if (tview.id !== typeviewRef) {
+                        tview.markedAsDeleted = true;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
 
@@ -3777,6 +3815,26 @@ export class cxMetaModel extends cxMetaObject {
     getObjectTypeViews(): cxObjectTypeView[] | null {
         return this.objecttypeviews;
     }
+    getObjectTypeViewsByObjectType(objtype: cxObjectType): cxObjectTypeView[] | null {
+        const typeviews = this.getObjectTypeViews();
+        if (!typeviews) {
+            return null;
+        } else {
+            let i = 0;
+            let objecttypeview: cxObjectTypeView = null;
+            const views = new Array();
+            while (i < typeviews.length) {
+                objecttypeview = typeviews[i];
+                if (objecttypeview) {
+                    if (objecttypeview.typeRef === objtype.id)
+                        views.push(objecttypeview);
+                }
+                i++;
+            }
+            return views;
+        }
+        return null;
+    }
     getObjtypeGeos(): cxObjtypeGeo[] | null {
         return this.objtypegeos;
     }
@@ -4075,22 +4133,10 @@ export class cxMetaModel extends cxMetaObject {
     addProperty(prop: cxProperty) {
         if (!prop) return;
         if (prop.category === constants.gojs.C_PROPERTY) {
-            const len = this.properties?.length;
-            if (!len)
+            if (this.properties == null)
+                this.properties = new Array();
+            if (!this.findPropertyByName(prop.name))
                 this.properties.push(prop);
-            else {
-                let found = false;
-                for (let i=0; i<len; i++) {
-                    const p = this.properties[i];
-                    if (!p) continue;
-                    if (p.id === prop.id) {
-                        this.properties[i] = prop;
-                        found = true;
-                    }
-                }
-                if (!found)
-                this.properties.push(prop);
-            }
         }
     }
     addMethod(mtd: cxMethod) {
@@ -9321,8 +9367,44 @@ export class cxObjectView extends cxMetaObject {
             return this.loc;
         return "";
     }
+    applyTypeview() {
+        let viewdata = this.typeview?.data;
+        if (!viewdata) {
+            const obj = this.getObject();
+            if (obj) {
+                const objtype = obj.getType();
+                if (objtype) {
+                    const typeview = objtype.typeview;
+                    if (typeview) {
+                        viewdata = typeview.data;
+                    }
+                }
+            }
+        }
+        for (let k in viewdata) {
+            if (k === 'class') continue;
+            if (k === 'abstract') continue;
+            if (k === 'isGroup') continue;
+            if (k === 'group') continue;
+            if (k === 'viewkind') continue;
+            this[k] = viewdata[k];
+        }
+        
+    }
     clearViewdata() {
-        const viewdata = this.typeview.data;
+        let viewdata = this.typeview?.data;
+        if (!viewdata) {
+            const obj = this.getObject();
+            if (obj) {
+                const objtype = obj.getType();
+                if (objtype) {
+                    const typeview = objtype.typeview;
+                    if (typeview) {
+                        viewdata = typeview.data;
+                    }
+                }
+            }
+        }
         for (let k in viewdata) {
             if (k === 'class') continue;
             if (k === 'abstract') continue;

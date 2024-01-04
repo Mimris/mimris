@@ -576,6 +576,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
     const n = myDiagram.findNodeForKey(inst?.key);
     if (n) {
         const oview = myMetis.findObjectView(inst.objectview.id);
+        oview.applyTypeview();
         const otview = oview.typeview;
         const otdata = otview?.data;
         if (!otdata) return;
@@ -654,7 +655,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         reltypes = '';
     }
     let reldir = 'All';
-    reldir = prompt('Enter relationship direction to follow (in | out | ll)', reldir);
+    reldir = prompt('Enter relationship direction to follow (in | out | All)', reldir);
     if (reldir === 'All') {
         addConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, 'out');
         addConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, 'in');
@@ -1653,9 +1654,9 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
     goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, reltypes: string, reldir: string) {
     if (noLevels < 1)
         return;
-    const objectviews = [];
-    const modifiedObjectViews = new Array();
-    const modifiedRelshipViews = new Array();
+    const objectviews: akm.cxObjectView[] = [];
+    const modifiedObjectViews: akm.cxObjectView[] = new Array();
+    const modifiedRelshipViews: akm.cxRelationshipView[] = new Array();
     const myDiagram = myMetis.myDiagram;
     const node = getNodeByViewId(objview.id, myDiagram);
     let object = objview.object;
@@ -1669,7 +1670,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
-        let reltype;
+        let reltype: akm.cxRelationshipType;
         if (reltypes) { // Check if reltype is specified
             // get reltype from comma separated list (to be done)
             const reltypename = reltypes.split(',')[0];        
@@ -1702,7 +1703,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     if (rel?.type.id !== reltype?.id)
                         continue;
                 }
-                let toObj;
+                let toObj: akm.cxObject;
                 if (useinp) 
                     toObj = rel.fromObject as akm.cxObject;
                 else
@@ -1716,7 +1717,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                 let toObjviews: akm.cxObjectView[] = [];
                 // Find toObj in modelview
                 const objviews = modelview.findObjectViewsByObject(toObj);
-                let toObjview;
+                let toObjview: akm.cxObjectView;
                 if (objviews && objviews.length >0) {
                     for (let j=0; j<objviews.length; j++) {   
                         const oview = objviews[j];
@@ -1733,7 +1734,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         toObjviews.push(toObjview);
                     }
                     // Create relship views and links to the found objviews if they do not exist
-                    let relviews;
+                    let relviews: akm.cxRelationshipView[] = [];
                     if (useinp) {
                         relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
                         if (relviews.length == 0) i++;
@@ -1781,7 +1782,6 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
 
                     toObjview.loc = loc;
                     goNode.loc = loc;
-                    if (debug) console.log('114 goNode', goNode);
                     goModel.addNode(goNode);
                     myDiagram.model.addNodeData(goNode);
                     const gjsNode = myDiagram.findNodeForKey(goNode?.key)

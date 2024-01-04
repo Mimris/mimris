@@ -43,7 +43,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     let relId: any, relshipkind: string
 
     const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkObj) => {
-        if (debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
+        if (!debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
         if (!inclDeprecated && linkObj.description && linkObj.description.includes('DEPRECATED:')) return;
         // check if relship already exists
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
@@ -78,7 +78,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             nameTo: toobjectName,
         }
 
-        if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel);
+        if (!debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel);
         if (!relship) {
             if (fromobjectId && toobjectId) {
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
@@ -86,8 +86,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
                 const fromObj = { id: linkObj.id, markedAsDeleted: true }
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
                 // TODO: delete propLink relationship ?
-            } else if (!toobjectId) {
-                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: { id: linkObj.id, markedAsDeleted: true } }); // for propLink object set mark as deleted
+            // } else if (!toobjectId) {
+            //     dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: { id: linkObj.id, markedAsDeleted: true } }); // for propLink object set mark as deleted
             }
         } else {
             const fromObj = { id: linkObj.id, markedAsDeleted: true }
@@ -98,7 +98,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     // console.log('56 :', stringifyEntries(deepEntries(topModel))); 
 
     const propLinkObjects = utils.findObjectsByType(curModel.objects, curObjTypes, 'PropLink') // find all PropLink objects, this is temporary objedts representing on end of a relship
-    if (debug) console.log('100 :', curModel.objects, propLinkObjects);
+    if (debug) console.log('101 :', curModel.objects, propLinkObjects);
     // then find objects a name that includes the text 'ID' 
     // const propLinkObjectsWithId =  propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('ID') && o)
     // const propLinkObjectsWithType =  propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('Type') && o)
@@ -109,30 +109,30 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     const propLinks = propLinkObjects
     // const propLinks = (propLinkObjectsWithId.length > 0) ? propLinkObjectsWithId : propLinkObjectsWithSet
     // if (debug) console.log('81 ', propLinkObjects, propLinkObjectsWithId, propLinkObjectsWithSet, propLinks);
-    if (debug) console.log('103 ', propLinks);
+    if (debug) console.log('112 ', propLinks);
 
     let topLevelObject: { id: any; name: any; }
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
     const genrel = propLinks.forEach(o => {
         // use the linkID to find the top object
         if (debug) console.log('118 ', o.name, o.title, o.id, o.linkID, o);
-        if (debug) console.log('110 ', o.linkID);
+        if (debug) console.log('119 ', o.linkID);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkID)
-        if (debug) console.log('112 ', o, o.linkID, targetObject);
+        if (!debug) console.log('121 ', o, o.linkID, targetObject);
+
+        if (!targetObject) return; // if no targetObject, skip this relationship
         // check if the relationship exists between the objects
         // let existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, hasType?.id) // check if the relationship exists between the objects
         let existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, relshipType?.id) // check if the relationship with is type exists between the objects
         if (existRelship !== undefined) return; // if exists, skip
-        if (debug) console.log('129 ', o.name, targetObject && targetObject.id, existRelship);
-        if (debug) console.log('117 ', o.name);
-
+        if (debug) console.log('128 ', o.name, targetObject && targetObject.id, existRelship);
         // find top level object
         if (targetObject) { // if no targetObject, skip this relationship
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects, curRelships) : null;
-            if (debug) console.log('122 ', o.name, targetObject) //, curObjects, curRelships);  
-            if (debug) console.log('123 ', topLevelObject, curObjects, o) //, curObjects, curRelships);  
-            // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
-            if (debug) console.log('125 ', targetObject, o.name, curObjects, topLevelObject);
+            if (debug) console.log('132 ', o.name, targetObject) //, curObjects, curRelships);  
+            if (debug) console.log('133 ', topLevelObject, curObjects, o) //, curObjects, curRelships);  
+            // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )  
+            if (debug) console.log('325 ', targetObject, o.name, curObjects, topLevelObject);
             // if (debug) console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);            
             fromobjectId = topLevelObject?.id
             fromobjectName = topLevelObject?.name

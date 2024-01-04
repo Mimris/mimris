@@ -401,21 +401,32 @@ export const ReadConvertJSONFromFileToAkm = async (
             if (oVal["x-osdu-relationship"]) {
                 // if the value is a relationship we create a propLink objects
                 if (debug) console.log("303 ", oName, oVal, oValProps);
+                // map over the relationship array and create a propLink object for each relationship
                 oVal["x-osdu-relationship"].map((rel: { name: string; }) => { // create a propLink object for each relationship
                     // create new unique oid for each relationship
-                    const rId = utils.createGuid();  // ???? check if exist?
+                    const pLId = utils.createGuid();  // ???? check if exist?
                     const rKey = oKey + "|" + rel.EntityType; // add the relationship name to the oKey
-                    // const rName = 'has' + rel.EntityType
+                    // const propLinkName = 'has' + rel.EntityType
                     oValProps.linkID = (rel.EntityType) ? rel.EntityType : parentName;
                     oValProps.groupType = rel.GroupType;
                     osduType = "PropLink";
-                    const rName = (oVal.title) ? oVal.title.replace(/\s+/g, '') : (oName) ? oName : oValProps.linkID;
-                    if (debug) console.log("411 ", rName, oVal, oValProps.rel);
+                    // const propLinkName = (oVal.title) ? oVal.title.replace(/\s+/g, '') : (oName) ? oName : oValProps.linkID;
+                    const propLinkName = (oVal.title)
+                        ? oVal.title.replace(/\s+/g, "") 
+                        : (rel.EntityType)
+                            ? rel.EntityType
+                            : (oName !== 'items')
+                                ? oName
+                                : (gparentName !== 'properties')
+                                    ? gparentName
+                                    : parentName;
+                    if (!debug) console.log("411 ", propLinkName, oVal);
+                    const pLName = 'has' + propLinkName;
                     if (inclPropLinks) {
-                        processPropertyLinks(rId, rName, rKey, osduType, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef, gparentName);
-                        if (debug) console.log("424 ", rName, oValProps, rel);
+                        processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
+                        if (debug) console.log("424 ", pLName, oValProps, rel);
                     }
-                    if (debug) console.log("415 ", rId, rName, oKey, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
+                    if (debug) console.log("415 ", pLId, pLName, oKey, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
                 });
             } else if (inclProps && oVal["x-osdu-frame-of-reference"]) {// if the value is a frame of reference we create a property object
                 if (debug) console.log("419 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
@@ -445,8 +456,8 @@ export const ReadConvertJSONFromFileToAkm = async (
                 const typeRest = oVal["$ref"].split("/").slice(-1)[0];
                 oValProps.title = typeRest?.split(".")[0];
                 oValProps.linkID = typeRest?.split(".")[0]?.replace("Abstract", "");
-                const entityName = `Is${oValProps.title}`;
-                createObjectAndRelationships(oId, entityName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+                const propLinkName = `Is${oValProps.title}`;
+                createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else {
                 console.log("468 object with parent properties not imported : ", oName, oVal, oVal['$ref'], oValProps, inclAbstractPropLinks);
             }
@@ -459,8 +470,8 @@ export const ReadConvertJSONFromFileToAkm = async (
                 typeRest?.split(".")[0] === "AbstractWorkProductComponent"
                     ? typeRest?.split(".")[0]
                     : typeRest?.split(".")[0]?.replace("Abstract", "");
-            const entityName = `Is${oValProps.title}`;
-            createObjectAndRelationships(oId, entityName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+            const propLinkName = `Is${oValProps.title}`;
+            createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         } else if (oName === "items") {
             if (debug) console.log("471 items  ", oName, oValProps);
             if (debug) console.log("449  items", parentName.substring(oName.length - 3));
@@ -947,8 +958,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         osduObj: any,
         oVal: any,
         curModel: any,
-        objecttypeRef: string,
-        gparentName: string
+        objecttypeRef: string
     ) {
         if (debug) console.log("981 parent = properties :", oName, oVal, oValProps, inclPropLinks);
 
@@ -956,12 +966,20 @@ export const ReadConvertJSONFromFileToAkm = async (
             // oVal["x-osdu-relationship"].forEach((reltype: { type: string }) => {
             objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
             if (debug) console.log("996  relationship", oName, objecttypeRef, oValProps, oVal["x-osdu-relationship"]);
-            const propLinkName = (oVal.title) ? oVal.title.replace(/\s+/g, "") : (oName) ? oName : gparentName;
+            // const propLinkName = (oVal.title) 
+            //     ? oVal.title.replace(/\s+/g, "") 
+            //     : (oVal["x-osdu-relationship"].EntityType) 
+            //         ? oVal["x-osdu-relationship"].EntityType 
+            //         : (oName !== 'items') 
+            //             ? oName 
+            //             : (gparentName !== 'Properties') 
+            //                 ? gparentName 
+            //                 : parentName;
             // if a relship exisist wht propLinkName, we do not create a new one
-            const existRel = curModel.relships.find((r: { name: string }) => r.name === propLinkName);
+            // const existRel = curModel.relships.find((r: { name: string }) => r.name === propLinkName);
             // if (!existRel) { // if the relship exist, we do not create a new one ???? Todo:  is this correct, it should be updated
-            createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (debug) console.log("1098 a-osdu-relship ", oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+            if (!debug) console.log("980 a-osdu-relship ", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
             findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
             // }
             // });
@@ -990,7 +1008,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
             case oName.includes("ID") || oName.includes("IDs"):
-                if (oName === "MarkerID" || oName === "IntervalID" || oName === "VerticalMeasurementID") {
+                if (oName === "MarkepLId" || oName === "IntervalID" || oName === "VerticalMeasurementID") {
                     // do nothing
                 } else {
                     if (debug) console.log("402  array", oId, oName, oKey, jsonType, oValProps);

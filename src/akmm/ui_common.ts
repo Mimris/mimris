@@ -7,6 +7,8 @@ import * as uid from './ui_diagram';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
 import { LinkReshapingTool } from 'gojs';
+import { get } from 'http';
+import { core } from './constants';
 const constants = require('./constants');
 const printf = require('printf');
 
@@ -17,7 +19,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         return null;
     } else {
         let objview: akm.cxObjectView;
-        const myMetis = context.myMetis;
+        const myMetis = context.myMetis as akm.cxMetis;
         const myModel = context.myModel;
         const myMetamodel = context.myMetamodel;
         const myModelview = context.myModelview;
@@ -55,6 +57,18 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         } else {
             obj = new akm.cxObject(utils.createGuid(), name, objtype, data.object.description);
             copyProperties(obj, data.object);
+            // Check if obj is dropped on a group that is a Model
+            // If so, add the obj to the model
+            // const group = getGroupByLocation(myGoModel, data.loc, data.size, data);
+            // if (group) {
+            //     const groupObj = group.object;
+            //     if (groupObj & groupObj.type?.name === constants.types.AKM_MODEL) {
+            //         const model = myMetis.findModelByName(groupObj.nameId);
+            //         if (model) {
+            //             model.addObject(obj);
+            //         }
+            //     }
+            // }
         }
         if (debug) console.log('56 obj, myMetis', obj, myMetis);
         if (obj) {
@@ -546,6 +560,21 @@ export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedF
     }
 }
 
+export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boolean) {
+
+    const object = objview?.object;
+    const objtype  = object?.type;
+    const typeview = objview?.typeview;
+    const defaultTypeview = objtype?.typeview as akm.cxObjectTypeView;
+    if (typeview && defaultTypeview) {
+        if (typeview.id !== defaultTypeview.id) {
+            if (typeview.markedAsDeleted !== deletedFlag) {
+                typeview.markedAsDeleted = deletedFlag;
+            }
+        }
+    }
+}
+
 export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFlag: boolean) {
 
     const relship = relview?.relship;
@@ -556,7 +585,6 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
         if (typeview.id !== defaultTypeview.id) {
             if (typeview.markedAsDeleted !== deletedFlag) {
                 typeview.markedAsDeleted = deletedFlag;
-                if (debug) console.log('683 delete typeview', typeview);
             }
         }
     }
@@ -3422,18 +3450,47 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
         }
     }    
 
-    // repairRelationshipTypes(myMetis);
+    // repair RelationshipTypeViews
     purgeUnusedRelshiptypes(myMetis);
     repairRelationshipTypeViews(myMetis, myDiagram);
     if (debug) console.log('2852 myMetis', myMetis);
 
-    // Dispatch metis
-    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    let data = {metis: jsnMetis}
-    data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2858 jsnMetis', jsnMetis, myMetis);
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-    if (debug) console.log('2860 data', data, myMetis);
+    // repair ObjectTypeViews
+    const modifiedMetamodels = new Array();
+    const metamodels: akm.cxMetaModel[] = [];
+    const coreMetamodel = myMetis.findMetamodelByName("AKM-Core_MM");
+    const objtypeviews = getObjectTypeviews(coreMetamodel);
+    coreMetamodel.objecttypeviews = objtypeviews;
+    metamodels.push(coreMetamodel);
+    const jsnMetamodel = new jsn.jsnMetaModel(coreMetamodel, true);
+    modifiedMetamodels.push(jsnMetamodel);
+
+    for (let i=0; i<myMetis.metamodels?.length; i++) {
+        const mmodel = myMetis.metamodels[i];
+        if (mmodel.name === 'AKM-Core_MM') continue;
+        const objtypeviews = getObjectTypeviews(mmodel);
+        mmodel.objecttypeviews = objtypeviews;
+        metamodels.push(mmodel);
+        const jsnMetamodel = new jsn.jsnMetaModel(mmodel, true);
+        modifiedMetamodels.push(jsnMetamodel);
+    }
+    myMetis.metamodels = metamodels;
+
+    for (let i=0; i<myMetis.metamodels?.length; i++) {
+        const mmodel = myMetis.metamodels[i];
+        const objtypeviews = mmodel.objecttypeviews;
+        for (let j=0; j<objtypeviews?.length; j++) {
+            const objtypeview = objtypeviews[j];
+            myMetis.addObjectTypeView(objtypeview);
+        }
+    }
+
+    // Dispatch metamodels
+    modifiedMetamodels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    });
 
     report += printf(format, msg);
     if (debug) console.log(report);
@@ -3571,6 +3628,7 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any
         if (reltypeview.toArrowColor === " ")   reltypeview.toArrowColor = "";
         modifiedRelshipTypeViews.push(reltypeview);
     }
+    // Dispatch reltypeviews
     modifiedRelshipTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
@@ -3621,6 +3679,24 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any
             }
         }
     }
+}
+
+export function repairMetisProperties(myMetis: akm.cxMetis, myDiagram: any) {
+    const properties: akm.cxProperty[] = [];
+    const metamodels = myMetis.metamodels;
+    for (let i=0; i<metamodels?.length; i++) {
+        const metamodel = metamodels[i];
+        const props = metamodel.properties;
+        for (let j=0; j<props?.length; j++) {
+            const prop = props[j];
+            properties.push(prop);
+        }
+    }
+    myMetis.properties = properties;
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
 export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
@@ -3900,21 +3976,21 @@ export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
         fillcolor = object.fillcolor;
       } else if (objview.fillcolor1) {
         fillcolor = objview.fillcolor1;
-      } else if (typeview.fillcolor) {
+      } else if (typeview?.fillcolor) {
         fillcolor = typeview.fillcolor;
       }
       if (object.strokecolor) {
         strokecolor = object.strokecolor;
       } else if (objview.strokecolor1) {
         strokecolor = objview.strokecolor1;
-      } else if (typeview.strokecolor) {
+      } else if (typeview?.strokecolor) {
         strokecolor = typeview.strokecolor;
       }
       if (object.textcolor) {
         textcolor = object.textcolor;
       } else if (objview.textcolor1) {
         textcolor = objview.textcolor1;
-      } else if (typeview.textcolor) {
+      } else if (typeview?.textcolor) {
         textcolor = typeview.textcolor;
       }
       objview.fillcolor = fillcolor;
@@ -3928,4 +4004,81 @@ export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
       myDiagram.model.setDataProperty(data, "textcolor", textcolor);
     }
     return objview;
+}
+
+function getObjectTypeviews(metamodel: akm.cxMetaModel): akm.cxObjectTypeView[] {
+    const objtypeviews = [];
+    const objtypes = metamodel.objecttypes;
+    for (let i=0; i<objtypes?.length; i++) {
+        const objtype = objtypes[i];
+        const objtypeview = objtype.typeview;
+        if (objtypeview) {
+            objtypeviews.push(objtypeview);
+        }
+    }
+    return objtypeviews;
+}
+
+export function purgeObjectTypeViews(metamodel: akm.cxMetaModel): akm.cxObjectTypeView[] {
+    const objtypeviews = metamodel.objecttypeviews;
+    const len = objtypeviews?.length;
+    for (let i=len-1; i>=0; i--) {
+        const objtypeview = objtypeviews[i];
+        // if objtypeview is not member of objecttypeviews
+        // then mark it as deleted
+        let found = false;
+        for (let j=0; j<objtypeviews?.length; j++) {
+            const typeview = objtypeviews[j];
+            if (objtypeview.id === typeview.id) {
+                objtypeview.markedAsDeleted = false;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            objtypeview.markedAsDeleted = true;
+            objtypeviews.splice(i, 1);
+        }
+    }
+    return objtypeviews;
+}
+
+export function getActiveRelationshipTypeViews(myMetis: akm.cxMetis): akm.cxRelationshipTypeView[] {
+    const activeRelationshipTypeViews = [];
+    const metamodels = myMetis.metamodels;
+    for (let i=0; i<metamodels?.length; i++) {
+        const metamodel = metamodels[i];
+        const reltypes = metamodel.relshiptypes;
+        for (let j=0; j<reltypes?.length; j++) {
+            const reltype = reltypes[j];
+            const reltypeview = reltype.typeview;
+            if (reltypeview) {
+                activeRelationshipTypeViews.push(reltypeview);
+            }
+        }
+    }
+    return activeRelationshipTypeViews;
+}
+
+export function purgeUnusedRelshiptypeViews(myMetis: akm.cxMetis , activeRelationshipTypeViews: akm.cxRelationshipTypeView[]) {
+    const reltypeviews = myMetis.relshiptypeviews;
+    const len = reltypeviews?.length;
+    for (let i=len-1; i>=0; i--) {
+        const reltypeview = reltypeviews[i];
+        if (reltypeview.markedAsDeleted) {
+            reltypeviews.splice(i, 1);
+        } else {
+            let found = false;
+            for (let j=0; j<activeRelationshipTypeViews?.length; j++) {
+                const activeReltypeview = activeRelationshipTypeViews[j];
+                if (reltypeview.id === activeReltypeview.id) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                reltypeview.markedAsDeleted = true;
+            }
+        }
+    }
 }

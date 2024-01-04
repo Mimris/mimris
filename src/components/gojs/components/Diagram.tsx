@@ -3180,17 +3180,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Verify and Repair Model",
             function (e: any, obj: any) {
-              if (debug) console.log('2767 myMetis', myMetis);
               const myModel = myMetis.currentModel;
               const modelviews = myModel.modelviews;
-              const myModelview = myMetis.currentModelview;
               const myMetamodel = myMetis.currentMetamodel;
               const myGoModel = myMetis.gojsModel;
-              if (debug) console.log('2773 myMetis', myMetis);
               myDiagram.myGoModel = myGoModel;
-              if (debug) console.log('2775 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
               uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
-              if (debug) console.log('2777 myMetis', myMetis);
               alert("The current model has been repaired");
             },
             function (o: any) {
@@ -3200,7 +3195,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Verify and Repair Metamodels",
             function (e: any, obj: any) {
-              if (debug) console.log('2788 myMetis', myMetis);
               uic.verifyAndRepairMetamodels(myMetis, myDiagram);
               alert("The metamodels have been repaired");
             },
@@ -3208,6 +3202,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true;
+            }),
+          makeButton("Verify and Repair myMetis",
+            function (e: any, obj: any) {
+              uic.repairMetisProperties(myMetis, myDiagram);
+              alert("myMetis has been repaired");
+            },
+            function (o: any) {
+              return false;
             }),
           makeButton("Clear RelationshipTypeViews",
             function (e: any, obj: any) {

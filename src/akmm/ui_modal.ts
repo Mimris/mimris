@@ -1317,7 +1317,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (node) node.isSelected = true;
       // Do a fix
       if (selObj.typeview) {
-        const tview = myMetis.findObjectTypeView(selObj.typeview.id);
+        const tview = myMetamodel.findObjectTypeView(selObj.typeview.id);
         if (!tview)
           break;
         myMetis.addObjectTypeView(tview);
@@ -1329,7 +1329,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         node = myDiagram.findNodeForKey(node.key);
         data = node.data;
         objtypeview = data.typeview;
-        typeview = myMetis.findObjectTypeView(objtypeview?.id);
+        typeview = myMetamodel.findObjectTypeView(objtypeview?.id);
         for (let prop in objtypeview?.data) {
           if (prop === 'id') continue;
           if (prop === 'name') continue;
@@ -1351,7 +1351,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_OBJECT) {
         data = selObj;
         objtypeview = selObj.typeview;
-        objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+        objtypeview = myMetamodel.findObjectTypeView(objtypeview?.id);
         if (debug) console.log('950 selObj, objtypeview, data', selObj, objtypeview, data);
         // for (let prop in objtypeview?.data) {
         //   objtypeview[prop] = selObj[prop];
@@ -1379,14 +1379,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         data = link.data;
         if (debug) console.log('1035 data, link, myMetis', data, link, myMetis);
         let reltype = data.reltype;
-        reltype = myMetis.findRelationshipType(reltype.id);
+        reltype = myMetamodel.findRelationshipType(reltype.id);
         if (reltype) {
           typeview = reltype.typeview;
-          typeview = myMetis.findRelationshipTypeView(typeview.id);
+          typeview = myMetamodel.findRelationshipTypeView(typeview.id);
           reltype.typeview = typeview;
         } else {
           reltypeview = data.typeview;
-          typeview = myMetis.findRelationshipTypeView(reltypeview.id);
+          typeview = myMetamodel.findRelationshipTypeView(reltypeview.id);
         }
         if (debug) console.log('1123 selObj, reltype, typeview', selObj, reltype, typeview);
         if (typeview) {

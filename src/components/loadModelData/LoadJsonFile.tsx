@@ -18,8 +18,6 @@ import SetColorsTopEntityTypes from '../utils/SetColorsTopEntityTypes';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 // import LoadOpenSubsurfaceDataUniverseJson from './LoadGitLabJson'
 
-
-
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     
   if (!props.ph.phData?.metis.models) return null
@@ -324,17 +322,6 @@ const importFile = async (e) => {
                 <div className="selectbox3 mb-1 border">
                   <h6>Import OSDU JSON-file as AKM model types.
                   (This will import the OSDU Types as AKM EntityTypes, PropertyLinks, PropertyCollections and Property)</h6>
-                  <label className="pt-1" htmlFor="directory">File(s)</label>
-                  <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
-                  <label className="pt-3" htmlFor="directory">or Directory</label>
-                  <input
-                    className="select-input w-100"
-                    type="file"
-                    accept=".json"
-                    onChange={importDirectories}
-                    webkitdirectory="true"
-                    directory="true"
-                  />
                   {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
                   <div className='mt-2'> Include EntityTypes:</div>
                   <div className="d-flex justify-content-between align-items-center my-2 border label-input-container"> 
@@ -354,10 +341,10 @@ const importFile = async (e) => {
                       <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract Components</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
                     </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    {/* <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
                       <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
-                    </span>
+                    </span> */}
                   </div>
                   <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
                   <div className='mt-2'> Include Properties and Links (relationships):</div>
@@ -383,6 +370,17 @@ const importFile = async (e) => {
                       <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
                     </span>
                   </div>
+                                    <label className="pt-1" htmlFor="directory">File(s)</label>
+                  <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
+                  <label className="pt-3" htmlFor="directory">or Directory</label>
+                  <input
+                    className="select-input w-100"
+                    type="file"
+                    accept=".json"
+                    onChange={importDirectories}
+                    webkitdirectory="true"
+                    directory="true"
+                  />
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>
                 {/* <div className="selectbox3 mb-2 border bg-secondary">
@@ -401,7 +399,10 @@ const importFile = async (e) => {
                 <div className="selectbox3 mb-2">
                   <h6>Connect imported EntityTypes</h6> 
                   <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                    title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}>Generate Relationships between EntityTypes (Propertylinks)
+                    title="Find Propertylinks that refers to EntityTypes and convert to relationships!"
+                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}
+                  >
+                    Convert Propertylinks (objects) with Relationships between EntityTypes 
                   </Button>
                 </div>
                 {/* <div className="selectbox3 mb-2">

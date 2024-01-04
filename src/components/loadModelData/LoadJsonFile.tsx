@@ -118,6 +118,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclReference, setInclReference ] = useState(false)
   const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
+  const [inclDeprecated, setInclDeprecated ] = useState(false) 
 
   const handleInclProps = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
@@ -129,6 +130,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const handleInclMasterdata = () => { setInclMasterdata(!inclMasterdata);};
   const handleInclWorkProductComponent = () => { setInclWorkProductComponent(!inclWorkProductComponent);};
   const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
+  const handleInclDeprecated = () => { setInclDeprecated(!inclDeprecated);};
 
 
 // const fetchData = async () => {
@@ -218,7 +220,8 @@ const importDirectory = async (fileOrDirectory) => {
           inclReference,
           inclMasterdata,
           // inclWorkProduct,
-          inclWorkProductComponent,      
+          inclWorkProductComponent,
+          inclDeprecated,      
           "AKM", 
         );
       };
@@ -260,6 +263,7 @@ const importFile = async (e) => {
             inclMasterdata,
             // inclWorkProduct,
             inclWorkProductComponent,
+            inclDeprecated,
             "AKM", 
           ) 
         })
@@ -369,6 +373,10 @@ const importFile = async (e) => {
                       <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
                       <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
                     </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl. DEPRECATED</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclDeprecated} onChange={handleInclDeprecated} />
+                    </span>
                   </div>
                                     <label className="pt-1" htmlFor="directory">File(s)</label>
                   <input className="select-input w-100" type="file" accept=".json" onChange={ importFile } multiple />
@@ -400,7 +408,7 @@ const importFile = async (e) => {
                   <h6>Connect imported EntityTypes</h6> 
                   <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                     title="Find Propertylinks that refers to EntityTypes and convert to relationships!"
-                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}
+                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
                   >
                     Convert Propertylinks (objects) with Relationships between EntityTypes 
                   </Button>

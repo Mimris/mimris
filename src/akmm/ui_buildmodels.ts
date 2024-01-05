@@ -383,6 +383,8 @@ let includeNoType = false;
             includeRelview = true;
           }
         }
+        if (relview.visible === false) 
+            includeRelview = false;
         if (includeNoType) {
           if (!relview.relship?.type) {
             relcolor = "green";

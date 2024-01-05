@@ -325,6 +325,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === "Relationship") {
             const relview = data.relshipview;
             relview.markedAsDeleted = data.markedAsDeleted;
+            if (relview.visible === false) {
+              myDiagram.remove(link);;
+            }
           }
         }
         break;

@@ -1673,6 +1673,7 @@ export class jsnRelshipView {
     points:          any;
     markedAsDeleted: boolean;
     modified:        boolean;
+    visible:         boolean;
     constructor(relview: akm.cxRelationshipView) {
         this.id              = relview?.id;
         this.name            = relview?.name;
@@ -1700,6 +1701,7 @@ export class jsnRelshipView {
         this.corner          = relview?.corner;
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
+        this.visible         = relview?.visible;
         // Code
         if (relview?.description)
             this.description = relview.description;

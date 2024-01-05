@@ -829,6 +829,7 @@ export class goRelshipLink extends goLink {
     cardinalityTo:      string;
     nameFrom:           string;
     nameTo:             string;
+    visible:            boolean;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category        = constants.gojs.C_RELATIONSHIP;
@@ -865,6 +866,7 @@ export class goRelshipLink extends goLink {
         this.cardinalityTo   = "";
         this.nameFrom        = "";
         this.nameTo          = "";
+        this.visible         = relview?.visible;
 
         if (relview) {
             const relship = relview.getRelationship() as akm.cxRelationship;

@@ -1304,6 +1304,7 @@ export class cxMetis {
                     relview.routing = item.routing;
                     relview.curve = item.curve;
                     relview.corner = item.corner;
+                    relview.visible = item.visible;
                     if (debug) console.log('1050 relview', relview);
                     let reltypeview;
                     if (item.typeviewRef) {
@@ -9440,6 +9441,7 @@ export class cxRelationshipView extends cxMetaObject {
     corner:         string;
     curve:          string;
     points:         any;
+    visible:        boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -9466,6 +9468,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.curve = "";
         this.corner = "";
         this.points = [];
+        this.visible = true;
     }
     // Methods
     getRelationship(): cxRelationship | null {

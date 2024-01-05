@@ -366,7 +366,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     }
 
     const osduArray = deepEntries(topModel); // find all the objects in the topModel and down the tree
-    if (debug) console.log("357 deepEntries", osduArray);
+    if (!debug) console.log("369 deepEntries", osduArray);
     // ------------------ create objects and relationships ------------------
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
@@ -436,13 +436,13 @@ export const ReadConvertJSONFromFileToAkm = async (
                 osduType = "Collection";
                 if (!debug) console.log("425 x-osdu-indexing /array :", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 processArray(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-            } else if (inclProps && oName.includes("ID")) { // ??????????????????????????????          
-                if (debug) console.log("428 ", oId, oName, oKey, oValProps);
-                createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+            // } else if (inclProps && oName.includes("ID")) { // ??????????????????????????????          
+            //     if (!debug) console.log("428 ", oId, oName, oKey, oValProps);
+            //     createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else if (inclProps && (oVal.type === "string" || oVal.type === "number" || oVal.type === "integer" || oVal.type === "boolean")) {
                 osduType = "Property";
                 const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
-                if (debug) console.log("434 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+                if (!debug) console.log("434 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
                 createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else if (inclArrayProperties && oVal.type === "object") {
                 if (oName === 'ExtensionProperties' && !inclXOsduProperties) return; // skip ExtensionProperties if not inclXOsduProperties
@@ -473,8 +473,8 @@ export const ReadConvertJSONFromFileToAkm = async (
             const propLinkName = `Is${oValProps.title}`;
             createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         } else if (oName === "items") {
-            if (debug) console.log("471 items  ", oName, oValProps);
-            if (debug) console.log("449  items", parentName.substring(oName.length - 3));
+            if (!debug) console.log("476 items  ", oName, oValProps);
+            if (debug) console.log("477  items", parentName.substring(oName.length - 3));
             if (inclArrayProperties && parentName?.endsWith("s")) {
                 if (oName === 'ExtensionProperties' && !inclXOsduProperties) return; // skip ExtensionProperties if not inclXOsduProperties
                 // if ends wit ies rename to end with y
@@ -484,15 +484,15 @@ export const ReadConvertJSONFromFileToAkm = async (
                 } else {
                     oMName = parentName.substring(0, parentName.length - 1); // remove s from end of parentName
                 }
-                if (debug) console.log("463 ConvertJSON...", oMName, oId, oMName, oKey, osduType, jsonType, oValProps,);
+                if (debug) console.log("487 ConvertJSON...", oMName, oId, oMName, oKey, osduType, jsonType, oValProps,);
                 processItemType(oId, oMName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
 
             } else if (oVal.allOf) {
-                if (debug) console.log("480  items", oName, oValProps);
+                if (debug) console.log("491  items", oName, oValProps);
                 if (parentName.substring(0, parentName.length - 1) === 's') { // we create a object in collection without s at the end
                     const oOName = parentName.substring(0, parentName.length - 1); // remove s from end of parentName
                     const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Item")?.id;
-                    if (debug) console.log("484 ConvertJSON...", oId, oOName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                    if (debug) console.log("495 ConvertJSON...", oId, oOName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                     createObjectAndRelationships(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
                 }
             }
@@ -518,7 +518,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps); // create the reference objects
             findOwnerandCreateRelationship(oId, oName, osduObj, curModel); // create the relationship between the reference objects and the owner
         } else {
-            console.log("543 Object not interpreted or already included as subObject...", oName, oValProps, parentName, gparentName);
+            console.log("521 Object not interpreted or already included as subObject...", oName, oValProps, parentName, gparentName);
         }
     });
 
@@ -531,12 +531,12 @@ export const ReadConvertJSONFromFileToAkm = async (
     // create function findOwnerandCreateRelationship(oId, oKey)
     function findOwnerandCreateRelationship(childId: string, childName: string, osObj: [any, any, any], curModel: any) {
         if (!osObj) return;
-        if (debug) console.log("505 find and createRelship ...........", osObj, curModel);
+        if (debug) console.log("535 find and createRelship ...........", osObj, curModel);
         const topObj = mainArray[0];
         const topObjId = topObj[0];
         const topObjKey = topObj[1];
         const topObjName = topObj[1].split(".").slice(-1)[0];
-        if (debug) console.log("510 topObjName", topObjName, topObjKey, topObj, osObj);
+        if (debug) console.log("539 topObjName", topObjName, topObjKey, topObj, osObj);
         // const osduObj = curModel.objects.find(o => o.osduId === topObjKey)
 
         const [oId, oKey, oVal] = osObj;

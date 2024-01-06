@@ -1545,6 +1545,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
+            makeButton("Hide View",
+            function (e, obj) {
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentLink = obj.part.data;
+                if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
+                selection = myDiagram.selection
+              }
+              const modifiedRelshipViews = new Array();
+              myDiagram.selection.each(function (sel) {
+                const link = sel;
+                let relview = link.data.relshipview;
+                if (relview) {
+                  relview = myModelview.findRelationshipView(relview.id);
+                  relview.visible = false;
+                  const jsnRelView = new jsn.jsnRelshipView(relview);
+                  modifiedRelshipViews.push(jsnRelView);
+                  link.visible = false;
+                  myDiagram.remove(link);
+                }
+              })
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })
+            },
+            function (o) {
+              const link = o.part.data;
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
+                return true;
+              } else {
+                return false;
+              }
+            }),
           makeButton("----------"),
           makeButton("TEST",
             function (e: any, obj: any) {
@@ -2658,6 +2693,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const link = links[i];
                 myDiagram.model.addLinkData(link);
               }
+              return;
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Unhide Hidden Relationship Views",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              // const links = 
+              uic.unhideHiddenRelationshipViews(modelview, myMetis);
+              // for (let i = 0; i < links.length; i++) {
+              //   const link = links[i];
+              //   myDiagram.model.addLinkData(link);
+              // }
               return;
             },
             function (o: any) {

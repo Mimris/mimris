@@ -1813,6 +1813,32 @@ export function deleteRelationshipView(relshipView: akm.cxRelationshipView, mode
     }
 }
 
+export function unhideHiddenRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
+    const myDiagram = myMetis.myDiagram;
+    const myGoModel = myMetis.gojsModel;
+    const relviews = modelview.relshipviews;
+    const links = new Array();
+    const modifiedRelshipViews = new Array();
+    for (let i=0; i<relviews?.length; i++) {
+        const relview = relviews[i];
+        if (relview.visible) 
+            continue;
+        relview.visible = true;
+        // Find link
+        let link = myGoModel.findLinkByViewId(relview.id);
+        myDiagram.model.addLinkData(link);
+        // Prepare dispatch 
+        const jsnRelview = new jsn.jsnRelshipView(relview);
+        modifiedRelshipViews.push(jsnRelview);
+    }
+    // Dispatch
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    });
+    return links;
+}
 export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
     const myGoModel = myMetis.gojsModel;

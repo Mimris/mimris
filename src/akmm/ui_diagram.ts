@@ -1636,12 +1636,12 @@ function relshipsSortedByNameTypeAndToNames(relships: akm.cxRelationship[], reld
             toTypeB = b.toObject.type.name;
             toObjB = b.toObject.name;
         }
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        
         if (typeA < typeB) return -1;
         if (typeA > typeB) return 1;
             
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        
         if (toObjA < toObjB) return -1;
         if (toObjA > toObjB) return 1;
 

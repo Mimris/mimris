@@ -429,7 +429,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                     if (debug) console.log("415 ", pLId, pLName, oKey, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
                 });
             } else if (inclProps && oVal["x-osdu-frame-of-reference"]) {// if the value is a frame of reference we create a property object
-                if (debug) console.log("419 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                if (!debug) console.log("419 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else if (inclArrayProperties && oVal["x-osdu-indexing"] || oVal.type === "array") { // if the value is x-osdu-indexing or an array we create a collection object 
                 // its and array of objects, we use Collection objecttype
@@ -441,7 +441,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             //     createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else if (inclProps && (oVal.type === "string" || oVal.type === "number" || oVal.type === "integer" || oVal.type === "boolean")) {
                 osduType = "Property";
-                const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
+                // const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
                 if (!debug) console.log("434 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
                 createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else if (inclArrayProperties && oVal.type === "object") {
@@ -508,7 +508,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         )) {
             let newOValProps = oValProps;
             newOValProps.description = JSON.stringify(oValProps)
-            if (debug) console.log("506 x-osdu- ", oName, oValProps, newOValProps, inclXOsduProperties);
+            if (!debug) console.log("506 x-osdu- ", oName, oValProps, newOValProps, inclXOsduProperties);
             createPropertyObject(oId, oName, oKey, osduType, jsonType, newOValProps, osduObj, curModel, objecttypeRef);
         } else if (inclGeneric) {
             // the rest we GenericObjects
@@ -1004,7 +1004,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
                 oValProps.viewkind = "container";
                 createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                if (debug) console.log("1077  array Set", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                if (!debug) console.log("1007  array :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
             case oName.includes("ID") || oName.includes("IDs"):
@@ -1017,7 +1017,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                     const propLinkName = "has" + oName;
                     oValProps.linkID = oName;
                     createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                    if (debug) console.log("1090  array ID", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                    if (!debug) console.log("1090  array ID", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                     findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 }
                 break;

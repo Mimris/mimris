@@ -112,7 +112,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
   const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
   const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
-  const [inclArrayProperties, setInclArrayProperties ] = useState(false)
+  const [inclArrayProperties, setInclArrayProperties ] = useState(true)
   const [inclGeneric, setInclGeneric ] = useState(false)
   const [inclAbstract, setInclAbstract ] = useState(false)
   const [inclReference, setInclReference ] = useState(false)
@@ -362,16 +362,16 @@ const importFile = async (e) => {
                       <input className="checkbox-input" type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract Property Links</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x-osdu-.... Properties</label>
                       <input className="checkbox-input" type="checkbox" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl. DEPRECATED</label>

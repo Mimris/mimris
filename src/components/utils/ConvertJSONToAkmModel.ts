@@ -84,7 +84,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     ) => {
 
         // console.log(' 44 createObject', oName, existObj);
-        if (debug) console.log("47 createObject", oName, oValProps, oKey, modelType);
+        if (!debug) console.log("87 createObject", oName, oValProps, oKey, modelType);
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         // let typeColor: string = 'green'
         let typeColor: string = setColorsTopEntityTypes(osduType);
@@ -175,7 +175,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             strokecolor: typeStrokeColor,
         }
         // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
-        if (debug) console.log("160 Create relship", fromobjectId, fromobjectName, importedRel, toobjectId, toobjectName);
+        if (!debug) console.log("160 Create relship", fromobjectId, fromobjectName, importedRel, toobjectId, toobjectName);
         fromobjectId && toobjectId && dispatch({ type: "UPDATE_RELSHIP_PROPERTIES", data: importedRel });
     };
 
@@ -426,7 +426,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                         processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
                         if (debug) console.log("427 ", pLName, oValProps, rel);
                     }
-                    if (debug) console.log("429 ", pLId, pLName, oKey, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
+                    if (!debug) console.log("429 ", pLId, pLName, oKey, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
                 });
             } else if (inclProps && oVal["x-osdu-frame-of-reference"]) {// if the value is a frame of reference we create a property object
                 if (!debug) console.log("432 ", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
@@ -531,7 +531,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     // create function findOwnerandCreateRelationship(oId, oKey)
     function findOwnerandCreateRelationship(childId: string, childName: string, osObj: [any, any, any], curModel: any) {
         if (!osObj) return;
-        if (debug) console.log("535 find and createRelship ...........", osObj, curModel);
+        if (!debug) console.log("535 find and createRelship ...........", childId, childName, osObj, curModel);
         const topObj = mainArray[0];
         const topObjId = topObj[0];
         const topObjKey = topObj[1];
@@ -572,7 +572,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         // if (debug) console.log('584 relship  ', oName, parentName, gparentName, ggparentName, gggparentName, ggggparentName, gggggparentName, oKey, oVal);
         if (parentName === "properties") {
             // if the parent is properties, we have to find owner and create a relationship between the object and the owner object
-            if (debug) console.log("543 ", oName, parentName, gparentName, ggparentName, oKey);
+            if (!debug) console.log("575 ", oName, parentName, gparentName, ggparentName, oKey);
             if (gparentKey === topObjKey) {
                 // if granparent is the top object, it is the owner
                 const fromobjectId = topObjId;
@@ -627,7 +627,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 const ownerObj = osduArray.find((o) => o[1] === gparentKey);
                 const fromobjectId = ownerObj[0];
                 const fromobjectName = ownerObj[1].split("|").slice(-1)[0];
-                if (debug) console.log("607 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                if (!debug) console.log("630 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                 if (fromobjectId && toobjectId)
                     createRel(
                         relId,
@@ -644,8 +644,9 @@ export const ReadConvertJSONFromFileToAkm = async (
             } else if (gparentName === "items" || ggparentName === "properties") {//  ???????? ????? ????? if 
                 let ownerObj: string[], fromobjectId: string, fromobjectName: string;
                 if (parentName === "properties") {
-                    // if the greatgrandparent 44properties, we have to find owner and create a relationship between the object and the owner object
+                    // if the greatgrandparent properties, we have to find owner and create a relationship between the object and the owner object
                     ownerObj = osduArray.find((o) => o[1] === gparentKey);
+                    if (!debug) console.log("649 ", gparentKey, parentName, topObjKey, ownerObj);
                     fromobjectId = ownerObj[0];
                     fromobjectName = ownerObj[1].split("|").slice(-1)[0];
                 } else if (ggparentName === "Markers") {
@@ -658,10 +659,10 @@ export const ReadConvertJSONFromFileToAkm = async (
                     fromobjectId = ownerObj[0];
                     fromobjectName = ownerObj[1].split("|").slice(-1)[0];
                 }
-                if (debug) console.log("633", gparentKey, parentName, topObjKey);
-                const toobjectId = oId;
-                const toobjectName = oName;
-                if (debug) console.log("652 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                if (debug) console.log("661", gparentKey, parentName, topObjKey);
+                // const toobjectId = oId;
+                // const toobjectName = oName;
+                if (!debug) console.log("664 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                 if (fromobjectId && toobjectId)
                     createRel(
                         relId,
@@ -711,8 +712,8 @@ export const ReadConvertJSONFromFileToAkm = async (
                 const ownerObj = osduArray.find((o) => o[1] === gparentKey);
                 const fromobjectId = ownerObj[0];
                 const fromobjectName = ownerObj[1].split("|").slice(-1)[0];
-                if (debug) console.log("706 ---------", ownerObj, osduArray, fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
-                if (debug) console.log("707 ---------", parentName, gparentName, ggparentName, gggparentName, ggggparentName, gggggparentName, oKey);
+                if (debug) console.log("714 ---------", ownerObj, osduArray, fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                if (debug) console.log("715 ---------", parentName, gparentName, ggparentName, gggparentName, ggggparentName, gggggparentName, oKey);
                 if (fromobjectId && toobjectId)
                     createRel(
                         relId,
@@ -836,7 +837,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             const ownerObj = osduArray.find((o) => o[1] === parentKey);
             const fromobjectId = ownerObj[0];
             const fromobjectName = ownerObj[1].split("|").slice(-1)[0];
-            if (debug) console.log("703 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+            if (!debug) console.log("703 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
             if (fromobjectId && toobjectId)
                 createRel(
                     relId,
@@ -979,7 +980,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             // const existRel = curModel.relships.find((r: { name: string }) => r.name === propLinkName);
             // if (!existRel) { // if the relship exist, we do not create a new one ???? Todo:  is this correct, it should be updated
             createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (!debug) console.log("980 a-osdu-relship ", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+            if (!debug) console.log("980 a-osdu-relship ", oId, oName, objecttypeRef, oKey, osduType, jsonType, osduObj, oValProps);
             findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
             // }
             // });

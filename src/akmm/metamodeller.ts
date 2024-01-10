@@ -760,7 +760,6 @@ export class cxMetis {
                 if (debug) console.log('371 reltype', reltype);
                 if (reltype) {
                     this.importRelshipType(reltype, metamodel);
-                    const reltypes = metamodel.relshiptypes;
                 }
             });
         }
@@ -934,7 +933,6 @@ export class cxMetis {
         if (!reltype) {
             if (fromobjtype && toobjtype)
                 reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
-                metamodel.addRelationshipType(reltype);
                 fromobjtype.addOutputreltype(reltype);
                 toobjtype.addInputreltype(reltype);
         }
@@ -979,6 +977,7 @@ export class cxMetis {
                     });
                 }
             }
+            metamodel.addRelationshipType(reltype);
             if (debug) console.log('485 reltype', reltype, metamodel, this);
         }
     }
@@ -8132,10 +8131,10 @@ export class cxObject extends cxInstance {
             if ( mtdtype === constants.types.MTD_GETCONNECTEDOBJECT) {
                 let context;
                 if (debug) console.log('7312 method', method);
-                const rtypename = method["reltype"];
-                const reldir = method["reldir"];
-                const otypename = method["objtype"];
-                let objtype = null;
+                const rtypename: string = method["reltype"];
+                const reldir: string = method["reldir"];
+                const otypename: string = method["objtype"];
+                let objtype: cxObjectType = null;
                 if (otypename !== 'any' && otypename !== 'null')
                     objtype = metis.findObjectTypeByName(otypename);
                 if (debug) console.log('7319 otypename, objtype', otypename, objtype);
@@ -8553,15 +8552,13 @@ export class cxRelationship extends cxInstance {
                 }
             } else if (reltype.toObjtype.name === constants.types.AKM_COLLECTION) {
                 if (reltype.name === constants.types.AKM_HAS_COLLECTION) {
-                    retval = true;                    
-                }
-            } else if (reltype.fromObjtype.name === constants.types.AKM_LABEL) {
-                if (reltype.name === constants.types.AKM_ANNOTATES) {
-                    retval = true;                    
-                }
-            }
+                    retval = true;  
+                }                  
+            } else if (reltype.name === constants.types.AKM_ANNOTATES) {
+                retval = true;                    
+            }            
+            return retval;
         }
-        return retval;
     }
 }
 

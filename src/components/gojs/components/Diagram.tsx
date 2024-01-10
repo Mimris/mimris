@@ -708,6 +708,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
+          makeButton("Hide Connected Relationships",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              uid.hideConnectedRelationships(node, myMetis, myDiagram);
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                return true;
+              }
+              return false;
+            }),
           makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -2933,7 +2945,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const node = it.value;
                 const data = node.data;
                 let objview = data.objectview;
-                objview = myModelview.findObjectView(objview.id);
+                if (objview)
+                  objview = myModelview.findObjectView(objview.id);
                 if (objview) {
                   objview.loc = data.loc;
                 }
@@ -3149,11 +3162,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (!modelview.includeInheritedReltypes) {
                 alert("Inherited Relationship types are NOT included!");
               } else {
-                alert("Inherited Relationship types are included!");
+                alert("Inherited Relationship types ARE included!");
               }
               // Dispatch
               const jsnModelview = new jsn.jsnModelView(modelview);
-              if (debug) console.log('3236 jsnModelview', jsnModelview);
               const modifiedModelviews = new Array();
               modifiedModelviews.push(jsnModelview);
               modifiedModelviews.map(mn => {

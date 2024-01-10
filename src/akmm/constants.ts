@@ -177,6 +177,7 @@ export let types = {
           AKM_HAS_VIEWFORMAT    : "has",
           AKM_HAS_FIELDTYPE     : "has",
           AKM_POINTS_TO         : "pointsTo",
+          AKM_REFERS_TO         : "refersTo",
           AKM_GENERIC_REL       : "generic",
     
      // Type properties

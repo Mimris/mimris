@@ -33,7 +33,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
-  const focusModel = props.phFocus?.focusModel
+  let focusModel = props.phFocus?.focusModel
   const focusModelview = props.phFocus?.focusModelview
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   const metamodels = (metis) && metis.metamodels
@@ -85,7 +85,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('90 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
       const myPalette = (myMetamodel) && uib.buildGoPalette(myMetamodel, myMetis);
         if (debug) console.log('92 myPalette', myPalette);
-      let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+      let myModelview = (curmodview) && myModel?.findModelView(curmodview?.id);
         if (debug) console.log('108 myModelview', myModelview);
         if (debug) console.log('109 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
       const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);

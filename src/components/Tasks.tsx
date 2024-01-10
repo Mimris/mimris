@@ -101,7 +101,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const subModels = curmetamodel?.subModels;
   if (!subModels) return null;
   // const subModel = subModels[0];
-  if (!debug) console.log('100 Tasks', models,  curmodel, curmetamodel, subModels);
+  if (debug) console.log('100 Tasks', models,  curmodel, curmetamodel, subModels);
   // const subModelviews = subModel?.modelviews;
   const modelviews = curmodel?.modelviews;
   // const subModelObjects = subModel?.objects;

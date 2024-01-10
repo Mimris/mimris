@@ -39,8 +39,21 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
-    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') ? 'New-Model_TD' : 'New-Model_CM'
-    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
+    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') 
+      ? 'New-Typedefinitionmodel_TD'  
+      : (metamodelGenerated.name === 'AKM-IRTV_MM') 
+        ? 'New-Conceptmodel_CM' 
+        : (metamodelGenerated.name === 'AKM-OSDU_MM') 
+          ? 'New-OSDU-EntityType-model_TD'
+          : 'New-Model_'+metamodelGenerated.name
+
+    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') 
+      ? 'Type Definition Model, modeling with the EntityTypes' 
+      : (metamodelGenerated.name === 'AKM-IRTV_MM') 
+        ? 'Concept Model, modeling with the AKM-IRTV Metamodel'
+        : (metamodelGenerated.name === 'AKM-OSDU_MM') 
+          ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes'
+          : 'New Model '+metamodelGenerated.name
 
     const newmodel = {
       id: uuidv4(),

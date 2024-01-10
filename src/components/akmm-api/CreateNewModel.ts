@@ -123,9 +123,18 @@ const CreateNewModel = (props: any) => {
         focusRelship: { id: '', name: '' },
         focusObjectview: { id: '', name: '' },
         focusRelshipview: { id: '', name: '' },
+        focusProject: { 
+          id: newModelName, 
+          name: newModelName, 
+          org: "kavca",
+          repo: "kavca-akm-models",
+          branch: "main",
+          path: "models",
+          file: newModelName+".json",
+        },
       },
       phUser: ph.phUser,
-      phSource: 'New Project Template',
+      phSource: newModelName,
       lastUpdate: new Date().toISOString()
     }
     console.log('112 CreateNewModel', data)

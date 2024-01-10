@@ -11,7 +11,6 @@ export function askForMetamodel(context: any, create: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;
-    if (debug) console.log('17 ui_generateTypes', context);
     
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
@@ -37,7 +36,6 @@ export function askForMetamodel(context: any, create: boolean) {
             alert("Metamodel already exists");
             return;
         }
-        if (debug) console.log('41 askForMetamodel', myMetis);
         if (!metamodel) {
             if (confirm("Create new metamodel '" + mmname + "' ?")) {
                 metamodel = new akm.cxMetaModel(utils.createGuid(), mmname, "");
@@ -47,10 +45,103 @@ export function askForMetamodel(context: any, create: boolean) {
                 return;
             }
         }
-        if (debug) console.log('51 myMetis', myMetis);
         return metamodel;
     }
 } 
+
+function getObjectSystemTypes(myMetamodel: akm.cxMetaModel, includeMetamodelling: boolean) {
+    if (myMetamodel.name === constants.admin.AKM_CORE_MM)
+        return myMetamodel.objecttypes;
+    const retval = new Array();
+    const objtypes = myMetamodel.objecttypes;
+    for (let i=0; i<objtypes.length; i++) {
+        const objtype = objtypes[i];
+        if (isSystemObjectType(objtype, includeMetamodelling))
+            retval.push(objtype);
+    }
+    return retval;
+}
+
+function isSystemObjectType(objtype: akm.cxObjectType, includeMetamodelling: boolean) {
+    const typename = objtype.name;
+    switch (typename) {
+        case constants.types.AKM_ELEMENT:
+        case constants.types.AKM_ENTITY_TYPE:
+        case constants.types.AKM_GENERIC:
+        case constants.types.AKM_LABEL:
+        case constants.types.AKM_CONTAINER:
+        case constants.types.AKM_METAMODEL:
+            return true;
+    }
+    if (includeMetamodelling) {
+        switch (typename) {
+            case constants.types.AKM_PROPERTY:
+            case constants.types.AKM_DATATYPE:
+            case constants.types.AKM_FIELDTYPE:
+            case constants.types.AKM_INPUTPATTERN:
+            case constants.types.AKM_VIEWFORMAT:
+            case constants.types.AKM_VALUE:
+            case constants.types.AKM_UNIT:
+            case constants.types.AKM_METHOD:
+            case constants.types.AKM_METHODTYPE:
+                return true;
+        }
+    }
+    return false;
+}
+
+function getRelationshipSystemTypes(myMetamodel: akm.cxMetaModel, includeMetamodelling: boolean) {
+    const retval = new Array();
+    const reltypes = myMetamodel.relshiptypes;
+    for (let i=0; i<reltypes.length; i++) {
+        const reltype = reltypes[i];
+        if (isSystemRelationshipType(reltype, includeMetamodelling))
+            retval.push(reltype);
+    }
+    return retval;
+}
+
+function isSystemRelationshipType(reltype: akm.cxRelationshipType, includeMetamodelling: boolean, includeEntityType: boolean) {
+    const typename = reltype.name;
+    switch (typename) {
+        case constants.types.AKM_HAS_PART:
+        case constants.types.AKM_HAS_MEMBER:
+        case constants.types.AKM_REFERS_TO:
+        case constants.types.AKM_ANNOTATES:
+            return true;
+    }
+    if (includeMetamodelling) {
+        switch (typename) {
+            case constants.types.AKM_IS:
+            case constants.types.AKM_CONTAINS:
+            case constants.types.AKM_HAS_SUBMODEL:
+            case constants.types.AKM_HAS_SUBMETAMODEL:
+            case constants.types.AKM_IS_OF_DATATYPE:
+            case constants.types.AKM_IS_DEFAULTVALUE:
+            case constants.types.AKM_HAS_PORT:
+            case constants.types.AKM_HAS_METHOD:
+            case constants.types.AKM_HAS_METHODTYPE:
+            case constants.types.AKM_RELATIONSHIP_TYPE:
+            case constants.types.AKM_HAS_PROPERTY:
+            case constants.types.AKM_HAS_FIELDTYPE:
+            case constants.types.AKM_HAS_INPUTPATTERN:
+            case constants.types.AKM_HAS_VIEWFORMAT:
+            case constants.types.AKM_HAS_VALUE:
+            case constants.types.AKM_ANNOTATES:
+                return true;
+        }
+        // typename === constants.types.AKM_IS
+        const totype: akm.cxObjectType = reltype.toObjtype;
+        const fromtype: akm.cxObjectType = reltype.fromObjtype;
+        if (typename === constants.types.AKM_IS && totype?.name === constants.types.AKM_ELEMENT)
+            return true;
+        if (typename === constants.types.AKM_IS && fromtype?.name === constants.types.AKM_GENERIC)
+            return true;
+        if (typename === constants.types.AKM_IS && fromtype?.name === constants.types.AKM_CONTAINER)
+            return true;
+    }
+    return false;
+}
 
 function isCoreObjectType(objtype: akm.cxObjectType, isCoreMetamodel: boolean) {
     if (isCoreMetamodel) return false;
@@ -126,7 +217,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     newName = utils.camelize(newName);
     newName = utils.capitalizeFirstLetter(newName);
     let objname = newName;
-    if (debug) console.log('83 newName', newName);
     let objtype: akm.cxObjectType;
     if (typid) { // The object type exists - has been generated before
         objtype = myMetis.findObjectType(typid);
@@ -138,7 +228,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         }
     } else // Check if the type has not been generated, but exists anyway
     {        
-        objtype = myMetis.findObjectTypeByName(currentObj.name);
+        objtype = myMetamodel.findObjectTypeByName(currentObj.name);
     }
     if (!objtype) { // This is a new object type
         let metaObjectName;
@@ -203,7 +293,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
             }
             objtypeview.applyObjectViewParameters(objview);
-            if (debug) console.log('138 objtype, objtypeview', objtype, objtypeview);
             objtype.typeview = objtypeview;
             objtype.setModified();
             myMetis.addObjectTypeView(objtypeview);
@@ -284,7 +373,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         //     objtype.description = currentObj.description;
         //     const typeprops = new Array();
         //     getTypeProperties(object, typeprops, myModel);
-        //     if (debug) console.log('255 objtype, object, typeprops', objtype, object, typeprops);
         //     addProperties(objtype, typeprops, context);
     }
     { // Handle ports
@@ -317,7 +405,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const typeview = objtype.typeview as akm.cxObjectTypeView;
         if (typeview) {
             const jsnObjTypeview = new jsn.jsnObjectTypeView(typeview);
-            if (debug) console.log('278 typeview, jsnObjTypeview', typeview, jsnObjTypeview);
             modifiedObjectTypeViews.push(jsnObjTypeview);
         }
     }
@@ -364,7 +451,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
 }
 
 export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cxRelationshipView, context: any) {
-    if (debug) console.log('316 relship, relview: ', relship, relview);
     if (!relship) {
         return;
     }
@@ -442,7 +528,6 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     if (!reltype) {  // This is a new relationship type
         if (relname && fromtype && totype) 
         {
-            if (debug) console.log('384 relname, fromtype, totype: ', relname, fromtype, totype);
             reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, currentRel.description);
             if (reltype) {
                 const names = relname.split("/");
@@ -478,7 +563,6 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
 
         // Create/Modify the relationship typeview
         reltypeview = reltype.typeview;
-        if (debug) console.log('421 reltype, typeview: ', reltype, reltype.typeview);    
         if (!reltypeview) {
             const guid = utils.createGuid();
             const name = reltype.name + '_' + reltype.getRelshipKind();
@@ -560,9 +644,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
         return null;
     let datatype   = myTargetMetamodel?.findDatatypeByName(name);
     if (!datatype) {
-        if (debug) console.log('464 datatype name:', name);
         const dtype = myMetis.findDatatypeByName(name);
-        if (debug) console.log('466 dtype:', dtype);
         if (dtype) {
             // Datatype exists
             myTargetMetamodel.addDatatype(dtype);
@@ -573,12 +655,10 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             myMetis.addDatatype(datatype);  
         }      
     }
-    if (debug) console.log('475 datatype', datatype, myTargetMetamodel);
     if (datatype) {
         // Handle all aspects of the datatype
         const rels = object.getOutputRelships(myModel, constants.relkinds.REL);
         if (rels) {
-            if (debug) console.log('480 rels', rels);
             let values  = new Array();
             // Check if it has a parent datatype
             for (let i=0; i < rels.length; i++) {
@@ -595,7 +675,6 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 }
             }  
             // Find allowed values if any
-            if (debug) console.log('500 rels', rels);
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
                 if (rel.name === constants.types.AKM_HAS_ALLOWED_VALUE) {
@@ -606,19 +685,16 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                             continue;
                     }
                     values.push(valueObj.getName());
-                    if (debug) console.log('511 rels', rels);
                 }
                 else if (rel.getName() === constants.types.AKM_IS_DEFAULTVALUE) {
                     let valueObj = rel.toObject;
                     if (valueObj) {
                         datatype.setDefaultValue(valueObj.name);
-                        if (debug) console.log('516 defaultValue', valueObj.name);
                         values.push(valueObj.getName());
                     }
                 }
                 for (let i=0; i< values.length; i++) {
                     datatype.addAllowedValue(values[i]);
-                    if (debug) console.log('520 allowedValue', values[i]);
                 }
                 if (values.length > 0) {
                     if (datatype.getFieldType() === 'text')
@@ -629,18 +705,14 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 let rel = rels[i];
                 // Handle datatype reference
                 if (rel.getName() === constants.types.AKM_IS_OF_DATATYPE) {
-                    if (debug) console.log('609 rel', rel);
                     const toObj = rel.getToObject();
-                    if (debug) console.log('611 toObj', toObj);
                     if (toObj.type.name === constants.types.AKM_DATATYPE) {
                         let dtypeObj = toObj;
                         let dtype = myMetis.findDatatypeByName(dtypeObj.name);
-                        if (debug) console.log('613 dtype', dtype);
                         if (dtype) {
                             datatype.setIsOfDatatype(dtype);
                         }
                     }
-                    if (debug) console.log('616 datatype', datatype);
                 }
                 // Handle input pattern
                 if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
@@ -670,20 +742,16 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     }
                 }
                 // Add the datatype
-                if (debug) console.log('551 datatype', datatype);
                 myTargetMetamodel.addDatatype(datatype);
                 // Update phData
                 const jsnDatatype = new jsn.jsnDatatype(datatype);
                 const modifiedDatatypes = new Array();
                 modifiedDatatypes.push(jsnDatatype);
-                if (debug) console.log('557 ui_generateTypes', jsnDatatype, modifiedDatatypes);
                 modifiedDatatypes.map(mn => {
                     let data = (mn) && mn;
                     data = JSON.parse(JSON.stringify(data));
                     myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
                 });
-
-                if (debug) console.log('564 generateDatatype', datatype, myMetis);
             }
             return datatype;
         }
@@ -726,7 +794,6 @@ export function generateMethodType(obj: akm.cxObject, context: any): akm.cxMetho
     } else {
         mtdtype.properties = new Array();
     }
-    if (debug) console.log('593 mtdtype', mtdtype, myTargetMetamodel);
     if (mtdtype) {
         // Handle properties
         const typeprops = new Array();
@@ -748,18 +815,15 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     // let method   = myMetamodel?.findMethodByName(name);
     let method   = myTargetMetamodel?.findMethodByName(name);
     if (!method) {
-        if (debug) console.log('695 method name:', name);
         method = myMetis.findMethodByName(name);
         if (!method) 
             method = new akm.cxMethod(utils.createGuid(), name, descr);
         // myMetamodel.addMethod(method);
         myTargetMetamodel.addMethod(method);
         myMetis.addMethod(method);  
-        if (debug) console.log('702 method:', method);
     }
     const mtdtypename  = object.methodtype;
     const methodType = myMetamodel.findMethodTypeByName(mtdtypename);
-    if (debug) console.log('706 methodType', methodType);
     if (method && methodType) {
         method.methodtype = methodType.name;
         const props = methodType.properties;
@@ -767,9 +831,7 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
             const propname = props[i].name;
             method[propname] = object[propname];
         }
-        if (debug) console.log('714 method', method);
     }      
-    if (debug) console.log('717 method', method, myMetamodel);
     // Update phData
     const jsnMethod = new jsn.jsnMethod(method);
     if (methodType) {
@@ -781,14 +843,11 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     }
     const modifiedMethods = new Array();
     modifiedMethods.push(jsnMethod);
-    if (debug) console.log('729 jsnMethod, myMetis', jsnMethod, myMetis);
     modifiedMethods.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('734 data', data);
         myDiagram.dispatch({ type: 'UPDATE_TARGETMETHOD_PROPERTIES', data })
     });
-    if (debug) console.log('736 method, myMetis', method, myMetis);
     return method;
 }
 
@@ -826,17 +885,16 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
         }
         modifiedMetamodels.map(mn => {
             let data = mn;
-            if (debug) console.log('40 data', data);
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
         });
     }
     
-    if (confirm('Do you want to EXCLUDE system types?')) {
-        myMetis.currentModel.includeSystemtypes = false;
-    } else {
+    // if (confirm('Do you want to EXCLUDE system types?')) {
+    //     myMetis.currentModel.includeSystemtypes = false;
+    // } else {
         myMetis.currentModel.includeSystemtypes = true;
-    }
+    // }
     const args = {
         "metamodel":    myMetis.currentTargetMetamodel, 
         "modelview":    myMetis.currentModelview, 
@@ -856,7 +914,6 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
         "postOperation":      generateTargetMetamodel2,
         "args":               args
     }
-    if (debug) console.log('753 context', context);
     askForTargetMetamodel(context);
 }
 
@@ -924,23 +981,11 @@ export function generateTargetMetamodel2(context: any) {
     const args = context.args;
     const targetmetamodel = context.myTargetMetamodel;
     const sourcemodel = context.myModel;
-    if (debug) console.log('899 metamodel, modelview, context', targetmetamodel, sourcemodelview, context);
     if (!targetmetamodel)
         return false;
     if (!sourcemodelview)
         return false;
 
-    let mergeMetamodel = false;
-
-    // if (confirm('Do you want to MERGE into (NOT CLEAR) the Target Metamodel?')) {
-    //     mergeMetamodel = true;
-    // }    
-    // if (!mergeMetamodel) {
-    //     targetmetamodel.clearContent();
-    // }
-
-    const myMetis = context.myMetis;
-    let currentNode = context.myCurrentNode;
     let objectviews = sourcemodelview.objectviews;
     let relshipviews = sourcemodelview.relshipviews;
     generateMetamodel(objectviews, relshipviews, context);
@@ -1134,13 +1179,11 @@ function getSubModelObjects(obj: akm.cxObject, hasSubmodelType: cxRelationshipTy
 }
 
 export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any): akm.cxMetaModel {
-    if (debug) console.log('965 objectviews, relshipviews, context', objectviews, relshipviews, context);
     const myMetis     = context.myMetis as akm.cxMetis;
     const myMetamodel = context.myMetamodel as akm.cxMetaModel;
     const model       = context.myModel as akm.cxModel;
     const myGoModel   = context.myGoModel;
     const myDiagram   = context.myDiagram;
-    let targetMetamodel = context.myTargetMetamodel as akm.cxMetaModel;
     const modifiedMethods      = new Array();
     const modifiedMethodTypes  = new Array();
     const modifiedObjectTypes  = new Array();
@@ -1149,7 +1192,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const modifiedRelshipTypes = new Array();
     const modifiedRelTypeViews = new Array();
     const modifiedMetamodels   = new Array();
-
+    const includeSystemtypes   = model.includeSystemtypes
+    let targetMetamodel        = context.myTargetMetamodel as akm.cxMetaModel;
     if (!targetMetamodel)
         return null;
     model.targetMetamodelRef = targetMetamodel.id;
@@ -1209,7 +1253,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // For each Method object call generateMethod
     objects = model?.getObjectsByTypename('Method', false);
     if (objects) {
-        if (debug) console.log('1316 methods', objects);
         for (let i=0; i<objects.length; i++) {
             let obj = objects[i];
             if (obj && !obj.markedAsDeleted) {
@@ -1239,7 +1282,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         'integer', 'string', 'number', 'boolean', 'date',
                         'reldir', 'actiontype'];
     let dtypes;
-    if (model.includeSystemtypes) {
+    if (includeSystemtypes) {
         dtypes = myMetamodel.datatypes;
     } else {
         dtypes = [];
@@ -1253,45 +1296,16 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         const dtype = dtypes[j];
         if (dtype) targetMetamodel.addDatatype(dtype);
     }
-
-    // Add system types - first object types
-    // const systemtypes = ['Element', 'EntityType', 'RelshipType',  
-    //                      'Generic', 'Container', 'Collection', 'Method'];
-    // const systemtypes = ['Element', 'EntityType', 'Generic', 'Container'];
-    let objtypes = [];
-    let osystemtypes = myMetamodel.objecttypes;
-    for (let i=0; i<osystemtypes.length; i++) {
-        // Filter types not to be generated: 
-        const otype = osystemtypes[i];
-        if (isCoreObjectType(otype, isCoreMetamodel))
-            continue;
-        objtypes.push(otype);
+    // Add system types 
+    // First add object types 
+    targetMetamodel.objecttypes = getObjectSystemTypes(myMetamodel, false);
+    targetMetamodel.objecttypes0 = getObjectSystemTypes(myMetamodel, false);
+    { // Then add relship types
+        targetMetamodel.relshiptypes = getRelationshipSystemTypes(myMetamodel, includeSystemtypes);
+        targetMetamodel.relshiptypes0 = getRelationshipSystemTypes(myMetamodel, false);
     }
-    
-    // Add object types: 
-    targetMetamodel.objecttypes = objtypes;
-    targetMetamodel.objecttypes0 = [];
-    if (debug) console.log('1192 objecttypes', objtypes);
-    // Add system relationship types
-    let reltypes = [];
-    let osystemreltypes = myMetamodel.relshiptypes;
-    for (let i=0; i<osystemreltypes.length; i++) {
-        // Filter types not to be generated: 
-        const reltype = osystemreltypes[i];
-        // if (isCoreRelationshipType(osystemreltypes[i], isCoreMetamodel))
-        //     continue;
-        if (!isApplicationRelType(reltype, objtypes))
-            continue;
-        reltypes.push(reltype);
-    }
-
-    { // Add relship types
-        targetMetamodel.relshiptypes = reltypes;
-        targetMetamodel.relshiptypes0 = [];
-    }
-    // ---
     // Adding system types completed
-    // ---
+
     let metaObject;
     {   // Add metamodel contents
         let model;
@@ -1303,7 +1317,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let obj = objview.object;
             if (!obj /*|| obj.markedAsDeleted*/) 
                 continue;
-            if (obj.isOfType('Metamodel')) {
+                if (obj.isOfType('Model')) {  // A group object of type Model
+                    addModelToMetamodel(targetMetamodel, obj, context);
+                }
+                if (obj.isOfType('Metamodel')) {
                 const fromType = obj.type;
                 let toType = fromType;
                 // Follow 'contains' relationships
@@ -1353,9 +1370,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 }
             }
             if (debug) console.log('1288 context', context);
-            if (obj.isOfType('Model')) {  // A group object of type Model
-                addModelToMetamodel(targetMetamodel, obj, context);
-            }
         }
     }
     const metaObjects = ['EntityType'];
@@ -1516,7 +1530,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
-    if (debug) console.log('1400 targetMetamodel ', targetMetamodel);
     { // Then handle objects of type "RelshipType"
         for (let i=0; i<objectviews?.length; i++) {
             const objview = objectviews[i];
@@ -2060,7 +2073,6 @@ function getTypeProperties(obj: akm.cxObject, typeprops: any[], myModel: akm.cxM
                 if (proptype.name === typeprops[j].name)
                     continue;
             }
-            if (debug) console.log('1194 proptype', proptype);
             typeprops.push(proptype);
         }
         if (rel?.type?.name === constants.types.AKM_HAS_COLLECTION) {
@@ -2156,7 +2168,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: any[], co
             type.addProperty(prop);
             myTargetMetamodel.addProperty(prop);
             myMetis.addProperty(prop);
-            if (debug) console.log('1221 prop', prop);
         } else {
             prop.readOnly = readOnly;
             type.addProperty(prop);
@@ -2169,7 +2180,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: any[], co
             // prop = p ? p : prop;
             // Find datatype connected to current property
             let rels = proptype.getOutputRelships(myModel, constants.relkinds.REL);
-            if (debug) console.log('1233 rels', rels);
             if (prop && rels) {
                 for (let i=0; i < rels.length; i++) {
                     let rel = rels[i];
@@ -2178,7 +2188,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: any[], co
                             let dtype = rel.toObject;
                             if (dtype) {
                                 const datatype = myMetis.findDatatypeByName(dtype.name);
-                                if (debug) console.log('1242 datatype', datatype);
                                 if (datatype) prop.setDatatype(datatype);
                             }
                         }
@@ -2192,7 +2201,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: any[], co
                             // }
                         }
                     }
-                    if (debug) console.log('1256 property', prop);
                     type.addProperty(prop);
                     myTargetMetamodel?.addProperty(prop);
                     myMetis.addProperty(prop); 
@@ -2200,7 +2208,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: any[], co
             }
             // Find method connected to current property
             rels = proptype.getOutputRelships(myModel, constants.relkinds.REL);
-            if (debug) console.log('1264 rels', rels);
             if (prop && rels) {
                 for (let i=0; i < rels.length; i++) {
                     let rel = rels[i];
@@ -2208,15 +2215,11 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: any[], co
                         const reltype = rel.type;
                         if (reltype.name === constants.types.AKM_HAS_METHOD &&
                             rel.name === constants.types.AKM_HAS_METHOD) {
-                            if (debug) console.log('1270 rel', rel);
                             const toObj = rel.toObject;
-                            if (debug) console.log('1272 toObj', toObj);
                             if (toObj.type.name === constants.types.AKM_METHOD) {
-                                if (debug) console.log('1274 mtdname', toObj.name);
                                 const mtd = toObj;
                                 if (mtd) {
                                     const method = myMetis.findMethodByName(mtd.name);
-                                    if (debug) console.log('1277 method', method);
                                     if (method) {
                                         prop.setMethod(method);
                                     }

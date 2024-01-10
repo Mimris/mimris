@@ -1839,6 +1839,7 @@ export function unhideHiddenRelationshipViews(modelview: akm.cxModelView, myMeti
     });
     return links;
 }
+
 export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
     const myGoModel = myMetis.gojsModel;

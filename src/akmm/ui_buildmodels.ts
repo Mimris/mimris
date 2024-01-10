@@ -47,7 +47,7 @@ let includeNoType = false;
       if (debug) console.log('47 objecttypes', inheritedTypenames);
     }
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-    let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes0;
     if (objecttypes) {
       objecttypes.sort(utils.compare);
     }
@@ -202,8 +202,6 @@ let includeNoType = false;
   export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
     if (!model) return;
     if (!modelview) return;
-    if (!modelview.includeInheritedReltypes)
-      modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
     // model.setMyMetis(metis);
     let showRelshipNames = modelview.showRelshipNames;
     if (showRelshipNames == undefined) 

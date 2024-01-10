@@ -1924,3 +1924,16 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
         }
     }
 }
+
+function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
+
+  if (visited.has(node)) 
+    return;
+  visited.add(node);
+  // 
+  
+  for (const neighbor of node.relations) {
+    traverseDFS(neighbor, visited);
+  }
+
+}

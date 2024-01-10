@@ -72,6 +72,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     const IsType = curRelTypes.find((co: { name: string }) => co.name === "Is" && co);
     let relshipKind = "Association";
     let osduType = "";
+    let objtypeName = "";
 
     const createObject = (
         oId: any,
@@ -80,7 +81,8 @@ export const ReadConvertJSONFromFileToAkm = async (
         oKey: string,
         osduType: string,
         jsonType = "object",
-        oValProps: {}
+        oValProps: {},
+        objtypeName,
     ) => {
 
         // console.log(' 44 createObject', oName, existObj);
@@ -89,7 +91,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         // let typeColor: string = 'green'
         let typeColor: string = setColorsTopEntityTypes(osduType);
         let typeTextColor: string = "";
+        let typeTextColor2: string = "";
         let typeStrokeColor: string = "";
+        let typeStrokeColor2: string = "";
         let typeIcon: string = "" //`images/types/${oName}.jpeg`;
         let typeImage: string = "" //`images/model/${oName}.jpeg`;
         // let typeShape: string = "default";
@@ -515,7 +519,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             if (debug) console.log("412 rest generic ", oName, oValProps);
             objecttypeRef = "5cc540c0-ea91-4401-74bb-4f7cb52a2366"; // we put all the rest as the generic type for now
             if (debug) console.log("538 Object not interpreted...", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps); // create the reference objects
+            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName); // create the reference objects
             findOwnerandCreateRelationship(oId, oName, osduObj, curModel); // create the relationship between the reference objects and the owner
         } else {
             console.log("521 Object not interpreted or already included as subObject...", oName, oValProps, parentName, gparentName);
@@ -895,7 +899,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         objecttypeRef: string
     ) {
         if (debug) console.log("886 createObjectAndRelship", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
     }
 
@@ -927,7 +931,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 oValProps.abstract = true;
             }
         }
-        createObject(oId, topObjName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        createObject(oId, topObjName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
         console.log("943 topObject", topObjName, oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
     }
 
@@ -944,7 +948,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (debug) console.log("929 processEntityType :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
         objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Item")?.id;
         if (oKey.endsWith("Items")) { osduType = "Items" } else { osduType = "Item" }
-        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
 
     }
@@ -962,28 +966,13 @@ export const ReadConvertJSONFromFileToAkm = async (
         objecttypeRef: string
     ) {
         if (debug) console.log("981 parent = properties :", oName, oVal, oValProps, inclPropLinks);
-
         if (inclPropLinks && oVal["x-osdu-relationship"]) {
-            // oVal["x-osdu-relationship"].forEach((reltype: { type: string }) => {
+            objtypeName = 'PropLink'
             objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
-            if (debug) console.log("996  relationship", oName, objecttypeRef, oValProps, oVal["x-osdu-relationship"]);
-            // const propLinkName = (oVal.title) 
-            //     ? oVal.title.replace(/\s+/g, "") 
-            //     : (oVal["x-osdu-relationship"].EntityType) 
-            //         ? oVal["x-osdu-relationship"].EntityType 
-            //         : (oName !== 'items') 
-            //             ? oName 
-            //             : (gparentName !== 'Properties') 
-            //                 ? gparentName 
-            //                 : parentName;
-            // if a relship exisist wht propLinkName, we do not create a new one
-            // const existRel = curModel.relships.find((r: { name: string }) => r.name === propLinkName);
-            // if (!existRel) { // if the relship exist, we do not create a new one ???? Todo:  is this correct, it should be updated
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+            if (debug) console.log("996  relationship", oName, objecttypeRef, oValProps, oVal["x-osdu-relationship"]);                            
+            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
             if (!debug) console.log("980 a-osdu-relship ", oId, oName, objecttypeRef, oKey, osduType, jsonType, osduObj, oValProps);
             findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-            // }
-            // });
         }
     }
 
@@ -1004,7 +993,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             case oName.substring(oName.length - 3) === "Set" || oName === "Markers" || oName === "CandidateReferenceCurveIDs" || oName === "GeologicUnitInterpretationIDs":
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
                 oValProps.viewkind = "container";
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
                 if (!debug) console.log("1007  array :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
@@ -1017,14 +1006,14 @@ export const ReadConvertJSONFromFileToAkm = async (
                     let linkID = oName.replace("ID", ""); // remove ID from the name
                     const propLinkName = "has" + oName;
                     oValProps.linkID = oName;
-                    createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                    createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
                     if (!debug) console.log("1020  array ID", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                     findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 }
                 break;
             case oValProps["$ref"]:
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
                 if (debug) console.log("1097  array $ref", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
@@ -1032,7 +1021,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 if (debug) console.log("418  ProcessArray", oId, oName, oKey, jsonType);
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
                 if (oName === "Markers") oName = oName.substring(0, oName.length - 1); // remove the last character from the name
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
                 if (debug) console.log("1105  array else", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
@@ -1088,7 +1077,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         oValProps.linkID = propLinkName;
         createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         if (debug) console.log("1189 Collections", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-        // createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        // createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
         // if (debug) console.log("349 Set", oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
         // findOwnerandCreateRelationship(osduObj, curModel);
     }
@@ -1110,7 +1099,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     //     const relshipKind = "Association";
     //     createObjectAndRelationships( oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
     //     if (debug)console.log("1189 Collections", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-    //     // createObject(oId, oMName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+    //     // createObject(oId, oMName, objecttypeRef, oKey, osduType, jsonType, oValProps, objtypeName);
     //     // findOwnerandCreateRelationship(osduObj, curModel);
     // }
 

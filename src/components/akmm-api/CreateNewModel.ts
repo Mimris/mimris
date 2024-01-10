@@ -39,21 +39,23 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
+    const newProjectName = `${metamodelGenerated?.name.slice(0, -3)} Modelproject`
+
     const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') 
-      ? 'New-Typedefinitionmodel_TD'  
+      ? 'Typedefinitionmodel_TD'  
       : (metamodelGenerated.name === 'AKM-IRTV_MM') 
-        ? 'New-Conceptmodel_CM' 
+        ? 'Conceptmodel_CM' 
         : (metamodelGenerated.name === 'AKM-OSDU_MM') 
-          ? 'New-OSDU-EntityType-model_TD'
-          : 'New-Model_'+metamodelGenerated.name
+          ? 'OSDU-EntityType-model_TD'
+          : 'Model_'+metamodelGenerated.name
 
     const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') 
       ? 'Type Definition Model, modeling with the EntityTypes' 
       : (metamodelGenerated.name === 'AKM-IRTV_MM') 
-        ? 'Concept Model, modeling with the AKM-IRTV Metamodel'
+        ? 'Concept Model, modeling based on AKM-IRTV_MM Metamodel'
         : (metamodelGenerated.name === 'AKM-OSDU_MM') 
-          ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes'
-          : 'New Model '+metamodelGenerated.name
+          ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel'
+          : 'Model based on'+metamodelGenerated.name+ ' Metamodel'
 
     const newmodel = {
       id: uuidv4(),
@@ -108,8 +110,8 @@ const CreateNewModel = (props: any) => {
             (coremetamodel !== metamodelGenerated) && coremetamodel,
             (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
           ],
-          name: `<New ${metamodelGenerated?.name.slice(0, -3)} Modelproject>`,
-          description: 'New Project to start modelling',
+          name: newProjectName,
+          description: 'Modelling Project',
           currentModelRef: newmodel.id,
           currentModelviewRef: newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id,

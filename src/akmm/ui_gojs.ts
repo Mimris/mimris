@@ -343,6 +343,7 @@ export class goNode extends goMetaObject {
     fillcolor:       string;
     fillcolor2:      string;
     viewkind:        string;
+    layout:          string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
@@ -359,6 +360,7 @@ export class goNode extends goMetaObject {
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.viewkind = "";
+        this.layout = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -397,6 +399,12 @@ export class goNode extends goMetaObject {
     }
     getViewkind(): string {
         return this.viewkind;
+    }
+    setLayout(layout: string) {
+        this.layout = layout;
+    }
+    getLayout(): string {
+        return this.layout;
     }
 }
 

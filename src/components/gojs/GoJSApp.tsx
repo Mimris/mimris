@@ -284,6 +284,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "modifiedObjectTypeViews": [],
       "modifiedRelshipTypeViews": [],
       "modifiedObjectTypeGeos": [],
+      "modifiedModelviews": [],
     }
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
@@ -908,6 +909,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               } else {
                 objview.group = "";
               }
+              myModelview.addObjectView(objview);
+              myDiagram.model.setDataProperty(node, "loc", node.loc);
               myDiagram.model.setDataProperty(node, "scale", node.scale1);
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (jsnObjview) {
@@ -920,6 +923,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           myDiagram.requestUpdate();
         }
+        if (false) {
         const nodes = myDiagram.nodes;
         for (let it = nodes.iterator; it?.next();) {
             const node = it.value;
@@ -933,6 +937,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     myModelview.addObjectView(objectview);
                 }
             }
+        }
         }
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {

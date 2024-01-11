@@ -1236,6 +1236,7 @@ export class cxMetis {
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
+                    objview.layout = item.layout;
                     if (item.isExpanded == undefined) {
                         if (item.isCollapsed !== undefined)
                             objview.isExpanded = !item.isCollapsed;
@@ -9043,6 +9044,11 @@ export class cxObjectView extends cxMetaObject {
     template: string;
     figure: string;
     geometry: string;
+    icon: string;
+    image: string;
+    layout: string;
+    routing: string;
+    linkcurve: string;
     fillcolor: string;
     fillcolor1: string;
     fillcolor2: string;
@@ -9053,8 +9059,6 @@ export class cxObjectView extends cxMetaObject {
     textcolor: string;
     textcolor1: string;
     textscale: string;
-    icon: string;
-    image: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTVIEWS;  // Firestore collection
@@ -9086,6 +9090,9 @@ export class cxObjectView extends cxMetaObject {
         this.template = "";
         this.figure = "";
         this.geometry = "";
+        this.layout = "";
+        this.routing = "Normal";
+        this.linkcurve = "None";
         this.fillcolor = "";
         this.fillcolor1 = "";
         this.fillcolor2 = "";

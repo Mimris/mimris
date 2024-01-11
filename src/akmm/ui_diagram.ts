@@ -692,6 +692,42 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     gjsNode.isHighlighted = true;
 }
 
+export function hideConnectedRelationships(node, myMetis: akm.cxMetis, myDiagram) {
+    const goModel = myMetis.gojsModel;
+    const objview = node?.objectview;
+    const modelview = myMetis.currentModelview;
+    const relviews = modelview.relshipviews;
+    const rviews = [];
+    for (let i=0; i<relviews?.length; i++) {
+        const relview = relviews[i];
+        if (relview) {
+            const fromObjview = relview.fromObjview;
+            const toObjview = relview.toObjview;
+            if (fromObjview?.id === objview.id || toObjview?.id === objview.id) {
+                rviews.push(relview);
+            }
+        }
+    }
+    const modifiedRelshipViews = new Array();
+    for (let i=0; i<rviews?.length; i++) {
+        const relview = rviews[i];
+        const link = goModel.findLinkByViewId(relview.id);
+        if (link) {
+            relview.visible = false;
+            const jsnRelView = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelView);
+            link.visible = false;
+            // myDiagram.remove(link);
+        }
+    }
+
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    })
+}
+
 export function sortSelection(myDiagram) {
     const selection = myDiagram.selection;
     const mySelection = [];

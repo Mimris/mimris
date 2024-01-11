@@ -1231,6 +1231,77 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
           makeButton("----------"),
+          makeButton("Set Layout Scheme",
+            function (e: any, obj: any) {
+              const n = obj.part.data;
+              const node = n.data;
+              const objview = node.objectview;
+              const layoutList = () => [
+                { value: "Circular", label: "Circular Layout" },
+                { value: "Grid", label: "Grid Layout" },
+                { value: "Tree", label: "Tree Layout" },
+                { value: "ForceDirected", label: "ForceDirected Layout" },
+                { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
+                { value: "Manual", label: "Manual Layout" },
+              ];
+              // const llist = layoutList();
+              // const layoutLabels = llist.map(ll => (ll) && ll.label);
+              const modalContext = {
+                node: node,
+                what: "selectDropdown",
+                title: "Set Layout Scheme",
+                case: "Set Layout Scheme",
+                layoutList: layoutList(),
+                myDiagram: myDiagram
+              }
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(myDiagram, modalContext);
+            },
+            function (o: any) {
+              return false;
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Container') {
+                  if (objview.isExpanded === true)
+                    return true;
+                }
+              }
+              return false;
+            }),
+          makeButton("Do Layout",
+            function (e: any, obj: any) {
+              let layout = "";
+              if (myMetis.modelType === 'Modelling') {
+                const myModelview = myMetis.currentModelview;
+                myModelview.clearRelviewPoints();
+                const myGoModel = myMetis.gojsModel;
+                layout = myGoModel.modelView?.layout;
+              } else if (myMetis.modelType === 'Metamodelling') {
+                const myMetamodel = myMetis.currentMetamodel;
+                layout = myMetamodel.layout;
+              }
+              setLayout(myDiagram, layout);
+              // Save layout
+              const nodes = myDiagram.nodes;
+              for (let it = nodes.iterator; it?.next();) {
+                const node = it.value;
+                const data = node.data;
+                let objview = data.objectview;
+                if (objview)
+                  objview = myModelview.findObjectView(objview.id);
+                if (objview) {
+                  objview.loc = data.loc;
+                }
+              }
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+            },
+            function (o: any) {
+              return false;
+            }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
               const context = {
@@ -1557,7 +1628,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
-            makeButton("Hide View",
+          makeButton("Hide View",
             function (e, obj) {
               let selection = myDiagram.selection;
               if (selection.count == 0) {
@@ -1581,7 +1652,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedRelshipViews.map(mn => {
                 let data = mn;
                 data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
               })
             },
             function (o) {

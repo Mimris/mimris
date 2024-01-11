@@ -133,7 +133,12 @@ export const ReadConvertJSONFromFileToAkm = async (
             oName = oName + " DEPRECATED";
             typeStrokeColor = "red";
         }
-        typeColor = (osduType === 'EntityType') ? setColorsTopEntityTypes(groupType) : (osduType === 'Collection' || 'Item') ? lightenColor(setColorsTopEntityTypes(groupType), 5) : ''
+        typeColor = (osduType === 'EntityType') 
+            ? setColorsTopEntityTypes(groupType) 
+            : (osduType === 'Collection' || osduType === 'Item') 
+                ? lightenColor(setColorsTopEntityTypes(groupType), 10) 
+                : null
+
         if (!debug) console.log("137 createObject", oName, osduType, groupType, typeColor);
 
         const importedObject = //(modelType === "AKM") // don't include json attributes

@@ -98,6 +98,7 @@ export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-m
 
 export function searchModels(repo, path) {
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches
+  repo = repo.replace('https://api.github.com/repos/', '')
   const query = `${repo}`;
   if (debug) console.log('48 searchRepos https://api.github.com/', query);
   return axios.get(

@@ -117,6 +117,7 @@ const LoadGitHub = (props: any) => {
     if (orgText?.length > 0)  { 
       setLoading(true);
       if (debug) console.log('76 loadRepos', repoText, pathText, model)
+      if (repoText.includes('undefined')) return null;
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
@@ -135,6 +136,7 @@ const LoadGitHub = (props: any) => {
     console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
+    if (searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
     if (debug) console.log('131 res', res, res.data, sha)
@@ -255,6 +257,7 @@ const LoadGitHub = (props: any) => {
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (repos.includes('undefined')) return null;
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);

@@ -39,8 +39,23 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
-    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') ? 'New-Model_TD' : 'New-Model_CM'
-    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
+    const newProjectName = `${metamodelGenerated?.name.slice(0, -3)} Modelproject`
+
+    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') 
+      ? 'Typedefinitionmodel_TD'  
+      : (metamodelGenerated.name === 'AKM-IRTV_MM') 
+        ? 'Conceptmodel_CM' 
+        : (metamodelGenerated.name === 'AKM-OSDU_MM') 
+          ? 'OSDU-EntityType-model_TD'
+          : 'Model_'+metamodelGenerated.name
+
+    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') 
+      ? 'Type Definition Model, modeling with the EntityTypes' 
+      : (metamodelGenerated.name === 'AKM-IRTV_MM') 
+        ? 'Concept Model, modeling based on AKM-IRTV_MM Metamodel'
+        : (metamodelGenerated.name === 'AKM-OSDU_MM') 
+          ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel'
+          : 'Model based on'+metamodelGenerated.name+ ' Metamodel'
 
     const newmodel = {
       id: uuidv4(),
@@ -73,6 +88,7 @@ const CreateNewModel = (props: any) => {
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    const repo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
@@ -95,8 +111,8 @@ const CreateNewModel = (props: any) => {
             (coremetamodel !== metamodelGenerated) && coremetamodel,
             (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
           ],
-          name: `<New ${metamodelGenerated?.name.slice(0, -3)} Modelproject>`,
-          description: 'New Project to start modelling',
+          name: newProjectName,
+          description: 'Modelling Project',
           currentModelRef: newmodel.id,
           currentModelviewRef: newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id,
@@ -110,9 +126,18 @@ const CreateNewModel = (props: any) => {
         focusRelship: { id: '', name: '' },
         focusObjectview: { id: '', name: '' },
         focusRelshipview: { id: '', name: '' },
+        focusProject: { 
+          id: newProjectName, 
+          name: newProjectName, 
+          org: "kavca",
+          repo: repo,
+          branch: "main",
+          path: "models",
+          file: newProjectName+".json",
+        },
       },
       phUser: ph.phUser,
-      phSource: 'New Project Template',
+      phSource: newProjectName,
       lastUpdate: new Date().toISOString()
     }
     console.log('112 CreateNewModel', data)

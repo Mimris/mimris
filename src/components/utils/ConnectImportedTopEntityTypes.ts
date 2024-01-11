@@ -43,7 +43,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     let relId: any, relshipkind: string
 
     const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkObj) => {
-        if (!debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
+        if (debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
         if (!inclDeprecated && linkObj.description && linkObj.description.includes('DEPRECATED:')) return;
         // check if relship already exists
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
@@ -78,7 +78,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             nameTo: toobjectName,
         }
 
-        if (!debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel);
+        if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel);
         if (!relship) {
             if (fromobjectId && toobjectId) {
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
@@ -86,8 +86,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
                 const fromObj = { id: linkObj.id, markedAsDeleted: true }
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
                 // TODO: delete propLink relationship ?
-            // } else if (!toobjectId) {
-            //     dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: { id: linkObj.id, markedAsDeleted: true } }); // for propLink object set mark as deleted
+                // } else if (!toobjectId) {
+                //     dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: { id: linkObj.id, markedAsDeleted: true } }); // for propLink object set mark as deleted
             }
         } else {
             const fromObj = { id: linkObj.id, markedAsDeleted: true }
@@ -118,7 +118,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
         if (debug) console.log('118 ', o.name, o.title, o.id, o.linkID, o);
         if (debug) console.log('119 ', o.linkID);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkID)
-        if (!debug) console.log('121 ', o, o.linkID, targetObject);
+        if (debug) console.log('121 ', o, o.linkID, targetObject);
 
         if (!targetObject) return; // if no targetObject, skip this relationship
         // check if the relationship exists between the objects

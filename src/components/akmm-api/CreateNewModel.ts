@@ -88,6 +88,7 @@ const CreateNewModel = (props: any) => {
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    const repo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
@@ -126,17 +127,17 @@ const CreateNewModel = (props: any) => {
         focusObjectview: { id: '', name: '' },
         focusRelshipview: { id: '', name: '' },
         focusProject: { 
-          id: newModelName, 
-          name: newModelName, 
+          id: newProjectName, 
+          name: newProjectName, 
           org: "kavca",
-          repo: "kavca-akm-models",
+          repo: repo,
           branch: "main",
           path: "models",
-          file: newModelName+".json",
+          file: newProjectName+".json",
         },
       },
       phUser: ph.phUser,
-      phSource: newModelName,
+      phSource: newProjectName,
       lastUpdate: new Date().toISOString()
     }
     console.log('112 CreateNewModel', data)

@@ -136,7 +136,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         typeColor = (osduType === 'EntityType') 
             ? setColorsTopEntityTypes(groupType) 
             : (osduType === 'Collection' || osduType === 'Item') 
-                ? lightenColor(setColorsTopEntityTypes(groupType), 10) 
+                ? lightenColor(setColorsTopEntityTypes(groupType), 6) 
                 : null
 
         if (!debug) console.log("137 createObject", oName, osduType, groupType, typeColor);

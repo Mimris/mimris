@@ -715,7 +715,7 @@ export function hideConnectedRelationships(node, myMetis: akm.cxMetis, myDiagram
         const jsnRelView = new jsn.jsnRelshipView(relview);
         modifiedRelshipViews.push(jsnRelView);
     }
-    const links = node.findLinksConnected();
+    const links = node.findLinksOutOf();
     myDiagram.removeParts(links);
 
     modifiedRelshipViews.map(mn => {

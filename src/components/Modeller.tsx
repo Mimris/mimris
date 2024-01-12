@@ -441,10 +441,11 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
               'WorkProductComponent': 1,
               'ReferenceData': 2,
               'Abstract': 3,
-              'PropLink': 4,
-              'Property': 5,
-              'Collection': 6,
-              'Item': 7,
+              'EntityType': 4,
+              'PropLink': 5,
+              'Property': 6,
+              'Collection': 7,
+              'Item': 8,
             };
             return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
           })

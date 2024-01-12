@@ -126,13 +126,14 @@ const CreateNewModel = (props: any) => {
         focusRelship: { id: '', name: '' },
         focusObjectview: { id: '', name: '' },
         focusRelshipview: { id: '', name: '' },
-        focusProject: { 
+        focusProj: { 
           id: newProjectName, 
           name: newProjectName, 
+          projectNumber: 3,
           org: "kavca",
           repo: repo,
           branch: "main",
-          path: "models",
+          path: "",
           file: newProjectName+".json",
         },
       },

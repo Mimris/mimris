@@ -694,10 +694,11 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
 
 export function hideConnectedRelationships(node, myMetis: akm.cxMetis, myDiagram) {
     const goModel = myMetis.gojsModel;
-    const objview = node?.objectview;
+    const objview = node.data.objectview;
     const modelview = myMetis.currentModelview;
     const relviews = modelview.relshipviews;
-    const rviews = [];
+    const modifiedRelshipViews = new Array();
+    const rviews = new Array();
     for (let i=0; i<relviews?.length; i++) {
         const relview = relviews[i];
         if (relview) {
@@ -708,18 +709,14 @@ export function hideConnectedRelationships(node, myMetis: akm.cxMetis, myDiagram
             }
         }
     }
-    const modifiedRelshipViews = new Array();
     for (let i=0; i<rviews?.length; i++) {
         const relview = rviews[i];
-        const link = goModel.findLinkByViewId(relview.id);
-        if (link) {
-            relview.visible = false;
-            const jsnRelView = new jsn.jsnRelshipView(relview);
-            modifiedRelshipViews.push(jsnRelView);
-            link.visible = false;
-            // myDiagram.remove(link);
-        }
+        relview.visible = false;
+        const jsnRelView = new jsn.jsnRelshipView(relview);
+        modifiedRelshipViews.push(jsnRelView);
     }
+    const links = node.findLinksConnected();
+    myDiagram.removeParts(links);
 
     modifiedRelshipViews.map(mn => {
         let data = mn;

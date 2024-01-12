@@ -711,7 +711,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Hide Connected Relationships",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              uid.hideConnectedRelationships(node, myMetis, myDiagram);
+              const n = myDiagram.findNodeForKey(node.key);
+              uid.hideConnectedRelationships(n, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;

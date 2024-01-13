@@ -11,6 +11,7 @@ import { get } from 'http';
 import { core } from './constants';
 const constants = require('./constants');
 const printf = require('printf');
+const grabIsAllowed = false;
 
 // functions to handle nodes
 export function createObject(data: any, context: any): akm.cxObjectView | null {
@@ -988,16 +989,12 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
 
 export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[]) : gjs.goObjectNode[] {
     const nodes = new Array();
-    if (debug) console.log('950 groupNode', groupNode);
     const groupObjview = groupNode.objectview;
     const groupId = groupObjview.id;
-    if (debug) console.log('1035 groupNode, groupId, myObjectviews', groupNode, groupId, myObjectviews);
     for (let i=0; i<myObjectviews?.length; i++) {
         const oview = myObjectviews[i];
-        if (debug) console.log('1038 oview', oview);
         const loc = oview?.loc;
         if (oview?.group === groupId) {
-            if (debug) console.log('1039 oview', oview);
             const node = myGoModel.findNodeByViewId(oview.id);
             if (node) {
                 node.objectview = oview;
@@ -1006,7 +1003,6 @@ export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myO
             }
         }
     }
-    if (debug) console.log('1063 nodes', nodes);
     return nodes;
 }
 
@@ -1087,7 +1083,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     if (nod.key === group.key)
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (grp) {
+                    if (grabIsAllowed && grp) {
                         if (debug) console.log('960 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;

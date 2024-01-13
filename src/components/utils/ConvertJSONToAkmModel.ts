@@ -430,6 +430,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         osduType = camelCase(entityPathElement, { pascalCase: true });
         // ==================== -------------------- ==================== -------------------- ====================
         // first we create the objects ----------------------------------------------------------------------------
+        if (!debug) console.log("424 start ---- ", oName, oVal, jsonType, osduObj, parentName, gparentName)
         if (debug) console.log("424 start ---- ", oId, oKey, oVal, jsonType, osduObj, oValProps)
         if (index === 0) {
             // the first object is the main-object (topObj)
@@ -510,18 +511,22 @@ export const ReadConvertJSONFromFileToAkm = async (
             } else if (inclArrayProperties && oVal.type === "object") {
                 if (oName === 'ExtensionProperties' && !inclXOsduProperties) return; // skip ExtensionProperties if not inclXOsduProperties
                  // if ends wit ies rename to end with y
+                 console.log('514  : ', oName, parentName, gparentName);
                 let oMName = "";
                 if (parentName !== 'properties' && parentName !== 'items') {
                     if (parentName?.endsWith("s")) {
                         if (parentName?.endsWith("ies")) {
                             oMName = parentName.substring(0, parentName.length - 3) + "y"; // remove ies from end of parentName and add y
-                            console.log('512 object with parent properties not imported : ', oName, parentName, gparentName);
+                            console.log('512  : ', oName, parentName, gparentName);
                         } else  {
                             oMName = parentName.substring(0, parentName.length - 1); // remove s from end of parentName
                         }
+                    } else {
+                        console.log('516 : ', oName, parentName, gparentName);
+                        oMName =  oValProps.title || parentName;
                     }
                 } else {
-                    console.log('518 object with parent properties not imported : ', oName, parentName, gparentName);
+                    console.log('518  : ', oName, parentName, gparentName);
                     oMName =  oName;
                 }
                 // oName = oVal.title || oName;

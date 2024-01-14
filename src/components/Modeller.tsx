@@ -407,7 +407,8 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    setSelectedOption('Sorted by type')
+    setSelectedOption('EntityType')
+    // setSelectedOption('Sorted by type')
     // setSelectedOption('In this modelview')
   }, [])
 
@@ -451,7 +452,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
           })
         : sortedByType;
 
-      if (debug) console.log('422 Palette ofilteredOnTypes', sortedArr);
+      if (!debug) console.log('455 Palette ofilteredOnTypes', sortedArr);
       setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
 
     } else {
@@ -539,16 +540,16 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           onChange={(e) => handleSelectOTypes(e.target.value)}
         >
           <option value="In this modelview" key="01">
-            Filter/Sort Objects
+            Filter/Sort 
           </option>
           <option  value="In this modelview" key="02">
-            Objects in this Modelview
+            Objects in this Modelview *
           </option>
           <option value="Sorted alfabetical" key="03">
-            All Sorted Alphabetical
+            All Sorted Alphabetical *
           </option>
           <option value="Sorted by type" key="04">
-            All Sorted by Type
+            All Sorted by Type *
           </option>
           {uniqueTypes.map((t: any, index) => (
             <option key={index} value={t}>{t}</option>

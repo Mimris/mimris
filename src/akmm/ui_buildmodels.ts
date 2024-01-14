@@ -221,11 +221,7 @@ let includeNoType = false;
         const obj = objview.object as akm.cxObject;
         if (!model.findObject(obj?.id)) 
           continue;
-        if (!objview.typeview && !objview.object) {
-          objview.markedAsDeleted = true;
-          if (!objview.textcolor)
-            objview.textcolor = "black";
-        }
+        
         if (true) {
           if (objview.id === focusObjview?.id) 
             objview.isSelected = true;

@@ -50,7 +50,7 @@ export function askForMetamodel(context: any, create: boolean) {
 } 
 
 function getObjectSystemTypes(myMetamodel: akm.cxMetaModel, includeMetamodelling: boolean) {
-    if (myMetamodel.name === constants.admin.AKM_CORE_MM)
+    if (myMetamodel.name === constants.core.AKM_CORE_MM)
         return myMetamodel.objecttypes;
     const retval = new Array();
     const objtypes = myMetamodel.objecttypes;
@@ -70,7 +70,6 @@ function isSystemObjectType(objtype: akm.cxObjectType, includeMetamodelling: boo
         case constants.types.AKM_GENERIC:
         case constants.types.AKM_LABEL:
         case constants.types.AKM_CONTAINER:
-        case constants.types.AKM_METAMODEL:
             return true;
     }
     if (includeMetamodelling) {
@@ -84,6 +83,7 @@ function isSystemObjectType(objtype: akm.cxObjectType, includeMetamodelling: boo
             case constants.types.AKM_UNIT:
             case constants.types.AKM_METHOD:
             case constants.types.AKM_METHODTYPE:
+            case constants.types.AKM_METAMODEL:
                 return true;
         }
     }
@@ -1077,7 +1077,6 @@ function addSubAndContainTypes(myMetis: akm.cxMetis, myMetamodel: akm.cxMetaMode
         data = JSON.parse(JSON.stringify(data));
         myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
     });
-    
 }
 
 function addSubAndContainRelviews(myMetis: akm.cxMetis, myModel: akm.cxModel, modelview: akm.cxModelView) {
@@ -1193,6 +1192,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const modifiedRelTypeViews = new Array();
     const modifiedMetamodels   = new Array();
     const includeSystemtypes   = model.includeSystemtypes
+    let   includeMetamodelling = false;
     let targetMetamodel        = context.myTargetMetamodel as akm.cxMetaModel;
     if (!targetMetamodel)
         return null;
@@ -1202,9 +1202,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const mmname = targetMetamodel.name;
 
     let isCoreMetamodel = false;
-    if (targetMetamodel.name === constants.core.AKM_CORE_MM)
+    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         isCoreMetamodel = true;
-
+        includeMetamodelling = true;
+    }
     // Handle viewstyle
     const vsname = mmname + '_Viewstyle';
     let vstyle = targetMetamodel.viewstyle;
@@ -1704,8 +1705,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     });
 
-    addSubAndContainTypes(myMetis, myMetamodel);
-    addSubAndContainRelviews(myMetis, context.myModel, context.myCurrentModelview);
+    // addSubAndContainTypes(myMetis, myMetamodel);
+    // addSubAndContainRelviews(myMetis, context.myModel, context.myCurrentModelview);
 
     modifiedMetamodels.map(mn => {
         let data = mn;

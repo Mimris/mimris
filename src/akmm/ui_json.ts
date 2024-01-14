@@ -1614,7 +1614,6 @@ export class jsnObjectView {
     textscale:       string;
     icon:            string;
     image:           string;
-    layout:          string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
         this.name            = objview?.name;
@@ -1643,7 +1642,6 @@ export class jsnObjectView {
         this.memberscale     = Number(objview?.memberscale);
         this.textscale       = objview?.textscale;
         this.arrowscale      = objview?.arrowscale;
-        this.layout          = objview?.layout;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }

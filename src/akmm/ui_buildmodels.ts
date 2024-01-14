@@ -184,6 +184,8 @@ let includeNoType = false;
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
         const viewdata: any = typeview?.data;
+        if (obj.fillcolor !== "" && obj.fillcolor !== undefined)
+          viewdata.fillcolor = obj.fillcolor;
         node.addData(viewdata);
         nodeArray.push(node);
         if (node.name === 'Container')

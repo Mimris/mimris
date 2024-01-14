@@ -2503,6 +2503,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
             
             { // Tooltip
                 toolTip:
@@ -2535,6 +2536,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        new go.Binding("layout", "groupLayout").makeTwoWay(),
         { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
@@ -2570,6 +2572,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),
@@ -2613,6 +2616,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),
@@ -2654,6 +2658,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),
@@ -2696,6 +2701,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
 
             { // Tooltips
                 toolTip:
@@ -2731,6 +2737,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
 
             { // Tooltips
                 toolTip:
@@ -2764,6 +2771,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("layout", "groupLayout").makeTwoWay(),
 
             { // Tooltips
                 toolTip:

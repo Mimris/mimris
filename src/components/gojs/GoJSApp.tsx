@@ -566,7 +566,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const jsnMetamodel = new jsn.jsnMetaModel(context.myMetamodel);
             const dt = JSON.parse(JSON.stringify(jsnMetamodel));
             context.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', dt });
-        }
+          }
           else if (data.category === 'Object') // Object
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
@@ -902,7 +902,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview.loc = node.loc;
               objview.scale1 = node.scale1;
               objview.size = node.size;
-              if (debug) console.log('706 node, objview', node, objview);
               if (node.group) {
                 let grp = myGoModel.findNode(node.group);
                 objview.group = grp?.objectview.id;
@@ -939,6 +938,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
         }
         }
+        // Handle relview points
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
             const link = it.value;

@@ -1236,7 +1236,7 @@ export class cxMetis {
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
-                    objview.layout = item.layout;
+                    objview.groupLayout = item.groupLayout;
                     if (item.isExpanded == undefined) {
                         if (item.isCollapsed !== undefined)
                             objview.isExpanded = !item.isCollapsed;
@@ -9046,7 +9046,6 @@ export class cxObjectView extends cxMetaObject {
     geometry: string;
     icon: string;
     image: string;
-    layout: string;
     routing: string;
     linkcurve: string;
     fillcolor: string;
@@ -9090,7 +9089,6 @@ export class cxObjectView extends cxMetaObject {
         this.template = "";
         this.figure = "";
         this.geometry = "";
-        this.layout = "";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.fillcolor = "";

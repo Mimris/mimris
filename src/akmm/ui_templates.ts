@@ -1370,7 +1370,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 {  // this is the square around the image ---------
                                     fill: "white", 
                                     stroke: "#ddd", 
-                                    opacity: 0.4,
+                                    // opacity: 0.4,
                                     desiredSize: new go.Size(56, 56), 
                                     margin: new go.Margin(0, 2, 0, 8),
                                     // shadowVisible: true,

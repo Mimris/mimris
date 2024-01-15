@@ -1375,9 +1375,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     margin: new go.Margin(0, 2, 0, 8),
                                     // shadowVisible: true,
                                 },
-                                new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
-                                new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
-                                // new go.Binding("fill", "color"),
+                                new go.Binding("fill", "fillcolor2"),
+                                new go.Binding("stroke", "strokecolor2"),
                                 new go.Binding("template")
                             ),                                                                
                             $(go.Picture,  // the image -------------------------------------
@@ -1590,7 +1589,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );
     addNodeTemplateName('textAndFigure');    
     }
-    
+
     nodeTemplateMap.add('nodeWithPorts',
         $(go.Node, "Table",
             {

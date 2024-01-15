@@ -1235,8 +1235,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Set Layout Scheme",
             function (e: any, obj: any) {
               const n = obj.part.data;
-              const node = n.data;
-              const objview = node.objectview;
+              let objview = n.objectview;
+              objview = myModelview.findObjectView(objview.id);
               const layoutList = () => [
                 { value: "Circular", label: "Circular Layout" },
                 { value: "Grid", label: "Grid Layout" },
@@ -1245,15 +1245,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
                 { value: "Manual", label: "Manual Layout" },
               ];
-              // const llist = layoutList();
-              // const layoutLabels = llist.map(ll => (ll) && ll.label);
               const modalContext = {
-                node: node,
                 what: "selectDropdown",
                 title: "Set Layout Scheme",
                 case: "Set Layout Scheme",
                 layoutList: layoutList(),
-                myDiagram: myDiagram
+                myDiagram: myDiagram,
+                myModelview: myModelview,
+                objectview: objview,
               }
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(myDiagram, modalContext);
@@ -1273,7 +1272,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Do Layout",
             function (e: any, obj: any) {
               let layout = "";
-              if (myMetis.modelType === 'Modelling') {
+              const n = obj.part.data;
+              let objview = n.objectview;
+              objview = myModelview.findObjectView(objview.id);
+              if (objview.layout) {
+                layout = objview.layout;
+                // setLayout(myDiagram, layout);
+                return;
+              } else if (myMetis.modelType === 'Modelling') {
                 const myModelview = myMetis.currentModelview;
                 myModelview.clearRelviewPoints();
                 const myGoModel = myMetis.gojsModel;
@@ -1301,6 +1307,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
             },
             function (o: any) {
+              return false;
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Container') {
+                  if (objview.isExpanded === true)
+                    return true;
+                }
+              }
               return false;
             }),
           makeButton("Generate Target Object Type",

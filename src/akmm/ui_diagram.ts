@@ -1808,9 +1808,10 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                             myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                         }
                     }
-                    const diff = 100; // noLevels>0 ? 50 : 100;
+                    // Do the layout
+                    const ydiff = 100; // noLevels>0 ? 50 : 100;
                     const locx = useinp ? nx - 300 : nx + 300;
-                    const locy = ny - diff + cnt * 100;
+                    const locy = ny + (cnt-1) * ydiff;
                     const loc = locx + " " + locy;
 
                     toObjview.loc = loc;

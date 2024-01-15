@@ -108,29 +108,29 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
-  const [inclProps, setInclProps ] = useState(false)
+  const [inclProps, setInclProps ] = useState(true)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
-  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
-  const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
   const [inclArrayProperties, setInclArrayProperties ] = useState(true)
-  const [inclGeneric, setInclGeneric ] = useState(false)
-  const [inclAbstract, setInclAbstract ] = useState(false)
-  const [inclReference, setInclReference ] = useState(false)
+  const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
+  const [inclReference, setInclReference ] = useState(true)
   const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
+  const [inclAbstract, setInclAbstract ] = useState(false)
+  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
   const [inclDeprecated, setInclDeprecated ] = useState(false) 
+  const [inclGeneric, setInclGeneric ] = useState(false)
 
   const handleInclProps = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
-  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties);};
+  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
   const handleInclAbstractPropLinks = () => { setInclAbstractPropLinks(!inclAbstractPropLinks);};
-  const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
-  const handleInclAbstract = () => { setInclAbstract(!inclAbstract);};
-  const handleInclReference = () => { setInclReference(!inclReference);};
+  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties);};
   const handleInclMasterdata = () => { setInclMasterdata(!inclMasterdata);};
   const handleInclWorkProductComponent = () => { setInclWorkProductComponent(!inclWorkProductComponent);};
-  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
+  const handleInclReference = () => { setInclReference(!inclReference);};
+  const handleInclAbstract = () => { setInclAbstract(!inclAbstract);};
   const handleInclDeprecated = () => { setInclDeprecated(!inclDeprecated);};
+  const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
 
 
 // const fetchData = async () => {

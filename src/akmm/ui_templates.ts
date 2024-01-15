@@ -1805,8 +1805,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         )
       )
     ); // end Node
-    nodeTemplateMap.add("nodeTemplate4", nodeTemplate4);
-    addNodeTemplateName('nodeTemplate4');
+    // nodeTemplateMap.add("nodeTemplate4", nodeTemplate4);
+    // addNodeTemplateName('nodeTemplate4');
 
     nodeTemplateMap.add('nodeWithPorts',
         $(go.Node, "Table",

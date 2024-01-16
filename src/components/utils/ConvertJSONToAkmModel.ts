@@ -1108,7 +1108,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         osduObj: any,
         curModel: any
     ) {
-        if (debug) console.log("999  array Set: ", oId, oName, objecttypeRef, oKey, jsonType, oValProps, oVal);
+        if (debug) console.log("999  array Set: ", oId, oName, objecttypeRef, oKey, jsonType, oValProps);
         // if includeArrayProperties is false, we do not create the array properties
         if (!inclArrayProperties) return;
         switch (true) {

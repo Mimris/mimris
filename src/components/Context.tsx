@@ -267,7 +267,10 @@ const Context = (props, edit) => {
     const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
     const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
-    const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+    const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription', 'objectRef', '$id', '$schema', '$ref', 'externalID', 'groupType', 'osduId', 'osduType', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source'];
+    // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+    // , $id, $schema, $ref, externalID, groupType, osduId, osduType, x-osdu-license, x-osdu-review-status, x-osdu-schema-source
+
     const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key));
 
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',

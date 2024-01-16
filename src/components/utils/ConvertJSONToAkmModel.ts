@@ -441,6 +441,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         // first we create the objects ----------------------------------------------------------------------------
         if (debug) console.log("434 start ---- ", oName, oVal, jsonType, osduObj, parentName, gparentName)
         if (debug) console.log("435 start ---- ", oId, oKey, oVal, jsonType, osduObj, oValProps)
+        if (!debug) console.log("444 start ---- ",  oName, oVal.type)
         if (index === 0) {
             // the first object is the main-object (topObj)
             if (debug) console.log('438 topObject', oId, oName, oKey, oVal, jsonType, osduType, oValProps);
@@ -448,7 +449,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             processTopObject(oId, oName, oKey, jsonType, osduType, oValProps, oVal);
         } else if (parentName === "properties" || parentName === "items" || gparentName === "properties" || gparentName === "items") {
             // this is property and proplink objects
-            if (debug) console.log("443 parent = properties :", oName, oValProps);
+            if (debug) console.log("452 parent = properties :", oName, oValProps);
             if (oVal?.description?.includes('DEPRECATED') && !inclXOsduProperties) return; // skip ExtensionProperties if not inclXOsduProperties
             if (oVal["x-osdu-relationship"]) {
                 // if the value is a relationship we create a propLink objects
@@ -556,6 +557,16 @@ export const ReadConvertJSONFromFileToAkm = async (
                 oValProps.linkID = typeRest?.split(".")[0]?.replace("Abstract", "");
                 const propLinkName = `Is${oValProps.title}`;
                 createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+            } else if (typeof oVal.type === 'object') { // oval.type is an object
+                if (!debug) console.log("560 object ", oName, oVal.type);
+                if (!debug) console.log('515  : ', oName, parentName, gparentName, ggparentName);
+                let oMName = "";
+                // if (oVal.type === 'string')
+                    if (oVal.type.enum !== undefined || oVal.type.enum !== '') {
+                        oMName = oVal.type.enum[0];
+                    }
+                if (!debug) console.log("569 ", oId, oName, oMName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+                processItemType(oId, oMName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
             } else {
                 // console.log("468 object with parent properties not imported : ", oName, oVal, oVal['$ref'], oValProps, inclAbstractPropLinks);
             }

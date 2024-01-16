@@ -266,7 +266,7 @@ const Modeller = (props: any) => {
         </label>
         <input
           className=" px-2"
-          style={{ width: '300px' }}
+          style={{ width: '500px' }}
           type="text"
           value={projectName}
           onChange={handleProjectChange}
@@ -281,7 +281,7 @@ const Modeller = (props: any) => {
     
 To change Model name, rigth click the background below and select 'Edit Model'.`
         }> <span className="bg-light"> Model : </span>
-        <select key='select-title' className="list-obj" style={{ minWidth: "32%" }}
+        <select key='select-title' className="list-obj" style={{ width: "400px", minWidth: "32%" }}
           value={JSON.stringify({ id: focusModel?.id, name: focusModel?.name })}
           onChange={(event) => handleSelectModelChange({ value: event.target.value })}
         >
@@ -608,7 +608,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "82vh" }}
+          diagramStyle={{ height: "77vh" }}
         />
       </div>
     </>
@@ -639,7 +639,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
       </button>
       {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-      <span className="sourceName m-2 px-2" style={{ textAlign: "right", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee" }}>
+      <span className="sourceName m-2 px-2" style={{ textAlign: "", width: "50%", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee" }}>
         Current source:  {props.phSource}
       </span>
     </div>
@@ -713,7 +713,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           </Row>
         </div>
 
-          <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#acc" }} >
+          <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
             <Modal.Header closeButton>
               <Modal.Title>Report Module</Modal.Title>
             </Modal.Header>

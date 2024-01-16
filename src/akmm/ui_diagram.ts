@@ -1669,15 +1669,15 @@ function relshipsSortedByNameTypeAndToNames(relships: akm.cxRelationship[], reld
             toTypeB = b.toObject.type.name;
             toObjB = b.toObject.name;
         }
-        if (typeA < typeB) return -1;
-        if (typeA > typeB) return 1;
+        if (toTypeA < toTypeB) return -1;
+        if (toTypeA > toTypeB) return 1;
             
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        
         if (toObjA < toObjB) return -1;
         if (toObjA > toObjB) return 1;
 
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        
         return 0;
     });
     return relships;
@@ -1695,10 +1695,11 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
     let object = objview.object;
     if (object)
         object = myMetis.findObject(object.id);
-    if (objview && object && objview.loc) {
+        let ny = 0;
+        if (objview && object && objview.loc) {
         const nodeLoc = objview.loc.split(" ");
         const nx = parseInt(nodeLoc[0]);
-        const ny = parseInt(nodeLoc[1]);
+        ny += parseInt(nodeLoc[1]);
         const objtype = object.type;
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;

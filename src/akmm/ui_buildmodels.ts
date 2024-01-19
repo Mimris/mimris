@@ -174,30 +174,20 @@ let includeNoType = false;
         includeObject = true;
       }
       if (includeObject) {
-        // if (obj.name === 'Container') {
-        //   obj.viewkind = 'Container';
-        //   objview.isGroup = true;
-        //   console.log('206 Container', obj, objview, objtype);
-        // }
         const node = new gjs.goObjectNode(utils.createGuid(), objview);
-        if (debug) console.log('181 node, objview, objtype:', node, objview, objtype);
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
-        const viewdata: any = typeview?.data;
+        const viewdata: akm.cxObjtypeviewData = typeview?.data;
+        const vdata: akm.cxObjtypeviewData = new akm.cxObjtypeviewData();
+        for (const prop in viewdata) {
+          vdata[prop] = viewdata[prop];
+        }
         if (obj.fillcolor !== "" && obj.fillcolor !== undefined)
-          viewdata.fillcolor = obj.fillcolor;
-        node.addData(viewdata);
-        nodeArray.push(node);
-        if (node.name === 'Container')
-          if (debug) console.log('188 node', node);
+          vdata.fillcolor = obj.fillcolor;
+        node.addData(vdata);
+        nodeArray.push(node);      
       }
     }
-    // const linkArray = new Array();
-    // for (let i=0; i<linkArray.length; i++) {
-    //   const link = linkArray[i];
-
-    // }
-    if (debug) console.log('191 Object palette', nodeArray);
     return nodeArray;
   }
 

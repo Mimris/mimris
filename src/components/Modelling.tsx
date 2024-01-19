@@ -225,7 +225,7 @@ const page = (props: any) => {
     nodeDataArray: myGoObjectPalette,
     linkDataArray: myGoRelshipPalette || []
   }
-  if (debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
+  if (!debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
   {
     nodeDataArray: myGoModel.nodes,

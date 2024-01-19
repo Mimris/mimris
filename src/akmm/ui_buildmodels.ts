@@ -197,7 +197,7 @@ let includeNoType = false;
     //   const link = linkArray[i];
 
     // }
-    if (debug) console.log('191 Object palette', nodeArray);
+    if (!debug) console.log('191 Object palette', nodeArray);
     return nodeArray;
   }
 

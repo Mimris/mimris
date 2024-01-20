@@ -466,15 +466,18 @@ export const ReadConvertJSONFromFileToAkm = async (
                     // const propLinkName = (oVal.title) ? oVal.title.replace(/\s+/g, '') : (oName) ? oName : oValProps.linkID;
                     const propLinkName = (oVal.title)
                         ? oVal.title.replace(/\s+/g, "")
-                        : (rel.EntityType)
-                            ? rel.EntityType
-                            : (oName !== 'items')
-                                ? oName
-                                : (gparentName !== 'properties')
-                                    ? gparentName
-                                    : parentName;
+                        : (oName.includes("ID"))
+                            ? oName
+                            : (rel.EntityType)
+                                ? rel.EntityType
+                                : (oName !== 'items')
+                                    ? oName
+                                    : (gparentName !== 'properties')
+                                        ? gparentName
+                                        : parentName;
                     if (debug) console.log("423 ", propLinkName, oId, oName, oVal);
-                    const pLName = 'has' + propLinkName;
+                    const pLName = propLinkName;
+                    // const pLName = 'has' + propLinkName;
                     const linkGroupType = rel.GroupType
                     if (inclPropLinks) {
                         processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, linkGroupType, osduObj, oVal, curModel, objecttypeRef);
@@ -1215,7 +1218,8 @@ export const ReadConvertJSONFromFileToAkm = async (
         curModel: any,
         objecttypeRef: string
     ) {
-        const propLinkName = `has${oName}`;
+        const propLinkName = `${parentName}`;
+        // const propLinkName = `has${oName}`;
         objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
         oValProps.linkID = propLinkName;
         createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);

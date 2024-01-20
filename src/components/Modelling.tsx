@@ -184,7 +184,7 @@ const page = (props: any) => {
   if (debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
 
   if (!myMetis || !myModel || !myModelview || !myMetamodel) {
-    console.error('187 One of the required variables is undefined');
+    console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
     return;
   }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
@@ -193,13 +193,13 @@ const page = (props: any) => {
   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
   // myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
   if (!myModel.objects) {
-    console.error('196 myModel.objects is undefined');
+    console.log('196 myModel.objects is undefined');
   } else {
     myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);
   }
 
   if (!myGoObjectPalette) {
-    console.error('202 myGoObjectPalette is undefined after function call');
+    console.log('202 myGoObjectPalette is undefined after function call');
   }
   // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
   if (debug) console.log('188 Modelling ', myGoObjectPalette);
@@ -239,7 +239,7 @@ const page = (props: any) => {
     nodeDataArray: myGoObjectPalette,
     linkDataArray: myGoRelshipPalette || []
   }
-  if (!debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
+  if (debug) console.log('225 Modelling: gojsmodelobjects', gojsmodelobjects)
   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
   {
     nodeDataArray: myGoModel.nodes,

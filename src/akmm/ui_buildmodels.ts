@@ -180,13 +180,14 @@ let includeNoType = false;
         //   console.log('206 Container', obj, objview, objtype);
         // }
         const node = new gjs.goObjectNode(utils.createGuid(), objview);
-        if (debug) console.log('181 node, objview, objtype:', node, objview, objtype);
+        if (!debug) console.log('183 node, objview, objtype:', node, objview, objtype);
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
         const viewdata: any = typeview?.data;
         if (obj.fillcolor !== "" && obj.fillcolor !== undefined)
           viewdata.fillcolor = obj.fillcolor;
         node.addData(viewdata);
+        if (!debug) console.log('190 node', node);
         nodeArray.push(node);
         if (node.name === 'Container')
           if (debug) console.log('188 node', node);
@@ -195,7 +196,6 @@ let includeNoType = false;
     // const linkArray = new Array();
     // for (let i=0; i<linkArray.length; i++) {
     //   const link = linkArray[i];
-
     // }
     if (!debug) console.log('191 Object palette', nodeArray);
     return nodeArray;

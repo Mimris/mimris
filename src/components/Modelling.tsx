@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // modelling
 
 const debug = false;
@@ -182,11 +182,25 @@ const page = (props: any) => {
   myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
   if (debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+
+  if (!myMetis || !myModel || !myModelview || !myMetamodel) {
+    console.error('187 One of the required variables is undefined');
+    return;
+  }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-  myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  // myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  if (!myModel.objects) {
+    console.error('196 myModel.objects is undefined');
+  } else {
+    myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);
+  }
+
+  if (!myGoObjectPalette) {
+    console.error('202 myGoObjectPalette is undefined after function call');
+  }
   // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
   if (debug) console.log('188 Modelling ', myGoObjectPalette);
   myMetis?.setGojsModel(myGoModel);
@@ -458,7 +472,7 @@ const page = (props: any) => {
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                {/* Palette area */}
+                {/* Objects Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area

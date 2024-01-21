@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 import * as utils from '../akmm/utilities';
@@ -144,7 +144,7 @@ let includeNoType = false;
       if (!objtype) continue; // added 2022-09-29 sf 
       if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
       const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
-      const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
+      const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "", null);
       objview.setTypeView(typeview);
       if (debug) console.log('147 obj, objview:', obj, objview);
       if (!includeDeleted) {

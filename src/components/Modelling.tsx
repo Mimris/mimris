@@ -12,7 +12,7 @@ import classnames from 'classnames';
 
 import Page from './page';
 // import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
-import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
+// import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";

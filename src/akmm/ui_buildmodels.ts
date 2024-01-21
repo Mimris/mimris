@@ -101,7 +101,7 @@ let includeNoType = false;
         if (obj.isDeleted()) 
             continue;
         if (debug) console.log('103 obj, objtype', obj, objtype);
-        const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+        const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "", null);
         let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
         if (typeview?.data.viewkind === 'Container') {
           objtype.viewkind = 'Container';
@@ -133,6 +133,7 @@ let includeNoType = false;
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
     if (debug) console.log('134 ui_buildmodels objects', objects);
     if (objects) {
+      console.log('136 ui_buildmodels objects', objects);
       // objects.sort(utils.compare);
     }
     const nodeArray = new Array();

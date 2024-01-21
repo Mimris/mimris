@@ -467,6 +467,16 @@ export const ReadConvertJSONFromFileToAkm = async (
                     const propLinkName = (oVal.title)
                         ? oVal.title.replace(/\s+/g, "")
                         : (oName.includes("ID"))
+
+
+
+
+
+
+
+
+
+                        
                             ? oName
                             : (rel.EntityType)
                                 ? rel.EntityType

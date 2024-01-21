@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // modelling
 
 const debug = false;
@@ -12,7 +12,7 @@ import classnames from 'classnames';
 
 import Page from './page';
 // import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
-// import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
+import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
@@ -36,7 +36,6 @@ import useLocalStorage from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import CreateNewModel  from './akmm-api/CreateNewModel';
-import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 
 
 import * as akm from '../akmm/metamodeller';
@@ -55,7 +54,7 @@ const page = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (debug) console.log('57 Modelling:', props)//, props);        
+  if (debug) console.log('52 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
@@ -185,7 +184,7 @@ const page = (props: any) => {
   if (debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
 
   if (!myMetis || !myModel || !myModelview || !myMetamodel) {
-    console.error('188 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
+    console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
     return;
   }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel

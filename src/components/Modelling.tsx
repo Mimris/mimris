@@ -185,7 +185,7 @@ const page = (props: any) => {
   if (debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
 
   if (!myMetis || !myModel || !myModelview || !myMetamodel) {
-    console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
+    console.error('188 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
     return;
   }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel

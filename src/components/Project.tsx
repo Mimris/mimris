@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 import Link from 'next/link';
 import { Modal, Button } from 'react-bootstrap';
-// import { is, set } from 'immer/dist/internal';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from 'rehype-slug';

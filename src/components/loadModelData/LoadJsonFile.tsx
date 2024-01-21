@@ -109,27 +109,29 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
-  const [inclProps, setInclProps ] = useState(false)
+  const [inclProps, setInclProps ] = useState(true)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
-  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
+  const [inclArrayProperties, setInclArrayProperties ] = useState(true)
   const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
-  const [inclArrayProperties, setInclArrayProperties ] = useState(false)
-  const [inclGeneric, setInclGeneric ] = useState(false)
-  const [inclAbstract, setInclAbstract ] = useState(false)
-  const [inclReference, setInclReference ] = useState(false)
+  const [inclReference, setInclReference ] = useState(true)
   const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
+  const [inclAbstract, setInclAbstract ] = useState(false)
+  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
+  const [inclDeprecated, setInclDeprecated ] = useState(false) 
+  const [inclGeneric, setInclGeneric ] = useState(false)
 
   const handleInclProps = () => { setInclProps(!inclProps);};
   const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks);};
-  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties);};
+  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
   const handleInclAbstractPropLinks = () => { setInclAbstractPropLinks(!inclAbstractPropLinks);};
-  const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
-  const handleInclAbstract = () => { setInclAbstract(!inclAbstract);};
-  const handleInclReference = () => { setInclReference(!inclReference);};
+  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties);};
   const handleInclMasterdata = () => { setInclMasterdata(!inclMasterdata);};
   const handleInclWorkProductComponent = () => { setInclWorkProductComponent(!inclWorkProductComponent);};
-  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties);};
+  const handleInclReference = () => { setInclReference(!inclReference);};
+  const handleInclAbstract = () => { setInclAbstract(!inclAbstract);};
+  const handleInclDeprecated = () => { setInclDeprecated(!inclDeprecated);};
+  const handleInclGeneric = () => { setInclGeneric(!inclGeneric);};
 
 
 // const fetchData = async () => {
@@ -217,7 +219,8 @@ const importDirectory = async (fileOrDirectory) => {
           inclReference,
           inclMasterdata,
           // inclWorkProduct,
-          inclWorkProductComponent,      
+          inclWorkProductComponent,
+          inclDeprecated,      
           "AKM", 
         );
       };
@@ -258,6 +261,7 @@ const importFile = async (e) => {
             inclMasterdata,
             // inclWorkProduct,
             inclWorkProductComponent,
+            inclDeprecated,
             "AKM", 
           ) 
         })
@@ -356,6 +360,10 @@ const importFile = async (e) => {
                       <input className="checkbox-input" type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
                       <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract Property Links</label>
                       <input className="checkbox-input" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
                     </span>
@@ -364,8 +372,8 @@ const importFile = async (e) => {
                       <input className="checkbox-input" type="checkbox" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
                     </span>
                     <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays (Collection) Properties</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl. DEPRECATED</label>
+                      <input className="checkbox-input" type="checkbox" checked={inclDeprecated} onChange={handleInclDeprecated} />
                     </span>
                   </div>
                                     <label className="pt-1" htmlFor="directory">File(s)</label>
@@ -397,7 +405,7 @@ const importFile = async (e) => {
                   <h6>Connect imported EntityTypes</h6> 
                   <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                     title="Find Propertylinks that refers to EntityTypes and convert to relationships!"
-                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch) }}
+                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
                   >
                     Convert Propertylinks (objects) with Relationships between EntityTypes 
                   </Button>

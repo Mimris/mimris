@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 import * as utils from '../akmm/utilities';
@@ -47,7 +47,7 @@ let includeNoType = false;
       if (debug) console.log('47 objecttypes', inheritedTypenames);
     }
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-    let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes0;
     if (objecttypes) {
       objecttypes.sort(utils.compare);
     }
@@ -144,7 +144,7 @@ let includeNoType = false;
       if (!objtype) continue; // added 2022-09-29 sf 
       if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
       const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
-      const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
+      const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "", null);
       objview.setTypeView(typeview);
       if (debug) console.log('147 obj, objview:', obj, objview);
       if (!includeDeleted) {
@@ -174,36 +174,26 @@ let includeNoType = false;
         includeObject = true;
       }
       if (includeObject) {
-        // if (obj.name === 'Container') {
-        //   obj.viewkind = 'Container';
-        //   objview.isGroup = true;
-        //   console.log('206 Container', obj, objview, objtype);
-        // }
         const node = new gjs.goObjectNode(utils.createGuid(), objview);
-        if (debug) console.log('181 node, objview, objtype:', node, objview, objtype);
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
-        const viewdata: any = typeview?.data;
-        node.addData(viewdata);
-        nodeArray.push(node);
-        if (node.name === 'Container')
-          if (debug) console.log('188 node', node);
+        const viewdata: akm.cxObjtypeviewData = typeview?.data;
+        const vdata: akm.cxObjtypeviewData = new akm.cxObjtypeviewData();
+        for (const prop in viewdata) {
+          vdata[prop] = viewdata[prop];
+        }
+        if (obj.fillcolor !== "" && obj.fillcolor !== undefined)
+          vdata.fillcolor = obj.fillcolor;
+        node.addData(vdata);
+        nodeArray.push(node);      
       }
     }
-    // const linkArray = new Array();
-    // for (let i=0; i<linkArray.length; i++) {
-    //   const link = linkArray[i];
-
-    // }
-    if (debug) console.log('191 Object palette', nodeArray);
     return nodeArray;
   }
 
   export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
     if (!model) return;
     if (!modelview) return;
-    if (!modelview.includeInheritedReltypes)
-      modelview.includeInheritedReltypes = model.metamodel?.includeInheritedReltypes;
     // model.setMyMetis(metis);
     let showRelshipNames = modelview.showRelshipNames;
     if (showRelshipNames == undefined) 
@@ -223,11 +213,7 @@ let includeNoType = false;
         const obj = objview.object as akm.cxObject;
         if (!model.findObject(obj?.id)) 
           continue;
-        if (!objview.typeview && !objview.object) {
-          objview.markedAsDeleted = true;
-          if (!objview.textcolor)
-            objview.textcolor = "black";
-        }
+        
         if (true) {
           if (objview.id === focusObjview?.id) 
             objview.isSelected = true;
@@ -383,6 +369,8 @@ let includeNoType = false;
             includeRelview = true;
           }
         }
+        if (relview.visible === false) 
+            includeRelview = false;
         if (includeNoType) {
           if (!relview.relship?.type) {
             relcolor = "green";

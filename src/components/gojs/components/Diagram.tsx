@@ -708,6 +708,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
+          makeButton("Hide Connected Relationships",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              const n = myDiagram.findNodeForKey(node.key);
+              uid.hideConnectedRelationships(n, myMetis, myDiagram);
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                return true;
+              }
+              return false;
+            }),
           makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1219,6 +1232,92 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
           makeButton("----------"),
+          makeButton("Set Layout Scheme",
+            function (e: any, obj: any) {
+              const n = obj.part.data;
+              let objview = n.objectview;
+              objview = myModelview.findObjectView(objview.id);
+              const layoutList = () => [
+                { value: "Circular", label: "Circular Layout" },
+                { value: "Grid", label: "Grid Layout" },
+                { value: "Tree", label: "Tree Layout" },
+                { value: "ForceDirected", label: "ForceDirected Layout" },
+                { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
+                { value: "Manual", label: "Manual Layout" },
+              ];
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Set Layout Scheme",
+                case: "Set Layout Scheme",
+                layoutList: layoutList(),
+                myDiagram: myDiagram,
+                myModelview: myModelview,
+                objectview: objview,
+              }
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(myDiagram, modalContext);
+            },
+            function (o: any) {
+              return false;
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Container') {
+                  if (objview.isExpanded === true)
+                    return true;
+                }
+              }
+              return false;
+            }),
+          makeButton("Do Layout",
+            function (e: any, obj: any) {
+              let layout = "";
+              const n = obj.part.data;
+              let objview = n.objectview;
+              objview = myModelview.findObjectView(objview.id);
+              if (objview.layout) {
+                layout = objview.layout;
+                // setLayout(myDiagram, layout);
+                return;
+              } else if (myMetis.modelType === 'Modelling') {
+                const myModelview = myMetis.currentModelview;
+                myModelview.clearRelviewPoints();
+                const myGoModel = myMetis.gojsModel;
+                layout = myGoModel.modelView?.layout;
+              } else if (myMetis.modelType === 'Metamodelling') {
+                const myMetamodel = myMetis.currentMetamodel;
+                layout = myMetamodel.layout;
+              }
+              setLayout(myDiagram, layout);
+              // Save layout
+              const nodes = myDiagram.nodes;
+              for (let it = nodes.iterator; it?.next();) {
+                const node = it.value;
+                const data = node.data;
+                let objview = data.objectview;
+                if (objview)
+                  objview = myModelview.findObjectView(objview.id);
+                if (objview) {
+                  objview.loc = data.loc;
+                }
+              }
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+            },
+            function (o: any) {
+              return false;
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                const objview = node.objectview;
+                if (objview.viewkind === 'Container') {
+                  if (objview.isExpanded === true)
+                    return true;
+                }
+              }
+              return false;
+            }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
               const context = {
@@ -1541,6 +1640,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP) {
                 return o.diagram.commandHandler.canDeleteSelection();
+              } else {
+                return false;
+              }
+            }),
+          makeButton("Hide View",
+            function (e, obj) {
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentLink = obj.part.data;
+                if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
+                selection = myDiagram.selection
+              }
+              const modifiedRelshipViews = new Array();
+              myDiagram.selection.each(function (sel) {
+                const link = sel;
+                let relview = link.data.relshipview;
+                if (relview) {
+                  relview = myModelview.findRelationshipView(relview.id);
+                  relview.visible = false;
+                  const jsnRelView = new jsn.jsnRelshipView(relview);
+                  modifiedRelshipViews.push(jsnRelView);
+                  link.visible = false;
+                  myDiagram.remove(link);
+                }
+              })
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })
+            },
+            function (o) {
+              const link = o.part.data;
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
+                return true;
               } else {
                 return false;
               }
@@ -2665,6 +2799,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
+          makeButton("Unhide Hidden Relationship Views",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              // const links = 
+              uic.unhideHiddenRelationshipViews(modelview, myMetis);
+              // for (let i = 0; i < links.length; i++) {
+              //   const link = links[i];
+              //   myDiagram.model.addLinkData(link);
+              // }
+              return;
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Clear Relationship Breakpoints",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
@@ -2882,7 +3032,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const node = it.value;
                 const data = node.data;
                 let objview = data.objectview;
-                objview = myModelview.findObjectView(objview.id);
+                if (objview)
+                  objview = myModelview.findObjectView(objview.id);
                 if (objview) {
                   objview.loc = data.loc;
                 }
@@ -3098,11 +3249,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (!modelview.includeInheritedReltypes) {
                 alert("Inherited Relationship types are NOT included!");
               } else {
-                alert("Inherited Relationship types are included!");
+                alert("Inherited Relationship types ARE included!");
               }
               // Dispatch
               const jsnModelview = new jsn.jsnModelView(modelview);
-              if (debug) console.log('3236 jsnModelview', jsnModelview);
               const modifiedModelviews = new Array();
               modifiedModelviews.push(jsnModelview);
               modifiedModelviews.map(mn => {
@@ -3180,17 +3330,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Verify and Repair Model",
             function (e: any, obj: any) {
-              if (debug) console.log('2767 myMetis', myMetis);
               const myModel = myMetis.currentModel;
               const modelviews = myModel.modelviews;
-              const myModelview = myMetis.currentModelview;
               const myMetamodel = myMetis.currentMetamodel;
               const myGoModel = myMetis.gojsModel;
-              if (debug) console.log('2773 myMetis', myMetis);
               myDiagram.myGoModel = myGoModel;
-              if (debug) console.log('2775 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
               uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
-              if (debug) console.log('2777 myMetis', myMetis);
               alert("The current model has been repaired");
             },
             function (o: any) {
@@ -3200,7 +3345,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Verify and Repair Metamodels",
             function (e: any, obj: any) {
-              if (debug) console.log('2788 myMetis', myMetis);
               uic.verifyAndRepairMetamodels(myMetis, myDiagram);
               alert("The metamodels have been repaired");
             },
@@ -3208,6 +3352,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true;
+            }),
+          makeButton("Verify and Repair myMetis",
+            function (e: any, obj: any) {
+              uic.repairMetisProperties(myMetis, myDiagram);
+              alert("myMetis has been repaired");
+            },
+            function (o: any) {
+              return false;
             }),
           makeButton("Clear RelationshipTypeViews",
             function (e: any, obj: any) {

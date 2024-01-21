@@ -35,7 +35,7 @@ export const setColorsTopEntityTypes = (osduType: string) => {
         case 'PropLink':
             return '#BDFFC4';
         case 'object':
-            return '#DDDDDD'; 
+            return '#EEEEEE'; 
         default:
             return;
     }

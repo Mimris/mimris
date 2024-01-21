@@ -112,20 +112,15 @@ export async function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca
   }
 }
 
-export async function searchModels(repo, path) {
-  try {
-    // https://api.github.com/repos/Kavca/kavca-akm-models/branches
-    const query = `${repo}`;
-    if (debug) console.log('48 searchRepos https://api.github.com/', query);
-    const response = await axios.get(
-      `${query}`,
-      axiosConfig
-    );
-    return response;
-  } catch (error) {
-    console.error('Error in searchModels:', error);
-    throw error;
-  }
+export function searchModels(repo, path) {
+  // https://api.github.com/repos/Kavca/kavca-akm-models/branches
+  repo = repo.replace('https://api.github.com/repos/', '')
+  const query = `${repo}`;
+  if (debug) console.log('48 searchRepos https://api.github.com/', query);
+  return axios.get(
+    `${query}`,
+    axiosConfig
+  );
 }
 export async function searchModelRaw(repo, sha) {
   try {

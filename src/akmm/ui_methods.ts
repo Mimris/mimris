@@ -753,7 +753,7 @@ function deleteObject(object: akm.cxObjectType, modifiedObjects: any[], modified
         for (let i=0; i<relships.length; i++) {
             const relship = relships[i];
             relship.markedAsDeleted = true;
-            const jsnRelship = new jsn.jsnRelship(relship);
+            const jsnRelship = new jsn.jsnRelationship(relship);
             modifiedRelships.push(jsnRelship);
         }
     }

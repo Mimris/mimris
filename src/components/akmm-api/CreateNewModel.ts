@@ -23,7 +23,7 @@ const CreateNewModel = (props: any) => {
   const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef);
   console.log('23 CreateNewModel', curmodel, curmodelview, curMetamodel);
   const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
-  const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef));
+  const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef)); //?? maybe find the one with contains relationship
   console.log('28 CreateNewModel', objectviewoftypemetamodel)
 
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
@@ -39,8 +39,23 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
-    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') ? 'New-Model_TD' : 'New-Model_CM'
-    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') ? 'Typedefinition Model, modelling with the AKM-Core Metamodel' : 'Concept Model, modelling with the AKM-IRTV Metamodel'
+    const newProjectName = `${metamodelGenerated?.name.slice(0, -3)} Modelproject`
+
+    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM') 
+      ? 'Typedefinitionmodel_TD'  
+      : (metamodelGenerated.name === 'AKM-IRTV_MM') 
+        ? 'Conceptmodel_CM' 
+        : (metamodelGenerated.name === 'AKM-OSDU_MM') 
+          ? 'OSDU-EntityType-model_TD'
+          : 'Model_'+metamodelGenerated.name
+
+    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM') 
+      ? 'Type Definition Model, modeling with the EntityTypes' 
+      : (metamodelGenerated.name === 'AKM-IRTV_MM') 
+        ? 'Concept Model, modeling based on AKM-IRTV_MM Metamodel'
+        : (metamodelGenerated.name === 'AKM-OSDU_MM') 
+          ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel'
+          : 'Model based on'+metamodelGenerated.name+ ' Metamodel'
 
     const newmodel = {
       id: uuidv4(),
@@ -73,6 +88,7 @@ const CreateNewModel = (props: any) => {
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
+    const repo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
@@ -82,21 +98,21 @@ const CreateNewModel = (props: any) => {
         metis: {
           ...ph.phData.metis,
           models:
-            [newmodel, adminmodel],
+            [newmodel, adminmodel], // add admin to the new model
           metamodels: [
             {
               ...metamodelGenerated,
-              subMetamodelRefs: [submetamodels[0]?.id],
-              subModelRefs: [submodels[0]?.id],
-              subModels: submodels,
+              // subMetamodelRefs: [submetamodels[0]?.id],
+              // subModelRefs: [submodels[0]?.id],
+              // subModels: submodels,
               // subMetamodels: submetamodels,
             },
             adminmetamodel,
             (coremetamodel !== metamodelGenerated) && coremetamodel,
             (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
           ],
-          name: `<New ${metamodelGenerated?.name.slice(0, -3)} Modelproject>`,
-          description: 'New Project to start modelling',
+          name: newProjectName,
+          description: 'Modelling Project',
           currentModelRef: newmodel.id,
           currentModelviewRef: newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id,
@@ -110,9 +126,19 @@ const CreateNewModel = (props: any) => {
         focusRelship: { id: '', name: '' },
         focusObjectview: { id: '', name: '' },
         focusRelshipview: { id: '', name: '' },
+        focusProj: { 
+          id: newProjectName, 
+          name: newProjectName, 
+          projectNumber: 3,
+          org: "kavca",
+          repo: repo,
+          branch: "main",
+          path: "",
+          file: newProjectName+".json",
+        },
       },
       phUser: ph.phUser,
-      phSource: 'New Project Template',
+      phSource: newProjectName,
       lastUpdate: new Date().toISOString()
     }
     console.log('112 CreateNewModel', data)

@@ -284,6 +284,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "modifiedObjectTypeViews": [],
       "modifiedRelshipTypeViews": [],
       "modifiedObjectTypeGeos": [],
+      "modifiedModelviews": [],
     }
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
@@ -305,8 +306,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           node.scale = data.scale;     
           node.loc = data.loc;
           node.size = data.size;
+          node.fillcolor = data.fillcolor;
+          node.strokecolor = data.strokecolor;
           const object = data.object;
-          const objview = uic.setObjviewColors(data, myDiagram);          
+          let objview = data.objectview;
+          // objview = uic.setObjviewColors(data, myDiagram);          
           const image = object?.image ? object.image : objview?.image;
           if (image) {
             myDiagram.model.setDataProperty(data, "image", image);
@@ -322,6 +326,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === "Relationship") {
             const relview = data.relshipview;
             relview.markedAsDeleted = data.markedAsDeleted;
+            if (relview.visible === false) {
+              myDiagram.remove(link);;
+            }
           }
         }
         break;
@@ -559,7 +566,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const jsnMetamodel = new jsn.jsnMetaModel(context.myMetamodel);
             const dt = JSON.parse(JSON.stringify(jsnMetamodel));
             context.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', dt });
-        }
+          }
           else if (data.category === 'Object') // Object
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
@@ -895,13 +902,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview.loc = node.loc;
               objview.scale1 = node.scale1;
               objview.size = node.size;
-              if (debug) console.log('706 node, objview', node, objview);
               if (node.group) {
                 let grp = myGoModel.findNode(node.group);
                 objview.group = grp?.objectview.id;
               } else {
                 objview.group = "";
               }
+              myModelview.addObjectView(objview);
+              myDiagram.model.setDataProperty(node, "loc", node.loc);
               myDiagram.model.setDataProperty(node, "scale", node.scale1);
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (jsnObjview) {
@@ -914,6 +922,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           myDiagram.requestUpdate();
         }
+        if (false) {
         const nodes = myDiagram.nodes;
         for (let it = nodes.iterator; it?.next();) {
             const node = it.value;
@@ -928,6 +937,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
             }
         }
+        }
+        // Handle relview points
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
             const link = it.value;

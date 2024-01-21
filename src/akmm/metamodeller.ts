@@ -760,7 +760,6 @@ export class cxMetis {
                 if (debug) console.log('371 reltype', reltype);
                 if (reltype) {
                     this.importRelshipType(reltype, metamodel);
-                    const reltypes = metamodel.relshiptypes;
                 }
             });
         }
@@ -934,7 +933,6 @@ export class cxMetis {
         if (!reltype) {
             if (fromobjtype && toobjtype)
                 reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
-                metamodel.addRelationshipType(reltype);
                 fromobjtype.addOutputreltype(reltype);
                 toobjtype.addInputreltype(reltype);
         }
@@ -979,6 +977,7 @@ export class cxMetis {
                     });
                 }
             }
+            metamodel.addRelationshipType(reltype);
             if (debug) console.log('485 reltype', reltype, metamodel, this);
         }
     }
@@ -995,8 +994,8 @@ export class cxMetis {
             objtypeview.setTemplate(item.template);
             objtypeview.setViewKind(item.viewkind);
             objtypeview.setMemberscale(item.memberscale);
-            objtypeview.setGeometry(item.geometry);
-            objtypeview.setFigure(item.figure);
+            // objtypeview.setGeometry(item.geometry);
+            // objtypeview.setFigure(item.figure);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
@@ -1005,6 +1004,7 @@ export class cxMetis {
             objtypeview.setStrokecolor2(item.strokecolor2);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
+            objtypeview.setImage(item.image);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
             if (debug) console.log('222 objtypeview', objtypeview, item);
@@ -1236,6 +1236,7 @@ export class cxMetis {
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.viewkind = item.viewkind;
+                    objview.groupLayout = item.groupLayout;
                     if (item.isExpanded == undefined) {
                         if (item.isCollapsed !== undefined)
                             objview.isExpanded = !item.isCollapsed;
@@ -1303,6 +1304,7 @@ export class cxMetis {
                     relview.routing = item.routing;
                     relview.curve = item.curve;
                     relview.corner = item.corner;
+                    relview.visible = item.visible;
                     if (debug) console.log('1050 relview', relview);
                     let reltypeview;
                     if (item.typeviewRef) {
@@ -2337,11 +2339,29 @@ export class cxMetis {
                 if (objecttypeview) {
                     if (objecttypeview.id === id)
                         return objecttypeview;
-                    else if (objecttypeview.getFirestoreId() === id)
-                        return objecttypeview;
                 }
                 i++;
             }
+        }
+        return null;
+    }
+    getObjectTypeViewsByObjectType(objtype: cxObjectType): cxObjectTypeView[] | null {
+        const typeviews = this.getObjectTypeViews();
+        if (!typeviews) {
+            return null;
+        } else {
+            let i = 0;
+            let objecttypeview: cxObjectTypeView = null;
+            const views = new Array();
+            while (i < typeviews.length) {
+                objecttypeview = typeviews[i];
+                if (objecttypeview) {
+                    if (objecttypeview.typeRef === objtype.id)
+                        views.push(objecttypeview);
+                }
+                i++;
+            }
+            return views;
         }
         return null;
     }
@@ -2712,13 +2732,13 @@ export class cxMetis {
             if (!fromObjtype) {
                 fromObjtype = this.findObjectType(reltype.fromobjtypeRef);
             }
-            if (!fromType.inherits(fromObjtype, 0)) 
+            if (!fromType.inherits(fromObjtype)) 
                 continue;
             let toObjtype = reltype.getToObjType();
             if (!fromObjtype) {
                 toObjtype = this.findObjectType(reltype.toobjtypeRef);
             }
-            if (!toType.inherits(toObjtype, 0)) 
+            if (!toType.inherits(toObjtype)) 
                 continue;
             reltypes.push(reltype);            
         }
@@ -2750,7 +2770,7 @@ export class cxMetis {
                         } else
                             continue;
                     } 
-                    if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
+                    if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
                         // if (fromObjType.id === toObjType.id) {
                             if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                                 fromObjType.name === constants.types.AKM_GENERIC) {
@@ -3033,6 +3053,26 @@ export class cxMetis {
                 }
             }
         }
+    }
+    purgeObjectTypeViews(): cxObjectTypeView[] | null {
+        const metamodels = this.getMetamodels();
+        for (let i=0; i<metamodels.length; i++) {
+            let metamodel = metamodels[i];
+            const objecttypes = metamodel.getObjectTypes();
+            for (let j=0; j<objecttypes.length; j++) {
+                let objtype = this.objecttypes[j];
+                const typeviewRef = objtype.typeview.id;
+                const typeviews = metamodel.getObjectTypeViewsByObjectType(objtype);
+                if (typeviews.length < 2) continue;
+                for (let k=0; k<typeviews.length; k++) {
+                    let tview = typeviews[k];
+                    if (tview.id !== typeviewRef) {
+                        tview.markedAsDeleted = true;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
 
@@ -3776,6 +3816,26 @@ export class cxMetaModel extends cxMetaObject {
     getObjectTypeViews(): cxObjectTypeView[] | null {
         return this.objecttypeviews;
     }
+    getObjectTypeViewsByObjectType(objtype: cxObjectType): cxObjectTypeView[] | null {
+        const typeviews = this.getObjectTypeViews();
+        if (!typeviews) {
+            return null;
+        } else {
+            let i = 0;
+            let objecttypeview: cxObjectTypeView = null;
+            const views = new Array();
+            while (i < typeviews.length) {
+                objecttypeview = typeviews[i];
+                if (objecttypeview) {
+                    if (objecttypeview.typeRef === objtype.id)
+                        views.push(objecttypeview);
+                }
+                i++;
+            }
+            return views;
+        }
+        return null;
+    }
     getObjtypeGeos(): cxObjtypeGeo[] | null {
         return this.objtypegeos;
     }
@@ -4074,22 +4134,10 @@ export class cxMetaModel extends cxMetaObject {
     addProperty(prop: cxProperty) {
         if (!prop) return;
         if (prop.category === constants.gojs.C_PROPERTY) {
-            const len = this.properties?.length;
-            if (!len)
+            if (this.properties == null)
+                this.properties = new Array();
+            if (!this.findPropertyByName(prop.name))
                 this.properties.push(prop);
-            else {
-                let found = false;
-                for (let i=0; i<len; i++) {
-                    const p = this.properties[i];
-                    if (!p) continue;
-                    if (p.id === prop.id) {
-                        this.properties[i] = prop;
-                        found = true;
-                    }
-                }
-                if (!found)
-                this.properties.push(prop);
-            }
         }
     }
     addMethod(mtd: cxMethod) {
@@ -4671,7 +4719,7 @@ export class cxMetaModel extends cxMetaObject {
                     } else
                         continue;
                 } 
-                if (fromType.inherits(fromObjType, 0)  && toType.inherits(toObjType, 0)) {
+                if (fromType.inherits(fromObjType)  && toType.inherits(toObjType)) {
                     // if (fromObjType.id === toObjType.id) {
                         if (fromObjType.name === constants.types.AKM_ENTITY_TYPE || 
                             fromObjType.name === constants.types.AKM_GENERIC) {
@@ -5769,7 +5817,7 @@ export class cxObjectType extends cxType {
         if (otypes && otypes.length > 0) {
             for (let j = 0; j < otypes.length; j++) {
                 const otype = otypes[j];
-                if (objtype.inherits(otype, 0)) {
+                if (objtype.inherits(otype)) {
                     const rtype: cxRelationshipType | null = this.findRelshipTypeByKind1(relkind, otype, this.allRelationshiptypes);
                     if (rtype)
                         return rtype;
@@ -5968,7 +6016,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.fromObjtype.id === objtype.id) 
                 return true;
             if (includeGen) {
-                if (objtype.inherits(this.fromObjtype, 0)) {
+                if (objtype.inherits(this.fromObjtype)) {
                     return true;
                 }
             }
@@ -5980,7 +6028,7 @@ export class cxRelationshipType extends cxObjectType {
             if (this.toObjtype.id === objtype.id) 
                 return true;
                 if (includeGen) {
-                    if (objtype.inherits(this.toObjtype, 0)) {
+                    if (objtype.inherits(this.toObjtype)) {
                         return true;
                     }
                 }
@@ -5994,8 +6042,8 @@ export class cxRelationshipType extends cxObjectType {
             return retval;
         if (this.toObjtype.name !== constants.types.AKM_ELEMENT &&
             this.toObjtype.name !== constants.types.AKM_ENTITY_TYPE) {
-            if (fromType.inherits(this.toObjtype, 0) &&
-                toType.inherits(this.toObjtype, 0)) {
+            if (fromType.inherits(this.toObjtype) &&
+                toType.inherits(this.toObjtype)) {
                 retval = true;
             }
         }
@@ -6208,8 +6256,8 @@ export class cxObjtypeviewData {
     arrowscale: string;
     viewkind: string;
     template: string;
-    figure: string;
-    geometry: string;
+    // figure: string;
+    // geometry: string;
     icon: string;
     image: string;
     fillcolor: string;
@@ -6225,8 +6273,8 @@ export class cxObjtypeviewData {
         this.arrowscale = "1.3";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
-        this.figure = "";
-        this.geometry = "";
+        // this.figure = "";
+        // this.geometry = "";
         this.icon = "";
         this.image = "";
         this.fillcolor = "";
@@ -6247,8 +6295,8 @@ export class cxObjectTypeView extends cxMetaObject {
     memberscale: string;
     viewkind: string;
     template: string;
-    figure: string;
-    geometry: string;
+    // figure: string;
+    // geometry: string;
     icon: string;
     image: string;
     fillcolor: string;
@@ -6265,8 +6313,8 @@ export class cxObjectTypeView extends cxMetaObject {
         // this.type        = type;
         this.typeRef     = type?.id;
         this.template    = "";
-        this.figure      = "";
-        this.geometry    = "";
+        // this.figure      = "";
+        // this.geometry    = "";
         this.arrowscale  = "";
         this.memberscale = "";
         this.fillcolor   = "";
@@ -6371,28 +6419,28 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template;
         return "";
     }
-    setFigure(figure: string) {
-        this.data.figure = figure;
-        this.figure = figure;
-    }
-    getFigure(): string {
-        if (this.figure)
-            return this.figure;
-        else if (this.data.figure)
-            return this.data.figure;
-        return "";
-    }
-    setGeometry(geometry: string) {
-        this.data.geometry = geometry;
-        this.geometry = geometry;
-    }
-    getGeometry(): string {
-        if (this.geometry)
-            return this.geometry;
-        else if (this.data.geometry)
-            return this.data.geometry;
-        return "";
-    }
+    // setFigure(figure: string) {
+    //     this.data.figure = figure;
+    //     this.figure = figure;
+    // }
+    // getFigure(): string {
+    //     if (this.figure)
+    //         return this.figure;
+    //     else if (this.data.figure)
+    //         return this.data.figure;
+    //     return "";
+    // }
+    // setGeometry(geometry: string) {
+    //     this.data.geometry = geometry;
+    //     this.geometry = geometry;
+    // }
+    // getGeometry(): string {
+    //     if (this.geometry)
+    //         return this.geometry;
+    //     else if (this.data.geometry)
+    //         return this.data.geometry;
+    //     return "";
+    // }
     setFillcolor(fillcolor: string) {
         this.data.fillcolor = fillcolor;
         this.fillcolor = fillcolor;
@@ -8084,10 +8132,10 @@ export class cxObject extends cxInstance {
             if ( mtdtype === constants.types.MTD_GETCONNECTEDOBJECT) {
                 let context;
                 if (debug) console.log('7312 method', method);
-                const rtypename = method["reltype"];
-                const reldir = method["reldir"];
-                const otypename = method["objtype"];
-                let objtype = null;
+                const rtypename: string = method["reltype"];
+                const reldir: string = method["reldir"];
+                const otypename: string = method["objtype"];
+                let objtype: cxObjectType = null;
                 if (otypename !== 'any' && otypename !== 'null')
                     objtype = metis.findObjectTypeByName(otypename);
                 if (debug) console.log('7319 otypename, objtype', otypename, objtype);
@@ -8505,15 +8553,13 @@ export class cxRelationship extends cxInstance {
                 }
             } else if (reltype.toObjtype.name === constants.types.AKM_COLLECTION) {
                 if (reltype.name === constants.types.AKM_HAS_COLLECTION) {
-                    retval = true;                    
-                }
-            } else if (reltype.fromObjtype.name === constants.types.AKM_LABEL) {
-                if (reltype.name === constants.types.AKM_ANNOTATES) {
-                    retval = true;                    
-                }
-            }
+                    retval = true;  
+                }                  
+            } else if (reltype.name === constants.types.AKM_ANNOTATES) {
+                retval = true;                    
+            }            
+            return retval;
         }
-        return retval;
     }
 }
 
@@ -8996,8 +9042,12 @@ export class cxObjectView extends cxMetaObject {
     arrowscale: string;
     viewkind: string;
     template: string;
-    figure: string;
-    geometry: string;
+    // figure: string;
+    // geometry: string;
+    icon: string;
+    image: string;
+    routing: string;
+    linkcurve: string;
     fillcolor: string;
     fillcolor1: string;
     fillcolor2: string;
@@ -9008,8 +9058,6 @@ export class cxObjectView extends cxMetaObject {
     textcolor: string;
     textcolor1: string;
     textscale: string;
-    icon: string;
-    image: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTVIEWS;  // Firestore collection
@@ -9039,8 +9087,10 @@ export class cxObjectView extends cxMetaObject {
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
         this.template = "";
-        this.figure = "";
-        this.geometry = "";
+        // this.figure = "";
+        // this.geometry = "";
+        this.routing = "Normal";
+        this.linkcurve = "None";
         this.fillcolor = "";
         this.fillcolor1 = "";
         this.fillcolor2 = "";
@@ -9247,16 +9297,16 @@ export class cxObjectView extends cxMetaObject {
             return "";
         return this.template;
     }
-    setFigure(figure: string) {
-        if (figure == undefined)
-        figure = "";
-        this.figure = figure;
-    }
-    getFigure(): string {
-        if (this.template == undefined)
-            return "";
-        return this.template;
-    }
+    // setFigure(figure: string) {
+    //     if (figure == undefined)
+    //     figure = "";
+    //     this.figure = figure;
+    // }
+    // getFigure(): string {
+    //     if (this.template == undefined)
+    //         return "";
+    //     return this.template;
+    // }
     setSize(size: string) {
         if (size == undefined)
             size = "";
@@ -9320,8 +9370,44 @@ export class cxObjectView extends cxMetaObject {
             return this.loc;
         return "";
     }
+    applyTypeview() {
+        let viewdata = this.typeview?.data;
+        if (!viewdata) {
+            const obj = this.getObject();
+            if (obj) {
+                const objtype = obj.getType();
+                if (objtype) {
+                    const typeview = objtype.typeview;
+                    if (typeview) {
+                        viewdata = typeview.data;
+                    }
+                }
+            }
+        }
+        for (let k in viewdata) {
+            if (k === 'class') continue;
+            if (k === 'abstract') continue;
+            if (k === 'isGroup') continue;
+            if (k === 'group') continue;
+            if (k === 'viewkind') continue;
+            this[k] = viewdata[k];
+        }
+        
+    }
     clearViewdata() {
-        const viewdata = this.typeview.data;
+        let viewdata = this.typeview?.data;
+        if (!viewdata) {
+            const obj = this.getObject();
+            if (obj) {
+                const objtype = obj.getType();
+                if (objtype) {
+                    const typeview = objtype.typeview;
+                    if (typeview) {
+                        viewdata = typeview.data;
+                    }
+                }
+            }
+        }
         for (let k in viewdata) {
             if (k === 'class') continue;
             if (k === 'abstract') continue;
@@ -9357,6 +9443,7 @@ export class cxRelationshipView extends cxMetaObject {
     corner:         string;
     curve:          string;
     points:         any;
+    visible:        boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -9383,6 +9470,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.curve = "";
         this.corner = "";
         this.points = [];
+        this.visible = true;
     }
     // Methods
     getRelationship(): cxRelationship | null {

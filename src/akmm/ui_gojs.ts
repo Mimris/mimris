@@ -343,6 +343,7 @@ export class goNode extends goMetaObject {
     fillcolor:       string;
     fillcolor2:      string;
     viewkind:        string;
+    layout:          string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
@@ -359,6 +360,7 @@ export class goNode extends goMetaObject {
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.viewkind = "";
+        this.layout = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -398,6 +400,12 @@ export class goNode extends goMetaObject {
     getViewkind(): string {
         return this.viewkind;
     }
+    setLayout(layout: string) {
+        this.layout = layout;
+    }
+    getLayout(): string {
+        return this.layout;
+    }
 }
 
 export class goObjectNode extends goNode {
@@ -413,8 +421,8 @@ export class goObjectNode extends goNode {
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
     template: string;
-    figure: string;
-    geometry: string;
+    // figure: string;
+    // geometry: string;
     strokewidth: string;
     textcolor: string;
     textscale: string;
@@ -440,8 +448,8 @@ export class goObjectNode extends goNode {
         this.typename       = "";
         this.typedescription = "";
         this.template       = objview.template;
-        this.figure         = objview.figure;
-        this.geometry       = objview.geometry;
+        // this.figure         = objview.figure;
+        // this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
         this.fillcolor2      = objview.fillcolor2;
         this.strokecolor    = objview.strokecolor;
@@ -494,12 +502,12 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
-            if (!this.geometry)
-                this.geometry = this.typeview?.geometry;
-            if (!this.figure)
-                this.figure = this.typeview?.figure;
-            if (!this.figure)
-                this.figure = "";
+            // if (!this.geometry)
+            //     this.geometry = this.typeview?.geometry;
+            // if (!this.figure)
+            //     this.figure = this.typeview?.figure;
+            // if (!this.figure)
+            //     this.figure = "";
         }
     }
     // Methods
@@ -829,6 +837,7 @@ export class goRelshipLink extends goLink {
     cardinalityTo:      string;
     nameFrom:           string;
     nameTo:             string;
+    visible:            boolean;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category        = constants.gojs.C_RELATIONSHIP;
@@ -865,6 +874,7 @@ export class goRelshipLink extends goLink {
         this.cardinalityTo   = "";
         this.nameFrom        = "";
         this.nameTo          = "";
+        this.visible         = relview?.visible;
 
         if (relview) {
             const relship = relview.getRelationship() as akm.cxRelationship;
@@ -1172,8 +1182,8 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
-    figure: string;
-    geometry: string;
+    // figure: string;
+    // geometry: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -1190,8 +1200,8 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
-        this.figure = "";
-        this.geometry = "";
+        // this.figure = "";
+        // this.geometry = "";
         this.fillcolor = "lightyellow";
         this.fillcolor2 = "";
         this.strokecolor = "black";

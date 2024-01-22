@@ -133,7 +133,7 @@ let includeNoType = false;
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
     if (debug) console.log('134 ui_buildmodels objects', objects);
     if (objects) {
-      console.log('136 ui_buildmodels objects', objects);
+      // console.log('136 ui_buildmodels objects', objects);
       // objects.sort(utils.compare);
     }
     const nodeArray = new Array();

@@ -1,33 +1,32 @@
-// @ts- nocheck
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 // import Draggable from "react-draggable";
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
-
-// import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
-import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
+// import { loadData } from '../actions/actions'
+// import { loadState, saveState } from '../utils/LocalStorage'
+import useLocalStorage  from '../hooks/use-local-storage'
+// import { FaJoint } from 'react-icons/fa';
+// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
+import GenGojsModel from './GenGojsModel'
+import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
 import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopEntityTypes';
-// import SetColorsTopEntityTypes from '../utils/SetColorsTopEntityTypes';
+import SetColorsTopEntityTypes from '../utils/SetColorsTopEntityTypes';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 // import LoadOpenSubsurfaceDataUniverseJson from './LoadGitLabJson'
 
-const debug = false
-
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
-
-  if (!debug) console.log('21 LoadJsonFile', props);
     
-  if (!props.ph.props.phData?.metis.models) return null
-
+  if (!props.ph.phData?.metis.models) return null
   
+  const debug = false
   const dispatch = useDispatch()  
-  const toggleRefresh = props.ph.toggleRefresh
-  // const refresh = props.ph.refresh
-  // const setRefresh = props.ph.setRefresh
-  // function toggleRefresh() { setRefresh(!refresh); }
+  const refresh = props.refresh
+  const setRefresh = props.setRefresh
+  function toggleRefresh() { setRefresh(!refresh); }
 
   const modelNames = props.ph.phData?.metis?.models.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
@@ -149,48 +148,50 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 //     console.error(error);
 //   }
 // };
+
 // const handleLoadGitLabJson = async () => {
 //   fetchData();
 // };
+
 
   const buttonSaveJSONToFileDiv = 
     <button className="btn-success btn-sm text-secondary fs-5 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
-      >Save Current Model to CSV-file
+      >Save Current Model to Excel-file (not implemented yet)
       {/* onClick={handleSaveJSONToFile}>Save Current Model to File  */}
     </button >
 
   if (debug) console.log('172', buttonLabel);
 
   // import files and import them as objects to the project 
-  // const importFilesRecursive = async (files) => {
-  //   for (const file of files) {
-  //     if (file.isDirectory) {
-  //       const subFiles = await file.getFiles();
-  //       await importFilesRecursive(subFiles);
-  //     } else if (file.type === 'application/json') {
-  //       const reader = new FileReader();
-  //       reader.onload = async () => {
-  //         const fileContent = reader.result;
-  //         ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
-  //       };
-  //       reader.readAsText(file);
-  //     }
-  //   }
-  // };
+// const importFilesRecursive = async (files) => {
+//   for (const file of files) {
+//     if (file.isDirectory) {
+//       const subFiles = await file.getFiles();
+//       await importFilesRecursive(subFiles);
+//     } else if (file.type === 'application/json') {
+//       const reader = new FileReader();
+//       reader.onload = async () => {
+//         const fileContent = reader.result;
+//         ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
+//       };
+//       reader.readAsText(file);
+//     }
+//   }
+// };
 
 const importDirectories = async (dir) => {
   
-  const getSubDir = Array.from(dir.target.files).filter((file: any) => file.isDirectory);
+  const getSubDir = Array.from(dir.target.files).filter(file => file.isDirectory);
   if (getSubDir.length === 0) {
     await importDirectory(dir);
     return;
   } else {
         
-    for (const directory of getSubDir) { // Changed 'subDir' to 'getSubDir'
+    for (const directory of subDir) {
       await importDirectory(directory);
-      const subDirectories = await importDirectories(directory); // Replace 'getSubDirectories' with the actual function to get subdirectories
+      const subDirectories = await getSubDirectories(directory); // Replace 'getSubDirectories' with the actual function to get subdirectories
       await importDirectories(subDirectories);
     }
   }
@@ -201,12 +202,12 @@ const importDirectory = async (fileOrDirectory) => {
   if (files.length === 0) return;
 
   for (const file of files) {
-    if ((file as File).type === "application/json") {
+    if (file.type === "application/json") {
       const reader = new FileReader();
       reader.onload = async () => {
         const fileContent = reader.result;
         ReadConvertJSONFromFileToAkm(
-          fileContent.toString(),
+          fileContent, 
           dispatch, 
           props.ph,
           inclProps, 
@@ -224,14 +225,15 @@ const importDirectory = async (fileOrDirectory) => {
           "AKM", 
         );
       };
-      reader.readAsText(file as Blob);
+      reader.readAsText(file);
     } else {
       console.log("File is not a JSON file.");
     }
   }
 }
 
-const importFile = async (e) => { 
+const importFile = async (e) => {
+     
         // Convert the FileList into an array and iterate
         let files = Array.from(e.target.files)
         console.log('125', files);
@@ -240,14 +242,14 @@ const importFile = async (e) => {
             let reader = new FileReader();
             return new Promise((resolve) => {
                 reader.onload = () => resolve(reader.result);
-                reader.readAsText(file as Blob);
+                reader.readAsText(file);
             });        
         });
         if (debug) console.log('12 files', filess);
         let res = await Promise.all(filess);
         res.map(r => {
           ReadConvertJSONFromFileToAkm(
-            r.toString(),
+            r,          
             dispatch, 
             props.ph,
             inclProps, 
@@ -384,7 +386,8 @@ const importFile = async (e) => {
                     type="file"
                     accept=".json"
                     onChange={importDirectories}
-                    {...{ directory: 'true', webkitdirectory: 'true' } as React.HTMLAttributes<HTMLElement>}
+                    webkitdirectory="true"
+                    directory="true"
                   />
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>
@@ -428,7 +431,7 @@ const importFile = async (e) => {
                   <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
                 </div> */}
                 <div className="selectbox2 mb-2 border">
-                  <h6>Export model as CSV file (Not implemented yet)</h6>
+                  <h6>Export model as OSDU Json file (The file will be found in the download folder)</h6>
                   {buttonSaveJSONToFileDiv}
                 </div>
             </div>
@@ -459,7 +462,8 @@ const importFile = async (e) => {
                 border: 20px;
                 border-color: tomato;
                 padding: 1%;
-            } 
+            }
+      
             `}</style>
     </>
   )

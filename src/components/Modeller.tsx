@@ -296,10 +296,10 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
-  let ndarr = props.gojsMetamodel?.nodeDataArray
-  let taskNodeDataArray: any[] = ndarr
+  // let ndarr = props.gojsMetamodel?.nodeDataArray
+  // let taskNodeDataArray: any[] = ndarr
 
-  if (debug) console.log('176 taskNodeDataArray', taskNodeDataArray, ndarr, props.gojsMetamodel);
+  // if (debug) console.log('176 taskNodeDataArray', taskNodeDataArray, ndarr, props.gojsMetamodel);
   // ================================================================================================
   // Show all the objects in this model
   // const gojsmodelObjects = props.gojsModelObjects
@@ -348,7 +348,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     }
   };
 
-  seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
+  // seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
   let ndArr = props.gojsModelObjects?.nodeDataArray
   let ldArr = props.gojsModelObjects?.linkDataArray || []
   if (debug) console.log('353 Modeller ndArr', ndArr, ldArr, props);
@@ -365,20 +365,21 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   // if OSDU import then set fillcolor according to osduType
   nodeArray_all?.forEach((node: any) => {
-    node.fillcolor = setColorsTopEntityTypes(node.object?.osduType)
-    })
+    const enttypeColor = setColorsTopEntityTypes(node.object?.osduType)
+    if (enttypeColor) node.fillcolor = enttypeColor
+  })
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
  
 
-  const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
-    if (debug) console.log('Palette handleSetOfilter', filter);
-    setOfilter(filter)
-    // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
-    toggleRefreshObjects()
-  }
+  // const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
+  //   if (debug) console.log('Palette handleSetOfilter', filter);
+  //   setOfilter(filter)
+  //   // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
+  //   toggleRefreshObjects()
+  // }
 
   {/* <div style={{transform: "scale(0.9)" }}> */ }
   // const selectedObjDiv = (
@@ -388,15 +389,15 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   //   </div>
   // )
 
-  let selectTaskDiv =
-    <>
-      <details><summary markdown="span"  >Modelling Task : </summary>
-        <div className="seltask w-100">
-          <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask' refresh={refresh} setRefresh={setRefresh} />
-        </div>
-      </details>
-      <div>{focusTask?.name}</div>
-    </>
+  // let selectTaskDiv =
+  //   <>
+  //     <details><summary markdown="span"  >Modelling Task : </summary>
+  //       <div className="seltask w-100">
+  //         <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask' refresh={refresh} setRefresh={setRefresh} />
+  //       </div>
+  //     </details>
+  //     <div>{focusTask?.name}</div>
+  //   </>
 
   // // filter out all objects of type 
   // setOfilteredArr(objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container')))
@@ -408,9 +409,17 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    setSelectedOption('EntityType')
-    // setSelectedOption('Sorted by type')
+    // if nuber of objects in modelview is less than 100 then set selectedOption to 'In this modelview'
+    // if (modelview?.objectviews?.length < 100)
+    // if number of objects in model is less than 100 then set selectedOption to 'Sorted alfabetical'
+    if (model?.objects?.length < 100) {
+      setSelectedOption('Sorted by type')
+    } else {
+      setSelectedOption('EntityType')
+    }
     // setSelectedOption('In this modelview')
+    // 
+    if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(true)
   }, [])
 
   useEffect(() => {
@@ -470,15 +479,15 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
   if (debug) console.log('436  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
 
-  const objArr = taskNodeDataArray
-  // Hack: if viewkind === 'Container' then set isGroup to true
-  if (debug) console.log('269 objArr', props.gojsModel, objArr)
-  for (let i = 0; i < objArr?.length; i++) {
-    if (objArr[i]?.viewkind === 'Container') {
-      objArr[i].isGroup = true;
-    }
-  }
-  if (debug) console.log('274 objArr', objArr)
+  // const objArr = taskNodeDataArray
+  // // Hack: if viewkind === 'Container' then set isGroup to true
+  // if (debug) console.log('269 objArr', props.gojsModel, objArr)
+  // for (let i = 0; i < objArr?.length; i++) {
+  //   if (objArr[i]?.viewkind === 'Container') {
+  //     objArr[i].isGroup = true;
+  //   }
+  // }
+  // if (debug) console.log('274 objArr', objArr)
 
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {  // map over the modelviews and create a tab for each
     if (mv && !mv.markedAsDeleted) {

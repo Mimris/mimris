@@ -75,6 +75,8 @@ const Palette = (props: any) => {
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
+
+    if (mmodel.name === 'AKM-OSDU_MM') setVisiblePalette(false);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes  = mmodel?.objecttypes;
     if (!metamodels) return null;
@@ -103,9 +105,7 @@ const Palette = (props: any) => {
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
     }, 1000);
-  
     return () => clearTimeout(timer);
-  // }, [props.phFocus, mmodel]);
   }, []);
 
   // if (!metamodels) return null;

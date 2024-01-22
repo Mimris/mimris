@@ -472,12 +472,10 @@ const page = (props: any) => {
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                {/* Objects Palette area */}
-                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
+                {/* MetaamodelPalette area */}
+                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Metamodel Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
-                      gojsModelObjects={gojsmodelobjects}
-                      gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
                       myGoModel={myGoModel}
@@ -523,7 +521,7 @@ const page = (props: any) => {
             </div>
           </TabPane>
 
-            {/* Solution Modelling ------------------------------------*/}
+          {/* Solution Modelling ------------------------------------*/}
             {/* <TabPane tabId="3">
               <div className="workpad p-1 pt-2 bg-white">
                 <Row >

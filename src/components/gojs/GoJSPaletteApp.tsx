@@ -314,7 +314,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       </>
     }
     if (debug) console.log('294 this.diagramStyle', this.state.diagramStyle);
-    if (debug) console.log('295 this.state', this.state.linkDataArray);
+    if (debug) console.log('295 this.state', this.state.nodeDataArray, this.state.linkDataArray);
     return (
       <div>
         <PaletteWrapper

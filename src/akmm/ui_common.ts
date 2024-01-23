@@ -646,7 +646,7 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             // Handle deleteViewsOnly
             if (myMetis.deleteViewsOnly) {
                 object.removeObjectView(objview);
-                // return;
+                return;
             }
             // Else handle delete object AND object views
             // First delete object

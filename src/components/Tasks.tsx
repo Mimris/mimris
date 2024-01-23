@@ -28,7 +28,6 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props);
-  if (!props.taskFocusModel) return null;
   const dispatch = useDispatch();
 
 

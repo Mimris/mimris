@@ -12,7 +12,7 @@ import classnames from 'classnames';
 
 import Page from './page';
 // import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
-import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
+// import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
@@ -28,19 +28,19 @@ import LoadMetamodelFromGithub from './loadModelData/LoadMetamodelFromGitHub'
 import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile } from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
-import { SaveModelToLocState } from "./utils/SaveModelToLocState";
-import { SaveAkmmUser } from "./utils/SaveAkmmUser";
-import ReportModule from "./ReportModule";
-import ProjectDetailsModal from "./modals/ProjectDetailsModal";
+// import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+// import { SaveAkmmUser } from "./utils/SaveAkmmUser";
+// import ReportModule from "./ReportModule";
+// import ProjectDetailsModal from "./modals/ProjectDetailsModal";
 import useLocalStorage from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
-import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-import CreateNewModel  from './akmm-api/CreateNewModel';
+// import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
+// import CreateNewModel  from './akmm-api/CreateNewModel';
 
 
-import * as akm from '../akmm/metamodeller';
+// import * as akm from '../akmm/metamodeller';
 import * as uib from '../akmm/ui_buildmodels';
-import { set } from "immer/dist/internal";
+// import { set } from "immer/dist/internal";
 const constants = require('../akmm/constants');
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
@@ -267,10 +267,10 @@ const page = (props: any) => {
     if (debug) console.log('130 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('131 Modelling', curmod, curmodview);
 
-    function handleSaveAllToFileDate() {
-      const projectname = props.phData.metis.name
-      SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
-    }
+    // function handleSaveAllToFileDate() {
+    //   const projectname = props.phData.metis.name
+    //   SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+    // }
 
     const handleGetNewProject = () => {
       // CreateNewModel(ph)//,  curmodel, curmodelview)
@@ -285,7 +285,7 @@ const page = (props: any) => {
       //   , 1000);
     }
 
-    function handleSaveAllToFile() {
+    const handleSaveAllToFile = () => {
       const projectname = props.phData.metis.name
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
       const data = `${projectname}_PR`
@@ -304,11 +304,11 @@ const page = (props: any) => {
       // GenGojsModel(props, dispatch)
     }
 
-    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    // const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
-    function toggleTasks() {
-      setVisibleTasks(!visibleTasks);
-    }
+    // function toggleTasks() {
+    //   setVisibleTasks(!visibleTasks);
+    // }
 
     // let locStateKey
     // const toggleShowContext = () => {

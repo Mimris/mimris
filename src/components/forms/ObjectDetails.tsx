@@ -102,7 +102,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   onChange={handleInputChange}
                   style={{ backgroundColor: '#eee' }}
                   ref={textareaRef}
-                  rows={15}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key].length) / 70)}
                 />
               );
               break;

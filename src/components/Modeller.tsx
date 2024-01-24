@@ -569,44 +569,29 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </>
     );
 
-  const modelviewTabDiv = // this is the modelview tabs
-    <>
-      <Nav tabs >
-        {navitemDiv}
-        <NavItem >
-          <button className="btn px-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
-                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
-            style={{ background: "#aaccdd" }}> ?
-          </button>
-        </NavItem>
-      </Nav>
-      <TabContent >
-        <TabPane  >
-          <div className="workpad bg-white border-light mt-0 p-1 ">
-            {gojsapp}
-            {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
-          </div>
-        </TabPane>
-      </TabContent>
-    </>
-
-  const metamodelTabDiv =
-    <>
-      <div className="workpad p-1">
-        {gojsapp}
-        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
-      </div>
-    </>
-
   const objectsTabDiv =
-    <>
-      {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{selectedObjDiv}</div> */}
-      <div className="workpad p-1 pt-2 bg-white">
-        {/* {selectTaskDiv} */}  
-          <div className="modellingtask bg-light w-100" >
-        {SelectOTypes}
-          <div className="mmname mx-0 px-3 my-1 bg-light" style={{ fontSize: "16px", minWidth: "184px", maxWidth: "212px" }}>{selectedOption}</div>
+    <>  
+      <div className="workpad p-1" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}> 
+              {/* <div className="d-flex justify-content-between"> */}
+                <button 
+                  className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                  onClick={toggleObjects} 
+                  data-toggle="tooltip" 
+                  data-placement="top" 
+                  title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
+                  {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
+                </button>
+                {/* <button 
+                  className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                  onClick={toggleIsExpanded} 
+                  data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
+                  {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                </button> */}
+              {/* </div> */}
+          <div className="modellingtask bg-ligh" >
+            {SelectOTypes}
+            <div className="mmname mx-0 px-3 my-1 bg-light" style={{ fontSize: "16px", minWidth: "178px" }}>{selectedOption}
+          </div>
         </div>
         <GoJSPaletteApp // this is the Objects list
           divClassName="diagram-component-objects"
@@ -617,12 +602,76 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "77vh" }}
+          diagramStyle={{ height: "73vh" }}
         />
       </div>
     </>
 
+  const modelviewTabDiv = // this is the modelview tabs
+    <>
+      <Nav tabs >
+        <button className="btn bg-transparent text-success btn-sm"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel!"
+          onClick={toggleObjects} 
+          >
+            {(visibleObjects) 
+              ? <i className="fa fa-lg fa-angle-left pull-right-container"></i>
+              : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
+            }
+        </button>
+        {navitemDiv}
+        <NavItem >
+          <button className="btn px-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+            title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
+                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
+            style={{ background: "#aaccdd" }}> ?
+          </button>
+        </NavItem>
+        <button className="btn  btn-sm bg-transparent text-success ms-auto me-0"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel!"
+          onClick={handleVisibleContext} 
+          >
+          {(visibleContext) ?
+            <i className="fa fa-lg fa-angle-left pull-right-container"></i>
+            : <i className="fa fa-lg fa-angle-right pull-right-container"></i>}
+        </button> 
+      </Nav>
+      <TabContent className="bg-white" >
+        <TabPane className="bg-white border border-white">
+            <Row className="m-0 border">
+              {(visibleObjects)
+                ? (objectsTabDiv)
+                  ? (isExpanded) 
+                    ?   <><Col className= "col-1 p-0 "><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", maxWidth: "666px" }}></div>{objectsTabDiv}  </Col> </>
+                    :   <><Col className= "col-1 p-0 "><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", maxWidth: "666px" }}></div>{objectsTabDiv}  </Col> </>
+                  : <><Col><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", maxWidth: "166px" }}></div>  </Col> </>
+                : <><div className="btn-vertical px-1 pt-2 text-center " style={{ height: "74vh", maxWidth: "10px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div></>
+              }
+            <Col className=" mx-2 my-2 p-0 " xe="auto" style={{ backgroundColor: "#cdd" }}>
+              <div className="workpad bg-white border-light mt-0 p-1 ">
+                {gojsapp}
+              </div>
+            </Col>
+            <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd" }}>
+              <>
+                {(!visibleContext) ?
+                  <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleContext={handleVisibleContext} />
+                  : <></>}        
+              </>
+            </Col>
+          </Row>
+        </TabPane>
 
+      </TabContent>
+    </>
+
+  const metamodelTabDiv =
+    <>
+      <div className="workpad p-1">
+        {gojsapp}
+        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+      </div>
+    </>
 
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
@@ -660,95 +709,35 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     (props.modelType === 'model')
       ? // modelling
       <div className="modeller-workarea w-100" >
-        <div className="modeller--topbar d-flex justify-content-between mt-1 p-0 ">
-          <span className="--heading d-flex text-dark fw-bold px-2" style={{ minWidth: "15%" }} > Modeller </span>
-          <div className="d-flex justify-content-around align-items-center me-4">
-            <div className="modeller--heading-selector">{selector}</div>
-            {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
-              style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
-              {refresh ? 'save2memory' : 'save2memory'} 
-            </span> */}
-            {/* <button className="btn bg-light text-success ms-2 btn-sm"
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Open the Focus Object in a Modal window!"
-              onClick={handleShowModal} style={{ scale: "0.9" }} 
-              >
-              <i className="fa fa-lg fa-external-link"></i>
-            </button>  */}
-            <button className="btn bg-light text-success ms-2 btn-sm"
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Open the right sidepanel!"
-              onClick={handleVisibleContext} style={{ scale: "0.9" }} 
-              >
-               {(visibleContext) ?
-                <i class="fa fa-angle-left pull-right-container"></i>
-                : <i class="fa fa-angle-right pull-right-container"></i>}
-            </button> 
-              {/* show Context ---------------------------------------------------   */}
-              {/*  onClick={toggleShowContext} style={{ scale: "0.9" }} >✵</button>  */}
+        <div className="d-flex ">
+          <span className="text-dark fw-bold ms-3 fs-4" style={{ minnWidth: "15%" }} > Modeller </span>
+          <div className="modeller--topbar d-flex justify-content-between mt-0 p-0 ms-auto me-2">
+            <div className="d-flex justify-content-around align-items-center me-0">
+              <div className="modeller--heading-selector">{selector}</div>
+              {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
+                style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
+                {refresh ? 'save2memory' : 'save2memory'} 
+              </span> */}
+            </div>
           </div>
         </div>
-        <div className="modeller--workarea-objects m-0 p-0" >
-          <Row className="m-0">           
-            <Col className="modeller--workarea-objects mx-0 px-0 mt-0 col-auto "> {/* Objects pane  column */}
-              <div className="modeller--workarea-objects-content mt-2 border border-secondary" style={{ height: "82vh" }} >
-                <div className="d-flex justify-content-between">
-                  <button 
-                    className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                    onClick={toggleObjects} 
-                    data-toggle="tooltip" 
-                    data-placement="top" 
-                    title="List of all the Objects in this Model (This also include object with no Objectviews) &#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
-                    {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
-                  </button>
-                  <button 
-                    className="btn-sm px-1 m-0 text-left " 
-                    style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                    onClick={toggleVisibleContext} 
-                    data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
-                    {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
-                  </button>
-                </div>
-                {(visibleObjects)
-                  ? (objectsTabDiv)
-                    ? (isExpanded)
-                      ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "466px", maxWidth: "666px" }}></div>{objectsTabDiv}</>
-                      : <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "166px" }}></div>{objectsTabDiv}</>
-                    : <div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "166px" }}></div>
-                  : <div className="btn-vertical px-1 text-center " style={{ height: "78vh", maxWidth: "20px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div>
-                }
-              </div>
-            </Col>
-            <Col className="modeller--workarea-modelling px-1 "> {/* Modelview tabs and footer buttons  column */}
-              <div className="mt-2">
-                {modelviewTabDiv}
-              </div>
-              {footerButtonsDiv}
-            </Col>
-            {/* show Context ------------------------------------------------------------------------------ */}
-            <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd" }}>
-              {(!visibleContext) ?
-                <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>
-               : <></>}
- 
-            </Col>
-          </Row>
+        <div className="modeller--workarea-objects" >
+          {modelviewTabDiv}
+          {footerButtonsDiv}
         </div>
-
-          <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
-            <Modal.Header closeButton>
-              <Modal.Title>Report Module</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="bg-transparent">
-              <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
+        <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
+          <Modal.Header closeButton>
+            <Modal.Title>Report Module</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="bg-transparent">
+            <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div >
       : // metamodelling
       <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}

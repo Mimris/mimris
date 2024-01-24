@@ -32,32 +32,38 @@ const ReportModule = (props) => {
 
   const tabsDiv = (
     <>
-      {/* <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 bg-transparent" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
-        onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
-      </button> */}
+
       {visibleTabsDiv ?
-        <Tabs onSelect={index => setActiveTab(index)} >
-          <TabList style={{ margin: '0px' }}>
-            <Tab>Focus Object</Tab>
-            <Tab >MarkDown</Tab>
-            <Tab></Tab>
-            {/* <Tab><FaPlaneArrival />Main</Tab>
-                <Tab ><FaCompass /></Tab> */}
-          </TabList>
-          <TabPanel className='p-1 border border-dark' >
-            <Context props={props} reportType={props.reportType}/>
-          </TabPanel>
-          <TabPanel className='p-1 border border-dark' >
-            <MarkdownEditor props={props} />
-          </TabPanel>
-          <TabPanel>
-          </TabPanel>
-        </Tabs>
+      <>
+        {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
+          onClick={props.handleVisibleContext}><span>-&gt; </span> 
+        </button> */}
+          <>
+          <Tabs onSelect={index => setActiveTab(index)} >
+            <TabList style={{ margin: '0px' }}>
+              <Tab>Focus Object</Tab>
+              <Tab >MarkDown</Tab>
+              <Tab></Tab>
+              {/* <Tab><FaPlaneArrival />Main</Tab>
+                  <Tab ><FaCompass /></Tab> */}
+            </TabList>
+            <TabPanel className='p-1 border border-dark' >
+              <Context props={props} reportType={props.reportType}/>
+            </TabPanel>
+            <TabPanel className='p-1 border border-dark' >
+              <MarkdownEditor props={props} />
+            </TabPanel>
+            <TabPanel>
+            </TabPanel>
+          </Tabs>
+          </>
+        </>
         : <div className="btn-vertical m-0  pl-2 bg-transparent "
           style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px" }}>
           <span style={{ backgroundColor: "#cdd" }}> C o n t e x t & F o c u s </span>
         </div>
       }
+      
     </>
   )
 

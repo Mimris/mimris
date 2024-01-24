@@ -51,30 +51,32 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             case key.endsWith('id'):
             case key.endsWith('Ref'):
               inputElement = (
-                <input
-                  type="text"
+                <textarea
+                  // type="text"
                   className="form-control hover-gra m-1"
                   id={key}
                   name={key}
-                  value={formValues[key] }
+                  value={formValues[key] || curobject[key]}
                   onChange={handleChange}
                   readOnly
                   style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 80)}
                 />
               );
               break;
             case key === 'typeName':
             case key === 'typeDescription':
               inputElement = (
-                <input
-                  type="text"
+                <textarea
+                  // type="text"
                   className="form-control bg-light border-0 "
                   id={key}
                   name={key}
-                  value={formValues[key] }
+                  value={formValues[key] || curobject[key]}
                   onChange={handleChange}
                   readOnly
                   style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 80)}
                 />
               );
               break;
@@ -102,7 +104,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   onChange={handleInputChange}
                   style={{ backgroundColor: '#eee' }}
                   ref={textareaRef}
-                  rows={ Math.ceil((formValues[key]?.length || curobject[key].length) / 70)}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
               );
               break;
@@ -147,14 +149,15 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
               break;
             default:
               inputElement = (
-                <input
-                  type="text"
+                <textarea
+                  // type="text"
                   className="form-control hover-white bg-white m-1 "
                   id={key}
                   name={key}
-                  value={formValues[key] }
+                  value={formValues[key] || curobject[key]}
                   onChange={handleChange}
                   style={{ backgroundColor: '#eee' }}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
               );
           }

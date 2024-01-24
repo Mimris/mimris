@@ -268,7 +268,7 @@ const Context = (props, edit) => {
     const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
     const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
-    const includedKeysMain = [ 'name', 'description', 'proposedType', '$id', '$schema', '$ref', 'groupType', 'osduId', 'osduType', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source', 'externalID','id', 'typeName', 'typeDescription'];
+    const includedKeysMain = [ 'name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source', '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType', 'typeName', 'typeDescription'];
     // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
     // , $id, $schema, $ref, externalID, groupType, osduId, osduType, x-osdu-license, x-osdu-review-status, x-osdu-schema-source
 

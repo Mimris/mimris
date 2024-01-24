@@ -76,7 +76,7 @@ const ReportModule = (props) => {
     <>
       {visibleTabsDiv ?
           <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-            style={{ height: '100%', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none' }}>
+            style={{ height: '90%', maxHeight: '78vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>

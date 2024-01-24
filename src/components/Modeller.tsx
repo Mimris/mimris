@@ -504,7 +504,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
 
 To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
           }>
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft:"8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
             className={classnames({ active: activeTab == strindex })}
             onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
           >
@@ -636,9 +636,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             : <i className="fa fa-lg fa-angle-right pull-right-container"></i>}
         </button> 
       </Nav>
-      <TabContent className="bg-white" >
+      <TabContent className="bg-white  border border-white" >
         <TabPane className="bg-white border border-white">
-            <Row className="m-0 border">
+            <Row className="m-0 borde">
               {(visibleObjects)
                 ? (objectsTabDiv)
                   ? (isExpanded) 

@@ -1388,7 +1388,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         //     contextMenu: contextMenu , 
         //     cursor: "move",
         // },
-        $(go.Panel, "Tabel", // icon area
+        $(go.Panel, "Table", // icon area
             { 
                 contextMenu: contextMenu , 
                 cursor: "move",
@@ -1751,7 +1751,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("scale", "scale1").makeTwoWay(),
-        {
+        { // Tooltips
             toolTip:
             $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "lightyellow" }),
@@ -1766,15 +1766,28 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         },
       { 
         locationSpot: go.Spot.Center, 
-        movable: false,
+        movable: true,
         resizable: true,
       },
       $(go.Panel, "Auto",
         $(go.Shape, "RoundedRectangle",
-          { fill: "white", stroke: "black", strokeWidth: 1 }
-        ),
-        $(go.Panel, "Table",
-          $(go.TextBlock,
+        { 
+            cursor: "alias",        // cursor: "pointer",
+            fill: "white", 
+            stroke: "black", 
+            strokeWidth: 1, 
+            portId: "", 
+            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+        }),
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),    
+        $(go.Panel, "Vertical", // Panel for text and icon ------------------------
+        { 
+            defaultAlignment: go.Spot.Left, 
+            margin: 2, 
+            cursor: "move" 
+        },
+        $(go.TextBlock,
             {
                 isMultiline: false,  // don't allow newlines in text
                 editable: true,  // allow in-place editing by user
@@ -1792,17 +1805,32 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 name: "name"
             },
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "strokecolor").makeTwoWay()
-       ),
+            new go.Binding("stroke", "textcolor").makeTwoWay()
+          ),
           $(go.Picture,  // the image -------------------------------------
           {
               name: "Picture",
               desiredSize: new go.Size(100, 80),
               row: 1, column: 0, columnSpan: 6,
-            },
+              margin: new go.Margin(12,12,12,12),
+              alignment: go.Spot.Center,
+              cursor: "move",
+          },
           new go.Binding("source", "icon", findImage),
           ),                                
-        )
+        ),
+        $(go.TextBlock, textStyle(), // the typename  --------------------
+        {
+            row: 2, column: 1, columnSpan: 6,
+            stretch: go.GraphObject.Horizontal,
+            editable: false, 
+            isMultiline: false,
+            minSize: new go.Size(10, 4),
+            margin: new go.Margin(0, 0, 0, 2),  
+            textAlign: "center",
+        },
+        new go.Binding("text", "typename")
+        ),
       )
     ); // end Node
     // nodeTemplateMap.add("nodeTemplate4", nodeTemplate4);
@@ -2498,6 +2526,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
     const linkTemplate =
         $(go.Link,
             new go.Binding("deletable"),
+            // new go.Binding("isLayoutPositioned", "isLayoutPositioned"), 
             { selectable: true },
             { 
                 toShortLength: 3, 
@@ -2505,7 +2534,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 relinkableTo: true, 
                 adjusting: go.Link.Stretch,
                 reshapable: true,
-                resegmentable: true  
+                resegmentable: true,
             },
             // link route 
             { routing: go.Link.Normal,  corner: 10},  // link route should avoid nodes
@@ -2602,7 +2631,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 relinkableFrom: true, 
                 relinkableTo: true, 
                 reshapable: true,
-                resegmentable: true  
+                resegmentable: true,  
             },
             // link route 
             { 
@@ -2613,6 +2642,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 reshapable: true, 
                 relinkableFrom: true, 
                 relinkableTo: true, 
+                // isLayoutPositioned: false,  
                 toEndSegmentLength: 20
             },  
             new go.Binding("points").makeTwoWay(),

@@ -6595,6 +6595,7 @@ export class cxReltypeviewData {
     routing:        string;
     corner:         string;
     curve:          string;
+    isLayoutPositioned: boolean;
     constructor() {
         this.abstract       = false;
         this.relshipkind    = constants.relkinds.REL;
@@ -6612,6 +6613,7 @@ export class cxReltypeviewData {
         this.routing        = "Normal";
         this.corner         = "0";
         this.curve          = "0";
+        this.isLayoutPositioned = false;
     }
 }
 
@@ -6633,6 +6635,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     routing:        string;
     corner:         string;
     curve:          string;
+    isLayoutPositioned: boolean;
     constructor(id: string, name: string, type: cxRelationshipType | null, description: string) {
         if (name === "" || name === id) {
             name = type?.name + '_' + type?.relshipkind;
@@ -9444,6 +9447,7 @@ export class cxRelationshipView extends cxMetaObject {
     curve:          string;
     points:         any;
     visible:        boolean;
+    isLayoutPositioned: boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -9471,6 +9475,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.corner = "";
         this.points = [];
         this.visible = true;
+        this.isLayoutPositioned = false;
     }
     // Methods
     getRelationship(): cxRelationship | null {

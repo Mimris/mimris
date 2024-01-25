@@ -10,7 +10,6 @@ import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, s
 // import { loadDataModel } from '../../actions/actions';
 
 import { SaveAllToFile } from '../utils/SaveModelToFile';
-// import { set } from 'immer/dist/internal';
 // import { load } from 'cheerio';
 
 const debug = false
@@ -116,7 +115,8 @@ const LoadGitHub = (props: any) => {
   const loadRepos = async (repoText, pathText) => {
     if (orgText?.length > 0)  { 
       setLoading(true);
-      if (!debug) console.log('119 loadRepos', repoText, pathText, model)
+      if (debug) console.log('76 loadRepos', repoText, pathText, model)
+      if (repoText.includes('undefined')) return null;
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
@@ -134,7 +134,8 @@ const LoadGitHub = (props: any) => {
     const searchtexttmp = `${rep}`;
     console.log('135 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-    if (debug) console.log('137 ', searchtext, pathText, filename, branchText, 'file')
+    if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
+    if (searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
     if (debug) console.log('140 res', res, res.data, sha)
@@ -254,9 +255,8 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
-    // if repos does not contain undefined or '' then search for repos
-    if (repos.includes('undefined') || repos.includes('')) return;
+    if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (repos.includes('undefined')) return null;
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);

@@ -28,7 +28,6 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props);
-  if (!props.taskFocusModel) return null;
   const dispatch = useDispatch();
 
 
@@ -102,7 +101,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const subModels = curmetamodel?.subModels;
   if (!subModels) return null;
   // const subModel = subModels[0];
-  if (debug) console.log('100 Tasks', models,  curmodel, curmetamodel);
+  if (debug) console.log('100 Tasks', models,  curmodel, curmetamodel, subModels);
   // const subModelviews = subModel?.modelviews;
   const modelviews = curmodel?.modelviews;
   // const subModelObjects = subModel?.objects;
@@ -274,11 +273,11 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const genTasksDiv = (): JSX.Element | null => { 
     return subModels?.map((sm: any, index: number) => { 
-      if (debug) console.log('274 Tasks', sm);
+      if (debug) console.log('276 Tasks', sm);
       const sourceMetamodel = metamodels?.find((mm: { id: any; }) => mm.id === sm.metamodelRef);
 
       let subTasks = sm.objects;
-      if (debug) console.log('278 Tasks', subTasks);
+      if (debug) console.log('280 Tasks', subTasks);
 
       const tasksDiv = subTasks.map((subtask: ItemType) => {
         return renderItem(subtask);

@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // modelling
 
 const debug = false;
@@ -12,7 +12,7 @@ import classnames from 'classnames';
 
 import Page from './page';
 // import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
-import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
+// import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
@@ -28,20 +28,19 @@ import LoadMetamodelFromGithub from './loadModelData/LoadMetamodelFromGitHub'
 import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile } from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
-import { SaveModelToLocState } from "./utils/SaveModelToLocState";
-import { SaveAkmmUser } from "./utils/SaveAkmmUser";
-import ReportModule from "./ReportModule";
-import ProjectDetailsModal from "./modals/ProjectDetailsModal";
+// import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+// import { SaveAkmmUser } from "./utils/SaveAkmmUser";
+// import ReportModule from "./ReportModule";
+// import ProjectDetailsModal from "./modals/ProjectDetailsModal";
 import useLocalStorage from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
-import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-import CreateNewModel  from './akmm-api/CreateNewModel';
-import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
+// import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
+// import CreateNewModel  from './akmm-api/CreateNewModel';
 
 
-import * as akm from '../akmm/metamodeller';
+// import * as akm from '../akmm/metamodeller';
 import * as uib from '../akmm/ui_buildmodels';
-import { set } from "immer/dist/internal";
+// import { set } from "immer/dist/internal";
 const constants = require('../akmm/constants');
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
@@ -55,7 +54,7 @@ const page = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (debug) console.log('57 Modelling:', props)//, props);        
+  if (debug) console.log('52 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
@@ -183,11 +182,25 @@ const page = (props: any) => {
   myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
   if (debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+
+  if (!myMetis || !myModel || !myModelview || !myMetamodel) {
+    console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
+    return;
+  }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-  myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  // myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  if (!myModel.objects) {
+    console.log('196 myModel.objects is undefined');
+  } else {
+    myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);
+  }
+
+  if (!myGoObjectPalette) {
+    console.log('202 myGoObjectPalette is undefined after function call');
+  }
   // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
   if (debug) console.log('188 Modelling ', myGoObjectPalette);
   myMetis?.setGojsModel(myGoModel);
@@ -254,10 +267,10 @@ const page = (props: any) => {
     if (debug) console.log('130 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('131 Modelling', curmod, curmodview);
 
-    function handleSaveAllToFileDate() {
-      const projectname = props.phData.metis.name
-      SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
-    }
+    // function handleSaveAllToFileDate() {
+    //   const projectname = props.phData.metis.name
+    //   SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+    // }
 
     const handleGetNewProject = () => {
       // CreateNewModel(ph)//,  curmodel, curmodelview)
@@ -272,7 +285,7 @@ const page = (props: any) => {
       //   , 1000);
     }
 
-    function handleSaveAllToFile() {
+    const handleSaveAllToFile = () => {
       const projectname = props.phData.metis.name
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
       const data = `${projectname}_PR`
@@ -291,11 +304,11 @@ const page = (props: any) => {
       // GenGojsModel(props, dispatch)
     }
 
-    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    // const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
-    function toggleTasks() {
-      setVisibleTasks(!visibleTasks);
-    }
+    // function toggleTasks() {
+    //   setVisibleTasks(!visibleTasks);
+    // }
 
     // let locStateKey
     // const toggleShowContext = () => {
@@ -459,7 +472,7 @@ const page = (props: any) => {
           <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                {/* Palette area */}
+                {/* Objects Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
@@ -577,7 +590,44 @@ const page = (props: any) => {
 
     const modellingDiv = 
       <>
-        <ModellingHeaderButtons props= {props} toggleRefresh={toggleRefresh} />
+        <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>            
+          <div className="me-4">
+            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
+            {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span> */}
+            {/* <span className="pt-1 pr-1" > </span> */}
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
+            <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a new Model Project template from GitHub" > {loadnewModelproject} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
+          </div>
+          <div className="d-flex justify-content-end align-items-center bg-secondary border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
+            <div className=" d-flex align-items-center me-0 pe-0">
+              <i className="fa fa-folder text-light pe-1"></i>
+              <div className=""  style={{ whiteSpace: "nowrap" }}></div>
+            </div>
+            <div className="">
+              <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
+                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "580px"}}/>
+              </div>
+            </div>
+            <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
+              data-toggle="tooltip" data-placement="top" data-bs-html="true"
+              title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+              onClick={handleSaveAllToFile}>Save
+            </button>
+          </div>
+          <span className="btn ps-auto mt-0 pt-1 text-light" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
+          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
+          {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
+          {/* <ProjectDetailsModal props={props} /> */}
+        </div>
       </>
 
     const metamodellingDiv = 
@@ -613,6 +663,16 @@ const page = (props: any) => {
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
       <>
+          <button className="btn bg-transparent text-success ms-0 btn-sm"
+            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open the left sidepanel!"
+            // onClick={toggleObjects} 
+            >
+              <i className="fa fa-lg fa-angle-left pull-right-container"></i>
+              {/* {(visibleObjects) 
+                ? <i class="fa fa-lg fa-angle-left pull-right-container"></i>
+                : <i class="fa fa-lg fa-angle-right pull-right-container"></i>
+              } */}
+          </button> 
         <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "34px", backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
           {(activeTab === "2") ? modellingDiv : metamodellingDiv}

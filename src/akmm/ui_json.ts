@@ -266,6 +266,10 @@ export class jsnMetaModel {
             for (let i = 0; i < cnt; i++) {
                 const subMetamodel = subMetamodels[i];
                 this.subMetamodelRefs.push(subMetamodel.id);
+                if (subMetamodel.id !== this.id) {
+                    const jsnSubMetamodel = new jsnMetaModel(subMetamodel, false);
+                    this.subMetamodels.push(jsnSubMetamodel);
+                }
             }
         }
         let subModels = metamodel.getSubModels();
@@ -844,8 +848,8 @@ export class jsnObjectTypeView {
     isGroup:         boolean;
     group:           string;
     template:        string;
-    figure:          string;
-    geometry:        string;
+    // figure:          string;
+    // geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
@@ -866,8 +870,8 @@ export class jsnObjectTypeView {
         this.typeRef         = objtypeview.typeRef;
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
-        this.figure          = objtypeview.getFigure();
-        this.geometry        = objtypeview.getGeometry();
+        // this.figure          = objtypeview.getFigure();
+        // this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -1599,8 +1603,8 @@ export class jsnObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
-    figure:          string;
-    geometry:        string;
+    // figure:          string;
+    // geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
@@ -1623,8 +1627,8 @@ export class jsnObjectView {
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
-        this.figure          = objview?.figure;
-        this.geometry        = objview?.geometry;
+        // this.figure          = objview?.figure;
+        // this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.fillcolor2      = objview?.fillcolor2;
         this.strokecolor     = objview?.strokecolor;
@@ -1669,6 +1673,7 @@ export class jsnRelshipView {
     points:          any;
     markedAsDeleted: boolean;
     modified:        boolean;
+    visible:         boolean;
     constructor(relview: akm.cxRelationshipView) {
         this.id              = relview?.id;
         this.name            = relview?.name;
@@ -1696,6 +1701,7 @@ export class jsnRelshipView {
         this.corner          = relview?.corner;
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
+        this.visible         = relview?.visible;
         // Code
         if (relview?.description)
             this.description = relview.description;
@@ -1913,8 +1919,8 @@ export class jsnImportMetis {
         if (utils.objExists(type))
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
-        objtypeview.setFigure(item.figure);
-        objtypeview.setGeometry(item.geometry);
+        // objtypeview.setFigure(item.figure);
+        // objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setFillcolor2(item.fillcolor2);
         objtypeview.setStrokecolor(item.strokecolor);

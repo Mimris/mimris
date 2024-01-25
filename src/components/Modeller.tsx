@@ -54,7 +54,7 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const [ofilter, setOfilter] = useState('All')
   const [visibleObjects, setVisiblePalette] = useState(false)
-  const [visibleContext, setVisibleContext] = useState(false)
+  const [visibleContext, setVisibleContext] = useState(true)
   const [isExpanded, setIsExpanded] = useState(false)
   const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
   const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
@@ -171,7 +171,6 @@ const Modeller = (props: any) => {
     }
     if (debug) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
     setMemoryLocState(propps)
-
     // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
     const timer = setTimeout(() => {
       SaveAkmmUser(props, 'akmmUser')
@@ -571,26 +570,26 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const objectsTabDiv =
     <>  
-      <div className="workpad p-1" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}> 
-              {/* <div className="d-flex justify-content-between"> */}
-                <button 
-                  className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                  onClick={toggleObjects} 
-                  data-toggle="tooltip" 
-                  data-placement="top" 
-                  title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
-                  {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
-                </button>
-                {/* <button 
-                  className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                  onClick={toggleIsExpanded} 
-                  data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
-                  {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
-                </button> */}
-              {/* </div> */}
-          <div className="modellingtask bg-ligh" >
+      <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none",}}> 
+          {/* <div className="d-flex justify-content-between"> */}
+          {/* <button 
+            className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+            onClick={toggleObjects} 
+            data-toggle="tooltip" 
+            data-placement="top" 
+            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
+            {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
+          </button> */}
+          {/* <button 
+            className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+            onClick={toggleIsExpanded} 
+            data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
+            {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+          </button> */}
+          {/* </div> */}
+          <div className="modellingtask bg-light" >
             {SelectOTypes}
-            <div className="mmname mx-0 px-3 my-1 bg-light" style={{ fontSize: "16px", minWidth: "178px" }}>{selectedOption}
+            <div className="mmname mx-0 px-2 mb-1 bg-white text-secondary" style={{ fontSize: "16px", mimWidth: "120px" }}>{selectedOption}
           </div>
         </div>
         <GoJSPaletteApp // this is the Objects list
@@ -610,54 +609,56 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   const modelviewTabDiv = // this is the modelview tabs
     <>
       <Nav tabs >
-        <button className="btn bg-transparent text-success btn-sm"
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel!"
+        <button className="btn btn-sm bg-transparent text-light"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
           onClick={toggleObjects} 
           >
             {(visibleObjects) 
-              ? <i className="fa fa-lg fa-angle-left pull-right-container"></i>
-              : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
+              ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i> Objects</span>
+              : <span className="fs-8">Objects <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
             }
         </button>
         {navitemDiv}
         <NavItem >
-          <button className="btn px-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+          <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
             title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
                     Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
             style={{ background: "#aaccdd" }}> ?
           </button>
         </NavItem>
         <button className="btn  btn-sm bg-transparent text-success ms-auto me-0"
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel!"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel with Object details!"
           onClick={handleVisibleContext} 
           >
-          {(visibleContext) ?
-            <i className="fa fa-lg fa-angle-left pull-right-container"></i>
-            : <i className="fa fa-lg fa-angle-right pull-right-container"></i>}
+          {(visibleContext) 
+            ? <i className="fa fa-lg fa-angle-left pull-right-container"></i>
+            : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
+          }
         </button> 
       </Nav>
-      <TabContent className="bg-white  border border-white" >
-        <TabPane className="bg-white border border-white">
-            <Row className="m-0 borde">
+      <TabContent className="bg-white p-0 m-0 border border-white">
+        <TabPane className="bg-white p-0 borde border-white">
+            <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
               {(visibleObjects)
-                ? (objectsTabDiv)
-                  ? (isExpanded) 
-                    ?   <><Col className= "col-1 p-0 "><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", maxWidth: "666px" }}></div>{objectsTabDiv}  </Col> </>
-                    :   <><Col className= "col-1 p-0 "><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", maxWidth: "666px" }}></div>{objectsTabDiv}  </Col> </>
-                  : <><Col><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px", maxWidth: "166px" }}></div>  </Col> </>
-                : <><div className="btn-vertical px-1 pt-2 text-center " style={{ height: "74vh", maxWidth: "10px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div></>
+                // ? (objectsTabDiv)
+                ?  <><Col className="p-0 m-0 my-0"xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
+                  // ? (isExpanded) 
+                  //   ?   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-4 mb-1" style={{ fontSize: "11px"}}></div>{objectsTabDiv}</Col> </>
+                    //   :   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px" }}></div>{objectsTabDiv}</Col> </>
+                    // : <><Col><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px"}}></div></Col> </>
+                : <></> //<div className="btn-vertical px-1 pt-2 text-center " style={{ height: "74vh", maxWidth: "10px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div></>
               }
-            <Col className=" mx-2 my-2 p-0 " xe="auto" style={{ backgroundColor: "#cdd" }}>
-              <div className="workpad bg-white border-light mt-0 p-1 ">
+            <Col className="me-2 my-1 p-1 border" xe="auto" >
+              <div className="workpad bg-white border-light mt-0 pe-0 ">
                 {gojsapp}
               </div>
             </Col>
-            <Col className="col3 mx-0 my-2 p-0 " xs="auto" style={{ backgroundColor: "#cdd" }}>
-              <>
+            <Col className="me-1 my-1 p-1 border " xs="auto" >
+              <div className="" style={{ backgroundColor: "#cdd" }}>
                 {(!visibleContext) ?
                   <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleContext={handleVisibleContext} />
                   : <></>}        
-              </>
+              </div>
             </Col>
           </Row>
         </TabPane>
@@ -703,7 +704,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     </div>
 
   if (debug) console.log('372 Modeller ', props.modelType)
-
 
   const modellerDiv =
     (props.modelType === 'model')

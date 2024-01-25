@@ -1415,7 +1415,18 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 2, column: 0, columnSpan: 6,
                 },
                 new go.Binding("source", "icon", findImage),
-            ),                                
+            ),      
+            $(go.TextBlock, textStyle(), // the typename  --------------------
+                {
+                    row: 3, column: 0, columnSpan: 6,
+                    stretch: go.GraphObject.Horizontal,
+                    editable: false, isMultiline: false,
+                    minSize: new go.Size(10, 4),
+                    margin: new go.Margin(0, 0, 0, 2),
+                    textAlign: "center",
+                },
+                new go.Binding("text", findImage)
+            ),                          
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
         {
@@ -3513,8 +3524,8 @@ export function findImage(image: string) {
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (debug) console.log('3269', img);
         return img
-    } else if (image !== '') { 
-        const img = "images/types/" + image
+    } else if (!image.includes('images/')) { 
+        const img = "./../images/types/" + image
         if (debug) console.log('3273 Diagram', image, img)
         return img //its an image in public/images
     } else {

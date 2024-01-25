@@ -838,6 +838,7 @@ export class goRelshipLink extends goLink {
     nameFrom:           string;
     nameTo:             string;
     visible:            boolean;
+    isLayoutPositioned: boolean;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category        = constants.gojs.C_RELATIONSHIP;
@@ -875,7 +876,7 @@ export class goRelshipLink extends goLink {
         this.nameFrom        = "";
         this.nameTo          = "";
         this.visible         = relview?.visible;
-
+        this.isLayoutPositioned = relview?.isLayoutPositioned;
         if (relview) {
             const relship = relview.getRelationship() as akm.cxRelationship;
             if (relship && relship instanceof akm.cxRelationship) {
@@ -1070,6 +1071,7 @@ export class goRelshipTypeLink extends goLink {
     routing:    string;
     curve:      string;
     points:     any;
+    isLayoutPositioned: boolean;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
         this.category   = constants.gojs.C_RELSHIPTYPE;
@@ -1087,7 +1089,7 @@ export class goRelshipTypeLink extends goLink {
         this.nameFrom = "";
         this.nameTo = "";
         this.points = [];
-
+        this.isLayoutPositioned = false;
         if (reltype) {
             this.setName(reltype.getName());
             this.setType(constants.gojs.C_RELSHIPTYPE);

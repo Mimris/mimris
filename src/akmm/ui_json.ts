@@ -932,6 +932,7 @@ export class jsnRelshipTypeView {
     curve:           string;
     markedAsDeleted: boolean;
     modified:        boolean;
+    isLayoutPositioned: boolean;
     constructor(reltypeview: akm.cxRelationshipTypeView) {
         this.id              = reltypeview.id;
         this.name            = reltypeview.name;
@@ -953,6 +954,7 @@ export class jsnRelshipTypeView {
         this.curve           = reltypeview.getCurve();
         this.markedAsDeleted = reltypeview.markedAsDeleted;
         this.modified        = reltypeview.modified;
+        this.isLayoutPositioned = reltypeview.isLayoutPositioned;
     }
 }
 export class jsnProperty {
@@ -1674,6 +1676,7 @@ export class jsnRelshipView {
     markedAsDeleted: boolean;
     modified:        boolean;
     visible:         boolean;
+    isLayoutPositioned: boolean;
     constructor(relview: akm.cxRelationshipView) {
         this.id              = relview?.id;
         this.name            = relview?.name;
@@ -1702,6 +1705,7 @@ export class jsnRelshipView {
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
         this.visible         = relview?.visible;
+        this.isLayoutPositioned = relview?.isLayoutPositioned;
         // Code
         if (relview?.description)
             this.description = relview.description;

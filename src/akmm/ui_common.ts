@@ -646,7 +646,7 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             // Handle deleteViewsOnly
             if (myMetis.deleteViewsOnly) {
                 object.removeObjectView(objview);
-                // return;
+                return;
             }
             // Else handle delete object AND object views
             // First delete object
@@ -1853,7 +1853,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         rel = myMetis.findRelationship(rel.id);
         if (!rel) 
             continue;
-
+        const reltype = rel?.type;
         // Check if from- and to-objects have views in this modelview
         const fromObj = rel?.fromObject as akm.cxObject;
         const fromObjviews = fromObj?.objectviews;
@@ -1929,6 +1929,9 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             link.from = link.fromNode?.key;
             link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
             link.to = link.toNode?.key;
+            if (reltype?.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+                link.isLayoutPositioned = false;
+            }
             myGoModel.addLink(link);
             links.push(link);
             myDiagram.model.addLinkData(link);

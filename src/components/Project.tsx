@@ -205,20 +205,18 @@ const Project = (props) => {
     return (
         <div className="minimized-task " >
           <div 
-            className="buttons position-absolute" 
-            style={{ scale: "0.8", marginTop: "-28px", marginLeft: "-8px"}}
+            className="buttons position-absolute mt-1 ms-1 start-0" 
+            // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
           >
             <button
-              className="btn bg-light text-secondary m-0 p-1 btn-sm fs-6"
+              className="btn bg-transparent text-success m-0 p-1"
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
-              title="Open focusIssue!"
+              title="Open Project!"
               onClick={handleMaximize}
-              style={{ backgroundColor: "#fff" }}
             >
-              <i className="fas fa-poll-h text-primary fa-lg me-1" aria-hidden="true"></i>
-              Project
+              <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Project</span>
             </button>
           </div>
         </div>
@@ -245,22 +243,21 @@ const Project = (props) => {
         {(refresh) ? <> {modellingButtonsDiv} </> : (<>{modellingButtonsDiv}</>)}
       </div> */}
         {/* <div className="issueslist p-1" style={{ backgroundColor: "lightyellow", width: "26rem", position: "absolute", height: "94%", top: "50%", right: "0%", transform: "translate(-0%, -45%)", zIndex: 9999 }}> */}
-        <div className="header m-0 p-0 d-flex justify-content-between align-items-center" style={{backgroundColor: "#eee", minWidth: "8rem"}}>
-          <div className="ps-2 text-success font-weight-bold fs-3" >Project </div>
-          <div className="buttons position-relative end-0" style={{ scale: "0.9"}}>
-            <button 
-                className="btn text-success m-1 px-1 py-0 btn-sm" 
-                data-toggle="tooltip"
-                data-placement="top"
-                data-bs-html="true"
-                title="Close Project Pane!"
-                onClick={handleMinimize} 
-                style={{backgroundColor: "#fff"}}
-                >
-                <i className="fa fa-lg fa-arrow-left"></i>
-            </button>
-          </div>
-        </div>               
+           <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
+            // style={{ position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
+            >
+              <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
+                <button 
+                  className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Close Task pane!"
+                  onClick={handleMinimize} 
+                  // style={{ backgroundColor: "lightyellow"}}
+                  >
+                   <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>  Project </span>
+                </button>
+              </div>
+          </div>              
         <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Name:  {props.props.phData.metis.name}</div>
         <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Description:  {props.props.phData.metis.description}</div>
         <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Repository:  {props.props.phFocus.focusProj.repo}</div>

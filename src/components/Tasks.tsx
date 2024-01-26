@@ -192,16 +192,16 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     return (
       <div className="minimized-task">
         <div
-          className="buttons position-absolute p-0 m-0 me-1 end-0"
-          style={{ transform: "scale(0.7)", marginTop: "-25px", marginLeft: "-2px"}}
+          className="buttons position-absolute p-0 m-0 mt-1 me-3 end-0"
+          // style={{ transform: "scale(0.9)", marginTop: "px"}}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           >
            <button
-            className="btn bg-transparent text-success m-0 px-1 py-0 btn-sm fs-5"
+            className="btn bg-transparent text-success m-0 px-1 py-0 btn-sm"
             onClick={handleMaximize}
           >
-            <span className="fs-8">Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
+            <span className="fs-6">Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
           </button>
         </div>
       </div>
@@ -313,31 +313,6 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
             >
               <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
               <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
-                {/* <button 
-                  className="btn text-success mt-0 pe-2 py-0 btn-sm"
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Open Modal with current task!"
-                  onClick={handleShowModal} 
-                  style={{ backgroundColor: "lightyellow"}} >
-                  <i className="fas fa-lg fa-share-square"></i>  
-                </button> 
-                <button 
-                  className="btn text-success mt-0 pe-2 py-0 btn-sm"
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Open Modal with current task!"
-                  onClick={handleNewWindow} 
-                  style={{ backgroundColor: "lightyellow"}} >
-                  <i className="fa fa-lg fa-external-link-alt"></i>
-                </button>  */}
-                {/* <button 
-                  className="btn text-success me-0 px-1 py-0 btn-sm" 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Close Task pane!"
-                  onClick={handleExpandedTaskPane}
-                  style={{ backgroundColor: "lightyellow"}}
-                  >
-                    {(!expandedTaskPane) ? <i className="fa fa-lg fa-arrow-left"></i> : <i className="fa fa-lg fa-arrow-right"></i>}
-                </button> */}
                 <button 
                   className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
                   data-toggle="tooltip" data-placement="top" data-bs-html="true"

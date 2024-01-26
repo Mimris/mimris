@@ -379,7 +379,7 @@ const page = (props: any) => {
               {(activeTab === "0") ? 'Template' : 'T'}
             </NavLink>
           </NavItem> */}
-          <NavItem > {/*this is the tab for the metamodel */}
+          <NavItem className="ms-5 ps-5"> {/*this is the tab for the metamodel */}
             {/* <NavItem className="text-danger" > */}
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab === '1' })}
@@ -658,16 +658,6 @@ const page = (props: any) => {
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
       <>
-          <button className="btn bg-transparent text-success ms-0 btn-sm"
-            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open the left sidepanel!"
-            // onClick={toggleObjects} 
-            >
-              <i className="fa fa-lg fa-angle-left pull-right-container"></i>
-              {/* {(visibleObjects) 
-                ? <i class="fa fa-lg fa-angle-left pull-right-container"></i>
-                : <i class="fa fa-lg fa-angle-right pull-right-container"></i>
-              } */}
-          </button> 
         <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "34px", backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
           {(activeTab === "2") ? modellingDiv : metamodellingDiv}

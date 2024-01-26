@@ -389,7 +389,7 @@ const Context = (props, edit) => {
         </TabPanel>
         {(reportType === 'object') && 
           <>
-            <TabPanel className='additional-properties' style={{ overflow: 'auto' }}> 
+            <TabPanel className='additional-properties' style={{ overflow: 'auto'}}> 
               {/* <div className="Context-tabs" style={{ overflow: 'auto', maxHeight: '700px' }}> */}
               <ObjectDetails 
                   curmodel={curmodel}
@@ -464,7 +464,7 @@ const Context = (props, edit) => {
 
     return (
         <div className="context m-0 " style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
-          <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto',   borderTop: 'none' }}>
+          <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto'}}>
             {tabsDiv} 
           </div>
         </div>

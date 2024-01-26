@@ -274,9 +274,6 @@ const page = (props: any) => {
 
     const handleGetNewProject = () => {
       // CreateNewModel(ph)//,  curmodel, curmodelview)
-      
-    
-
       // dispatch initial state 
       // dispatch({ type: "LOAD_TOSTORE_DATA", data: StartStateJson })
       // const timer = setTimeout(() => {
@@ -305,11 +302,9 @@ const page = (props: any) => {
     }
 
     // const toggleTip = () => setTooltipOpen(!tooltipOpen);
-
     // function toggleTasks() {
     //   setVisibleTasks(!visibleTasks);
     // }
-
     // let locStateKey
     // const toggleShowContext = () => {
     //   // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
@@ -515,7 +510,7 @@ const page = (props: any) => {
                  {(visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col> */}
                 <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
-                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
+                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "6h", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                     {targetmetamodelDiv}
                   </div>
                 </Col>

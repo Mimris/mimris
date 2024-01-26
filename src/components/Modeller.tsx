@@ -606,74 +606,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
 
-  const modelviewTabDiv = // this is the modelview tabs
-    <>
-      <Nav tabs >
-        <button className="btn btn-sm bg-transparent text-light"
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
-          onClick={toggleObjects} 
-          >
-            {(visibleObjects) 
-              ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i> Objects</span>
-              : <span className="fs-8">Objects <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
-            }
-        </button>
-        {navitemDiv}
-        <NavItem >
-          <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
-                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
-            style={{ background: "#aaccdd" }}> ?
-          </button>
-        </NavItem>
-        <button className="btn  btn-sm bg-transparent text-success ms-auto me-0"
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel with Object details!"
-          onClick={handleVisibleContext} 
-          >
-          {(visibleContext) 
-            ? <i className="fa fa-lg fa-angle-left pull-right-container"></i>
-            : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
-          }
-        </button> 
-      </Nav>
-      <TabContent className="bg-white p-0 m-0 border border-white">
-        <TabPane className="bg-white p-0 borde border-white">
-            <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
-              {(visibleObjects)
-                // ? (objectsTabDiv)
-                ?  <><Col className="p-0 m-0 my-0"xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
-                  // ? (isExpanded) 
-                  //   ?   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-4 mb-1" style={{ fontSize: "11px"}}></div>{objectsTabDiv}</Col> </>
-                    //   :   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px" }}></div>{objectsTabDiv}</Col> </>
-                    // : <><Col><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px"}}></div></Col> </>
-                : <></> //<div className="btn-vertical px-1 pt-2 text-center " style={{ height: "74vh", maxWidth: "10px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div></>
-              }
-            <Col className="me-2 my-1 p-1 border" xe="auto" >
-              <div className="workpad bg-white border-light mt-0 pe-0 ">
-                {gojsapp}
-              </div>
-            </Col>
-            <Col className="me-1 my-1 p-1 border " xs="auto" >
-              <div className="" style={{ backgroundColor: "#cdd" }}>
-                {(!visibleContext) ?
-                  <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleContext={handleVisibleContext} />
-                  : <></>}        
-              </div>
-            </Col>
-          </Row>
-        </TabPane>
-
-      </TabContent>
-    </>
-
-  const metamodelTabDiv =
-    <>
-      <div className="workpad p-1">
-        {gojsapp}
-        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
-      </div>
-    </>
-
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>Export Modelview to Svg </span>
@@ -703,6 +635,76 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </span>
     </div>
 
+  const modelviewTabDiv = // this is the modelview tabs
+    <>
+      <Nav tabs >
+        <button className="btn btn-sm bg-transparent text-light"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
+          onClick={toggleObjects} 
+          >
+            {(visibleObjects) 
+                ? <span className="fs-8"> <i className="fa fa-lg fa-angle-left pull-right-container"></i> &#20; Objects &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20;</span>
+              : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i> &#20; Objects </span>
+            }
+        </button>
+        {navitemDiv}
+        <NavItem >
+          <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+            title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
+                    Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
+            style={{ background: "#aaccdd" }}> ?
+          </button>
+        </NavItem>
+        <button className="btn  btn-sm bg-transparent text-light ms-auto me-0"
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel with Object details!"
+          onClick={handleVisibleContext} 
+          >
+          {(visibleContext) 
+            ? <span className="fs-8">Object Details  &#20;<i className="fa fa-lg fa-angle-left pull-right-container"></i> </span>
+            : <span className="fs-8">&#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; Object Details  &#20;<i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
+          }
+        </button> 
+      </Nav>
+      <TabContent className="bg-white p-0 m-0 border border-white">
+        <TabPane className="bg-white p-0 borde border-white">
+            <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
+              {(visibleObjects)
+                // ? (objectsTabDiv)
+                ?  <><Col className="p-0 m-0 my-0"xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
+                  // ? (isExpanded) 
+                  //   ?   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-4 mb-1" style={{ fontSize: "11px"}}></div>{objectsTabDiv}</Col> </>
+                    //   :   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px" }}></div>{objectsTabDiv}</Col> </>
+                    // : <><Col><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px"}}></div></Col> </>
+                : <></> //<div className="btn-vertical px-1 pt-2 text-center " style={{ height: "74vh", maxWidth: "10px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div></>
+              }
+            <Col className="me-2 my-1 p-1 border" xe="auto" >
+              <div className="workpad bg-white border-light mt-0 pe-0 ">
+                {gojsapp}
+              </div>  
+              <div className="smaller-div m-0 p-0" style={{ scale: "0.8" }}>{footerButtonsDiv}</div>
+            </Col>
+            <Col className="me-1 my-1 p-1 border " xs="auto" >
+              <div className="" style={{ backgroundColor: "#cdd" }}>
+                {(!visibleContext) ?
+                  <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleContext={handleVisibleContext} />
+                  : <></>
+                }        
+              </div>
+            </Col>
+          </Row>
+        </TabPane>
+      </TabContent>
+    </>
+
+  const metamodelTabDiv =
+    <>
+      <div className="workpad p-1">
+        {gojsapp}
+        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+      </div>
+    </>
+
+
   if (debug) console.log('372 Modeller ', props.modelType)
 
   const modellerDiv =
@@ -710,7 +712,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       ? // modelling
       <div className="modeller-workarea w-100" >
         <div className="d-flex ">
-          <span className="text-dark fw-bold ms-3 fs-4" style={{ minnWidth: "15%" }} > Modeller </span>
+          <span className="text-dark fw-bold ms-3 fs-4" style={{ minWidth: "15%" }} > Modeller </span>
           <div className="modeller--topbar d-flex justify-content-between mt-0 p-0 ms-auto me-2">
             <div className="d-flex justify-content-around align-items-center me-0">
               <div className="modeller--heading-selector">{selector}</div>
@@ -723,7 +725,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
         <div className="modeller--workarea-objects" >
           {modelviewTabDiv}
-          {footerButtonsDiv}
+          {/* {footerButtonsDiv} */}
         </div>
         <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
           <Modal.Header closeButton>

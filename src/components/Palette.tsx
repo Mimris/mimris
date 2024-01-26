@@ -221,8 +221,12 @@ const Palette = (props: any) => {
 
   const palette = // this is the left pane with the palette and toggle for refreshing
     <>
-      <button className="btn-sm " style={{ backgroundColor: "#8bc", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette: Src Metamodel</span> : <span> -&gt;</span>}
+      <button className="btn-sm text-light bg-transparent border border-0 border-transparent" 
+        onClick={togglePalette}> {visiblePalette 
+          ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i>  Palette: Obj. Types </span>
+          // ? <span> &lt;- Palette: Src Metamodel</span> 
+          : <i className="fa fa-lg fa-angle-right pull-right-container"></i> 
+        }
       </button>
       <div>
         {visiblePalette
@@ -235,7 +239,7 @@ const Palette = (props: any) => {
                   {gojsappPaletteDiv} 
                 {/* </div> */}
               </div>
-          : <div className="btn-vertical px-1 " style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
+          : <div className="btn-vertical px- item-align-center" style={{ height: "87vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
         }
       </div>
     </>

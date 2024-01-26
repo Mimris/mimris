@@ -198,12 +198,10 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           onMouseLeave={handleMouseLeave}
           >
            <button
-            className="btn text-success m-0 px-1 py-0 btn-sm fs-5"
+            className="btn bg-transparent text-success m-0 px-1 py-0 btn-sm fs-5"
             onClick={handleMaximize}
-            style={{ backgroundColor: "lightyellow" }}
           >
-            <i className="fas fa-tasks me-1" aria-hidden="true"></i>
-            Tasks
+            <span className="fs-8">Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
           </button>
         </div>
       </div>
@@ -311,7 +309,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           ref={containerRef}
           >
           <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
-            style={{ backgroundColor: "lightyellow", position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -5%)", overflow: "hidden", zIndex: 9999 }}
+            style={{ position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
             >
               <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
               <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
@@ -347,7 +345,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
                   onClick={handleMinimize} 
                   // style={{ backgroundColor: "lightyellow"}}
                   >
-                    <i className="fa fa-lg fa-arrow-right bg-"></i>
+                   <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Task </span>
                 </button>
               </div>
           </div>

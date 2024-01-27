@@ -218,7 +218,7 @@ const Input = (props) => {
                 title="Open Input/Issues left side-panel!"
                 onClick={handleMaximize}
             >
-            <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i>Input</span>
+            <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i> Issues</span>
             </button>
         </div>
         </div>
@@ -248,7 +248,7 @@ const Input = (props) => {
                     onClick={handleMinimize} 
                     // style={{ backgroundColor: "lightyellow"}}
                 >
-                <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>Input </span>
+                <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>Issues </span>
                 </button>
             </div>
         </div> 
@@ -267,7 +267,7 @@ const Input = (props) => {
             <div className="ps-2 font-weight-bold fs-4" >Issues: 
                 {/* <div className="d-flex ms-auto position-relative m-0 p-0 end-0"> */}
                     <span>
-                    {(repo) && <Link className='text-primary ms-2 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+                    {(repo) && <Link className='text-primary ms-4 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
                     </span>
                 {/* </div> */}
             </div>

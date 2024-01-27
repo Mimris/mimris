@@ -370,7 +370,7 @@ const page = (props: any) => {
 
     const modellingtabs = (
       <>
-        <Nav tabs >
+        <Nav tabs style={{ minWidth: "350px" }} >
           {/* <NavItem className="text-danger" >  // this is the tab for the template
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
               className={classnames({ active: activeTab === '0' })}

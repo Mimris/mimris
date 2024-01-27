@@ -83,7 +83,7 @@ export default Page(connect(state => state)(page));
 //             </div>
 //             <div className="workplace" >
 //               <div className="contextarea" >
-//                 <SetContext phF={props.phFocus} />
+//                 <ContextView phF={props.phFocus} />
 //               </div>
 //               <div className="tasksarea" >
 //                 {tasks}

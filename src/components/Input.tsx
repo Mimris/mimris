@@ -21,7 +21,7 @@ import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 
 const debug = false;
 
-const Project = (props) => {
+const Input = (props) => {
   if (debug) console.log('25 Tasks props', props.props.phData, props);
   
   const dispatch = useDispatch();
@@ -206,24 +206,24 @@ const Project = (props) => {
   if (minimized) {
     return (
         <div className="minimized-task " >
-          <div 
+        <div 
             className="buttons position-absolute mt-1 ms-1 start-0" 
             // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
-          >
+        >
             <button
-              className="btn bg-transparent text-success m-0 p-1"
-              data-toggle="tooltip"
-              data-placement="top"
-              data-bs-html="true"
-              title="Open Project!"
-              onClick={handleMaximize}
+                className="btn bg-transparent text-success m-0 p-1"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open Input/Issues left side-panel!"
+                onClick={handleMaximize}
             >
-              <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Project</span>
+            <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i>Input</span>
             </button>
-          </div>
         </div>
-      );
-  }
+        </div>
+    );
+}
 
       const modellingButtonsDiv = 
       <>
@@ -232,78 +232,51 @@ const Project = (props) => {
   //refresh={refresh} setRefresh={setRefresh}
 
   return (
-      <div className="project p-1" 
+    <div className="project p-1" 
         ref={containerRef}
         style={{height: "100%", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px"}}
-      >
-      {/* <div className="project p-1" 
-        ref={containerRef}
-        style={{height: "100%", width: "25rem", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px",
-        position: "absolute", top: "50%", left: "0%", transform: "translate(-0%, -50%)", zIndex: 9999 }}
-      > */}
-      {/* <div className="p-2 d-flex justify-content-between">
-        {(refresh) ? <> {modellingButtonsDiv} </> : (<>{modellingButtonsDiv}</>)}
-      </div> */}
+    >       
         {/* <div className="issueslist p-1" style={{ backgroundColor: "lightyellow", width: "26rem", position: "absolute", height: "94%", top: "50%", right: "0%", transform: "translate(-0%, -45%)", zIndex: 9999 }}> */}
-           <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
+        <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
             // style={{ position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
             >
-              <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
+            <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
                 <button 
-                  className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Close Task pane!"
-                  onClick={handleMinimize} 
-                  // style={{ backgroundColor: "lightyellow"}}
-                  >
-                   <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>  Project </span>
+                    className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
+                    data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                    title="Close Task pane!"
+                    onClick={handleMinimize} 
+                    // style={{ backgroundColor: "lightyellow"}}
+                >
+                <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>Input </span>
                 </button>
-              </div>
-          </div>              
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Name:  {props.props.phData.metis.name}</div>
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Description:  {props.props.phData.metis.description}</div>
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>Repository:  {props.props.phFocus.focusProj.repo}</div>
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub Path:  {props.props.phFocus.focusProj.path}</div>
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub File:  {props.props.phFocus.focusProj.file}</div>
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub Branch:  {props.props.phFocus.focusProj.branch}</div>
-        <div className="my-1 px-1 fs-5" style={{backgroundColor: "#eff"}}>GitHub Proj. no.:  {props.props.phFocus.focusProj.projectNumber}</div>
-        { (currentRoute !== '/') &&
-          <div className="d-flex justify-content-between align-items-center">
-            <button className="button rounded m-1 px-2 text-light" 
-              style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
-              onClick={handleShowProjectModal} >
-              Edit Project Details
-            </button>
-          </div>
-        } 
-        <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
-          <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
-              <div className='bg-light my-1 px-2 '> 
-                <div className='text-muted'>Repository :</div>
-                {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-              </div>
-              <div className='bg-light my-1 px-2'> 
-                <div className='text-muted'>GitHub Docs :</div>
-                {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
-              </div>
+            </div>
+        </div> 
+        <details className="bg-light"><summary>Repository:<span className="bg-white float-end me-2"> {props.props.phFocus.focusProj.repo}</span></summary>
+            <div className="my-1 px-2" ><span className="bg-light"> GitHub Proj. no.: </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.projectNumber}</span></div>
+            <div className="my-1 px-2 " ><span className="bg-light"> GitHub Path:   </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.path}</span></div>
+            <div className="my-1 px-2 " ><span className="bg-light"> GitHub Branch:  </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.branch}</span></div>
+            <div className="my-1 px-2 " ><span className="bg-light"> Proj. name:   </span><span className="bg-white float-end me-2">{props.props.phData.metis.name}</span></div>
+            <div className="my-1 px-2 " ><span className="bg-light"> Description:  </span><span className="bg-white float-end me-2">{props.props.phData.metis.description}</span></div>
+            {/* <div className="my-1 px-1 fs-"><span className="bg-white"> Repository:   </span><span className="bg-white">{props.props.phFocus.focusProj.repo}</span></div> */}
+            <div className="my-1 px-2 fs-" ><span className="bg-white"> GitHub File:   </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.file}</span></div>
+        </details>             
 
-              <div className='bg-light my-1 px-2'> 
-                <div className='text-muted'>Project Canban for this repo:</div>
-                {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
-              </div>
-          </div>
-        </details>
         <hr className="m-1"/>
         <div className="issueslist" >
+            <div className="ps-2 font-weight-bold fs-4" >Issues: 
+                {/* <div className="d-flex ms-auto position-relative m-0 p-0 end-0"> */}
+                    <span>
+                    {(repo) && <Link className='text-primary ms-2 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+                    </span>
+                {/* </div> */}
+            </div>
             <button className="button bg-secondary rounded me-auto m-1 px-2 text-light" 
               style={{ whiteSpace: "nowrap", maxHeight: "1.5rem"}}
               onClick={fetchIssues} >
               <i className="fab fa-github fa-lg me-2"></i>
               Fetch Issues from GitHub
             </button>
-            <div className="d-flex ms-auto position-relative m-0 p-0 end-0">
-              <div className="ps-2 font-weight-bold fs-4" >Issues:</div>
-            </div>
           <div className="header m-0 p-0">
             <div className="font-weight-bold px-2 py-2 border fs-6">
               In Focus:
@@ -325,7 +298,8 @@ const Project = (props) => {
           {/* make a button for fetching Issues */}
           <div className="m-0 p-0">
               <hr className="m-0"/>
-              <details className='text-muted fs-6 p-2'><summary>GitHub Issues:</summary>
+              {/* <details className='text-muted fs-6 p-2'><summary>GitHub Issues:</summary> */}
+              <div>GitHub Issues:</div>
               {(issues.length > 0) && issues.map((issue) => (
                   <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
                   <div className='d-flex justify-content-between'>
@@ -338,8 +312,6 @@ const Project = (props) => {
                           border: "1px solid #ccc",
                           borderRadius: "3px",
                           backgroundColor: "#fff",
-                          // width: "20px",
-                          // height: "20px",
                           marginTop: "-5px",
                           marginLeft: "auto",
                           display: "inline-block",
@@ -355,9 +327,9 @@ const Project = (props) => {
                   <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
                   </div>
               ))}
-              </details>
+              {/* </details> */}
           </div>
-          <hr className="m-1" />
+          <hr className="m-1 p-4" />
           <div className='px-2 m-1'> {/*link to Issues */}
               <div className='text-muted'>Link to GitHub:</div>
               {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
@@ -365,9 +337,9 @@ const Project = (props) => {
         </div>
         {modalDiv}
         {projectModalDiv}
-      </div>
+    </div>
   );
   return null;
 };
 
-export default Project;
+export default Input;

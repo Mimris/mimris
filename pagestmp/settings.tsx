@@ -54,7 +54,7 @@ const page = (props: any) => {
   const [showSubject, setShowSubject] = useState(false);
   const [showPlenary, setShowPlenary] = useState(false);
 
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  const setContextDiv = (props.phFocus) && <ContextView phF={props.phFocus} />
 
   return (
     <>

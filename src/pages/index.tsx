@@ -10,7 +10,7 @@ import Link from 'next/link';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Index from '../components/Index';
-import SetContext from '../defs/SetContext'
+import SetContext from '../defs/ContextView'
 import TasksHelp from '../components/TasksHelp'
 import styles from '../styles/Home.module.css'
 import useLocalStorage  from '../hooks/use-local-storage'
@@ -62,7 +62,7 @@ const page = (props: any) => {
 
   const contextDiv = (
     <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
-      <SetContext className='setContext' ph={props} />
+      <ContextView className='setContext' ph={props} />
       <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
         {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
         <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 

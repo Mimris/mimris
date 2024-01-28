@@ -44,9 +44,6 @@ const page = (props) => {
   return (
     <div className="workpad p-1 bg-light" >
       <div className="homepage row pt-2 pr-2 d-flex" >
-        <div className="col-5">
-         <Project props={props}  />
-        </div>
         <div className="col">
         <GettingStarted />
         </div>

@@ -115,7 +115,7 @@ const ContextView = (props: any) =>  {
 
   return (
     <>
-      <div className="d-flex justify-content-left align-items-center bg-transparent m-0" >
+      <div className="d-flex justify-content-between align-items-center bg-transparent" >
         <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
         <button className="btn btn-sm bg-transparent text-primary ms-1 px-2 pt-0 " style={{height: "20px"}} onClick={toggleMinimized}>
           {(minimized) 
@@ -135,7 +135,7 @@ const ContextView = (props: any) =>  {
             title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
           ></i>
         </button>
-        <span className="ms-3">{contextRepoDiv}</span>
+        <div className="ms-3">{contextRepoDiv}</div>
       </div>
     </>
   )

@@ -223,9 +223,9 @@ const page = (props: any) => {
                 <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
                   <Input props={props}/>
                 </div>
-                  <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                    <Modelling />
-                  </div>
+                <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
+                  <Modelling />
+                </div>
               <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>

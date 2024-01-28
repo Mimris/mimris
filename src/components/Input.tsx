@@ -64,6 +64,8 @@ const Input = (props) => {
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
   const issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
+  // fetch done issues
+  const issueUrlDone = `https://api.github.com/repos/${org}/${repo}/issues?state=closed`   
   const collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
   const projectUrl = `https://api.github.com/repos/${org}/${repo}/projects/${projectNumber}`
   const projectFileUrl = `https://api.github.com/repos/${org}/${repo}/contents/${path}/${file}?ref=${branch}`
@@ -79,10 +81,10 @@ const Input = (props) => {
   };
 
   // list issues form github
-  const fetchIssues = async () => {
+  const fetchIssues = async (url) => {
     try {
-      if (debug) console.log('75 issues fetch', issueUrl)
-      const res = await fetch(issueUrl);
+      if (debug) console.log('75 issues fetch', url)
+      const res = await fetch(url);
       const data = await res.json();
       if (debug) console.log('54 issues', res, data)
       if (data.length === 0) { // if there is an error
@@ -233,22 +235,18 @@ const Input = (props) => {
 
   return (
     <div className="project p-1" 
-        ref={containerRef}
-        style={{height: "100%", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px"}}
-    >       
-        {/* <div className="issueslist p-1" style={{ backgroundColor: "lightyellow", width: "26rem", position: "absolute", height: "94%", top: "50%", right: "0%", transform: "translate(-0%, -45%)", zIndex: 9999 }}> */}
-        <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
-            // style={{ position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
-            >
+            ref={containerRef}
+            style={{height: "100%", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px"}} 
+        >       
+         <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2">
             <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
                 <button 
                     className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
                     data-toggle="tooltip" data-placement="top" data-bs-html="true"
                     title="Close Task pane!"
                     onClick={handleMinimize} 
-                    // style={{ backgroundColor: "lightyellow"}}
                 >
-                <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>Issues </span>
+                    <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>Issues </span>
                 </button>
             </div>
         </div> 
@@ -272,10 +270,10 @@ const Input = (props) => {
                 {/* </div> */}
             </div>
             <button className="button bg-secondary rounded me-auto m-1 px-2 text-light" 
-              style={{ whiteSpace: "nowrap", maxHeight: "1.5rem"}}
-              onClick={fetchIssues} >
-              <i className="fab fa-github fa-lg me-2"></i>
-              Fetch Issues from GitHub
+                style={{ whiteSpace: "nowrap", maxHeight: "1.5rem"}}
+                onClick={() => fetchIssues(issueUrl)}>
+                <i className="fab fa-github fa-lg me-2"></i>
+                Fetch Issues from GitHub
             </button>
           <div className="header m-0 p-0">
             <div className="font-weight-bold px-2 py-2 border fs-6">
@@ -298,8 +296,8 @@ const Input = (props) => {
           {/* make a button for fetching Issues */}
           <div className="m-0 p-0">
               <hr className="m-0"/>
-              {/* <details className='text-muted fs-6 p-2'><summary>GitHub Issues:</summary> */}
-              <div>GitHub Issues:</div>
+              {/* <details className='text-muted fs-6 p-2'><summary>GitHub Open Issues:</summary> */}
+              <div>GitHub Open Issues:</div>
               {(issues.length > 0) && issues.map((issue) => (
                   <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
                   <div className='d-flex justify-content-between'>
@@ -331,7 +329,7 @@ const Input = (props) => {
           </div>
           <hr className="m-1 p-4" />
           <div className='px-2 m-1'> {/*link to Issues */}
-              <div className='text-muted'>Link to GitHub:</div>
+              <div className='text-muted'>Link to GitHub Issues:</div>
               {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
           </div>
         </div>

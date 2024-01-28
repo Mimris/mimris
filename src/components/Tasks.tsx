@@ -320,7 +320,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
                   onClick={handleMinimize} 
                   // style={{ backgroundColor: "lightyellow"}}
                   >
-                   <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Task </span>
+                   <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Tasks </span>
                 </button>
               </div>
           </div>

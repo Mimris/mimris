@@ -21,12 +21,18 @@ const ContextView = (props: any) =>  {
   const projectNumber = (phFocus?.focusProj?.projectNumber) && phFocus.focusProj?.projectNumber;
 
   if (!phFocus) return null;
-
   // if phFocus is change then refresh the page
   if (phFocus !== props.ph.phFocus) {
     console.log('phFocus', phFocus, props.ph.phFocus);
     window.location.reload();
   }
+
+    const handleShowModal = () => {
+    // if (minimized) {
+    //   setMinimized(true);
+    // }
+    props.setShowModal(true);
+  };
 
   const copyToClipboard = async () => { 
     const host = window.location.host;
@@ -98,6 +104,19 @@ const ContextView = (props: any) =>  {
         {statusField('Role', props.ph?.phFocus?.focusRole?.name)}
         {statusField('Task', props.ph?.phFocus?.focusTask?.name)}
         {statusFieldLink('Issues', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}
+              {/* <div className="font-weight-bold  border fs-6">
+                <button
+                    className="btn text-success m-0 px-2 py-0 btn-sm float-end"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-bs-html="true"
+                    title="Open Modal with the FocusIssue!"
+                    onClick={handleShowModal}
+                    style={{ backgroundColor: "#fff" }}
+                  >
+                  <i className="fa fa- fa-bullseye"></i> 
+                </button>
+              </div> */}
       </div>
       <hr className="m-1 bg-primary " style={{ height: "4px" }} />
       {(!minimized) && 

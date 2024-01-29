@@ -41,7 +41,7 @@ const Issues = (props) => {
   const [project, setProject] = useState([]);
   const [comments, setComments] = useState([]);
   // const [showModal, setShowModal] = useState(false);
-  
+
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState('');
@@ -173,10 +173,10 @@ useEffect(() => {
     if (minimized) {
       setMinimized(true);
     }
-    setShowModal(true);
+    props.setShowModal(true);
   };
   
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () => props.setShowModal(false);
 
 
 
@@ -204,7 +204,7 @@ useEffect(() => {
 );
 
   const modalDiv = (
-    <Modal  show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
+    <Modal  show={props.showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>

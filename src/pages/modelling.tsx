@@ -204,7 +204,7 @@ const page = (props: any) => {
     <div className="context-bar d-flex justify-content-between" style={{ backgroundColor: "#cdd"}}>
       <div className="context-bar--context bg-transparent d-flex justify-content-between align-items-center me-auto border border-light" style={{ backgroundColor: "#dcc" }}>
         {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
-        <ContextView className='setContext' ph={props} style={{ backgroundColor: "#cdd"}} />
+        <ContextView  ph={props}  showModal={showModal} setShowModal={setShowModal} />
       </div>
     </div>
   )
@@ -223,7 +223,7 @@ const page = (props: any) => {
               {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
                 <div className="issuesarea">
-                  <Issues props={props} />
+                  <Issues props={props} showModal={showModal} setShowModal={setShowModal}/>
                 </div>
                 <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                   <Modelling />

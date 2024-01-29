@@ -40,7 +40,8 @@ const Issues = (props) => {
   const [issues, setIssues] = useState([]);
   const [project, setProject] = useState([]);
   const [comments, setComments] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
+  
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState('');

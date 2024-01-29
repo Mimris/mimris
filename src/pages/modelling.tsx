@@ -30,6 +30,8 @@ const page = (props: any) => {
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
+  const [showModal, setShowModal] = useState(false);
+
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })

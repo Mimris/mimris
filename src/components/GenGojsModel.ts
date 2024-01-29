@@ -34,7 +34,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
   let focusModel = props.phFocus?.focusModel
-  const focusModelview = props.phFocus?.focusModelview
+  if (!focusModel) focusModel = (models) && models[0];
+  let focusModelview = props.phFocus?.focusModelview
+  if (!focusModelview) focusModelview = (focusModel) && focusModel.modelviews[0];
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   const metamodels = (metis) && metis.metamodels
   let adminModel;
@@ -102,15 +104,16 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (fModelview) {
           let fObjview = props.phFocus?.focusObjectview?.id
           fObjview = fModelview.findObjectView(fObjview);
-          fModelview.setFocusObjectview(fObjview);
+          if (fObjview)
+            fModelview.setFocusObjectview(fObjview);
         }
       }
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelview);
-      (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
-      (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
+      // (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
+      // (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
       if (debug) console.log('121 GenGojsModel  myMetis', myMetis);
 
       dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })

@@ -327,10 +327,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const reltypename = data.typename;
               if (reltypename === constants.types.AKM_RELATIONSHIP_TYPE) {
                 const lnk = uid.getLinkByViewId(relview.id, myDiagram);
-                link.isLayoutPositioned = false;
-                lnk.isLayoutPositioned = false;
-                link.isLayoutPositioned = false;
-                if (debug) console.log('333 link', link);
+                if (debug) console.log('333 link, lnk', link, lnk);
               }
             }
           }
@@ -1142,9 +1139,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview.relship = myMetis.findRelationship(relview.relship.id);
                 if (!myMetis.deleteViewsOnly) {
                   const relship = relview.relship;
-                  relship.markedAsDeleted = deletedFlag;
-                  const jsnRelship = new jsn.jsnRelationship(relship);
-                  modifiedRelships.push(jsnRelship);
+                  if (relship) {
+                    relship.markedAsDeleted = deletedFlag;
+                    const jsnRelship = new jsn.jsnRelationship(relship);
+                    modifiedRelships.push(jsnRelship);
+                  }
                 }
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 modifiedRelshipViews.push(jsnRelview);

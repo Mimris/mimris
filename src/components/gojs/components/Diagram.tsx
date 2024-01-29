@@ -345,7 +345,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // go.ContextMenuTool.prototype.standardMouseSelect.call(this);
             },
             // layout: new go.TreeLayout({ isOngoing: false }),
-            "draggingTool.dragsTree": true,
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
             // "initialAutoScale": go.Diagram.UniformToFill,
@@ -362,6 +361,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
+            // "draggingTool.dragsTree": true,
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -1392,7 +1392,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               uid.selectConnectedObjects(node, myMetis, myDiagram);
-            },
+              const gjsNode = myDiagram.findNodeForKey(node?.key)
+              gjsNode.isSelected = true;
+              uid.addToSelection(gjsNode, myDiagram);
+          },
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
@@ -1636,7 +1639,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myDiagram = e.diagram;
               const link = obj.part;
-              link.isLayoutPositioned = false;
               const links = myDiagram.links;
               for (let it = links.iterator; it?.next();) {
                 const lnk = it.value;

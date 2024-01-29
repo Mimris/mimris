@@ -553,7 +553,6 @@ It stands for "placeholder Data" (should maybe changed to )
                   "description": "",
                   "markedAsDeleted": false,
                   "modified": false,
-                  "fs_collection": "properties",
                   "datatype": {
                     "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
                     "name": "string",
@@ -562,7 +561,6 @@ It stands for "placeholder Data" (should maybe changed to )
                     "description": "String",
                     "markedAsDeleted": false,
                     "modified": false,
-                    "fs_collection": "datatypes",
                     "isOfDatatype": null,
                     "allowedValues": "",
                     "defaultValue": null,

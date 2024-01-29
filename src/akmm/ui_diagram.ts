@@ -609,7 +609,6 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
                     case 'name':
                     case 'nameId':
                     case 'description':
-                    case 'fs_collection':
                     case 'markedAsDeleted':
                     case 'modified':
                     case 'sourceUri':
@@ -2052,7 +2051,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
 
 function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
                                 goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, 
-                                reltypes: string, reldir: string, objectviews: akm.cxObjectView[]) {
+                                reltypes: string, reldir: string) {
     if (noLevels < 1)
         return;
     const myDiagram = myMetis.myDiagram;
@@ -2108,27 +2107,41 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
                         const node = getNodeByViewId(oview.id, myDiagram);
                         const n = myDiagram.findNodeForKey(node?.key);
                         n.isSelected = true;
-                        let found = false;
-                        for (let j=0; j<objectviews?.length; j++) {
-                            const oview1 = objectviews[j];
-                            if (oview1.id === oview.id) {
-                                found = true;
-                                continue;
+                        addToSelection(n, myDiagram);
+
+                        // Get connected relship views and select them
+                        let rels: akm.cxRelationship[];
+                        if (useinp) {
+                            rels = toObj.inputrels;
+                        } else {
+                            rels = toObj.outputrels;
+                        }
+                        for (let i=0; i<rels?.length; i++) {
+                            const rel = rels[i];
+                            const relviews = modelview.findRelationshipViewsByRel(rel);
+                            for (let i=0; i<relviews?.length; i++) {
+                                const relview = relviews[i];
+                                const link = getLinkByViewId(relview.id, myDiagram);
+                                const l = myDiagram.findLinkForKey(link?.key);
+                                l.isSelected = true;
+                                addToSelection(l, myDiagram);
+                                let objview: akm.cxObjectView;
+                                if (useinp) {
+                                    objview = relview.fromObjview
+                                } else {
+                                    objview = relview.toObjview
+                                }                           
+                                if (noLevels > 1) {
+                                    noLevels--;
+                                    selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir);
+                                    noLevels++;
+                                }
                             }
-                        }  
-                        if (!found && objectviews)
-                            objectviews.push(oview);           
+                        }
                     }                                                                              
                 }
             }
             myDiagram.requestUpdate();
-        }
-    }
-    if (noLevels > 1) {
-        for (let i=0; i<objectviews?.length; i++) {
-            const oview = objectviews[i];
-            noLevels--;
-            selectConnectedObjects1(modelview, oview, goModel, myMetis, noLevels, reltypes, reldir, objectviews);
         }
     }
 }

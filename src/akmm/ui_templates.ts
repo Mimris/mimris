@@ -1452,6 +1452,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("movable", "movable").makeTwoWay(),
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -2537,7 +2538,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
     const linkTemplate =
         $(go.Link,
             new go.Binding("deletable"),
-            // new go.Binding("isLayoutPositioned", "isLayoutPositioned"), 
+            // new go.Binding("isLayoutPositioned", "isLayoutPositioned").makeTwoWay(), 
             { selectable: true },
             { 
                 toShortLength: 3, 

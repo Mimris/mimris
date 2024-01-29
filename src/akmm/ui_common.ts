@@ -11,7 +11,7 @@ import { get } from 'http';
 import { core } from './constants';
 const constants = require('./constants');
 const printf = require('printf');
-const grabIsAllowed = false;
+const grabIsAllowed = true;
 
 // functions to handle nodes
 export function createObject(data: any, context: any): akm.cxObjectView | null {
@@ -1896,9 +1896,9 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         let fromObjview = null;
         for (let i=0; i<fromObjviews?.length; i++) {
           const oview = fromObjviews[i];
-          const moviews = modelview.objectviews;
-          for (let j=0; j<moviews?.length; j++) {
-            if (moviews[j].id === oview.id) {
+          const mdlviews = modelview.objectviews;
+          for (let j=0; j<mdlviews?.length; j++) {
+            if (mdlviews[j].id === oview.id) {
               fromObjview = oview;;
               break;
             }
@@ -1907,9 +1907,9 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         let toObjview = null;
         for (let i=0; i<toObjviews?.length; i++) {
           const oview = toObjviews[i];
-          const moviews = modelview.objectviews;
-          for (let j=0; j<moviews.length; j++) {
-            if (moviews[j].id === oview.id) {
+          const mdlviews = modelview.objectviews;
+          for (let j=0; j<mdlviews.length; j++) {
+            if (mdlviews[j].id === oview.id) {
               toObjview = oview;;
               break;
             }
@@ -1922,20 +1922,18 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             if (debug) console.log('1682 relview', relview);
             modelview.addRelationshipView(relview);
             // Add link
-            myDiagram.startTransaction('addLinkData')
             let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
             link.loadLinkContent(myGoModel);
             link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
             link.from = link.fromNode?.key;
             link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
             link.to = link.toNode?.key;
-            if (reltype?.name === constants.types.AKM_RELATIONSHIP_TYPE) {
-                link.isLayoutPositioned = false;
-            }
+            // if (reltype?.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+            //     link.isLayoutPositioned = false;
+            // }
             myGoModel.addLink(link);
             links.push(link);
             myDiagram.model.addLinkData(link);
-            myDiagram.commitTransaction('addLinkData')
             // Prepare dispatch
             const jsnRelview = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelview);
@@ -2439,7 +2437,6 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'fromobjectRef') retVal = false;
     if (k === 'fromObjview') retVal = false;
     if (k === 'fromObjviewRef') retVal = false;
-    if (k === 'fs_collection') retVal = false;
     if (k === 'generatedTypeId') retVal = false;
     if (k === 'group') retVal = false;
     if (k === 'groupLayout') retVal = false;

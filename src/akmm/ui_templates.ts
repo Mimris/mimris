@@ -1425,7 +1425,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     margin: new go.Margin(0, 0, 0, 2),
                     textAlign: "center",
                 },
-                new go.Binding("text", findImage)
+                new go.Binding("text", "findImage") //????? sf: is this is a hack to get the icon name to show up in the textblock
             ),                          
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
@@ -1532,15 +1532,29 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 cursor: "move",
                             },    
                             $(go.Shape, 
-                                {  // this is the square around the image ---------
+                                {  // this is the square around the image with fillcolor ---------
                                     fill: "white", 
-                                    stroke: "#ddd", 
-                                    opacity: 0.4,
-                                    desiredSize: new go.Size(56, 56), 
+                                    stroke: "transparent", 
+                                    opacity: 0.9,
+                                    desiredSize: new go.Size(52, 52), 
                                     margin: new go.Margin(0, 2, 0, 16),
                                     // shadowVisible: true,
                                 },
                                 new go.Binding("fill", "fillcolor2"),
+                                // new go.Binding("stroke", "strokecolor2"),
+                                new go.Binding("template")
+                            ),                                                                
+                            $(go.Shape, 
+                                {  // this is the square outer border around the image with tranparent content---------
+                                    fill: "transparent",
+                                    stroke: "transparent", 
+                                    // opacity: 1,
+                                    strokeWidth: 4, // Update the strokeWidth to make the border thicker
+                                    desiredSize: new go.Size(56, 56), 
+                                    margin: new go.Margin(0, 2, 0, 16),
+                                    shadowVisible: true,
+                                },
+                                // new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2"),
                                 new go.Binding("template")
                             ),                                                                
@@ -1556,7 +1570,23 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     // },
                                 },
                                 new go.Binding("source", "icon", findImage),
-                            ),                                
+                            ),    
+                            $(go.TextBlock, textStyle(), // the unicode symbol \uf015 is the plus sign
+                                {
+                                    // fill: "white",
+                                    textAlign: "center",    
+                                    stroke: "#0e0",
+                                    // margin: new go.Margin(20, 12, 12, 12), 
+                                    desiredSize: new go.Size(48, 36),
+                                    font: "38px 'FontAwesome'",
+                                    editable: false,
+                                    isMultiline: false,
+                                    // alignment: go.Spot.Center, // Add this line to align the text center
+                                },
+                                // new go.Binding("fill", "fillcolor2"),
+                                new go.Binding("stroke", "strokecolor2"),
+                                new go.Binding("text", "icon", findUnicodeImage)
+                            )
                         ),
                     ),
                     // comment out icon stop
@@ -3528,9 +3558,10 @@ export function findImage(image: string) {
     if (image?.includes('//')) { // this is an http:// or https:// image
         if (debug) console.log('3249 Diagram', image);
         return image;
-    } else if (image?.includes('<i class')) { // its an awesome font image
-        if (debug) console.log('3247', image);
-        return image;
+    // } else if (image?.includes('\\u')) { // its an awesome font image
+    //     if (debug) console.log('3247', image);
+    //     // return image;
+    //     return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
     } else if (image?.includes('/')) { // its a local image with path i.e. /images/...
         if (debug) console.log('3250 Diagram', image);   
         return image;
@@ -3555,13 +3586,21 @@ export function findImage(image: string) {
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (debug) console.log('3269', img);
         return img
-    } else if (!image.includes('images/')) { 
+    } else if (!image.includes('images/') && image.includes('.png')) { // its an image in public/images 
         const img = "./../images/types/" + image
         if (debug) console.log('3273 Diagram', image, img)
-        return img //its an image in public/images
+        return img
     } else {
         return "";
     }
+}
+
+export function findUnicodeImage(image: string) {
+    if (image.includes('\\u')) { // its an awesome font image
+        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+    }
+    return ""; 
+
 }
 
 // Function to specify default text style

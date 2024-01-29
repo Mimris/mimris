@@ -140,7 +140,7 @@ const Navbar = (props) => {
 				</div>
 			</div>
 			<div className="navbar-nav ms-auto">
-				<Link className="navbar-brand p-4 mt-2 ms-auto" href="http://www.kavca.no" target="_blank">
+				<Link className="navbar-brand p-1 mt-2 ms-auto" href="http://www.kavca.no" target="_blank">
 					<div className="d-flex justify-content-center align-items-baseline">
 						<img src="images/Kavca-logo2.png" width="20" height="20" className="" alt="Kavca logo" />
 						<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
@@ -164,7 +164,7 @@ const Navbar = (props) => {
 				justify-content: center;
 				align-items: center; 
 				height: 100%;
-				background: #cdd;
+				background: #b0cfcf;
 				border-top: 4pbx solid #aaa
 				border-right: 4px solid #fff;
 				border-bottom: 3px solid #fff;
@@ -192,9 +192,9 @@ const Navbar = (props) => {
 			}
 	
 			/* Specific styles for non-active links */
-			// .non-active {
-			// 	color: blue;
-			// }
+			.non-active {
+				color: blue;
+			}
 	
 			/* Specific styles for active links */
 			.active {

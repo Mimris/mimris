@@ -8,7 +8,7 @@ import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Table from '../components/Table';
-import SetContext from '../defs/SetContext'
+import SetContext from '../defs/ContextView'
 import TasksHelp from '../components/TasksHelp'
 
 const page = (props: any) => {
@@ -30,10 +30,10 @@ const page = (props: any) => {
 
 // // * Set up the Context items and link to select Context modal,
 // // */
-//   const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+//   const setContextDiv = (props.phFocus) && <ContextView phF={props.phFocus} />
 //   useEffect(() => {
 //     return () => {
-//       <SetContext ph={props} />
+//       <ContextViewph={props} />
 //     };
 //   }, [props.phFocus.focusModel.id])
 

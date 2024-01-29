@@ -274,9 +274,6 @@ const page = (props: any) => {
 
     const handleGetNewProject = () => {
       // CreateNewModel(ph)//,  curmodel, curmodelview)
-      
-    
-
       // dispatch initial state 
       // dispatch({ type: "LOAD_TOSTORE_DATA", data: StartStateJson })
       // const timer = setTimeout(() => {
@@ -305,11 +302,9 @@ const page = (props: any) => {
     }
 
     // const toggleTip = () => setTooltipOpen(!tooltipOpen);
-
     // function toggleTasks() {
     //   setVisibleTasks(!visibleTasks);
     // }
-
     // let locStateKey
     // const toggleShowContext = () => {
     //   // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
@@ -375,7 +370,7 @@ const page = (props: any) => {
 
     const modellingtabs = (
       <>
-        <Nav tabs >
+        <Nav tabs style={{ minWidth: "350px" }} >
           {/* <NavItem className="text-danger" >  // this is the tab for the template
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
               className={classnames({ active: activeTab === '0' })}
@@ -384,7 +379,7 @@ const page = (props: any) => {
               {(activeTab === "0") ? 'Template' : 'T'}
             </NavLink>
           </NavItem> */}
-          <NavItem > {/*this is the tab for the metamodel */}
+          <NavItem className="ms-5 ps-5"> {/*this is the tab for the metamodel */}
             {/* <NavItem className="text-danger" > */}
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab === '1' })}
@@ -515,7 +510,7 @@ const page = (props: any) => {
                  {(visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col> */}
                 <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
-                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
+                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "6h", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                     {targetmetamodelDiv}
                   </div>
                 </Col>
@@ -663,16 +658,6 @@ const page = (props: any) => {
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return (
       <>
-          <button className="btn bg-transparent text-success ms-0 btn-sm"
-            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open the left sidepanel!"
-            // onClick={toggleObjects} 
-            >
-              <i className="fa fa-lg fa-angle-left pull-right-container"></i>
-              {/* {(visibleObjects) 
-                ? <i class="fa fa-lg fa-angle-left pull-right-container"></i>
-                : <i class="fa fa-lg fa-angle-right pull-right-container"></i>
-              } */}
-          </button> 
         <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "34px", backgroundColor: "#ddd" }}>
           {/* <span className="spacer m-0 p-0 w-50"></span> */}
           {(activeTab === "2") ? modellingDiv : metamodellingDiv}

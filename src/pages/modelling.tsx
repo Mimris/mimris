@@ -11,13 +11,13 @@ import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
-import SetContext from '../defs/SetContext'
+import ContextView from "../defs/ContextView"
 import Context from "../components/Context"
-import SelectContext from '../components/utils/SelectContext'
 import Tasks from '../components/Tasks'
 import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
 import Project from "../components/Project";
+import Input from "../components/Input";
 
 import { searchGithub } from '../components/githubServices/githubService' 
 
@@ -197,13 +197,12 @@ const page = (props: any) => {
     // }, [])
   }, []);
 
-
+  {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
   const contextDiv = ( // the top context area (green)
-    <div className="context-bar d-flex ps-4 " style={{ backgroundColor: "#cdd", width: "", maxHeight: ""}}>
-      <SetContext className='setContext' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%"}} />
-      <div className="context-bar--context d-flex justify-content-between align-items-center me-4" style={{ backgroundColor: "#dcc" }}>
-        <SelectContext className='ContextModal mr-1' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
-        {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
+    <div className="context-bar d-flex justify-content-between" style={{ backgroundColor: "#cdd"}}>
+      <div className="context-bar--context bg-transparent d-flex justify-content-between align-items-center me-auto border border-light" style={{ backgroundColor: "#dcc" }}>
+        {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
+        <ContextView className='setContext' ph={props} style={{ backgroundColor: "#cdd"}} />
       </div>
     </div>
   )
@@ -218,14 +217,15 @@ const page = (props: any) => {
                 <Header title={props.phUser?.focusUser.name} /> 
               </div> */}
               {/* {videoDiv} */}
+                {/* <Project props={props}/> */}
                 {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
                 <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
-                  <Project props={props}/>
+                  <Input props={props}/>
                 </div>
-                  <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                    <Modelling />
-                  </div>
+                <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
+                  <Modelling />
+                </div>
               <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>

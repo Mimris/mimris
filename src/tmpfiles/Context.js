@@ -12,7 +12,7 @@ import SetContext from '../defs/SetContext'
 // import { loadData } from '../actions/actions'
 
 const page = (props: any) => {
-// export default function Contexts({ contexts }: any) {
+  // export default function Contexts({ contexts }: any) {
 
   const dispatch = useDispatch();
 
@@ -28,18 +28,18 @@ const page = (props: any) => {
     focus = props.phFocus
     // console.log('45', focus);
     const updatefocususer = ({
-        focusUser: {
-          ...props.phUser?.focusUser,
-            session: {
-              phFocus: focus
-            }
-          }
-      })  
+      focusUser: {
+        ...props.phUser?.focusUser,
+        session: {
+          phFocus: focus
+        }
+      }
+    })
     const data = updatefocususer.focusUser
     dispatch({ type: 'SET_FOCUS_USER', data })
   }, [focusModelId]);
 
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  const setContextDiv = (props.phFocus) && <ContextView phF={props.phFocus} />
 
 
   return (
@@ -52,7 +52,7 @@ const page = (props: any) => {
                 {setContextDiv}
               </div>
               <div className="tasksarea"  >
-  
+
               </div>
               <Link href="/settings">Back</Link>
               <h3>Current Context:</h3>

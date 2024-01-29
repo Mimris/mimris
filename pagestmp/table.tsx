@@ -31,10 +31,10 @@ export default Page(connect(state => state)(page));
 
 // // * Set up the Context items and link to select Context modal,
 // // */
-//   const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+//   const setContextDiv = (props.phFocus) && <ContextView phF={props.phFocus} />
 //   useEffect(() => {
 //     return () => {
-//       <SetContext ph={props} />
+//       <ContextViewph={props} />
 //     };
 //   }, [props.phFocus.focusModel.id])
 

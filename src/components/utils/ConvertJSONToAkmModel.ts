@@ -113,11 +113,12 @@ export const ReadConvertJSONFromFileToAkm = async (
         propLinkGroupType,
     ) => {
 
-        // console.log(' 44 createObject', oName, existObj);
+       
         if (debug) console.log("87 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, modelType);
 
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
+        let typeColor2 = ''
         if (debug) console.log("92 createObject", oName, osduType, jsonType, groupType, typeColor);
         let typeTextColor: string = "";
         let typeTextColor2: string = "";
@@ -143,7 +144,23 @@ export const ReadConvertJSONFromFileToAkm = async (
             : (osduType === 'Collection' || osduType === 'Item')
                 ? lightenColor(setColorsTopEntityTypes(osduType), 6)
                 : ''
-        if (debug) console.log("137 createObject", oName, osduType, groupType, typeColor);
+
+        typeColor2 = (propLinkGroupType !== '') 
+            ? setColorsTopEntityTypes(propLinkGroupType)
+            :  ''
+
+        
+        typeStrokeColor2 = (propLinkGroupType !== '')
+            ? setColorsTopEntityTypes(propLinkGroupType)
+            : ''
+        if (debug) console.log("156 createObject", oName, osduType, groupType, typeColor);
+
+        // if (propLinkGroupType) {
+        //     typeColor2 = (osduType === 'EntityType')
+        //     typeStrokeColor2 = propLinkGroupType;
+        // }
+
+        if (debug) console.log('163 createObject', oName, groupType, propLinkGroupType, otypeRef, 'typeColor', typeColor, '2', typeColor2, 'sc', typeStrokeColor, 'sc2', typeStrokeColor2);
 
         const importedObject = //(modelType === "AKM") // don't include json attributes
         {
@@ -161,20 +178,20 @@ export const ReadConvertJSONFromFileToAkm = async (
             osduType: osduType,
             groupType: groupType,
             // jsonType: jsonType,
-            // jsonKey: oName,
+            // jsonKey: oName,˝
             // (groupType === 'EntityType') ? typeColor : (groupType === 'Collection') && lightenColor(typeColor, 20),
             fillcolor: typeColor,
+            fillcolor2: typeColor2,
             textcolor: typeTextColor,
+            textcolor2: typeTextColor2,
             strokecolor: typeStrokeColor,
-            // fillcolor2: typeColor2,
-            // textcolor2: typeTextColor2,
-            strokecolor2: (osduType === 'propLink') && propLinkGroupType,
+            strokecolor2: typeStrokeColor2,
             icon: typeIcon,
             image: typeImage,
             ...oValProps, // additional attributes
         }
 
-        if (debug) console.log("170 Create object: ", importedObject.name, importedObject.fillcolor, importedObject);
+        if (!debug) console.log("170 Create object: ", importedObject.name, importedObject.fillcolor, importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
         return importedObject;
     };
@@ -477,8 +494,11 @@ export const ReadConvertJSONFromFileToAkm = async (
                                         : parentName;
                     if (debug) console.log("423 ", propLinkName, oId, oName, oVal);
                     const pLName = propLinkName;
+                    const capitalizeFirstChar = (str: string) => {
+                        return str.charAt(0).toUpperCase() + str.slice(1);
+                    };
                     // const pLName = 'has' + propLinkName;
-                    const linkGroupType = rel.GroupType
+                    const linkGroupType = capitalizeFirstChar(camelCase(rel.GroupType));
                     if (inclPropLinks) {
                         processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, linkGroupType, osduObj, oVal, curModel, objecttypeRef);
                         if (debug) console.log("427 ", pLName, oValProps, rel);

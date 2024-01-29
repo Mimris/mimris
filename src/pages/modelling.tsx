@@ -17,7 +17,7 @@ import Tasks from '../components/Tasks'
 import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
 import Project from "../components/Project";
-import Input from "../components/Input";
+import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService' 
 
@@ -210,25 +210,25 @@ const page = (props: any) => {
   const modellingDiv = (mount)
     ? 
       <div>
-        <Layout user={props.phUser?.focusUser} >
-          <div id="index" >
-            <div className="wrapper" > 
+        <Layout user={props.phUser?.focusUser}>
+          <div id="index">
+            <div className="wrapper">
               {/* <div className="header" >
                 <Header title={props.phUser?.focusUser.name} /> 
               </div> */}
               {/* {videoDiv} */}
-                {/* <Project props={props}/> */}
-                {contextDiv}
+              {/* <Project props={props}/> */}
+              {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
-                <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
-                  <Input props={props}/>
+                <div className="issuesarea">
+                  <Issues props={props} />
                 </div>
                 <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                   <Modelling />
                 </div>
-              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-              </div>
+                <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                  <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                </div>
               </div>
               <div className="footer">
                 <Footer />

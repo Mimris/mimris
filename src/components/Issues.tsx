@@ -21,7 +21,7 @@ import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 
 const debug = false;
 
-const Input = (props) => {
+const Issues = (props) => {
   if (debug) console.log('25 Tasks props', props.props.phData, props);
   
   const dispatch = useDispatch();
@@ -38,7 +38,7 @@ const Input = (props) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [issues, setIssues] = useState([]);
-  const [projectFile, setProjectFile] = useState([]);
+  const [project, setProject] = useState([]);
   const [comments, setComments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -70,8 +70,24 @@ const Input = (props) => {
   const projectUrl = `https://api.github.com/repos/${org}/${repo}/projects/${projectNumber}`
   const projectFileUrl = `https://api.github.com/repos/${org}/${repo}/contents/${path}/${file}?ref=${branch}`
 
+    const panelRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        handleMinimize();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   const handleMinimize = () => {
-      setMinimized(true);
+      setMinimized(!minimized);
       // setMaximized(false);
   };
 
@@ -80,13 +96,42 @@ const Input = (props) => {
       // setMaximized(true);
   };
 
+  // get the project object from github
+  const fetchProject = async (url) => {
+    try {
+      if (debug) console.log('75 project fetch', url)
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!debug) console.log('105 project', res, data)
+      if (data.length === 0) { // if there is an error
+        console.error('Error fetching project:', data.message);
+        setProject([]);
+      } else {
+        setProject(data);
+      }
+      if (debug) console.log('58 project', data)
+      if (debug) console.log('59 project', project)
+    } catch (error) {
+      console.error('Error fetching project:', error);
+    }
+    if (debug) console.log('72 project', project)
+  }
+
+useEffect(() => {
+  const curProject = fetchProject(projectUrl)
+  if (!debug) console.log('75 project', curProject)
+  //find the Issue status in the project
+
+}, [props.props.phFocus.focusIssue?.id])  
+
+
   // list issues form github
   const fetchIssues = async (url) => {
     try {
       if (debug) console.log('75 issues fetch', url)
       const res = await fetch(url);
       const data = await res.json();
-      if (debug) console.log('54 issues', res, data)
+      if (!debug) console.log('105 issues', res, data)
       if (data.length === 0) { // if there is an error
         console.error('Error fetching issues:', data.message);
         setIssues([]);
@@ -158,13 +203,39 @@ const Input = (props) => {
 );
 
   const modalDiv = (
-    <Modal  show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "20px", backgroundColor: "#fee"}} >
+    <Modal  show={showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
       <Modal.Body className="bg-transparent"  style={{ overflowY: 'scroll', maxHeight: '80vh' }}>
-        <div className='bg-light p-2 m-0'> {/*link to Issues */}
-          {/* <div className='text-muted'>Issues for this repo:</div> */}
+        {/* <div className='bg-light p-2 m-0'> 
+          {(project.length > 0)
+            ? project?.map((proj) => (proj.number === props.props.phFocus.focusProj?.projectNumber) && (
+              <div key={proj.number}>
+                <Link className='text-primary fs-4' href={`https:/github.com/${org}/${repo}/projects/${proj.number}`} target="_blank" style={{ textDecoration: 'underline' }}>
+                  {proj.number}, {proj.name}
+                </Link> <br />
+                User login: {proj.user.login} <br />
+                State: {proj.state} <br />
+                Status: {proj.state.status} <br />
+                Created: {proj.created_at.slice(0, 10)} <br />
+                Updated: {proj.updated_at.slice(0, 10)} <br />
+                Closed: {proj.closed_at?.slice(0, 10)} <br />
+                <div className="bg-white border border-secondary p-2">
+                  Details:
+                  <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{proj.body}</ReactMarkdown>
+                </div>
+                <>
+                  <hr />
+                  <h6 className="border" >Open Project on GitHub!</h6>
+                  <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/projects/${proj.number}`} target="_blank">{org}/{repo}/projects/{proj.number}</Link>
+                </>
+              </div>
+              ))
+            : <div className='text-muted'>Unable to get project for this repo!</div>
+          }      */}
+      
+        <div className='bg-light p-2 m-0'>
           {(issues.length > 0) 
             ? issues?.map((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
               <div key={issue.number}>
@@ -174,6 +245,7 @@ const Input = (props) => {
                 User login: {issue.user.login} <br />
                 Assignee: {issue.assignees[0]?.login}  <br />      
                 State: {issue.state} <br />
+                Status: {issue.state.status} <br />
                 Created: {issue.created_at.slice(0, 10)} <br />      
                 Updated: {issue.updated_at.slice(0, 10)} <br />
                 Closed: {issue.closed_at?.slice(0, 10)} <br />
@@ -205,97 +277,90 @@ const Input = (props) => {
     </Modal>
   )
 
-  if (minimized) {
-    return (
-        <div className="minimized-task " >
-        <div 
-            className="buttons position-absolute mt-1 ms-1 start-0" 
-            // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
-        >
-            <button
-                className="btn bg-transparent text-success m-0 p-1"
-                data-toggle="tooltip"
-                data-placement="top"
-                data-bs-html="true"
-                title="Open Input/Issues left side-panel!"
-                onClick={handleMaximize}
-            >
-            <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i> Issues</span>
-            </button>
-        </div>
-        </div>
-    );
-}
-
-      const modellingButtonsDiv = 
-      <>
-        <ModellingHeaderButtons props= {props}  />
-      </>
+  const modellingButtonsDiv = 
+    <>
+      <ModellingHeaderButtons props= {props}  />
+    </>
   //refresh={refresh} setRefresh={setRefresh}
 
-  return (
-    <div className="project p-1" 
-            ref={containerRef}
-            style={{height: "100%", backgroundColor: "#eef", borderRadius: "5px 5px 5px 5px"}} 
-        >       
-         <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2">
-            <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
-                <button 
-                    className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
-                    data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                    title="Close Task pane!"
-                    onClick={handleMinimize} 
-                >
-                    <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>Issues </span>
-                </button>
-            </div>
-        </div> 
-        <details className="bg-light"><summary>Repository:<span className="bg-white float-end me-2"> {props.props.phFocus.focusProj.repo}</span></summary>
-            <div className="my-1 px-2" ><span className="bg-light"> GitHub Proj. no.: </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.projectNumber}</span></div>
-            <div className="my-1 px-2 " ><span className="bg-light"> GitHub Path:   </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.path}</span></div>
-            <div className="my-1 px-2 " ><span className="bg-light"> GitHub Branch:  </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.branch}</span></div>
-            <div className="my-1 px-2 " ><span className="bg-light"> Proj. name:   </span><span className="bg-white float-end me-2">{props.props.phData.metis.name}</span></div>
-            <div className="my-1 px-2 " ><span className="bg-light"> Description:  </span><span className="bg-white float-end me-2">{props.props.phData.metis.description}</span></div>
-            {/* <div className="my-1 px-1 fs-"><span className="bg-white"> Repository:   </span><span className="bg-white">{props.props.phFocus.focusProj.repo}</span></div> */}
-            <div className="my-1 px-2 fs-" ><span className="bg-white"> GitHub File:   </span><span className="bg-white float-end me-2">{props.props.phFocus.focusProj.file}</span></div>
-        </details>             
-
+  if (minimized) {
+    return (
+      <div className=" " >
+      <div 
+          className="buttons position-absolute mt-1 ms-1 start-0" 
+          // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
+      >
+          <button
+              className="btn bg-transparent text-success m-0 p-1"
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Open Issues/Issues left side-panel!"
+              onClick={handleMinimize}
+          >
+          <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i> Issues</span>
+          </button>
+      </div>
+      </div>
+   );
+  } else  {
+    return (
+      <div className="project p-1 mt-1" 
+          ref={containerRef}
+          style={{ position: "fixed", top: "70px", left: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
+      >       
+        <div  className="buttons bg-transparent mt-1 ms-1 start-0"  >
+          <button
+              className="btn bg-transparent text-success m-0 p-1"
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Open Issues/Issues left side-panel!"
+              onClick={() => setMinimized(true)}
+          >
+          <span className="fs-6"><i className="fa fa-lg fa-angle-left pull-left-container"></i> Issues</span>
+          </button>
+        </div>
         <hr className="m-1"/>
-        <div className="issueslist" >
+        <div className="issues-list side-panel bg-light border border-success">
             <div className="ps-2 font-weight-bold fs-4" >Issues: 
-                {/* <div className="d-flex ms-auto position-relative m-0 p-0 end-0"> */}
                     <span>
-                    {(repo) && <Link className='text-primary ms-4 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+                    {/* {(repo) && <Link className='text-primary ms-4 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>} */}
                     </span>
-                {/* </div> */}
             </div>
-            <button className="button bg-secondary rounded me-auto m-1 px-2 text-light" 
-                style={{ whiteSpace: "nowrap", maxHeight: "1.5rem"}}
+            <div className="d-flex justify-content-center">
+              <button 
+                className="button bg-success rounded m- m-1 px-2 text-light w-100"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-bs-html="true"
+                    title="Getting the Issues for current repository!"
+                style={{ filter: 'brightness(120%)' }}
                 onClick={() => fetchIssues(issueUrl)}>
                 <i className="fab fa-github fa-lg me-2"></i>
-                Fetch Issues from GitHub
-            </button>
-          <div className="header m-0 p-0">
-            <div className="font-weight-bold px-2 py-2 border fs-6">
-              In Focus:
-              <button
-                className="btn text-success m-0 px-2 py-0 btn-sm float-end"
-                data-toggle="tooltip"
-                data-placement="top"
-                data-bs-html="true"
-                title="Open focusIssue!"
-                onClick={handleShowModal}
-                style={{ backgroundColor: "#fff" }}
-              >
-              <i className="fa fa- fa-bullseye"></i> 
+                Get Issues from GitHub
               </button>
             </div>
-            <div className="font-weight-bold px-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}</div>
+            <div className="header m-0 p-0">
+              <div className="font-weight-bold  border fs-6">
+                <button
+                    className="btn text-success m-0 px-2 py-0 btn-sm float-end"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-bs-html="true"
+                    title="Open Modal with the FocusIssue!"
+                    onClick={handleShowModal}
+                    style={{ backgroundColor: "#fff" }}
+                  >
+                  <i className="fa fa- fa-bullseye"></i> 
+                </button>
+              </div>
+            <div className="font-weight-bold p-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}</div>
           </div>
           {/* Listing GitHub Issues */}
           {/* make a button for fetching Issues */}
-          <div className="m-0 p-0">
-              <hr className="m-0"/>
+            <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "68vh"}}>
+              <hr className="m-0"/> 
               {/* <details className='text-muted fs-6 p-2'><summary>GitHub Open Issues:</summary> */}
               <div>GitHub Open Issues:</div>
               {(issues.length > 0) && issues.map((issue) => (
@@ -303,7 +368,7 @@ const Input = (props) => {
                   <div className='d-flex justify-content-between'>
                     <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
                   <button
-                      className="btn btn-sm checkbox bg-transparent text-success position-relative" 
+                      className="btn btn-sm checkbox bg-light text-success position-relative" 
                       onClick={() => dispatch({ type: "SET_FOCUS_ISSUE", data: {id: issue.number, name: issue.title}}) } // && handleShowModal()}
                       style={{
                           float: "right",
@@ -327,17 +392,19 @@ const Input = (props) => {
               ))}
               {/* </details> */}
           </div>
-          <hr className="m-1 p-4" />
-          <div className='px-2 m-1'> {/*link to Issues */}
+          <hr className="m-4 p-4" />
+          <div className='p-2 m-1'> {/*link to Issues */}
               <div className='text-muted'>Link to GitHub Issues:</div>
               {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
           </div>
+          <hr className="m-1 p-" />
         </div>
         {modalDiv}
         {projectModalDiv}
-    </div>
-  );
+      </div>
+    );
+  }
   return null;
 };
 
-export default Input;
+export default Issues;

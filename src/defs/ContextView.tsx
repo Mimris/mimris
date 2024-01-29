@@ -99,7 +99,7 @@ const ContextView = (props: any) =>  {
         {statusField('Task', props.ph?.phFocus?.focusTask?.name)}
         {statusFieldLink('Issues', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}
       </div>
-      <hr className="m-1 bg-primary" style={{ height: "4px" }} />
+      <hr className="m-1 bg-primary " style={{ height: "4px" }} />
       {(!minimized) && 
         <div className="d-flex ps-1 pb-1 justify-contents-between align-items-center">
           {statusField('Model', props.ph?.phFocus?.focusModel?.name)}
@@ -115,7 +115,7 @@ const ContextView = (props: any) =>  {
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center bg-transparent" >
+      <div className="d-flex justify-content-between align-items-center bg-transparent">
         <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
         <button className="btn btn-sm bg-transparent text-primary ms-1 px-2 pt-0 " style={{height: "20px"}} onClick={toggleMinimized}>
           {(minimized) 

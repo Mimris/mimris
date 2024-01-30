@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { connect, useDispatch, useSelector } from 'react-redux'
 import Layout from '../components/Layout'
 import ReportModule from "../components/ReportModule"
-import SetContext from '../defs/ContextView'
+import ContextView from '../defs/ContextView'
 import SelectContext from '../components/utils/SelectContext'
+import { i } from '../components/utils/SvgLetters'
 
 const debug = false
 const page = (props) => {

@@ -8,7 +8,7 @@ import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import About from '../components/About';
-import SetContext from '../defs/ContextView'
+import ContextView from '../defs/ContextView';
 import TasksHelp from '../components/TasksHelp'
 
 const page = (props: any) => {

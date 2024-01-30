@@ -160,9 +160,9 @@ const Project = (props) => {
             >
               <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-left-container"></i>  Project </span>
           </button> */}
-          <span className="fs-4 text-success">Active Project (current) </span>
+          <span className="fs-4 text-success px-2">Active Project (current) </span>
             { (currentRoute === '/') &&
-              <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex justify-content-between align-items-center me-2">
                 <button className="button rounded m-1 px-2 text-light" 
                   style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
                   onClick={handleShowProjectModal} >
@@ -183,13 +183,13 @@ const Project = (props) => {
           <div className="my-1 px-1 fs-6">GitHub File:</div>
         </div>
         <div className="col-8"> {/* Updated: Set the column width to col-8 */}
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phData.metis.name}</div>
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phData.metis.description}</div>
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phFocus.focusProj.projectNumber}</div>
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phFocus.focusProj.repo||'Add repo-name (Edit Project Details above)'}</div>
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phFocus.focusProj.path||'/'}</div>
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phFocus.focusProj.branch}</div>
-          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}>{props.props.phFocus.focusProj.file}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {props.props.phData.metis.name}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {props.props.phData.metis.description}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {props.props.phFocus.focusProj.projectNumber}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {props.props.phFocus.focusProj.repo ||'Add repo-name (Edit Project Details above)'}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {(props.props.phFocus.focusProj.path) ? props.props.phFocus.focusProj.path : '/'}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {props.props.phFocus.focusProj.branch}</div>
+          <div className="my-1 px-1 fs-6" style={{backgroundColor: "#eff"}}> {props.props.phFocus.focusProj.file}</div>
         </div>
       </div>
 

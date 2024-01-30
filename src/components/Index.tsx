@@ -42,10 +42,10 @@ const page = (props) => {
   // }, [focusModelview])
 
   return (
-    <div className="workpad p-1 bg-light" >
-      <div className="homepage row pt-2 pr-2 d-flex" >
-        <div className="col">
-        <GettingStarted />
+    <div className="workpad p-0" >
+      <div className="homepage row pt-2 pr-0">
+        <div className="col p-0 pt-2">
+          <GettingStarted />
         </div>
         <div className="col"> {/* releasenotes */}
           <Card className="card" body outline  
@@ -53,12 +53,8 @@ const page = (props) => {
             background: "rgba(255,255,255,0.4)",
             borderRadius: "10px",
             border: "1px solid rgba(255,255,255,0.4)",
-            // position: "relative",
             backdropFilter: "blur(5px)",
             WebkitBackdropFilter: "blur(5px)",
-            // display: "block",
-            // margin: "0 auto",
-            // padding: "2px"
           }}
           // style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
           // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
@@ -72,6 +68,21 @@ const page = (props) => {
                   &bull; GraphQL shema reporting from Solution models!<br />
               </CardText>
             </CardBody> */}
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2024.01.29</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Import OSDU Schema files as AKMM Metamodels.<br />
+                      - Integrating GitHUb Issues and GitHub Project in AKMM.<br />
+                      - Added Project overview on Home page with info about Organisation, GitHub Repository and Model Project files.<br />
+                      - Included GitHub repository README.md file in AKMM home Page.<br />
+                      - Added info about Issues and Project in current "Context and Focus" .<br />
+                      - Added Task right side-panel showing witch Tasks can be performed with current Metamodel.<br />
+                      - New function: Right-click on Object and make layout of the Object's children.<br />
+                      - Updated Metamodels for Core, IRTV and OSDU.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
             <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2023.11.09</CardTitle>
               <CardText >

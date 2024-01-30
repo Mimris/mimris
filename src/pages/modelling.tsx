@@ -17,7 +17,7 @@ import Tasks from '../components/Tasks'
 import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
 import Project from "../components/Project";
-import Input from "../components/Input";
+import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService' 
 
@@ -29,6 +29,8 @@ const page = (props: any) => {
 
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
+
+  const [showModal, setShowModal] = useState(false);
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -202,7 +204,7 @@ const page = (props: any) => {
     <div className="context-bar d-flex justify-content-between" style={{ backgroundColor: "#cdd"}}>
       <div className="context-bar--context bg-transparent d-flex justify-content-between align-items-center me-auto border border-light" style={{ backgroundColor: "#dcc" }}>
         {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
-        <ContextView className='setContext' ph={props} style={{ backgroundColor: "#cdd"}} />
+        <ContextView  ph={props}  showModal={showModal} setShowModal={setShowModal} />
       </div>
     </div>
   )
@@ -210,25 +212,25 @@ const page = (props: any) => {
   const modellingDiv = (mount)
     ? 
       <div>
-        <Layout user={props.phUser?.focusUser} >
-          <div id="index" >
-            <div className="wrapper" > 
+        <Layout user={props.phUser?.focusUser}>
+          <div id="index">
+            <div className="wrapper">
               {/* <div className="header" >
                 <Header title={props.phUser?.focusUser.name} /> 
               </div> */}
               {/* {videoDiv} */}
-                {/* <Project props={props}/> */}
-                {contextDiv}
+              {/* <Project props={props}/> */}
+              {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
-                <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
-                  <Input props={props}/>
+                <div className="issuesarea">
+                  <Issues props={props} showModal={showModal} setShowModal={setShowModal}/>
                 </div>
                 <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                   <Modelling />
                 </div>
-              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-              </div>
+                <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                  <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                </div>
               </div>
               <div className="footer">
                 <Footer />

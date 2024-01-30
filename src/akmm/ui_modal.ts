@@ -999,6 +999,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Generate Target Metamodel') {
         const context = modalContext.context;
         const selectedValue = modalContext.selected?.value;
+        const objview = myMetis.currentModelview.findObjectViewByName(selectedValue);
+        context.myCurrentObjectview = objview;
         let metamodel = myMetis.findMetamodelByName(selectedValue); 
         if (!metamodel) {
           metamodel = new akm.cxMetaModel();

@@ -462,8 +462,8 @@ export class goObjectNode extends goNode {
         this.isGroup        = objview.isGroup;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
-        this.isExpanded    = objview.isExpanded;
-        this.isSelected    = objview.isSelected;
+        this.isExpanded     = objview.isExpanded;
+        this.isSelected     = objview.isSelected;
         this.groupLayout    = "Tree";
         this.group          = objview.group as akm.cxObjectView;
         this.parent         = "";
@@ -875,7 +875,6 @@ export class goRelshipLink extends goLink {
         this.nameFrom        = "";
         this.nameTo          = "";
         this.visible         = relview?.visible;
-
         if (relview) {
             const relship = relview.getRelationship() as akm.cxRelationship;
             if (relship && relship instanceof akm.cxRelationship) {
@@ -914,25 +913,22 @@ export class goRelshipLink extends goLink {
             this.relshipkind = this.relshiptype?.getRelshipKind();
             if (!this.template)
                 this.template = this.typeview?.template;
-            const fromObjview = relview.getFromObjectView();
+            const fromObjview: akm.cxObjectView | null = relview.getFromObjectView();
             if (fromObjview) {
                 let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
-                if (debug) console.log('635 fromNode', node);
                 if (node) {
                     this.fromNode = node;
                     this.from = node.key;
-                    const toObjview: akm.cxObjectView | null = relview.getToObjectView();
-                    if (toObjview) {
-                        node = model?.findNodeByViewId(toObjview.id);
-                        if (debug) console.log('642 toNode', node);
-                        if (node) {
-                            this.toNode = node;
-                            this.to = node.key;
-                        }
-                    }
                 }
             }
-            if (debug) console.log('650 relshipLink', this);
+            const toObjview: akm.cxObjectView | null = relview.getToObjectView();
+            if (toObjview) {
+                let node = model?.findNodeByViewId(toObjview.id);
+                if (node) {
+                    this.toNode = node;
+                    this.to = node.key;
+                }
+            }
         }
     }
     // Methods
@@ -1087,7 +1083,6 @@ export class goRelshipTypeLink extends goLink {
         this.nameFrom = "";
         this.nameTo = "";
         this.points = [];
-
         if (reltype) {
             this.setName(reltype.getName());
             this.setType(constants.gojs.C_RELSHIPTYPE);

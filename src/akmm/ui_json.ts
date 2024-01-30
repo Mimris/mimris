@@ -1268,7 +1268,6 @@ export class jsnObject {
                 case 'viewkind':
                 case 'allProperties':
                 case 'fromObject':
-                case 'fs_collection':
                 case 'parentModel':
                 case 'propertyValues':
                 case 'toObject':

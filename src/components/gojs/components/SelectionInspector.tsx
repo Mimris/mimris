@@ -464,8 +464,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
             } 
           } 
-          if (k === 'fs_collection') 
-            continue;
           if (k === 'dash') {
             if (typeof(val) === 'object') {
               val = val.valueOf();
@@ -479,6 +477,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (k === 'name' || k === 'description' || k === 'title') continue; 
           }
         }
+        // if (k === 'isLayoutPositioned') {
+        //   if (val == "")
+        //     val = "false";
+        // }
 
         // Get field value (val)
         {
@@ -650,6 +652,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue    = 'Association';
               values = ['Association', 'Generalization', 'Composition', 'Aggregation'];
               break;
+            // case 'isLayoutPositioned':
             case 'abstract':
               dtype = myMetis.findDatatypeByName('boolean');
               if (booleanAsCheckbox)

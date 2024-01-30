@@ -218,19 +218,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
     myMetis.relinked = false;
-    if (debug) console.log('208 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
-    if (debug) console.log('214 handleDiagramEvent', myGoMetamodel);
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
     }
-    if (debug) console.log('219 gojsModel', gojsModel);
     const nodes = new Array();
     const nods = myGoMetamodel?.nodes;
     for (let i = 0; i < nods?.length; i++) {
@@ -241,13 +238,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodes.push(node);
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
-    if (debug) console.log('230 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
       nodeDataArray: myGoMetamodel?.nodes,
       linkDataArray: myGoMetamodel?.links
     }
-    if (debug) console.log('236 gojsMetamodel', gojsMetamodel);
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
     let modifiedObjectTypeGeos = new Array();
@@ -328,6 +323,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             relview.markedAsDeleted = data.markedAsDeleted;
             if (relview.visible === false) {
               myDiagram.remove(link);;
+            } else {
+              const reltypename = data.typename;
+              if (reltypename === constants.types.AKM_RELATIONSHIP_TYPE) {
+                const lnk = uid.getLinkByViewId(relview.id, myDiagram);
+                if (debug) console.log('333 link, lnk', link, lnk);
+              }
             }
           }
         }
@@ -971,14 +972,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case "SelectionDeleting": {
         // const newNode = myMetis.currentNode;
-        if (debug) console.log('727 myMetis', myMetis);
         const deletedFlag = true;
         let renameTypes = false;
         const selection = e.subject;
-        if (debug) console.log('738 selection', selection);
         const data = selection.first().data;
         const isMetamodel = this.isMetamodelType(data.category);
-        if (debug) console.log('732 data, selection', data, selection);
         if (isMetamodel) {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
             renameTypes = true;
@@ -1014,17 +1012,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             for (let it = selection?.iterator; it?.next();) {
               const sel = it.value;
               const data = sel.data;
-              if (debug) console.log('743 sel, data', sel, data);
               const key = data.key;
               const typename = data.type;
               if (data.category === constants.gojs.C_RELSHIPTYPE) {
                 const defRelType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
                 const reltype = myMetis.findRelationshipType(data.reltype?.id);
-                if (debug) console.log('749 reltype', reltype);
                 if (reltype) {
                   // Check if reltype instances exist
                   const rels = myMetis.getRelationshipsByType(reltype, false);
-                  if (debug) console.log('753 reltype, rels, myMetis', reltype, rels, myMetis);
                   if (rels.length > 0) {
                     if (renameTypes) {
                       for (let i = 0; i < rels.length; i++) {
@@ -1043,19 +1038,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                     }
                   }
-                  // Check if reltype comes from or goes to a systemtype
-                  // If so, ask if you really want to delete
-                  // const fromObjtype = reltype.fromObjtype;
-                  // const toObjtype   = reltype.toObjtype;
-                  // if (debug) console.log('777 fromObjtype, toObjtype', fromObjtype, toObjtype);
-                  // if (!this.isSystemType(fromObjtype)) {
-                  //   if (!this.isSystemType(toObjtype)) {
-                  //     if (!confirm("This is a relationship type between system types. Do you really want to delete?")) {
-                  //       continue;
-                  //     }
-                  //   }
-                  // }
-                  if (debug) console.log('785 reltype', reltype);
                   reltype.markedAsDeleted = deletedFlag;
                   uic.deleteRelationshipType(reltype, deletedFlag);
                   let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
@@ -1075,17 +1057,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               count++;
               const sel = it.value;
               const data = sel.data;
-              if (debug) console.log('805 sel, data', sel, data);
               const key = data.key;
               const typename = data.type;
               if (data.category === constants.gojs.C_OBJECTTYPE) {
                 const defObjType = myMetis.findObjectTypeByName('Generic');
                 const objtype = myMetis.findObjectType(data.objecttype?.id);
                 if (objtype) {
-                  if (debug) console.log('835 objtype to be removed ??', objtype);
                   // Check if objtype instances exist
                   const objects = myMetis.getObjectsByType(objtype, true);
-                  if (debug) console.log('814 objtype, objects, myMetis', objtype, objects, myMetis);
                   if (objects.length > 0) {
                     if (renameTypes) {
                       for (let i = 0; i < objects.length; i++) {
@@ -1119,7 +1098,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objtype.markedAsDeleted = deletedFlag;
                   const jsnObjtype = new jsn.jsnObjectType(objtype);
                   modifiedObjectTypes.push(jsnObjtype);
-                  if (debug) console.log('1079 objtype', objtype);
                 }
               }
             }
@@ -1133,13 +1111,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = selection?.iterator; it?.next();) {
             const sel = it.value;
             const data = sel.data;
-            const key = data.key;
             if (data.category === constants.gojs.C_OBJECT) {
-              if (debug) console.log('866 sel, data', sel, data);
               const key = data.key;
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
-                if (debug) console.log('870 delete node', data, myNode);
                 uic.deleteNode(myNode, deletedFlag, context);
                 const object = myNode.object;
                 const jsnObject = new jsn.jsnObject(object);
@@ -1147,7 +1122,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const objview = myNode.objectview;
                 const jsnObjview = new jsn.jsnObjectView(objview);
                 modifiedObjectViews.push(jsnObjview);                
-                if (debug) console.log('872 delete node', data, myNode);
               }
             }
           }
@@ -1158,7 +1132,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (data.category === constants.gojs.C_RELATIONSHIP) {
               const myLink = this.getLink(context.myGoModel, key);
-              if (debug) console.log('888 myLink, data', myLink, data);
               uic.deleteLink(data, deletedFlag, context);
               const relview = data.relshipview;
               if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
@@ -1166,9 +1139,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview.relship = myMetis.findRelationship(relview.relship.id);
                 if (!myMetis.deleteViewsOnly) {
                   const relship = relview.relship;
-                  relship.markedAsDeleted = deletedFlag;
-                  const jsnRelship = new jsn.jsnRelationship(relship);
-                  modifiedRelships.push(jsnRelship);
+                  if (relship) {
+                    relship.markedAsDeleted = deletedFlag;
+                    const jsnRelship = new jsn.jsnRelationship(relship);
+                    modifiedRelships.push(jsnRelship);
+                  }
                 }
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 modifiedRelshipViews.push(jsnRelview);
@@ -1176,8 +1151,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('933 myMetis', myMetis);
-        if (debug) console.log('935 Deletion completed', myMetis);
         break;
       }
       case 'ExternalObjectsDropped': {

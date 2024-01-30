@@ -12,7 +12,7 @@ import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import GenGojsModel from '../components/GenGojsModel'
-import SetContext from '../defs/ContextView'
+import ContextView from '../defs/ContextView';
 import ProjectForm from '../components/ProjectForm';
 import LoadGithubParams from '../components/loadModelData/LoadGithubParams';
 import GithubParams from '../components/GithubParams';

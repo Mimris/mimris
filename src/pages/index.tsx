@@ -97,12 +97,15 @@ const page = (props: any) => {
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
               {contextDiv}
-            <div className="workplace row d-flex">
-              <div className="col-3">
+            <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
+              <div className="col-3 my-3">
                 <Project props={props} />
               </div>
-              <div className="col-4">from README.md file on GitHub:
-               {iframe}
+              <div className="col-4 m-3 mx-0 p-0 border rounded">
+                <div className="text-center bg-light">
+                  External from GitHub:  README.md
+                {iframe}
+               </div>
               </div>
               {/* <div className="tasksarea">
                 <TasksHelp />

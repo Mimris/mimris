@@ -1269,8 +1269,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Do Layout",
             function (e: any, obj: any) {
+              let node = obj.part.data;
+              const goModel = myMetis.gojsModel;
+              const objview = node?.objectview;
+              const noLevels = 9;
+              let reltypes = 'has';
+              reltypes = prompt('Enter relationship type to follow', reltypes);
+              const objectviews = [];
+              uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
+              uid.addToSelection(obj, myDiagram);
               const mySelection = myDiagram.selection;
-              const lay = uid.doTreeLayout(mySelection, myDiagram); 
+              const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
             },
             function (o: any) {
               return true;

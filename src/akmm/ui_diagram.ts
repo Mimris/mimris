@@ -650,7 +650,7 @@ export function setTreeLayoutParameters(): go.TreeLayout {
     return layout;
 }
 
-export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints: boolean = false) { 
+export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints: boolean) { 
     const myObjectViews = [];
     const myRelshipViews = [];
     const lay = setTreeLayoutParameters(); 
@@ -2049,7 +2049,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
     return context;
 }
 
-function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
+export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
                                 goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, 
                                 reltypes: string, reldir: string) {
     if (noLevels < 1)
@@ -2088,6 +2088,12 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
                     if (rel.markedAsDeleted)
                         continue;
                     rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
+                    const relviews = modelview.findRelationshipViewsByRel(rel);
+                    const relview = relviews[0];
+                    const link = getLinkByViewId(relview.id, myDiagram);
+                    const l = myDiagram.findLinkForKey(link?.key);
+                    l.isSelected = true;
+                    addToSelection(l, myDiagram);
                     if (reltype) {
                         if (rel?.type.id !== reltype?.id)
                             continue;

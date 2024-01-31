@@ -579,13 +579,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (node.isSelected) {
                   return true;
                 } else  {
-                  const selection = myDiagram.selection;
-                  if (selection.count == 0)
-                    return true;
-                  else
-                    return false;
+                  myDiagram.clearSelection();
+                  node.isSelected = true;
+                  uid.addToSelection(node, myDiagram);
+                  return true;
                 }
-            }
+              }
             }),
           makeButton("Edit Objectview",
             function (e: any, obj: any) {
@@ -599,13 +598,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (node.isSelected) {
                   return true;
                 } else  {
-                  const selection = myDiagram.selection;
-                  if (selection.count == 0)
-                    return true;
-                  else
-                    return false;
+                  myDiagram.clearSelection();
+                  node.isSelected = true;
+                  uid.addToSelection(node, myDiagram);
+                  return true;
                 }
-            }
+              }
           }),
           makeButton("Connect to Selected",
             function (e: any, obj: any) {

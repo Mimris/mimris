@@ -4016,8 +4016,8 @@ export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
       }
       if (object.textcolor) {
         textcolor = object.textcolor;
-      } else if (objview.textcolor1) {
-        textcolor = objview.textcolor1;
+      } else if (objview.textcolor2) {
+        textcolor = objview.textcolor2;
       } else if (typeview?.textcolor) {
         textcolor = typeview.textcolor;
       }

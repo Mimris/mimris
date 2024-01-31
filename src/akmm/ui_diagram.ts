@@ -650,7 +650,7 @@ export function setTreeLayoutParameters(): go.TreeLayout {
     return layout;
 }
 
-export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints: boolean = false) { 
+export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints: boolean) { 
     const myObjectViews = [];
     const myRelshipViews = [];
     const lay = setTreeLayoutParameters(); 
@@ -2049,12 +2049,14 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
     return context;
 }
 
-function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
+export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
                                 goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, 
                                 reltypes: string, reldir: string) {
     if (noLevels < 1)
         return;
+    const reltypename = reltypes.split(',')[0];        
     const myDiagram = myMetis.myDiagram;
+    const myMetamodel = myMetis.currentMetamodel;
     let object = objview.object;
     if (object)
         object = myMetis.findObject(object.id);
@@ -2063,16 +2065,10 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
-        let reltype;
-        if (reltypes) { // Check if reltype is specified
-            // get reltype from comma separated list
-            const reltypename = reltypes.split(',')[0];        
-            try {
-                reltype = myMetamodel.findRelationshipTypeByName(reltypename);
-            } catch {
-                reltype = myMetis.findRelationshipTypeByName(reltypename);
-            }
-        }
+        // let reltype: akm.cxRelationshipType;
+        // if (reltypes) { // Check if reltype is specified
+        //     // get reltype from comma separated list
+        // }
         // Find all relationships of object sorted by name, type name and toObj name
         let useinp = (reldir === 'in');
         for (let i=0; i<2; i++) {
@@ -2088,10 +2084,14 @@ function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObje
                     if (rel.markedAsDeleted)
                         continue;
                     rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
-                    if (reltype) {
-                        if (rel?.type.id !== reltype?.id)
-                            continue;
-                    }
+                    if (rel?.type.name !== reltypename)
+                        continue;
+                    const relviews = modelview.findRelationshipViewsByRel(rel);
+                    const relview = relviews[0];
+                    const link = getLinkByViewId(relview.id, myDiagram);
+                    const l = myDiagram.findLinkForKey(link?.key);
+                    l.isSelected = true;
+                    addToSelection(l, myDiagram);
                     let toObj;
                     if (useinp) 
                         toObj = rel.fromObject as akm.cxObject;

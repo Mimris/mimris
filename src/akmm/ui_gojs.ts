@@ -424,7 +424,12 @@ export class goObjectNode extends goNode {
     // figure: string;
     // geometry: string;
     strokewidth: string;
+    fillcolor: string;
+    fillcolor2: string;
+    strokecolor: string;
+    strokecolor2: string;
     textcolor: string;
+    textcolor2: string;
     textscale: string;
     icon: string;
     image: string;
@@ -456,6 +461,7 @@ export class goObjectNode extends goNode {
         this.strokecolor2   = objview.strokecolor2;
         this.strokewidth    = objview.strokewidth;
         this.textcolor      = objview.textcolor;
+        this.textcolor2      = objview.textcolor2;
         this.textscale      = objview.textscale;
         this.icon           = objview.icon;
         this.image          = objview.image;

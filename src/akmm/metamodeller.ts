@@ -999,6 +999,7 @@ export class cxMetis {
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
+            objtypeview.setTextcolor2(item.textcolor2);
             objtypeview.setTextscale(item.textscale);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokecolor2(item.strokecolor2);
@@ -6183,6 +6184,7 @@ export class cxObjtypeviewData {
     strokecolor2: string;
     strokewidth: string;
     textcolor: string;
+    textcolor2: string;
     textscale: string;
     constructor() {
         // this.abstract = false;
@@ -6200,6 +6202,7 @@ export class cxObjtypeviewData {
         this.strokecolor2 = "gray";
         this.strokewidth = "";
         this.textcolor = "";
+        this.textcolor2 = "";
         this.textscale = "";
     }
 }
@@ -6222,6 +6225,7 @@ export class cxObjectTypeView extends cxMetaObject {
     strokecolor2: string;
     strokewidth: string;
     textcolor: string;
+    textcolor2: string;
     textscale: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
@@ -6240,6 +6244,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor2 = "";
         this.strokewidth = "";
         this.textcolor = "";
+        this.textcolor2 = "";
         this.textscale = "";
         this.viewkind = "";
         this.icon = 'images/types/' + type?.name;
@@ -6389,6 +6394,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.textcolor;
         else if (this.data.textcolor)
             return this.data.textcolor;
+        return "black";
+    }
+    setTextcolor2(color: string) {
+        this.data.textcolor2 = color;
+        this.textcolor2 = color;
+    }
+    getTextcolor2(): string {
+        if (this.textcolor2)
+            return this.textcolor2;
+        else if (this.data.textcolor2)
+            return this.data.textcolor2;
         return "black";
     }
     setTextscale(scale: string) {
@@ -8956,7 +8972,7 @@ export class cxObjectView extends cxMetaObject {
     strokecolor2: string;
     strokewidth: string;
     textcolor: string;
-    textcolor1: string;
+    textcolor2: string;
     textscale: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
@@ -8998,7 +9014,7 @@ export class cxObjectView extends cxMetaObject {
         this.strokecolor2 = "";
         this.strokewidth = "1";
         this.textcolor = "";
-        this.textcolor1 = "";
+        this.textcolor2 = "";
         this.icon = "";
         this.image = "";
     }

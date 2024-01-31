@@ -977,7 +977,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           // This code does not work
           const objview = modalContext.objectview;
           if (objview) {
-            objview.groupLayout = modalContext.selected;
+            objview.groupLayout = modalContext.selected.value + "Layout";
             const jsnObjview = new jsn.jsnObjectView(objview);
             const modifiedObjviews = new Array();    
             modifiedObjviews.push(jsnObjview);

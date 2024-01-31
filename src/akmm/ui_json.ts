@@ -857,6 +857,7 @@ export class jsnObjectTypeView {
     strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
+    textcolor2:      string;
     textscale:       string;
     memberscale:     string;
     icon:            string;
@@ -879,6 +880,7 @@ export class jsnObjectTypeView {
         this.strokecolor2    = objtypeview.getStrokecolor2();
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
+        this.textcolor2      = objtypeview.getTextcolor2();
         this.textscale       = objtypeview.getTextscale();
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
@@ -1610,6 +1612,7 @@ export class jsnObjectView {
     strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
+    textcolor2:      string;
     textscale:       string;
     icon:            string;
     image:           string;
@@ -1634,6 +1637,7 @@ export class jsnObjectView {
         this.strokecolor2    = objview?.strokecolor2;
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
+        this.textcolor2      = objview?.textcolor2;
         this.icon            = objview?.icon;
         this.image           = objview?.image;
         this.size            = objview?.size;
@@ -1924,6 +1928,9 @@ export class jsnImportMetis {
         objtypeview.setFillcolor2(item.fillcolor2);
         objtypeview.setStrokecolor(item.strokecolor);
         objtypeview.setStrokecolor2(item.strokecolor2);
+        objtypeview.setStrokewidth(item.strokewidth);
+        objtypeview.setTextcolor(item.textcolor);
+        objtypeview.setTextcolor2(item.textcolor2);
         objtypeview.setStrokewidth(item.strokewidth);
         objtypeview.setIcon(item.icon);
         jsnMetis.addObjectTypeView(objtypeview);

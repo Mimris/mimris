@@ -535,7 +535,8 @@ function addNodeText(contextMenu: any) {
                 margin: new go.Margin(0, 0, 0, 2),  
                 textAlign: "center",
             },
-            new go.Binding("text", "typename")
+            new go.Binding("text", "typename"),
+            new go.Binding("stroke", "textcolor2").makeTwoWay()
         ),
     )
 }

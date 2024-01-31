@@ -39,7 +39,7 @@ const DropdownMenu = ({ options, domainName }) => {
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	if (debug) console.log('11 Navbar currentRoute', currentRoute, props);
+	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
 
 	const [domainName, setDomainName] = useState("");
 	useEffect(() => {
@@ -138,6 +138,14 @@ const Navbar = (props) => {
 						<span className="navbar-toggler-icon "></span>
 					</button>
 				</div>
+			</div>
+			<div className="navbar-nav mx-2 p-1" style={{ borderRadius: "6px" }}>
+				<span className="username d-flex justify-content-between align-items-center fs-6">
+					<FaUser style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
+				</span>
+				<span className="ms-1">
+					{props.user?.name}
+				</span>
 			</div>
 			<div className="navbar-nav ms-auto">
 				<Link className="navbar-brand p-1 mt-2 ms-auto" href="http://www.kavca.no" target="_blank">

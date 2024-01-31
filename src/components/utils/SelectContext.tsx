@@ -4,7 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import '@fortawesome/fontawesome-free/css/all.css';
 import Selector from './Selector'
-import Context from '../Context'
+import Context from '../FocusDetails'
 import EditFocusParameter from '../forms/EditFocusParameter'
 // import { loadState, saveState } from '../utils/LocalStorage'
 // import { FaJoint } from 'react-icons/fa';
@@ -12,7 +12,7 @@ import EditFocusParameter from '../forms/EditFocusParameter'
 const debug = false;
 
 const SelectContext = (props: any) => {
-  if (!debug) console.log('12 ', props);
+  if (debug) console.log('12 ', props);
   // const dispatch = useDispatch();
   let state = useSelector((state:any) => state) // Selecting the whole redux store
 

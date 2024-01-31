@@ -137,7 +137,13 @@ const CreateNewModel = (props: any) => {
           file: newProjectName+".json",
         },
       },
-      phUser: ph.phUser,
+      phUser: {
+        focusUser: {
+          id: "0",
+          name: "No GitHub User identified",
+          email: ""
+        },
+      },
       phSource: newProjectName,
       lastUpdate: new Date().toISOString()
     }

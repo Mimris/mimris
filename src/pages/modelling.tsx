@@ -12,7 +12,7 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
 import ContextView from "../defs/ContextView"
-import Context from "../components/Context"
+import Context from "../components/FocusDetails"
 import Tasks from '../components/Tasks'
 import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
@@ -223,7 +223,7 @@ const page = (props: any) => {
               {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
                 <div className="issuesarea">
-                  <Issues props={props} showModal={showModal} setShowModal={setShowModal}/>
+                  {/* <Issues props={props} showModal={showModal} setShowModal={setShowModal}/> */}
                 </div>
                 <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                   <Modelling />

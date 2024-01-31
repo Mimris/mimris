@@ -48,13 +48,13 @@ const Modeller = (props: any) => {
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-  const handleVisibleContext = () => { setVisibleContext(!visibleContext) }
+  const handleVisibleFocusDetails = () => { setVisibleFocusDetails(!visibleFocusDetails) }
 
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
   const [ofilter, setOfilter] = useState('All')
   const [visibleObjects, setVisiblePalette] = useState(false)
-  const [visibleContext, setVisibleContext] = useState(true)
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
   const [isExpanded, setIsExpanded] = useState(false)
   const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
   const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
@@ -89,11 +89,11 @@ const Modeller = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   const toggleShowContext = () => {
-    // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleContext  })
-    // setVisibleContext(!visibleContext)
-    SaveAkmmUser({ ...memoryAkmmUser, visibleContext }, locStateKey = 'akmmUser')
-    // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
-    if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
+    // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleFocusDetails  })
+    // setVisibleFocusDetails(!visibleFocusDetails)
+    SaveAkmmUser({ ...memoryAkmmUser, visibleFocusDetails }, locStateKey = 'akmmUser')
+    // setMemoryAkmmUser({...memoryAkmmUser, visibleFocusDetails: !visibleFocusDetails})
+    if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleFocusDetails)
   }
 
 
@@ -125,7 +125,7 @@ const Modeller = (props: any) => {
   }
 
   function toggleObjects() { setVisiblePalette(!visibleObjects); }
-  function toggleVisibleContext() { setVisibleContext(!visibleContext); }
+  function togglevisibleFocusDetails() { setVisibleFocusDetails(!visibleFocusDetails); }
 
   function toggleRefreshObjects() {
     if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
@@ -657,9 +657,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </NavItem>
         <button className="btn  btn-sm bg-transparent text-light ms-auto me-0"
           data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel with Object details!"
-          onClick={handleVisibleContext} 
+          onClick={handleVisibleFocusDetails} 
           >
-          {(visibleContext) 
+          {(visibleFocusDetails) 
             ? <span className="fs-8">Object Details  &#20;<i className="fa fa-lg fa-angle-left pull-right-container"></i> </span>
             : <span className="fs-8">&#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; Object Details  &#20;<i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
           }
@@ -685,8 +685,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </Col>
             <Col className="me-1 my-1 p-1 border " xs="auto" >
               <div className="" style={{ backgroundColor: "#cdd" }}>
-                {(!visibleContext) ?
-                  <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleContext={handleVisibleContext} />
+                {(!visibleFocusDetails) ?
+                  <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleFocusDetails={handleVisibleFocusDetails} />
                   : <></>
                 }        
               </div>
@@ -732,7 +732,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <Modal.Title>Report Module</Modal.Title>
           </Modal.Header>
           <Modal.Body className="bg-transparent">
-            <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>
+            <ReportModule props={props} reportType="object" modelInFocusId={props.phFocus.focusModel?.id} edit={true}/>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>

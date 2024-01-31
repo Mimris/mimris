@@ -576,9 +576,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
-              return false;
+                if (node.isSelected) {
+                  return true;
+                } else  {
+                  const selection = myDiagram.selection;
+                  if (selection.count == 0)
+                    return true;
+                  else
+                    return false;
+                }
+            }
             }),
           makeButton("Edit Objectview",
             function (e: any, obj: any) {
@@ -589,10 +596,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
-              return false;
-            }),
+                if (node.isSelected) {
+                  return true;
+                } else  {
+                  const selection = myDiagram.selection;
+                  if (selection.count == 0)
+                    return true;
+                  else
+                    return false;
+                }
+            }
+          }),
           makeButton("Connect to Selected",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1256,11 +1270,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.handleOpenModal(myDiagram, modalContext);
             },
             function (o: any) {
-              return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const objview = node.objectview;
-                if (objview.viewkind === 'Container') {
+                if (objview.isGroup) {
                   if (objview.isExpanded === true)
                     return true;
                 }
@@ -1272,14 +1285,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let node = obj.part.data;
               const goModel = myMetis.gojsModel;
               const objview = node?.objectview;
-              const noLevels = 9;
-              let reltypes = 'has';
-              reltypes = prompt('Enter relationship type to follow', reltypes);
-              const objectviews = [];
-              uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
-              uid.addToSelection(obj, myDiagram);
-              const mySelection = myDiagram.selection;
-              const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
+              if (!objview.isGroup) {
+                const noLevels = 9;
+                let reltypes = 'has';
+                reltypes = prompt('Enter relationship type to follow', reltypes);
+                const objectviews = [];
+                uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
+                uid.addToSelection(obj, myDiagram);
+                const mySelection = myDiagram.selection;
+                const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
+              } else {
+                  if (objview.groupLayout)
+                    uid.doGroupLayout(objview, myDiagram);
+              }
             },
             function (o: any) {
               return true;

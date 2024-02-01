@@ -44,7 +44,7 @@ const axiosConfigRaw2 = {
 
 export async function searchGithub(repo, path, filename, branch='main', searchtype='paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
   try {
-    if (debug) console.log('46 searchGithub', repo, path, branch, filename, searchtype);
+    if (!debug) console.log('46 searchGithub', repo, path, branch, filename, searchtype);
     // search/repositories?q=akm-models
     let query = ''
     if (searchtype == 'repos') {
@@ -68,20 +68,29 @@ export async function searchGithub(repo, path, filename, branch='main', searchty
     } else if (searchtype == 'issues') {
       console.log('50 searcGithub issues', repo);
       query = `${repo}/issues`
+    } else if (searchtype == 'user') {
+      console.log('50 searcGithub user', repo);
+      query = `users/${repo}`
+      await axios.get(
+        `${query}`,
+        axiosConfig
+      );
     }
-    if (debug) console.log('50 searcGithub ', query);
-    return await axios.get(
+    if (debug) console.log('75 searcGithub ', query);
+    const searchres = await axios.get(
       `${query}`,
       axiosConfigRaw2
     );
+    if (debug) console.log('81 searcGithub searchres', searchres);
+    return searchres;
   } catch (error) {
     console.error('Error in searchGithub:', error);
-    throw error;
+    // throw error;
   }
 }
 export async function searchRepos(repo, path) {  // search/repositories?q=akm-models
   try {
-    if (debug) console.log('74 searchRepos search/repositories', repo, path);
+    if (!debug) console.log('87 searchRepos search/repositories', repo, path);
     return await axios.get(
       `search/repositories?q=${repo}`,
       axiosConfig
@@ -91,6 +100,19 @@ export async function searchRepos(repo, path) {  // search/repositories?q=akm-mo
     throw error;
   }
 }
+
+// export async function searchUser(repo) {  
+//   try {
+//     if (debug) console.log('74 searchUser', repo);
+//     return await axios.get(
+//       `users/${repo}`,
+//       axiosConfig
+//     );
+//   } catch (error) {
+//     console.error('Error in searchUser:', error);
+//     throw error;
+//   }
+// }
 
 export async function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-models
   try {

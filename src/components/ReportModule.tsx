@@ -7,7 +7,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 import 'react-tabs/style/react-tabs.css';
 
-import Context from './Context'
+import FocusDetails from './FocusDetails';
 import MarkdownEditor from './forms/MarkdownEditor';
 
 const debug = false
@@ -34,10 +34,10 @@ const ReportModule = (props) => {
     <>
 
       {visibleTabsDiv ?
-      <>
-        {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
-          onClick={props.handleVisibleContext}><span>-&gt; </span> 
-        </button> */}
+        <>
+          {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
+            onClick={props.handleVisibleContext}><span>-&gt; </span> 
+          </button> */}
           <>
           <Tabs onSelect={index => setActiveTab(index)} >
             <TabList style={{ margin: '0px' }}>
@@ -48,7 +48,7 @@ const ReportModule = (props) => {
                   <Tab ><FaCompass /></Tab> */}
             </TabList>
             <TabPanel className='p-1 border border-dark' >
-              <Context props={props} reportType={props.reportType}/>
+              <FocusDetails props={props} reportType={props.reportType} edit={true}/>
             </TabPanel>
             <TabPanel className='p-1 border border-dark' >
               <MarkdownEditor props={props} />
@@ -68,9 +68,9 @@ const ReportModule = (props) => {
   )
 
   let bgr: String = '#ddd'
-  if (props.reportType === 'task') {
-    bgr = '#cdd'
-  } 
+  // if (props.reportType === 'task') {
+  //   bgr = '#cdd'
+  // } 
 
   const reportDiv = 
     <>
@@ -86,17 +86,17 @@ const ReportModule = (props) => {
     </>
 
   return (
-    (props.reportType === 'task') ? // task modal
+    // (props.reportType === 'task') ? // task modal
     // <div style={{ backgroundColor: '#faa' }}>
       <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}
       </div>
     // </div>
-    :
+    // :
     // <div >
-      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-        {reportDiv}
-      </div>
+      // <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+      //   {reportDiv}
+      // </div>
     // </div>
   )
 }

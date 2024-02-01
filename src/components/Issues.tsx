@@ -162,12 +162,10 @@ useEffect(() => {
     if (debug) console.log('72 comments', issues)
   }
 
-
   const handleSubmit = (details) => {
     props.onSubmit(details);
     handleCloseModal();
   };
-
 
   const handleShowModal = () => {
     if (minimized) {
@@ -178,8 +176,6 @@ useEffect(() => {
   
   const handleCloseModal = () => props.setShowModal(false);
 
-
-
   const handleShowProjectModal = () => {
     if (minimized) {
       setMinimized(true);
@@ -188,7 +184,6 @@ useEffect(() => {
   };
 
   const handleCloseProjectModal = () => setShowProjectModal(false);
-
 
   const projectModalDiv = (
     <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
@@ -235,7 +230,6 @@ useEffect(() => {
               ))
             : <div className='text-muted'>Unable to get project for this repo!</div>
           }      */}
-      
         <div className='bg-light p-2 m-0'>
           {(issues.length > 0) 
             ? issues?.map((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
@@ -325,9 +319,9 @@ useEffect(() => {
         <hr className="m-1"/>
         <div className="issues-list side-panel bg-light border border-success">
             <div className="ps-2 font-weight-bold fs-4" >Issues: 
-                    <span>
-                    {/* {(repo) && <Link className='text-primary ms-4 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>} */}
-                    </span>
+              <span>
+                {/* {(repo) && <Link className='text-primary ms-4 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>} */}
+              </span>
             </div>
             <div className="d-flex justify-content-center">
               <button 

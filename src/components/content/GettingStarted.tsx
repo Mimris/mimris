@@ -53,10 +53,10 @@ const GettingStarted = () => {
                 }}
             >
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
-                <CardHeader className="card-header">Terminologi!</CardHeader>
+                <CardHeader className="card-header">Terminology!</CardHeader>
                 <CardTitle className="card-title-bold" >IRTV</CardTitle>
                 <CardText className="card-text "> 
-                    <strong> IRTV stands for: Information, Role, Task, View</strong>
+                    <strong> IRTV (Information, Role, Task, View)</strong>
                     <br />AKM modelling start with a generic IRTV-Metamodel, wich contain the basic building blocks for AKM Models. <br />(shown in the left Palette in the modelling page). 
                     <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
 

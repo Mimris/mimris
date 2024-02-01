@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 import Link from 'next/link';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from 'rehype-slug';
@@ -16,6 +16,8 @@ import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import { setfocusRefresh } from '../actions/actions';
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
+import { get } from 'http';
+import { searchUser } from './githubServices/githubService';
 
 // import { fetchIssues } from '../api/github';
 

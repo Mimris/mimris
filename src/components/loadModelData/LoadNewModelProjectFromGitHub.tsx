@@ -114,17 +114,17 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     setTimeout(refres, 3000);
   }
 
-  const loadUser = async (repo) => {
-    if (repo?.length > 0) {
-      setLoading(true);
-      const res = await searchGithub(repo, '', '', '', 'user');
-      setLoading(false);
-      if (res) {
-        if (!debug) console.log('122 res', res, res.data, res.data.email)
-        setUser(res.data.email);
-      }
-    }
-  }
+  // const loadUser = async (repo) => {
+  //   if (repo?.length > 0) {
+  //     setLoading(true);
+  //     const res = await searchGithub(repo, '', '', '', 'user');
+  //     setLoading(false);
+  //     if (res) {
+  //       if (!debug) console.log('122 res', res, res.data, res.data.email)
+  //       setUser(res.data.email);
+  //     }
+  //   }
+  // }
   const loadRepos = async (repoText, pathText) => {
     if (orgnameText?.length > 0)  { 
       setLoading(true);
@@ -254,14 +254,14 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     if (debug) console.log('230 ', orgnameText, repoText, branchText, pathText,  githubLink)
   }, [refresh]);
 
-  useEffect(() => {
-    if (!debug) console.log('255 ', orgnameText, repoText, branchText, pathText,  githubLink)
-    const repo = loadUser(repoText);
-    // set timeot to 3 seconds to allow for loading of repos
-    setTimeout(() => {
-     if (!debug) console.log('257 ', repoText, pathText, repo)
-    }, 3000);
-  }, [repoText, pathText, branchText]);
+  // useEffect(() => {
+  //   if (!debug) console.log('255 ', orgnameText, repoText, branchText, pathText,  githubLink)
+  //   const repo = loadUser(repoText);
+  //   // set timeot to 3 seconds to allow for loading of repos
+  //   setTimeout(() => {
+  //    if (!debug) console.log('257 ', repoText, pathText, repo)
+  //   }, 3000);
+  // }, [repoText, pathText, branchText]);
 
   let modeloptionss = models?.map((mod) => {
     return {

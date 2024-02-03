@@ -7,14 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
-import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json';
-// import StartCOREStateJson from '../startupModel/AKM-Start-CORE_PR.json';
-// import StartIRTVStateJson from '../startupModel/AKM-Start-IRTV_PR.json';
-// import StartOSDUStateJson from '../startupModel/AKM-Start-OSDU_PR.json';
 
-// import ProjectDetailsModal from './modals/ProjectDetailsModal';
-import ProjectDetailsForm from "./forms/ProjectDetailsForm";
-import { setfocusRefresh } from '../actions/actions';
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 
 // import { fetchIssues } from '../api/github';
@@ -97,70 +90,75 @@ const Issues = (props) => {
       // setMaximized(true);
   };
 
-  // get the project object from github
-  const fetchProject = async (url) => {
-    try {
-      if (debug) console.log('75 project fetch', url)
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!debug) console.log('105 project', res, data)
-      if (data.length === 0) { // if there is an error
-        console.error('Error fetching project:', data.message);
-        setProject([]);
-      } else {
-        setProject(data);
-      }
-      if (debug) console.log('58 project', data)
-      if (debug) console.log('59 project', project)
-    } catch (error) {
-      console.error('Error fetching project:', error);
-    }
-    if (debug) console.log('72 project', project)
-  }
-
-useEffect(() => {
-  const curProject = fetchProject(projectUrl)
-  if (!debug) console.log('75 project', curProject)
-  //find the Issue status in the project
-
-}, [props.props.phFocus.focusIssue?.id])  
-
-
   // list issues form github
   const fetchIssues = async (url) => {
     try {
-      if (debug) console.log('75 issues fetch', url)
+      if (debug) console.log('132 issues fetch', url)
       const res = await fetch(url);
       const data = await res.json();
-      if (!debug) console.log('105 issues', res, data)
+      if (!debug) console.log('135 issues', res, data)
       if (data.length === 0) { // if there is an error
         console.error('Error fetching issues:', data.message);
         setIssues([]);
       } else {
         setIssues(data);
       }
-      if (debug) console.log('58 issues', data)
-      if (debug) console.log('59 issues', issues)
+      if (debug) console.log('142 issues', data)
+      if (debug) console.log('143 issues', issues)
 
-      if (issues.length > 0) {
-        issues.map(async (issue) => {
-          const res = await fetch(issue.comments_url);
-          const data = await res.json();
-          if (debug) console.log('67 comments', res, data)
-          if (data.length === 0) { // if there is an error
-            console.error('Error fetching comments:', data.message);
-            setComments([]);
-          } else {
-            setComments((comments) => [...comments, data]);
-          }
-          if (debug) console.log('71 comments', data)
-        })
-      }
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
-    if (debug) console.log('72 comments', issues)
+    if (debug) console.log('148 comments', issues)
   }
+
+  // const CommentsComponent = (issue: any) => {
+  //   if (issue.comments_url === undefined) return null;
+  //   if (issue.comments === 0) return null;
+  //   console.log('153 comments', issue, issue.body, issue.comments_url);
+  //   fetchComments(issue.comments_url)
+  //     .then((comments: any[]) => {
+  //       if (!debug) console.log('156 comments', comments);
+  //       if (comments.length === 0) return [];
+  //       return comments.map((comment: any) => (comment.issue_url === issue.comments_url) && (comment.body));
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching comments:', error, issue.comments_url);
+  //     });
+  //     return (
+  //       <div>
+  //         {(comments && comments.length > 0) && comments.map((comment) => {
+  //           if (!debug) console.log('167 comments', comment)
+  //           return (
+  //             <div>
+  //               <div key={comment.id}>
+  //                 <p>{comment.body}</p>
+  //               </div>
+  //             </div>
+  //           );
+  //         })}
+  //       </div>
+  //     );
+  //   };
+
+// const fetchComments = async (url) => {
+//   const comments = [];
+//   if (issues.length > 0) {
+//     await Promise.all(issues.map(async (issue) => {
+//       const res = await fetch(issue.comments_url);
+//       const data = await res.json();
+//       if (!debug) console.log('176 comments', res, data)
+//       if (data.length === 0) { // if there is an error
+//         console.error('Error fetching comments:', data.message, data, res, issues);
+//       } else {
+//         comments.push(...data);
+//       }
+//       if (!debug) console.log('183 comments', data, comments)
+//     }));
+//   }
+//   setComments(comments);
+//   return comments;
+// }
 
   const handleSubmit = (details) => {
     props.onSubmit(details);
@@ -176,63 +174,15 @@ useEffect(() => {
   
   const handleCloseModal = () => props.setShowModal(false);
 
-  const handleShowProjectModal = () => {
-    if (minimized) {
-      setMinimized(true);
-    }
-    setShowProjectModal(true);
-  };
-
-  const handleCloseProjectModal = () => setShowProjectModal(false);
-
-  const projectModalDiv = (
-    <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
-      className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
-    <Modal.Header closeButton>Set Context: </Modal.Header>
-    <Modal.Body >
-      <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
-    </Modal.Body>
-    <Modal.Footer>
-      <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
-    </Modal.Footer>
-  </Modal>
-);
-
   const modalDiv = (
     <Modal  show={props.showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
       <Modal.Body className="bg-transparent"  style={{ overflowY: 'scroll', maxHeight: '80vh' }}>
-        {/* <div className='bg-light p-2 m-0'> 
-          {(project.length > 0)
-            ? project?.map((proj) => (proj.number === props.props.phFocus.focusProj?.projectNumber) && (
-              <div key={proj.number}>
-                <Link className='text-primary fs-4' href={`https:/github.com/${org}/${repo}/projects/${proj.number}`} target="_blank" style={{ textDecoration: 'underline' }}>
-                  {proj.number}, {proj.name}
-                </Link> <br />
-                User login: {proj.user.login} <br />
-                State: {proj.state} <br />
-                Status: {proj.state.status} <br />
-                Created: {proj.created_at.slice(0, 10)} <br />
-                Updated: {proj.updated_at.slice(0, 10)} <br />
-                Closed: {proj.closed_at?.slice(0, 10)} <br />
-                <div className="bg-white border border-secondary p-2">
-                  Details:
-                  <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{proj.body}</ReactMarkdown>
-                </div>
-                <>
-                  <hr />
-                  <h6 className="border" >Open Project on GitHub!</h6>
-                  <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/projects/${proj.number}`} target="_blank">{org}/{repo}/projects/{proj.number}</Link>
-                </>
-              </div>
-              ))
-            : <div className='text-muted'>Unable to get project for this repo!</div>
-          }      */}
         <div className='bg-light p-2 m-0'>
           {(issues.length > 0) 
-            ? issues?.map((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
+            ? issues?.find((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
               <div key={issue.number}>
                 <Link className='text-primary fs-4' href={`https:/github.com/${org}/${repo}/issues/${issue.number}`} target="_blank" style={{ textDecoration: 'underline' }}>
                   {issue.number}, {issue.title}
@@ -249,8 +199,8 @@ useEffect(() => {
                   Details:
                   <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{issue.body}</ReactMarkdown>
                 </div>
-                Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br />
-
+                {/* Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br /> */}
+                {/* {CommentsComponent(issue)} */}
                 {/* Body:  {issue.body}, User name: {issue.user.name} */}
                 <>
                   <hr />
@@ -395,7 +345,7 @@ useEffect(() => {
           <hr className="m-1 p-" />
         </div>
         {modalDiv}
-        {projectModalDiv}
+        {/* {projectModalDiv} */}
       </div>
     );
   }

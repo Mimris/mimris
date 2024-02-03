@@ -239,7 +239,7 @@ const Palette = (props: any) => {
                   {gojsappPaletteDiv} 
                 {/* </div> */}
               </div>
-          : <div className="btn-vertical px- item-align-center" style={{ height: "87vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
+          : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "87vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
         }
       </div>
     </>

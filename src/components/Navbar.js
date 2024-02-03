@@ -2,38 +2,44 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
 import { FaUser, FaEnvelope } from 'react-icons/fa';
-// import { set } from 'immer/dist/internal';
 
 const debug = false;
 
 const DropdownMenu = ({ options, domainName }) => {
 	const [isOpen, setIsOpen] = useState(false);
-	
+	const [selectedOption, setSelectedOption] = useState(null); // Add selectedOption state
+
 	const toggleMenu = () => {
-	  setIsOpen(!isOpen);
+		setIsOpen(!isOpen);
 	};
-  
+
+	const handleOptionClick = (option) => {
+		setSelectedOption(option.label);
+		toggleMenu();
+	};
+
 	return (
 		<div className="dropdown">
-		<button 
-			className="btn bg-light text-secondary dropdown-toggle btn-sm p-1" 
-			type="button" 
-			data-toggle="tooltip" data-placement="top" data-bs-html="true"
-			title={`Current version is : ${domainName}. Click to change version`}
-			onClick={toggleMenu}>
-		  v.
-		</button>
-		<div className={`dropdown-menu ${isOpen ? 'show' : ''}`}>
-		  {options.map((option) => (
-			<Link href={option.href} key={option.label}
-			  className={`dropdown-item ${option.active ? 'active' : ''}`} >
-				{option.label}
-			</Link>
-		  ))}
+			<button
+				className="btn bg-light text-secondary dropdown-toggle btn-sm p-1"
+				type="button"
+				data-toggle="tooltip" data-placement="top" data-bs-html="true"
+				title={`Current version is : ${domainName}. Click to change version`}
+				onClick={toggleMenu}>
+				{selectedOption ? selectedOption : 'v.'} {/* Show selected option */}
+			</button>
+			<div className={`dropdown-menu ${isOpen ? 'show' : ''}`}>
+				{options.map((option) => (
+					<Link href={option.href} key={option.label}
+						className={`dropdown-item ${option.active ? 'active' : ''}`}
+						onClick={() => handleOptionClick(option)}>{option.label}</Link>
+				))}
+				<span className="ms-0 fs-7" style={{ transform: 'scale(0.8)' }}>{selectedOption?.label}</span>
+			</div>
 		</div>
-	  </div>
 	);
-  };
+};
+
 
 
 const Navbar = (props) => {
@@ -49,37 +55,42 @@ const Navbar = (props) => {
 
 	const options = [
 		{
-		  label: 'Final version',
-		  href: 'https://akmmclient.vercel.app/modelling',
-		  active: domainName === 'akmmclient.vercel.app',
+			label: 'Final version',
+			href: 'https://akmmclient.vercel.app/modelling',
+			active: domainName === 'akmmclient.vercel.app',
 		},
 		{
-		  label: 'Beta version',
-		  href: 'https://akmmclient-beta.vercel.app/modelling',
-		  active: domainName === 'akmmclient-beta.vercel.app',
+			label: 'Beta version',
+			href: 'https://akmmclient-beta.vercel.app/modelling',
+			active: domainName === 'akmmclient-beta.vercel.app',
 		},
-				{
-		  label: 'Alfa version',
-		  href: 'https://akmmclient-alfa.vercel.app/modelling',
-		  active: domainName === 'akmmclient-alfa.vercel.app',
+		{
+			label: 'Alfa version',
+			href: 'https://akmmclient-alfa.vercel.app/modelling',
+			active: domainName === 'akmmclient-alfa.vercel.app',
 		},
-	  ];
+		// {
+		//   label: 'Local version',
+		//   href: 'http://localhost:3000/modelling',
+		//   active: domainName === 'localhost:3000',
+		// },
+	];
 
 
 
 	return (
-		<nav className="navbar navbar-expand-sm" 
-			style= {(domainName === "localhost") 
-				? {backgroundColor: "#efe"} 
-				: {backgroundColor: " #efefef"}
+		<nav className="navbar navbar-expand-sm"
+			style={(domainName === "localhost")
+				? { backgroundColor: "#efe" }
+				: { backgroundColor: " #efefef" }
 			}>
-			<div className="d-flex justify-content-center align-items-center">
+			<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0" style={{ maxHeight: "20px" }}>
 				<Link className="navbar-brand navbar-left mx-2" href="#">
 					<img src="images/equinor-logo.svg" width="110px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
-				<Link className="navbar-brand navbar-left ms-2 me-auto fs-2 " href="#">
-					<strong className="text-success">AKM Modeller</strong>
-				</Link>
+				{/* <Link className="navbar-brand navbar-left ms-2 me-auto py-0 fs-2 " href="#"> */}
+					<strong className="text-success fs-2">AKM Modeller</strong>
+				{/* </Link> */}
 				<div className="mx-4">
 					<DropdownMenu options={options} domainName={domainName} />
 				</div>
@@ -88,7 +99,7 @@ const Navbar = (props) => {
 				<div className="collapse navbar-collapse " id="nav-toggler-metis">
 					<ul className="navbar-nav fs-5 ">
 						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
-							<Link  href="/">Home</Link>
+							<Link href="/">Home</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
 							<Link href="/modelling" >Modelling</Link>
@@ -108,10 +119,10 @@ const Navbar = (props) => {
 							</Link>
 						</li> */}
 						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
-							<Link  href="/helpblog">Help</Link>
+							<Link href="/helpblog">Help</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
-							<Link  href="/about">About</Link>
+							<Link href="/about">About</Link>
 						</li>
 						{/* <li className="nav-item pt-1 ps-1" style={{ minWidth: "54px"}}>
 							<Link
@@ -156,7 +167,7 @@ const Navbar = (props) => {
 				</Link>
 			</div>
 
-		<style jsx>{`
+			<style jsx>{`
 		  	nav {
 				height: 46px;
 				padding-bottom: 5px;

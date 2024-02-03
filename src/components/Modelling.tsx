@@ -169,7 +169,8 @@ const page = (props: any) => {
   let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
 
   myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
-  // myModel = myMetis?.currentModel;
+  if (!myMetis) return <></>
+    // myModel = myMetis?.currentModel;
   myModel = myMetis?.findModel(curmod?.id);
 
   myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
@@ -185,7 +186,7 @@ const page = (props: any) => {
 
   if (!myMetis || !myModel || !myModelview || !myMetamodel) {
     console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
-    // return null;˝
+    return null;
   }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel

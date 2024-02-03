@@ -89,7 +89,7 @@ const Navbar = (props) => {
 					<img src="images/equinor-logo.svg" width="110px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
 				{/* <Link className="navbar-brand navbar-left ms-2 me-auto py-0 fs-2 " href="#"> */}
-					<strong className="text-success fs-2">AKM Modeller</strong>
+				<strong className="text-success fs-2">AKM Modeller</strong>
 				{/* </Link> */}
 				<div className="mx-4">
 					<DropdownMenu options={options} domainName={domainName} />
@@ -110,6 +110,7 @@ const Navbar = (props) => {
 						{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link href="/context">Focus</Link>
 						</li> */}
+
 						{/* <li 
 							className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link 
@@ -120,6 +121,9 @@ const Navbar = (props) => {
 						</li> */}
 						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
 							<Link href="/helpblog">Help</Link>
+						</li>
+						<li className={`nav-item ${currentRoute === "/videos" ? "active" : ""}`}>
+							<Link href="/videos">Videos</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
 							<Link href="/about">About</Link>

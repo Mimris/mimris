@@ -215,8 +215,8 @@
 }
 
 .homepage-video {
-  /* background: linear-gradient(90deg,#fc7a64 6%,#fda978 25%,#dacf90 40%, #cae281 45%,#6ae6cb 55%,#10859a 94%); */
-  background: linear-gradient(155deg,#e45807 26%,#FFA500 35%,#f18944 40%,#FFA500 45%,#e45807 94%);
+  background: linear-gradient(90deg,#64fc92 6%,#78fddc 25%,#dacf90 40%, #cae281 45%,#6ae6cb 55%,#10859a 94%);
+  /* background: linear-gradient(155deg,#e45807 26%,#FFA500 35%,#f18944 40%,#FFA500 45%,#e45807 94%); */
   display: flex;
   align-items: center;
   justify-content: space-between;

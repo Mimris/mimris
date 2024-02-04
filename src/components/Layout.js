@@ -7,7 +7,12 @@ import TopMenu from './Navbar';
 // import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
-  const projName =  props?.children?.props?.children?.props?.children[0]?.props?.children[0]?.props?.ph?.phSource;
+  const projName = props && props.children 
+    && props.children.props && props.children.props.children 
+    && props.children.props.children.props && props.children.props.children.props.children 
+    && props.children.props.children.props.children[0] && props.children.props.children.props.children[0].props 
+    && props.children.props.children.props.children[0].props.ph && props.children.props.children.props.children[0].props.ph.phSource 
+    && props.children.props.children.props.children[0].props.ph.phSource.projName;
   // console.log("11 projName", projName);
   // const projName = props.phSource.;
   // const [darkMode, setDarkMode] = useDarkMode();

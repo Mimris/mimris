@@ -42,6 +42,7 @@ const page = (props: any) => {
             {/* <div className="header">
               <Header title='eaderTitle' />
             </div> */}
+            <div className="pt-1" style={{backgroundColor: "#e2e2e2"}}></div>
             <div className="workplace">
               {/* <div className="contextarea">
                 {setContextDiv}

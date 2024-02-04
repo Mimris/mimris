@@ -141,7 +141,7 @@ const CreateNewModel = (props: any) => {
       phUser: {
         focusUser: {
           id: "0",
-          name: "No GitHub User identified",
+          name: "User",
           email: ""
         },
       },

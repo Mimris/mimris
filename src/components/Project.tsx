@@ -17,7 +17,7 @@ import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import { setfocusRefresh } from '../actions/actions';
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 import { get } from 'http';
-import { searchUser } from './githubServices/githubService';
+// import { searchUser } from './githubServices/githubService';
 
 // import { fetchIssues } from '../api/github';
 

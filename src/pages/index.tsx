@@ -41,26 +41,26 @@ const page = (props: any) => {
   // * Set up the Context items and link to select Context modal,
   // */
 
-  useEffect(() => { 
-    if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
-    // let data = {}
-    if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
-      // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-      if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-        // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-        if (memoryLocState) {
-            const locStore = (memoryLocState) 
-            if (locStore) {
-              dispatchLocalStore(locStore)
-              // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-              // console.log('modelling 73 ', data)
-            }
-          } 
-        // }   
-      }
-    }
-    setMount(true)
-  }, [])  
+  // useEffect(() => { 
+  //   if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
+  //   // let data = {}
+  //   if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
+  //     // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+  //     if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+  //       // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+  //       if (memoryLocState) {
+  //           const locStore = (memoryLocState) 
+  //           if (locStore) {
+  //             dispatchLocalStore(locStore)
+  //             // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+  //             // console.log('modelling 73 ', data)
+  //           }
+  //         } 
+  //       // }   
+  //     }
+  //   }
+  //   setMount(true)
+  // }, [])  
 
   const [showExternalPage, setShowExternalPage] = useState(true);
 

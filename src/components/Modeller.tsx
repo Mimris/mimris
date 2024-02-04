@@ -643,8 +643,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           onClick={toggleObjects} 
           >
             {(visibleObjects) 
-                ? <span className="fs-8"> <i className="fa fa-lg fa-angle-left pull-right-container"></i> &#20; Objects &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20;</span>
-              : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i> &#20; Objects </span>
+              ? <span className="fs-8"><i className="fa fa-lg fa-angle-left  pull-right-container me-1"></i>Objects </span>
+              : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container me-1"></i>Objects </span>
             }
         </button>
         {navitemDiv}
@@ -660,8 +660,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           onClick={handleVisibleFocusDetails} 
           >
           {(visibleFocusDetails) 
-            ? <span className="fs-8">Object Details  &#20;<i className="fa fa-lg fa-angle-left pull-right-container"></i> </span>
-            : <span className="fs-8">&#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; &#20; Object Details  &#20;<i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
+            ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left  pull-right-container ms-1"></i> </span>
+            : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right pull-right-container ms-1"></i></span>
           }
         </button> 
       </Nav>
@@ -669,13 +669,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <TabPane className="bg-white p-0 borde border-white">
             <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
               {(visibleObjects)
-                // ? (objectsTabDiv)
                 ?  <><Col className="p-0 m-0 my-0"xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
-                  // ? (isExpanded) 
-                  //   ?   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-4 mb-1" style={{ fontSize: "11px"}}></div>{objectsTabDiv}</Col> </>
-                    //   :   <><Col className= ""><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px" }}></div>{objectsTabDiv}</Col> </>
-                    // : <><Col><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{ fontSize: "11px"}}></div></Col> </>
-                : <></> //<div className="btn-vertical px-1 pt-2 text-center " style={{ height: "74vh", maxWidth: "10px", padding: "0px", fontSize: "12px" }}><span> O b j e c t s </span> </div></>
+                : <></>
               }
             <Col className="me-2 my-1 p-1 border" xe="auto" >
               <div className="workpad bg-white border-light mt-0 pe-0 ">
@@ -704,7 +699,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     </>
 
-
   if (debug) console.log('372 Modeller ', props.modelType)
 
   const modellerDiv =
@@ -725,7 +719,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
         <div className="modeller--workarea-objects" >
           {modelviewTabDiv}
-          {/* {footerButtonsDiv} */}
         </div>
         <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
           <Modal.Header closeButton>
@@ -746,7 +739,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--topbar  mt-1 p-0 ">
           <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
           <div className="">
-            <div className="modeller--heading-selector d-flex justify-content-between me-4" title="Modeller heading area" > <span className="mt-1 ms-2 px-2 " style={{ backgroundColor: '#bcd' }} >Metamodel : {mmodel.name}</span> {selector}</div>
+            <div className="modeller--heading-selector d-flex justify-content-between me-4" 
+              title="Modeller heading area" > 
+              <span className="mt-1 ms-2 px-2 " style={{ backgroundColor: '#bcd' }} >Metamodel : {mmodel.name}</span> 
+              {selector}
+            </div>
           </div>
           <div>
             {metamodelTabDiv}

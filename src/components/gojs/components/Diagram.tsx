@@ -1287,6 +1287,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Do Layout",
             function (e: any, obj: any) {
+              let layout = ""
               let node = obj.part.data;
               const goModel = myMetis.gojsModel;
               const objview = node?.objectview;

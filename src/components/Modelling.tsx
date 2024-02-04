@@ -169,7 +169,8 @@ const page = (props: any) => {
   let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
 
   myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
-  // myModel = myMetis?.currentModel;
+  if (!myMetis) return <></>
+    // myModel = myMetis?.currentModel;
   myModel = myMetis?.findModel(curmod?.id);
 
   myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
@@ -185,15 +186,16 @@ const page = (props: any) => {
 
   if (!myMetis || !myModel || !myModelview || !myMetamodel) {
     console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
-    // return;
+    return null;
   }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-  // myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
   if (!myModel?.objects) {
-    console.log('196 myModel.objects is undefined');
+    console.log('196 myModel.objects is undefined', myMetis);
+    // return null
   } else {
     myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);
   }

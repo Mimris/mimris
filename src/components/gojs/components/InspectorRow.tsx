@@ -83,11 +83,12 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               disabled={this.props.disabled}
               id={this.props.id}
               value={val}
-              style={(this.props.id === 'description') ? {  height: "200px" } : {  height: "40px" }}
+              // style={(this.props.id === 'description') ? {  height: "200px" } : {  height: "40px" }}
               // checked={this.props.checked}
               // type={this.props.type}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}
+              rows={ Math.ceil((val.length) / 69)}
               >
             </textarea>
           </td>

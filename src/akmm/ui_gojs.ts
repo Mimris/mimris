@@ -466,11 +466,13 @@ export class goObjectNode extends goNode {
         this.icon           = objview.icon;
         this.image          = objview.image;
         this.isGroup        = objview.isGroup;
+        this.loc            = objview.loc;
+        this.size           = objview.size;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
         this.isExpanded     = objview.isExpanded;
         this.isSelected     = objview.isSelected;
-        this.groupLayout    = "Tree";
+        this.groupLayout    = objview.groupLayout;
         this.group          = objview.group as akm.cxObjectView;
         this.parent         = "";
 

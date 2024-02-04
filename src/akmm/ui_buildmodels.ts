@@ -214,7 +214,6 @@ let includeNoType = false;
         const obj = objview.object as akm.cxObject;
         if (!model.findObject(obj?.id)) 
           continue;
-        
         if (true) {
           if (objview.id === focusObjview?.id) 
             objview.isSelected = true;
@@ -297,6 +296,12 @@ let includeNoType = false;
           node.name = objview.name;
           if (node.fillcolor === "") {
             node.fillcolor = "lightgrey";
+            const object = node.object as akm.cxObject;
+            const objtype = object?.type as akm.cxObjectType;
+            const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
+            if (typeview) {
+              node.fillcolor = typeview.fillcolor;
+            }
           }
         }
       }
@@ -304,22 +309,38 @@ let includeNoType = false;
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i] as gjs.goObjectNode;
           if (!node.object) continue;
-          const objview = node.objectview as akm.cxObjectView;
+          let objview = node.objectview as akm.cxObjectView;
+          objview = modelview.findObjectView(objview.id);
           if (objview.id === focusObjview?.id) {
             objview.isSelected = true;
             node.isSelected = true;
           }
-          const obj = node.object as akm.cxObject;
-          const objtype = obj.type as akm.cxObjectType;
+          let obj = node.object as akm.cxObject;
+          obj = model.findObject(obj.id);
+          let objtype = obj.type as akm.cxObjectType;
           if (objtype?.name === 'Label') {
             node.text = objview.name;
           }
-          node.name = objview.name;
-          node.loadNodeContent(myGoModel);
-          node.name = objview.name;
-          if (node.object['proposedType'])
-            node.typename = node.object['proposedType'];
-          myGoModel.addNode(node);
+          let typeview = objview.typeview;  
+          if (typeview && typeview instanceof akm.cxObjectTypeView) {
+            typeview = metis.findObjectTypeView(typeview.id);
+            objview.setTypeView(typeview);
+            node.typeview = objview.typeview;
+            node.name = objview.name;
+            node.loadNodeContent(myGoModel);
+            node.name = objview.name;
+            if (node.object['proposedType'])
+              node.typename = node.object['proposedType'];
+            myGoModel.addNode(node);
+          } else {
+            if (debug) console.log('336 objview, typeview', objview, typeview);
+            if (!typeview) {
+              typeview = objview.object?.type?.getDefaultTypeView();
+              typeview = metis.findObjectTypeView(typeview.id);
+              objview.setTypeView(typeview);
+              if (debug) console.log('338 typeview', typeview);
+            }
+          }
       }
     }
     // load relship views

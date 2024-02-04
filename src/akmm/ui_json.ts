@@ -1623,6 +1623,7 @@ export class jsnObjectView {
         this.objectRef       = objview?.object?.id;
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
+        this.groupLayout     = objview?.groupLayout;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
         this.isExpanded      = objview?.isExpanded;

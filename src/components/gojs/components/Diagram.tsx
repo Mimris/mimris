@@ -1114,8 +1114,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
+              if (node.isSelected) {
                 return true;
-              else if (node.category === constants.gojs.C_OBJECTTYPE)
+              } else  {
+                myDiagram.clearSelection();
+                node.isSelected = true;
+                uid.addToSelection(node, myDiagram);
+                return true;
+              }
+            else if (node.category === constants.gojs.C_OBJECTTYPE)
                 return true;
               else
                 return false;

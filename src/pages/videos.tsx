@@ -27,7 +27,7 @@ const page = (props: any) => {
             {/* <div className="header " ></div>  */}
             {/* <div className="workplace" > */}
               {/* <div className="contextarea" > </div> */}
-              <div className="pt-1" style={{backgroundColor: "#e2e2e2"}}></div>
+              <div className="pt-2" style={{backgroundColor: "#b0cfcf"}}></div>
               <h1 className="homepage-video">Videos to learn AKM Modelling</h1>
               <div className="homepage-video d-flex align-items-start justify-content-between">
                 <div className="card-body card-video-body bg-light p-2">

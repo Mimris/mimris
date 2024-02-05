@@ -104,7 +104,7 @@ const ContextView = (props: any) =>  {
           <div>{statusFieldLink('Project', phFocus.focusProj?.name, `https:/github.com/orgs/${org}/projects/${projectNumber}`)}</div>
           <div>{statusField('Role', props.ph?.phFocus?.focusRole?.name)}</div>
           <div>{statusField('Task', props.ph?.phFocus?.focusTask?.name)}</div>
-          <div className="me-auto">{statusFieldLink('Issues', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}</div>
+          <div className="me-auto">{statusFieldLink('Issue', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}</div>
         </div>
         {/* <div className="font-weight-bold  border fs-6">
           <button
@@ -136,6 +136,7 @@ const ContextView = (props: any) =>  {
 
   return (
     <>
+        <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div>
       <div className="d-flex justify-content-start align-items-center bg-transparent">
         <button className="btn btn-sm bg-transparent text-primary ms-1 px-2 pt-0 " style={{height: "20px"}} onClick={toggleMinimized}>
           {(minimized) 
@@ -150,12 +151,12 @@ const ContextView = (props: any) =>  {
             ></i>   
         </button> */}
           <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
-        <button className="btn btn-sm bg-transparent text-primary mt-1 pt-0 mx-0" style={{height: "24px"}} onClick={copyToClipboard}>
+        {/* <button className="btn btn-sm bg-transparent text-primary mt-1 pt-0 mx-0" style={{height: "24px"}} onClick={copyToClipboard}>
           <i className="fas fa-copy fa-lg " 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."        
+            title="Copy current focus/context to clipboard. The link can be used in documents,sent to others by e-mail etc."        
           ></i>
-        </button>
+        </button> */}
         <div className="ms-3 w-100">{contextRepoDiv}</div>
       </div>
     </>

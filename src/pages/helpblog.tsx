@@ -17,6 +17,7 @@ export default function Home( { posts }) {
       <Layout  >
         <div>
           <main className="container">
+            <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div>
             <div>
               <h1>AKM Modeller Help & Documentation</h1>
             </div>

@@ -48,17 +48,18 @@ const Navbar = (props) => {
 	const [version, setVersion] = useState("");
 
 	const [domainName, setDomainName] = useState("");
+
 	useEffect(() => {
 		setDomainName(window.location.hostname);
-		if (debug) console.log(domainName);
+		if (!debug) console.log('33',domainName);
 		if (domainName === "localhost") {
-			setVersion("Local");
+			setVersion("local");
 		} else if (domainName === "akmmclient.vercel.app") {
-			setVersion("Final");
+			setVersion("final");
 		} else if (domainName === "akmmclient-beta.vercel.app") {
-			setVersion("Beta");
+			setVersion("beta");
 		} else if (domainName === "akmmclient-alfa.vercel.app") {
-			setVersion("Alfa");
+			setVersion("alfa");
 		}
 
 	}, []);
@@ -85,8 +86,6 @@ const Navbar = (props) => {
 		//   active: domainName === 'localhost:3000',
 		// },
 	];
-
-
 
 	return (
 		<nav className="navbar navbar-expand-sm"
@@ -197,13 +196,15 @@ const Navbar = (props) => {
 				display: flex;
 				justify-content: center;
 				align-items: baseline; 
-				height: 90%;
-				background: #b0cfcf;
+				padding: 0px 10px;
+				width: 100%;
+				height: 100%;
+				background: #ebf0f0;
 				border-radius: 10px 10px 0 0;
 				border-top: 4px solid #aaa
 				border-right: 4px solid #fff;
 				border-left: 1px solid #fff;
-				border-bottom: 4px solid #b0cfcf;
+				border-bottom: 4px solid #ebf0f0;
 			}
 			.nav-item:first-child {
 				// border-left: 4px solid #ddd;
@@ -217,7 +218,6 @@ const Navbar = (props) => {
 				align-items: between;
 				padding-left: 20px;
 				padding-right: 20px;
-				height: 80%;
 				text-decoration: none;
 				color: #55f;
 				font-weight: bold;
@@ -235,11 +235,11 @@ const Navbar = (props) => {
 			/* Specific styles for active links */
 			.active {
 				color: black;
-				background: #d0d8d8;
+				background: #b0cfcf;
 				border-top: 0px solid #fff;
 				border-right: 3px solid #ccc;
 				border-left: 3px solid #fff;
-				border-bottom: 4px solid #d0d8d8;
+				border-bottom: 4px solid #b0cfcf;
 				border-radius: 10px 10px 0 0;
 			}
 				/* Specific styles for the navbar brand */

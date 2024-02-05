@@ -129,11 +129,14 @@ const Navbar = (props) => {
 								Tasks
 							</Link>
 						</li> */}
-						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
-							<Link href="/helpblog">Help</Link>
+						<li className={`nav-item ${currentRoute === "/table" ? "active" : ""}`}>
+							<Link href="/table">Tables</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/videos" ? "active" : ""}`}>
 							<Link href="/videos">Videos</Link>
+						</li>
+						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
+							<Link href="/helpblog">Help</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
 							<Link href="/about">About</Link>

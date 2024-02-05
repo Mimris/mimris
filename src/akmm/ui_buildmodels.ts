@@ -403,7 +403,8 @@ let includeNoType = false;
           includeRelview = true;
         }
         if (!includeDeleted && !includeNoObject && !includeNoType && relview)
-          relcolor = relview?.typeview?.strokecolor;
+          if (relview.strokecolor === "")
+            relcolor = relview?.typeview?.strokecolor;
           if (!relcolor) relcolor = 'black';
         if (includeRelview) {
           if (relview.strokewidth === "NaN") relview.strokewidth = "1";
@@ -425,7 +426,7 @@ let includeNoType = false;
           if (!showRelshipNames)
             link.name = " ";
           if (includeDeleted || includeNoObject || includeNoType) {
-            link.strokecolor = relcolor;
+            link.strokecolor = relview.strokecolor ? relview.strokecolor : relview.typeview?.strokecolor;
             link.strokewidth = "1";
           }
           myGoModel.addLink(link);

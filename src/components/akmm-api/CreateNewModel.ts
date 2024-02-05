@@ -25,9 +25,7 @@ const CreateNewModel = (props: any) => {
   const modelobjectsoftypemetamodel = curmodel?.objects?.filter(o => o.typeName === 'Metamodel');
   const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef)); //?? maybe find the one with contains relationship
   console.log('28 CreateNewModel', objectviewoftypemetamodel)
-
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
-
   console.log('31 CreateNewModel', metamodelGenerated)
 
   const createNewModelJson = () => {

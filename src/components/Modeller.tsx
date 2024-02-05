@@ -666,14 +666,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </button> 
       </Nav>
       <TabContent className="bg-white p-0 m-0 border border-white">
-        <TabPane className="bg-white p-0 borde border-white">
+        <TabPane className="bg-white">
             <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
               {(visibleObjects)
-                ?  <><Col className="p-0 m-0 my-0"xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
+                ?  <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
                 : <></>
               }
             <Col className="me-2 my-1 p-1 border" xe="auto" >
-              <div className="workpad bg-white border-light mt-0 pe-0 ">
+              <div className="workpad bg-white border-light mt-0 pe-0">
                 {gojsapp}
               </div>  
               <div className="smaller-div m-0 p-0" style={{ scale: "0.8" }}>{footerButtonsDiv}</div>
@@ -753,7 +753,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }} >
+    <div className="" style={{ display: 'flex', flexDirection: 'row' }} >
       {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
     </div>
   )

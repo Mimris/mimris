@@ -753,13 +753,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue = '1';
               fieldType = 'select';
               break;
-              case 'textcolor':
-              case 'textcolor2':
-              case 'fromArrowColor':
-              case 'toArrowColor':
-                values = colornames;
-                defValue = 'black';
-                fieldType = 'select';            
+            case 'textcolor':
+            case 'textcolor2':
+            case 'fromArrowColor':
+            case 'toArrowColor':
+              values = colornames;
+              defValue = 'black';
+              fieldType = 'select';            
+              break;
+            default:
+              fieldType = 'textarea';
               break;
           }
         }

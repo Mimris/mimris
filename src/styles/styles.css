@@ -747,11 +747,11 @@ ul li a {
   display: block;
   /* width: 100%; */
   text-decoration: none;
-  padding: 5px;
+  /* padding: 5px; */
 }
 ul li a:hover, ul li a:focus {
-  background-color: #ccc;
-  color: #faa;
+  /* background-color: #ccc; */
+  color: #Aaa;
 }
 li {
   white-space: normal;

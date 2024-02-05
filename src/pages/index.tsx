@@ -103,7 +103,7 @@ const page = (props: any) => {
               </div>
               <div className="col-4 m-3 mx-0 p-0 border rounded">
                 <div className="text-center bg-light">
-                  External from GitHub:  README.md
+                  GitHub:  README.md
                 {iframe}
                </div>
               </div>

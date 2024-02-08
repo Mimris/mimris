@@ -230,8 +230,11 @@ const page = (props: any) => {
                   <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
                 </div>
               </div>
-              <div className="footer">
+              <div className="footer d-flex">
                 <Footer />
+                <span className="sourceName ms-auto me-5 bg-white">
+                  Current source:  {props.phSource}
+                </span>
               </div>
             </div>
           </div>

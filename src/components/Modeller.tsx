@@ -630,9 +630,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
       </button>
       {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-      <span className="sourceName m-2 px-2" style={{ textAlign: "", width: "50%", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee" }}>
-        Current source:  {props.phSource}
-      </span>
     </div>
 
   const modelviewTabDiv = // this is the modelview tabs

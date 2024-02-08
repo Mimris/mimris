@@ -4,7 +4,7 @@ import { FaCrosshairs, FaGlobe, FaDharmachakra, FaBeer, FaClipboardList, FaEmpir
 
 const Footer = props => {
   return (
-    <div className="title d-flex justify-content-between  w-100" >
+    <div className="title d-flex justify-content-between " >
       <span className=" mx-4"> Copyright: Kavca AS </span>
       <div className='d-flex'>
       <span className="iow mr-4">  Internet of Teams. </span>

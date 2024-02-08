@@ -313,7 +313,7 @@ const FocusDetails = (props, edit) => {
               <Tab>Children</Tab>
               <Tab>Relationship from and to Objects</Tab>
             </TabList>
-            <TabPanel> {/* Children */}
+            <TabPanel > {/* Children */}
               <ObjDetailTable
                 title="Children"
                 curRelatedObjsRels={objectChildren}
@@ -449,7 +449,7 @@ const FocusDetails = (props, edit) => {
   
 
     return (
-        <div className="context m-0 " style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
+        <div className="context m-0" style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
           <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto'}}>
             {tabsDiv} 
           </div>

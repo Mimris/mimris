@@ -454,12 +454,12 @@ const page = (props: any) => {
             <div className="workpad p-1 pt-2 bg-white" >
               <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                 <Col className="col1 m-0 p-0 pl-3" xs="auto">
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     {paletteDiv}
                   </div>
                 </Col>
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac",  width: "100%",  border: "solid 1px black" }}>
                     {paletteMetamodelDiv}
                   </div>
                 </Col>

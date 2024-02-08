@@ -151,12 +151,12 @@ const ContextView = (props: any) =>  {
             ></i>   
         </button> */}
           <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
-        {/* <button className="btn btn-sm bg-transparent text-primary mt-1 pt-0 mx-0" style={{height: "24px"}} onClick={copyToClipboard}>
+        <button className="btn btn-sm bg-transparent text-primary mt-1 pt-0 mx-0" style={{height: "24px"}} onClick={copyToClipboard}>
           <i className="fas fa-copy fa-lg " 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Copy current focus/context to clipboard. The link can be used in documents,sent to others by e-mail etc."        
           ></i>
-        </button> */}
+        </button>
         <div className="ms-3 w-100">{contextRepoDiv}</div>
       </div>
     </>

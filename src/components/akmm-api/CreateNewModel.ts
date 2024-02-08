@@ -26,7 +26,14 @@ const CreateNewModel = (props: any) => {
   const objectviewoftypemetamodel = curmodelview?.objectviews.find(ov => modelobjectsoftypemetamodel?.map(o => o.id).includes(ov.objectRef)); //?? maybe find the one with contains relationship
   console.log('28 CreateNewModel', objectviewoftypemetamodel)
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
+
   console.log('31 CreateNewModel', metamodelGenerated)
+
+  if (!metamodelGenerated) {  // if no metamodel is found, return
+    console.log('34 CreateNewModel', 'No metamodel found')
+    alert('No generated metamodel found')
+    return;
+  }
 
   const createNewModelJson = () => {
 
@@ -89,27 +96,23 @@ const CreateNewModel = (props: any) => {
     const repo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
     const projNo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 3 : 1  // hardcoded for now
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
-    if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
-    if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
+    if (!debug) console.log('92 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, adminmodel, metamodels)
+    if (!debug) console.log('93 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
 
     const data = {
       phData: {
         metis: {
           ...ph.phData.metis,
           models:
-            [newmodel, adminmodel], // add admin to the new model
+            [newmodel, adminmodel].filter(Boolean), 
           metamodels: [
             {
               ...metamodelGenerated,
-              // subMetamodelRefs: [submetamodels[0]?.id],
-              // subModelRefs: [submodels[0]?.id],
-              // subModels: submodels,
-              // subMetamodels: submetamodels,
             },
             adminmetamodel,
             (coremetamodel !== metamodelGenerated) && coremetamodel,
             (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
-          ],
+          ].filter(Boolean),
           name: newProjectName,
           description: 'Modelling Project',
           currentModelRef: newmodel.id,

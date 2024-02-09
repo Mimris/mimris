@@ -232,6 +232,138 @@ export function generateSubModel(node: any, myMetis: akm.cxMetis, myDiagram: any
     const newModel = new akm.cxModel(utils.createGuid(), modelname, myMetis.currentTargetMetamodel, "");
 }
 
+export function addSubModels(object: any, myMetis: akm.cxMetis, myDiagram: any)  {
+    // Select model among all models (except the current)
+    const args = {
+        "object":             object,
+        "modelnames":         "", 
+    }
+    const context = {
+        "myDiagram":          myDiagram,
+        "myMetis":            myMetis,
+        "myCurrentModel":     myMetis.currentModel,
+        "myCurrentModelview": myMetis.currentModelview,
+        "case":               "Select Submodel to Add",
+        "title":              "Select Submodel to Add",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      addSubModel1,
+        "args":               args
+    }
+    addSubModel1(context);
+}
+
+function addSubModel1(context: any) {
+    // object is a Metamodel object
+    const myDiagram = context.myDiagram;
+    const myMetis = context.myMetis as akm.cxMetis;
+    const myModelView = myMetis.currentModelview;
+    const object = context.args.object;
+    const myModel: akm.cxModel = context.myCurrentModel;
+    let metamodelObject: akm.cxObject = context.args.object;
+    metamodelObject = myModel.findObject(metamodelObject.id);  
+    const metamodelName = metamodelObject.name;
+    const metamodel = myMetis.findMetamodelByName(metamodelName);
+    const submodelObjects = getSubModelObjects(object, myMetis);
+
+    if (submodelObjects.length > 0) {
+        let modelnames = submodelObjects[0].name;
+        for (let i=1; i<submodelObjects.length; i++) {
+            const submodelObj = submodelObjects[i];
+            modelnames += ", " + submodelObj.name;
+        }
+        const test = prompt('Adding submodel(s)', modelnames);
+        if (test) {
+            const modifiedModels = new Array();
+            const modifiedMetamodels = new Array();
+            const submodelObjects = getSubModelObjects(object, myMetis);
+            for (let i=0; i<submodelObjects.length; i++) {
+                const submodelObj = submodelObjects[i];
+                let submodel = metamodel.findSubModelByName(submodelObj?.name);
+                if (!submodel) {
+                    submodel = new akm.cxModel(utils.createGuid(), submodelObj.name, metamodel, "");
+                    metamodel.addSubModel(submodel);
+                    // Add submodel contents
+                    let submodelView: akm.cxObjectView = null;
+                    // const submodelChildren: akm.cxObject[] = new Array();
+                    const objectviews = myModelView.objectviews;
+                    for (let j=0; j<objectviews.length; j++) {
+                        const objview = objectviews[j];
+                        if (objview.object?.name === submodelObj?.name) {
+                            submodelView = objview;
+                            break;
+                        }
+                    }
+                    if (submodelView) {
+                        for (let j=0; j<objectviews.length; j++) {
+                            const objview = objectviews[j];
+                            if (objview.object?.name === submodelObj?.name) 
+                                continue;
+                            if (objview.object && objview.group === submodelView?.id) {
+                                submodel.addObject(objview.object);
+                                // submodelChildren.push(objview.object);
+                            }
+                        }
+                        const jsnModel = new jsn.jsnModel(submodel, true);
+                        modifiedModels.push(jsnModel);
+                        const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+                        modifiedMetamodels.push(jsnMetamodel);
+                    }
+                }
+            }
+            modifiedMetamodels.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+            });
+        }
+    }
+}
+
+export function getSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis): akm.cxModel[] {
+    const submodelObjects: akm.cxModel[] = new Array();
+    // Follow relships to find the model object
+    const fromType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
+    const toType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
+    const hasSubtype = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, fromType, toType);
+    const relships = object.getOutputRelshipsByType(hasSubtype);
+    for (let i=0; i<relships?.length; i++) {
+        const rel = relships[i];
+        const toObject = rel.toObject;
+        submodelObjects.push(toObject);
+    }
+    return submodelObjects;
+}
+function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis): akm.cxModel[] {
+    const models: akm.cxModel[] = new Array();
+    const metamodel = myMetis.findMetamodelByName('AKM-IRTV_MM');
+    const modifiedModels = new Array();
+    const modifiedMetamodels = new Array();
+    for (let i=0; i<submodelObjects.length; i++) {
+        const submodelObj = submodelObjects[i];
+        let submodel = myMetis.findModelByName(submodelObj?.name);
+        if (!submodel) {
+            submodel = new akm.cxModel(utils.createGuid(), submodelObj.name, metamodel, "");
+            const jsnModel = new jsn.jsnModel(submodel, true);
+            modifiedModels.push(jsnModel);
+            metamodel.addSubModel(submodel);
+            const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+            modifiedMetamodels.push(jsnMetamodel);
+        }
+        models.push(submodel);
+    }
+    const myDiagram = myMetis.myDiagram;
+    modifiedMetamodels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    });
+    modifiedModels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+    });
+    return models;
+}
 
 export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const objview = myMetis.findObjectView(node.objectview?.id);
@@ -1687,10 +1819,10 @@ function askForModel(context: any) {
         myMetis:        myMetis,
         myDiagram:      myDiagram,
         context:        context,
-      } 
-      const models = new Array();
-      const allModels = myMetis.models;
-      for (let i=0; i<allModels?.length; i++) {
+    } 
+    let models = new Array();
+    const allModels = myMetis.models;
+    for (let i=0; i<allModels?.length; i++) {
         const model = allModels[i];
         if (model.name === constants.admin.AKM_ADMIN_MODEL)
             continue;
@@ -1701,10 +1833,10 @@ function askForModel(context: any) {
                 continue;
         }
         models.push(model);
-      }
-      const mmNameIds = models.map(mm => mm && mm.nameId);
-      if (debug) console.log('372', mmNameIds, modalContext, context);
-      myDiagram.handleOpenModal(mmNameIds, modalContext);
+        context.args.models = models;
+    }
+    const mmNameIds = models.map(mm => mm && mm.nameId);
+    myDiagram.handleOpenModal(mmNameIds, modalContext);
 }
 
 function deleteModel1(context: any) {

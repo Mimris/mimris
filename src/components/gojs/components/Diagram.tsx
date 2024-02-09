@@ -963,27 +963,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.exportTaskModel(node, myMetis, myDiagram);
             },
             function (o: any) {
-              if (debug) console.log('1991 myMetis', myMetis);
-              if (myMetis.modelType == 'Modelling') {
-                const node = o.part.data;
-                const obj = node.object;
-                const objtype = obj?.type;
-                if (objtype?.name === constants.types.AKM_CONTAINER) {
-                  return true;
-                }
-                else
-                  return false;
-              }
-            }),
-          makeButton("Add Submodel",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              alert('Add Submodel is not yet implemented!')
-              // uid.addSubModel(node, myMetis, myDiagram);
-            },
-            function (o: any) {
-              return false;
-              if (debug) console.log('1991 myMetis', myMetis);
               if (myMetis.modelType == 'Modelling') {
                 const node = o.part.data;
                 const obj = node.object;
@@ -1043,6 +1022,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (objtype?.name === constants.types.AKM_DATATYPE)
                 return true;
               return false;
+            }),
+          makeButton("Generate Metamodel",
+            function (e: any, obj: any) {
+              gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
+              return true;
+            }),
+          makeButton("Add Submodel(s)",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              let object = node.object;
+              object = myMetis.findObject(object.id);
+              uid.addSubModels(object, myMetis, myDiagram);
+              myDiagram.requestUpdate();
+            },
+            function (o: any) {
+              if (myMetis.modelType == 'Modelling') {
+                const node = o.part.data;
+                let object = node.object;
+                const objtype = object?.type;
+                if (objtype?.name === constants.types.AKM_METAMODEL) {
+                  const myModel: akm.cxModel = myMetis.currentModel;
+                  let metamodelObject: akm.cxObject  = myModel.findObject(object.id);
+                  metamodelObject = myModel.findObject(metamodelObject.id);  
+                  if (metamodelObject) {
+                    const submodelObjects = uid.getSubModelObjects(metamodelObject, myMetis);
+                    if (submodelObjects.length > 0)
+                      return true;
+                    return false;
+                  }
+                }
+                else
+                  return false;
+              }
             }),
           makeButton("Edit Object Type",
             function (e: any, obj: any) {
@@ -1795,17 +1814,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
               const myMetamodel = myMetis.currentMetamodel;
-              let fromType = link.relship.fromObject.type as akm.cxObjectType;
+              let fromType: akm.cxObjectType = link.relship.fromObject.type;
               fromType = myMetamodel.findObjectType(fromType.id);
-              let toType = link.relship.toObject.type as akm.cxObjectType;
+              let toType: akm.cxObjectType = link.relship.toObject.type;
               toType = myMetamodel.findObjectType(toType.id);
-              const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+              let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+              const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+              for (let i=0; i<rtypes.length; i++) {
+                const rtype = rtypes[i];
+                if (rtype.name === 'generic') {
+                    reltypes.push(rtype);
+                }
+                if (rtype.name === 'refersTo') {
+                    reltypes.push(rtype);
+                }
+              }
               link.choices = [];
               if (reltypes) {
                 for (let i = 0; i < reltypes.length; i++) {
                   const rtype = reltypes[i];
-                  if (rtype.name === constants.types.AKM_GENERIC_REL)
-                    continue;
                   link.choices.push(rtype.name);
                 }
                 let uniqueSet = utils.removeArrayDuplicates(link.choices);
@@ -3661,16 +3688,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         includeInherited: includeInherited,
       }
       let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
-      const connectedRoles = obj1.getConnectedObjectRoles(myMetis);
+      const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
       // Define the tabs
       selpropgroup = [];
       for (let i = 0; i < namelist.length; i++) {
         let name = namelist[i];
         if (name === constants.types.AKM_ELEMENT)
           continue; // name = 'Default';
-        if (i > 0) {
-          let role = connectedRoles[i - 1];
-          if (role) name = role;
+        if (connectedRoles && connectedRoles.length > 0) {
+          if (i > 0) {
+            let role = connectedRoles[i - 1];
+            if (role) name = role;
+          }
         }
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
@@ -3740,6 +3769,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
         }
+        // else if (modalContext?.title === 'Select Submodel to Add') {
+        //   if (debug) console.log('2923 modalContext', this.state.modalContext);
+        //   const choices = modalContext.context.args.modelnames;
+        //   options = choices.map(modelname => {
+        //     return { value: modelname, label: modelname }
+        //   })
+        //   comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        // }
         else {
           options = this.state.selectedData.map(o => o && { 'label': o, 'value': o });
           comps = null

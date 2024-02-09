@@ -1245,18 +1245,17 @@ export function createRelationship(data: any, context: any) {
         let reltypes = [];
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-        } else {
-            const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-            for (let i=0; i<rtypes.length; i++) {
-                const rtype = rtypes[i];
-                if (rtype.name === 'generic') {
-                    reltypes.push(rtype);
-                }
-                if (rtype.name === 'refersTo') {
-                    reltypes.push(rtype);
-                }
+        } 
+        const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);        
+        for (let i=0; i<rtypes.length; i++) {
+            const rtype = rtypes[i];
+            if (rtype.name === 'generic') {
+                reltypes.push(rtype);
             }
-        }
+            if (rtype.name === 'refersTo') {
+                reltypes.push(rtype);
+            }
+        }        
         if (reltypes) {
             const choices1: string[] = [];
             if (defText.length > 0) choices1.push(defText);
@@ -1734,9 +1733,9 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
             relview.arrowscale = "1.3";
         const typeview = relview.typeview;
         if (typeview) {
-            const viewdata = typeview.data;
-            for (let prop in viewdata) {
-                if (relview[prop] === viewdata[prop]) {
+            const typeviewdata = typeview.data;
+            for (let prop in typeviewdata) {
+                if (relview[prop] === typeviewdata[prop]) {
                     relview[prop] = "";
                 }
             }
@@ -1928,9 +1927,6 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             link.from = link.fromNode?.key;
             link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
             link.to = link.toNode?.key;
-            // if (reltype?.name === constants.types.AKM_RELATIONSHIP_TYPE) {
-            //     link.isLayoutPositioned = false;
-            // }
             myGoModel.addLink(link);
             links.push(link);
             myDiagram.model.addLinkData(link);
@@ -3705,6 +3701,24 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any
             if (reltype.markedAsDeleted) {
                 reltypes.splice(i, 1);
             }
+        }
+    }
+}
+
+export function repairRelationshipViews(myModelView: akm.cxModelView) {
+    const relviews = myModelView.relshipviews;
+    for (let i=0; i<relviews?.length; i++) {
+        const relview = relviews[i];
+        const fromObjview = relview.fromObjview;
+        const toObjview = relview.toObjview;
+        const rel = relview.relship;
+        const fromObj = rel.fromObject;
+        const toObj = rel.toObject;
+        if (fromObjview.object?.id === fromObj?.id && toObjview.object?.id === toObj?.id) {
+            continue;
+        } else {
+            fromObjview.object = fromObj;
+            toObjview.object = toObj;
         }
     }
 }

@@ -311,12 +311,16 @@ let includeNoType = false;
           if (!node.object) continue;
           let objview = node.objectview as akm.cxObjectView;
           objview = modelview.findObjectView(objview.id);
+          if (!objview) 
+            continue; 
           if (objview.id === focusObjview?.id) {
             objview.isSelected = true;
             node.isSelected = true;
           }
           let obj = node.object as akm.cxObject;
           obj = model.findObject(obj.id);
+          if (!obj) 
+            continue;
           let objtype = obj.type as akm.cxObjectType;
           if (objtype?.name === 'Label') {
             node.text = objview.name;

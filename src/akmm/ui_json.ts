@@ -251,7 +251,7 @@ export class jsnMetaModel {
         this.markedAsDeleted  = metamodel.markedAsDeleted;
         this.modified = false;
 
-        // Code
+        if (true) { // Code
         let metamodels = metamodel.getContainedMetamodels();
         if (metamodels) {
             const cnt = metamodels.length;
@@ -281,6 +281,7 @@ export class jsnMetaModel {
                 const jsnSubmodel = new jsnModel(subModel, false);
                 this.subModels.push(jsnSubmodel);
             }
+        }
         }
         const objtypes = metamodel.getObjectTypes();
         if (objtypes) {

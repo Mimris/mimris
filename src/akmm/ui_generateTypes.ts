@@ -1655,11 +1655,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 let toObj = toObjview?.object as akm.cxObject;
                 toObj = myModel.findObjectByName(toObj.name);
                 if (rel.name === constants.types.AKM_IS) {
-                    for (let j=0; j<objtypes.length; j++) {
-                        const otype1 = objtypes[j];
+                    for (let j=0; j<objecttypes.length; j++) {
+                        const otype1 = objecttypes[j];
                         if (fromObj?.id === otype1?.id) {
-                            for (let k=0; k<objtypes.length; k++) {
-                                const otype2 = objtypes[j];
+                            for (let k=0; k<objecttypes.length; k++) {
+                                const otype2 = objecttypes[j];
                                 if (toObj?.id === otype2?.id) 
                                     continue;
                             }

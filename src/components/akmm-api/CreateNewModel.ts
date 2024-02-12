@@ -37,14 +37,21 @@ const CreateNewModel = (props: any) => {
     // create an empty model object with an empty modelview all with uuids
     if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
 
-    const newProjectName = `${metamodelGenerated?.name.slice(0, -3)} Modelproject`
+
+    const newProjectName = (metamodelGenerated.name === 'AKM-Core_MM')
+        ? `Metamodelling-Template-${metamodelGenerated?.name.slice(0, -3)}`
+        : (metamodelGenerated.name === 'AKM-IRTV_MM')
+          ? `Conceptmodelling-Template-${metamodelGenerated?.name.slice(0, -3)}`
+          : (metamodelGenerated.name === 'AKM-OSDU_MM')
+            ? `Schemamodelling-Template-${metamodelGenerated?.name.slice(0, -3)}`
+            : `Modelling-Template-${metamodelGenerated?.name.slice(0, -3)}`
 
     const newModelName = (metamodelGenerated.name === 'AKM-Core_MM')
       ? 'Typedefinitionmodel_TD'
       : (metamodelGenerated.name === 'AKM-IRTV_MM')
         ? 'Conceptmodel_CM'
         : (metamodelGenerated.name === 'AKM-OSDU_MM')
-          ? 'OSDU-EntityType-model_TD'
+          ? 'OSDU-Schema-model_TD'
           : 'Model_' + metamodelGenerated.name
 
     const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM')

@@ -170,7 +170,7 @@ const page = (props: any) => {
 
   myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
   if (!myMetis) return <></>
-    // myModel = myMetis?.currentModel;
+  // myModel = myMetis?.currentModel;
   myModel = myMetis?.findModel(curmod?.id);
 
   myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
@@ -185,7 +185,7 @@ const page = (props: any) => {
   if (debug) console.log('178 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
 
   if (!myMetis || !myModel || !myModelview || !myMetamodel) {
-    console.error('187 One of the required variables is undefined: myMetis: ', myMetis,  'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
+    console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
     return null;
   }
   myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
@@ -245,7 +245,7 @@ const page = (props: any) => {
   gojstargetmodel = (myTargetModel) && //props.phGojs?.gojsTargetModel 
   {
     nodeDataArray: myGoModel.nodes,
-    linkDataArray: myGoModel.links 
+    linkDataArray: myGoModel.links
   }
   gojstargetmetamodel = (myTargetMetamodel) &&    // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   {
@@ -294,7 +294,7 @@ const page = (props: any) => {
 
     const toggleTab = tab => {
       if (activeTab !== tab) setActiveTab(tab);
-      const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
+      const data = (tab === '1') ? 'Metamodel' : 'Model'
       // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
       dispatch({ type: 'SET_FOCUS_TAB', data })
       // dispatch  the nodel and modelview also
@@ -387,7 +387,7 @@ const page = (props: any) => {
               className={classnames({ active: activeTab === '1' })}
               onClick={() => { toggleTab('1'); toggleRefresh() }}
             >
-              {(activeTab === "1") ? 'Metamodelling' : 'Metamodelling'}
+              {(activeTab === "1") ? 'Metamodel' : 'Metamodel'}
             </NavLink>
           </NavItem>
           <NavItem > {/* this is the tab for the model */}
@@ -395,7 +395,7 @@ const page = (props: any) => {
               className={classnames({ active: activeTab === '2' })}
               onClick={() => { toggleTab('2'); toggleRefresh() }}
             >
-              {(activeTab === "2") ? 'Modelling' : 'Modelling'}
+              {(activeTab === "2") ? 'Model' : 'Model'}
             </NavLink>
           </NavItem>
           {/* <NavItem > // this is the tab for the solution modelling 
@@ -450,7 +450,7 @@ const page = (props: any) => {
                 </div>          */}
             {/* </TabPane>  */}
           </>
-          <TabPane tabId="1">   {/* Metamodelling --------------------------------*/}
+          <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white" >
               <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                 <Col className="col1 m-0 p-0 pl-3" xs="auto">
@@ -466,7 +466,7 @@ const page = (props: any) => {
               </Row>
             </div>
           </TabPane>
-          <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
+          <TabPane tabId="2">   {/* Model ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
                 {/* Objects Palette area */}
@@ -488,7 +488,7 @@ const page = (props: any) => {
                   </div>
                 </Col>
                 {/* Modelling area */}
-                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}> 
+                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
                       gojsModelObjects={gojsmodelobjects}
@@ -520,8 +520,8 @@ const page = (props: any) => {
             </div>
           </TabPane>
 
-            {/* Solution Modelling ------------------------------------*/}
-            {/* <TabPane tabId="3">
+          {/* Solution Modelling ------------------------------------*/}
+          {/* <TabPane tabId="3">
               <div className="workpad p-1 pt-2 bg-white">
                 <Row >
                   <Col xs="auto m-0 p-0 pr-0">
@@ -571,7 +571,7 @@ const page = (props: any) => {
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
     const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
-    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh}toggleRefresh={toggleRefresh} />
+    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />
     const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
     const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -585,9 +585,9 @@ const page = (props: any) => {
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
-    const modellingDiv = 
+    const modellingDiv =
       <>
-        <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>            
+        <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
           <div className="me-4">
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
             {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
@@ -606,11 +606,11 @@ const page = (props: any) => {
           <div className="d-flex justify-content-end align-items-center bg-secondary border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
             <div className=" d-flex align-items-center me-0 pe-0">
               <i className="fa fa-folder text-light pe-1"></i>
-              <div className=""  style={{ whiteSpace: "nowrap" }}></div>
+              <div className="" style={{ whiteSpace: "nowrap" }}></div>
             </div>
             <div className="">
               <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "580px"}}/>
+                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ width: "580px" }} />
               </div>
             </div>
             <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
@@ -627,9 +627,9 @@ const page = (props: any) => {
         </div>
       </>
 
-    const metamodellingDiv = 
+    const metamodellingDiv =
       <>
-        <div className="buttonrow d-flex justify-content-end align-items-center me-4" style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>            
+        <div className="buttonrow d-flex justify-content-end align-items-center me-4" style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
           <div className="me-4">
             {/* <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a Metamodel from GitHub" > {loadMetamodel} </span>

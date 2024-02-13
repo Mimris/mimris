@@ -19,12 +19,13 @@ import GenGojsModel from "../components/GenGojsModel";
 import Project from "../components/Project";
 import Issues from "../components/Issues";
 
-import { searchGithub } from '../components/githubServices/githubService' 
+import { searchGithub } from '../components/githubServices/githubService'
+import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
-  
+
 const page = (props: any) => {
 
   if (debug) console.log('38 modelling ', props)
@@ -43,7 +44,7 @@ const page = (props: any) => {
 
   if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
-    const [isReloading, setIsReloading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
   // const [visible, setVisible] = useState(false)
   const [refresh, setRefresh] = useState(true);
   const [params, setParams] = useState(null);
@@ -103,12 +104,12 @@ const page = (props: any) => {
           }
         }
       }
-    } 
+    }
   }, [])
 
   useEffect(() => {
     if (debug) console.log('89 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
-  
+
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
@@ -131,8 +132,8 @@ const page = (props: any) => {
               branch: githubFile.branch,
               path: githubFile.path,
               file: githubFile.filename,
-            } 
-            const orgrepo = githubFile.org+'/'+githubFile.repo 
+            }
+            const orgrepo = githubFile.org + '/' + githubFile.repo
             console.log('134 modelling orgrepo:', orgrepo)
             const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
             const githubData = await res.data
@@ -164,7 +165,7 @@ const page = (props: any) => {
             //   setRefresh(!refresh);
             // } , 2000);
 
-            
+
           } else if (focus && !githubFile) {
             if (debug) console.log('155 modelling', focus);
             if (params) {
@@ -172,16 +173,16 @@ const page = (props: any) => {
                 phFocus: {
                   ...props.phFocus,
                   focusProj: focusProj,
-                  focusModel:  params.focusModel,
+                  focusModel: params.focusModel,
                   focusModelview: params.focusModelview,
                   focusObject: params.focusObject,
-                  focusObjectview:  params.focusObjectview,
+                  focusObjectview: params.focusObjectview,
                   focusRole: params.focusRole,
                   focusTask: params.focusTask,
                 },
               };
-            
-            dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+
+              dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
             }
           }
         }
@@ -190,53 +191,54 @@ const page = (props: any) => {
       }
 
     }
-      if (debug) console.log('177 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
-      const timer = setTimeout(() => {
-        getQuery()
-      } 
+    if (debug) console.log('177 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
+    const timer = setTimeout(() => {
+      getQuery()
+    }
       , 1000);
-      setMount(true)
+    setMount(true)
     // }, [])
   }, []);
 
-  {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
+  {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( // the top context area (green)
-      <div className="bg-transparent" style={{ backgroundColor: "#dcc" }}>
-        {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
-        <ContextView  ph={props}  showModal={showModal} setShowModal={setShowModal} />
-      </div>
+    <div className="bg-transparent" style={{ backgroundColor: "#dcc" }}>
+      {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
+      <ContextView ph={props} showModal={showModal} setShowModal={setShowModal} />
+    </div>
   )
 
   const modellingDiv = (mount)
-    ? 
-      <div>
-        <Layout user={props.phUser?.focusUser}>
-          <div id="index">
-            <div className="wrapper">
-              {/* <div className="header" >
+    ?
+    <div>
+      <Layout user={props.phUser?.focusUser}>
+        <div id="index">
+          <div className="wrapper">
+            {/* <div className="header" >
                 <Header title={props.phUser?.focusUser.name} /> 
               </div> */}
-              {/* {videoDiv} */}
-              {/* <Project props={props}/> */}
-              {contextDiv}
-              <div className="workplace d-flex" style={{ zIndex: 1 }}>
-                <div className="issuesarea">
-                  <Issues props={props} showModal={showModal} setShowModal={setShowModal}/>
-                </div>
-                <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                  <Modelling />
-                </div>
-                <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                  <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-                </div>
+            {/* {videoDiv} */}
+            {/* <Project props={props}/> */}
+            <ProjectMenuBar props={props} />
+            {contextDiv}
+            <div className="workplace d-flex" style={{ zIndex: 1 }}>
+              <div className="issuesarea">
+                <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
               </div>
-              <div className="footer">
-                <Footer />
+              <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
+                <Modelling />
+              </div>
+              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>
             </div>
+            <div className="footer">
+              <Footer />
+            </div>
           </div>
-        </Layout>
-      </div>
+        </div>
+      </Layout>
+    </div>
     : <>No model loaded</>
 
   return (

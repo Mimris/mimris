@@ -18,6 +18,7 @@ import useSessionStorage from "../hooks/use-session-storage";
 import SelectContext from '../components/utils/SelectContext';
 import { i } from "../components/utils/SvgLetters";
 import Project from "../components/Project";
+import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 
 const debug = false
 
@@ -96,6 +97,7 @@ const page = (props: any) => {
               <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
+              <ProjectMenuBar props={props} />
               {contextDiv}
             <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
               <div className="col-3 my-3">

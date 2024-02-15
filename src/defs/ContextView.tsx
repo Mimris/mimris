@@ -140,8 +140,8 @@ const ContextView = (props: any) =>  {
       <div className="d-flex justify-content-start align-items-center bg-transparent">
         <button className="btn btn-sm bg-transparent text-primary ms-1 px-2 pt-0 " style={{height: "20px"}} onClick={toggleMinimized}>
           {(minimized) 
-            ? <span className="" style={{whiteSpace: 'nowrap',}}><i className="fas fa-caret-down fa-lg me-2"></i>Focus : </span>
-            : <span className="" style={{whiteSpace: 'nowrap',}}><i className="fas fa-caret-up   fa-lg me-2"></i> Focus : </span>
+            ? <span className="" style={{whiteSpace: 'nowrap',}}>Focus : <i className="fas fa-caret-right fa-lg me-2"></i></span>
+            : <span className="" style={{whiteSpace: 'nowrap',}}>Focus : <i className="fas fa-caret-up   fa-lg me-2"></i></span>
           }
         </button> 
         {/* <button className="btn btn-sm bg-transparent text-primary px-2 mt-1 pt-0 mx-0"  style={{height: "24px"}} onClick={toggle}>

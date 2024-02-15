@@ -608,7 +608,7 @@ const page = (props: any) => {
               <i className="fa fa-folder text-light pe-1"></i>
               <div className="" style={{ whiteSpace: "nowrap" }}></div>
             </div>
-            <div className="">
+            {/* <div className="">
               <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ width: "580px" }} />
               </div>
@@ -617,7 +617,7 @@ const page = (props: any) => {
               data-toggle="tooltip" data-placement="top" data-bs-html="true"
               title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
               onClick={handleSaveAllToFile}>Save
-            </button>
+            </button> */}
           </div>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}

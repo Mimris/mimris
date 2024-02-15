@@ -86,7 +86,7 @@ const page = (props: any) => {
   const metis = ph.phData?.metis
   const models = metis?.models || []
 
-  const curmod = (models && focusModel?.id) && models?.find((m: any) => m.id === focusModel.id)  // find the current model
+  const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
   const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
     ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
     : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
@@ -192,7 +192,7 @@ const page = (props: any) => {
   myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
   myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
   myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-  myGoObjectPalette = uib.buildObjectPalette(myModel?.objects, myMetis) //props.phMyGoObjectPalette?.myGoObjectPalette
+  myGoObjectPalette = (myModel.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
   if (!myModel?.objects) {
     console.log('196 myModel.objects is undefined', myMetis);
     // return null
@@ -454,12 +454,12 @@ const page = (props: any) => {
             <div className="workpad p-1 pt-2 bg-white" >
               <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                 <Col className="col1 m-0 p-0 pl-3" xs="auto">
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     {paletteDiv}
                   </div>
                 </Col>
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac",  width: "100%",  border: "solid 1px black" }}>
                     {paletteMetamodelDiv}
                   </div>
                 </Col>

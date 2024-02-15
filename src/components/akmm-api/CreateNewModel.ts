@@ -39,12 +39,12 @@ const CreateNewModel = (props: any) => {
 
 
     const newProjectName = (metamodelGenerated.name === 'AKM-Core_MM')
-        ? `${metamodelGenerated?.name.slice(0, -3)}-Metamodelling-Template`
-        : (metamodelGenerated.name === 'AKM-IRTV_MM')
-          ? `${metamodelGenerated?.name.slice(0, -3)}-Conceptmodelling-Template`
-          : (metamodelGenerated.name === 'AKM-OSDU_MM')
-            ? `${metamodelGenerated?.name.slice(0, -3)}-Schemamodelling-Template`
-            : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
+      ? `${metamodelGenerated?.name.slice(0, -3)}-Metamodelling-Template`
+      : (metamodelGenerated.name === 'AKM-IRTV_MM')
+        ? `${metamodelGenerated?.name.slice(0, -3)}-Conceptmodelling-Template`
+        : (metamodelGenerated.name === 'AKM-OSDU_MM')
+          ? `${metamodelGenerated?.name.slice(0, -3)}-Schemamodelling-Template`
+          : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
 
     const newModelName = (metamodelGenerated.name === 'AKM-Core_MM')
       ? 'Typedefinitionmodel_TD'

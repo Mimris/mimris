@@ -113,8 +113,8 @@ export const ReadConvertJSONFromFileToAkm = async (
         propLinkGroupType,
     ) => {
 
-       
-        if (debug) console.log("87 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, modelType);
+
+        if (!debug) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType);
 
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
@@ -145,11 +145,11 @@ export const ReadConvertJSONFromFileToAkm = async (
                 ? lightenColor(setColorsTopEntityTypes(osduType), 6)
                 : ''
 
-        typeColor2 = (propLinkGroupType !== '') 
+        typeColor2 = (propLinkGroupType !== '')
             ? setColorsTopEntityTypes(propLinkGroupType)
-            :  ''
+            : ''
 
-        
+
         typeStrokeColor2 = (propLinkGroupType !== '')
             ? setColorsTopEntityTypes(propLinkGroupType)
             : ''
@@ -160,7 +160,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         //     typeStrokeColor2 = propLinkGroupType;
         // }
 
-        if (debug) console.log('163 createObject', oName, groupType, propLinkGroupType, otypeRef, 'typeColor', typeColor, '2', typeColor2, 'sc', typeStrokeColor, 'sc2', typeStrokeColor2);
+        if (!debug) console.log('163 createObject', oName, groupType, propLinkGroupType, otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
 
         const importedObject = //(modelType === "AKM") // don't include json attributes
         {
@@ -499,6 +499,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                     };
                     // const pLName = 'has' + propLinkName;
                     const linkGroupType = capitalizeFirstChar(camelCase(rel.GroupType));
+                    console.log('502 ', pLName, oValProps, linkGroupType, rel);
                     if (inclPropLinks) {
                         processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, linkGroupType, osduObj, oVal, curModel, objecttypeRef);
                         if (debug) console.log("427 ", pLName, oValProps, rel);

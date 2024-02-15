@@ -225,8 +225,16 @@ const page = (props: any) => {
               <div className="issuesarea">
                 <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
               </div>
+<<<<<<< HEAD
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
                 <Modelling />
+=======
+              <div className="footer d-flex">
+                <Footer />
+                <span className="sourceName ms-auto me-5 bg-white">
+                  Current source:  {props.phSource}
+                </span>
+>>>>>>> main24-alfa
               </div>
               <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />

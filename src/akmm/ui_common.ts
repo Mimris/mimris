@@ -3287,8 +3287,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         msg = "Verifying Relationship views\n";
         // Handle the relationship views in all modelviews
         for (let i=0; i<modelviews?.length; i++) {
-            const mview = modelviews[i];
+            let mview = modelviews[i];
             if (mview /*&& mview.id === modelview.id*/) {
+                mview = repairRelationshipViews(mview, myDiagram);
                 const rviews = mview.relshipviews;
                 if (debug) console.log('2690 modelview', mview);
                 for (let j=0; j<rviews?.length; j++) {
@@ -3705,22 +3706,38 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any
     }
 }
 
-export function repairRelationshipViews(myModelView: akm.cxModelView) {
+export function repairRelationshipViews(myModelView: akm.cxModelView, myDiagram: any): akm.cxModelView {
     const relviews = myModelView.relshipviews;
     for (let i=0; i<relviews?.length; i++) {
-        const relview = relviews[i];
-        const fromObjview = relview.fromObjview;
-        const toObjview = relview.toObjview;
+        let relview = relviews[i];
+        let fromObjview = relview.fromObjview;
+        let toObjview = relview.toObjview;
+        if (!fromObjview) 
+            continue;
+        if (!fromObjview.object) 
+            continue;
         const rel = relview.relship;
         const fromObj = rel.fromObject;
         const toObj = rel.toObject;
         if (fromObjview.object?.id === fromObj?.id && toObjview.object?.id === toObj?.id) {
             continue;
         } else {
-            fromObjview.object = fromObj;
-            toObjview.object = toObj;
+            const fromObjviews = myModelView.findObjectViewsByObject(fromObj);
+            const toObjviews = myModelView.findObjectViewsByObject(toObj);
+            if (fromObjviews?.length > 0) {
+                fromObjview = fromObjviews[0];
+            }
+            if (toObjviews?.length > 0) {
+                toObjview = toObjviews[0];
+            }
+            // fromObjview.object = fromObj;
+            relview.fromObjview = fromObjview;
+            // toObjview.object = toObj;
+            relview.toObjview = toObjview;
+            myModelView.addRelationshipView(relview);
         }
     }
+    return myModelView;
 }
 
 export function repairMetisProperties(myMetis: akm.cxMetis, myDiagram: any) {

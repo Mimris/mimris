@@ -1035,7 +1035,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return true;
             }),
-          makeButton("Add Submodel(s)",
+          makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
               const node = obj.part.data;
               let object = node.object;

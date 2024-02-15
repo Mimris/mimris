@@ -3289,7 +3289,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         for (let i=0; i<modelviews?.length; i++) {
             let mview = modelviews[i];
             if (mview /*&& mview.id === modelview.id*/) {
-                mview = repairRelationshipViews(mview);
+                mview = repairRelationshipViews(mview, myDiagram);
                 const rviews = mview.relshipviews;
                 if (debug) console.log('2690 modelview', mview);
                 for (let j=0; j<rviews?.length; j++) {
@@ -3706,7 +3706,7 @@ export function repairRelationshipTypeViews(myMetis: akm.cxMetis, myDiagram: any
     }
 }
 
-export function repairRelationshipViews(myModelView: akm.cxModelView): akm.cxModelView {
+export function repairRelationshipViews(myModelView: akm.cxModelView, myDiagram: any): akm.cxModelView {
     const relviews = myModelView.relshipviews;
     for (let i=0; i<relviews?.length; i++) {
         let relview = relviews[i];

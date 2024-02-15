@@ -271,22 +271,19 @@ function addSubModel1(context: any) {
             const submodelObj = submodelObjects[i];
             modelnames += ", " + submodelObj.name;
         }
-        const test = prompt('Adding submodel(s)', modelnames);
+        const test = prompt('Generating submodel(s)', modelnames);
         if (test) {
             const modifiedModels = new Array();
             const modifiedMetamodels = new Array();
             const submodelObjects = getSubModelObjects(object, myMetis);
-            for (let i=0; i<submodelObjects.length; i++) {
+            metamodel.submodels = new Array();
+            for (let i=0; i<submodelObjects?.length; i++) {
                 const submodelObj = submodelObjects[i];
-                let submodel = metamodel.findSubModelByName(submodelObj?.name);
-                if (!submodel) {
-                    submodel = new akm.cxModel(utils.createGuid(), submodelObj.name, metamodel, "");
-                    metamodel.addSubModel(submodel);
-                    myMetis.addSubModel(submodel);
-                }
+                let submodel = new akm.cxModel(utils.createGuid(), submodelObj.name, metamodel, "");
+                metamodel.addSubModel(submodel);
+                myMetis.addSubModel(submodel);                
                 // Add submodel contents
                 let submodelView: akm.cxObjectView = null;
-                // const submodelChildren: akm.cxObject[] = new Array();
                 const objectviews = myModelView.objectviews;
                 for (let j=0; j<objectviews.length; j++) {
                     const objview = objectviews[j];
@@ -302,7 +299,6 @@ function addSubModel1(context: any) {
                             continue;
                         if (objview.object && objview.group === submodelView?.id) {
                             submodel.addObject(objview.object);
-                            // submodelChildren.push(objview.object);
                         }
                     }
                     const jsnModel = new jsn.jsnModel(submodel, true);

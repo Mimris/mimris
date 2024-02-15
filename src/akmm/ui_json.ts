@@ -257,6 +257,7 @@ export class jsnMetaModel {
             const cnt = metamodels.length;
             for (let i = 0; i < cnt; i++) {
                 const metamodel = metamodels[i];
+                if (!metamodel) break;
                 this.metamodelRefs.push(metamodel.id);
             }
         }
@@ -265,11 +266,8 @@ export class jsnMetaModel {
             const cnt = subMetamodels.length;
             for (let i = 0; i < cnt; i++) {
                 const subMetamodel = subMetamodels[i];
+                if (!subMetamodel) break;
                 this.subMetamodelRefs.push(subMetamodel.id);
-                if (subMetamodel.id !== this.id) {
-                    const jsnSubMetamodel = new jsnMetaModel(subMetamodel, false);
-                    this.subMetamodels.push(jsnSubMetamodel);
-                }
             }
         }
         let subModels = metamodel.getSubModels();

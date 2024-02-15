@@ -1000,6 +1000,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     if (debug) console.log('981 addNodeTemplates', myMetis, contextMenu, portContextMenu);
     let nodeTemplate0 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+        {
+            mouseEnter: (e, node) => node.isHighlighted = true,
+            mouseLeave: (e, node) => node.isHighlighted = false,
+        },
         new go.Binding("isSelected", "isSelected").makeTwoWay(),
         new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
@@ -1454,6 +1458,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("movable", "movable").makeTwoWay(),
+            {
+                mouseEnter: (e, node) => node.isHighlighted = true,
+                mouseLeave: (e, node) => node.isHighlighted = false,
+            },
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",

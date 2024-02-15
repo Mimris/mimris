@@ -171,7 +171,7 @@ export class cxMetis {
                 const subModels = mmodel.subModels;
                 if (subModels && subModels.length) {
                     subModels.forEach(subModel => {
-                        const submodel = this.findModel(subModel.id);
+                        const submodel = this.findSubModel(subModel.id);
                         if (submodel) {
                             const metamodel = this.findMetamodel(mmodel.id);
                             if (metamodel) {
@@ -351,7 +351,18 @@ export class cxMetis {
                     metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
                     this.addMetamodel(metamodel);
                     // Metamodel content
-                    let items = item.datatypes;
+                    let items = item.subModels;
+                    if (items && items.length) {
+                        for (let i = 0; i < items.length; i++) {
+                            const item = items[i];
+                            if (includeDeleted || !item.markedAsDeleted) {
+                                const subModel = new cxModel(item.id, item.name, item.description);
+                                metamodel.addSubModel(subModel);
+                                this.addSubModel(subModel);
+                            }
+                        }
+                    }
+                    items = item.datatypes;
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item = items[i];

@@ -282,33 +282,34 @@ function addSubModel1(context: any) {
                 if (!submodel) {
                     submodel = new akm.cxModel(utils.createGuid(), submodelObj.name, metamodel, "");
                     metamodel.addSubModel(submodel);
-                    // Add submodel contents
-                    let submodelView: akm.cxObjectView = null;
-                    // const submodelChildren: akm.cxObject[] = new Array();
-                    const objectviews = myModelView.objectviews;
-                    for (let j=0; j<objectviews.length; j++) {
-                        const objview = objectviews[j];
-                        if (objview.object?.name === submodelObj?.name) {
-                            submodelView = objview;
-                            break;
-                        }
-                    }
-                    if (submodelView) {
-                        for (let j=0; j<objectviews.length; j++) {
-                            const objview = objectviews[j];
-                            if (objview.object?.name === submodelObj?.name) 
-                                continue;
-                            if (objview.object && objview.group === submodelView?.id) {
-                                submodel.addObject(objview.object);
-                                // submodelChildren.push(objview.object);
-                            }
-                        }
-                        const jsnModel = new jsn.jsnModel(submodel, true);
-                        modifiedModels.push(jsnModel);
-                        const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-                        modifiedMetamodels.push(jsnMetamodel);
+                    myMetis.addSubModel(submodel);
+                }
+                // Add submodel contents
+                let submodelView: akm.cxObjectView = null;
+                // const submodelChildren: akm.cxObject[] = new Array();
+                const objectviews = myModelView.objectviews;
+                for (let j=0; j<objectviews.length; j++) {
+                    const objview = objectviews[j];
+                    if (objview.object?.name === submodelObj?.name) {
+                        submodelView = objview;
+                        break;
                     }
                 }
+                if (submodelView) {
+                    for (let j=0; j<objectviews.length; j++) {
+                        const objview = objectviews[j];
+                        if (objview.object?.name === submodelObj?.name) 
+                            continue;
+                        if (objview.object && objview.group === submodelView?.id) {
+                            submodel.addObject(objview.object);
+                            // submodelChildren.push(objview.object);
+                        }
+                    }
+                    const jsnModel = new jsn.jsnModel(submodel, true);
+                    modifiedModels.push(jsnModel);
+                    const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+                    modifiedMetamodels.push(jsnMetamodel);
+                }               
             }
             modifiedMetamodels.map(mn => {
                 let data = mn;

@@ -914,7 +914,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               myDiagram.model.setDataProperty(node, "scale", node.scale1);
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (jsnObjview) {
-                // jsnObjview.loc = node.loc;
                 uic.addItemToList(modifiedObjectViews, jsnObjview);
                 if (debug) console.log('753 jsnObjview', jsnObjview);
               }
@@ -968,7 +967,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         let data = JSON.parse(JSON.stringify(jsnModelview));
         context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-        return;
+        break;
       }
       case "SelectionDeleting": {
         // const newNode = myMetis.currentNode;
@@ -1721,33 +1720,26 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // Dispatches
     if (true) {
-      if (debug) console.log('1444 modifiedObjectViews', modifiedObjectViews);
       modifiedObjectViews.map(mn => {
         let data = (mn) && mn
         if (mn.id) {
           data = JSON.parse(JSON.stringify(data));
-          if (debug) console.log('1449 UPDATE_OBJECTVIEW_PROPERTIES', mn, data)
           context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         }
       })
 
-      if (debug) console.log('1412 modifiedObjectTypes', modifiedObjectTypes);
       modifiedObjectTypes?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1416 UPDATE_OBJECTTYPE_PROPERTIES', data)
         context.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
 
-      if (debug) console.log('1420 modifiedObjectTypeViews', modifiedObjectTypeViews);
       modifiedObjectTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        if (debug) console.log('1425 data', data);
       })
 
-      if (debug) console.log('1428 modifiedObjectTypeGeos', modifiedObjectTypeGeos);
       modifiedObjectTypeGeos?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
@@ -1761,11 +1753,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
 
-      if (debug) console.log('1442 modifiedRelshipTypes', modifiedRelshipTypes);
       modifiedRelshipTypes?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1446 data', data);
         context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
 
@@ -1776,19 +1766,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
       })
 
-      if (debug) console.log('1457 modifiedObjects', modifiedObjects);
       modifiedObjects?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1461 UPDATE_OBJECT_PROPERTIES', data)
         context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       })
 
-      if (debug) console.log('1465 modifiedRelships', modifiedRelships);
       modifiedRelships?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1458 data', data);
         context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
     } else {

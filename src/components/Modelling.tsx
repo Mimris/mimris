@@ -64,6 +64,7 @@ const page = (props: any) => {
   const [activeTab, setActiveTab] = useState('2');
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
+  const [mmToggle, setMmToggle] = useState(true)
   // const [visibleContext, setVisibleContext] = useState(true)
 
   /**  * Get the state from the store  */
@@ -275,13 +276,9 @@ const page = (props: any) => {
     // }
 
     const handleGetNewProject = () => {
-      // CreateNewModel(ph)//,  curmodel, curmodelview)
-      // dispatch initial state 
-      // dispatch({ type: "LOAD_TOSTORE_DATA", data: StartStateJson })
-      // const timer = setTimeout(() => {
-      //   setRefresh(!refresh)
-      // }
-      //   , 1000);
+
+      alert('Deprecated: Use the "New" button in Project-bar at top-left')
+
     }
 
     const handleSaveAllToFile = () => {
@@ -315,6 +312,42 @@ const page = (props: any) => {
     //   // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
     //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
     // }
+
+  
+  const selmods = (models) ? models.filter((m: any) => m?.markedAsDeleted === false) : []
+
+  const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {  // map over the modelviews and create a tab for each
+    if (m && !m.markedAsDeleted) {
+      const strindex = index.toString()
+      const data = { id: m.id, name: m.name }
+      const data2 = { id: Math.random().toString(36).substring(7), name: strindex + 'name' }
+      // GenGojsModel(props, dispatch);
+      // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
+      return (
+        <NavItem key={strindex} className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+          title={
+            `Description: ${m?.description}
+
+To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
+          }>
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft:"8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
+            className={classnames({ active: activeTab == strindex })}
+            onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
+          >
+          {/* <input
+            className="form-control form-control-sm"
+            // style={{ width: '300px' }}
+            type="text"
+            value={data.name}
+            onChange={handleModelviewChange}
+            onBlur={handleModelviewBlur}
+          /> */}
+            {m.name}
+          </NavLink>
+        </NavItem>
+      )
+    }
+  })
 
     // ===================================================================
     // Divs
@@ -370,17 +403,23 @@ const page = (props: any) => {
       />
       : <></>;
 
-    const modellingtabs = (
+    const metamodellingtabs = (
       <>
         <Nav tabs style={{ minWidth: "350px" }} >
+          <span className="ms-5">
+            <button className=" mb-0 pb-0 ms-5" 
+              onClick={() => setMmToggle(!mmToggle)}
+              style={{borderColor: "transparent", width: "116px", height: "30px", fontSize: "16px", backgroundColor: "#77aacc" }}
+            >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
+          </span>
           {/* <NavItem className="text-danger" >  // this is the tab for the template
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
               className={classnames({ active: activeTab === '0' })}
               onClick={() => { toggleTab('0'); toggleRefresh() }}
-            >
+              >
               {(activeTab === "0") ? 'Template' : 'T'}
-            </NavLink>
-          </NavItem> */}
+              </NavLink>
+            </NavItem> */}
           <NavItem className="ms-5 ps-5"> {/*this is the tab for the metamodel */}
             {/* <NavItem className="text-danger" > */}
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
@@ -407,8 +446,27 @@ const page = (props: any) => {
             </NavLink>
           </NavItem> */}
         </Nav>
-        <TabContent activeTab={activeTab} >
-          <>
+          <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
+            <div className="workpad p-1 pt-2 bg-white" >
+              <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                <Col className="col1 m-0 p-0 pl-3" xs="auto">
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                    {paletteDiv}
+                  </div>
+                </Col>
+                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
+                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac",  width: "100%",  border: "solid 1px black" }}>
+                    {paletteMetamodelDiv}
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          </TabPane>
+      </>
+    )
+
+    const templatemodellingDiv = (
+      <>
             {/* Template ------------------------------------------*/}
             {/* <TabPane tabId="0">
               <Tab /> */}
@@ -449,25 +507,55 @@ const page = (props: any) => {
                   </Row>
                 </div>          */}
             {/* </TabPane>  */}
-          </>
-          <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
-            <div className="workpad p-1 pt-2 bg-white" >
-              <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                <Col className="col1 m-0 p-0 pl-3" xs="auto">
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                    {paletteDiv}
-                  </div>
-                </Col>
-                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac",  width: "100%",  border: "solid 1px black" }}>
-                    {paletteMetamodelDiv}
-                  </div>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
+      </>
+    )
+
+    const modellingtabs = (
+      <>
+        <Nav tabs style={{ minWidth: "350px" }} >
+          <span className="ms-5 me-2">
+            <button className=" mb-0 pb-0 ms-5"
+              onClick={() => setMmToggle(!mmToggle)}
+              style={{ borderColor: "transparent", width: "116px", height: "30px", fontSize: "16px", backgroundColor: "#a0caca" }}
+            >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
+          </span>
+          {navmodelDiv}
+          {/* <NavItem className="text-danger" >  // this is the tab for the template
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+              className={classnames({ active: activeTab === '0' })}
+              onClick={() => { toggleTab('0'); toggleRefresh() }}
+              >
+              {(activeTab === "0") ? 'Template' : 'T'}
+              </NavLink>
+            </NavItem> */}
+          {/* <NavItem className="ms-5 ps-5"> 
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
+              className={classnames({ active: activeTab === '1' })}
+              onClick={() => { toggleTab('1'); toggleRefresh() }}
+            >
+              {(activeTab === "1") ? 'Metamodel' : 'Metamodel'}
+            </NavLink>
+          </NavItem>
+          <NavItem > 
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
+              className={classnames({ active: activeTab === '2' })}
+              onClick={() => { toggleTab('2'); toggleRefresh() }}
+            >
+              {(activeTab === "2") ? 'Model' : 'Model'}
+            </NavLink>
+          </NavItem> */}
+          {/* <NavItem > // this is the tab for the solution modelling 
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+              className={classnames({ active: activeTab === '3' })}
+              onClick={() => { toggleTab('3'); toggleRefresh() }}
+            >
+              {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
+            </NavLink>
+          </NavItem> */}
+        </Nav>
+        <TabContent activeTab={activeTab} >
           <TabPane tabId="2">   {/* Model ---------------------------------------*/}
-            <div className="workpad p-1 pt-2 bg-white">
+            <div className="workpad p-1 pt-1 bg-white">
               <Row className="row1">
                 {/* Objects Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
@@ -519,7 +607,12 @@ const page = (props: any) => {
               </Row>
             </div>
           </TabPane>
-
+        </TabContent>
+      </>
+    )
+    const solutionModellingDiv = (
+      <>
+        {/* <TabContent> */}
           {/* Solution Modelling ------------------------------------*/}
           {/* <TabPane tabId="3">
               <div className="workpad p-1 pt-2 bg-white">
@@ -560,7 +653,7 @@ const page = (props: any) => {
                 </Row>
               </div>         
             </TabPane> */}
-        </TabContent>
+        {/* </TabContent> */}
       </>
     )
 
@@ -585,6 +678,8 @@ const page = (props: any) => {
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
+    
+
     const modellingDiv =
       <>
         <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
@@ -598,16 +693,18 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a new Model Project template from GitHub" > {loadnewModelproject} </span>
+            {/* <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span> */}
+             <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
+              onClick={handleGetNewProject}
+            ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
           </div>
-          <div className="d-flex justify-content-end align-items-center bg-secondary border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
-            <div className=" d-flex align-items-center me-0 pe-0">
+          {/* <div className="d-flex justify-content-end align-items-center bg-secondary border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}> */}
+            {/* <div className=" d-flex align-items-center me-0 pe-0">
               <i className="fa fa-folder text-light pe-1"></i>
               <div className="" style={{ whiteSpace: "nowrap" }}></div>
-            </div>
+            </div> */}
             {/* <div className="">
               <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ width: "580px" }} />
@@ -618,7 +715,7 @@ const page = (props: any) => {
               title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
               onClick={handleSaveAllToFile}>Save
             </button> */}
-          </div>
+          {/* </div> */}
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
@@ -658,18 +755,21 @@ const page = (props: any) => {
 
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
-    return (
-      <>
-        <div className="header-buttons float-end mt-0 " style={{ scale: "0.8", minHeight: "34px", backgroundColor: "#ddd" }}>
-          {/* <span className="spacer m-0 p-0 w-50"></span> */}
-          {(activeTab === "2") ? modellingDiv : metamodellingDiv}
-        </div>
-        <div className="diagramtabs pb-0" >
-          <div className="modellingContent mt-1">
-            {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+    return ( (mmToggle) 
+      ?  <>
+          <div className="diagramtabs pb-0" >
+            <div className="modellingContent mt-1">
+              {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+            </div>
           </div>
-        </div>
-      </>
+        </>
+      : <>  
+          <div className="diagramtabs pb-0 " >
+            <div className="modellingContent mt-1">
+              {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
+            </div>
+          </div>
+        </>
     )
   }
 }

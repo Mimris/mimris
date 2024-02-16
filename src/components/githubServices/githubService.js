@@ -42,7 +42,8 @@ const axiosConfigRaw2 = {
   baseURL: 'https://raw.githubusercontent.com/',
 }
 
-export async function searchGithub(repo, path, filename, branch='main', searchtype='paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
+export async function searchGithub(repo, path, filename, branch = 'main', searchtype = 'paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
+  if ((!repo) || repo.includes('undefined')) return null
   try {
     if (!debug) console.log('46 searchGithub', repo, path, branch, filename, searchtype);
     // search/repositories?q=akm-models
@@ -89,8 +90,9 @@ export async function searchGithub(repo, path, filename, branch='main', searchty
   }
 }
 export async function searchRepos(repo, path) {  // search/repositories?q=akm-models
+  if ((!repo) || repo.includes('undefined')) return null
   try {
-    if (!debug) console.log('87 searchRepos search/repositories', repo, path);
+    if (!debug) console.log('93 searchRepos search/repositories', repo, path);
     return await axios.get(
       `search/repositories?q=${repo}`,
       axiosConfig
@@ -115,6 +117,7 @@ export async function searchRepos(repo, path) {  // search/repositories?q=akm-mo
 // }
 
 export async function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-models
+  if ((!ownerRepo) || ownerRepo.includes('undefined')) return null
   try {
     if (debug) console.log('34 searchBranches', ownerRepo, path);
     // https://api.github.com/repos/kavca/kavca-akm-models/contents/StartupModels 
@@ -135,6 +138,7 @@ export async function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca
 }
 
 export function searchModels(repo, path) {
+  if ((!repo) || repo.includes('undefined')) return null
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches
   repo = repo.replace('https://api.github.com/repos/', '')
   const query = `${repo}`;
@@ -145,6 +149,7 @@ export function searchModels(repo, path) {
   );
 }
 export async function searchModelRaw(repo, sha) {
+  if ((!repo) || repo.includes('undefined')) return null
   try {
     // https://raw.githubusercontent.com/Kavca/equinor-osdu-akmpoc/main/
     const query = `repos/${repo}/commits/${sha}`;
@@ -162,6 +167,7 @@ export async function searchModelRaw(repo, sha) {
 
 
 export async function searchModel(repo, path) {
+  if ((!repo) || repo.includes('undefined')) return null
   try {
     const query = `${repo}`;
     // const query =  `${repo}/${path}`;

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 import Link from 'next/link';
-import { Modal, Button } from 'react-bootstrap';import axios from 'axios';
+import { Modal, Button } from 'react-bootstrap';
+import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from 'rehype-slug';

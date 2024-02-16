@@ -12,6 +12,9 @@ function ProjectDetailsForm(props) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
 
+
+
+
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj.projectNumber);
   const [id, setId] = useState(props.props.phFocus?.focusProj.id);
   const [name, setName] = useState(props.props.phFocus?.focusProj.name); 

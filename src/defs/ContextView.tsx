@@ -100,12 +100,13 @@ const ContextView = (props: any) =>  {
     <div className="context-list">
       <div className="">
         <div className="d-flex justify-content-between align-items-center bg-transparent">
-          <div>{statusFieldLink('Repo', repo, `https:/github.com/${org}/${repo}/tree/${branch}/${path}`)}</div>
-          <div>{statusFieldLink('Project', phFocus.focusProj?.name, `https:/github.com/orgs/${org}/projects/${projectNumber}`)}</div>
+          {/* <div>{statusFieldLink('Repo', repo, )}</div> */}
+          {/* <div>{statusFieldLink('Project', phFocus.focusProj?.`https:/github.com/${org}/${repo}/tree/${branch}/${path}`name, `https:/github.com/orgs/${org}/projects/${projectNumber}`)}</div> */}
           <div>{statusFieldLink('Issue', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}</div>
           <div>{statusField('Task', props.ph?.phFocus?.focusTask?.name)}</div>
           <div>{statusField('Role', props.ph?.phFocus?.focusRole?.name)}</div>
-          <div className="me-auto">{statusField('User', (props.ph?.phUser?.focusUser?.name === 'No GitHub User identified') ? 'Guest' : props.ph?.phUser?.focusUser?.name )}</div>
+          <div className="me-auto">{statusField('User', (props.ph?.phUser?.focusUser?.name === 'No GitHub User identified') ? 'Not logged in!' : props.ph?.phUser?.focusUser?.name )}</div>
+          <div className="ms-auto me-4">{statusField('TargetModel', (props.ph?.phFocus?.focusTargetModel) && props.ph?.phFocus?.focusTargetModel)}</div>
         </div>
         {/* <div className="font-weight-bold  border fs-6">
           <button
@@ -138,7 +139,7 @@ const ContextView = (props: any) =>  {
   return (
     <>
         {/* <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div> */}
-      <div className="d-flex justify-content-start align-items-center " style={{ borderBottom: "1px solid #aaa", borderTop: "4px solid #b0d8d8", backgroundColor: "#ddd" }}>
+      <div className="d-flex justify-content-start align-items-center mx-1" style={{  backgroundColor: "#cdd" }}>
         <button className="btn btn-sm bg-transparent py-0 ms-1 text-primary " onClick={toggleMinimized}>
           {(minimized) 
             ? <span className="" style={{whiteSpace: 'nowrap',}}>Focus : <i className="fas fa-caret-right fa-lg me-2"></i></span>

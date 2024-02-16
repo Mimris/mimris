@@ -26,8 +26,6 @@ const LoadGitHub = (props: any) => {
   // const url = `https://api.github.com/users/${username}/repos/`
   // const repository = 'akm-models'
   // const path = 'models'
-
-
   // const username = 'josmiseth'
   // const url = `https://api.github.com/users/${username}/repos/`
   // const repository = 'cumulus-akm-pocc'
@@ -46,15 +44,6 @@ const LoadGitHub = (props: any) => {
   const [repoText, setRepoText] = useState(props.ph.phFocus?.focusProj?.repo);
   const [pathText, setPathText] = useState(props.ph.phFocus?.focusProj?.path);
   const [branchText, setBranchText] = useState(props.ph.phFocus?.focusProj?.branch);
-      // setOrgText(props.ph.phFocus?.focusProj?.org)
-    // setRepoText(props.ph.phFocus?.focusProj?.repo)
-    // setPathText(props.ph.phFocus?.focusProj?.path)
-    // setBranchText(props.ph.phFocus?.focusProj?.branch)
-    // setUsernameText(props.ph.phFocus?.focusProj?.username)
-  // const [orgText, setOrgText] = useState('Kavca');
-  // const [repoText, setRepoText] = useState('kavca-akm-models');
-  // const [pathText, setPathText] = useState('models');
-  // const [branchText, setBranchText] = useState('main');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
   const [models, setModels] = useState([]);
@@ -90,7 +79,7 @@ const LoadGitHub = (props: any) => {
   };
   
   const onPathChange = (text) => {
-    (text) ? setPathText(text) : setPathText('');  
+    (text) ? setPathText(text) : setPathText('models');  
   };
 
   const onBranchChange = (text) => {
@@ -102,9 +91,7 @@ const LoadGitHub = (props: any) => {
     const rep = `${orgText}/${repoText}`;
     // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     const filename = `${text}`; // add slash
-
     loadModel(rep, filename);
-
     if (debug) console.log('52', rep, filename, )
     const  refres = () => {
       setRefresh(!refresh)
@@ -116,7 +103,7 @@ const LoadGitHub = (props: any) => {
     if (orgText?.length > 0)  { 
       setLoading(true);
       if (debug) console.log('76 loadRepos', repoText, pathText, model)
-      if (repoText.includes('undefined')) return null;
+      if ((!repoText) || repoText.includes('undefined')) return null;
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
@@ -306,7 +293,7 @@ const LoadGitHub = (props: any) => {
   useEffect(() => {
     setOrgText(props.ph.phFocus?.focusProj?.org)
     setRepoText(props.ph.phFocus?.focusProj?.repo)
-    setPathText(props.ph.phFocus?.focusProj?.path)
+    setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
     setBranchText(props.ph.phFocus?.focusProj?.branch)
     // setUsernameText(props.ph.phFocus?.focusProj?.username)
     // const orgText = props.ph.phFocus?.focusProj?.org
@@ -375,7 +362,7 @@ const LoadGitHub = (props: any) => {
                 <span style={{maxWidth: "180px"}}>
                   <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
                 </span>
-                           {(dirs?.length !== 0) 
+                {(dirs?.length !== 0) 
                   ? <div>Model paths (folders) found:<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
                   : (!pathText) && <div className='text-warning min-vh-500'> 'No model paths (folders) found!'</div>
                 } 

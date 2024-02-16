@@ -100,10 +100,10 @@ const page = (props: any) => {
               <ProjectMenuBar props={props} />
               {contextDiv}
             <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
-              <div className="col-3 my-3">
+              {/* <div className="col-3 my-3">
                 <Project props={props} />
-              </div>
-              <div className="col-4 m-3 mx-0 p-0 border rounded">
+              </div> */}
+              <div className="col-6 m-3 mx-0 p-0 border rounded">
                 <div className="text-center bg-light">
                   GitHub:  README.md
                 {iframe}
@@ -112,7 +112,7 @@ const page = (props: any) => {
               {/* <div className="tasksarea">
                 <TasksHelp />
               </div> */}
-              <div className="workarea col-5">
+              <div className="workarea col-6">
                   {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>
             </div>

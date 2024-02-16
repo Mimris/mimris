@@ -254,27 +254,7 @@ const Modeller = (props: any) => {
     // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
     <div className="Selector--menu d-flex justify-content-between gap-2 pt-1">
       <div className="d-flex ">
-        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 pt-1 text-nowrap "
-          data-toggle="tooltip" data-placement="top" data-bs-html="true"
-          title={
-            `Description : ${props.metis.description} 
-            
-            To change Project Name : 
-            Edit this field and click on the Save button.
-            
-            or Right-click the background below and select 'Edit Project Name'. 
-            
-            The suffix '.json' will be added to the filename.`
-          }><span className="bg-light"> Project : </span>
-        </label>
-        <input
-          className=" px-2"
-          style={{ width: '500px' }}
-          type="text"
-          value={projectName}
-          onChange={handleProjectChange}
-          onBlur={handleProjectBlur}
-        />
+
         {/* <input className=" px-2" style={{ width: '300px' }} label="test" type="text" value={props.metis.name} onBlur={(event) => handleProjectChange({ value: event.target.value })} onChange={(event) => handleProjectChange({ value: event.target.value })} /> */}
       </div>
 

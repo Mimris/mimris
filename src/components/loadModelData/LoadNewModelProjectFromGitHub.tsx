@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
 import base64 from 'base-64';
@@ -17,6 +17,8 @@ const debug = false
 const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(props.refresh);
+  const modalRef = useRef(null);
+  const backdropRef = useRef(null);
 
   if (debug) console.log('20 LoadNewModel....', props)
 
@@ -55,14 +57,8 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
-  // const [toggleRefresh, setToggleRefresh] = useState(props.toggleRefresh);
+  function toggleRefresh() { setRefresh(!refresh); }
 
-  // const refreshCanvas = () => {
-  //   setTimeout(() => {
-  //     setToggleRefresh(prevToggleRefresh => !prevToggleRefresh);
-  //   }, 3000);
-  // }
-  // const toggleRefresh = () => setToggleRefresh(!toggleRefresh);
 
   const data = {
     phData:   props.ph.phData,
@@ -82,24 +78,30 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //   if (text?.length > 0) {
   //     if (debug) console.log('50 onUsernameChange', text)
   //     setOrgnameText(text);
-  //     setGithubLink(`http://github.com/${text}/${repoText}`);
-  //     if (debug) console.log('55 onUsernameChange', orgnameText)
+  //     // setGithubLink(`http://github.com/${text}/${repoText}`);
+  //     // if (debug) console.log('55 onUsernameChange', orgnameText)
+  //   }
+  // };
+  //   const onOrgnameChange = (orgnameText) => {
+  //   if (orgnameText?.length > 0) {
+  //     if (debug) console.log('50 onOrgChange', orgnameText)
+  //     setOrgnameText(orgnameText);
+  //     setGithubLink(`http://github.com/${orgText}/${repoText}`);
+  //     if (debug) console.log('55 onOrgChange', orgnameText)
   //   }
   // };
 
-  const onRepoChange = (text) => {
-    (text) ? setRepoText(text): setRepoText('');
-  };
-  
+  // const onRepoChange = (text) => {
+  //   (text) ? setRepoText(text): setRepoText('');
+  // };
 
-
-  const onPathChange = (text) => {
-    if (text?.length < 2) {
-      setPathText('');
-    } else {
-      setPathText(text);
-    }
-  };
+  // const onPathChange = (text) => {
+  //   if (text?.length < 2) {
+  //     setPathText('');
+  //   } else {
+  //     setPathText(text);
+  //   }
+  // };
 
   const onModelChange = (text) => {
     if (debug) console.log('71 onModelChange', text)
@@ -114,21 +116,17 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     setTimeout(refres, 3000);
   }
 
-  // const loadUser = async (repo) => {
-  //   if (repo?.length > 0) {
-  //     setLoading(true);
-  //     const res = await searchGithub(repo, '', '', '', 'user');
-  //     setLoading(false);
-  //     if (res) {
-  //       if (!debug) console.log('122 res', res, res.data, res.data.email)
-  //       setUser(res.data.email);
-  //     }
+  // const onBranchChange = (text) => {
+  //   if (text?.length > 0) {
+  //     setBranchText(text);
   //   }
-  // }
+  // };
+
   const loadRepos = async (repoText, pathText) => {
     if (orgnameText?.length > 0)  { 
       setLoading(true);
       if (debug) console.log('129 loadRepos', repoText, pathText, model)
+      if ((!repoText) || repoText.includes('undefined')) return null;
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
@@ -147,6 +145,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
+    if ((!searchtext) || searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
     if (!debug) console.log('131 res', res, res.data, sha)
@@ -171,39 +170,39 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     if (debug) console.log('90 onModelChange', model, props) 
 
     if (model) {
-      if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
-        const mmodel = model; // model is a metamodel
-        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === mmodel?.id) // current mmodel index
-        // import metamodel into current project, but first rename the current if it has the same id
-        // let oldmodel;
-        // if ( mmindex !== -1) { //  found
-        //   const tmpmodel = props.ph.phData?.metis?.metamodels[mmindex]
-        //   oldmodel = {
-        //     ...tmpmodel,
-        //     id: tmpmodel.id+'_old',
-        //     name: tmpmodel.name+'_old',
-        //   }    
-        // }
-        const mmlength = props.ph.phData?.metis?.metamodels.length
-        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
-        const data = {
-          phData: {
-              ...props.ph.phData,
-              metis: {
-                  ...props.ph.phData.metis,
-                  metamodels: [
-                      ...props.ph.phData.metis.metamodels.slice(0, mmindex),  
-                      // oldmodel,
-                      mmodel,
-                      ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
-                  ],
-                  models: props.ph.phData.metis.models,   
-              },
-          }, 
-        };
-        if (!debug) console.log('208 ', data)
-        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      } else { // it is a Model and will be loaded into current project
+      // if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
+      //   const mmodel = model; // model is a metamodel
+      //   let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === mmodel?.id) // current mmodel index
+      //   // import metamodel into current project, but first rename the current if it has the same id
+      //   // let oldmodel;
+      //   // if ( mmindex !== -1) { //  found
+      //   //   const tmpmodel = props.ph.phData?.metis?.metamodels[mmindex]
+      //   //   oldmodel = {
+      //   //     ...tmpmodel,
+      //   //     id: tmpmodel.id+'_old',
+      //   //     name: tmpmodel.name+'_old',
+      //   //   }    
+      //   // }
+      //   const mmlength = props.ph.phData?.metis?.metamodels.length
+      //   if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
+      //   const data = {
+      //     phData: {
+      //         ...props.ph.phData,
+      //         metis: {
+      //             ...props.ph.phData.metis,
+      //             metamodels: [
+      //                 ...props.ph.phData.metis.metamodels.slice(0, mmindex),  
+      //                 // oldmodel,
+      //                 mmodel,
+      //                 ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
+      //             ],
+      //             models: props.ph.phData.metis.models,   
+      //         },
+      //     }, 
+      //   };
+      //   if (!debug) console.log('208 ', data)
+      //   if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      // } else { // it is a Model and will be loaded into current project
         const data = {
           phData:   model.phData,
           phFocus:  model.phFocus,
@@ -216,8 +215,8 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
         if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
         if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-      }
-      GenGojsModel(data.phData, dispatch)
+      // }
+      // GenGojsModel(data.phData, dispatch)
     }
   }
 
@@ -229,13 +228,13 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
-    const filteredDirs = await res.data?.filter(model => 
+    const filteredDirs = await res?.data?.filter(model => 
       model.type === 'dir' 
       && model.name !== 'img' 
       && model.name !== 'imgdocs' 
       && model.name !== '.github' 
       && model.name !== '.gitignore');
-    const filteredModels = await res.data?.filter(model => model.name.endsWith('.json'));
+    const filteredModels = await res?.data?.filter(model => model.name.endsWith('.json'));
     setModels(filteredModels);
     setDirs(filteredDirs);
     if (debug) console.log('218 ', filteredModels, filteredDirs)
@@ -251,17 +250,19 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   };
 
   useEffect(() => {
-    if (debug) console.log('230 ', orgnameText, repoText, branchText, pathText,  githubLink)
+    if (debug) console.log('230 ', orgnameText, repoText, branchText, pathText,  githubLink);
+    (orgnameText) && loadModels(orgnameText, pathText)
   }, [refresh]);
 
-  // useEffect(() => {
-  //   if (!debug) console.log('255 ', orgnameText, repoText, branchText, pathText,  githubLink)
-  //   const repo = loadUser(repoText);
-  //   // set timeot to 3 seconds to allow for loading of repos
-  //   setTimeout(() => {
-  //    if (!debug) console.log('257 ', repoText, pathText, repo)
-  //   }, 3000);
-  // }, [repoText, pathText, branchText]);
+  useEffect(() => {
+    setOrgnameText(props.ph.phFocus?.focusProj?.org)
+    setRepoText(props.ph.phFocus?.focusProj?.repo)
+    setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
+    setBranchText(props.ph.phFocus?.focusProj?.branch)
+      if (debug) console.log('314 LoadGitHub ', orgnameText, repoText, branchText, pathText);
+      (repoText) && loadRepos(repoText, pathText);
+      (orgnameText) && loadModels(orgnameText, pathText)
+  }, []);
 
   let modeloptionss = models?.map((mod) => {
     return {
@@ -270,7 +271,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     } 
   });
 
-  const label = (models.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODELS" above! - - - ' ;
+  const label = (models?.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODEL TEMPLATES" above! - - - ' ;
   const modeloptions = [{value: '', label: label}, ...modeloptionss] ;
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
   if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
@@ -282,19 +283,17 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     SaveAllToFile(data, projectname, 'Project')
   }
 
-
   return  (
     <>
       <span><button className="btn bg-secondary py-1 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg me-2 ms-0 "></i>{buttonLabel}</button> </span>
-      <Modal isOpen={modal} toggle={toggle} className={className} >
+     <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropRef={backdropRef}>
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 d-fle">
           <div className="bg-secondary" >
-              
-            <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Start Models:</strong>
+            <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Model templates:</strong>
               {/* ----Repository user name input------------------------------- */}
-              {/* <TextInput label="RepoOwner:" value={orgText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />          */}
-              {/* {loading ? 'Loading...' : 
+              {/* <TextInput label="Repo owner :" value={orgnameText} onChange={(value) => onOrgnameChange(value)} placeholder="Repo Owners Name " />          */}
+             {/* {loading ? 'Loading...' : 
                 <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
               } */}
               {/* ----- Searching repos -------------------------------- */}
@@ -304,18 +303,18 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
               {/* ----- Repository name input ------------------------------ */}
               {/* <span ><TextInput  label="Repository:" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name:" /> </span> */}
-              <hr className="bg-primary my-2 mx-4" />
+              {/* <hr className="bg-primary my-2 mx-4" /> */}
 
               {/* ----- Model Path input ---------------------------------- */}
               {/* {(dirs?.length !== 0) 
                 ? <div >Model paths (folders) found: (blank out the Path content and return, to see alternative paths)<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
                 : (!pathText) && <div className='text-warning'> 'No model paths (folders) found!'</div>
               }  */}
-              {/* <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span> */}
-              <hr className="bg-light my-1 mx-4" />
+              {/* <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
+              <hr className="bg-light my-1 mx-4" /> */}
 
               {/* -------- Select model ----------------------------------- */}
-              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" onClick = {() => loadModels(orgnameText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List Models</Button>
+              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" onClick = {() => loadModels(orgnameText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List Model Templates</Button>
               {(models?.length > 0) 
                 ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
                 : <div className='text-warning'> 'No models found!'</div>

@@ -314,9 +314,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         hideNameAndDescr = true;
         if (what === "editObjectview") {
           if (type.name !== constants.types.AKM_PORT) 
-            useFillColor = true;
+            useFillColor = false;
         } else if (what === "editRelshipview" || what === "editTypeview")
-          useStrokeColor = true;
+          useStrokeColor = false;
         test = typeview?.data;
         break;
       default:

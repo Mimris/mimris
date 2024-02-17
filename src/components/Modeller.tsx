@@ -96,8 +96,6 @@ const Modeller = (props: any) => {
     if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleFocusDetails)
   }
 
-
-
   const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
 
   useEffect(() => { // set activTab when focusModelview.id changes
@@ -619,7 +617,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const modelviewTabDiv = // this is the modelview tabs
     <>
-      <Nav tabs >
+      <Nav tabs > {/* objects  */}
         <button className="btn btn-sm bg-transparent text-light"
           data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
           onClick={toggleObjects} 
@@ -629,8 +627,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container me-1"></i>Objects </span>
             }
         </button>
-        {navitemDiv}
-        <NavItem >
+        {navitemDiv} {/* modelviewtabs  */}
+        <NavItem > {/* ?  */} 
           <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
             title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
                     Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
@@ -648,8 +646,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </button> 
       </Nav>
       <TabContent className="bg-white p-0 m-0 border border-white">
-        <TabPane className="bg-white">
-            <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
+        <TabPane className="">
+            <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
               {(visibleObjects)
                 ?  <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
                 : <></>
@@ -680,26 +678,25 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>
     </>
-
   if (debug) console.log('372 Modeller ', props.modelType)
 
   const modellerDiv =
     (props.modelType === 'model')
       ? // modelling
       <div className="modeller-workarea w-100" >
-        <div className="d-flex ">
+        {/* <div className="d-flex ">
           <span className="text-dark fw-bold ms-3 fs-4" style={{ minWidth: "15%" }} > Modeller </span>
           <div className="modeller--topbar d-flex justify-content-between mt-0 p-0 ms-auto me-2">
-            <div className="d-flex justify-content-around align-items-center me-0">
-              <div className="modeller--heading-selector">{selector}</div>
+            <div className="d-flex justify-content-around align-items-center me-0"> */}
+              {/* <div className="modeller--heading-selector">{selector}</div> */}
               {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
                 style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
                 {refresh ? 'save2memory' : 'save2memory'} 
               </span> */}
-            </div>
+            {/* </div>
           </div>
-        </div>
-        <div className="modeller--workarea-objects" >
+        </div> */}
+        <div className="modeller--workarea-objects m-1" >
           {modelviewTabDiv}
         </div>
         <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
@@ -721,11 +718,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--topbar  mt-1 p-0">
           <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
           <div className="">
-            <div className="modeller--heading-selector d-flex justify-content-between me-4" 
+            {/* <div className="modeller--heading-selector d-flex justify-content-between me-4" 
               title="Modeller heading area" > 
               <span className="mt-1 ms-2 px-2 " style={{ backgroundColor: '#bcd' }} >Metamodel : {mmodel.name}</span> 
               {selector}
-            </div>
+            </div> */}
           </div>
           <div>
             {metamodelTabDiv}

@@ -202,7 +202,7 @@ const page = (props: any) => {
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( // the top context area (green)
-    <div className="borde" style={{ backgroundColor: "#acc" }}>
+    <div className="" style={{ backgroundColor: "#acc" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
       <ContextView ph={props} showModal={showModal} setShowModal={setShowModal} />
     </div>
@@ -220,16 +220,20 @@ const page = (props: any) => {
             {/* {videoDiv} */}
             {/* <Project props={props}/> */}
             <ProjectMenuBar props={props} />
-            {contextDiv}
-            <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
+            <div className="context-bar d-flex justify-content-between align-items-center"  style={{  backgroundColor: "#cdd" }}>
               <div className="issuesarea">
                 <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
               </div>
+              <div className="contextarea ms-5 w-75">
+                {contextDiv}
+              </div>
+              <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+              </div>
+            </div>
+            <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling />
-              </div>
-              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>
             </div>
             <div className="footer">

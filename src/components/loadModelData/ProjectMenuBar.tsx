@@ -24,7 +24,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(true);
 
     if (debug) console.log('5 ProjectMenuBar', project.name, project, props);
 
@@ -72,6 +72,7 @@ export const ProjectMenuBar = (props: any) => {
         setShowProjectModal(true);
     };
     const handleCloseProjectModal = () => setShowProjectModal(false);
+
     const handleSubmit = (details) => {
         props.onSubmit(details);
         handleCloseProjectModal();
@@ -96,10 +97,10 @@ export const ProjectMenuBar = (props: any) => {
     };
 
     const handleContractDiv = () => {
-        const timer = setTimeout(() => {
         setExpanded(false);
-        }
-        , 10000);
+        // const timer = setTimeout(() => {
+        //  setExpanded(false);
+        // } , 20000);
     };
 
 
@@ -214,18 +215,28 @@ export const ProjectMenuBar = (props: any) => {
             </div>
         </div>
         {projectModalDiv}
-    </>
-    :   <div className="d-flex justify-content-center align-items-center mx-auto  pt-0" 
+        <div className="d-flex justify-content-end align-items-center ms-auto me-2 pt-0" 
             style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
-        ><i className="fa fa-arrow-down fa-sm pt-1"></i>Project</div>
+            onClick={() => setExpanded(false)}
+        >
+            <i className="fa fa-arrow-up fa-sm pt-1"></i>Project
+        </div>
+    </>
+    :   <div className="d-flex justify-content-end align-items-center ms-auto me-2 pt-0" 
+            style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+            onClick={() => setExpanded(true)}
+        >
+            <i className="fa fa-arrow-left fa-sm pt-1"></i>Project
+        </div>
 
     return (
         <>
             <div
-                className={`project-menu-bar d-flex justify-content-between align-items-center p-1 ${expanded ? 'expanded' : ''}`}
+                className={`project-menu-bar d-flex justify-content-between align-items-center p-1 pb-2 ${expanded ? 'expanded' : ''}`}
                 style={{ backgroundColor: "#b0cfcf" }}
-                onMouseEnter={handleExpandDiv}
-                onMouseLeave={handleContractDiv}
+                // onMouseEnter={handleExpandDiv}
+                // onMouseLeave={handleContractDiv}
+                // onClick={handleContractDiv}
             >
                 {menubarDiv}
             </div>

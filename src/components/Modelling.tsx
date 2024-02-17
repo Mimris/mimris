@@ -61,17 +61,12 @@ const page = (props: any) => {
   // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
-  const [activeTab, setActiveTab] = useState('2');
+  const [activeTab, setActiveTab] = useState();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   // const [visibleContext, setVisibleContext] = useState(true)
-
-  /**  * Get the state from the store  */
-  // const state = useSelector((state: any) => state) // Selecting the whole redux store
-  // let phFocus = useSelector(phFocus => props.phFocus)
-  // let phData = useSelector(phData => props.phData)
-  // let phUser = useSelector(phUser => props.phUser)
+  let activetabindex = 0
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
@@ -86,6 +81,9 @@ const page = (props: any) => {
   const ph = props
   const metis = ph.phData?.metis
   const models = metis?.models || []
+
+  const modelindex =  models.findIndex((m: any) => m.id === focusModel.id)
+  // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -1
 
   const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
   const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
@@ -104,15 +102,19 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    if (debug) useEfflog('106 Modelling useEffect 1 [] : ', props);
-    GenGojsModel(props, dispatch);
-    setMount(true)
-  }, [])
+    setActiveTab(activetabindex);
+  }, [props.phFocus?.focusModel?.id]);
 
   useEffect(() => {
-    if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
+    if (debug) useEfflog('106 Modelling useEffect 1 [] : ', props);
     GenGojsModel(props, dispatch);
-  }, [activeTab])
+    setMount(true);
+  }, []);
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
+  //   GenGojsModel(props, dispatch);
+  // }, [activeTab])
 
   useEffect(() => {
     if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
@@ -281,6 +283,8 @@ const page = (props: any) => {
 
     }
 
+    activetabindex = (modelindex < 0) ? 0 : modelindex // if no model in focus, set the active tab to 0
+
     const handleSaveAllToFile = () => {
       const projectname = props.phData.metis.name
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
@@ -289,16 +293,16 @@ const page = (props: any) => {
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
     }
 
-    const toggleTab = tab => {
-      if (activeTab !== tab) setActiveTab(tab);
-      const data = (tab === '1') ? 'Metamodel' : 'Model'
-      // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
-      dispatch({ type: 'SET_FOCUS_TAB', data })
-      // dispatch  the nodel and modelview also
-      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: curmodview })
-      dispatch({ type: 'SET_FOCUS_MODEL', data: curmod })
-      // GenGojsModel(props, dispatch)
-    }
+    // const toggleTab = tab => {
+    //   if (activeTab !== tab) setActiveTab(tab);
+    //   const data = (tab === '1') ? 'Metamodel' : 'Model'
+    //   // console.log('159', store, dispatch({ type: 'SET_FOCUS_TAB', store }));
+    //   dispatch({ type: 'SET_FOCUS_TAB', data })
+    //   // dispatch  the nodel and modelview also
+    //   dispatch({ type: 'SET_FOCUS_MODELVIEW', data: curmodview })
+    //   dispatch({ type: 'SET_FOCUS_MODEL', data: curmod })
+    //   // GenGojsModel(props, dispatch)
+    // }
 
     // const toggleTip = () => setTooltipOpen(!tooltipOpen);
     // function toggleTasks() {
@@ -320,7 +324,9 @@ const page = (props: any) => {
     if (m && !m.markedAsDeleted) {
       const strindex = index.toString()
       const data = { id: m.id, name: m.name }
-      const data2 = { id: Math.random().toString(36).substring(7), name: strindex + 'name' }
+      const modelview0 = (m.modelviews) ? m.modelviews[0] : null
+      const data2 = { id: modelview0?.id, name: modelview0?.name }
+      // const data2 = { id: Math.random().toString(36).substring(7), name: strindex + 'name' }
       // GenGojsModel(props, dispatch);
       // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
       return (
@@ -332,16 +338,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           }>
           <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft:"8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
             className={classnames({ active: activeTab == strindex })}
-            onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
+            onClick={() => { dispatch({ type: 'SET_FOCUS_MODEL', data }); dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 }); toggleRefresh()}}
           >
-          {/* <input
-            className="form-control form-control-sm"
-            // style={{ width: '300px' }}
-            type="text"
-            value={data.name}
-            onChange={handleModelviewChange}
-            onBlur={handleModelviewBlur}
-          /> */}
             {m.name}
           </NavLink>
         </NavItem>
@@ -412,39 +410,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               style={{borderColor: "transparent", width: "116px", height: "30px", fontSize: "16px", backgroundColor: "#77aacc" }}
             >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
           </span>
-          {/* <NavItem className="text-danger" >  // this is the tab for the template
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-              className={classnames({ active: activeTab === '0' })}
-              onClick={() => { toggleTab('0'); toggleRefresh() }}
-              >
-              {(activeTab === "0") ? 'Template' : 'T'}
-              </NavLink>
-            </NavItem> */}
-          <NavItem className="ms-5 ps-5"> {/*this is the tab for the metamodel */}
-            {/* <NavItem className="text-danger" > */}
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
-              className={classnames({ active: activeTab === '1' })}
-              onClick={() => { toggleTab('1'); toggleRefresh() }}
-            >
-              {(activeTab === "1") ? 'Metamodel' : 'Metamodel'}
-            </NavLink>
-          </NavItem>
-          <NavItem > {/* this is the tab for the model */}
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
-              className={classnames({ active: activeTab === '2' })}
-              onClick={() => { toggleTab('2'); toggleRefresh() }}
-            >
-              {(activeTab === "2") ? 'Model' : 'Model'}
-            </NavLink>
-          </NavItem>
-          {/* <NavItem > // this is the tab for the solution modelling 
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-              className={classnames({ active: activeTab === '3' })}
-              onClick={() => { toggleTab('3'); toggleRefresh() }}
-            >
-              {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
-            </NavLink>
-          </NavItem> */}
         </Nav>
           <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white" >
@@ -512,7 +477,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const modellingtabs = (
       <>
-        <Nav tabs style={{ minWidth: "350px" }} >
+        <Nav tabs style={{ minWidth: "350px", borderBottom: "white"}} >
           <span className="ms-5 me-2">
             <button className=" mb-0 pb-0 ms-5"
               onClick={() => setMmToggle(!mmToggle)}
@@ -520,42 +485,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
           </span>
           {navmodelDiv}
-          {/* <NavItem className="text-danger" >  // this is the tab for the template
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-              className={classnames({ active: activeTab === '0' })}
-              onClick={() => { toggleTab('0'); toggleRefresh() }}
-              >
-              {(activeTab === "0") ? 'Template' : 'T'}
-              </NavLink>
-            </NavItem> */}
-          {/* <NavItem className="ms-5 ps-5"> 
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
-              className={classnames({ active: activeTab === '1' })}
-              onClick={() => { toggleTab('1'); toggleRefresh() }}
-            >
-              {(activeTab === "1") ? 'Metamodel' : 'Metamodel'}
-            </NavLink>
-          </NavItem>
-          <NavItem > 
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee", color: "black" }}
-              className={classnames({ active: activeTab === '2' })}
-              onClick={() => { toggleTab('2'); toggleRefresh() }}
-            >
-              {(activeTab === "2") ? 'Model' : 'Model'}
-            </NavLink>
-          </NavItem> */}
-          {/* <NavItem > // this is the tab for the solution modelling 
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-              className={classnames({ active: activeTab === '3' })}
-              onClick={() => { toggleTab('3'); toggleRefresh() }}
-            >
-              {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
-            </NavLink>
-          </NavItem> */}
         </Nav>
-        <TabContent activeTab={activeTab} >
-          <TabPane tabId="2">   {/* Model ---------------------------------------*/}
-            <div className="workpad p-1 pt-1 bg-white">
+        <TabContent  >
+          <TabPane >   {/* Model ---------------------------------------*/}
+            <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
                 {/* Objects Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
@@ -600,7 +533,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                  {(visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col> */}
                 <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
-                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "6h", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
+                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" 
+                    style={{ minHeight: "6h", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                     {targetmetamodelDiv}
                   </div>
                 </Col>
@@ -669,11 +603,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
-    const modelType = (activeTab === '1') ? 'metamodel' : 'model'
-    const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const modelType = (activeTab === '0') ? 'metamodel' : 'model'
+    // const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
@@ -684,39 +618,21 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <>
         <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
           <div className="me-4">
-            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-            {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span> */}
-            {/* <span className="pt-1 pr-1" > </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            {/* <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span> */}
              <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
-            ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button>
+              ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
           </div>
-          {/* <div className="d-flex justify-content-end align-items-center bg-secondary border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}> */}
-            {/* <div className=" d-flex align-items-center me-0 pe-0">
-              <i className="fa fa-folder text-light pe-1"></i>
-              <div className="" style={{ whiteSpace: "nowrap" }}></div>
-            </div> */}
-            {/* <div className="">
-              <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ width: "580px" }} />
-              </div>
-            </div>
-            <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
-            </button> */}
-          {/* </div> */}
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+
+          {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
+          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
+          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
+          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span> */}
+          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span> */}
+          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
           {/* <button className="btn bg-light text-primary btn-sm" onClick={toggleShowContext}>✵</button>  */}
@@ -756,9 +672,12 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return ( (mmToggle) 
-      ?  <>
+      ? <>
           <div className="diagramtabs pb-0" >
-            <div className="modellingContent mt-1">
+            <div className="position-relahtive float-end" style={{ transform: "scale(0.8)", marginRight: "50px"}}>
+              {modellingDiv}
+            </div>
+            <div className="modellingContent mt-1 ">
               {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
             </div>
           </div>

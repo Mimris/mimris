@@ -66,7 +66,7 @@ const page = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   // const [visibleContext, setVisibleContext] = useState(true)
-  let activetabindex = 0
+  let activetabindex
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)

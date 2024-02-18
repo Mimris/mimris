@@ -202,6 +202,14 @@ const page = (props) => {
               </CardText>
             </CardBody>
             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.11.09</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Select Sort/filter in Objects.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2023.11.03</CardTitle>
               <CardText >
                     &bull; New features:<br />

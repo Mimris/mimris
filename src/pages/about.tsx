@@ -8,7 +8,7 @@ import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import About from '../components/About';
-import SetContext from '../defs/SetContext'
+import ContextView from '../defs/ContextView';
 import TasksHelp from '../components/TasksHelp'
 
 const page = (props: any) => {
@@ -32,7 +32,7 @@ const page = (props: any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  const setContextDiv = (props.phFocus) && <ContextView phF={props.phFocus} />
 
   return (
     <div>
@@ -42,6 +42,7 @@ const page = (props: any) => {
             {/* <div className="header">
               <Header title='eaderTitle' />
             </div> */}
+              <div className="pt-2" style={{backgroundColor: "#b0cfcf"}}></div>
             <div className="workplace">
               {/* <div className="contextarea">
                 {setContextDiv}

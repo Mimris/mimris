@@ -11,13 +11,13 @@ import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
-import SetContext from '../defs/SetContext'
-import Context from "../components/Context"
-import SelectContext from '../components/utils/SelectContext'
+import ContextView from "../defs/ContextView"
+import Context from "../components/FocusDetails"
 import Tasks from '../components/Tasks'
 import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
-import Issues from "../components/Project";
+import Project from "../components/Project";
+import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService' 
 
@@ -29,6 +29,8 @@ const page = (props: any) => {
 
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
+
+  const [showModal, setShowModal] = useState(false);
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -131,32 +133,36 @@ const page = (props: any) => {
               file: githubFile.filename,
             } 
             const orgrepo = githubFile.org+'/'+githubFile.repo 
-            console.log('127 modelling orgrepo:', orgrepo)
+            console.log('134 modelling orgrepo:', orgrepo)
             const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
             const githubData = await res.data
             const sha = await res.data.sha
-
-            const data = {
-              phData: githubData.phData,
-              phFocus: {
-                ...props.phFocus,
-                focusProj: focusProj,
-                focusModel:  params.focusModel,
-                focusModelview: params.focusModelview,
-                focusObject: params.focusObject,
-                focusObjectview:  params.focusObjectview,
-                focusRole: params.focusRole,
-                focusTask: params.focusTask,
-              },
-              phSource: props.phSource,
-              phUser: props.phUser,
-              lastUpdate: props.lastUpdate,
-            };
+            console.log('138 modelling githubData:', githubData, sha)
+            // const data = {
+            //   githubData
+            // }
+            // const data = {
+            //   phData: githubData.phData,
+            //   phFocus: {
+            //     ...props.phFocus,
+            //     focusProj: focusProj,
+            //     focusModel:  params.focusModel,
+            //     focusModelview: params.focusModelview,
+            //     focusObject: params.focusObject,
+            //     focusObjectview:  params.focusObjectview,
+            //     focusRole: params.focusRole,
+            //     focusTask: params.focusTask,
+            //   },
+            //   phSource: props.phSource,
+            //   phUser: props.phUser,
+            //   lastUpdate: props.lastUpdate,
+            // };
             // dispatchLocalStore(data); // dispatch to store the latest [0] from local storage
-            dispatch({ type: 'LOAD_TOSTORE_DATA', data: data })
-            const timer = setTimeout(() => {
-              setRefresh(!refresh);
-            } , 1000);
+            console.log('159 modelling', data)
+            dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
+            // const timer = setTimeout(() => {
+            //   setRefresh(!refresh);
+            // } , 2000);
 
             
           } else if (focus && !githubFile) {
@@ -193,41 +199,42 @@ const page = (props: any) => {
     // }, [])
   }, []);
 
-
+  {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
   const contextDiv = ( // the top context area (green)
-    <div className="context-bar d-flex ps-4 " style={{ backgroundColor: "#cdd", width: "", maxHeight: ""}}>
-      <SetContext className='setContext' ph={props} style={{ backgroundColor: "#cdd", minWidth: "80%"}} />
-      <div className="context-bar--context d-flex justify-content-between align-items-center me-4" style={{ backgroundColor: "#dcc" }}>
-        <SelectContext className='ContextModal mr-1' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
-        {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
+      <div className="bg-transparent" style={{ backgroundColor: "#dcc" }}>
+        {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
+        <ContextView  ph={props}  showModal={showModal} setShowModal={setShowModal} />
       </div>
-    </div>
   )
 
   const modellingDiv = (mount)
     ? 
       <div>
-        <Layout user={props.phUser?.focusUser} >
-          <div id="index" >
-            <div className="wrapper" > 
+        <Layout user={props.phUser?.focusUser}>
+          <div id="index">
+            <div className="wrapper">
               {/* <div className="header" >
                 <Header title={props.phUser?.focusUser.name} /> 
               </div> */}
               {/* {videoDiv} */}
-                {contextDiv}
+              {/* <Project props={props}/> */}
+              {contextDiv}
               <div className="workplace d-flex" style={{ zIndex: 1 }}>
-                <div className="issuesarea " style={{ backgroundColor: "#fee", borderRadius: "5px 5px 5px 5px" }} >
-                  <Issues props={props}/>
+                <div className="issuesarea">
+                  <Issues props={props} showModal={showModal} setShowModal={setShowModal}/>
                 </div>
-                  <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
-                    <Modelling />
-                  </div>
-              <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks props={props}/>
+                <div className="workarea p-1 w-100" style={{ backgroundColor: "#ddd" }}>
+                  <Modelling />
+                </div>
+                <div className="tasksarea mr-1 " style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                  <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                </div>
               </div>
-              </div>
-              <div className="footer">
+              <div className="footer d-flex">
                 <Footer />
+                <span className="sourceName ms-auto me-5 bg-white">
+                  Current source:  {props.phSource}
+                </span>
               </div>
             </div>
           </div>

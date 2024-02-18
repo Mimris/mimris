@@ -1,0 +1,19 @@
+
+Refer to metamodel using:
+metamodelRef = '32b03aab-bd61-4924-4d6c-ce36e4537774'
+
+Refer to the objecttypes and relshiptypes given below:
+
+objecttypes:
+id: '5f1fa0f1-d89f-4a62-5b93-3a433acb833e', name: 'Container'
+id: 'ddc75a39-9367-48e4-de12-079bae5362f9', name: 'Information'
+id: '49ba147f-1d9a-4b9e-9467-7fcc5b830244', name: 'Role'
+id: '3979fb2c-71e3-4054-745d-ee062b3689e5', name: 'Task'
+id: 'ba774700-c196-4f6e-c7e2-d742e1449a28', name: 'View'
+relshiptypes:
+id: '73d06934-f8af-48c5-a344-287d0b725792', name: 'performs'
+id: 'd22a1ce6-904f-46f1-29a3-c04b2b84f661', name: 'hasInput'
+id: '640eec34-6109-48f3-0576-11461c396da6', name: 'hasOutput'
+id: '66487d8d-c42a-41d4-14f1-b2c2d07af0bb', name: 'worksOn'
+id: '0f0059c3-ee1f-423c-e3e3-b18416fc772d', name: 'includes'
+id: '33f22bdf-7c68-4b69-0a22-eb62951044af', name: 'applies'

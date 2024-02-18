@@ -35,7 +35,7 @@ Use the following json template: {
                 {
                     "id": "",
                     "name": "",
-                    "description": "",
+                    "description": "",¯
                     "abstract": false,
                     "viewkind": "",
                     "typeRef": "",
@@ -68,3 +68,8 @@ Use the following json template: {
         }
     ]
 }
+
+
+
+
+

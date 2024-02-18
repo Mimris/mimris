@@ -4,7 +4,8 @@
 const Header = props => {
   return (
     <>
-      <div className="title fs-3">{props.title} </div>
+      <div className="title fs-3"> </div>
+      {/* <div className="title fs-3">{props?.title} </div> */}
     </ >
   )
 }

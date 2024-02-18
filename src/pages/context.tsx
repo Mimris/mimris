@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { connect, useDispatch, useSelector } from 'react-redux'
 import Layout from '../components/Layout'
 import ReportModule from "../components/ReportModule"
-import SetContext from '../defs/SetContext'
+import ContextView from '../defs/ContextView'
 import SelectContext from '../components/utils/SelectContext'
+import { i } from '../components/utils/SvgLetters'
 
 const debug = false
 const page = (props) => {
@@ -30,7 +31,7 @@ const page = (props) => {
                             <h1 className="title">Context
                             </h1>
                             <div className="contextarea d-flex my-2" style={{backgroundColor: "#cdd" ,width: "auto", maxHeight: "24px"}}> 
-                                <SetContext className='setContext' ph={props} />
+                                <ContextView className='setContext' ph={props} />
                                 <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
                                     <Link className="home p-2 m-2 text-primary" href="/context">✵</Link>
                                     <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 

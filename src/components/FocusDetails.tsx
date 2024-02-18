@@ -13,8 +13,8 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const Context = (props, edit) => {
-    if (debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
+const FocusDetails = (props, edit) => {
+    if (!debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
 
@@ -67,6 +67,7 @@ const Context = (props, edit) => {
     // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
     if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
+
     useEffect(() => {
       setFormValues(curobject);
       setFormValuesObjectview(curobjectview);
@@ -93,19 +94,11 @@ const Context = (props, edit) => {
 
       const objData = { id: formValues['id'], ...modifiedFields , modifiedDate: new Date().toISOString()};
       const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString()};
+
       if (debug) console.log('93 Context :',objData, objvData);
       dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData }) 
       dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
-      
-      // if (modifiedFields['name']) {
-      //   const focobjData = { id: focusObject.id, name: modifiedFields['name'] };
-      //   const focobjvData = { id: focusObjectview.id, name: formValues['name']};
-        // dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: focobjvData })
-        // dispatch({ type: 'SET_FOCUS_OBJECT', data: focobjData })
-      // }
-        
-        // dispatch(submitForm(formValues));
-        if (debug) console.log('105 Context ',formValues, objData, objvData);
+      if (debug) console.log('105 Context ',formValues, objData, objvData);
       }
     };
 
@@ -120,7 +113,8 @@ const Context = (props, edit) => {
         }
       }
       // const objData = { id: formValues['id'], ...modifiedFields };
-      const objvData = modifiedFields
+      // const objvData = modifiedFields
+       const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString()};
       dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
       }
     };
@@ -192,8 +186,6 @@ const Context = (props, edit) => {
     // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
     // find parent object
 
-
-   
     const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
     if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
     const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
@@ -231,7 +223,6 @@ const Context = (props, edit) => {
     // function findToobjectsForCurobject(curobject: any, currelationships: any[]): any[] {
     //   return currelationships?.map((relship) => relship.toobjectRef === curobject.id ? relship.fromobjectRef : null) || [];
     // }
-
     // function findFromobjectsForCurobject(curobject: any, currelationships: any[]): any[] {
     //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
     // }
@@ -251,8 +242,6 @@ const Context = (props, edit) => {
     if (debug) console.log('216 Context', curobjecttype);
     const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews) 
     if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
-    
- 
 
     const setObjview = (o) => {
       let ovdata =  (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
@@ -262,13 +251,18 @@ const Context = (props, edit) => {
       dispatch({ type: 'SET_FOCUS_OBJECT', data: odata })
     }
 
-
     const includedKeysAllTypeview = (curobjtypeview) && Object.keys(curobjtypeview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
     const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
-    const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
-    const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key));
+    const includedKeysMain = [ 'name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source', 
+      '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType', 'typeName', 'typeDescription',
+      'fillcolor', 'fillcolor2', 'strokecolor','icon', 'image'
+    ];
+    // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+    // , $id, $schema, $ref, externalID, groupType, osduId, osduType, x-osdu-license, x-osdu-review-status, x-osdu-schema-source
+
+    const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key)).sort((a, b) => includedKeysMain.indexOf(a) - includedKeysMain.indexOf(b));
 
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
     'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
@@ -284,22 +278,21 @@ const Context = (props, edit) => {
 
     const tabsDiv = (
       <Tabs  onSelect={index => setActiveTab(index)}>
-
         <TabList>
           <Tab>Details</Tab>
-          {(reportType === 'object') && <Tab >Additional info</Tab>}
-          {(reportType == 'object') && <Tab>Objectview props</Tab>}
-          {(reportType == 'object') && <Tab>Objecttype props</Tab>}
-          {(reportType == 'object') && <Tab>Typeview props</Tab>}
+          {(reportType === 'object') && <Tab >Additional info</Tab>}
+          {(reportType == 'object') && <Tab>Objectview props</Tab>}
+          {(reportType == 'object') && <Tab>Objecttype props</Tab>}
+          {(reportType == 'object') && <Tab>Typeview props</Tab>}
           {/* <Tab><FaPlaneArrival />Main</Tab>
           <Tab ><FaCompass /></Tab> */}
         </TabList>
         <TabPanel className="main-properties" > {/* Main properties */}
-          {/* <h4 className="px-2">{curobject?.name}                              
+          {/* <h4 className="px-2">{curobject?.name}
             <span style={{ flex: 1, textAlign: 'right', float: "right" }}>({curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name || ('Modelview')})
             { (curmm.objecttypes.find(ot => ot.id ===curobject?.typeRef)?.name) && <span > <button onClick={() => setObjview(parentobject)} > ⬆️</button> </span>}
             </span>
-          </h4>       */}
+          </h4> */}
           <ObjectDetails
             curmodel={curmodel}
             curmodelview={curmodelview}
@@ -314,14 +307,13 @@ const Context = (props, edit) => {
             parentobject={parentobject}
             edit={props.edit}
           />
-          {(reportType === 'object') && 
+          {(reportType === 'object') && 
           <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
             <TabList>
               <Tab>Children</Tab>
               <Tab>Relationship from and to Objects</Tab>
-              {/* <Tab>Viewed in Modelview</Tab> */}
             </TabList>
-            <TabPanel> {/* Children */}
+            <TabPanel > {/* Children */}
               <ObjDetailTable
                 title="Children"
                 curRelatedObjsRels={objectChildren}
@@ -383,10 +375,9 @@ const Context = (props, edit) => {
             </TabPanel>
           </Tabs>}
         </TabPanel>
-        {(reportType === 'object') && 
+        {(reportType === 'object') && 
           <>
-            <TabPanel className='additional-properties' style={{ overflow: 'auto' }}> 
-              {/* <div className="Context-tabs" style={{ overflow: 'auto', maxHeight: '700px' }}> */}
+            <TabPanel className='additional-properties' style={{ overflow: 'auto'}}> 
               <ObjectDetails 
                   curmodel={curmodel}
                   curmodelview={curmodelview}
@@ -401,10 +392,9 @@ const Context = (props, edit) => {
                   parentobject={parentobject}
                   edit={props.edit}
                 />
-            {/* </div> */}
             </TabPanel>
-            <TabPanel className='objectview'> 
-            <ObjectDetails
+            <TabPanel className='objectview'  style={{ overflow: 'auto'}}> 
+              <ObjectDetails
                 curmodel={curmodel}
                 curmodelview={curmodelview}
                 curmm={curmm}
@@ -412,14 +402,14 @@ const Context = (props, edit) => {
                 objectPropertiesMain={includedKeysAllExept}
                 formValues={formValuesObjectview}
                 handleChange={handleChange}
-                handleSubmit={handleSubmitObjectview}
+                handleSubmit={handleSubmit}
                 curobjModelviews={curobjModelviews}
                 setObjview={setObjview}
                 parentobject={parentobject}
                 edit={props.edit}
               />
             </TabPanel>
-            <TabPanel  className='objectype'> 
+            <TabPanel className='objectype'  style={{ overflow: 'auto'}}> 
               <ObjectDetails
                   curmodel={curmodel}
                   curmodelview={curmodelview}
@@ -435,20 +425,20 @@ const Context = (props, edit) => {
                   edit={props.edit}
                 />
             </TabPanel>
-            <TabPanel  className='typeview'> 
-            <ObjectDetails
-                curmodel={curmodel}
-                curmodelview={curmodelview}
-                curmm={curmm}
-                curobject={curobjtypeview}
-                objectPropertiesMain={includedKeysAllTypeview}
-                formValues={formValuesObjecttypeview}
-                handleChange={handleChange}
-                handleSubmit={handleSubmitObjecttypeview}
-                curobjModelviews={curobjModelviews}
-                setObjview={setObjview}
-                parentobject={parentobject}
-                edit={props.edit}
+            <TabPanel className='typeview'  style={{ overflow: 'auto'}}> 
+              <ObjectDetails
+                  curmodel={curmodel}
+                  curmodelview={curmodelview}
+                  curmm={curmm}
+                  curobject={curobjtypeview}
+                  objectPropertiesMain={includedKeysAllTypeview}
+                  formValues={formValuesObjecttypeview}
+                  handleChange={handleChange}
+                  handleSubmit={handleSubmitObjecttypeview}
+                  curobjModelviews={curobjModelviews}
+                  setObjview={setObjview}
+                  parentobject={parentobject}
+                  edit={props.edit}
               />
             </TabPanel>
           </>
@@ -459,11 +449,11 @@ const Context = (props, edit) => {
   
 
     return (
-        <div className="context m-0 " style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
-          <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto',   borderTop: 'none' }}>
+        <div className="context m-0" style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
+          <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto'}}>
             {tabsDiv} 
           </div>
         </div>
     )
 }
-export default Context
+export default FocusDetails

@@ -4,7 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import '@fortawesome/fontawesome-free/css/all.css';
 import Selector from './Selector'
-import Context from '../Context'
+import Context from '../FocusDetails'
 import EditFocusParameter from '../forms/EditFocusParameter'
 // import { loadState, saveState } from '../utils/LocalStorage'
 // import { FaJoint } from 'react-icons/fa';
@@ -13,21 +13,22 @@ const debug = false;
 
 const SelectContext = (props: any) => {
   if (debug) console.log('12 ', props);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   let state = useSelector((state:any) => state) // Selecting the whole redux store
 
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+  // const [modal, setModal] = useState(false);
+  // const toggle = () => setModal(!modal);
+  const model = props.modal
+  const modal = props.modal
+  const toggle = props.toggle
  
   const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array 
-  const { buttonLabel, className } = props;
-
-  
+  // const { buttonLabel, className } = props;
 
   return (models) && (
     < >
-      <button className="btn-sm bg-light mt-0 p-1 pt-0 mr-2 border rounded " style={{height: "24px"}} color="link" onClick={toggle}>{buttonLabel}
-      </button>
+      {/* <button className="btn btn-sm bg-transparent border border-white text-primary mt-1 px-2 pt-0 mx-2 " style={{height: "24px"}} onClick={toggle}>{buttonLabel} */}
+      {/* </button> */}
       <Modal isOpen={modal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
@@ -42,18 +43,13 @@ const SelectContext = (props: any) => {
         </ModalFooter>
       </Modal>
     
-   
       <style jsx>{`
-    
-            `}</style> 
+      `}</style> 
     </>
   )
 }
     
 export default SelectContext
-
-
-
 
 {/* <form>
 <div className="context-list1 border-bottom border-dark">
@@ -144,14 +140,6 @@ export default SelectContext
 </div>
 </form> */}
 
-
-
-
-
-
-
-
-
   // const handlePhDataChange = (event:any) => {
   //   // const id = JSON.parse(event.value).id
   //   // const name = JSON.parse(event.value).name
@@ -183,7 +171,7 @@ export default SelectContext
   // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
   // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
   // const emailDiv = <a href="mailto:${emailAddress}?subject=${subject}&body=${body}">Send mail with Link to  context</a>
-  //https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=target@email.com&subject=MISSED%20CALL%20EZTRADER&body=Hello%2C%0A%0AI%20tried%20contacting%20you%20today%20but%20you%20seem%20to%20have%20missed%20my%20call.%20%0A%0APlease%20return%20my%20call%20as%20soon%20as%20you%E2%80%99re%20available.%20%0A%0AIn%20any%20case%2C%20I%20will%20try%20ringing%20you%20at%20a%20later%20time.%0A%0A%0ATy%2C%0A%0A%0A%0A
+  // https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=target@email.com&subject=MISSED%20CALL%20EZTRADER&body=Hello%2C%0A%0AI%20tried%20contacting%20you%20today%20but%20you%20seem%20to%20have%20missed%20my%20call.%20%0A%0APlease%20return%20my%20call%20as%20soon%20as%20you%E2%80%99re%20available.%20%0A%0AIn%20any%20case%2C%20I%20will%20try%20ringing%20you%20at%20a%20later%20time.%0A%0A%0ATy%2C%0A%0A%0A%0A
   // if (debug) console.log('51 SelectContext', emailDivMailto);
   // }
   // const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSendContextAsEmail} > Save to Server</button >

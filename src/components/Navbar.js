@@ -2,94 +2,115 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
 import { FaUser, FaEnvelope } from 'react-icons/fa';
-// import { set } from 'immer/dist/internal';
 
 const debug = false;
 
 const DropdownMenu = ({ options, domainName }) => {
 	const [isOpen, setIsOpen] = useState(false);
-	
+	const [selectedOption, setSelectedOption] = useState(null); // Add selectedOption state
+
 	const toggleMenu = () => {
-	  setIsOpen(!isOpen);
+		setIsOpen(!isOpen);
 	};
-  
+
+	const handleOptionClick = (option) => {
+		setSelectedOption(option.label);
+		toggleMenu();
+	};
+
 	return (
 		<div className="dropdown">
-		<button 
-			className="btn bg-light text-secondary dropdown-toggle btn-sm p-1" 
-			type="button" 
-			data-toggle="tooltip" data-placement="top" data-bs-html="true"
-			title={`Current version is : ${domainName}. Click to change version`}
-			onClick={toggleMenu}>
-		  v.
-		</button>
-		<div className={`dropdown-menu ${isOpen ? 'show' : ''}`}>
-		  {options.map((option) => (
-			<Link href={option.href} key={option.label}
-			  className={`dropdown-item ${option.active ? 'active' : ''}`} >
-				{option.label}
-			</Link>
-		  ))}
+			<button
+				className="btn bg-light text-secondary dropdown-toggle btn-sm p-1"
+				type="button"
+				data-toggle="tooltip" data-placement="top" data-bs-html="true"
+				title={`Current version is : ${domainName}. Click to change version`}
+				onClick={toggleMenu}>
+				{/* {selectedOption ? selectedOption : ''}  */}
+			</button>
+			<div className={`dropdown-menu ${isOpen ? 'show' : ''}`}>
+				{options.map((option) => (
+					<Link href={option.href} key={option.label}
+						className={`dropdown-item ${option.active ? 'active' : ''}`}
+						onClick={() => handleOptionClick(option)}>{option.label}</Link>
+				))}
+			</div>
 		</div>
-	  </div>
 	);
-  };
+};
+
 
 
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
-	if (!debug) console.log('11 Navbar currentRoute', router, currentRoute, props);
+	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
+	const [version, setVersion] = useState("");
 
 	const [domainName, setDomainName] = useState("");
+
 	useEffect(() => {
 		setDomainName(window.location.hostname);
-		if (debug) console.log(domainName);
+		if (!debug) console.log('33',domainName);
+		if (domainName === "localhost") {
+			setVersion("local");
+		} else if (domainName === "akmmclient.vercel.app") {
+			setVersion("final");
+		} else if (domainName === "akmmclient-beta.vercel.app") {
+			setVersion("beta");
+		} else if (domainName === "akmmclient-alfa.vercel.app") {
+			setVersion("alfa");
+		}
+
 	}, []);
 
 	const options = [
 		{
-		  label: 'Final version',
-		  href: 'https://akmmclient.vercel.app/modelling',
-		  active: domainName === 'akmmclient.vercel.app',
+			label: 'Final version',
+			href: 'https://akmmclient.vercel.app/modelling',
+			active: domainName === 'akmmclient.vercel.app',
 		},
 		{
-		  label: 'Beta version',
-		  href: 'https://akmmclient-beta.vercel.app/modelling',
-		  active: domainName === 'akmmclient-beta.vercel.app',
+			label: 'Beta version',
+			href: 'https://akmmclient-beta.vercel.app/modelling',
+			active: domainName === 'akmmclient-beta.vercel.app',
 		},
-				{
-		  label: 'Alfa version',
-		  href: 'https://akmmclient-alfa.vercel.app/modelling',
-		  active: domainName === 'akmmclient-alfa.vercel.app',
+		{
+			label: 'Alfa version',
+			href: 'https://akmmclient-alfa.vercel.app/modelling',
+			active: domainName === 'akmmclient-alfa.vercel.app',
 		},
-	  ];
-
-
+		// {
+		//   label: 'Local version',
+		//   href: 'http://localhost:3000/modelling',
+		//   active: domainName === 'localhost:3000',
+		// },
+	];
 
 
 	return (
-		<nav className="navbar navbar-expand-sm" 
-			style= {(domainName === "localhost") 
-				? {backgroundColor: "#efe"} 
-				: {backgroundColor: " #efefef"}
+		<nav className="navbar navbar-expand-sm"
+			style={(domainName === "localhost")
+				? { backgroundColor: "#efe" }
+				: { backgroundColor: " #efefef" }
 			}>
-			<div className="d-flex justify-content-center align-items-center">
+			<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
 				<Link className="navbar-brand navbar-left mx-2" href="#">
 					<img src="images/equinor-logo.svg" width="110px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
-				<Link className="navbar-brand navbar-left ms-2 me-auto fs-2 " href="#">
-					<strong className="text-success">AKM Modeller</strong>
-				</Link>
-				<div className="mx-4">
+				{/* <Link className="navbar-brand navbar-left ms-2 me-auto py-0 fs-2 " href="#"> */}
+				<strong className="text-success fs-2">AKM Modeller</strong>
+				{/* </Link> */}
+				<div className="mx-4 d-flex justify-content-between align-items-center">
+					<span className="mx-1 fs-6 txt-secondary bg-transparent" >ver. {version}</span>
 					<DropdownMenu options={options} domainName={domainName} />
 				</div>
 			</div>
-			<div className="">
-				<div className="collapse navbar-collapse " id="nav-toggler-metis">
-					<ul className="navbar-nav fs-5 ">
+			{/* <div className=""> */}
+				<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
+					<ul className="navbar-nav fs-6 ">
 						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
-							<Link  href="/">Home</Link>
+							<Link href="/">Home</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
 							<Link href="/modelling" >Modelling</Link>
@@ -100,6 +121,7 @@ const Navbar = (props) => {
 						{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link href="/context">Focus</Link>
 						</li> */}
+
 						{/* <li 
 							className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link 
@@ -108,11 +130,17 @@ const Navbar = (props) => {
 								Tasks
 							</Link>
 						</li> */}
+						{/* <li className={`nav-item ${currentRoute === "/table" ? "active" : ""}`}>
+							<Link href="/table">Tables</Link>
+						</li> */}
 						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
-							<Link  href="/helpblog">Help</Link>
+							<Link href="/helpblog">Help</Link>
+						</li>
+						<li className={`nav-item ${currentRoute === "/videos" ? "active" : ""}`}>
+							<Link href="/videos">Videos</Link>
 						</li>
 						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
-							<Link  href="/about">About</Link>
+							<Link href="/about">About</Link>
 						</li>
 						{/* <li className="nav-item pt-1 ps-1" style={{ minWidth: "54px"}}>
 							<Link
@@ -126,32 +154,40 @@ const Navbar = (props) => {
 						</li> */}
 					</ul>
 				</div>
-				<div className='buttons' aria-expanded="false">
-					<button
-						className="navbar-toggler navbar-light"
-						type="button"
-						data-toggle="collapse"
-						data-target="#nav-toggler-metis"
-						aria-controls="nav-toggler-metis"
-						aria-expanded="false"
-						aria-label="Toggle navigation"
-					>
-						<span className="navbar-toggler-icon "></span>
-					</button>
-				</div>
+
+			{/* </div> */}
+			<div className="navbar-nav mx-2 pe-4 ms-auto" style={{ borderRadius: "6px" }}>
+				<span className="username d-flex justify-content-start align-items-center">
+					<FaUser color= {(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
+				</span>
+				<span className="ms-1">
+					{(props.user?.name !== 'User' && props.user?.name !== 'No GitHub User identified') ? props.user?.name : "Guest"}
+				</span>
 			</div>
 			<div className="navbar-nav ms-auto">
-				<Link className="navbar-brand p-4 mt-2 ms-auto" href="http://www.kavca.no" target="_blank">
+				<Link className="navbar-brand p-1 mt-0 ms-auto" href="http://www.kavca.no" target="_blank">
 					<div className="d-flex justify-content-center align-items-baseline">
 						<img src="images/Kavca-logo2.png" width="20" height="20" className="" alt="Kavca logo" />
 						<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
 					</div>
 				</Link>
 			</div>
-
-		<style jsx>{`
+			<div className='buttons' aria-expanded="false">
+				<button
+					className="navbar-toggler navbar-light"
+					type="button"
+					data-toggle="collapse"
+					data-target="#nav-toggler-metis"
+					aria-controls="nav-toggler-metis"
+					aria-expanded="false"
+					aria-label="Toggle navigation"
+				>
+					<span className="navbar-toggler-icon ">toggler icon</span>
+				</button>
+			</div>
+			<style jsx>{`
 		  	nav {
-				height: 46px;
+				height:38px;
 				padding-bottom: 5px;
 				display: flex;
 				justify-content: between;
@@ -163,18 +199,22 @@ const Navbar = (props) => {
 				width: 8rem;
 				display: flex;
 				justify-content: center;
-				align-items: center; 
+				align-items: baseline; 
+				padding: 0px 10px;
+				width: 100%;
 				height: 100%;
-				background: #cdd;
-				border-top: 4pbx solid #aaa
+				background: #ebf0f0;
+				border-radius: 10px 10px 0 0;
+				border-top: 4px solid #aaa
 				border-right: 4px solid #fff;
-				border-bottom: 3px solid #fff;
+				border-left: 1px solid #fff;
+				border-bottom: 4px solid #ebf0f0;
 			}
 			.nav-item:first-child {
-				border-left: 4px solid #ddd;
+				// border-left: 4px solid #ddd;
 			}
 			.nav-item:last-child {
-				border-right: 4px solid #fff;
+				// border-right: 4px solid #fff;
 			}
 			/* Basic styles for nav links */
 			nav Links {
@@ -182,7 +222,6 @@ const Navbar = (props) => {
 				align-items: between;
 				padding-left: 20px;
 				padding-right: 20px;
-				height: 100%;
 				text-decoration: none;
 				color: #55f;
 				font-weight: bold;
@@ -193,25 +232,25 @@ const Navbar = (props) => {
 			}
 	
 			/* Specific styles for non-active links */
-			// .non-active {
-			// 	color: blue;
-			// }
+			.non-active {
+				color: gray;
+			}
 	
 			/* Specific styles for active links */
 			.active {
 				color: black;
-				background: #d0d8d8;
-				border-top: 3px solid #fff;
+				background: #b0cfcf;
+				border-top: 0px solid #fff;
 				border-right: 3px solid #ccc;
 				border-left: 3px solid #fff;
-				border-bottom: 3px solid #d0d8d8;
+				border-bottom: 4px solid #b0cfcf;
 				border-radius: 10px 10px 0 0;
 			}
 				/* Specific styles for the navbar brand */
 				.navbar-brand {
 				display: flex;
 				align-items: center;
-				height: 100%;
+				height: 80%;
 				padding-left: 20px;
 				padding-right: 20px;
 				text-decoration: none;

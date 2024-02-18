@@ -151,7 +151,7 @@ export let types = {
           AKM_VALUE             : "Value",
           AKM_INPUTPATTERN      : "InputPattern",
           AKM_VIEWFORMAT        : "ViewFormat",
-          AKM_FIELDTYPE         : "FieldType",
+          AKM_FIELDTYPE         : "Fieldtype",
           AKM_UNIT              : "Unit",
           AKM_LABEL             : "Label",
           AKM_GENERIC           : "Generic",
@@ -177,6 +177,7 @@ export let types = {
           AKM_HAS_VIEWFORMAT    : "has",
           AKM_HAS_FIELDTYPE     : "has",
           AKM_POINTS_TO         : "pointsTo",
+          AKM_REFERS_TO         : "refersTo",
           AKM_GENERIC_REL       : "generic",
     
      // Type properties
@@ -257,6 +258,7 @@ export let admin = {
      AKM_METAMODEL:           "Metamodel",
      AKM_MODEL:               "Model",
      AKM_MODELVIEW:           "Modelview",
+     AKM_INSTANCES_MODEL:     "_INSTANCES_MODEL",
      AKM_HAS_METAMODEL:       "has",
      AKM_HAS_MODEL:           "has",
      AKM_HAS_MODELVIEW:       "has",

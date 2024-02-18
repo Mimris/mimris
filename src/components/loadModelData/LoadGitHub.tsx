@@ -10,7 +10,6 @@ import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, s
 // import { loadDataModel } from '../../actions/actions';
 
 import { SaveAllToFile } from '../utils/SaveModelToFile';
-import { set } from 'immer/dist/internal';
 // import { load } from 'cheerio';
 
 const debug = false
@@ -117,13 +116,14 @@ const LoadGitHub = (props: any) => {
     if (orgText?.length > 0)  { 
       setLoading(true);
       if (debug) console.log('76 loadRepos', repoText, pathText, model)
+      if (repoText.includes('undefined')) return null;
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
-      if (debug) console.log('118 res.data.items: ', await res.data.items, repos)
+      if (debug) console.log('123 res.data.items: ', await res.data.items, repos)
       setRepos(await repolist);
       // setModels(await res.data.items?.filter(repo => repo.name === repoText));
-      if (debug) console.log('122', orgText, pathText, repoText, res.data.items, repos)
+      if (debug) console.log('126', orgText, pathText, repoText, res.data.items, repos)
       // loadModels(repoText, pathText);
     }
   };
@@ -132,15 +132,16 @@ const LoadGitHub = (props: any) => {
   const loadModel = async (rep, filename) => {
     setLoading(true);
     const searchtexttmp = `${rep}`;
-    console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
+    console.log('135 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
+    if (searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (debug) console.log('131 res', res, res.data, sha)
+    if (debug) console.log('140 res', res, res.data, sha)
 
     const content = res.data // this is the project file from github
-    if (debug) console.log('138 ', searchtext, res, content)
+    if (debug) console.log('143 ', searchtext, res, content)
 
     const model = content // the content from github
 
@@ -154,10 +155,10 @@ const LoadGitHub = (props: any) => {
     //   }
     // }
 
-    if (debug) console.log('142 ', content, model)
+    if (debug) console.log('157 ', content, model)
     setModel(model);
     setLoading(false);
-    if (debug) console.log('90 onModelChange', model, props) 
+    if (debug) console.log('160 onModelChange', model, props) 
 
     if (model) {
       if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
@@ -255,6 +256,7 @@ const LoadGitHub = (props: any) => {
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (repos.includes('undefined')) return null;
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
@@ -326,31 +328,6 @@ const LoadGitHub = (props: any) => {
       // setRefresh(!refresh)
   }, []);
 
-  // Todo: loadModel should be done by clicking on a button, not by useEffect
-  // useEffect(() => {
-  //   // setBranchText('')
-  //   console.log('245 useEffect 1', orgText, repoText, branchText, pathText,  githubLink, model)
-  //   if (orgText?.length > 0) {
-  //     loadRepos(repoText, pathText);
-  //     loadModels(orgText, pathText)
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   // setModels([]);
-  //   // setDirs([]);
-  //   setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
-  //   loadModels(usernameText, pathText)
-  // }, [usernameText, repoText, pathText]);
-
-  // useEffect(() => {
-  //   if (debug) console.log('170 useEffect 3', model)
-  //   loadModels(usernameText, pathText)
-  //   const  refres = () => {
-  //     setRefresh(!refresh)
-  //   }
-  //   setTimeout(refres, 3000);
-  // } , [model]);
 
   let modeloptionss = models?.map((mod) => {
     return {

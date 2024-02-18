@@ -43,13 +43,12 @@ const Palette = (props: any) => {
 
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
+  if (!metamodels) return null;
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;
   
-  const metamodelList = metamodels
-    .filter((m: any) => m?.id !== undefined)
-    .map((m: any) => ({ id: m?.id, name: m?.name }));
+  const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined)?.map((m: any) => ({ id: m?.id, name: m?.name }));
 
   // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
   if (debug) console.log('47', model, mmodel, metamodels,  metamodelList);
@@ -76,6 +75,8 @@ const Palette = (props: any) => {
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
+
+    if (mmodel.name === 'AKM-OSDU_MM') setVisiblePalette(false);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes  = mmodel?.objecttypes;
     if (!metamodels) return null;
@@ -89,7 +90,7 @@ const Palette = (props: any) => {
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1',  mmodel);
-    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-CORE_MM')
+    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
     const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -104,9 +105,7 @@ const Palette = (props: any) => {
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
     }, 1000);
-  
     return () => clearTimeout(timer);
-  // }, [props.phFocus, mmodel]);
   }, []);
 
   // if (!metamodels) return null;
@@ -222,8 +221,12 @@ const Palette = (props: any) => {
 
   const palette = // this is the left pane with the palette and toggle for refreshing
     <>
-      <button className="btn-sm " style={{ backgroundColor: "#8bc", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette: Src Metamodel</span> : <span> -&gt;</span>}
+      <button className="btn-sm text-light bg-transparent border border-0 border-transparent" 
+        onClick={togglePalette}> {visiblePalette 
+          ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i>  Palette: Obj. Types </span>
+          // ? <span> &lt;- Palette: Src Metamodel</span> 
+          : <i className="fa fa-lg fa-angle-right pull-right-container"></i> 
+        }
       </button>
       <div>
         {visiblePalette
@@ -236,17 +239,17 @@ const Palette = (props: any) => {
                   {gojsappPaletteDiv} 
                 {/* </div> */}
               </div>
-          : <div className="btn-vertical px-1 " style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
+          : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "87vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
         }
       </div>
     </>
 
-  if (debug) clog('265 Palette', props);
-  return (
+  if (debug) clog('244 Palette', props);
+  return (props.metis) ? (
     <>
       {palette}
     </>
-  )
+  ) : <>No metamodels found</>;
 }
 
 export default Palette;

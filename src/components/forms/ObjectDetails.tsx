@@ -25,7 +25,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
   // const [value, setValue] = useState("");
 
   const handleInputChange = (event) => {
-      // console.log('27', event.target.value)
+      console.log('27', event.target.value)
       // setValue(event.target.value);
       adjustTextareaHeight();
       handleChange(event);
@@ -51,30 +51,32 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             case key.endsWith('id'):
             case key.endsWith('Ref'):
               inputElement = (
-                <input
-                  type="text"
+                <textarea
+                  // type="text"
                   className="form-control hover-gra m-1"
                   id={key}
                   name={key}
-                  value={formValues[key] }
+                  value={formValues[key] || curobject[key]}
                   onChange={handleChange}
                   readOnly
                   style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 80)}
                 />
               );
               break;
             case key === 'typeName':
             case key === 'typeDescription':
               inputElement = (
-                <input
-                  type="text"
+                <textarea
+                  // type="text"
                   className="form-control bg-light border-0 "
                   id={key}
                   name={key}
-                  value={formValues[key] }
+                  value={formValues[key] || curobject[key]}
                   onChange={handleChange}
                   readOnly
                   style={{ backgroundColor: '#eee', cursor: 'not-allowed' }}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 80)}
                 />
               );
               break;
@@ -102,7 +104,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   onChange={handleInputChange}
                   style={{ backgroundColor: '#eee' }}
                   ref={textareaRef}
-                  rows={15}
+                  rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
               );
               break;
@@ -147,16 +149,18 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
               break;
             default:
               inputElement = (
-                <input
-                  type="text"
-                  className="form-control hover-white bg-white m-1 "
-                  id={key}
-                  name={key}
-                  value={formValues[key] }
-                  onChange={handleChange}
-                  style={{ backgroundColor: '#eee' }}
+                <textarea
+                className="form-control hover-white bg-white m-1 "
+                id={key}
+                name={key}
+                value={formValues[key] || curobject[key]}
+                onChange={handleInputChange}
+                style={{ backgroundColor: '#eee' }}
+                ref={textareaRef}
+                rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
-              );
+                );
+                if (!debug) console.log('162 ObjectForm', inputElement, key, formValues[key], curobject[key]);
           }
           return (
             <div className="row" key={key}>
@@ -234,7 +238,7 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
 };
 
 const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject, edit}) => {
-  if (debug) console.log('237 ObjectDetails ', curobject, formValues, edit);
+  if (debug) console.log('237 ObjectDetails ', curobject, formValues, edit, objectPropertiesMain);
   return (
     <div className='object-details' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />

@@ -56,6 +56,7 @@ export const iconList = () => [
            {value:"check-square.svg", label: "check-square.svg"},
            {value:"braces.svg", label: "braces.svg"},
            {value:"bug.svg", label: "bug.svg"},
+           {value:"blank.png", label: "blank.png"},
            {value:"bullseye.svg", label: "bullseye.svg"},
   ]
 export const iconList2 = () => [

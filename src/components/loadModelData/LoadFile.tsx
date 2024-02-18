@@ -12,7 +12,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
 import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
-import CreateNewModel  from '../akmm-api/CreateNewModel';
+import CreateNewModel from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 import { UniqueDirectiveNamesRule } from 'graphql';
@@ -20,17 +20,18 @@ import { UniqueDirectiveNamesRule } from 'graphql';
 const LoadFile = (props: any) => {
 
   // if (typeof window === 'undefined') return null
-
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
+  const [refresh, setRefresh] = useState(false);
   const debug = false
   const dispatch = useDispatch()
-  const refresh = props.refresh
-  const setRefresh = props.setRefresh
+
   function toggleRefresh() { setRefresh(!refresh); }
 
   // if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
 
-  const modelNames = props.ph.phData?.metis?.models?.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models?.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
 
   if (debug) console.log('26 LoadLocal', props, typeof (window));
 
@@ -93,32 +94,33 @@ const LoadFile = (props: any) => {
 
   function handleSaveNewModel() {
     const ph = props.ph
-    const models = ph?.phData?.metis?.models
+    // const models = ph?.phData?.metis?.models
     const metamodels = ph?.phData?.metis?.metamodels
-    const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
-    const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
+    // const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
+    // const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
+    // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
     console.log('194 Loadfile', metamodels, data)
-    // replace the _MM in curMetamodel.name
-    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id)
-    const filename = newmm?.name.replace('_MM', '-Startmodel')
+
+    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
+
+    // replace the _MM in 
+    const filename = data.phData.metis.name//.replace('AKM-', '')
 
     console.log('199 Loadfile', newmm, filename)
-
     SaveAllToFile(data, filename, '_PR')
-    const metamodelname = newmm?.name.replace('_MM', '')
+    const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
     SaveMetamodelToFile(newmm, metamodelname, '_MM')
-    
   }
+
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const modelview = model.modelviews?.find(mv => mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
     WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
-      // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
-      // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+    // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
+    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
   const { buttonLabel, className } = props;
@@ -190,7 +192,7 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
-        onClick={handleSaveNewModel}>Create New Startfile from this modelview: New-Project_PR.json
+        onClick={handleSaveNewModel}>Create files: "New-Project"_PR.json and "New-Metamodel"_MM.json
       </button >
     </div>
 
@@ -202,7 +204,7 @@ const LoadFile = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">
-         <span> Current Source : <strong> {props.ph.phSource} </strong></span>
+          <span> Current Source : <strong> {props.ph.phSource} </strong></span>
           {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
           <div className="source bg-light p-2 ">
@@ -227,7 +229,8 @@ const LoadFile = (props: any) => {
                   <div className="selectbox bg-white mb-2 border">
                     <div className="ml-2">{emailDivGmail}</div>
                     <div className="ml-2">{emailDivMailto}</div>
-                  </div> */}
+                  </div> 
+                */}
               </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
@@ -245,7 +248,7 @@ const LoadFile = (props: any) => {
                   {buttonSaveMetamodelWithSubToFileDiv}
                 </div> */}
                 <div className="selectbox mb-2 border">
-                  <h6>Export start projectModalDiv </h6>
+                  <h6>Export New Startmodel-file and Metamodel-file from this modelview</h6>
                   {buttonSaveModelprojectToFileDiv}
                 </div>
               </div>
@@ -261,85 +264,6 @@ const LoadFile = (props: any) => {
         </ModalFooter>
       </Modal>
       <style jsx>{`
-            .list-obj {
-              min-Width: 90px;
-            }
-            /*******************************
-            * MODAL AS LEFT/RIGHT SIDEBAR
-            * Add "left" or "right" in modal parent div, after className="modal".
-            * Get free snippets on bootpen.com
-            *******************************/
-            .modal {
-                z-index: 1;
-                margin-top: 8%;
-            }
-            .modal.right .modal-dialog {
-              position: fixed;
-              margin: 150px auto 200px auto;
-              width: 380px;
-              height: 80%;
-              color: black;
-              -webkit-transform: translate3d(0%, 0, 0);
-              -ms-transform: translate3d(0%, 0, 0);
-              -o-transform: translate3d(0%, 0, 0);
-              transform: translate3d(0%, 0, 0);
-            }
-
-            .modal.right .modal-content {
-              height%;
-              overflow-y: auto;
-            }
-
-            .modal.right .modal-body {
-              padding: 15px 15px 80px;
-              color: #444;
-              
-            }
-
-            .modal.right.fade .modal-dialog {
-              right: 320px;
-              -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -o-transition: opacity 0.3s linear, left 0.3s ease-out;
-              transition: opacity 0.3s linear, left 0.3s ease-out;
-            }
-            .modal.fade.in {
-              opacity: 1;
-            }
-            .modal.right.fade.show .modal-dialog {
-              right: 0;
-              transform: translate(0,0);
-            }
-
-            /* ----- MODAL STYLE ----- */
-            .modal-content {
-              border-radius: 0;
-              border: none;
-            }
-
-            .modal-header {
-              border-bottom-color: #eeeeee;
-              background-color: #fafafa;
-              flex-direction: column;
-            }
-            .modal-body {
-              width: 400px;
-            }
-            .modal-backdrop .fade .in {
-              /* display: none; */
-              /* opacity: 0; */
-              /* opacity: 0.5; */
-              /* filter: alpha(opacity=50) !important; */
-              /* background: #fff; */
-                    }
-            .modal-background {
-              display: none;
-            }
-            .btn-context {
-              // font-size: 80%;
-              font-weight: bold;
-            }
-          }
             `}</style>
     </>
   )

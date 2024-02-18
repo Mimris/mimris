@@ -102,6 +102,19 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   public handleDiagramEvent(e: go.DiagramEvent) {
     const name = e.name;
     switch (name) {
+      case "InitialLayoutCompleted": {
+        const nodes = this.state.nodeDataArray;
+        for (let i= 0; i< nodes.length; i++) {
+            const node = nodes[i];
+          if (!node.fillcolor) {
+            const obj = node.object;
+            if (obj?.fillcolor) {
+              node.fillcolor = obj.fillcolor;
+            }
+          }
+        }
+        break;
+      }
       case 'ChangedSelection': {
         const sel = e.subject.first();
         if (!sel) break;
@@ -301,7 +314,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       </>
     }
     if (debug) console.log('294 this.diagramStyle', this.state.diagramStyle);
-    if (debug) console.log('295 this.state', this.state.linkDataArray);
+    if (debug) console.log('295 this.state', this.state.nodeDataArray, this.state.linkDataArray);
     return (
       <div>
         <PaletteWrapper

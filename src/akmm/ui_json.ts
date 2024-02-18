@@ -251,12 +251,13 @@ export class jsnMetaModel {
         this.markedAsDeleted  = metamodel.markedAsDeleted;
         this.modified = false;
 
-        // Code
+        if (true) { // Code
         let metamodels = metamodel.getContainedMetamodels();
         if (metamodels) {
             const cnt = metamodels.length;
             for (let i = 0; i < cnt; i++) {
                 const metamodel = metamodels[i];
+                if (!metamodel) break;
                 this.metamodelRefs.push(metamodel.id);
             }
         }
@@ -265,11 +266,8 @@ export class jsnMetaModel {
             const cnt = subMetamodels.length;
             for (let i = 0; i < cnt; i++) {
                 const subMetamodel = subMetamodels[i];
-                if (subMetamodel.id !== this.id) {
-                    this.subMetamodelRefs.push(subMetamodel.id);
-                    const jsnSubMetamodel = new jsnMetaModel(subMetamodel, false);
-                    this.subMetamodels.push(jsnSubMetamodel);
-                }
+                if (!subMetamodel) break;
+                this.subMetamodelRefs.push(subMetamodel.id);
             }
         }
         let subModels = metamodel.getSubModels();
@@ -282,16 +280,7 @@ export class jsnMetaModel {
                 this.subModels.push(jsnSubmodel);
             }
         }
-        // for (let j = 0; j < subMetamodels.length; j++) {
-        //     const subMetaModel = metamodel.submetamodels[j];
-        //     if (subMetaModel) {
-
-        //         const jMetamodel = new jsnMetaModel(subMetaModel, false);
-        //         this.subMetamodels.push(jMetamodel);
-        //     }
-        //     const jMetamodel = new jsnMetaModel(subMetaModel, false);
-        //     this.subMetamodels.push(jMetamodel);
-        // }
+        }
         const objtypes = metamodel.getObjectTypes();
         if (objtypes) {
             const cnt = objtypes.length;
@@ -858,8 +847,8 @@ export class jsnObjectTypeView {
     isGroup:         boolean;
     group:           string;
     template:        string;
-    figure:          string;
-    geometry:        string;
+    // figure:          string;
+    // geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
@@ -867,9 +856,11 @@ export class jsnObjectTypeView {
     strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
+    textcolor2:      string;
     textscale:       string;
     memberscale:     string;
     icon:            string;
+    image:           string;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(objtypeview: akm.cxObjectTypeView) {
@@ -879,8 +870,8 @@ export class jsnObjectTypeView {
         this.typeRef         = objtypeview.typeRef;
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
-        this.figure          = objtypeview.getFigure();
-        this.geometry        = objtypeview.getGeometry();
+        // this.figure          = objtypeview.getFigure();
+        // this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -888,9 +879,11 @@ export class jsnObjectTypeView {
         this.strokecolor2    = objtypeview.getStrokecolor2();
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
+        this.textcolor2      = objtypeview.getTextcolor2();
         this.textscale       = objtypeview.getTextscale();
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
+        this.image           = objtypeview.getImage();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
         if (objtypeview.description)
@@ -1276,7 +1269,6 @@ export class jsnObject {
                 case 'viewkind':
                 case 'allProperties':
                 case 'fromObject':
-                case 'fs_collection':
                 case 'parentModel':
                 case 'propertyValues':
                 case 'toObject':
@@ -1611,16 +1603,18 @@ export class jsnObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
-    figure:          string;
-    geometry:        string;
+    // figure:          string;
+    // geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
     strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
+    textcolor2:      string;
     textscale:       string;
     icon:            string;
+    image:           string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
         this.name            = objview?.name;
@@ -1628,21 +1622,24 @@ export class jsnObjectView {
         this.objectRef       = objview?.object?.id;
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
+        this.groupLayout     = objview?.groupLayout;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
-        this.isExpanded     = objview?.isExpanded;
-        this.isSelected     = objview?.isSelected;
+        this.isExpanded      = objview?.isExpanded;
+        this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
-        this.figure          = objview?.figure;
-        this.geometry        = objview?.geometry;
+        // this.figure          = objview?.figure;
+        // this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.fillcolor2      = objview?.fillcolor2;
         this.strokecolor     = objview?.strokecolor;
         this.strokecolor2    = objview?.strokecolor2;
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
+        this.textcolor2      = objview?.textcolor2;
         this.icon            = objview?.icon;
+        this.image           = objview?.image;
         this.size            = objview?.size;
         this.scale           = Number(objview?.scale1);
         this.memberscale     = Number(objview?.memberscale);
@@ -1679,6 +1676,7 @@ export class jsnRelshipView {
     points:          any;
     markedAsDeleted: boolean;
     modified:        boolean;
+    visible:         boolean;
     constructor(relview: akm.cxRelationshipView) {
         this.id              = relview?.id;
         this.name            = relview?.name;
@@ -1706,6 +1704,7 @@ export class jsnRelshipView {
         this.corner          = relview?.corner;
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
+        this.visible         = relview?.visible;
         // Code
         if (relview?.description)
             this.description = relview.description;
@@ -1923,12 +1922,15 @@ export class jsnImportMetis {
         if (utils.objExists(type))
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
-        objtypeview.setFigure(item.figure);
-        objtypeview.setGeometry(item.geometry);
+        // objtypeview.setFigure(item.figure);
+        // objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setFillcolor2(item.fillcolor2);
         objtypeview.setStrokecolor(item.strokecolor);
         objtypeview.setStrokecolor2(item.strokecolor2);
+        objtypeview.setStrokewidth(item.strokewidth);
+        objtypeview.setTextcolor(item.textcolor);
+        objtypeview.setTextcolor2(item.textcolor2);
         objtypeview.setStrokewidth(item.strokewidth);
         objtypeview.setIcon(item.icon);
         jsnMetis.addObjectTypeView(objtypeview);

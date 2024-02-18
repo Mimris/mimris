@@ -10,12 +10,14 @@ import Link from 'next/link';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Index from '../components/Index';
-import SetContext from '../defs/SetContext'
+import ContextView from '../defs/ContextView';
 import TasksHelp from '../components/TasksHelp'
 import styles from '../styles/Home.module.css'
 import useLocalStorage  from '../hooks/use-local-storage'
 import useSessionStorage from "../hooks/use-session-storage";
 import SelectContext from '../components/utils/SelectContext';
+import { i } from "../components/utils/SvgLetters";
+import Project from "../components/Project";
 
 const debug = false
 
@@ -24,6 +26,7 @@ const page = (props: any) => {
   // console.log(props)
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
+  const [refresh, setRefresh] = useState(false) 
   
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
   const [mount, setMount] = useState(false)
@@ -35,57 +38,80 @@ const page = (props: any) => {
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
   }
  // /**
-// * Set up the Context items and link to select Context modal,
-// */
+  // * Set up the Context items and link to select Context modal,
+  // */
 
-useEffect(() => { 
-  if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
-  // let data = {}
-  if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
-    // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-    if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-      // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-      if (memoryLocState) {
-          const locStore = (memoryLocState) 
-          if (locStore) {
-            dispatchLocalStore(locStore)
-            // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-            // console.log('modelling 73 ', data)
-          }
-        } 
-      // }   
-    }
-  }
-  setMount(true)
-}, [])  
+  // useEffect(() => { 
+  //   if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
+  //   // let data = {}
+  //   if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
+  //     // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
+  //     if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
+  //       // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+  //       if (memoryLocState) {
+  //           const locStore = (memoryLocState) 
+  //           if (locStore) {
+  //             dispatchLocalStore(locStore)
+  //             // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+  //             // console.log('modelling 73 ', data)
+  //           }
+  //         } 
+  //       // }   
+  //     }
+  //   }
+  //   setMount(true)
+  // }, [])  
 
-const contextDiv = (
-  <div className="contextarea d-flex" style={{backgroundColor: "#cdd" ,width: "99%", maxHeight: "24px"}}> 
-    <SetContext className='setContext' ph={props} />
-    <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc"}}>
-      {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
-      <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} /> 
-      <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
+  const [showExternalPage, setShowExternalPage] = useState(true);
+
+  const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
+
+  const iframe = showExternalPage ? (
+    <iframe src={externalPageUrl} width="100%" height="1500px" />
+  ) : null;
+
+
+  {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
+  const contextDiv = ( // the top context area (green)
+    <div className="context-bar d-flex justify-content-between" style={{ backgroundColor: "#cdd"}}>
+      <div className="context-bar--context bg-transparent d-flex justify-content-between align-items-center me-auto border border-light" style={{ backgroundColor: "#dcc" }}>
+        {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
+        <ContextView className='setContext' ph={props} style={{ backgroundColor: "#cdd"}} />
+      </div>
     </div>
-  </div>
-) 
+  )
+
+  const indexDiv = (
+    <>
+      <Index props={props} dispatch={dispatch}/>
+    </>
+  )
   
   return (
     <div>
       <Layout user={ props.phUser?.focusUser } >
         <div id="index" >
           <div className="wrapper">
-            <div className="header">
-              {/* <Header title='HeaderTitle' /> */}
+            {/* <div className="header">
+              <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
-            </div>
-            <div className="workplace">
+            </div> */}
               {contextDiv}
+            <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
+              <div className="col-3 my-3">
+                <Project props={props} />
+              </div>
+              <div className="col-4 m-3 mx-0 p-0 border rounded">
+                <div className="text-center bg-light">
+                  GitHub:  README.md
+                {iframe}
+               </div>
+              </div>
               {/* <div className="tasksarea">
                 <TasksHelp />
               </div> */}
-              <div className="workarea">
-                  <Index />
+              <div className="workarea col-5">
+                  {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>
             </div>
             <div className="footer">

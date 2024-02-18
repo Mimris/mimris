@@ -7,7 +7,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 import 'react-tabs/style/react-tabs.css';
 
-import Context from './Context'
+import FocusDetails from './FocusDetails';
 import MarkdownEditor from './forms/MarkdownEditor';
 
 const debug = false
@@ -32,45 +32,51 @@ const ReportModule = (props) => {
 
   const tabsDiv = (
     <>
-      {/* <button className="btn-sm pt-1 px-1 b-0 mt-0 mb-2 mr-2 w-100 bg-transparent" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
-        onClick={toggleTabsDiv}> {visibleTabsDiv ? <span>-&gt; Context & Focus </span> : <span>&lt;-</span>}
-      </button> */}
+
       {visibleTabsDiv ?
-        <Tabs onSelect={index => setActiveTab(index)} >
-          <TabList style={{ margin: '0px' }}>
-            <Tab>Focus Object</Tab>
-            <Tab >MarkDown</Tab>
-            <Tab></Tab>
-            {/* <Tab><FaPlaneArrival />Main</Tab>
-                <Tab ><FaCompass /></Tab> */}
-          </TabList>
-          <TabPanel className='p-1 border border-dark' >
-            <Context props={props} reportType={props.reportType}/>
-          </TabPanel>
-          <TabPanel className='p-1 border border-dark' >
-            <MarkdownEditor props={props} />
-          </TabPanel>
-          <TabPanel>
-          </TabPanel>
-        </Tabs>
+        <>
+          {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
+            onClick={props.handleVisibleContext}><span>-&gt; </span> 
+          </button> */}
+          <>
+          <Tabs onSelect={index => setActiveTab(index)} >
+            <TabList style={{ margin: '0px' }}>
+              <Tab>Focus Object</Tab>
+              <Tab >MarkDown</Tab>
+              <Tab></Tab>
+              {/* <Tab><FaPlaneArrival />Main</Tab>
+                  <Tab ><FaCompass /></Tab> */}
+            </TabList>
+            <TabPanel className='p-1 border border-dark' >
+              <FocusDetails props={props} reportType={props.reportType} edit={true}/>
+            </TabPanel>
+            <TabPanel className='p-1 border border-dark' >
+              <MarkdownEditor props={props} />
+            </TabPanel>
+            <TabPanel>
+            </TabPanel>
+          </Tabs>
+          </>
+        </>
         : <div className="btn-vertical m-0  pl-2 bg-transparent "
           style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px" }}>
           <span style={{ backgroundColor: "#cdd" }}> C o n t e x t & F o c u s </span>
         </div>
       }
+      
     </>
   )
 
   let bgr: String = '#ddd'
-  if (props.reportType === 'task') {
-    bgr = '#cdd'
-  } 
+  // if (props.reportType === 'task') {
+  //   bgr = '#cdd'
+  // } 
 
   const reportDiv = 
     <>
       {visibleTabsDiv ?
           <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-            style={{ height: '100%', maxHeight: '88vh', overflow: 'hidden', borderTop: 'none' }}>
+            style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>
@@ -80,17 +86,17 @@ const ReportModule = (props) => {
     </>
 
   return (
-    (props.reportType === 'task') ? // task modal
+    // (props.reportType === 'task') ? // task modal
     // <div style={{ backgroundColor: '#faa' }}>
       <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}
       </div>
     // </div>
-    :
+    // :
     // <div >
-      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-        {reportDiv}
-      </div>
+      // <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+      //   {reportDiv}
+      // </div>
     // </div>
   )
 }

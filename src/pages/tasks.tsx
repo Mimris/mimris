@@ -39,7 +39,7 @@ const page = (props: any) => {
     }, []);
     
 
-    const taskDiv =  <Tasks props={props} />
+    const taskDiv =   <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
 
     if (debug) console.log('32 page tasks props', query, props);
 
@@ -57,7 +57,7 @@ const page = (props: any) => {
                                 <Header title='Modelling Tasks' />
                             </div> */}
                                 <div className="tasksarea mr-1" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px", maxHeight: "92vh" }}>                                {/* <Tasks props={props}/> */}
-                                    <Tasks props={props} asPage={true}/>
+                                     <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
                                 </div>
                             {/* <div className="footer">
                                 <Footer />

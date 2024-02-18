@@ -1,0 +1,24 @@
+{
+    "objects": [
+        {
+            "id": "",
+            "name": "",
+            "description": "",
+            "typeRef": "",
+            "proposedType": ""
+        }
+    ],
+    "relships": [
+        {
+            "id": "",
+            "name": "",
+            "description": "",
+            "relshipkind": "Association",
+            "fromobjectRef": "",
+            "toobjectRef": "",
+            "typeRef": "",
+            "nameFrom": "",
+            "nameTo": "",
+        }
+    ]
+}

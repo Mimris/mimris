@@ -33,8 +33,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
   const models = (metis) && metis.models
-  const focusModel = props.phFocus?.focusModel
-  const focusModelview = props.phFocus?.focusModelview
+  let focusModel = props.phFocus?.focusModel
+  if (!focusModel) focusModel = (models) && models[0];
+  let focusModelview = props.phFocus?.focusModelview
+  if (!focusModelview) focusModelview = (focusModel) && focusModel.modelviews[0];
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   const metamodels = (metis) && metis.metamodels
   let adminModel;
@@ -85,7 +87,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('90 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
       const myPalette = (myMetamodel) && uib.buildGoPalette(myMetamodel, myMetis);
         if (debug) console.log('92 myPalette', myPalette);
-      let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+      let myModelview = (curmodview) && myModel?.findModelView(curmodview?.id);
         if (debug) console.log('108 myModelview', myModelview);
         if (debug) console.log('109 GenGojsModel  myModel', myMetis, myModel, myModelview, showModified);
       const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
@@ -93,21 +95,25 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
         if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
+      let instancesModel;
+      // instancesModel = uib.buildInstancesModel(myMetis, dispatch, myModel);
+
       if (debug) console.log('98 phFocus', props.phFocus);
       if (props.phFocus && props.phFocus.focusModelview && props.phFocus.focusModelview.id) {
         const fModelview = myMetis.findModelView(focusModelview?.id);
         if (fModelview) {
           let fObjview = props.phFocus?.focusObjectview?.id
           fObjview = fModelview.findObjectView(fObjview);
-          fModelview.setFocusObjectview(fObjview);
+          if (fObjview)
+            fModelview.setFocusObjectview(fObjview);
         }
       }
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelview);
-      (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
-      (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
+      // (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
+      // (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
       if (debug) console.log('121 GenGojsModel  myMetis', myMetis);
 
       dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })

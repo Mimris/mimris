@@ -17,7 +17,6 @@ const debug = false
 const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
-
   const modalRef = useRef(null);
   const backdropRef = useRef(null);
   // console.log('11', props)
@@ -89,7 +88,6 @@ const LoadGitHub = (props: any) => {
   const onModelChange = (text) => {
     if (debug) console.log('71 onModelChange', text)
     const rep = `${orgText}/${repoText}`;
-    // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     const filename = `${text}`; // add slash
     loadModel(rep, filename);
     if (debug) console.log('52', rep, filename, )
@@ -99,21 +97,21 @@ const LoadGitHub = (props: any) => {
     setTimeout(refres, 3000);
   }
 
-  const loadRepos = async (repoText, pathText) => {
-    if (orgText?.length > 0)  { 
-      setLoading(true);
-      if (debug) console.log('76 loadRepos', repoText, pathText, model)
-      if ((!repoText) || repoText.includes('undefined')) return null;
-      const res = await searchRepos(repoText, pathText);
-      const repolist = await res.data.items?.filter(repo => repo.name === repoText);
-      setLoading(false);
-      if (debug) console.log('123 res.data.items: ', await res.data.items, repos)
-      setRepos(await repolist);
-      // setModels(await res.data.items?.filter(repo => repo.name === repoText));
-      if (debug) console.log('126', orgText, pathText, repoText, res.data.items, repos)
-      // loadModels(repoText, pathText);
-    }
-  };
+  // const loadRepos = async (repoText, pathText) => {
+  //   if (orgText?.length > 0)  { 
+  //     setLoading(true);
+  //     if (debug) console.log('76 loadRepos', repoText, pathText, model)
+  //     if ((!repoText) || repoText.includes('undefined')) return null;
+  //     const res = await searchRepos(repoText, pathText);
+  //     const repolist = await res.data.items?.filter(repo => repo.name === repoText);
+  //     setLoading(false);
+  //     if (debug) console.log('123 res.data.items: ', await res.data.items, repos)
+  //     setRepos(await repolist);
+  //     // setModels(await res.data.items?.filter(repo => repo.name === repoText));
+  //     if (debug) console.log('126', orgText, pathText, repoText, res.data.items, repos)
+  //     // loadModels(repoText, pathText);
+  //   }
+  // };
 
   // todo: loadModel should be loadProject or loadModelProject
   const loadModel = async (rep, filename) => {
@@ -293,7 +291,11 @@ const LoadGitHub = (props: any) => {
   useEffect(() => {
     setOrgText(props.ph.phFocus?.focusProj?.org)
     setRepoText(props.ph.phFocus?.focusProj?.repo)
-    setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
+    if (pathText === undefined || pathText === '') {
+      setPathText('/')
+    } else {
+      setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
+    } 
     setBranchText(props.ph.phFocus?.focusProj?.branch)
     // setUsernameText(props.ph.phFocus?.focusProj?.username)
     // const orgText = props.ph.phFocus?.focusProj?.org
@@ -302,17 +304,19 @@ const LoadGitHub = (props: any) => {
     // const branchText = props.ph.phFocus?.focusProj?.branch
     // const refres = () => {
       if (debug) console.log('314 LoadGitHub ', orgText, repoText, branchText, pathText)
-      loadRepos(repoText, pathText);
-      loadModels(orgText, pathText)
-      
-    if (pathText === undefined || pathText === '') {
-      setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
-    } else {
-      setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
-    }
-      // }
-      // setTimeout(refres, 2000);
-      // setRefresh(!refresh)
+    // if (false)
+
+    // if (pathText === undefined || pathText === '') {
+    //   setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
+    // } else {
+    //   setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
+    // }
+    // const timer = setTimeout(() => {
+      // this is loading to often when testing and we run out of requests available on github
+      // loadRepos(repoText, pathText);
+      // loadModels(orgText, pathText)
+    // }, 60000);
+    // return () => clearTimeout(timer);
   }, []);
 
 
@@ -369,7 +373,10 @@ const LoadGitHub = (props: any) => {
               </div>
                 {/* {loading ? 'Loading...' :  <div className="text-success my-2 " > {repos.map((repo) => ( <span className="text-nowrap" key={repo.id} > {repo.full_name}/{pathText} </span> ))}  </div>  } */}
               {/* -------- Select model ----------------------------------- */}
-              <Button className="btn-secondary bg-secondary text-white border-dark mt-2 mb-2 pb- w-100" onClick = {() => loadModels(orgText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List Models</Button>
+              <Button className="btn-secondary bg-secondary text-white border-dark mt-2 mb-2 pb- w-100" 
+                onClick = {() => loadModels(orgText, pathText)}
+              ><i className="fab fa-github fa-lg me-2"></i>List Models
+              </Button>
               {(models?.length > 0) 
                 ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
                 : <div className='text-warning'> 'No models found!'</div>

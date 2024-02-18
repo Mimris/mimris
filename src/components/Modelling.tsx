@@ -317,35 +317,58 @@ const page = (props: any) => {
     //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
     // }
 
-  
-  const selmods = (models) ? models.filter((m: any) => m?.markedAsDeleted === false) : []
+  const sortedmodels = (models) && models
+    .sort((a, b) => {
+      if (a.name.startsWith('_') && !b.name.startsWith('_')) {
+        return 1;
+      } else if (!a.name.startsWith('_') && b.name.startsWith('_')) {
+        return -1;
+      } else {
+        return a.name.localeCompare(b.name);
+      }
+    }) 
+   
+  const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
 
-  const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {  // map over the modelviews and create a tab for each
-    if (m && !m.markedAsDeleted) {
-      const strindex = index.toString()
-      const data = { id: m.id, name: m.name }
-      const modelview0 = (m.modelviews) ? m.modelviews[0] : null
-      const data2 = { id: modelview0?.id, name: modelview0?.name }
-      // const data2 = { id: Math.random().toString(36).substring(7), name: strindex + 'name' }
-      // GenGojsModel(props, dispatch);
-      // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
-      return (
-        <NavItem key={strindex} className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-          title={
-            `Description: ${m?.description}
-
-To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
-          }>
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft:"8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
-            className={classnames({ active: activeTab == strindex })}
-            onClick={() => { dispatch({ type: 'SET_FOCUS_MODEL', data }); dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 }); toggleRefresh()}}
+  const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {
+      if (m && !m.markedAsDeleted) {
+        const strindex = index.toString();
+        const data = { id: m.id, name: m.name };
+        const modelview0 = m.modelviews ? m.modelviews[0] : null;
+        const data2 = { id: modelview0?.id, name: modelview0?.name };
+        return (
+          <NavItem
+            key={strindex}
+            className="model-selection"
+            data-toggle="tooltip"
+            data-placement="top"
+            data-bs-html="true"
+            title={`Description: ${m?.description}\n\nTo change Modelview name, right click the background below and select 'Edit Modelview'.`}
           >
-            {m.name}
-          </NavLink>
-        </NavItem>
-      )
-    }
-  })
+            <NavLink
+              style={{
+                paddingTop: "0px",
+                paddingBottom: "6px",
+                paddingLeft: "8px",
+                paddingRight: "8px",
+                border: "solid px",
+                borderBottom: "none",
+                borderColor: "#eee gray white #eee",
+                color: "black",
+              }}
+              className={classnames({ active: activeTab == strindex })}
+              onClick={() => {
+                dispatch({ type: "SET_FOCUS_MODEL", data });
+                dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
+                toggleRefresh();
+              }}
+            >
+              {m.name}
+            </NavLink>
+          </NavItem>
+        );
+      }
+    });
 
     // ===================================================================
     // Divs
@@ -404,10 +427,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const metamodellingtabs = (
       <>
         <Nav tabs style={{ minWidth: "350px" }} >
-          <span className="ms-5">
-            <button className=" mb-0 pb-0 ms-5" 
+          <span className="ms-1 me-5">
+            <button className="mb-2 pb-0 ms-0 me-5"
+              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
               onClick={() => setMmToggle(!mmToggle)}
-              style={{borderColor: "transparent", width: "116px", height: "30px", fontSize: "16px", backgroundColor: "#77aacc" }}
+              style={{borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#77aacc" }}
             >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
           </span>
         </Nav>
@@ -478,11 +502,12 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const modellingtabs = (
       <>
         <Nav tabs style={{ minWidth: "350px", borderBottom: "white"}} >
-          <span className="ms-5 me-2">
-            <button className=" mb-0 pb-0 ms-5"
+          <span className="ms-1 me-5">
+            <button className="mb-2 pb-0 ms-0 me-5"
+              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
               onClick={() => setMmToggle(!mmToggle)}
-              style={{ borderColor: "transparent", width: "116px", height: "30px", fontSize: "16px", backgroundColor: "#a0caca" }}
-            >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
+              style={{ borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#a0caca" }}
+            >{(mmToggle) ? 'Models >' : 'Metamodel <>'}</button>
           </span>
           {navmodelDiv}
         </Nav>

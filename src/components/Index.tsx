@@ -68,7 +68,14 @@ const page = (props) => {
                   &bull; GraphQL shema reporting from Solution models!<br />
               </CardText>
             </CardBody> */}
-                       <CardBody className="card-body" >
+             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2024.02.18</CardTitle>
+              <CardText >
+                    &bull; New features: Layout on Object tree<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+             <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2024.02.03</CardTitle>
               <CardText >
                     &bull; New features:<br />
@@ -88,6 +95,14 @@ const page = (props) => {
                       - Added Task right side-panel showing witch Tasks can be performed with current Metamodel.<br />
                       - New function: Right-click on Object and make layout of the Object's children.<br />
                       - Updated Metamodels for Core, IRTV and OSDU.<br />
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2023.11.09</CardTitle>
+              <CardText >
+                    &bull; New features:<br />
+                      - Select Sort/filter in Objects.<br />
                     &bull; Bugfixes!<br />
               </CardText>
             </CardBody>

@@ -12,7 +12,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import GenGojsModel from '../GenGojsModel'
 import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
 import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
-import CreateNewModel  from '../akmm-api/CreateNewModel';
+import CreateNewModel from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 import { UniqueDirectiveNamesRule } from 'graphql';
@@ -30,8 +30,8 @@ const LoadFile = (props: any) => {
 
   // if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
 
-  const modelNames = props.ph.phData?.metis?.models?.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models?.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
 
   if (debug) console.log('26 LoadLocal', props, typeof (window));
 
@@ -101,13 +101,16 @@ const LoadFile = (props: any) => {
     // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
     console.log('194 Loadfile', metamodels, data)
-    // replace the _MM in curMetamodel.name
-    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id)
-    const filename = newmm?.name.replace('_MM', '-Startmodel')
+
+    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
+
+    // replace the _MM in 
+    const filename = data.phData.metis.name//.replace('AKM-', '')
+
     console.log('199 Loadfile', newmm, filename)
     SaveAllToFile(data, filename, '_PR')
     const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
-    SaveMetamodelToFile(newmm, metamodelname, '_MM')  
+    SaveMetamodelToFile(newmm, metamodelname, '_MM')
   }
 
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
@@ -116,8 +119,8 @@ const LoadFile = (props: any) => {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const modelview = model.modelviews?.find(mv => mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
     WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
-      // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
-      // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+    // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
+    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
   const { buttonLabel, className } = props;
@@ -201,7 +204,7 @@ const LoadFile = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">
-         <span> Current Source : <strong> {props.ph.phSource} </strong></span>
+          <span> Current Source : <strong> {props.ph.phSource} </strong></span>
           {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
           <div className="source bg-light p-2 ">

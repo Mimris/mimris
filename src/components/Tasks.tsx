@@ -188,25 +188,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     }
   };
 
-  if (minimized) {
-    return (
-      <div className="minimized-task">
-        <div
-          className="buttons position-absolute p-0 m-0 mt-1 me-3 end-0"
-          // style={{ transform: "scale(0.9)", marginTop: "px"}}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          >
-           <button
-            className="btn bg-transparent text-success m-0 px-1 py-0 btn-sm"
-            onClick={handleMaximize}
-          >
-            <span className="fs-6">Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
-          </button>
-        </div>
-      </div>
-    );
-  }
+
 
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
@@ -302,29 +284,16 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   }
 
 
+
   const genTasksHeaderDiv  =  
     <>
-        <div className="tasklist p-1 "
-          style={{ backgroundColor: "lightyellow"}} 
+        <div className="tasklist p-1 mt-2 me-2"
+          style={{  backgroundColor: "lightyellow", position: "fixed",   top: "96px",right: "0%",  width: "400px",  height: "72vh",  zIndex: "999"}}
+          // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
           ref={containerRef}
           >
-          <div className="header d-flex justify-content-between align-items-center border-bottom border-success mb-2"
-            style={{ position: "relative",  height: "100%", top: "44%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
-            >
-              <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
-              <div className="buttons me-1 float-start" style={{ transform: "scale(0.9)"}}>
-                <button 
-                  className="btn text-success me-0 px-1 py-0 btn-sm bg-light" 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Close Task pane!"
-                  onClick={handleMinimize} 
-                  // style={{ backgroundColor: "lightyellow"}}
-                  >
-                   <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Tasks </span>
-                </button>
-              </div>
-          </div>
-          <div className="flex-d">
+          <div className="fle-d">
+            <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
             <div>
               Role:{" "}
               <span className="font-weight-bold text-success bg-white p-1">
@@ -371,34 +340,84 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         </div>
     </> 
   ;
-    
-  return (
-    <>
-      <div className="tasklist p-1 " style={{ width: (expandedTaskPane ? "40vh" : "40vh")  }}>
-        {genTasksHeaderDiv}
-      </div>
-      <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "10%", marginTop: "200px", backgroundColor: "lightyellow" }} >
-        <Modal.Header className="mx-2 bg-transparent" closeButton>
-          <Modal.Title>Focus task </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="bg-transparent">
-          <ReportModule props={props.props} reportType="task" edit={false} />
-         {/* modelInFocusId={subModels[0].id} /> */}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>   
-      <style jsx>{`
-          .tasklist {
-            width: 100%;
-            height: 100%;
-            // overflow: auto;
-            padding: 0;
-            margin: 0;
-          }
+  
+  const modalDiv =
+        <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  
+          style={{ marginLeft: "0%", marginTop: "240px", backgroundColor: "lightyellow" }} >
+          <Modal.Header className="mx-2 bg-transparent" closeButton>
+            <Modal.Title>Focus task </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="bg-transparent">
+            <ReportModule props={props.props} reportType="task" edit={false} />
+          {/* modelInFocusId={subModels[0].id} /> */}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>   
+
+
+  if (minimized) {
+    return (
+      <button
+        className="btn btn-sm bg-transparent text-success ms-0 py-0 me-2 float-end"
+        onClick={() => setMinimized(false)}
+      >
+        <span className="fs-6">Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
+      </button>
+    );
+  } else {
+    return (
+      <>
+        <button 
+          className="btn btn-sm text-success px-1 py-0 bg-light float-end me-3" 
+          data-toggle="tooltip" data-placement="top" data-bs-html="true"
+          title="Close Task pane!"
+          onClick={() => setMinimized(true) }
+          // style={{ backgroundColor: "lightyellow"}}
+          >
+            <span className="fs-8">Tasks <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
+        </button>
+        <div className="tasklist  pe-2" 
+              // ref={containerRef}
+              // style={{ position: "fixed", top: "72px", right: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
+            > 
+          {genTasksHeaderDiv}
+          {modalDiv}
+        </div>
+        <style jsx>{`
+            .tasklist {
+              width: 100%;
+              height: 100%;
+              // overflow: auto;
+              padding: 0;
+              margin: 0;
+            }
+            .selected-task {
+              font-size: 10px;
+              background-color: #f0f0f0;
+              border: 1px solid #ccc;
+              padding: 10px;
+              margin-top: 10px;
+              min-width: 400px;
+            }
+            .li {
+              list-style-type: none;
+              padding: 5px;
+              margin: 0;
+            }
+            .li:hover {
+              background-color: #ddd;
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background-color: #f0f0f0;
+              padding: 5px;
+            }
           .selected-task {
             font-size: 10px;
             background-color: #f0f0f0;
@@ -421,86 +440,64 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
             align-items: center;
             background-color: #f0f0f0;
             padding: 5px;
+            min-width: 400px;
           }
-        .selected-task {
-          font-size: 10px;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          padding: 10px;
-          margin-top: 10px;
-          min-width: 400px;
-        }
-        .li {
-          list-style-type: none;
-          padding: 5px;
-          margin: 0;
-        }
-        .li:hover {
-          background-color: #ddd;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background-color: #f0f0f0;
-          padding: 5px;
-          min-width: 400px;
-        }
-        .mr-auto {
-          margin-right: auto;
-        }
-        .buttons {
-          display: flex;
-          gap: 5px;
-          align-self: flex-end;
-          margin-left: auto;
-        }
-        .minimized-task {
-          position: fixed;
-          bottom: 0;
-          right: 0;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          padding: 5px;
-          cursor: pointer;
-        }
-        .maximized-task {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: #fff;
-          border: 1px solid #ccc;
-          padding: 10px;
-        }
-        li button.checkbox {
-          display: inline-block;
-          width: 20px;
-          height: 20px;
-          margin-left: auto;
-          background-color: #fff;
-          border: 1px solid #ccc;
-          border-radius: 3px;
-        }
-        
-        li button.checkbox::before {
-          content: "";
-          display: block;
-          width: 10px;
-          height: 10px;
-          margin: 4px auto;
-          border-radius: 2px;
-          background-color: #ccc;
-        }
-        
-        li button.checkbox:checked::before {
-          background-color: #007bff;
-        }
-      `}
-      </style>
-    </>
-  );
+          .mr-auto {
+            margin-right: auto;
+          }
+          .buttons {
+            display: flex;
+            gap: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+          }
+          .minimized-task {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+          }
+          .maximized-task {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+          }
+          li button.checkbox {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+          }
+          
+          li button.checkbox::before {
+            content: "";
+            display: block;
+            width: 10px;
+            height: 10px;
+            margin: 4px auto;
+            border-radius: 2px;
+            background-color: #ccc;
+          }
+          
+          li button.checkbox:checked::before {
+            background-color: #007bff;
+          }
+        `}
+        </style>
+      </>
+    );
+  }
 }
 
 

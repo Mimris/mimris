@@ -96,8 +96,6 @@ const Modeller = (props: any) => {
     if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleFocusDetails)
   }
 
-
-
   const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
 
   useEffect(() => { // set activTab when focusModelview.id changes
@@ -254,27 +252,7 @@ const Modeller = (props: any) => {
     // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
     <div className="Selector--menu d-flex justify-content-between gap-2 pt-1">
       <div className="d-flex ">
-        <label className="Selector--menu-label border-top border-bottom border-success bg-light px-2 pt-1 text-nowrap "
-          data-toggle="tooltip" data-placement="top" data-bs-html="true"
-          title={
-            `Description : ${props.metis.description} 
-            
-            To change Project Name : 
-            Edit this field and click on the Save button.
-            
-            or Right-click the background below and select 'Edit Project Name'. 
-            
-            The suffix '.json' will be added to the filename.`
-          }><span className="bg-light"> Project : </span>
-        </label>
-        <input
-          className=" px-2"
-          style={{ width: '500px' }}
-          type="text"
-          value={projectName}
-          onChange={handleProjectChange}
-          onBlur={handleProjectBlur}
-        />
+
         {/* <input className=" px-2" style={{ width: '300px' }} label="test" type="text" value={props.metis.name} onBlur={(event) => handleProjectChange({ value: event.target.value })} onChange={(event) => handleProjectChange({ value: event.target.value })} /> */}
       </div>
 
@@ -534,6 +512,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       dispatch={props.dispatch}
       modelType={props.phFocus.focusTab}
       onExportSvgReady={handleExportSvgReady}
+      diagramStyle={{ height: "77vh" }}
     />
 
   const handleSelectOTypes = (event: any) => {
@@ -601,43 +580,44 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "73vh" }}
+          diagramStyle={{ height: "74vh" }}
         />
       </div>
     </>
 
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
-      <span className="btn mx-2 py-0 mt-1 pt-1 bg-gray border" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file" style={{ fontSize: "12px" }}>Export Modelview to Svg </span>
+      <button className="btn btn-sm mt-0 py-0" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file"
+        style={{ fontSize: "12px", maxHeight: "20px" }}>
+          Export Modelview to Svg 
+        </button>
       {/* <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span> */}
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
-    <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
-    <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
-    <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
-      <button className="btn bg-secondary mt-1 py-0 mx-2 px-2 "
+      <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
+      <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
+      <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button> */}
+      {/* <button className="btn btn-sm bg-secondary mt-1 py-0 mx-2 px-2 "
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide modified object/relship-views" style={{ fontSize: "12px" }}
         onClick={() => {
           dispatch({ type: 'SET_USER_SHOWMODIFIED', data: !showModified });
           dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showModified) ? ' Hide modified' : 'Show modified'}
-      </button>
-      <button className="btn bg-secondary mt-1 py-0 mx-1 px-2"
+      </button> */}
+      <button className="btn btm-sm bg-secondary mt-0 py-0"
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" style={{ fontSize: "12px" }}
+        style={{ fontSize: "12px", maxHeight: "20px" }}
         onClick={() => {
           dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted });setRefresh(!refresh)
           // dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
       </button>
       {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-      <span className="sourceName m-2 px-2" style={{ textAlign: "", width: "50%", minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee" }}>
-        Current source:  {props.phSource}
-      </span>
     </div>
 
   const modelviewTabDiv = // this is the modelview tabs
     <>
-      <Nav tabs >
+      <Nav tabs > {/* objects  */}
         <button className="btn btn-sm bg-transparent text-light"
           data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
           onClick={toggleObjects} 
@@ -647,8 +627,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container me-1"></i>Objects </span>
             }
         </button>
-        {navitemDiv}
-        <NavItem >
+        {navitemDiv} {/* modelviewtabs  */}
+        <NavItem > {/* ?  */} 
           <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
             title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
                     Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them."
@@ -666,8 +646,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </button> 
       </Nav>
       <TabContent className="bg-white p-0 m-0 border border-white">
-        <TabPane className="bg-white">
-            <Row className="m-2 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
+        <TabPane className="">
+            <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
               {(visibleObjects)
                 ?  <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
                 : <></>
@@ -676,7 +656,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
               <div className="workpad bg-white border-light mt-0 pe-0">
                 {gojsapp}
               </div>  
-              <div className="smaller-div m-0 p-0" style={{ scale: "0.8" }}>{footerButtonsDiv}</div>
+              <div className="smaller-div m-0 p-0">{footerButtonsDiv}</div>
             </Col>
             <Col className="me-1 my-1 p-1 border " xs="auto" >
               <div className="" style={{ backgroundColor: "#cdd" }}>
@@ -693,31 +673,30 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const metamodelTabDiv =
     <>
-      <div className="workpad p-1">
+      <div className="workpad">
         {gojsapp}
         {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>
     </>
-
   if (debug) console.log('372 Modeller ', props.modelType)
 
   const modellerDiv =
     (props.modelType === 'model')
       ? // modelling
       <div className="modeller-workarea w-100" >
-        <div className="d-flex ">
+        {/* <div className="d-flex ">
           <span className="text-dark fw-bold ms-3 fs-4" style={{ minWidth: "15%" }} > Modeller </span>
           <div className="modeller--topbar d-flex justify-content-between mt-0 p-0 ms-auto me-2">
-            <div className="d-flex justify-content-around align-items-center me-0">
-              <div className="modeller--heading-selector">{selector}</div>
+            <div className="d-flex justify-content-around align-items-center me-0"> */}
+              {/* <div className="modeller--heading-selector">{selector}</div> */}
               {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
                 style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
                 {refresh ? 'save2memory' : 'save2memory'} 
               </span> */}
-            </div>
+            {/* </div>
           </div>
-        </div>
-        <div className="modeller--workarea-objects" >
+        </div> */}
+        <div className="modeller--workarea-objects m-1" >
           {modelviewTabDiv}
         </div>
         <Modal show={showModal} onHide={handleCloseModal}  style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
@@ -736,20 +715,22 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div >
       : // metamodelling
       <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
-        <div className="modeller--topbar  mt-1 p-0 ">
+        <div className="modeller--topbar  mt-1 p-0">
           <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
           <div className="">
-            <div className="modeller--heading-selector d-flex justify-content-between me-4" 
+            {/* <div className="modeller--heading-selector d-flex justify-content-between me-4" 
               title="Modeller heading area" > 
               <span className="mt-1 ms-2 px-2 " style={{ backgroundColor: '#bcd' }} >Metamodel : {mmodel.name}</span> 
               {selector}
-            </div>
+            </div> */}
           </div>
           <div>
             {metamodelTabDiv}
           </div>
         </div>
-        {footerButtonsDiv}
+        <div className="">
+          {footerButtonsDiv}
+        </div>
       </div>
 
   return (

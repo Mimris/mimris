@@ -64,11 +64,11 @@ const ContextView = (props: any) =>  {
 
   const statusField = (name, field) => {
     return (
-      <span className="context-item">
-        <span className="px-1 border rounded-2">
+      <span className="context-item border rounded-2 mx-1">
+        <span className="px-1 ">
           {name}:
         </span>
-        <span className="border rounded-2 px-1" style={{ backgroundColor: "#fff", whiteSpace: "nowrap" }}>
+        <span className="px-1 text-success" style={{ backgroundColor: "#fff", whiteSpace: "nowrap" }}>
           {field}
         </span>
       </span>
@@ -76,12 +76,12 @@ const ContextView = (props: any) =>  {
   }
   const statusFieldLink = (name, field, link) => {  
     return (
-      <span className="context-item">
-        <span className="px-2 border rounded-2">
+      <span className="context-item border rounded-2 mx-1">
+        <span className="px-2">
           {name}:
         </span>
         <span
-          className="border rounded-2 px-2"
+          className="px-2"
           style={{ backgroundColor: "#fff", whiteSpace: "nowrap"  }}
         >
           <Link
@@ -97,14 +97,16 @@ const ContextView = (props: any) =>  {
   }
 
   const contextRepoDiv = 
-    <div className="context-list bg-transparent pt-0" style={{ backgroundColor: "#e5e5e5" }}>
-      <div className="d-flx justify-contents-between align-items-center">
-        <div className="d-flex justify-content-between align-items-center">
-          <div>{statusFieldLink('Repo', repo, `https:/github.com/${org}/${repo}/tree/${branch}/${path}`)}</div>
-          <div>{statusFieldLink('Project', phFocus.focusProj?.name, `https:/github.com/orgs/${org}/projects/${projectNumber}`)}</div>
-          <div>{statusField('Role', props.ph?.phFocus?.focusRole?.name)}</div>
-          <div>{statusField('Task', props.ph?.phFocus?.focusTask?.name)}</div>
-          <div className="me-auto">{statusFieldLink('Issue', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}</div>
+    <div className="context-list">
+      <div className="">
+        <div className="d-flex justify-content-between align-items-center bg-transparent">
+              <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
+              <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
+              <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
+              <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div>
+          {/* <div>{statusFieldLink('Repo', repo, )}</div> */}
+          {/* <div>{statusFieldLink('Project', phFocus.focusProj?.`https:/github.com/${org}/${repo}/tree/${branch}/${path}`name, `https:/github.com/orgs/${org}/projects/${projectNumber}`)}</div> */}
+          {/* <div className="me-auto">{statusField('User', (props.ph?.phUser?.focusUser?.name === 'No GitHub User identified') ? 'Not logged in!' : props.ph?.phUser?.focusUser?.name )}</div> */}
         </div>
         {/* <div className="font-weight-bold  border fs-6">
           <button
@@ -119,13 +121,13 @@ const ContextView = (props: any) =>  {
             <i className="fa fa- fa-bullseye"></i> 
           </button>
         </div> */}
-        <hr className="m-1 bg-primary " style={{ height: "4px" }} />
+        {/* <hr className="m-1 bg-primary " style={{ height: "4px" }} /> */}
         {(!minimized) && 
             <div className="d-flex justify-content-between align-items-center">
-              <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
+              {/* <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
               <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
               <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
-              <div className="me-auto">{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div>
+              <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div> */}
             </div>
         }
     </div>
@@ -136,28 +138,39 @@ const ContextView = (props: any) =>  {
 
   return (
     <>
-        <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div>
-      <div className="d-flex justify-content-start align-items-center bg-transparent">
-        <button className="btn btn-sm bg-transparent text-primary ms-1 px-2 pt-0 " style={{height: "20px"}} onClick={toggleMinimized}>
+      {/* <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div> */}
+      <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
+      <div className="d-flex justify-content-start align-items-center mx-0" style={{  backgroundColor: "#dee" }}>
+        <div className="border"style={{  backgroundColor: "#cdd" }}>
+          {statusFieldLink('Issue', props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}
+        </div>
+        {/* <button className="btn btn-sm bg-transparent py-0 ms-1 text-primary " onClick={toggleMinimized}>
           {(minimized) 
-            ? <span className="" style={{whiteSpace: 'nowrap',}}><i className="fas fa-caret-down fa-lg me-2"></i>Focus : </span>
-            : <span className="" style={{whiteSpace: 'nowrap',}}><i className="fas fa-caret-up   fa-lg me-2"></i> Focus : </span>
+            ? <span className="" style={{whiteSpace: 'nowrap',}}>Focus : <i className="fas fa-caret-right fa-lg me-2"></i></span>
+            : <span className="" style={{whiteSpace: 'nowrap',}}>Focus : <i className="fas fa-caret-up   fa-lg me-2"></i></span>
           }
-        </button> 
+        </button>  */}
         {/* <button className="btn btn-sm bg-transparent text-primary px-2 mt-1 pt-0 mx-0"  style={{height: "24px"}} onClick={toggle}>
           <i className="fas fa-edit fa-lg"
-            data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."     
-            ></i>   
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."     
+          ></i>   
         </button> */}
-          <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
-        {/* <button className="btn btn-sm bg-transparent text-primary mt-1 pt-0 mx-0" style={{height: "24px"}} onClick={copyToClipboard}>
+        <button className="btn btn-sm bg-transparent text-primary mt-1 pt-0 mx-0"  onClick={copyToClipboard}>
           <i className="fas fa-copy fa-lg " 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Copy current focus/context to clipboard. The link can be used in documents,sent to others by e-mail etc."        
           ></i>
-        </button> */}
+        </button>
+        <span className="" style={{whiteSpace: 'nowrap',}}>Focus : </span>
         <div className="ms-3 w-100">{contextRepoDiv}</div>
+        {/* <div className="ms-auto me-1">{statusField('TargetModel', (props.ph?.phFocus?.focusTargetModel) && props.ph?.phFocus?.focusTargetModel)}</div> */}
+
+          <div className="border" style={{  backgroundColor: "#cdd" }}>
+            {statusField('Role', props.ph?.phFocus?.focusRole?.name)}
+            {statusField('Task', props.ph?.phFocus?.focusTask?.name)}
+          </div>
+
       </div>
     </>
   )

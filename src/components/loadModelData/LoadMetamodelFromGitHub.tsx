@@ -108,6 +108,7 @@ const LoadMetamodelFromGithub = (props: any) => {
     if (usernameText?.length > 0)  { 
       setLoading(true);
       if (debug) console.log('76 loadRepos', repoText, pathText, model)
+       if ((!repoText) || repoText.includes('undefined')) return null;
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
@@ -126,6 +127,7 @@ const LoadMetamodelFromGithub = (props: any) => {
     if (debug) console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
+    if ((!searchtext) || searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
     if (debug) console.log('131 res', res, res.data, sha)
@@ -330,7 +332,7 @@ const LoadMetamodelFromGithub = (props: any) => {
               <hr className="bg-light my-1 mx-4" />
 
               {/* -------- Select model ----------------------------------- */}
-              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" onClick = {() => loadModels(usernameText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List Models</Button>
+              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" onClick = {() => loadModels(usernameText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List aaaa Models</Button>
               {(models?.length > 0) 
                 ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
                 : <div className='text-warning'> 'No models found!'</div>

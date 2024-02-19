@@ -177,7 +177,7 @@ const Palette = (props: any) => {
   );
 
   const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
-      <div className="metamodel-pad mt-0 p-1  bg-white" style={{ height: "39vh" }}>
+      <div className="metamodel-pad mt-0 p-1  bg-white" style={{ height: "44vh" }}>
         <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</div>
         <div className="modellingtask bg-light w-100" >
         </div>
@@ -190,12 +190,13 @@ const Palette = (props: any) => {
           myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "36vh" }}
+          diagramStyle={{ height: "42vh" }}
         />
       </div>
 
     const gojsappPaletteBottomDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
-      <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" style={(filteredOtNodeDataArray?.length === 0) ? { height: "80vh" } : { height: "45vh" }} >
+      <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" 
+        style={(filteredOtNodeDataArray?.length === 0) ? { height: "78vh" } : { height: "37vh" }} >
         <div className="modellingtask bg-light w-100" >
           {otDiv}
           <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
@@ -209,7 +210,7 @@ const Palette = (props: any) => {
           myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "39vh" }}
+          diagramStyle={{ height: "32vh" }}
         />
       </div>
     
@@ -239,7 +240,7 @@ const Palette = (props: any) => {
                   {gojsappPaletteDiv} 
                 {/* </div> */}
               </div>
-          : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "87vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
+          : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
         }
       </div>
     </>

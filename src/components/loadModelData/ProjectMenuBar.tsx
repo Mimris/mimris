@@ -24,6 +24,7 @@ export const ProjectMenuBar = (props: any) => {
     const [minimized, setMinimized] = useState(false);
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
+    const [projectname, setProjectname] = useState(props.props.phFocus.focusProj.name);
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [expanded, setExpanded] = useState(true);
@@ -42,7 +43,6 @@ export const ProjectMenuBar = (props: any) => {
     }   
 
     const handleSaveAllToFile = () => {
-        const projectname = props.props.phData?.metis.name
         if (!debug) console.log('46 handleSaveAllToFile', props, projectname, props.props.phData, props.props.phFocus, props.props.phSource, props.props.phUser)
         SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
         const data = `${projectname}_PR`

@@ -51,33 +51,42 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
 
   useEffect(() => {
     console.log("53 ProjectDetailsForm", props.props.phFocus);
-    setFile(props.props.phFocus?.focusProj.file);
-  }, [props.props.phFocus?.focusProj.file]);
+    setId(id);
+    setName(name);
+    setOrg(org);
+    setRepo(repo);
+    setPath(path);
+    setBranch(branch);
+    setFile(file);
+    setProjectNumber(projectNumber);  
+  }, [file, name, org, repo, path, branch, projectNumber]);
+
   useEffect(() => {
     console.log("57 ProjectDetailsForm", props.props.phFocus);
     setFile(props.props.phFocus?.focusProj.file);
+    setName(props.props.phFocus?.focusProj.name);
   }, []);
   
   const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org+repo+path+file+branch;
   const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
 
-      const updateFocusProj = (value) => {
-      setFocusProj(value);
-      // update metis object
-      //dialog box and ask for description and update metis object
-      const dialog = window.confirm("Pls update name and descr of the project?");
-      if (dialog) {
-        const namenew = window.prompt("Please enter the name of the project", "Name");
-        const descriptionnew = window.prompt("Please enter the description of the project", "Description");
-        props.props.phData.metis.name = namenew;
-        props.props.phData.metis.description = descriptionnew;
-      }
-    }
+    // const updateFocusProj = (value) => {
+    //   setFocusProj(value);
+    //   // update metis object
+    //   //dialog box and ask for description and update metis object
+    //   const dialog = window.confirm("Pls update name and descr of the project?");
+    //   if (dialog) {
+    //     const namenew = window.prompt("Please enter the name of the project", "Name");
+    //     const descriptionnew = window.prompt("Please enter the description of the project", "Description");
+    //     props.props.phData.metis.name = namenew;
+    //     props.props.phData.metis.description = descriptionnew;
+    //   }
+    // }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
-    const data = { id: idnew, name: namenew, org, repo, path, file, branch, projectNumber };
+    const data = { id: name, name, org, repo, path, file, branch, projectNumber };
 
     // Todo: has to set id but show name in the list  ( look at Context button)
     const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
@@ -86,7 +95,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
       SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
-    }, 200);
+    }, 2000);
     return () => clearTimeout(timer);
   };
 
@@ -95,17 +104,17 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     <>  
       <div>Project: name: {namenew}</div>    
       <hr />
-          <div className='d-flex justify-content-around '>
-            This is the GitHub repository parameters <br />
-            necessary to access the repository and the project file.
-          </div>
+      <div className='d-flex justify-content-around '>
+        This is the GitHub repository parameters <br />
+        necessary to access the repository and the project file.
+      </div>
       <hr />
       <form onSubmit={handleSubmit}>
-        <div className='d-flex flex-column border mx-4'>
+        <div className='d-flex flex-column justify-content-between border mx-4'>
           {/* <div>GitHub Repository:</div> */}
           <div className='d-flex justify-content-between mb-2'>
             <label>Organisation:</label>
-            <input className='rounded bg-white px-1'
+            <input className='rounded bg-white px-1 w-50'
               type="text"
               value={org}
               onChange={(e) => setOrg(e.target.value)}
@@ -113,7 +122,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
           </div>
           <div className='d-flex justify-content-between mb-2'>
             <label>Repo:</label>
-            <input className='rounded bg-white px-1'
+            <input className='rounded bg-white px-1 w-50'
               type="text"
               value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
               onChange={(e) => setRepo(e.target.value)}
@@ -121,33 +130,34 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
           </div>
           <div className='d-flex justify-content-between mb-2'>
             <label>Path:</label>
-            <input className='rounded bg-white px-1'
+            <input className='rounded bg-white px-1 w-50'
               type="text"
               value={path}
               onChange={(e) => setPath(e.target.value)}
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
-            <label>File:</label>
-            <input className='rounded bg-whit px-1'
+            <label>Proj. name / File:</label>
+            <input className='rounded bg-whit px-1 w-75'
               type="text"
               value={file}
-              onChange={(e) => setFile(e.target.value)}
+              onChange={(e) => {setFile(e.target.value); setName(e.target.value)}}
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
             <label>Branch:</label>
-            <input className='rounded bg-white px-1'
+            <input className='rounded bg-white px-1 w-50'
               type="text"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
             />
           </div>
-                <hr />
+          <hr />
           <div className='d-flex justify-content-between mb-2'>
             <label>Project Number (github):</label>
-            <input className='rounded bg-white px-1'
+            <input className='rounded bg-white px-1 w-50'
               type="text"
+              value={projectNumber}
               onChange={(e) => setProjectNumber(e.target.value)}
             /> 
           </div>

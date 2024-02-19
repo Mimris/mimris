@@ -43,6 +43,7 @@ export const ProjectMenuBar = (props: any) => {
     }   
 
     const handleSaveAllToFile = () => {
+        setProjectname(props.props.phFocus.focusProj.name);
         if (!debug) console.log('46 handleSaveAllToFile', props, projectname, props.props.phData, props.props.phFocus, props.props.phSource, props.props.phUser)
         SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
         const data = `${projectname}_PR`

@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // modelling
 
 const debug = false;
@@ -45,7 +45,7 @@ const constants = require('../akmm/constants');
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
-const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
+const useEfflog = console.log.bind(console, '%c %s', // green colored console log
   'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
@@ -66,7 +66,7 @@ const page = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   // const [visibleContext, setVisibleContext] = useState(true)
-  let activetabindex = 0
+  
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
@@ -82,7 +82,9 @@ const page = (props: any) => {
   const metis = ph.phData?.metis
   const models = metis?.models || []
 
-  const modelindex =  models.findIndex((m: any) => m.id === focusModel.id)
+  let activetabindex: number = 0
+
+  const modelindex =  models.findIndex((m: any) => m?.id === focusModel.id)
   // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -1
 
   const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
@@ -102,6 +104,7 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
+    if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
     setActiveTab(activetabindex);
   }, [props.phFocus?.focusModel?.id]);
 

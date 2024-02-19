@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
 import { FaUser, FaEnvelope } from 'react-icons/fa';
+import { domain } from 'process';
 
 const debug = false;
 
@@ -60,7 +61,7 @@ const Navbar = (props) => {
 			setVersion("alfa");
 		}
 
-	}, []);
+	}, [domainName]);
 
 	const options = [
 		{
@@ -96,16 +97,16 @@ const Navbar = (props) => {
 					<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
 				{/* <Link className="navbar-brand navbar-left ms-2 me-auto py-0 fs-2 " href="#"> */}
-				<strong className="text-success fs-5">AKM Modeller</strong>
+				<strong className="text-success fs-4">AKM Modeller</strong>
 				{/* </Link> */}
 				<div className="mx-4 d-flex justify-content-between align-items-center">
-					<span className="mx-1 fs-6 txt-secondary bg-transparent" >ver. {version}</span>
+					<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap"}} >ver. {version}</span>
 					<DropdownMenu options={options} domainName={domainName} />
 				</div>
 			</div>
 			{/* <div className=""> */}
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
-				<ul className="navbar-nav fs-6 ">
+				<ul className="navbar-nav ">
 					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
 						<Link href="/">Home</Link>
 					</li>

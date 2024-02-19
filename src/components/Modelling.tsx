@@ -429,11 +429,11 @@ const page = (props: any) => {
       <>
         <Nav tabs style={{ minWidth: "350px" }} >
           <span className="ms-1 me-5">
-            <button className="mb-2 pb-0 ms-0 me-5"
+            <button className="mb-1 pb-4 ms-0 me-5"
               data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
               onClick={() => setMmToggle(!mmToggle)}
               style={{borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#77aacc" }}
-            >{(mmToggle) ? 'Model <>' : 'Metamodel <>'}</button>
+            >{(mmToggle) ? 'Model >' : 'Metamodel <>'}</button>
           </span>
         </Nav>
           <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
@@ -504,7 +504,7 @@ const page = (props: any) => {
       <>
         <Nav tabs style={{ minWidth: "350px", borderBottom: "white"}} >
           <span className="ms-1 me-5">
-            <button className="mb-2 pb-0 ms-0 me-5"
+            <button className="mb-1 pb-4 ms-0 me-5"
               data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
               onClick={() => setMmToggle(!mmToggle)}
               style={{ borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#a0caca" }}

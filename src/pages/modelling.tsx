@@ -215,19 +215,17 @@ const page = (props: any) => {
         <div id="index">
           <div className="wrapper">
             {/* <div className="header" >
-                <Header title={props.phUser?.focusUser.name} /> 
-              </div> */}
-            {/* {videoDiv} */}
-            {/* <Project props={props}/> */}
+              <Header title={props.phUser?.focusUser.name} /> 
+            </div> */}
             <ProjectMenuBar props={props} />
             <div className="context-bar d-flex justify-content-between align-items-center"  style={{  backgroundColor: "#cdd" }}>
-              <div className="issuesarea">
+              <div className="issuesarea" style={{ minWidth: "96px" }}>
                 <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
               </div>
-              <div className="contextarea ms-5 w-75">
+              <div className="contextarea ms-5 w-100">
                 {contextDiv}
               </div>
-              <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+              <div className="tasksarea mr-1 bg-transparent" style={{ minWidth: "110px",backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>
             </div>

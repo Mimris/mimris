@@ -99,10 +99,10 @@ const Issues = (props) => {
   // list issues form github
   const fetchIssues = async (url) => {
     try {
-      if (!debug) console.log('132 issues fetch', url)
+      if ((debug)) console.log('132 issues fetch', url)
       const res = await fetch(url);
       const data = await res.json();
-      if (!debug) console.log('135 issues', res, data)
+      if ((debug)) console.log('135 issues', res, data)
       if (data.length === 0) { // if there is an error
         console.error('Error fetching issues:', data.message);
         setIssues([]);
@@ -124,7 +124,7 @@ const Issues = (props) => {
   //   console.log('153 comments', issue, issue.body, issue.comments_url);
   //   fetchComments(issue.comments_url)
   //     .then((comments: any[]) => {
-  //       if (!debug) console.log('156 comments', comments);
+  //       if ((debug)) console.log('156 comments', comments);
   //       if (comments.length === 0) return [];
   //       return comments.map((comment: any) => (comment.issue_url === issue.comments_url) && (comment.body));
   //     })
@@ -134,7 +134,7 @@ const Issues = (props) => {
   //     return (
   //       <div>
   //         {(comments && comments.length > 0) && comments.map((comment) => {
-  //           if (!debug) console.log('167 comments', comment)
+  //           if ((debug)) console.log('167 comments', comment)
   //           return (
   //             <div>
   //               <div key={comment.id}>
@@ -153,13 +153,13 @@ const Issues = (props) => {
 //     await Promise.all(issues.map(async (issue) => {
 //       const res = await fetch(issue.comments_url);
 //       const data = await res.json();
-//       if (!debug) console.log('176 comments', res, data)
+//       if ((debug)) console.log('176 comments', res, data)
 //       if (data.length === 0) { // if there is an error
 //         console.error('Error fetching comments:', data.message, data, res, issues);
 //       } else {
 //         comments.push(...data);
 //       }
-//       if (!debug) console.log('183 comments', data, comments)
+//       if ((debug)) console.log('183 comments', data, comments)
 //     }));
 //   }
 //   setComments(comments);
@@ -279,16 +279,16 @@ const Issues = (props) => {
   } else  {
     return (
       <>
-        <div  className="buttons bg-transparent mt-1 ms-1"  >
+        <div  className="buttons bg-transparent mt-1 ms-1" style={{ minWidth: "106px" }} >
           <button
               className="btn bg-transparent text-success m-0 p-1"
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
-              title="Open Issues left side-panel!"
+              title="Open Issues in left side-panel!"
               onClick={() => setMinimized(true)}
           >
-            <span className="fs-6 me-5"><i className="fa fa-lg fa-angle-left pull-left-container"></i> Issues</span>
+            <span className="fs-6"><i className="fa fa-lg fa-angle-left pull-left-container"></i> Issues</span>
           </button>
         </div>
         <div className="issues p-1 mt-1" 

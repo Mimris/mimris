@@ -116,7 +116,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
     const genrel = propLinks.forEach(o => {
         // use the linkID to find the top object
-        if (!debug) console.log('118 PropLink: ', o.name, o.title, o.id, o.linkID, o);
+        if ((debug)) console.log('118 PropLink: ', o.name, o.title, o.id, o.linkID, o);
         if (debug) console.log('119 ', o.linkID);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkID)
         if (debug) console.log('121 ', o, o.linkID, targetObject?.name, targetObject?.id);
@@ -148,7 +148,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             const torelName = curObjTypes.find((ot: { id: any; }) => ot.id === totypeRef)?.name
 
             let existRelship = utils.findRelshipByFromIdToIdAndType(curRelships, fromobjectId, toobjectId, relshipType?.id) // check if the relationship with is type exists between the objects
-            if (!debug) console.log('153 ', fromobjectId, fromobjectName, toobjectId, toobjectName, existRelship);
+            if ((debug)) console.log('153 ', fromobjectId, fromobjectName, toobjectId, toobjectName, existRelship);
             relId = (existRelship) ? existRelship.id : utils.createGuid();
             // relId = (existRelship) ? existRelship.id : utils.createGuid();
             reltypeRef = relshipType?.id //refersTo?.id || hasType?.id
@@ -163,7 +163,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             }
 
             if (debug) console.log('164 ', relId, relName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
-            if (!debug) console.log('165 relName: ', relName, 'from: ', fromobjectId, fromobjectName, 'to: ', toobjectId, toobjectName, 'existRelship: ', existRelship);
+            if ((debug)) console.log('165 relName: ', relName, 'from: ', fromobjectId, fromobjectName, 'to: ', toobjectId, toobjectName, 'existRelship: ', existRelship);
             if (toobjectId && fromobjectId) {
                 if (debug) console.log('166 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
                 if (o["$ref"]?.includes('abstract')) {

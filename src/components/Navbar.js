@@ -51,7 +51,7 @@ const Navbar = (props) => {
 
 	useEffect(() => {
 		setDomainName(window.location.hostname);
-		if (!debug) console.log('33',domainName);
+		if ((debug)) console.log('33', domainName);
 		if (domainName === "localhost") {
 			setVersion("local");
 		} else if (domainName === "akmmclient.vercel.app") {
@@ -106,22 +106,22 @@ const Navbar = (props) => {
 				</div>
 			</div>
 			{/* <div className=""> */}
-				<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
-					<ul className="navbar-nav fs-6 ">
-						<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
-							<Link href="/">Home</Link>
-						</li>
-						<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
-							<Link href="/modelling" >Modelling</Link>
-						</li>
-						{/* <li className={`nav-item ${currentRoute === "/project" ? "active" : ""}`}>
+			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
+				<ul className="navbar-nav fs-6 ">
+					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
+						<Link href="/">Home</Link>
+					</li>
+					<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
+						<Link href="/modelling" >Modelling</Link>
+					</li>
+					{/* <li className={`nav-item ${currentRoute === "/project" ? "active" : ""}`}>
 							<Link href="/project">Project</Link>
 						</li> */}
-						{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
+					{/* <li className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link href="/context">Focus</Link>
 						</li> */}
 
-						{/* <li 
+					{/* <li 
 							className={`nav-item ${currentRoute === "/context" ? "active" : ""}`}>
 							<Link 
 								style={{paddingLeft: "30px", width: "100px"}} 
@@ -129,19 +129,19 @@ const Navbar = (props) => {
 								Tasks
 							</Link>
 						</li> */}
-						{/* <li className={`nav-item ${currentRoute === "/table" ? "active" : ""}`}>
+					{/* <li className={`nav-item ${currentRoute === "/table" ? "active" : ""}`}>
 							<Link href="/table">Tables</Link>
 						</li> */}
-						<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
-							<Link href="/helpblog">Help</Link>
-						</li>
-						<li className={`nav-item ${currentRoute === "/videos" ? "active" : ""}`}>
-							<Link href="/videos">Videos</Link>
-						</li>
-						<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
-							<Link href="/about">About</Link>
-						</li>
-						{/* <li className="nav-item pt-1 ps-1" style={{ minWidth: "54px"}}>
+					<li className={`nav-item ${currentRoute === "/helpblog" ? "active" : ""}`} >
+						<Link href="/helpblog">Help</Link>
+					</li>
+					<li className={`nav-item ${currentRoute === "/videos" ? "active" : ""}`}>
+						<Link href="/videos">Videos</Link>
+					</li>
+					<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
+						<Link href="/about">About</Link>
+					</li>
+					{/* <li className="nav-item pt-1 ps-1" style={{ minWidth: "54px"}}>
 							<Link
 								className={currentRoute === "/Modelling" ? "active" : "non-active"}
 								href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
@@ -151,13 +151,13 @@ const Navbar = (props) => {
 								<FaEnvelope style={{  }} />
 							</Link>
 						</li> */}
-					</ul>
-				</div>
+				</ul>
+			</div>
 
 			{/* </div> */}
 			<div className="navbar-nav mx-2 pe-4 ms-auto" style={{ borderRadius: "6px" }}>
 				<span className="username d-flex justify-content-start align-items-center">
-					<FaUser color= {(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
+					<FaUser color={(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
 				</span>
 				<span className="ms-1">
 					{(props.user?.name !== 'User' && props.user?.name !== 'No GitHub User identified') ? props.user?.name : "Guest"}

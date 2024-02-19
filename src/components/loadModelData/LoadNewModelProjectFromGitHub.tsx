@@ -20,7 +20,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const modalRef = useRef(null);
   const backdropRef = useRef(null);
 
-  if (!debug) console.log('23 LoadNewModel....', props)
+  if ((debug)) console.log('23 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -126,7 +126,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //     const res = await searchRepos(repoText, pathText);
   //     const repolist = await res.data.items?.filter(repo => repo.name === repoText);
   //     setLoading(false);
-  //     if (!debug) console.log('133 res.data.items: ', await res.data, repos)
+  //     if ((debug)) console.log('133 res.data.items: ', await res.data, repos)
   //     setRepos(await repolist);
   //     // setModels(await res.data.items?.filter(repo => repo.name === repoText));
   //     if (debug) console.log('136', orgnameText, pathText, repoText, res.data.items, repos)
@@ -144,7 +144,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     if ((!searchtext) || searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (!debug) console.log('131 res', res, res.data, sha)
+    if ((debug)) console.log('131 res', res, res.data, sha)
 
     const content = res.data // this is the project file from github
     if (debug) console.log('138 ', searchtext, res, content)
@@ -175,7 +175,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
           // phSource: model.phData.metis.name || model.phSource 
           phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
-        if (!debug) console.log('154', data)
+        if ((debug)) console.log('154', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -187,10 +187,10 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
   const loadModels = async (orgText, pathText) => {
     setLoading(true);
-    if (!debug) console.log('191  ', orgText, pathText)
+    if ((debug)) console.log('191  ', orgText, pathText)
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${orgText}/${repoText}/contents/${pathText}` : `repos/${orgText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('194  ', orgText, repoText, pathText, 'repos', repos)
+    if ((debug)) console.log('194  ', orgText, repoText, pathText, 'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug) console.log('196 ', await res.data)
     setLoading(false);
@@ -225,7 +225,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //   setRepoText(props.ph.props.phFocus?.focusProj?.repo)
   //   setPathText(props.ph.props.phFocus?.focusProj?.path) // !== '') ? props.ph.props.phFocus?.focusProj?.path : 'models')
   //   setBranchText(props.ph.props.phFocus?.focusProj?.branch)
-  //     if (!debug) console.log('314 LoadGitHub ', orgnameText, repoText, branchText, pathText);
+  //     if ((debug)) console.log('314 LoadGitHub ', orgnameText, repoText, branchText, pathText);
   //     // (repoText) && loadRepos(repoText, pathText);
   //     // (orgnameText) && loadModels(orgnameText, pathText)
   // }, []);

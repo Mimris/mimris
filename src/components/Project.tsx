@@ -62,7 +62,7 @@ const Project = (props) => {
   
   useEffect(() => {
   if (currentRoute === '/modelling') setMinimized(true);
-  if (!debug) console.log('62 Project', currentRoute, minimized, props.props.phFocus.focusProj)
+  if ((debug)) console.log('62 Project', currentRoute, minimized, props.props.phFocus.focusProj)
   }, []);
   
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)

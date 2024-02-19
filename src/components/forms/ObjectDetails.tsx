@@ -160,7 +160,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                 rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
                 );
-                if (!debug) console.log('162 ObjectForm', inputElement, key, formValues[key], curobject[key]);
+                if ((debug)) console.log('162 ObjectForm', inputElement, key, formValues[key], curobject[key]);
           }
           return (
             <div className="row" key={key}>

@@ -12,7 +12,7 @@ import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 const debug = false;
 
 export const ProjectMenuBar = (props: any) => {
-    if (!debug) console.log('15 ProjectMenuBar', props);
+    if ((debug)) console.log('15 ProjectMenuBar', props);
     const dispatch = useDispatch();
 
 
@@ -42,113 +42,115 @@ export const ProjectMenuBar = (props: any) => {
     }   
 
     const handleSaveAllToFile = () => {
-        const projectname = props.phData?.metis.name
-        SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+        const projectname = props.props.phData?.metis.name
+        if (!debug) console.log('46 handleSaveAllToFile', props, projectname, props.props.phData, props.props.phFocus, props.props.phSource, props.props.phUser)
+        SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
         const data = `${projectname}_PR`
-        if (debug) console.log('343 handleSaveAllToFile', data)
+        if ((!debug)) console.log('48 handleSaveAllToFile', data)
             dispatch({ type: 'LOAD_TO_STORE_PHSOURCE', data: data })
+    }
+
+    const handleCloseModal = () => {
+        const openFileModal = document.getElementById('openFileModal');
+        if (openFileModal) {
+            openFileModal.classList.remove('show');
+            openFileModal.style.display = 'none';
         }
+    }
 
-        const handleCloseModal = () => {
-            const openFileModal = document.getElementById('openFileModal');
-            if (openFileModal) {
-                openFileModal.classList.remove('show');
-                openFileModal.style.display = 'none';
-            }
+     const fileInputRef = useRef<HTMLInputElement>(null); // Declare fileInputRef variable
+
+    function handleOpenFile() {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
         }
+    }
 
-        const fileInputRef = useRef<HTMLInputElement>(null); // Declare fileInputRef variable
-
-        function handleOpenFile() {
-            if (fileInputRef.current) {
-                fileInputRef.current.click();
-            }
+    const handleShowProjectModal = () => {
+        if (minimized) {
+        setMinimized(true);
         }
+        setShowProjectModal(true);
+    };
+    const handleCloseProjectModal = () => setShowProjectModal(false);
 
-        const handleShowProjectModal = () => {
-            if (minimized) {
-            setMinimized(true);
-            }
-            setShowProjectModal(true);
-        };
-        const handleCloseProjectModal = () => setShowProjectModal(false);
+    const handleSubmit = (details) => {
+        props.onSubmit(details);
+        // handleCloseProjectModal();
+    };
 
-        const handleSubmit = (details) => {
-            props.onSubmit(details);
-            // handleCloseProjectModal();
-        };
+    const projectModalDiv = (
+        <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
+        className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
+        <Modal.Header closeButton>Set Context: </Modal.Header>
+        <Modal.Body >
+            <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+        </Modal.Body>
+        <Modal.Footer>
+            <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+        </Modal.Footer>
+        </Modal>
+    );
 
-        const projectModalDiv = (
-            <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
-            className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
-            <Modal.Header closeButton>Set Context: </Modal.Header>
-            <Modal.Body >
-                <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
-            </Modal.Body>
-            <Modal.Footer>
-                <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
-            </Modal.Footer>
-            </Modal>
-        );
+    const handleExpandDiv = () => {
+        setExpanded(true);
+    };
 
-        const handleExpandDiv = () => {
-            setExpanded(true);
-        };
+    const handleContractDiv = () => {
+        setExpanded(false);
+        // const timer = setTimeout(() => {
+        //  setExpanded(false);
+        // } , 20000);
+    };
 
-        const handleContractDiv = () => {
-            setExpanded(false);
-            // const timer = setTimeout(() => {
-            //  setExpanded(false);
-            // } , 20000);
-        };
-
-        const loadGitHub = <LoadGitHub buttonLabel='Open' className='ContextModal' ph={props.props} refresh={refresh} setRefresh={toggleRefresh} />;
-        const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />;
-           
-        const menuArrowText =
-            <div className="d-flex justify-content-end align-items-center me-2 pt-0" 
-                style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }} //,  maxWidth: "100px", lineHeight: "0.9" }}
-                onClick={() => setExpanded(false)}
-            >
-                <i className="fa fa-arrow-up fa-sm pt-1 me-1"></i>
-                 Project menubar
-            </div>;
+    const loadGitHub = <LoadGitHub buttonLabel='Open' className='ContextModal' ph={props.props} refresh={refresh} setRefresh={toggleRefresh} />;
+    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />;
+        
+    const menuArrowText =
+        <div className="d-flex justify-content-end align-items-center me-2 pt-0" 
+            style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }} //,  maxWidth: "100px", lineHeight: "0.9" }}
+            onClick={() => setExpanded(false)}
+        >
+            <i className="fa fa-arrow-up fa-sm pt-1 me-1"></i>
+                Project menubar
+        </div>;
 
 
 
-        const menubarDiv =   (expanded) 
+    const menubarDiv =   (expanded) 
         ?   <>   
                 <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-0" 
                     style={{ height: "26px", backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
-              <div className="menu-buttons ">
-                    <span className="ms-1">{loadGitHub}</span>
-                    <span className="ms-1">{loadNewModelProject}</span>
-                    {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
-                    <button
-                        className="btn btn-sm rounded bg-light text-dark px-1 py-1 pe-2 ps- me-1"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        data-bs-html="true"
-                        title="Click here to Open a Project file from local file system"
-                        onClick={() => fileInputRef.current.click()}
-                    >
-                        <i className="fa fa-folder pe-1"></i>Open
-                    </button>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                            // Handle the selected file here
-                            handleReadProjectFile(e);
-                        }}
-                    />
-                    <button className="btn btn-sm rounded bg-light text-dark px-1 py-1 pe-2 ps- me-1" 
-                        data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                        title="Click here to Save the Project file to the local file system"
-                        onClick={handleSaveAllToFile}><i className="far fa-save"></i> Save</button>
-                </div>
+                    <div className="menu-buttons ">
+                        <span className="ms-1">{loadGitHub}</span>
+                        <span className="ms-1">{loadNewModelProject}</span>
+                        {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
+                        <button
+                            className="btn btn-sm rounded bg-light text-dark px-1 py-1 pe-2 ps- me-1"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            data-bs-html="true"
+                            title="Click here to Open a Project file from local file system"
+                            onClick={() => fileInputRef.current.click()}
+                        >
+                            <i className="fa fa-folder pe-1"></i>Open
+                        </button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                                // Handle the selected file here
+                                handleReadProjectFile(e);
+                            }}
+                        />
+                        <button className="btn btn-sm rounded bg-light text-dark px-1 py-1 pe-2 ps- me-1" 
+                            data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                            title="Click here to Save the Project file to the local file system"
+                            onClick={handleSaveAllToFile}><i className="far fa-save"></i> Save
+                        </button>
+                    </div>
                     <div className="menu-buttons d-flex justify-content-between align-items-center ms-2">
                         <span className="context-item border rounded-2 " style={{  backgroundColor: "#ded",whiteSpace: "nowrap"  }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -175,7 +177,7 @@ export const ProjectMenuBar = (props: any) => {
                             title="GitHub Repository name"
                         >
                             <span className="px-1">
-                            Repo :
+                                Repo :
                             </span>
                             <span
                                 className="pe-1"
@@ -189,9 +191,7 @@ export const ProjectMenuBar = (props: any) => {
                                     <button className="px-2 text-primary border-light rounded" style={{  backgroundColor: "#efe" }}> {props.props.phFocus.focusProj.repo} </button>
                                 </Link>
                             </span>
-                        </span>
-                        
-                        
+                        </span>     
                         {/* <span className="px-1" style={{ backgroundColor: "#ded", whiteSpace: "nowrap" }}>{project.name}</span> */}
                         {/* <input id="project-name-input" className="project-name-input bg-light ps-1 border border-secondary rounded" type="text" placeholder="Project Name" value={project.name} /> */}
                         <span className="context-item border d-flex align-items-center rounded-2 mx-1" style={{  backgroundColor: "#ded", whiteSpace: "nowrap" }}>
@@ -241,16 +241,16 @@ export const ProjectMenuBar = (props: any) => {
                         </div>
                     </div>
                 </div>
+                </div>
+                {projectModalDiv}
+                {menuArrowText}
+            </>
+        :   <div className="d-flex justify-content-end align-items-center ms-auto me-2 pt-0" 
+                style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                onClick={() => setExpanded(true)}
+            >
+                <i className="fa fa-arrow-left fa-sm pt-1"></i>Project menubar
             </div>
-            {projectModalDiv}
-            {menuArrowText}
-        </>
-    :   <div className="d-flex justify-content-end align-items-center ms-auto me-2 pt-0" 
-            style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
-            onClick={() => setExpanded(true)}
-        >
-            <i className="fa fa-arrow-left fa-sm pt-1"></i>Project menubar
-        </div>
 
 
 

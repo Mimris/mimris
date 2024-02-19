@@ -114,7 +114,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     ) => {
 
 
-        if (!debug) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType);
+        if ((debug)) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType);
 
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
@@ -132,7 +132,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         // let typeHeight: string = "default";
         // let typeFont: string = "default";
 
-        // if (!debug && osduType === "Masterdata") console.log("53 createObject", oName, oValProps, osduType, typeColor);
+        // if ((debug) && osduType === "Masterdata") console.log("53 createObject", oName, oValProps, osduType, typeColor);
         // if description contain Deprecated we add Depreciate to the name
 
         if (oValProps?.description?.includes("DEPRECATED")) {
@@ -160,7 +160,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         //     typeStrokeColor2 = propLinkGroupType;
         // }
 
-        if (!debug) console.log('163 createObject', oName, groupType, propLinkGroupType, otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
+        if ((debug)) console.log('163 createObject', oName, groupType, propLinkGroupType, otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
 
         const importedObject = //(modelType === "AKM") // don't include json attributes
         {
@@ -191,7 +191,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             ...oValProps, // additional attributes
         }
 
-        if (!debug) console.log("170 Create object: ", importedObject.name, importedObject.fillcolor, importedObject);
+        if ((debug)) console.log("170 Create object: ", importedObject.name, importedObject.fillcolor, importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
         return importedObject;
     };

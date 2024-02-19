@@ -45,7 +45,7 @@ const axiosConfigRaw2 = {
 export async function searchGithub(repo, path, filename, branch = 'main', searchtype = 'paramfile') { // searchtype: 'repo', 'branches', 'models' or 'files'
   if ((!repo) || repo.includes('undefined')) return null
   try {
-    if (!debug) console.log('46 searchGithub', repo, path, branch, filename, searchtype);
+    if ((debug)) console.log('46 searchGithub', repo, path, branch, filename, searchtype);
     // search/repositories?q=akm-models
     let query = ''
     if (searchtype == 'repos') {
@@ -92,7 +92,7 @@ export async function searchGithub(repo, path, filename, branch = 'main', search
 export async function searchRepos(repo, path) {  // search/repositories?q=akm-models
   if ((!repo) || repo.includes('undefined')) return null
   try {
-    if (!debug) console.log('93 searchRepos search/repositories', repo, path);
+    if ((debug)) console.log('93 searchRepos search/repositories', repo, path);
     return await axios.get(
       `search/repositories?q=${repo}`,
       axiosConfig

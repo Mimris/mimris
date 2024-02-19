@@ -66,7 +66,7 @@ const page = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   // const [visibleContext, setVisibleContext] = useState(true)
-  let activetabindex
+  let activetabindex = 0
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
@@ -287,10 +287,10 @@ const page = (props: any) => {
 
     const handleSaveAllToFile = () => {
       const projectname = props.phData.metis.name
-      if (!debug) console.log('289 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)  
+      if ((debug)) console.log('289 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)  
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
       const data = `${projectname}_PR`
-      if (!debug) console.log('292 handleSaveAllToFile', data)
+      if ((debug)) console.log('292 handleSaveAllToFile', data)
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
     }
 

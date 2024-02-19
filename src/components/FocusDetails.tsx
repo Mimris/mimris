@@ -14,7 +14,7 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const FocusDetails = (props, edit) => {
-    if (!debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
+    if ((debug)) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
 

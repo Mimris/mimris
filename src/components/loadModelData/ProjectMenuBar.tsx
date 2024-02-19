@@ -82,7 +82,7 @@ export const ProjectMenuBar = (props: any) => {
     const projectModalDiv = (
         <Modal show={showProjectModal} onHide={handleCloseProjectModal} 
         className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex:"9999" }} ref={projectModalRef}>
-        <Modal.Header closeButton>Set Context: </Modal.Header>
+        <Modal.Header closeButton>Set GitHub data: </Modal.Header>
         <Modal.Body >
             <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
         </Modal.Body>
@@ -214,7 +214,7 @@ export const ProjectMenuBar = (props: any) => {
                         data-toggle="tooltip" data-placement="top" data-bs-html="true"
                         title="Edit the Project details like the Project Name, GitHub Repository, Branch, File, etc."
                         onClick={handleShowProjectModal} >
-                        <i className="fa fa-edit text-light pe-1"></i>Project
+                        <i className="fa fa-edit text-light pe-1"></i>GitHub
                     </button>
                     {/* <button className="btn btn-sm menu-button me-3">Reload</button> */}
                 </div>

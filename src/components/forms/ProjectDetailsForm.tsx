@@ -84,144 +84,67 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     
   return (
     <>  
-      <div>Project:</div>
-      <div>id: {idnew}</div>
-      <div>name: {namenew}</div>
+      <div>Project: name: {namenew}</div>    
       <hr />
-        <form onSubmit={handleSubmit}>
-          <div className='d-flex justify-content-between'>
-            <div>
-              <div>GitHub Repository:</div>
-              <div>
-                <label>Project Number (github):</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={projectNumber}
-                  onChange={(e) => setProjectNumber(e.target.value)}
-                /> 
-                <div> --- </div>
-              </div>
-              <div>
-                <label>Organisation:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={org}
-                  onChange={(e) => setOrg(e.target.value)}
-                /> 
-              </div>
-              <div>
-                <label>Repo:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
-                  onChange={(e) => setRepo(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>Path:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={path}
-                  onChange={(e) => setPath(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>File:</label>
-                <input className='rounded bg-white'
-                  type="text"
-                  value={file}
-                  onChange={(e) => setFile(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>Branch:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={branch}
-                  onChange={(e) => setBranch(e.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              {/* <div>Context Focus:</div>
-              <div>
-                <div>
-                  <label>Model:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusModel?.name}
-                    onChange={(e) => setFocusModel(e.target.value)}
-                  /> 
-                </div>
-                <div>
-                  <label>Modelview:</label> 
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusModelview?.name}
-                    onChange={(e) => setFocusModelview(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Object:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusObject?.name}
-                    onChange={(e) => setFocusObject(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Objectview:</label>
-                  <input className='rounded bg-white'
-                    type="text"
-                    value={focusObjectview?.name}
-                    onChange={(e) => setFocusObjectview(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Org:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusOrg?.name}
-                    onChange={(e) => setFocusOrg(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Project:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusProj?.name}
-                    onChange={(e) => setFocusProj(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Role:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusRole?.name}
-                    onChange={(e) => setFocusRole(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Task:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusTask?.name}
-                    onChange={(e) => setFocusTask(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Issue:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusIssue?.name}
-                    onChange={(e) => setFocusIssue(e.target.value)}
-                  />
-                </div>
-              </div> */}
-            </div>
+          <div className='d-flex justify-content-around '>
+            This is the GitHub repository parameters <br />
+            necessary to access the repository and the project file.
           </div>
-          <button type="submit">Save</button>
-        </form>
+      <hr />
+      <form onSubmit={handleSubmit}>
+        <div className='d-flex flex-column border mx-4'>
+          {/* <div>GitHub Repository:</div> */}
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Organisation:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={org}
+              onChange={(e) => setOrg(e.target.value)}
+            /> 
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Repo:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
+              onChange={(e) => setRepo(e.target.value)}
+            />
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Path:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={path}
+              onChange={(e) => setPath(e.target.value)}
+            />
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>File:</label>
+            <input className='rounded bg-whit px-1'
+              type="text"
+              value={file}
+              onChange={(e) => setFile(e.target.value)}
+            />
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Branch:</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+            />
+          </div>
+                <hr />
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Project Number (github):</label>
+            <input className='rounded bg-white px-1'
+              type="text"
+              onChange={(e) => setProjectNumber(e.target.value)}
+            /> 
+          </div>
+        </div>
+        <button className="btn btn-sm w-100 ms-auto mt-4" type="submit">Save</button>
+      </form>
     </>
   );
 }

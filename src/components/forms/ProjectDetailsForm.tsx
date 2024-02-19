@@ -12,9 +12,6 @@ function ProjectDetailsForm(props) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
 
-
-
-
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj.projectNumber);
   const [id, setId] = useState(props.props.phFocus?.focusProj.id);
   const [name, setName] = useState(props.props.phFocus?.focusProj.name); 
@@ -70,19 +67,6 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
   const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org+repo+path+file+branch;
   const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
 
-    // const updateFocusProj = (value) => {
-    //   setFocusProj(value);
-    //   // update metis object
-    //   //dialog box and ask for description and update metis object
-    //   const dialog = window.confirm("Pls update name and descr of the project?");
-    //   if (dialog) {
-    //     const namenew = window.prompt("Please enter the name of the project", "Name");
-    //     const descriptionnew = window.prompt("Please enter the description of the project", "Description");
-    //     props.props.phData.metis.name = namenew;
-    //     props.props.phData.metis.description = descriptionnew;
-    //   }
-    // }
-
   const handleSubmit = (event) => {
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
@@ -99,18 +83,16 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     return () => clearTimeout(timer);
   };
 
-    
   return (
     <>  
-      <div>Project: name: {namenew}</div>    
+      <div  className="h5 w-100">Project: name : <span className="bg-light ms-2 px-2 w-100"> {namenew}</span></div>    
       <hr />
       <div className='d-flex justify-content-around '>
-        This is the GitHub repository parameters <br />
-        necessary to access the repository and the project file.
+        GitHub repository parameters necessary to access the repository and the project file.
       </div>
       <hr />
       <form onSubmit={handleSubmit}>
-        <div className='d-flex flex-column justify-content-between border mx-4'>
+        <div className='d-flex flex-column justify-content-between border mx-2'>
           {/* <div>GitHub Repository:</div> */}
           <div className='d-flex justify-content-between mb-2'>
             <label>Organisation:</label>
@@ -162,7 +144,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
             /> 
           </div>
         </div>
-        <button className="btn btn-sm w-100 ms-auto mt-4" type="submit">Save</button>
+        <button className="button btn bg-success btn-sm  w-100 ms-auto mt-4" type="submit">Save</button>
       </form>
     </>
   );

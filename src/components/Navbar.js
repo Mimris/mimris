@@ -39,8 +39,6 @@ const DropdownMenu = ({ options, domainName }) => {
 	);
 };
 
-
-
 const Navbar = (props) => {
 	const router = useRouter();
 	const currentRoute = router.pathname;
@@ -95,10 +93,10 @@ const Navbar = (props) => {
 			}>
 			<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
 				<Link className="navbar-brand navbar-left mx-2" href="#">
-					<img src="images/equinor-logo.svg" width="110px" height="60px" className="d-inline-block align-top" alt="Equinor logo" />
+					<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 				</Link>
 				{/* <Link className="navbar-brand navbar-left ms-2 me-auto py-0 fs-2 " href="#"> */}
-				<strong className="text-success fs-2">AKM Modeller</strong>
+				<strong className="text-success fs-5">AKM Modeller</strong>
 				{/* </Link> */}
 				<div className="mx-4 d-flex justify-content-between align-items-center">
 					<span className="mx-1 fs-6 txt-secondary bg-transparent" >ver. {version}</span>
@@ -166,8 +164,8 @@ const Navbar = (props) => {
 			<div className="navbar-nav ms-auto">
 				<Link className="navbar-brand p-1 mt-0 ms-auto" href="http://www.kavca.no" target="_blank">
 					<div className="d-flex justify-content-center align-items-baseline">
-						<img src="images/Kavca-logo2.png" width="20" height="20" className="" alt="Kavca logo" />
-						<span className="fw-bold fs-4" style={{ color: "#0083e2" }}>avca AS</span>
+						<img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
+						<span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
 					</div>
 				</Link>
 			</div>

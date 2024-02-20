@@ -69,6 +69,12 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
              <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release 2024.02.19</CardTitle>
+              <CardText >
+                    &bull; Bugfixes!<br />
+              </CardText>
+            </CardBody>
+             <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2024.02.18</CardTitle>
               <CardText >
                     &bull; New features: Layout on Object tree<br />

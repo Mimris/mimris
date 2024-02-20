@@ -124,11 +124,11 @@ export const ProjectMenuBar = (props: any) => {
                     style={{ height: "26px", backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
                     <div className="menu-buttons ">
-                        <span className="ms-1">{loadGitHub}</span>
+                        <span className="ms-0">{loadGitHub}</span>
                         <span className="ms-1">{loadNewModelProject}</span>
                         {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
                         <button
-                            className="btn btn-sm rounded bg-light text-dark px-1 py-1 pe-2 ps- me-1"
+                            className="btn btn-sm rounded bg-light text-dark px-1 my-0 py-0 pe-2 ps- me-1"
                             data-toggle="tooltip"
                             data-placement="top"
                             data-bs-html="true"
@@ -146,10 +146,10 @@ export const ProjectMenuBar = (props: any) => {
                                 handleReadProjectFile(e);
                             }}
                         />
-                        <button className="btn btn-sm rounded bg-light text-dark px-1 py-1 pe-2 ps- me-1" 
+                        <button className="btn btn-sm rounded bg-light text-dark px-1 my-0 py-0 pe-2 ps- me-1" 
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
                             title="Click here to Save the Project file to the local file system"
-                            onClick={handleSaveAllToFile}><i className="far fa-save"></i> Save
+                            onClick={handleSaveAllToFile}><i className="fa fa-save"></i> Save
                         </button>
                     </div>
                     <div className="menu-buttons d-flex justify-content-between align-items-center ms-2">
@@ -158,7 +158,7 @@ export const ProjectMenuBar = (props: any) => {
                             title="Project Number in the GitHub Repository"
                         >
                             <span className="px-1">
-                            Project :
+                                Project : <span className="px-1">{props.props.phFocus.focusProj.name} </span>
                             </span>
                             <span
                                 className="pe-1"
@@ -169,7 +169,7 @@ export const ProjectMenuBar = (props: any) => {
                                     href={`https:/github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
                                     target="_blank"
                                 >
-                                    <button className="px-2 text-primary border-light rounded" style={{  backgroundColor: "#efe" }} > {props.props.phFocus.focusProj.projectNumber} </button>
+                                    <button className="px-2 text-primary border-light rounded" style={{  backgroundColor: "#efe" }} >no. {props.props.phFocus.focusProj.projectNumber} </button>
                                 </Link>
                             </span>
                         </span>
@@ -202,13 +202,6 @@ export const ProjectMenuBar = (props: any) => {
                                 title="This is the Branch name in the GitHub Repository"
                             > {props.props.phFocus.focusProj.branch}</span>
                         </span>
-                        <span className="context-item border d-flex align-items-center rounded-2 mx-1" style={{  backgroundColor: "#ded", whiteSpace: "nowrap" }}>
-                            <label className="ps-" style={{ backgroundColor: "#ded" }}>File:</label>
-                            <span className="px-1 ms-1" style={{ backgroundColor: "#efe"}}
-                                data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                                title="This is the File name in the GitHub Repository"
-                            > {props.props.phFocus.focusProj.file}</span>
-                        </span>
                     </div>
                     <button className="button rounded mx-1 px-2 text-light me-auto" 
                         style={{backgroundColor: "steelblue", whiteSpace: "nowrap"}}
@@ -217,6 +210,13 @@ export const ProjectMenuBar = (props: any) => {
                         onClick={handleShowProjectModal} >
                         <i className="fa fa-edit text-light pe-1"></i>GitHub
                     </button>
+                        <span className="context-item border d-flex  align-items-center rounded-2 me-auto ms-1" style={{  backgroundColor: "#ded", whiteSpace: "nowrap", scale: "0.6" }}>
+                            <label className="ps-" style={{ backgroundColor: "#ded" }}>File:</label>
+                            <span className="px-1 ms-1" style={{ backgroundColor: "#efe"}}
+                                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                                title="This is the File name in the GitHub Repository"
+                            > {props.props.phFocus.focusProj.file}</span>
+                        </span>
                     {/* <button className="btn btn-sm menu-button me-3">Reload</button> */}
                 </div>
                 {/* modal for open file */}

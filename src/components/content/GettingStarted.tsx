@@ -2,7 +2,7 @@ import { Card, CardBody, CardHeader, CardText, CardTitle } from "reactstrap";
 
 const GettingStarted = () => {
     return (
-        <div>
+        <div className="" style={{width: "400px"}}>
             <Card className="card"
                 style={{
                 background: "rgba(255,255,255,0.4)",
@@ -16,30 +16,29 @@ const GettingStarted = () => {
                 padding: "0px"
                 }}
             >
-                <CardHeader className="card-header ">Getting started with AKM Modeller:</CardHeader>
-                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.6)"}}>
-                <CardTitle className="card-title-bold">To get started !</CardTitle>
-                <CardText className="card-text"> 
-                    <strong>Select Modelling in the top menu </strong><br />
-                    (An initial empty model is loaded)
-                </CardText>
-                <CardTitle className="card-title-bold">Start modelling:</CardTitle>
-                <CardText className="card-text"> 
-                    Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
-                    We recommend to start with a container and then drop objects into the container. You can resize the container by draging the corners.
-                </CardText>
-                <CardTitle className="card-title-bold">Save your model:</CardTitle>
-                <CardText className="card-text"> 
-                    You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
-                    <br /> Then click on the blue "Save Project (all) to File" button and the model project is saved to a json modelfile (in the Download folder). 
-                </CardText>
-                <CardTitle className="card-title-bold">Share you model on GitHub:</CardTitle>
-                <CardText className="card-text"> 
-                    You can also push the Project jsonfile to a GitHub repository to share with others.
-                </CardText>
+                <CardHeader className="card-header">Getting started</CardHeader>
+                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.2)"}}>
+                    <CardTitle className="card-title-bold nobreak" style={{whiteSpace: "nowrap"}}>Select Video tab in the top menu </CardTitle>
+                    <CardText className="card-text"> 
+                        Here you find instruction videos on how to use the AKM Modelling App.
+                    </CardText>
+                    {/* <CardTitle className="card-title-bold">Start modelling:</CardTitle>
+                    <CardText className="card-text"> 
+                        Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
+                        We recommend to start with a container and then drop objects into the container. You can resize the container by draging the corners.
+                    </CardText>
+                    <CardTitle className="card-title-bold">Save your model:</CardTitle>
+                    <CardText className="card-text"> 
+                        You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
+                        <br /> Then click on the blue "Save Project (all) to File" button and the model project is saved to a json modelfile (in the Download folder). 
+                    </CardText>
+                    <CardTitle className="card-title-bold">Share you model on GitHub:</CardTitle>
+                    <CardText className="card-text"> 
+                        You can also push the Project jsonfile to a GitHub repository to share with others.
+                    </CardText> */}
                 </CardBody>
             </Card>
-            <Card className="card "
+            <Card className="card mt-2"
                 style={{
                 background: "rgba(255,255,255,0.4)",
                 borderRadius: "10px",
@@ -47,13 +46,13 @@ const GettingStarted = () => {
                 position: "relative",
                 backdropFilter: "blur(5px)",
                 WebkitBackdropFilter: "blur(5px)",
-                // display: "block",
-                // margin: "0 auto",
-                padding: "2px"
+                display: "block",
+                margin: "0 auto",
+                padding: "0px"
                 }}
             >
-                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
-                <CardHeader className="card-header">Terminology!</CardHeader>
+                <CardHeader className="card-header" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>Terminology!</CardHeader>
+                <CardBody className="card-body">
                 <CardTitle className="card-title-bold" >IRTV</CardTitle>
                 <CardText className="card-text "> 
                     <strong> IRTV (Information, Role, Task, View)</strong>

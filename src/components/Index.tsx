@@ -69,9 +69,18 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
              <CardBody className="card-body" >
-              <CardTitle className="card-title-bold" >Release 2024.02.19</CardTitle>
+              <CardTitle className="card-title-bold" >Release Alfa: 2024.02.19</CardTitle>
               <CardText >
-                    &bull; Bugfixes!<br />
+                    &bull; New top Project menubar<br />
+                    All project related functions are now in the Project menubar. <br />
+                    &bull; New videos in the Video top menu<br />
+              </CardText>
+            </CardBody>
+             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Beta: 2024.02.19</CardTitle>
+              <CardTitle className="card-title-bold" >Release Final: 2024.02.19</CardTitle>
+              <CardText >
+                    &bull; Updated!<br />
               </CardText>
             </CardBody>
              <CardBody className="card-body" >

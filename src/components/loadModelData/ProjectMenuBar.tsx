@@ -108,16 +108,19 @@ export const ProjectMenuBar = (props: any) => {
     const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />;
         
     const menuArrowText =
-        <div className="flex-column">
+        <div className="d-flex flex-column ms-auto me-0 pt-1" // Lifted the menuArrowText by changing pt-0 to pt-1
+            style={{  position: "relative", top: "-18px", right: "-40px", height: "3px", transform: "scale(0.6)", transition: "height 1s ease-in-out"  }} //,  maxWidth: "100px", lineHeight: "0.9" }}
+            // style={{ position: "fixed", top: "0", rig\ht: "0", height: "3px", transform: "scale(0.6)", transition: "height 1s ease-in-out"  }} //,  maxWidth: "100px", lineHeight: "0.9" }}
+        >
             <div className="d-flex justify-content-end align-items-center me-0 my-0 pt-0" 
-                style={{ height: "2px", transform: "scale(0.6)", transition: "height 1s ease-in-out" }} //,  maxWidth: "100px", lineHeight: "0.9" }}
                 onClick={() => setExpanded(false)}
             >
-                <i className="fa fa-arrow-up fa-sm pt-1 me-1"></i>
+                <i className="fa fa-arrow-up fa-sm pt-0 me-1"></i>
                     ProjectMenubar
             </div>
-            <div className="context-item border d-flex justify-content-end align-items-center rounded-2 my-0" style={{  backgroundColor: "#ded", whiteSpace: "nowrap", scale: "0.6" }}>
-                <label className="ps-" style={{ backgroundColor: "#ded" }}>File:</label>
+            <div className="context-item border d-flex justify-content-end align-items-center rounded-2 my-0" 
+            >
+                <label className="ps-1" style={{ backgroundColor: "#ded", padding: "2px 4px" }}>File:</label>
                 <span className="px-1 ms-1" style={{ backgroundColor: "#efe"}}
                     data-toggle="tooltip" data-placement="top" data-bs-html="true"
                     title="This is the Project File name"
@@ -129,7 +132,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const menubarDiv =   (expanded) 
         ?   <>   
-                <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-0" 
+                <div className="project-menu-bar d-flex justify-content-end align-items-center px-1 pt-1 pb-1" 
                     style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
                     <div className="menu-buttons "
@@ -224,8 +227,28 @@ export const ProjectMenuBar = (props: any) => {
                     </button>
 
                     {/* <button className="btn btn-sm menu-button me-3">Reload</button> */}
+                    
                     {menuArrowText}
                 </div>
+
+            </>
+        :   <div className="d-flex justify-content-end align-items-center me-0 pt-0" 
+                style={{ position: "fixed", right: "0px", height: "7px", transform: "scale(0.6)", transition: "height 1s ease-in-out"}}
+                onClick={() => setExpanded(true)}
+            >
+                <i className="fa fa-arrow-left fa-sm pt-1"></i>ProjectMenubar
+            </div>
+
+
+
+    return (
+        <>
+            <div
+                className={`project-menu-bar ${expanded ? 'expanded' : ''}`}
+                style={{ backgroundColor: "#b0cfcf" }}
+            >
+                {menubarDiv}
+            </div>
                 <div className="modal fade" id="openFileModal" aria-labelledby="openFileModalLabel" aria-hidden="true">                {/* modal for open file */}
                     {/* <div className="modal fade" id="openFileModal" tabIndex="-1" aria-labelledby="openFileModalLabel" aria-hidden="true"> */}
                     <div className="modal-dialog modal-dialog-centered">
@@ -249,27 +272,6 @@ export const ProjectMenuBar = (props: any) => {
                     </div>
                 </div>
                 {projectModalDiv}
-                </div>
-            </>
-        :   <div className="d-flex justify-content-end align-items-center ms-auto me-0 pt-0" 
-                style={{ height: "2px", transform: "scale(0.6)", transition: "height 1s ease-in-out"}}
-                onClick={() => setExpanded(true)}
-            >
-                <i className="fa fa-arrow-left fa-sm pt-1"></i>ProjectMenubar
-            </div>
-
-
-
-    return (
-        <>
-            <div
-                className={`project-menu-bar d-flex justify-content-between align-items-center p-1 pb-2 ${expanded ? 'expanded' : ''}`}
-                style={{ backgroundColor: "#b0cfcf" }}
-                // onMouseEnter={handleExpandDiv}
-                // onMouseLeave={handleContractDiv}
-                // onClick={handleContractDiv}
-            >
-                {menubarDiv}
             </div>
         </>
     );

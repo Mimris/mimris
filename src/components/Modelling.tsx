@@ -84,7 +84,7 @@ const page = (props: any) => {
 
   let activetabindex: number = 0
 
-  const modelindex =  models.findIndex((m: any) => m?.id === focusModel.id)
+  const modelindex =  models.findIndex((m: any) => m?.id === focusModel?.id)
   // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -1
 
   const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
@@ -321,16 +321,21 @@ const page = (props: any) => {
     //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
     // }
 
-  const sortedmodels = (models) && models
+
+const sortedmodels = (models) && models
     .sort((a, b) => {
       if (a.name.startsWith('_') && !b.name.startsWith('_')) {
         return 1;
       } else if (!a.name.startsWith('_') && b.name.startsWith('_')) {
         return -1;
+      } else if (a.name.endsWith('_SM') && !b.name.endsWith('_SM')) {
+        return 1;
+      } else if (!a.name.endsWith('_SM') && b.name.endsWith('_SM')) {
+        return -1;
       } else {
         return a.name.localeCompare(b.name);
       }
-    }) 
+    })
    
   const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
 

@@ -38,7 +38,7 @@ const RegexParser = require("regex-parser");
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
-import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
+import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
@@ -1184,7 +1184,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const allowPorts = !noPorts;
               const n = obj.part.data;
               let objview = n.objectview;
-              objview = myMetis.findObjectView(objview.id);
+              objview = myMetis.findObjectView(objview?.id);
               objview.viewkind = 'Container';
               let template = n.template;
               switch (template) {
@@ -1311,12 +1311,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const goModel = myMetis.gojsModel;
               const objview = node?.objectview;
               if (!objview.isGroup) {
-                const noLevels = 9;
-                let reltypes = 'has';
-                reltypes = prompt('Enter relationship type to follow', reltypes);
-                const objectviews = [];
-                uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
-                uid.addToSelection(obj, myDiagram);
+                // const noLevels = 9;
+                // let reltypes = 'has';
+                // reltypes = prompt('Enter relationship type to follow', reltypes);
+                // const objectviews = [];
+                // uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
+                // uid.addToSelection(obj, myDiagram);
                 const mySelection = myDiagram.selection;
                 const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
               } else {
@@ -1324,8 +1324,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     uid.doGroupLayout(objview, myDiagram);
               }
             },
-            function (o: any) {
-              return true;
+            function (obj: any) {
+              let node = obj.part.data;
+              const objview = node?.objectview;
+              if (!objview.isGroup)
+                return true;
+              else
+                return false;
             }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
@@ -1442,11 +1447,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Select Connected Objects",
             function (e: any, obj: any) {
-              const node = obj.part.data;
+              let node = obj.part.data;
+              if (debug) console.log('1453 obj.part: ', obj.part.toString());
               uid.selectConnectedObjects(node, myMetis, myDiagram);
-              const gjsNode = myDiagram.findNodeForKey(node?.key)
-              gjsNode.isSelected = true;
-              uid.addToSelection(gjsNode, myDiagram);
           },
             function (o: any) {
               const node = o.part.data;
@@ -1685,6 +1688,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
+            }),
+          makeButton("Add to Selection",
+            function (e: any, obj: any) {
+              const link = obj.part.data ? obj.part.data : obj.part;
+              link.isSelected = true;
+              const relship = link.relship;
+              const relshipview = link.relshipview;
+            },
+            function (o: any) {
+                return false;
             }),
           makeButton("----------"),
           makeButton("TEST",
@@ -3104,7 +3117,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const node = it.value;
                   const data = node.data;
                   let objview = data.objectview;
-                  objview = myModelview.findObjectView(objview.id);
+                  objview = myModelview.findObjectView(objview?.id);
                   if (objview) {
                     objview.loc = data.loc;
                   }

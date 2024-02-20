@@ -95,8 +95,16 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
         <div className='d-flex flex-column justify-content-between border mx-2'>
           {/* <div>GitHub Repository:</div> */}
           <div className='d-flex justify-content-between mb-2'>
+            <label>Project:</label>
+            <input className='rounded bg-white px-1 border-light w-50'
+              type="text"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setFile(e.target.value+'_PR.json'); }}
+            /> 
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
             <label>Organisation:</label>
-            <input className='rounded bg-white px-1 w-50'
+            <input className='rounded bg-white px-1 border-light w-50'
               type="text"
               value={org}
               onChange={(e) => setOrg(e.target.value)}
@@ -104,7 +112,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
           </div>
           <div className='d-flex justify-content-between mb-2'>
             <label>Repo:</label>
-            <input className='rounded bg-white px-1 w-50'
+            <input className='rounded bg-white px-1 border-light w-50'
               type="text"
               value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
               onChange={(e) => setRepo(e.target.value)}
@@ -112,32 +120,32 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
           </div>
           <div className='d-flex justify-content-between mb-2'>
             <label>Path:</label>
-            <input className='rounded bg-white px-1 w-50'
+            <input className='rounded bg-white px-1 border-light w-50'
               type="text"
               value={path}
               onChange={(e) => setPath(e.target.value)}
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
-            <label>Proj. name / File:</label>
-            <input className='rounded bg-whit px-1 w-75'
-              type="text"
-              value={file}
-              onChange={(e) => {setFile(e.target.value); setName(e.target.value)}}
-            />
-          </div>
-          <div className='d-flex justify-content-between mb-2'>
             <label>Branch:</label>
-            <input className='rounded bg-white px-1 w-50'
+            <input className='rounded bg-white border-light px-1 w-50'
               type="text"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
             />
           </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Filename:</label>
+            <input className='rounded bg-light border-light px-1 w-50'
+              type="text"
+              value={file}
+              // onChange={(e) => {setFile(e.target.value)}}
+            />
+          </div>
           <hr />
           <div className='d-flex justify-content-between mb-2'>
             <label>Project Number (github):</label>
-            <input className='rounded bg-white px-1 w-50'
+            <input className='rounded bg-white px-1 border-light w-50'
               type="text"
               value={projectNumber}
               onChange={(e) => setProjectNumber(e.target.value)}

@@ -202,7 +202,7 @@ const page = (props: any) => {
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( // the top context area (green)
-    <div className="" style={{ backgroundColor: "#acc" }}>
+    <div className="" style={{ backgroundColor: "#acc", whiteSpace: "wrap" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
       <ContextView ph={props} showModal={showModal} setShowModal={setShowModal} />
     </div>
@@ -219,13 +219,13 @@ const page = (props: any) => {
             </div> */}
             <ProjectMenuBar props={props} />
             <div className="context-bar d-flex justify-content-between align-items-center"  style={{  backgroundColor: "#cdd" }}>
-              <div className="issuesarea" style={{ minWidth: "96px" }}>
+              <div className="issuesarea">
                 <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
               </div>
-              <div className="contextarea ms-5 w-100">
+              <div className="contextarea">
                 {contextDiv}
               </div>
-              <div className="tasksarea mr-1 bg-transparent" style={{ minWidth: "110px",backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+              <div className="tasksarea mr-1 bg-transparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
               </div>
             </div>

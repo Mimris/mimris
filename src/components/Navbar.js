@@ -87,11 +87,10 @@ const Navbar = (props) => {
 	];
 
 	return (
-		<nav className="navbar navbar-expand-sm"
-			style={(domainName === "localhost")
-				? { backgroundColor: "#efe" }
-				: { backgroundColor: " #efefef" }
-			}>
+		<nav className="navbar navbar-expand-lg navbar-toggler navbar-expand-sm" style={(domainName === "localhost") ? { backgroundColor: "#efe" } : { backgroundColor: " #efefef" }}>
+
+
+				
 			<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
 				<Link className="navbar-brand navbar-left mx-2" href="#">
 					<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />

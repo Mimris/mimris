@@ -108,22 +108,33 @@ export const ProjectMenuBar = (props: any) => {
     const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />;
         
     const menuArrowText =
-        <div className="d-flex justify-content-end align-items-center me-2 pt-0" 
-            style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }} //,  maxWidth: "100px", lineHeight: "0.9" }}
-            onClick={() => setExpanded(false)}
-        >
-            <i className="fa fa-arrow-up fa-sm pt-1 me-1"></i>
-                Project menubar
-        </div>;
+        <div className="flex-column">
+            <div className="d-flex justify-content-end align-items-center me-0 my-0 pt-0" 
+                style={{ height: "2px", transform: "scale(0.6)", transition: "height 1s ease-in-out" }} //,  maxWidth: "100px", lineHeight: "0.9" }}
+                onClick={() => setExpanded(false)}
+            >
+                <i className="fa fa-arrow-up fa-sm pt-1 me-1"></i>
+                    ProjectMenubar
+            </div>
+            <div className="context-item border d-flex justify-content-end align-items-center rounded-2 my-0" style={{  backgroundColor: "#ded", whiteSpace: "nowrap", scale: "0.6" }}>
+                <label className="ps-" style={{ backgroundColor: "#ded" }}>File:</label>
+                <span className="px-1 ms-1" style={{ backgroundColor: "#efe"}}
+                    data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                    title="This is the Project File name"
+                > {props.props.phFocus.focusProj.file}</span>
+            </div>
+        </div>
 
 
 
     const menubarDiv =   (expanded) 
         ?   <>   
                 <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-0" 
-                    style={{ height: "26px", backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
+                    style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
-                    <div className="menu-buttons ">
+                    <div className="menu-buttons "
+                        style={{  minWidth: "300px", whiteSpace: "nowrap"}}
+                    >
                         <span className="ms-0">{loadGitHub}</span>
                         <span className="ms-1">{loadNewModelProject}</span>
                         {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
@@ -147,13 +158,14 @@ export const ProjectMenuBar = (props: any) => {
                             }}
                         />
                         <button className="btn btn-sm rounded bg-light text-dark px-1 my-0 py-0 pe-2 ps- me-1" 
+                            style={{  backgroundColor: "#ded", whiteSpace: "normal"  }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
                             title="Click here to Save the Project file to the local file system"
                             onClick={handleSaveAllToFile}><i className="fa fa-save"></i> Save
                         </button>
                     </div>
-                    <div className="menu-buttons d-flex justify-content-between align-items-center ms-2">
-                        <span className="context-item border rounded-2 " style={{  backgroundColor: "#ded",whiteSpace: "nowrap"  }}
+                    <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center ms-2">
+                        <span className="context-item border rounded-2 " style={{  backgroundColor: "#ded" }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
                             title="Project Number in the GitHub Repository"
                         >
@@ -210,17 +222,11 @@ export const ProjectMenuBar = (props: any) => {
                         onClick={handleShowProjectModal} >
                         <i className="fa fa-edit text-light pe-1"></i>GitHub
                     </button>
-                        <span className="context-item border d-flex  align-items-center rounded-2 me-auto ms-1" style={{  backgroundColor: "#ded", whiteSpace: "nowrap", scale: "0.6" }}>
-                            <label className="ps-" style={{ backgroundColor: "#ded" }}>File:</label>
-                            <span className="px-1 ms-1" style={{ backgroundColor: "#efe"}}
-                                data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                                title="This is the File name in the GitHub Repository"
-                            > {props.props.phFocus.focusProj.file}</span>
-                        </span>
+
                     {/* <button className="btn btn-sm menu-button me-3">Reload</button> */}
+                    {menuArrowText}
                 </div>
-                {/* modal for open file */}
-                <div className="modal fade" id="openFileModal" aria-labelledby="openFileModalLabel" aria-hidden="true">
+                <div className="modal fade" id="openFileModal" aria-labelledby="openFileModalLabel" aria-hidden="true">                {/* modal for open file */}
                     {/* <div className="modal fade" id="openFileModal" tabIndex="-1" aria-labelledby="openFileModalLabel" aria-hidden="true"> */}
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
@@ -242,15 +248,14 @@ export const ProjectMenuBar = (props: any) => {
                         </div>
                     </div>
                 </div>
-                </div>
                 {projectModalDiv}
-                {menuArrowText}
+                </div>
             </>
-        :   <div className="d-flex justify-content-end align-items-center ms-auto me-2 pt-0" 
-                style={{ height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+        :   <div className="d-flex justify-content-end align-items-center ms-auto me-0 pt-0" 
+                style={{ height: "2px", transform: "scale(0.6)", transition: "height 1s ease-in-out"}}
                 onClick={() => setExpanded(true)}
             >
-                <i className="fa fa-arrow-left fa-sm pt-1"></i>Project menubar
+                <i className="fa fa-arrow-left fa-sm pt-1"></i>ProjectMenubar
             </div>
 
 

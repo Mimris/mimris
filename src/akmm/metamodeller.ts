@@ -9068,6 +9068,43 @@ export class cxModelView extends cxMetaObject {
     }
 }
 
+export class cxCollectionOfViews {
+    modelview: cxModelView;
+    objectviews: cxObjectView[] | null;
+    relshipviews: cxRelationshipView[] | null;
+    constructor(modelview: cxModelView) {
+        this.modelview = modelview;
+        this.objectviews = modelview.objectviews;
+        this.relshipviews = modelview.relshipviews;
+    }
+    addObjectView(objview: cxObjectView) {
+        if (!this.objectviews)
+            this.objectviews = new Array();
+        const len = this.objectviews.length;
+        for (let i = 0; i < len; i++) {
+            const ov = this.objectviews[i];
+            if (ov.id === objview.id) {
+                // Object view is already in list
+                return;
+            }
+        }
+        this.objectviews.push(objview);
+    }
+    addRelshipView(relview: cxRelationshipView) {
+        if (!this.relshipviews)
+            this.relshipviews = new Array();
+        const len = this.relshipviews.length;
+        for (let i = 0; i < len; i++) {
+            const rv = this.relshipviews[i];
+            if (rv.id === relview.id) {
+                // Relship view is already in list
+                return;
+            }
+        }
+        this.relshipviews.push(relview);
+    }
+}
+
 export class cxObjectView extends cxMetaObject {
     modelview: cxModelView | null;
     category: string;

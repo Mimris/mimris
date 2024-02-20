@@ -43,22 +43,24 @@ const page = (props) => {
 
   return (
     <div className="workpad p-0" >
-      <div className="homepage row pt-2 pr-0">
-        <div className="col p-0 pt-2">
+      <div className="homepage row pt-3 pr-0">
+        <div className="col p-0 pt-0">
           <GettingStarted />
         </div>
         <div className="col"> {/* releasenotes */}
-          <Card className="card" body outline  
-          style={{
-            background: "rgba(255,255,255,0.4)",
-            borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.4)",
-            backdropFilter: "blur(5px)",
-            WebkitBackdropFilter: "blur(5px)",
-          }}
-          // style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
-          // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
-        >
+         <Card className="card"
+                style={{
+                background: "rgba(255,255,255,0.4)",
+                borderRadius: "10px",
+                border: "1px solid rgba(255,255,255,0.2)",
+                position: "relative",
+                backdropFilter: "blur(5px)",
+                WebkitBackdropFilter: "blur(5px)",
+                display: "block",
+                margin: "0 auto",
+                padding: "0px"
+                }}
+            >
             <CardHeader className="card-header " >AKMM release log ... </CardHeader>
             {/* <CardBody className="card-body" >  
               <CardTitle className="card-title-bold" >Backlog ...</CardTitle>

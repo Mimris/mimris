@@ -202,7 +202,7 @@ const page = (props: any) => {
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( // the top context area (green)
-    <div className="" style={{ backgroundColor: "#acc", whiteSpace: "wrap" }}>
+    <div className="" style={{ backgroundColor: "#acc" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
       <ContextView ph={props} showModal={showModal} setShowModal={setShowModal} />
     </div>

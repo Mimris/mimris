@@ -495,14 +495,6 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       let reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (!reltype) {
-        reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-        if (!reltype) {
-          alert("Relationship type given does not exist!")
-          myDiagram.model.removeLinkData(data);
-          return;
-        }
-      }
       if (reltype) {
         let reltypeview = reltype.typeview;
         if (reltypeview) {

@@ -4760,12 +4760,10 @@ export class cxMetaModel extends cxMetaObject {
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE &&
                         toType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
-                        continue;
                     } else
                         continue;
                 }
                 if (fromType.inherits(fromObjType) && toType.inherits(toObjType)) {
-                    // if (fromObjType.id === toObjType.id) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE ||
                         fromObjType.name === constants.types.AKM_GENERIC) {
                             if (includeGen)

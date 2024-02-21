@@ -1237,7 +1237,7 @@ export function createRelationship(data: any, context: any) {
     }
     if (fromType && toType) {
         const appliesToLabel = fromType.name === constants.types.AKM_LABEL;            
-        let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : constants.types.AKM_GENERIC_REL;
+        let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : "";
         let includeInherited = false;
         if (myModelview.includeInheritedReltypes) {
             includeInherited = true;
@@ -1305,15 +1305,13 @@ export function createRelationship(data: any, context: any) {
 
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myDiagram = args.context.myDiagram;
-    const myGoModel = args.context.myGoModel;
-    const myMetis   = args.context.myMetis; 
-    const myMetamodel = args.metamodel;
-    const myModel  = args.context.myModel;
-    const myModelview = myMetis.currentModelview;
+    const myGoModel: gjs.goModel = args.context.myGoModel;
+    const myMetis: akm.cxMetis = args.context.myMetis; 
+    const myMetamodel: akm.cxMetaModel = args.metamodel;
+    const myModel: akm.cxModel  = args.context.myModel;
+    const myModelview: akm.cxModelView = myMetis.currentModelview;
     let data       = args.data;
     const typename = args.typename;
-    const fromType = args.fromType;
-    const toType   = args.toType;
     const nodeFrom = args.nodeFrom;
     const objFrom  = nodeFrom.data.object;
     const portFrom = args.fromPort;
@@ -1321,11 +1319,21 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const objTo    = nodeTo.data.object;
     const portTo   = args.toPort;
     const context  = args.context;
-    const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-    let reltype    = data.relshiptype;
-    reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+    let fromType: akm.cxObjectType = args.fromType;
+    let toType: akm.cxObjectType   = args.toType;
+    fromType = myMetamodel.findObjectType(fromType?.id);
+    toType   = myMetamodel.findObjectType(toType?.id);
+    let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
+    let reltype: akm.cxRelationshipType = null;
+    for (let i=0; i<reltypes.length; i++) {
+        let rtype = reltypes[i];
+        if (rtype.name === typename) {
+            reltype = rtype;
+            break;
+        }
+    }
     if (!reltype) {
-        alert("Relationship type given does not exist! 1")
+        alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }

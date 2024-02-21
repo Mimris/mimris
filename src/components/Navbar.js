@@ -57,7 +57,8 @@ const Navbar = (props) => {
 		} else if (domainName === "akmmclient-beta.vercel.app") {
 			setVersion("beta");
 		} else if (domainName === "akmmclient-alfa.vercel.app") {
-			setVersion("alfa");
+		// } else if (domainName === "akmmclient-alpha.vercel.app") { // Change to alpha when alpha is ready
+			setVersion("alpha");
 		}
 
 	}, [domainName]);
@@ -75,7 +76,7 @@ const Navbar = (props) => {
 		},
 		{
 			label: 'Alfa version',
-			href: 'https://akmmclient-alfa.vercel.app/modelling',
+			href: 'https://akmmclient-alfa.vercel.app/modelling', // Change to alpha when alpha is ready
 			active: domainName === 'akmmclient-alfa.vercel.app',
 		},
 		// {

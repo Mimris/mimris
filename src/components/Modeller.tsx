@@ -684,18 +684,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     (props.modelType === 'model')
       ? // modelling
       <div className="modeller-workarea w-100" >
-        {/* <div className="d-flex ">
-          <span className="text-dark fw-bold ms-3 fs-4" style={{ minWidth: "15%" }} > Modeller </span>
-          <div className="modeller--topbar d-flex justify-content-between mt-0 p-0 ms-auto me-2">
-            <div className="d-flex justify-content-around align-items-center me-0"> */}
-              {/* <div className="modeller--heading-selector">{selector}</div> */}
-              {/* <span className="btn px- py-0 mt-0 pt-1 bg-light text-secondary" 
-                style={{scale: "0.8"}} onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > 
-                {refresh ? 'save2memory' : 'save2memory'} 
-              </span> */}
-            {/* </div>
-          </div>
-        </div> */}
         <div className="modeller--workarea-objects m-1" >
           {modelviewTabDiv}
         </div>
@@ -718,11 +706,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <div className="modeller--topbar  mt-1 p-0">
           <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
           <div className="">
-            {/* <div className="modeller--heading-selector d-flex justify-content-between me-4" 
-              title="Modeller heading area" > 
-              <span className="mt-1 ms-2 px-2 " style={{ backgroundColor: '#bcd' }} >Metamodel : {mmodel.name}</span> 
-              {selector}
-            </div> */}
           </div>
           <div>
             {metamodelTabDiv}

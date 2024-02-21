@@ -72,7 +72,15 @@ const Issues = (props) => {
         handleMinimize();
       }
     };
-
+    setOrg(props.props.phFocus.focusProj?.org);
+    setRepo(props.props.phFocus.focusProj?.repo);
+    setPath(props.props.phFocus.focusProj?.path);
+    setFile(props.props.phFocus.focusProj?.file);
+    setBranch(props.props.phFocus.focusProj?.branch);
+    setFocus(props.props.phFocus.focusProj?.focus);
+    setGhtype(props.props.phFocus.focusProj?.ghtype);
+    setProjectNumber(props.props.phFocus.focusProj?.projectNumber);
+    
     issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
     issueUrlDone = `https://api.github.com/repos/${org}/${repo}/issues?state=closed`   
     collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`

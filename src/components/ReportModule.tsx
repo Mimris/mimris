@@ -39,7 +39,9 @@ const ReportModule = (props) => {
             onClick={props.handleVisibleContext}><span>-&gt; </span> 
           </button> */}
           <>
-          <Tabs onSelect={index => setActiveTab(index)} >
+          <Tabs onSelect={index => setActiveTab(index)} 
+            style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none'}}
+          >
             <TabList style={{ margin: '0px' }}>
               <Tab>Focus Object</Tab>
               <Tab >MarkDown</Tab>
@@ -74,30 +76,21 @@ const ReportModule = (props) => {
 
   const reportDiv = 
     <>
-      {visibleTabsDiv ?
+      {visibleTabsDiv 
+      ?
           <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-            style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none' }}>
+            style={{  height: '78vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>
-
         : <div className="border border-dark bg-transparent" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
       }
     </>
 
   return (
-    // (props.reportType === 'task') ? // task modal
-    // <div style={{ backgroundColor: '#faa' }}>
-      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+      <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}
       </div>
-    // </div>
-    // :
-    // <div >
-      // <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-      //   {reportDiv}
-      // </div>
-    // </div>
   )
 }
 export default ReportModule  

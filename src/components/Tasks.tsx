@@ -165,7 +165,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     detailsElements.forEach((detailsElement, index) => {
       const summaryElement = detailsElement.querySelector("summary");
       if (summaryElement) {
-        if (index === 1) {
+        if (index === 1 && !detailsElement.hasAttribute("open")) {
           detailsElement.setAttribute("open", "");
         } else {
           detailsElement.removeAttribute("open");
@@ -175,6 +175,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   };
 
   const handleClick = (task: { id: any; name: any; }, role: { id: any; name: any; }) => {
+    if (!debug) console.log('178 handleClick', task, role);
     if (task) {
       dispatch({
         type: "SET_FOCUS_TASK",
@@ -217,18 +218,24 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         >
           <i className="fa fa-tasks mt-1 ms-2" aria-hidden="true"></i>
           <span className="ms-2">{task?.name}</span>
-          <span className="d-flex my-0 ms-auto me-0 align-items-center justify-items-center">
+          <span className="d-flex my-0 ms-auto me-0 align-items-center justify-items-center"
+            style={{ minWidth: "100px", whiteSpace: "nowrap"}}
+          >
             <button 
-              className="btn bg-light text-success mx-0 p-1 pt-0 fs-5"
-              onClick={handleClick}
+              className="btn bg-light text-success mx-0 p-1 pt-0 fs-5 ms-auto"
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Set this task as focus!"
+              onClick={handleClick.bind(this, task, null)}
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "5px",
                 backgroundColor: "#fff",
                 transform: "scale(0.7)",
               }}
-            >
-              {/* <i className="fa fa-lg fa-check"></i>   */}
+            >Focus
+              {/* <i className={`fa fa-sm fa-bullseye`}></i>   */}
             </button>
           </span>
         </summary>

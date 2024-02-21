@@ -11,7 +11,7 @@ import { get } from 'http';
 import { core } from './constants';
 const constants = require('./constants');
 const printf = require('printf');
-const grabIsAllowed = true;
+const grabIsAllowed = false;
 
 // functions to handle nodes
 export function createObject(data: any, context: any): akm.cxObjectView | null {
@@ -1245,17 +1245,18 @@ export function createRelationship(data: any, context: any) {
         let reltypes = [];
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-        } 
-        const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);        
-        for (let i=0; i<rtypes.length; i++) {
-            const rtype = rtypes[i];
-            if (rtype.name === 'generic') {
-                reltypes.push(rtype);
+        } else {
+            const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+            for (let i=0; i<rtypes.length; i++) {
+                const rtype = rtypes[i];
+                if (rtype.name === 'generic') {
+                    reltypes.push(rtype);
+                }
+                if (rtype.name === 'refersTo') {
+                    reltypes.push(rtype);
+                }
             }
-            if (rtype.name === 'refersTo') {
-                reltypes.push(rtype);
-            }
-        }        
+        }
         if (reltypes) {
             const choices1: string[] = [];
             if (defText.length > 0) choices1.push(defText);
@@ -1733,9 +1734,9 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
             relview.arrowscale = "1.3";
         const typeview = relview.typeview;
         if (typeview) {
-            const typeviewdata = typeview.data;
-            for (let prop in typeviewdata) {
-                if (relview[prop] === typeviewdata[prop]) {
+            const viewdata = typeview.data;
+            for (let prop in viewdata) {
+                if (relview[prop] === viewdata[prop]) {
                     relview[prop] = "";
                 }
             }
@@ -1895,9 +1896,9 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         let fromObjview = null;
         for (let i=0; i<fromObjviews?.length; i++) {
           const oview = fromObjviews[i];
-          const mdlviews = modelview.objectviews;
-          for (let j=0; j<mdlviews?.length; j++) {
-            if (mdlviews[j].id === oview.id) {
+          const moviews = modelview.objectviews;
+          for (let j=0; j<moviews?.length; j++) {
+            if (moviews[j].id === oview.id) {
               fromObjview = oview;;
               break;
             }
@@ -1906,9 +1907,9 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         let toObjview = null;
         for (let i=0; i<toObjviews?.length; i++) {
           const oview = toObjviews[i];
-          const mdlviews = modelview.objectviews;
-          for (let j=0; j<mdlviews.length; j++) {
-            if (mdlviews[j].id === oview.id) {
+          const moviews = modelview.objectviews;
+          for (let j=0; j<moviews.length; j++) {
+            if (moviews[j].id === oview.id) {
               toObjview = oview;;
               break;
             }
@@ -2433,6 +2434,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'fromobjectRef') retVal = false;
     if (k === 'fromObjview') retVal = false;
     if (k === 'fromObjviewRef') retVal = false;
+    if (k === 'fs_collection') retVal = false;
     if (k === 'generatedTypeId') retVal = false;
     if (k === 'group') retVal = false;
     if (k === 'groupLayout') retVal = false;
@@ -4040,8 +4042,8 @@ export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
       }
       if (object.strokecolor) {
         strokecolor = object.strokecolor;
-      } else if (objview.strokecolor1) {
-        strokecolor = objview.strokecolor1;
+      } else if (objview.strokecolor2) {
+        strokecolor = objview.strokecolor2;
       } else if (typeview?.strokecolor) {
         strokecolor = typeview.strokecolor;
       }

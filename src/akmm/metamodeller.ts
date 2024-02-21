@@ -366,6 +366,7 @@ export class cxMetis {
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item = items[i];
+                            if (item.name === 'today') continue
                             if (includeDeleted || !item.markedAsDeleted) {
                                 const dtype = new cxDatatype(item.id, item.name, item.description);
                                 if (dtype.name === 'time') dtype.fieldType = 'time';

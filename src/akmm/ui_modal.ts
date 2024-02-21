@@ -363,7 +363,11 @@ export function handleSelectDropdownChange(selected, context) {
     case "Set Target Metamodel":   
     case "Generate Target Metamodel": {
       const metamodelName = (selectedOption) && selectedOption;
-      const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+      let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+      if (!targetMetamodel) {
+        targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
+        myMetis.addMetamodel(targetMetamodel);
+      }
       // myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
       let mmdata = new jsn.jsnModel(myMetis.currentModel, true);

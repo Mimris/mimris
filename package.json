@@ -66,6 +66,7 @@
     "next": "^13.5.3",
     "next-redux-wrapper": "6.0.2",
     "next-remove-imports": "^1.0.10",
+    "npm": "^10.4.0",
     "phoenix": "^1.5.7",
     "printf": "^0.6.0",
     "promise-polyfill": "8.1.3",

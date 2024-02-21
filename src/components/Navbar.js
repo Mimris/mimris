@@ -88,7 +88,7 @@ const Navbar = (props) => {
 	return (
 		<nav className="navbar navbar-expand-sm navbar-toggler" style={(domainName === "localhost") ? { backgroundColor: "#efe" } : { backgroundColor: " #efefef" }}>				
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
-				<div className="navbar-na d-flex justify-content-center align-items-center m-0 p-0">
+				<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
 					<Link className="navbar-brand navbar-left mx-2" href="#">
 						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 					</Link>
@@ -144,7 +144,7 @@ const Navbar = (props) => {
 						</li> */}
 				</ul>
 				{/* </div> */}
-				<div className="navbar-na mx-2 pe-4 ms-auto" style={{ borderRadius: "6px" }}>
+				<div className="navbar-nav ms-auto me-4" style={{ borderRadius: "6px" }}>
 					<span className="username d-flex justify-content-start align-items-center">
 						<FaUser color={(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
 					</span>
@@ -152,7 +152,7 @@ const Navbar = (props) => {
 						{(props.user?.name !== 'User' && props.user?.name !== 'No GitHub User identified') ? props.user?.name : "Guest"}
 					</span>
 				</div>
-				<div className="navbar-na ms-auto">
+				<div className="navbar-nav">
 					<Link className="navbar-brand navbar-right p-1 mt-0 ms-auto" href="http://www.kavca.no" target="_blank">
 						<div className="d-flex justify-content-center align-items-baseline">
 							<img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />

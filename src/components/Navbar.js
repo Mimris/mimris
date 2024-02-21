@@ -95,7 +95,7 @@ const Navbar = (props) => {
 					</Link>
 					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
 					<div className="mx-4 d-flex justify-content-between align-items-center">
-						<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap"}} >ver. {version}</span>
+						<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8"}} >ver. {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />
 					</div>
 				</div>

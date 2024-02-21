@@ -81,7 +81,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     setShowModal(true);
   };
 
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () => { setShowModal(false); setMinimized(false); };
 
   const [formValues, setFormValues] = useState({});
 
@@ -290,8 +290,14 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         <div className="tasklist p-1 mt-2 me-2"
           style={{  backgroundColor: "lightyellow", position: "fixed",   top: "96px",right: "0%",  width: "400px",  height: "72vh",  zIndex: "999"}}
           // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
-          ref={containerRef}
+            ref={containerRef}
           >
+            <button
+            className="btn btn-sm bg-light text-dark float-end"
+            onClick={setMinimized}
+            >
+            X
+            </button>
           <div className="fle-d">
             <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
             <div>
@@ -365,7 +371,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         className="btn btn-sm bg-transparent text-success ms-0 py-0 me-2 float-end"
         onClick={() => setMinimized(false)}
       >
-        <span className="fs-6">Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
+        <span className="fs-6" style={{ whiteSpace: "nowrap"}}>Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
       </button>
     );
   } else {
@@ -373,6 +379,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
       <>
         <button 
           className="btn btn-sm text-success px-1 py-0 bg-light float-end me-3" 
+          style={{ whiteSpace: "nowrap" }}
           data-toggle="tooltip" data-placement="top" data-bs-html="true"
           title="Close Task pane!"
           onClick={() => setMinimized(true) }
@@ -385,7 +392,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               // style={{ position: "fixed", top: "72px", right: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
             > 
           {genTasksHeaderDiv}
-          {modalDiv}
+          {/* {modalDiv} */}
         </div>
         <style jsx>{`
             .tasklist {

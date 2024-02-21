@@ -72,7 +72,15 @@ const Issues = (props) => {
         handleMinimize();
       }
     };
-
+    setOrg(props.props.phFocus.focusProj?.org);
+    setRepo(props.props.phFocus.focusProj?.repo);
+    setPath(props.props.phFocus.focusProj?.path);
+    setFile(props.props.phFocus.focusProj?.file);
+    setBranch(props.props.phFocus.focusProj?.branch);
+    setFocus(props.props.phFocus.focusProj?.focus);
+    setGhtype(props.props.phFocus.focusProj?.ghtype);
+    setProjectNumber(props.props.phFocus.focusProj?.projectNumber);
+    
     issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
     issueUrlDone = `https://api.github.com/repos/${org}/${repo}/issues?state=closed`   
     collabUrl = `https://api.github.com/repos/${org}/${repo}/collaborators`
@@ -185,7 +193,7 @@ const Issues = (props) => {
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="bg-transparent"  style={{ overflowY: 'scroll', maxHeight: '80vh' }}>
+      <Modal.Body className="bg-transparent"  style={{ overflowY: 'scroll', maxHeight: '72vh' }}>
         <div className='bg-light p-2 m-0'>
           {(issues.length > 0) 
             ? issues?.find((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
@@ -260,6 +268,7 @@ const Issues = (props) => {
       <div className=" " >
           <div 
               className="buttons mt-1 ms-1" 
+              style={{ minWidth: "106px", whiteSpace: "nowrap" }} 
               // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
           >
               <button
@@ -279,7 +288,7 @@ const Issues = (props) => {
   } else  {
     return (
       <>
-        <div  className="buttons bg-transparent mt-1 ms-1" style={{ minWidth: "106px" }} >
+        <div  className="buttons bg-transparent mt-1 ms-1" style={{ minWidth: "106px", whiteSpace: "nowrap" }} >
           <button
               className="btn bg-transparent text-success m-0 p-1"
               data-toggle="tooltip"
@@ -293,10 +302,16 @@ const Issues = (props) => {
         </div>
         <div className="issues p-1 mt-1" 
             // ref={containerRef}
-            style={{ position: "fixed", top: "96px", left: "0",  width: "400px",  height: "72vh",  zIndex: "9999" }}
+            style={{ position: "fixed", top: "156px", left: "0",  width: "400px",  height: "82vh",  zIndex: "9999" }}
           >    
           <hr className="m-1"/>
           <div className="issues-list side-panel bg-light border border-success">
+            <button
+              className="btn btn-sm bg-light text-dark float-end"
+              onClick={() => setMinimized(true)}
+            >
+              X
+            </button>
               <div className="ps-2 font-weight-bold fs-4" >Issues: 
                 <span>
                   {/* {(repo) && <Link className='text-primary ms-4 fs-6' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>} */}
@@ -331,11 +346,8 @@ const Issues = (props) => {
                 </div>
               <div className="font-weight-bold p-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}</div>
             </div>
-            {/* Listing GitHub Issues */}
-            {/* make a button for fetching Issues */}
-              <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "68vh"}}>
+              <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "48vh"}}>
                 <hr className="m-0"/> 
-                {/* <details className='text-muted fs-6 p-2'><summary>GitHub Open Issues:</summary> */}
                 <div>GitHub Open Issues:</div>
                 {(issues.length > 0) && issues.map((issue) => (
                     <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
@@ -360,11 +372,9 @@ const Issues = (props) => {
                       <div className='text-muted'>{issue.user.name}</div>
                     </div>
                     <h6>{issue.title}</h6>
-                    {/* <p className='text-secondary m-2'>{issue.body}</p> */}
                     <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
                     </div>
                 ))}
-                {/* </details> */}
             </div>
             <hr className="m-4 p-4" />
             <div className='p-2 m-1'> {/*link to Issues */}

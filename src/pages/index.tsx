@@ -112,16 +112,16 @@ const page = (props: any) => {
               </div> */}
             </div>
             <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
-              <div className="col-6 m-3 mx-0 p-0 border rounded">
-                <div className="text-center bg-light">
-                  GitHub:  README.md
-                {iframe}
-               </div>
+              <div className="col-5 m-3 mx-0 ms-2 p-0 border rounded">
+                  <div className="text-center bg-light">
+                    GitHub:  README.md
+                  {iframe}
+                </div>
               </div>
               {/* <div className="tasksarea">
                 <TasksHelp />
               </div> */}
-              <div className="workarea col-6">
+              <div className="workarea col-7">
                   {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>
             </div>

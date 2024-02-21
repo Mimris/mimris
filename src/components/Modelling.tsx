@@ -82,15 +82,33 @@ const page = (props: any) => {
   const metis = ph.phData?.metis
   const models = metis?.models || []
 
-  let activetabindex: number = 0
+  const sortedmodels = (models) && models
+    .sort((a, b) => {
+      if (a.name.startsWith('_') && !b.name.startsWith('_')) {
+        return 1;
+      } else if (!a.name.startsWith('_') && b.name.startsWith('_')) {
+        return -1;
+      } else if (a.name.endsWith('_SM') && !b.name.endsWith('_SM')) {
+        return 1;
+      } else if (!a.name.endsWith('_SM') && b.name.endsWith('_SM')) {
+        return -1;
+      } else {
+        return a.name.localeCompare(b.name);
+      }
+    })
 
-  const modelindex =  models.findIndex((m: any) => m?.id === focusModel.id)
+  let  activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
+
+
+  const modelindex =  models.findIndex((m: any) => m?.id === focusModel?.id)
   // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -1
 
   const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
+
   const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
     ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
     : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
+
   if (debug) console.log('169 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
   function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
@@ -104,15 +122,18 @@ const page = (props: any) => {
   }
 
   useEffect(() => {
-    if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
-    setActiveTab(activetabindex);
-  }, [props.phFocus?.focusModel?.id]);
+    if (!debug) useEfflog('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
+    // set the focusModel and focusModelview to the first model and modelview if they are not set
+      GenGojsModel(props, dispatch);
+      setMount(true);
+      setActiveTab(activetabindex);
 
-  useEffect(() => {
-    if (debug) useEfflog('106 Modelling useEffect 1 [] : ', props);
-    GenGojsModel(props, dispatch);
-    setMount(true);
-  }, []);
+    }, []);
+    
+    useEffect(() => {
+      if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
+      setActiveTab(activetabindex);
+  }, [props.phFocus?.focusModel?.id]);
 
   // useEffect(() => {
   //   if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
@@ -286,7 +307,6 @@ const page = (props: any) => {
 
     }
 
-    activetabindex = (modelindex < 0) ? 0 : modelindex // if no model in focus, set the active tab to 0
 
     const handleSaveAllToFile = () => {
       const projectname = props.phData.metis.name
@@ -321,16 +341,10 @@ const page = (props: any) => {
     //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
     // }
 
-  const sortedmodels = (models) && models
-    .sort((a, b) => {
-      if (a.name.startsWith('_') && !b.name.startsWith('_')) {
-        return 1;
-      } else if (!a.name.startsWith('_') && b.name.startsWith('_')) {
-        return -1;
-      } else {
-        return a.name.localeCompare(b.name);
-      }
-    }) 
+
+
+
+  
    
   const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
 
@@ -625,7 +639,7 @@ const page = (props: any) => {
     const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
+    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
     const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
     const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />
     const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
@@ -703,7 +717,7 @@ const page = (props: any) => {
     return ( (mmToggle) 
       ? <>
           <div className="diagramtabs pb-0" >
-            <div className="position-relahtive float-end" style={{ transform: "scale(0.8)", marginRight: "50px"}}>
+            <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "50px"}}>
               {modellingDiv}
             </div>
             <div className="modellingContent mt-1 ">

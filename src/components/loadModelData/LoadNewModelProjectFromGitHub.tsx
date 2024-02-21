@@ -18,7 +18,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(props.refresh);
   const modalRef = useRef(null);
-  const backdropRef = useRef(null);
+  // const backdropref = useRef(null);
 
   if ((debug)) console.log('23 LoadNewModel....', props)
 

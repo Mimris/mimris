@@ -308,7 +308,7 @@ const FocusDetails = (props, edit) => {
             edit={props.edit}
           />
           {(reportType === 'object') && 
-          <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: 'auto' }}>
+          <Tabs  onSelect={index => setActiveTab2(index)} style={{ overflow: '' }}>
             <TabList>
               <Tab>Children</Tab>
               <Tab>Relationship from and to Objects</Tab>
@@ -449,7 +449,7 @@ const FocusDetails = (props, edit) => {
   
 
     return (
-        <div className="context m-0" style={{ maxHeight: '80vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: 'auto', overflowY: 'auto' }} >
+        <div className="context m-0" style={{ maxHeight: '78vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '78vh', overflowY: 'auto' }} >
           <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto'}}>
             {tabsDiv} 
           </div>

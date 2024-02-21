@@ -98,8 +98,7 @@ const ContextView = (props: any) =>  {
 
   const contextRepoDiv = 
     <div className="context-list">
-      <div className="">
-        <div className="d-flex justify-content-between align-items-center bg-transparent">
+        <div className="d-flex flex-wrap justify-content-between align-items-center bg-transparent">
               <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
               <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
               <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
@@ -122,15 +121,15 @@ const ContextView = (props: any) =>  {
           </button>
         </div> */}
         {/* <hr className="m-1 bg-primary " style={{ height: "4px" }} /> */}
-        {(!minimized) && 
-            <div className="d-flex justify-content-between align-items-center">
+        {/* {(!minimized) &&  */}
+            {/* <div className="d-flex justify-content-between align-items-center"> */}
               {/* <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
               <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
               <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
               <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div> */}
-            </div>
-        }
-    </div>
+            {/* </div> */}
+        {/* } */}
+    {/* </div> */}
   </div>
 
   const [modal, setModal] = useState(false);
@@ -163,10 +162,10 @@ const ContextView = (props: any) =>  {
           ></i>
         </button>
         <span className="" style={{whiteSpace: 'nowrap',}}>Focus : </span>
-        <div className="ms-3 w-100">{contextRepoDiv}</div>
+        <div className=" ">{contextRepoDiv}</div>
         {/* <div className="ms-auto me-1">{statusField('TargetModel', (props.ph?.phFocus?.focusTargetModel) && props.ph?.phFocus?.focusTargetModel)}</div> */}
 
-          <div className="border" style={{  backgroundColor: "#cdd" }}>
+          <div className="border d-flex flex-wrap" style={{  backgroundColor: "#cdd" }}>
             {statusField('Role', props.ph?.phFocus?.focusRole?.name)}
             {statusField('Task', props.ph?.phFocus?.focusTask?.name)}
           </div>

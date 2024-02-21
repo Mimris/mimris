@@ -45,7 +45,6 @@ const Navbar = (props) => {
 	const currentRoute = router.pathname;
 	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
 	const [version, setVersion] = useState("");
-
 	const [domainName, setDomainName] = useState("");
 
 	useEffect(() => {
@@ -87,24 +86,18 @@ const Navbar = (props) => {
 	];
 
 	return (
-		<nav className="navbar navbar-expand-lg navbar-toggler navbar-expand-sm" style={(domainName === "localhost") ? { backgroundColor: "#efe" } : { backgroundColor: " #efefef" }}>
-
-
-				
-			<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
-				<Link className="navbar-brand navbar-left mx-2" href="#">
-					<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
-				</Link>
-				{/* <Link className="navbar-brand navbar-left ms-2 me-auto py-0 fs-2 " href="#"> */}
-				<strong className="text-success fs-4">AKM Modeller</strong>
-				{/* </Link> */}
-				<div className="mx-4 d-flex justify-content-between align-items-center">
-					<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap"}} >ver. {version}</span>
-					<DropdownMenu options={options} domainName={domainName} />
-				</div>
-			</div>
-			{/* <div className=""> */}
+		<nav className="navbar navbar-expand-sm navbar-toggler" style={(domainName === "localhost") ? { backgroundColor: "#efe" } : { backgroundColor: " #efefef" }}>				
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
+				<div className="navbar-na d-flex justify-content-center align-items-center m-0 p-0">
+					<Link className="navbar-brand navbar-left mx-2" href="#">
+						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
+					</Link>
+					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
+					<div className="mx-4 d-flex justify-content-between align-items-center">
+						<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap"}} >ver. {version}</span>
+						<DropdownMenu options={options} domainName={domainName} />
+					</div>
+				</div>
 				<ul className="navbar-nav ">
 					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
 						<Link href="/">Home</Link>
@@ -150,28 +143,27 @@ const Navbar = (props) => {
 							</Link>
 						</li> */}
 				</ul>
-			</div>
-
-			{/* </div> */}
-			<div className="navbar-nav mx-2 pe-4 ms-auto" style={{ borderRadius: "6px" }}>
-				<span className="username d-flex justify-content-start align-items-center">
-					<FaUser color={(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
-				</span>
-				<span className="ms-1">
-					{(props.user?.name !== 'User' && props.user?.name !== 'No GitHub User identified') ? props.user?.name : "Guest"}
-				</span>
-			</div>
-			<div className="navbar-nav ms-auto">
-				<Link className="navbar-brand p-1 mt-0 ms-auto" href="http://www.kavca.no" target="_blank">
-					<div className="d-flex justify-content-center align-items-baseline">
-						<img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
-						<span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
-					</div>
-				</Link>
+				{/* </div> */}
+				<div className="navbar-na mx-2 pe-4 ms-auto" style={{ borderRadius: "6px" }}>
+					<span className="username d-flex justify-content-start align-items-center">
+						<FaUser color={(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
+					</span>
+					<span className="ms-1">
+						{(props.user?.name !== 'User' && props.user?.name !== 'No GitHub User identified') ? props.user?.name : "Guest"}
+					</span>
+				</div>
+				<div className="navbar-na ms-auto">
+					<Link className="navbar-brand navbar-right p-1 mt-0 ms-auto" href="http://www.kavca.no" target="_blank">
+						<div className="d-flex justify-content-center align-items-baseline">
+							<img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
+							<span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
+						</div>
+					</Link>
+				</div>
 			</div>
 			<div className='buttons' aria-expanded="false">
 				<button
-					className="navbar-toggler navbar-light"
+					className="navbar-toggler navbar-light bg-light"
 					type="button"
 					data-toggle="collapse"
 					data-target="#nav-toggler-metis"
@@ -179,7 +171,7 @@ const Navbar = (props) => {
 					aria-expanded="false"
 					aria-label="Toggle navigation"
 				>
-					<span className="navbar-toggler-icon ">toggler icon</span>
+					<span className="navbar-toggler-icon ">toggler icon</span>aaaaa
 				</button>
 			</div>
 			<style jsx>{`

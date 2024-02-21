@@ -18,7 +18,7 @@ const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   const modalRef = useRef(null);
-  const backdropRef = useRef(null);
+  const backdropref = useRef(null);
   // console.log('11', props)
 
   // const username = 'kavca'
@@ -268,10 +268,10 @@ const LoadGitHub = (props: any) => {
 
   // useEffect(() => {
   //   function handleClickOutside(event: any) {
-  //     if (modalRef.current && !modalRef.current.contains(event.target) && backdropRef) {
+  //     if (modalRef.current && !modalRef.current.contains(event.target) && backdropref) {
   //       toggle();
   //     } 
-  //     if (backdropRef || !modalRef) {
+  //     if (backdropref || !modalRef) {
   //       toggle();
   //     }
   //   }
@@ -342,7 +342,7 @@ const LoadGitHub = (props: any) => {
   return  (
     <>
       <button className="btn bg-secondary py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
-      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropRef={backdropRef}>
+      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref}>
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="p-1">
           <div className="bg-light" > 

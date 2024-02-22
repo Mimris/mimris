@@ -363,7 +363,11 @@ export function handleSelectDropdownChange(selected, context) {
     case "Set Target Metamodel":   
     case "Generate Target Metamodel": {
       const metamodelName = (selectedOption) && selectedOption;
-      const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+      let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+      if (!targetMetamodel) {
+        targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
+        myMetis.addMetamodel(targetMetamodel);
+      }
       // myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
       let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
@@ -491,14 +495,6 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       let reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (!reltype) {
-        reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-        if (!reltype) {
-          alert("Relationship type given does not exist!")
-          myDiagram.model.removeLinkData(data);
-          return;
-        }
-      }
       if (reltype) {
         let reltypeview = reltype.typeview;
         if (reltypeview) {

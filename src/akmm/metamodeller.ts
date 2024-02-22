@@ -366,6 +366,7 @@ export class cxMetis {
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item = items[i];
+                            if (item.name === 'today') continue
                             if (includeDeleted || !item.markedAsDeleted) {
                                 const dtype = new cxDatatype(item.id, item.name, item.description);
                                 if (dtype.name === 'time') dtype.fieldType = 'time';
@@ -4759,12 +4760,10 @@ export class cxMetaModel extends cxMetaObject {
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE &&
                         toType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
-                        continue;
                     } else
                         continue;
                 }
                 if (fromType.inherits(fromObjType) && toType.inherits(toObjType)) {
-                    // if (fromObjType.id === toObjType.id) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE ||
                         fromObjType.name === constants.types.AKM_GENERIC) {
                             if (includeGen)

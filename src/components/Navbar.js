@@ -75,7 +75,7 @@ const Navbar = (props) => {
 			active: domainName === 'akmmclient-beta.vercel.app',
 		},
 		{
-			label: 'Alfa version',
+			label: 'Alpha version',
 			href: 'https://akmmclient-alfa.vercel.app/modelling', // Change to alpha when alpha is ready
 			active: domainName === 'akmmclient-alfa.vercel.app',
 		},

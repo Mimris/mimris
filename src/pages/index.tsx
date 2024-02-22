@@ -35,6 +35,7 @@ const page = (props: any) => {
   const [mount, setMount] = useState(false)
   
   const [showModal, setShowModal] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   function dispatchLocalStore(locStore) { 
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -99,17 +100,20 @@ const page = (props: any) => {
               <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
-            <ProjectMenuBar props={props} />
+            <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
             <div className="context-bar d-flex justify-content-between align-items-center"  style={{  backgroundColor: "#cdd" }}>
-              {/* <div className="issuesarea">
+              {expanded && <>
+              <div className="issuesarea">
                 <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
-              </div> */}
-              <div className="contextarea ms-5 w-75">
+              </div>
+              <div className="contextarea">
                 {contextDiv}
               </div>
-              {/* <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+              <div className="tasksarea mr-1 bg-transparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                 <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-              </div> */}
+              </div>
+              </>
+               }
             </div>
             <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
               <div className="col-5 m-3 mx-0 ms-2 p-0 border rounded">

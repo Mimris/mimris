@@ -295,7 +295,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const genTasksHeaderDiv  =  
     <>
         <div className="tasklist p-1 mt-2 me-2"
-          style={{  backgroundColor: "lightyellow", position: "fixed",   top: "96px",right: "0%",  width: "400px",  height: "72vh",  zIndex: "999"}}
+          style={{  backgroundColor: "lightyellow", position: "fixed",   top: "170px",right: "0%",  width: "400px",  height: "82vh",  zIndex: "999"}}
           // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
             ref={containerRef}
           >

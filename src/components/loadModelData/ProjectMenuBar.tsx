@@ -27,7 +27,7 @@ export const ProjectMenuBar = (props: any) => {
     const [projectname, setProjectname] = useState(props.props.phFocus.focusProj.name);
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [expanded, setExpanded] = useState(true);
+
 
 
     if (debug) console.log('5 ProjectMenuBar', project.name, project, props);
@@ -94,11 +94,11 @@ export const ProjectMenuBar = (props: any) => {
     );
 
     const handleExpandDiv = () => {
-        setExpanded(true);
+        props.setExpanded(true);
     };
 
     const handleContractDiv = () => {
-        setExpanded(false);
+        props.setExpanded(false);
         // const timer = setTimeout(() => {
         //  setExpanded(false);
         // } , 20000);
@@ -107,7 +107,7 @@ export const ProjectMenuBar = (props: any) => {
     const loadGitHub = <LoadGitHub buttonLabel='Open' className='ContextModal' ph={props.props} refresh={refresh} setRefresh={toggleRefresh} />;
     const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />;
 
-    const menubarDiv =   (expanded) 
+    const menubarDiv =   (props.expanded) 
         ?   <>   
                 <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-1" 
                     style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
@@ -217,7 +217,7 @@ export const ProjectMenuBar = (props: any) => {
                         }}
                         >
                         <div className="d-flex justify-content-end align-items-center rounded-2 my-0 px-1" 
-                            onClick={() => setExpanded(false)}
+                            onClick={() => props.setExpanded(false)}
                             >
                             <i className="fa fa-arrow-up fa-sm"></i> Menubar
                         </div>
@@ -233,7 +233,7 @@ export const ProjectMenuBar = (props: any) => {
             </>
         :   <div className="ms-auto me-5 pb-1 px-1 pt-0 rounded-2 mt-0" 
                 style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "20px", width: "22px",height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
-                onClick={() => setExpanded(true)}
+                onClick={() => props.setExpanded(true)}
             >
                 <i className="fa fa-arrow-left fa-sm"></i> Menubar
             </div>
@@ -243,7 +243,7 @@ export const ProjectMenuBar = (props: any) => {
     return (
         <>
             <div
-                className={`project-menu-bar ${expanded ? 'expanded' : ''}`}
+                className={`project-menu-bar ${props.expanded ? 'expanded' : ''}`}
                 style={{ backgroundColor: "#b0cfcf" }}
             >
                 {menubarDiv}

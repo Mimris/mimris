@@ -47,7 +47,7 @@ const page = (props) => {
         <div className="col p-0 pt-0">
           <GettingStarted />
         </div>
-        <div className="col"> {/* releasenotes */}
+        <div className="col" style={{maxHeight: "42px"}}> {/* releasenotes */}
          <Card className="card"
                 style={{
                 background: "rgba(255,255,255,0.4)",

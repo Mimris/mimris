@@ -33,6 +33,7 @@ const page = (props: any) => {
 
   const [showModal, setShowModal] = useState(false);
   const [expanded, setExpanded] = useState(true);
+  const [minimized, setMinimized] = useState(true);
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -219,10 +220,11 @@ const page = (props: any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
-            <div className="context-bar d-flex justify-content-between align-items-center"  style={{  backgroundColor: "#cdd" }}>
+            <div className="context-bar d-flex justify-content-between align-items-center"
+              style={{ backgroundColor: "#ffffea"}}>
               {expanded && <>
               <div className="issuesarea">
-                <Issues props={props} showModal={showModal} setShowModal={setShowModal} />
+                <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized} expanded={expanded} setExpanded={setExpanded} />
               </div>
               <div className="contextarea">
                 {contextDiv}

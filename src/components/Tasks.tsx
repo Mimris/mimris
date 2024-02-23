@@ -181,7 +181,8 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         type: "SET_FOCUS_TASK",
         data: { id: task.id, name: task.name },
       });
-    } else if (role) {
+    } 
+    if (role) {
       dispatch({
         type: "SET_FOCUS_ROLE",
         data: { id: role.id, name: role.name },
@@ -204,7 +205,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     children: ItemType[];
   };
 
-  const taskItem = (task: ItemType) => 
+  const taskItem = (task: ItemType, role: ItemType) => 
     <li
       key={task?.id}
       className="p-0 me-0"
@@ -227,7 +228,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               data-placement="top"
               data-bs-html="true"
               title="Set this task as focus!"
-              onClick={handleClick.bind(this, task, null)}
+              onClick={handleClick.bind(this, task, role)}
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "5px",
@@ -248,12 +249,13 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
       </details>
     </li>
 
-  const renderItem = (o: ItemType) => {
+  const renderItem = (task: ItemType, role: ItemType) => {
     if (debug) console.log('273 gcObj', o);
-    if (!o) return null;
-    const obj = o;
+    if (!task && !role) return null;
+    if (!role) role = { id: 0, name: "Modeller" };
+    // const obj = task;
     if (debug) console.log('276 ', obj);
-    const oDiv = taskItem(obj)
+    const oDiv = taskItem(task, role)
     if (debug) console.log('286 renderItem', oDiv);
     return oDiv;
   };
@@ -263,11 +265,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
       if (debug) console.log('276 Tasks', sm);
       const sourceMetamodel = metamodels?.find((mm: { id: any; }) => mm.id === sm.metamodelRef);
 
-      let subTasks = sm.objects;
+      let subTasks = sm.objects.filter((o: { typeRef: any; }) => o.typeName === "Task"); ;
+      let subRoles = sm.objects.filter((o: { typeRef: any; }) => o.typeName === "Role"); ;
       if (debug) console.log('280 Tasks', subTasks);
 
       const tasksDiv = subTasks.map((subtask: ItemType) => {
-        return renderItem(subtask);
+        return renderItem(subtask, subRoles[0]);
       });
       
       return (
@@ -375,7 +378,8 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   if (minimized) {
     return (
       <button
-        className="btn btn-sm bg-transparent text-success ms-0 py-0 me-2 float-end"
+        className="btn btn-sm border text-success ms-0 py-0 me-2 float-end"
+        style={{backgroundColor: "#ffffdd"}}
         onClick={() => setMinimized(false)}
       >
         <span className="fs-6" style={{ whiteSpace: "nowrap"}}>Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
@@ -385,8 +389,8 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     return (
       <>
         <button 
-          className="btn btn-sm text-success px-1 py-0 bg-light float-end me-3" 
-          style={{ whiteSpace: "nowrap" }}
+          className="btn btn-sm border text-success px-1 py-0 float-end me-3" 
+          style={{ backgroundColor: "#ffffdd", whiteSpace: "nowrap" }}
           data-toggle="tooltip" data-placement="top" data-bs-html="true"
           title="Close Task pane!"
           onClick={() => setMinimized(true) }

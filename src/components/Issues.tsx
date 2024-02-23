@@ -26,9 +26,9 @@ const Issues = (props) => {
   const modalRef = useRef(null);
   const projectModalRef = useRef(null);
   
-  const [minimized, setMinimized] = useState(false);
+  // const [minimized, setMinimized] = useState(false);
   // const [maximized, setMaximized] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [modalOpen, setModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [issues, setIssues] = useState([]);
   const [project, setProject] = useState([]);
@@ -51,9 +51,9 @@ const Issues = (props) => {
   const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj?.ghtype)
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
   
-  useEffect(() => {
-  if (currentRoute === '/modelling') setMinimized(true);
-  }, []);
+  // useEffect(() => {
+  // if (currentRoute === '/modelling') setMinimized(true);
+  // }, []);
   
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
   // const issueUrl = `https://api.github.com/repos/${org}/${repo}/˝`
@@ -64,14 +64,14 @@ const Issues = (props) => {
   let projectUrl = `https://api.github.com/repos/${org}/${repo}/projects/${projectNumber}`
   let projectFileUrl = `https://api.github.com/repos/${org}/${repo}/contents/${path}/${file}?ref=${branch}`
 
-    const panelRef = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        handleMinimize();
-      }
-    };
+    // const handleClickOutside = (event) => {
+    //   if (containerRef.current && !containerRef.current.contains(event.target)) {
+    //     toggleMinimize();
+    //   }
+    // };
     setOrg(props.props.phFocus.focusProj?.org);
     setRepo(props.props.phFocus.focusProj?.repo);
     setPath(props.props.phFocus.focusProj?.path);
@@ -87,22 +87,22 @@ const Issues = (props) => {
     projectUrl = `https://api.github.com/repos/${org}/${repo}/projects/${projectNumber}`
     projectFileUrl = `https://api.github.com/repos/${org}/${repo}/contents/${path}/${file}?ref=${branch}`
     
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
+    // document.addEventListener('click', handleClickOutside);
+    // return () => {
+    //   document.removeEventListener('click', handleClickOutside);
+    // };
     
   }, []);
 
-  const handleMinimize = () => {
-      setMinimized(!minimized);
-      // setMaximized(false);
-  };
+  // const toggleMinimize = () => {
+  //     props.setMinimized(!props.minimized);
+  //     // setMaximized(false);
+  // };
 
-  const handleMaximize = () => {
-      setMinimized(false);
-      // setMaximized(true);
-  };
+  // const handleMaximize = () => {
+  //     props.setMinimized(false);
+  //     // setMaximized(true);
+  // };
 
   // list issues form github
   const fetchIssues = async (url) => {
@@ -180,16 +180,16 @@ const Issues = (props) => {
   };
 
   const handleShowModal = () => {
-    if (minimized) {
-      setMinimized(true);
-    }
+    // if (minimized) {
+      // props.setMinimized(false);
+    // }
     props.setShowModal(true);
   };
   
   const handleCloseModal = () => props.setShowModal(false);
 
   const modalDiv = (
-    <Modal  show={props.showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
+    <Modal  show={props.showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!props.modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
@@ -240,6 +240,7 @@ const Issues = (props) => {
     <>
       <ModellingHeaderButtons props= {props}  />
     </>
+
   //refresh={refresh} setRefresh={setRefresh}
     const statusFieldLink = (name, field, link) => {  
     return (
@@ -263,21 +264,23 @@ const Issues = (props) => {
     );
   }
 
-  if (minimized) {
+  if (!debug) console.log('266 Issues', props.minimized)
+  if (props.minimized) {
     return (
       <div className=" " >
           <div 
               className="buttons mt-1 ms-1" 
-              style={{ minWidth: "106px", whiteSpace: "nowrap" }} 
+              style={{ backgroundColor: "#ffffed", minWidth: "106px", whiteSpace: "nowrap" }} 
               // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
           >
               <button
-                  className="btn bg-transparent text-success m-0 p-1"
+                  className="btn btn-sm text-success m-0 p-1"
+                  style={{backgroundColor: "#ffffdd", whiteSpace: "nowrap"}}
                   data-toggle="tooltip"
                   data-placement="top"
                   data-bs-html="true"
                   title="Open Issues left side-panel!"
-                  onClick={() => setMinimized(false)}
+                  onClick={() => props.setMinimized(false)}
               >
                 <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i> Issues</span>
               </button>            
@@ -288,27 +291,29 @@ const Issues = (props) => {
   } else  {
     return (
       <>
-        <div  className="buttons bg-transparent mt-1 ms-1" style={{ minWidth: "106px", whiteSpace: "nowrap" }} >
+        <div  className="buttons mt-1 ms-1" 
+         style={{backgroundColor: "#ffffed",  minWidth: "106px", whiteSpace: "nowrap" }} >
           <button
-              className="btn bg-transparent text-success m-0 p-1"
+              className="btn btn-sm border text-success m-0 p-1"
+              style={{backgroundColor: "#ffffdd", whiteSpace: "nowrap"}}
               data-toggle="tooltip"
               data-placement="top"
               data-bs-html="true"
               title="Open Issues in left side-panel!"
-              onClick={() => setMinimized(true)}
+              onClick={() => props.setMinimized(true)}
           >
             <span className="fs-6"><i className="fa fa-lg fa-angle-left pull-left-container"></i> Issues</span>
           </button>
         </div>
         <div className="issues p-1 mt-1" 
             // ref={containerRef}
-            style={{ position: "fixed", top: "156px", left: "0",  width: "400px",  height: "82vh",  zIndex: "9999" }}
+            style={{ position: "fixed", top: "156px", left: "0",  width: "400px",  height: "82vh",  zIndex: "9999", 
+            backgroundColor: "#ffffea", overflow: "auto", border: "1px solid #ccc", borderRadius: "5px 5px 5px 5px"}}
           >    
-          <hr className="m-1"/>
-          <div className="issues-list side-panel bg-light border border-success">
+          <div className="issues-list side-panel border border-success">
             <button
               className="btn btn-sm bg-light text-dark float-end"
-              onClick={() => setMinimized(true)}
+              onClick={() => props.setMinimized(true)}
             >
               X
             </button>

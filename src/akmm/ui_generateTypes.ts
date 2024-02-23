@@ -1396,8 +1396,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let obj = objects[i];
             if (obj && !obj.markedAsDeleted) {
                 const datatype = generateDatatype(obj, context);
-                const jsnDatatype = new jsn.jsnDatatype(datatype);
-                modifiedDataTypes.push(jsnDatatype);
+                if (datatype) {
+                    const jsnDatatype = new jsn.jsnDatatype(datatype);
+                    modifiedDataTypes.push(jsnDatatype);
+                }
             }
         }
     }
@@ -1418,10 +1420,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     const mtdId = mtdType.id;
                     mtdType.properties = [];
                     mtdType = generateMethodType(obj, context);
-                    targetMetamodel.addMethodType(mtdType);
-                    myMetis.addMethodType(mtdType);
-                    const jsnMtdType = new jsn.jsnMethodType(mtdType);
-                    modifiedMethodTypes.push(jsnMtdType);
+                    if (mtdType) {
+                        targetMetamodel.addMethodType(mtdType);
+                        myMetis.addMethodType(mtdType);
+                        const jsnMtdType = new jsn.jsnMethodType(mtdType);
+                        modifiedMethodTypes.push(jsnMtdType);
+                    }
                 }
             }
         }

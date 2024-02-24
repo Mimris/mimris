@@ -1,5 +1,3 @@
-
-import { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import Page from '../components/page';
 import Layout from '../components/Layout';
@@ -33,87 +31,87 @@ const page = (props: any) => {
                 <div className="homepage-vido d-flex justify-content-between align-items-baseline flex-wrap">
                   <div className="card-body card-video-body p-2" style={{ minHeight: "250px", maxWidth: "55rem" }}>
                     <h3 className="card-title">Learn AKM Modelling</h3>
-                    <p className="card-text bg-light p-4 mt-2">          
-                    <h5 className="card-title">Concept Modelling</h5>
-                      Instruction videos:
-                    <div className="card-text m-2">
-                      <a href="https://app.guidde.com/share/playbooks/5kfvMyqNcETCnu44cx5u9h?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
-                      className="button btn-link text-primary rounded p-2" target="_blank">
-                      <i className="fa fa-arrow-left fa-sm"></i>
-                        Building a Concept model example from scratch</a>
+                    <div className="card-text bg-light p-4 mt-2">          
+                      <h5 className="card-title">Concept Modelling</h5>
+                        Instruction videos:
+                      <div className="card-text m-2">
+                        <a href="https://app.guidde.com/share/playbooks/5kfvMyqNcETCnu44cx5u9h?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
+                        className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                        {/* <i className="fas fas-plus fa-sm"></i> */}
+                          Building a Concept model example E-Scooter rental (from scratch)</a>
+                      </div>
+                      <hr />
+                      <h5 className="card-title">Metamodelling</h5>
+                      <div className="card-text m-2">
+                        <a href="" 
+                          className="button btn-link bg-light text-secondary rounded p-2" target="_blank">
+                          {/* <i className="fa fa-arrow-left fa-sm"></i> */}
+                          Bulding a Metamodel for the example above (coming soon)
+                        </a>
+                      </div>
+                      <hr />
+                      <h5 className="card-title">Solution Modelling</h5>
+                      <div className="card-text m-2">
+                        <a href="" 
+                          className="button btn-link bg-light text-secondary rounded p-2" target="_blank">
+                          {/* <i className="fa fa-arrow-left fa-sm"></i> */}
+                          Bulding a Solution model for the example above (coming soon)
+                        </a>
+                      </div>
+                      <hr />
                     </div>
-                    <hr />
-                    <h5 className="card-title">Metamodelling</h5>
-                    <div className="card-text m-2">
-                      <a href="" 
-                        className="button btn-link text-secondary rounded p-2" target="_blank">
-                        <i className="fa fa-arrow-left fa-sm"></i>
-                        Bulding a Metamodel for the example above (coming soon)
-                      </a>
-                     </div>
-                    <hr />
-                    <h5 className="card-title">Solution Modelling</h5>
-                    <div className="card-text m-2">
-                      <a href="" 
-                        className="button btn-link text-secondary rounded p-2" target="_blank">
-                        <i className="fa fa-arrow-left fa-sm"></i>
-                        Bulding a Solution model for the example above (coming soon)
-                      </a>
-                     </div>
-                    <hr />
-                    </p>
                   </div>
                   <div className="card-body card-video-body p-2" style={{ minHeight: "250px", maxWidth: "55rem" }}>
                     <h3 className="card-title">Learn OSDU Schema import and visualization</h3>
-                    <p className="card-text bg-light p-4 mt-2">Instruction videos:
+                    <div className="card-text bg-light p-4 mt-2">Instruction videos:
                       <div className="card-text m-2">
                         <a href="https://app.guidde.com/share/playbooks/vPvzrv5199xdPFmRoUptNb?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
-                          className="button btn-link text-primary rounded p-2" target="_blank">
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
                           <i className="fa fa-arrow-left fa-sm"></i>
                           How to import OSDU Schematypes into AKM Modeller
                         </a>
                       </div>
-                      <p className="card-text">Demos</p>
+                      <h5 className="card-text">Demos</h5>
                       <div className="card-text m-2">
                         <a  href="https://app.guidde.com/share/playbooks/dJwLk6Z6B48zfxyYjDrk2E?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
-                          className="button btn-link text-primary rounded p-2" target="_blank">
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
                           <i className="fa fa-arrow-left fa-sm"></i>
                           OSDU Import Demo
                         </a>
                       </div>
-                    </p>
+                    </div>
                   </div>
                     <div className="card-body card-video-body p-2" style={{ minHeight: "250px", maxWidth: "55rem" }}>
                     <h3 className="card-title">Learn to use Github</h3>
-                    <p className="card-text bg-light p-4 mt-2">          
-                    <h5 className="card-title">Github</h5>
-                    <div className="card-text m-2">
-                      <a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/quickstart-for-writing-on-github" 
-                      className="button btn-link text-primary rounded p-2" target="_blank">
-                      <i className="fa fa-arrow-left fa-sm"></i>
-                        Quickstart for writing Markdown on GitHub
+                    <div className="card-text bg-light p-4 mt-2">          
+                      <h5 className="card-title">Github</h5>
+                      <div className="card-text m-2">
+                        <a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/quickstart-for-writing-on-github" 
+                        className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                        <i className="fa fa-arrow-left fa-sm"></i>
+                          Quickstart for writing Markdown on GitHub
+                          </a>
+                      </div>
+                      <hr />
+                      <h5 className="card-title">Github Project</h5>
+                      <div className="card-text m-2">
+                        <a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects" 
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                          <i className="fa fa-arrow-left fa-sm"></i>
+                          Quickstart for GitHub Projects
                         </a>
+                      </div>
+                      <hr />
+                      <h5 className="card-title">GitHub Issues</h5>
+                      <div className="card-text m-2">
+                        <a href="https://docs.github.com/en/issues/tracking-your-work-with-issues/quickstart" 
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                          <i className="fa fa-arrow-left fa-sm"></i>
+                          Quickstart for GitHub Issues
+                        </a>
+                      </div>
+                      <hr />
                     </div>
-                    <hr />
-                    <h5 className="card-title">Github Project</h5>
-                    <div className="card-text m-2">
-                      <a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects" 
-                        className="button btn-link text-primary rounded p-2" target="_blank">
-                        <i className="fa fa-arrow-left fa-sm"></i>
-                        Quickstart for GitHub Projects
-                      </a>
-                     </div>
-                    <hr />
-                    <h5 className="card-title">GitHub Issues</h5>
-                    <div className="card-text m-2">
-                      <a href="https://docs.github.com/en/issues/tracking-your-work-with-issues/quickstart" 
-                        className="button btn-link text-primary rounded p-2" target="_blank">
-                        <i className="fa fa-arrow-left fa-sm"></i>
-                        Quickstart for GitHub Issues
-                      </a>
-                     </div>
-                    <hr />
-                    </p>
                   </div>
                 </div>
               {/* <div className="tasksarea"></div> */}

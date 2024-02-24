@@ -165,6 +165,11 @@ const page = (props: any) => {
   }, [props.phFocus?.focusModelview?.id])
 
   // useEffect(() => {
+  //   if (debug) useEfflog('168');
+  //   setRefresh(!refresh)
+  // }, [curmod.objects])
+
+  // useEffect(() => {
   //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
   //   setRefresh(!refresh)
   // }, [memoryAkmmUser])

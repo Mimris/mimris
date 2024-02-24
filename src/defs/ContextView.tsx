@@ -34,6 +34,13 @@ const ContextView = (props: any) =>  {
     props.setShowModal(true);
   };
 
+  const handleShowIssueModal = () => {
+    if (props.focusIssue === null) {
+      props.setFocusIssue({id: 0, name: 'REFRESH ISSUES', description: '', status: '', labels: [], assignees: []})
+    }
+    props.setShowIssueModal(true);
+  };
+
   const copyToClipboard = async () => { 
     const host = window.location.host;
     const paramFocus = {
@@ -98,13 +105,10 @@ const ContextView = (props: any) =>  {
   const contextRepoDiv = 
     <div className="context-list">
         <div className="d-flex flex-wrap justify-content-between align-items-center">
-              <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
-              <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
-              <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
-              <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div>
-          {/* <div>{statusFieldLink('Repo', repo, )}</div> */}
-          {/* <div>{statusFieldLink('Project', phFocus.focusProj?.`https:/github.com/${org}/${repo}/tree/${branch}/${path}`name, `https:/github.com/orgs/${org}/projects/${projectNumber}`)}</div> */}
-          {/* <div className="me-auto">{statusField('User', (props.ph?.phUser?.focusUser?.name === 'No GitHub User identified') ? 'Not logged in!' : props.ph?.phUser?.focusUser?.name )}</div> */}
+          <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
+          <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
+          <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
+          <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div>
         </div>
         {/* <div className="font-weight-bold  border fs-6">
           <button
@@ -119,16 +123,6 @@ const ContextView = (props: any) =>  {
             <i className="fa fa- fa-bullseye"></i> 
           </button>
         </div> */}
-        {/* <hr className="m-1 bg-primary " style={{ height: "4px" }} /> */}
-        {/* {(!minimized) &&  */}
-            {/* <div className="d-flex justify-content-between align-items-center"> */}
-              {/* <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
-              <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
-              <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
-              <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div> */}
-            {/* </div> */}
-        {/* } */}
-    {/* </div> */}
   </div>
 
   const [modal, setModal] = useState(false);
@@ -139,8 +133,20 @@ const ContextView = (props: any) =>  {
       {/* <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div> */}
       <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
       <div className="d-flex justify-content-between align-items-center m-0 p-0 " style={{  backgroundColor: "#ffffed" }}>
-        <div className="border p-1" style={{  backgroundColor: "#ffffed" }}>
-          {statusFieldLink('Issue', (props.ph?.phFocus?.focusIssue) && props.ph?.phFocus?.focusIssue?.id+' - '+props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}
+        <div className="d-flex border rounded me-1 pe-1" style={{  backgroundColor: "#fffff3" }}>
+          {statusFieldLink('Issue', (props.ph?.phFocus?.focusIssue) && '#'+props.ph?.phFocus?.focusIssue?.id+' '+props.ph?.phFocus?.focusIssue?.name, `https:/github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}
+            {/* <button
+                className="btn btn-sm text-success m-0 px-0 py-0  float-end"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open a Modal with the FocusIssue!"
+                onClick={() =>handleShowIssueModal}
+                // onClick={() =>{props.setShowIssueModal(true)}}
+                style={{ backgroundColor: "#fff" }}
+              >
+              <i className="fa fa- fa-plus"></i> 
+            </button> */}
         </div>
         <div className="bg-secondary">|</div>
         {/* <button className="btn btn-sm bg-transparent py-0 ms-1 text-primary " onClick={toggleMinimized}>

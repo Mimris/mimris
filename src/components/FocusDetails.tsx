@@ -85,20 +85,20 @@ const FocusDetails = (props, edit) => {
       e.preventDefault();
       if (debug) console.log('79 Context :',formValues, e);
       if (formValues) {
-      const modifiedFields = {};
-      for (const key in formValues) { 
-        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
-          modifiedFields[key] = formValues[key];
+        const modifiedFields = {};
+        for (const key in formValues) { 
+          if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+            modifiedFields[key] = formValues[key];
+          }
         }
-      }
 
-      const objData = { id: formValues['id'], ...modifiedFields , modifiedDate: new Date().toISOString()};
-      const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString()};
+        const objData = { id: formValues['id'], ...modifiedFields , modifiedDate: new Date().toISOString()};
+        const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString()};
 
-      if (debug) console.log('93 Context :',objData, objvData);
-      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData }) 
-      dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
-      if (debug) console.log('105 Context ',formValues, objData, objvData);
+        if (debug) console.log('93 Context :',objData, objvData);
+        dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData }) 
+        dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
+        if (debug) console.log('105 Context ',formValues, objData, objvData);
       }
     };
 

@@ -33,13 +33,14 @@ const Issues = (props) => {
   const [issues, setIssues] = useState([]);
   const [project, setProject] = useState([]);
   const [comments, setComments] = useState([]);
-  // const [showModal, setShowModal] = useState(false);
+  // const [showIssueModal, setShowModal] = useState(false);
 
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState('');
   const [refresh, setRefresh] = useState(false);
   // const [toggleRefresh, setToggleRefresh] = useState(false);
+  const [focusIssue, setFocusIssue] = useState(null);
 
 
   const [org, setOrg] = useState(props.props.phFocus.focusProj?.org)
@@ -90,14 +91,13 @@ const Issues = (props) => {
     // document.addEventListener('click', handleClickOutside);
     // return () => {
     //   document.removeEventListener('click', handleClickOutside);
-    // };
-    
+    // };' 
   }, []);
 
-  // const toggleMinimize = () => {
-  //     props.setMinimized(!props.minimized);
-  //     // setMaximized(false);
-  // };
+  const toggleMinimize = () => {
+      props.setMinimized(!props.minimized);
+      // setMaximized(false);
+  };
 
   // const handleMaximize = () => {
   //     props.setMinimized(false);
@@ -126,7 +126,7 @@ const Issues = (props) => {
     if (debug) console.log('148 comments', issues)
   }
 
-  // const CommentsComponent = (issue: any) => {
+  // const CommentsComponent = (issue: any) => {'
   //   if (issue.comments_url === undefined) return null;
   //   if (issue.comments === 0) return null;
   //   console.log('153 comments', issue, issue.body, issue.comments_url);
@@ -174,58 +174,70 @@ const Issues = (props) => {
 //   return comments;
 // }
 
+  const handleSetFocusIssue = (e) => {
+    if (!debug) console.log('190 setFocusIssue', e)
+    setFocusIssue(e);
+  };
+
   const handleSubmit = (details) => {
     props.onSubmit(details);
     handleCloseModal();
   };
 
   const handleShowModal = () => {
-    // if (minimized) {
-      // props.setMinimized(false);
-    // }
-    props.setShowModal(true);
+    if (!debug) console.log('183 showModal', props.showIssueModal, props.minimized)
+    // if (props.minimized) {
+  //   props.setMinimized(false);
+  // }
+  props.setShowIssueModal(true);
+  if (!debug) console.log('188 showModal', props.showIssueModal)
   };
   
-  const handleCloseModal = () => props.setShowModal(false);
+  const handleCloseModal = () => props.setShowIssueModal(false);
 
-  const modalDiv = (
-    <Modal  show={props.showModal} onHide={handleCloseModal} ref={modalRef} className={`modal ${!props.modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#fee"}} >
+  const modalDiv = (focusIssue) && (
+    <Modal  show={props.showIssueModal} onHide={handleCloseModal} ref={modalRef} 
+      className={`modal ${!props.modalOpen ? "d-block" : "d-none"}`} style={{ marginRight: "0px", backgroundColor: "#ffffed",   zIndex: "9199"}} >
       <Modal.Header closeButton>
         <Modal.Title>Issue in focus:</Modal.Title>
       </Modal.Header>
       <Modal.Body className="bg-transparent"  style={{ overflowY: 'scroll', maxHeight: '72vh' }}>
-        <div className='bg-light p-2 m-0'>
-          {(issues.length > 0) 
-            ? issues?.find((issue) => (issue.number === props.props.phFocus.focusIssue?.id) && (   
-              <div key={issue.number}>
-                <Link className='text-primary fs-4' href={`https:/github.com/${org}/${repo}/issues/${issue.number}`} target="_blank" style={{ textDecoration: 'underline' }}>
-                  {issue.number}, {issue.title}
-                </Link> <br />
-                User login: {issue.user.login} <br />
-                Assignee: {issue.assignees[0]?.login}  <br />      
-                State: {issue.state} <br />
-                Status: {issue.state.status} <br />
-                Created: {issue.created_at.slice(0, 10)} <br />      
-                Updated: {issue.updated_at.slice(0, 10)} <br />
-                Closed: {issue.closed_at?.slice(0, 10)} <br />
-                Labels: {issue.labels.map((label) => (label.name))} <br />
-                <div className="bg-white border border-secondary p-2">
-                  Details:
-                  <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{issue.body}</ReactMarkdown>
-                </div>
-                {/* Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br /> */}
-                {/* {CommentsComponent(issue)} */}
-                {/* Body:  {issue.body}, User name: {issue.user.name} */}
-                <>
-                  <hr />
-                  <h6 className="border" >Open Issue on GitHub!</h6>
-                  <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues/${issue.number}`} target="_blank">{org}/{repo}/issues/{issue.number}</Link>
-                </>
-              </div>
-              ) )
-            : <div className='text-muted'>Unable to get issues for this repo!</div>
+        <div className='bg-light p-2 m-0'> 
+          {(focusIssue.number)
+              ? (
+                <div key={focusIssue.number}>
+                  <Link className='text-primary fs-4' href={`https:/github.com/${org}/${repo}/issues/${focusIssue?.number}`} target="_blank" style={{ textDecoration: 'underline' }}>
+                    {focusIssue.number}, {focusIssue.title}
+                  </Link> <br />
+                  User login: {focusIssue.user.login} <br />
+                  Assignee: {focusIssue.assignees[0]?.login}  <br />      
+                  State: {focusIssue.state} <br />
+                  Status: {focusIssue.status} <br />
+                  Priority: {focusIssue.priority} <br /> // Add this line
+                  
+                  Created: {focusIssue.created_at.slice(0, 10)} <br />      
+                  Updated: {focusIssue.updated_at.slice(0, 10)} <br />
+                  Closed: {focusIssue.closed_at?.slice(0, 10)} <br />
+                  Labels: {focusIssue.labels.map((label) => (label.name+', '))} <br />
+                  <div className="bg-white border border-secondary p-2">
+                    Details:
+                    <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{focusIssue.body}</ReactMarkdown>
+                  </div>
+                  {/* Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br /> */}
+                  {/* {focusIssue(issue)} */}
+                  {/* Body:  {issue.body}, User name: {issue.user.name} */}
+                  <>
+                    <hr />
+                    <h6 className="border" >Open Issue on GitHub!</h6>
+                    <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues/${focusIssue.number}`} target="_blank">{org}/{repo}/issues/{focusIssue.number}</Link>
+                  </>
+                </div> 
+                ) 
+            : <div >No Issue in focus!</div>
           }
+          {/* : <div className='text-muted'>Unable to get issues for this repo!</div> */}
         </div>
+        
         {/* <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} /> */}
       </Modal.Body>˝
       <Modal.Footer>
@@ -307,7 +319,7 @@ const Issues = (props) => {
         </div>
         <div className="issues p-1 mt-1" 
             // ref={containerRef}
-            style={{ position: "fixed", top: "156px", left: "0",  width: "400px",  height: "82vh",  zIndex: "9999", 
+            style={{ position: "fixed", top: "156px", left: "0",  width: "400px",  height: "82vh",  zIndex: "99", 
             backgroundColor: "#ffffea", overflow: "auto", border: "1px solid #ccc", borderRadius: "5px 5px 5px 5px"}}
           >    
           <div className="issues-list side-panel border border-success">
@@ -332,7 +344,7 @@ const Issues = (props) => {
                   style={{ filter: 'brightness(120%)' }}
                   onClick={() => fetchIssues(issueUrl)}>
                   <i className="fab fa-github fa-lg me-2"></i>
-                  Get Issues from GitHub
+                  Fetch Issues from GitHub
                 </button>
               </div>
               <div className="header m-0 p-0">
@@ -342,16 +354,16 @@ const Issues = (props) => {
                       data-toggle="tooltip"
                       data-placement="top"
                       data-bs-html="true"
-                      title="Open Modal with the FocusIssue!"
-                      onClick={handleShowModal}
+                      title="Open issueModal with the FocusIssue!"
+                      onClick={() =>{props.setShowIssueModal(true)}}
                       style={{ backgroundColor: "#fff" }}
                     >
-                    <i className="fa fa- fa-bullseye"></i> 
+                    <i className="fa fa- fa-plus"></i> 
                   </button>
                 </div>
               <div className="font-weight-bold p-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}</div>
             </div>
-              <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "48vh"}}>
+              <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "64vh"}}>
                 <hr className="m-0"/> 
                 <div>GitHub Open Issues:</div>
                 {(issues.length > 0) && issues.map((issue) => (
@@ -360,7 +372,7 @@ const Issues = (props) => {
                       <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
                     <button
                         className="btn btn-sm checkbox bg-light text-success position-relative" 
-                        onClick={() => dispatch({ type: "SET_FOCUS_ISSUE", data: {id: issue.number, name: issue.title}}) } // && handleShowModal()}
+                        onClick={() => dispatch({ type: "SET_FOCUS_ISSUE", data: {id: issue.number, name: issue.title}})  && handleSetFocusIssue(issue)}
                         style={{
                             float: "right",
                             border: "1px solid #ccc",
@@ -381,12 +393,12 @@ const Issues = (props) => {
                     </div>
                 ))}
             </div>
-            <hr className="m-4 p-4" />
+            <hr className="m-1 p-0" />
             <div className='p-2 m-1'> {/*link to Issues */}
                 <div className='text-muted'>Link to GitHub Issues:</div>
                 {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
             </div>
-            <hr className="m-1 p-" />
+            <hr className="m-1" />
           </div>
           {modalDiv}
           {/* {projectModalDiv} */}

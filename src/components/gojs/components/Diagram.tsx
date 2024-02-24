@@ -2489,17 +2489,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("Edit Project",
+          makeButton("Edit Model Suite",
             function (e: any, obj: any) {
               const currentName = myMetis.name;
-              const projectName = prompt("Enter Project name:", currentName);
-              if (projectName?.length > 0) {
-                myMetis.name = projectName;
+              const modelSuiteName = prompt("Enter the name of the Model Suite:", currentName);
+              if (modelSuiteName?.length > 0) {
+                myMetis.name = modelSuiteName;
               }
               const currentDescr = myMetis.description;
-              const projectDescr = prompt("Enter Project description:", currentDescr);
-              if (projectDescr?.length > 0) {
-                myMetis.description = projectDescr;
+              const modelSuiteDescr = prompt("Enter Model Suite description:", currentDescr);
+              if (modelSuiteDescr?.length > 0) {
+                myMetis.description = modelSuiteDescr;
               }
 
               const myMetamodel = myMetis.currentMetamodel;

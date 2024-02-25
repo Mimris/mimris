@@ -80,7 +80,7 @@ const Project = (props) => {
     <>
       <div className="project-modelsuite">
         <Card className="project p-1 m-1 me-0">
-          <CardHeader className="card-header">Project & ModelSuite Details</CardHeader>
+          <CardHeader className="card-header">Project GitHub Details</CardHeader>
           <CardBody className="card-body bg-light">
             <CardTitle className="card-title-bold nobreak">Project: {props.props.phData.metis.name}</CardTitle>
             <CardSubtitle className="card-subtitle-bold"> {props.props.phData.metis.description}</CardSubtitle>

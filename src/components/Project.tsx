@@ -74,79 +74,57 @@ const Project = (props) => {
   return (
     <>
       <div className="project-modelsuite" >
-
-
         <Card className="project p-1 m-1 me-0">
           <CardHeader className="card-header">Project & ModelSuite Details</CardHeader>
           <CardBody className="card-body bg-light">
-            <CardTitle className="card-title-bold nobreak" >Project: {props.props.phData.metis.name}</CardTitle>
-            <CardSubtitle className="card-subtitle-bold"> {props.props.phData.metis.description}</CardSubtitle>
-            <CardText className="card-text"> 
-              <div className="">
-                GitHub:
-                <div className="d-flex justify-content-between align-items-baseline border">
-                    <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusProj.projectNumber} </div>
-                    <div className="border fs-6 p-1 w-75">Repository: <br /> {props.props.phFocus.focusProj.repo} </div>
-                    <div className="border fs-6 p-1 ">Path: {(props.props.phFocus.focusProj.path) ? props.props.phFocus.focusProj.path : 'models'}</div>
-                    <div className="border fs-6 p-1">Branch: {props.props.phFocus.focusProj.branch}</div>
-                </div>
+              <CardTitle className="card-title-bold nobreak" >Project: {props.props.phData.metis.name}</CardTitle>
+              <CardSubtitle className="card-subtitle-bold"> {props.props.phData.metis.description}</CardSubtitle>
+              <CardText className="card-text"> 
+                <div className="">
+                  GitHub:
+                  <div className="d-flex justify-content-between align-items-baseline border">
+                      <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusProj.projectNumber} </div>
+                      <div className="border fs-6 p-1 w-75">Repository: <br /> {props.props.phFocus.focusProj.repo} </div>
+                      <div className="border fs-6 p-1 ">Path: {(props.props.phFocus.focusProj.path) ? props.props.phFocus.focusProj.path : 'models'}</div>
+                      <div className="border fs-6 p-1">Branch: {props.props.phFocus.focusProj.branch}</div>
+                  </div>
                   <div className="border fs-6">File: {props.props.phFocus.focusProj.file}</div>
-              </div>
+                </div>
               </CardText>
             </CardBody>
-            <Card className="project p-1 m-1 me-0">
-              {/* <CardHeader className="card-header">Content:</CardHeader> */}
-              <CardBody className="card-body">
-                <CardTitle className="card-title-bold nobreak">Model Suite:  {state.phData.metis.name}</CardTitle>
-                <CardSubtitle className="card-subtitle-bold text-secondary">{state.phData.metis.description}</CardSubtitle>
-                {/* <CardGroup className="project "> */}
-                  <div className="border-top"> Models:</div>
-                      {models.map((model: any, index: any) => {
-                        return (
-                          <Card className="project p-2 m-0 me-0" key={index}>
-                              <CardSubtitle className="card-subtitle-bold"><span className=" fs-5">{model.name}</span></CardSubtitle>
-                             <div className="text-secondary">{model.description}</div>
-                            <CardText className="card-text fs-6 border-top">
-                              <CardSubtitle className="card-subtitle-bold">Modelviews:</CardSubtitle>
-                              <ul style={{ listStyleType: 'disc', listStylePosition: 'inside' }}>
-                              {model.modelviews.map((modelview: any, index: any) => {
-                                return (
-                                  <li className="align-items-center" key={index} style={{ listStyleType: 'circle', listStylePosition: 'inside'}}>
-                                    <span className="text-bold fs-5">{modelview.name}</span> 
-                                    <span className="text-secondary">{modelview.description}</span>
-                                  </li>
-                                );
-                              })}
-                              </ul>
-                            </CardText>
-                          </Card>
-                        );
-                      })}
-                {/* </CardGroup> */}
-              </CardBody>
-            </Card>
-        </Card>  
-        <hr className="mt-5 bg-success" style={{ height: "4px" }} />
-        <details className="m-1 p-1"  style={{backgroundColor: "#eee"}}><summary>GitHub links</summary>
-          <div className="aside-left fs-6 m-1 p-2 " style={{ backgroundColor: "transparent", borderRadius: "5px 5px 5px 5px" }} >
-              <div className='bg-light my-1 px-2 '> 
-                <div className='text-muted'>Repository :</div>
-                {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
-              </div>
-              <div className='bg-light my-1 px-2'> 
-                <div className='text-muted'>GitHub Docs :</div>
-                {(repo) && <Link className='text-primary ' href={`https:/${org}.github.io/${repo}`} target="_blank"> {repo}</Link>}
-              </div>
-
-              <div className='bg-light my-1 px-2'> 
-                <div className='text-muted'>Project Canban for this repo:</div>
-                {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
-              </div>
-          </div>
-        </details>
-        {/* {projectModalDiv} */}
+        </Card>
+        <Card className="project p-1 m-1 me-0">
+          {/* <CardHeader className="card-header">Content:</CardHeader> */}
+          <CardBody className="card-body">
+            <CardTitle className="card-title-bold nobreak">Model Suite:  {state.phData.metis.name}</CardTitle>
+            <CardSubtitle className="card-subtitle-bold text-secondary">{state.phData.metis.description}</CardSubtitle>
+            {/* <CardGroup className="project "> */}
+              <CardText className="card-text fs-6 border-top">
+              <div className="border-top"> Models:</div>
+                  {models.map((model: any, index: any) => {
+                    return (
+                      <Card className="project p-2 m-0 me-0" key={index}>
+                          <CardSubtitle className="card-subtitle-bold"><span className=" fs-5">{model.name}</span></CardSubtitle>
+                          <div className="text-secondary">{model.description}</div>
+                          <CardSubtitle className="card-subtitle-bold">Modelviews:</CardSubtitle>
+                          <ul style={{ listStyleType: 'disc', listStylePosition: 'inside' }}>
+                          {model.modelviews.map((modelview: any, index: any) => {
+                            return (
+                              <li className="align-items-center" key={index} style={{ listStyleType: 'circle', listStylePosition: 'inside'}}>
+                                <span className="text-bold fs-5">{modelview.name}</span> 
+                                <span className="text-secondary">{modelview.description}</span>
+                              </li>
+                            );
+                          })}
+                          </ul>
+                      </Card>
+                    );
+                  })}
+                        </CardText>
+            {/* </CardGroup> */}
+          </CardBody>
+        </Card>
       </div>
-    );
   </>
   );
 };

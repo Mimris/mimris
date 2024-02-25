@@ -85,7 +85,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
 
   return (
     <>  
-      <div  className="h5 w-100">Project: name : <span className="bg-light ms-2 px-2 w-100"> {namenew}</span></div>    
+      <div  className="h5 w-100">Project name : <span className="bg-light ms-2 px-2 w-100"> {namenew}</span></div>    
       <hr />
       <div className='d-flex justify-content-around '>
         GitHub repository parameters necessary to access the repository and the project file.
@@ -122,6 +122,7 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
             <label>Path:</label>
             <input className='rounded bg-white px-1 border-light w-50'
               type="text"
+              placeholder="models"
               value={path}
               onChange={(e) => setPath(e.target.value)}
             />

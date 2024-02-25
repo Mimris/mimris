@@ -11,8 +11,6 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'r
 import classnames from 'classnames';
 
 import Page from './page';
-// import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
-// import StartStateJson from '../startupModel/AKM-Start-IRTV_PR.json'
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
@@ -33,10 +31,6 @@ import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 // import ReportModule from "./ReportModule";
 // import ProjectDetailsModal from "./modals/ProjectDetailsModal";
 import useLocalStorage from '../hooks/use-local-storage'
-import EditFocusModal from '../components/EditFocusModal'
-// import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-// import CreateNewModel  from './akmm-api/CreateNewModel';
-
 
 // import * as akm from '../akmm/metamodeller';
 import * as uib from '../akmm/ui_buildmodels';

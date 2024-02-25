@@ -38,8 +38,8 @@ const page = (props) => {
   return (
     <>
       <div className="workpad p-1 bg-light">
-        <div className="homepage1 bg-light ">
-          <div>
+        <div className="homepage1 bg-light">
+          <div className="row">
             {/* <Card className="card bg-secondary p-0 mb-2" >
               <CardBody id="lighten" className="homepage2 bg-secondary p-2" >
                 <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
@@ -48,7 +48,65 @@ const page = (props) => {
               </CardBody>
             </Card> */}
             {/* <CardGroup> */}
-            <CardColumns className="w-50">
+            <div className="col-3">
+              <Card className="card "
+                  style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "2px"
+                  }}
+              >
+                  <CardHeader className="card-header">AKM Modeller</CardHeader>
+                  <CardBody className="card-body" >
+                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
+                  <CardText className="card-text">          
+                  AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
+                      <br /><br />
+                  With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+                  The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
+                  </CardText>
+                  </CardBody>
+              </Card>
+              <Card className="card" body outline color="warning"
+                  style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  // position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  margin: "0 auto",
+                  padding: "2px"
+                  }}              
+              >
+                  <CardHeader className="card-header">Active Knowledge Modelling</CardHeader>
+                  <CardBody className="card-body" >
+                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
+                  <CardText className="card-text">
+                      Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and innovation and learning. AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                      <br /><br />
+                      The AKM novelty comes from how relationships between roles, tasks, properties and knowledge and data are captured and presented in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment. 
+                      <br /><br />
+                      An enterprise development and innovation team can model new Concepts and Capabilities. These Concept models may be used to enhance the meta-models of innovation projects, which again design new POPS components and solutions.
+                      <br /><br />
+                      The effects from deploying AKM based solutions are many. Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. Shared views supporting design parameter balancing are modelled, and task execution can be in line with applicable regulations and policies. Role-specific task execution may create new tasks and services for other roles, and as such AKM makes collaboration and alignment more transparent, effective and precise, with direct impact on design quality, safety and security.
+                      <br /><br />  
+                      <br /><br />
+                      (more in the About page ....)
+                      <br /><br />           
+                  </CardText>
+                  </CardBody>
+              </Card>
+            </div>
+            
+            <CardColumns className="col-3">
               {/* <Card> */}
               <Card body outline color="warning">
                 <CardHeader>Active Knowledge Models</CardHeader>
@@ -75,8 +133,8 @@ const page = (props) => {
                 {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
                 {/* <Card> */}
               </Card>
-              </CardColumns>
-              <CardColumns className="w-50">
+            </CardColumns>
+            <CardColumns className="col-3">
               <Card body outline color="danger">
                 <CardHeader>IRTV Modelling</CardHeader>
                 <CardBody style={{ backgroundColor: '#dedede' }} className="homepage3" >
@@ -125,7 +183,7 @@ const page = (props) => {
                 </CardBody>
               </Card>
             </CardColumns>
-            <CardColumns className="w-50">
+            <CardColumns className="col-3">
             <Card body outline color="primary" >
               <CardBody className="homepage1" >
                 <CardTitle style={{ fontWeight: "bolder" }}>Knowledge Management</CardTitle>
@@ -181,6 +239,7 @@ const page = (props) => {
             {/* </CardGroup> */}
 
             {/* <Card> */}
+          </div>
             <Card body inverse color="warning" >
               <CardBody className="hompage4">
                 <CardText>
@@ -198,7 +257,6 @@ const page = (props) => {
               </CardBody>
             </Card>
 
-          </div>
         </div>
         <style jsx>{`
           .workpad {

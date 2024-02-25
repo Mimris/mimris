@@ -42,15 +42,15 @@ const page = (props) => {
   // }, [focusModelview])
 
   return (
-    <div className="workpad p-0" >
-      <div className="homepage row pt-3 pr-0">
-        <div className="col p-0 pt-0">
+    <div className="workpad me-2" >
+      <div className="homepage pt-2 pr-0">
+        <div className="p-0 pt-0">
           <GettingStarted />
-        </div>
-        <div className="col" style={{maxHeight: "42px"}}> {/* releasenotes */}
-         <Card className="card"
+        {/* </div>
+        <div className="col" style={{maxHeight: "42px"}}> releasenotes */}
+         <Card className="card mt-2 me-3"
                 style={{
-                background: "rgba(255,255,255,0.4)",
+                maxHeight: "60vh", overflow: "scroll",
                 borderRadius: "10px",
                 border: "1px solid rgba(255,255,255,0.2)",
                 position: "relative",

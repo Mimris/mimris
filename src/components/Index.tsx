@@ -48,7 +48,7 @@ const page = (props) => {
           <GettingStarted />
         {/* </div>
         <div className="col" style={{maxHeight: "42px"}}> releasenotes */}
-         <Card className="card mt-2 me-3"
+          <Card className="card mt-2 me-3"
                 style={{
                 maxHeight: "60vh", overflow: "scroll",
                 borderRadius: "10px",
@@ -60,7 +60,7 @@ const page = (props) => {
                 margin: "0 auto",
                 padding: "0px"
                 }}
-            >
+          >
             <CardHeader className="card-header " >AKMM release log ... </CardHeader>
             {/* <CardBody className="card-body" >  
               <CardTitle className="card-title-bold" >Backlog ...</CardTitle>

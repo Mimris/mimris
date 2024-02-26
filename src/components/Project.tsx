@@ -80,7 +80,7 @@ const Project = (props) => {
     <>
       <div className="project-modelsuite">
         <Card className="project p-1 m-1 me-0">
-          <CardHeader className="card-header">Project GitHub Details</CardHeader>
+          <CardHeader className="card-header">Project Details</CardHeader>
           <CardBody className="card-body bg-light">
             <CardTitle className="card-title-bold nobreak">Project: {props.props.phData.metis.name}</CardTitle>
             <CardSubtitle className="card-subtitle-bold"> {props.props.phData.metis.description}</CardSubtitle>
@@ -91,8 +91,27 @@ const Project = (props) => {
                 <div className="border fs-6 p-1 w-75">Repository: {props.props.phFocus.focusProj.repo} </div>
                 <div className="border fs-6 p-1 ">Path: {(props.props.phFocus.focusProj.path) ? props.props.phFocus.focusProj.path : 'models'}</div>
                 <div className="border fs-6 p-1">Branch: {props.props.phFocus.focusProj.branch}</div>
+              </div>File:
+              <div className="borde fs-6">{props.props.phFocus.focusProj.file}</div>
+              <hr />
+              Current User:
+                <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser.name} </div>
+                <div className="border fs-6 p-1">E-mail: {props.props.phUser.focusUser.email} </div>
+                <div className="border fs-6 p-1">Role: {props.props.phFocus.focusRole.name} </div>
+                <div className="border fs-6 p-1">Task: {props.props.phFocus.focusTask.name} </div>
+              <div className="justify-content-between align-items-baseline borde mt-2">In Focus:
+                <div className="border fs-6 p-1">Model: {props.props.phFocus.focusModel.name} </div>
+                <div className="border fs-6 p-1">Modelview: {props.props.phFocus.focusModelview.name} </div>
+                <div className="border fs-6 p-1">Object: {props.props.phFocus.focusObject.name} </div>
+                <div className="border fs-6 p-1">Objecttype: {props.props.phFocus.focusObjecttype.name} </div>
+                <div className="border fs-6 p-1">Target metamodel: {props.props.phFocus.focusTargetMetamodel.name} </div>
+                {/* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModel} </div> */}
+                {/* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModelview} </div> */}
+
+                <div className="border fs-6 p-1">Source: {props.props.phFocus.focusSource.name} </div>
+
               </div>
-              <div className="border fs-6">File: {props.props.phFocus.focusProj.file}</div>
+
             </CardText>
           </CardBody>
         </Card>

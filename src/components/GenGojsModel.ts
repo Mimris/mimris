@@ -55,7 +55,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
     if (debug) console.log('54 GenGojsModel: curmodview', curmodview, curmod, focusModelview, curmod?.modelviews)
 
-    
     const myMetis = new akm.cxMetis();
 
     if (debug) console.log('51 GenGojsModel: metis', metis);
@@ -95,7 +94,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
         if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
-      let instancesModel;
+      // let instancesModel;
       // instancesModel = uib.buildInstancesModel(myMetis, dispatch, myModel);
 
       if (debug) console.log('98 phFocus', props.phFocus);

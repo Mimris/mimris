@@ -43,10 +43,10 @@ const page = (props: any) => {
                       <hr />
                       <h5 className="card-title">Metamodelling</h5>
                       <div className="card-text m-2">
-                        <a href="" 
-                          className="button btn-link bg-light text-secondary rounded p-2" target="_blank">
+                        <a href="https://app.guidde.com/share/playbooks/hmkKyNh7gndzmyt5XC2nhx?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
                           {/* <i className="fa fa-arrow-left fa-sm"></i> */}
-                          Bulding a Metamodel for the example above (coming soon)
+                          Bulding a Metamodel as a Typedefinition model for the example above (coming soon)
                         </a>
                       </div>
                       <hr />

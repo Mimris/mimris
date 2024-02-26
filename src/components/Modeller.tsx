@@ -647,11 +647,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </Nav>
       <TabContent className="bg-white p-0 m-0 border border-white">
         <TabPane className="">
-            <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
-              {(visibleObjects)
-                ?  <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
-                : <></>
-              }
+          <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none"}}>
+            {(visibleObjects)
+              ?  <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px"}}></div>{objectsTabDiv}</Col> </>
+              : <></>
+            }
             <Col className="me-2 my-1 p-1 border" xe="auto" >
               <div className="workpad bg-white border-light mt-0 pe-0">
                 {gojsapp}

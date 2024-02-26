@@ -270,44 +270,50 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (run === false) {
           run = true;
           let data = draft.selectedData as any;  // only reached if selectedData isn't null
-          if (debug) console.log('248 data, value, this', data, value, this);
+          if (debug) console.log('273 data, value, this', data, value, draft, this);
           data[propname] = value;
           if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur, data[propname], data);
+          // if (!this.mapNodeKeyIdx || this.mapNodeKeyIdx.size === 0) {
+          //   draft.skipsDiagramUpdate = false;
+          //   return;
+          // }
           const key = data.key;
-          if (debug) console.log('253 key', key);
-          if (obj.category === constants.gojs.C_OBJECT) {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
+          if (debug) console.log('277 key', key, this.mapNodeKeyIdx.size, data);
+
+            if (obj.category === constants.gojs.C_OBJECT) {
+              const idx = this.mapNodeKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.nodeDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
             }
-          }
-          if (obj.category === constants.gojs.C_RELATIONSHIP) {
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
+            if (obj.category === constants.gojs.C_RELATIONSHIP) {
+              const idx = this.mapLinkKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.linkDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
             }
-          }
-          if (obj.category === constants.gojs.C_OBJECTTYPE) {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
+            if (obj.category === constants.gojs.C_OBJECTTYPE) {
+              const idx = this.mapNodeKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.nodeDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
             }
-          }
-          if (obj.category === constants.gojs.C_RELSHIPTYPE) {
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
+            if (obj.category === constants.gojs.C_RELSHIPTYPE) {
+              const idx = this.mapLinkKeyIdx.get(key);
+              if (idx !== undefined) {
+                draft.linkDataArray[idx] = data;
+                draft.skipsDiagramUpdate = false;
+              }
             }
-          }
+          
         }
       })
     );
-    if (debug) console.log('287 obj, context', obj, context);
-    if (debug) console.log('288 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
+    if (debug) console.log('309 obj, context', obj, context);
+    if (!debug) console.log('310 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -3913,6 +3919,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </TabPane>
         </TabContent>
       </>
+
     return (
       <div>
         <ReactDiagram

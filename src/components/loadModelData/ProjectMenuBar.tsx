@@ -231,11 +231,19 @@ export const ProjectMenuBar = (props: any) => {
                     </div>
                 </div>
             </>
-        :   <div className="ms-auto me-5 pb-1 px-1 pt-0 rounded-2 mt-0" 
-                style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "20px", width: "22px",height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+        :   <div className="d-flex justify-content-end align-items-center"
                 onClick={() => props.setExpanded(true)}
             >
-                <i className="fa fa-arrow-left fa-sm"></i> Menubar
+                <div className="me-auto ms-4 pb-1 px-1 pt-0 rounded-2 mt-0" 
+                    style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "20px", width: "22px",height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                    >
+                    Menubar <i className="fa fa-arrow-right fa-sm"></i>
+                </div>
+                <div className="ms-auto me-5 pb-1 px-1 pt-0 rounded-2 mt-0" 
+                    style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "20px", width: "22px",height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                    >
+                    <i className="fa fa-arrow-left fa-sm"></i> Menubar
+                </div>
             </div>
 
 

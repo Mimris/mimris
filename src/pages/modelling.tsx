@@ -32,6 +32,7 @@ const page = (props: any) => {
   const dispatch = useDispatch()
 
   const [showModal, setShowModal] = useState(false);
+  const [showIssueModal, setShowIssueModal] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [minimized, setMinimized] = useState(true);
 
@@ -206,7 +207,11 @@ const page = (props: any) => {
   const contextDiv = (  (expanded) &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
-      <ContextView ph={props} showModal={showModal} setShowModal={setShowModal}  />
+      <ContextView ph={props} 
+        showModal={showModal} 
+        setShowModal={setShowModal}  
+        showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
+      />
     </div>
   )
 
@@ -224,7 +229,12 @@ const page = (props: any) => {
               style={{ backgroundColor: "#ffffea"}}>
               {expanded && <>
               <div className="issuesarea">
-                <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized} expanded={expanded} setExpanded={setExpanded} />
+                <Issues props={props} 
+                  showModal={showModal} setShowModal={setShowModal} 
+                  showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
+                  minimized={minimized} setMinimized={setMinimized} 
+                  expanded={expanded} setExpanded={setExpanded}
+                />
               </div>
               <div className="contextarea">
                 {contextDiv}

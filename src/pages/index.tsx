@@ -104,21 +104,25 @@ const page = (props: any) => {
             <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
             <div className="context-bar d-flex justify-content-between align-items-center" 
               style={{  backgroundColor: "#ffffed" }}>
-              {expanded && <>
-              <div className="issuesarea">
-                <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/>
-              </div>
-              <div className="contextarea">
-                {contextDiv}
-              </div>
-              <div className="tasksarea mr-1 bg-transparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-              </div>
-              </>
-               }
+              {expanded && 
+                <>
+                  <div className="issuesarea">
+                    <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/>
+                  </div>
+                  <div className="contextarea">
+                    {contextDiv}
+                  </div>
+                  <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                    <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                  </div>
+                </>
+              }
             </div>
-            <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
-              <div className="col-5 m-3 mx-0 ms-2 p-0 border rounded">
+              <div className="workplace row d-flex justify-content-between ms-2" style={{backgroundColor: "#10859a"}}>
+                <div className="tasksarea bg-transparent col-4 m-1">
+                  <Project props={props}/>
+                </div>
+                <div className="col-4 m-2 mx-0 ms-2 p-0 border rounded">
                   <div className="text-center bg-light">
                     GitHub:  README.md
                   {iframe}
@@ -127,7 +131,7 @@ const page = (props: any) => {
               {/* <div className="tasksarea">
                 <TasksHelp />
               </div> */}
-              <div className="workarea col-7">
+              <div className="workarea col-4 ">
                   {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>
             </div>

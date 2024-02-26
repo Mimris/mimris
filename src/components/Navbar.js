@@ -99,7 +99,7 @@ const Navbar = (props) => {
 						<DropdownMenu options={options} domainName={domainName} />
 					</div>
 				</div>
-				<ul className="navbar-nav ">
+				<ul className="navbar-nav mt- ">
 					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
 						<Link href="/">Home</Link>
 					</li>
@@ -190,7 +190,7 @@ const Navbar = (props) => {
 				display: flex;
 				justify-content: center;
 				align-items: baseline; 
-				padding: 0px 10px;
+				padding: 2px 10px;
 				width: 100%;
 				height: 100%;
 				background: #ebf0f0;
@@ -229,11 +229,11 @@ const Navbar = (props) => {
 			/* Specific styles for active links */
 			.active {
 				color: black;
-				background: #b0cfcf;
+				background: #bacfcf;
 				border-top: 0px solid #fff;
 				border-right: 3px solid #ccc;
 				border-left: 3px solid #fff;
-				border-bottom: 4px solid #b0cfcf;
+				border-bottom: 4px solid #bacfcf;
 				border-radius: 10px 10px 0 0;
 			}
 				/* Specific styles for the navbar brand */

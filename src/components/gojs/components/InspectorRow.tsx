@@ -88,7 +88,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               // type={this.props.type}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}
-              rows={ Math.ceil((val?.length) / 69)}
+              rows={ Math.ceil((val?.length) / 69) || 1}
               >
             </textarea>
           </td>

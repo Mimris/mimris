@@ -265,8 +265,9 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
       if (debug) console.log('276 Tasks', sm);
       const sourceMetamodel = metamodels?.find((mm: { id: any; }) => mm.id === sm.metamodelRef);
 
-      let subTasks = sm.objects.filter((o: { typeRef: any; }) => o.typeName === "Task"); ;
-      let subRoles = sm.objects.filter((o: { typeRef: any; }) => o.typeName === "Role"); ;
+      let filteredTasks = sm.objects.filter(o => o.typeName === "Task")
+      let subTasks = filteredTasks.sort((a, b) => a.name.localeCompare(b.name));
+      let subRoles = sm.objects.filter((o: { typeRef: any; }) => o.typeName === "Role");
       if (debug) console.log('280 Tasks', subTasks);
 
       const tasksDiv = subTasks.map((subtask: ItemType) => {
@@ -298,7 +299,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const genTasksHeaderDiv  =  
     <>
         <div className="tasklist p-1 mt-2 me-2"
-          style={{  backgroundColor: "lightyellow", position: "fixed",   top: "170px",right: "0%",  width: "400px",  height: "82vh",  zIndex: "999"}}
+          style={{  backgroundColor: "lightyellow", position: "fixed",   top: "170px",right: "0%",  width: "400px",  height: "78vh",  zIndex: "999"}}
           // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
             ref={containerRef}
           >
@@ -309,7 +310,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
             X
             </button>
           <div className="fle-d">
-            <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Tasks</div>
+            <div className="ps-2 text-success font-weight-bold fs-5 " >Tasks Modelling Guides</div>
             <div>
               Role:{" "}
               <span className="font-weight-bold text-success bg-white p-1">
@@ -382,7 +383,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         style={{backgroundColor: "#ffffdd"}}
         onClick={() => setMinimized(false)}
       >
-        <span className="fs-6" style={{ whiteSpace: "nowrap"}}>Tasks <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
+        <span className="fs-6" style={{ whiteSpace: "nowrap"}}>Tasks Guides <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
       </button>
     );
   } else {
@@ -396,7 +397,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           onClick={() => setMinimized(true) }
           // style={{ backgroundColor: "lightyellow"}}
           >
-            <span className="fs-8">Tasks <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
+            <span className="fs-8" style={{ whiteSpace: "nowrap"}}>Tasks <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
         </button>
         <div className="tasklist  pe-2" 
               // ref={containerRef}

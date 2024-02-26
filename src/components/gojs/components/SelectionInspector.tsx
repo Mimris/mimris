@@ -68,9 +68,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let inst, inst1, instview, instview1, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenInst, description, currentType, properties, pointerProps;
-    let chosenType = null as akm.cxObjectType;
+    let inst, inst1, instview, instview1;
+    let type, type1, typeview, objtypeview, reltypeview;
+    let item, chosenInst, description, currentType, pointerProps;
+    let properties: akm.cxProperty[];
+    let chosenType: akm.cxObjectType;
     let typename = "";
     let typedescription = "";
     switch(category) {
@@ -84,7 +86,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type = selObj.objecttype as akm.cxObjectType;
         type1 = myMetis.findObjectType(type?.id) as akm.cxObjectType;
         if (type1) type = type1;
-        objtypeview = type?.typeview as akm.cxObjectTypeView;
+        let objtypeview = type1?.typeview as akm.cxObjectTypeView;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id) as akm.cxObjectTypeView;
         typeview = objtypeview;
         break;
@@ -92,7 +94,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type = selObj.objecttype;
         type1 = myMetis.findObjectType(type?.id);
         if (type1) type = type1;
-        objtypeview = type?.typeview;
+        objtypeview = type1?.typeview;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
         typeview = objtypeview;
         break;

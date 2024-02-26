@@ -250,7 +250,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             oldName = objtype.getName();
             objtype.setName(newName);
             objtype.setDescription(object.description);
-            // objtype.typeDescription = currentObj.typeDescription;
+            objtype.typeDescription = currentObj.typeDescription;
         }
     } else // Check if the type has not been generated, but exists anyway
     {        
@@ -1011,96 +1011,110 @@ export function askForTargetMetamodel(context: any) {
     myDiagram.handleOpenModal(mmlist, modalContext);
 }
 
-export function generateTargetMetamodel2(context: any) {
+export function generateTargetMetamodel2(context: any) { // postoperation
+    let modelviewList = ['01-Property', '02-EntityType', '03-MethodTypes', '1-AKM Core', '2-IRTV', '1-AKM Core'];
     const myMetis: akm.cxMetis = context.myMetis;
     let sourcemodelview = buildTemporaryModelView(context);
     sourcemodelview = context.myCurrentModelview;
     const args = context.args;
     let targetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
-    let sourcemodel = context.myModel;
     if (!targetMetamodel)
         return false;
     if (!sourcemodelview)
         return false;
-
-    // Get the relevant objectviews and relshipviews
     targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
-    const objectviews = sourcemodelview.objectviews;
-    let objviews = new Array();
-    let relshipviews = new Array();
-    for (let i=0; i<objectviews.length; i++) {
-        const objectview = objectviews[i];
-        const object = objectview.object;
-        if (!object) continue
-        if (object.type.name === constants.types.AKM_METAMODEL) {
-            // Follow 'contains' relationships
-            let relviews = objectview.getOutputRelviews();
-            for (let j=0; j<relviews?.length; j++) {
-                let relview = relviews[j];
-                let rel = relview.relship;
-                if (rel?.type?.name === constants.types.AKM_CONTAINS) {
-                    let toObj = rel.toObject;
-                    if (toObj.type.name === constants.types.AKM_ENTITY_TYPE) {
-                        objviews.push(relview.toObjview);
-                    }
-                }
-            }
+    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
+        if (sourcemodelview.name !== '1-AKM Core') {
+            modelviewList = [];
+            modelviewList.push(sourcemodelview.name);
         }
-        if (object.type.name === constants.types.AKM_RELSHIP_TYPE) {
-            objviews.push(objectview);
-        }
+    } else {
+        modelviewList = [];
+        modelviewList.push(sourcemodelview.name);
     }
-    relshipviews = sourcemodelview.relshipviews;
-
-    for (let i=0; i <= objectviews?.length; i++) {
-        const objview = objectviews[i];
-        if (!objview /*|| objview.markedAsDeleted*/) 
-            continue;
-        let obj = objview.object;
-        if (!obj /*|| obj.markedAsDeleted*/) 
-            continue;
-        if (obj.isOfType('Metamodel')) {
-            const fromType = obj.type;
-            let toType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
-            // Follow 'hasSubMetamodel' relationships
-            let containsType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, fromType, toType);
-            const submetaObjects = getSubMetaModelObjects(obj, containsType);
-            for (let i=0; i<submetaObjects?.length; i++) {
-                const submetaObject = submetaObjects[i];
-                if (submetaObject) {
-                    const metamodel = myMetis.findMetamodelByName(submetaObject.name);
-                    if (metamodel) {
-                        targetMetamodel.addSubMetamodel(metamodel);
+    // Now go through the modelviewList and execute 'generate metamodel' for each modelview
+    let sourcemodel = context.myModel;
+    for (let i=0; i<modelviewList.length; i++) {
+        const sourcemodelview = sourcemodel.findModelViewByName(modelviewList[i]);
+        if (sourcemodelview) {
+            // Get the relevant objectviews and relshipviews
+            const objectviews = sourcemodelview.objectviews;
+            let objviews = new Array();
+            let relshipviews = new Array();
+            for (let i=0; i<objectviews.length; i++) {
+                const objectview = objectviews[i];
+                const object = objectview.object;
+                if (!object) continue
+                if (object.type.name === constants.types.AKM_METAMODEL) {
+                    // Follow 'contains' relationships
+                    let relviews = objectview.getOutputRelviews();
+                    for (let j=0; j<relviews?.length; j++) {
+                        let relview = relviews[j];
+                        let rel = relview.relship;
+                        if (rel?.type?.name === constants.types.AKM_CONTAINS) {
+                            let toObj = rel.toObject;
+                            if (toObj.type.name === constants.types.AKM_ENTITY_TYPE) {
+                                objviews.push(relview.toObjview);
+                            }
+                        }
+                    }
+                }
+                if (object.type.name === constants.types.AKM_RELSHIP_TYPE) {
+                    objviews.push(objectview);
+                }
+            }
+            relshipviews = sourcemodelview.relshipviews;
+            for (let i=0; i <= objectviews?.length; i++) {
+                const objview = objectviews[i];
+                if (!objview /*|| objview.markedAsDeleted*/) 
+                    continue;
+                let obj = objview.object;
+                if (!obj /*|| obj.markedAsDeleted*/) 
+                    continue;
+                if (obj.isOfType('Metamodel')) {
+                    const fromType = obj.type;
+                    let toType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
+                    // Follow 'hasSubMetamodel' relationships
+                    let containsType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, fromType, toType);
+                    const submetaObjects = getSubMetaModelObjects(obj, containsType);
+                    for (let i=0; i<submetaObjects?.length; i++) {
+                        const submetaObject = submetaObjects[i];
+                        if (submetaObject) {
+                            const metamodel = myMetis.findMetamodelByName(submetaObject.name);
+                            if (metamodel) {
+                                targetMetamodel.addSubMetamodel(metamodel);
+                            }
+                        }
+                    }
+                    // Follow 'hasSubModel' relationships
+                    toType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
+                    const hasSubmodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, fromType, toType);
+                    const submodelObjects = getSubModelObjects(obj, hasSubmodelType);
+                    for (let i=0; i<submodelObjects?.length; i++) {
+                        const submodelObject = submodelObjects[i];
+                        if (submodelObject) {
+                            let model = myMetis.findModelByName(submodelObject.name);
+                            if (!model) {
+                                model = new akm.cxModel(utils.createGuid(), submodelObject.name, submodelObject.description);
+                                myMetis.addModel(model);
+                            }
+                            if (model) {
+                                targetMetamodel.addSubModel(model);
+                            }
+                        }
                     }
                 }
             }
-            // Follow 'hasSubModel' relationships
-            toType = myMetis.findObjectTypeByName(constants.types.AKM_MODEL);
-            const hasSubmodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMODEL, fromType, toType);
-            const submodelObjects = getSubModelObjects(obj, hasSubmodelType);
-            for (let i=0; i<submodelObjects?.length; i++) {
-                const submodelObject = submodelObjects[i];
-                if (submodelObject) {
-                    let model = myMetis.findModelByName(submodelObject.name);
-                    if (!model) {
-                        model = new akm.cxModel(utils.createGuid(), submodelObject.name, submodelObject.description);
-                        myMetis.addModel(model);
-
-                    }
-                    if (model) {
-                        targetMetamodel.addSubModel(model);
-                    }
-                }
-            }
+            // Generate the target metamodel
+            context.myTargetMetamodel = targetMetamodel;
+            targetMetamodel = generateMetamodel(objviews, relshipviews, context);
         }
+        console.log('1108 sourcemodelview has been generated: ' + sourcemodelview.name);    
     }
-
-    // Generate the target metamodel
-    context.myTargetMetamodel = targetMetamodel;
-    targetMetamodel = generateMetamodel(objviews, relshipviews, context);
 
     // Check if there already exists models based on the generated metamodel
     // const models = myMetis.getModelsByMetamodel()
+    alert("The metamodel " + targetMetamodel.name + " has been successfully generated!");
     return true;
 }
 
@@ -1957,7 +1971,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
     });
     }
-    alert("The metamodel " + targetMetamodel.name + " has been successfully generated!");
     return targetMetamodel;
 }
 

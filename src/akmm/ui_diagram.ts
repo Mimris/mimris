@@ -2199,7 +2199,7 @@ function addSubModel1(context: any) {
             const submodelObj = submodelObjects[i];
             modelnames += ", " + submodelObj.name;
         }
-        const test = prompt('Generating submodel(s)', modelnames);
+        const test = prompt('Accept Generating the Submodel(s)', modelnames);
         if (test) {
             const modifiedModels = new Array();
             const modifiedMetamodels = new Array();

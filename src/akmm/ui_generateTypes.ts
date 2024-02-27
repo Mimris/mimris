@@ -3,6 +3,7 @@ const debug = false;
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
+import * as uid from './ui_diagram';
 import * as jsn from './ui_json';
 import { has } from 'immer/dist/internal';
 const constants = require('./constants');
@@ -1012,7 +1013,8 @@ export function askForTargetMetamodel(context: any) {
 }
 
 export function generateTargetMetamodel2(context: any) { // postoperation
-    let modelviewList = ['01-Property', '02-EntityType', '03-MethodTypes', '1-AKM Core', '2-IRTV', '1-AKM Core'];
+    let modelviewList = constants.core.AKM_MODELVIEWS;
+    // ['01-Property', '02-EntityType', '03-MethodTypes', '1-AKM Core', '2-IRTV', '1-AKM Core'];
     const myMetis: akm.cxMetis = context.myMetis;
     let sourcemodelview = buildTemporaryModelView(context);
     sourcemodelview = context.myCurrentModelview;
@@ -1115,6 +1117,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     // Check if there already exists models based on the generated metamodel
     // const models = myMetis.getModelsByMetamodel()
     alert("The metamodel " + targetMetamodel.name + " has been successfully generated!");
+    const myObject = context.myCurrentObjectview.object;
+    uid.addSubModels(myObject, myMetis, context.myDiagram);
     return true;
 }
 

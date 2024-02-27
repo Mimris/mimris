@@ -217,7 +217,7 @@ const page = (props: any) => {
     myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
     myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
     myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-    myGoObjectPalette = (myModel.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
+    myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
     if (!myModel?.objects) { console.log('196 myModel.objects is undefined', myMetis);
       // return null
     } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}

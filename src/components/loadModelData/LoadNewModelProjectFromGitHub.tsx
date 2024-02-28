@@ -20,7 +20,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const modalRef = useRef(null);
   // const backdropref = useRef(null);
 
-  if ((debug)) console.log('23 LoadNewModel....', props)
+  if ((!debug)) console.log('23 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`

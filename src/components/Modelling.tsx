@@ -330,10 +330,10 @@ const page = (props: any) => {
             <NavLink
               style={{
                 paddingTop: "0px",
-                paddingBottom: "6px",
+                paddingBottom: "2px",
                 paddingLeft: "8px",
                 paddingRight: "8px",
-                border: "solid px",
+                border: "solid 1px",
                 borderBottom: "none",
                 borderColor: "#eee gray white #eee",
                 color: "black",
@@ -483,12 +483,12 @@ const page = (props: any) => {
 
     const modellingtabs = (
       <>
-        <Nav tabs style={{ minWidth: "350px", borderBottom: "white"}} >
+        <Nav tabs style={{ minWidth: "50px", borderBottom: "white"}} >
           <span className="ms-1 me-5">
-            <button className="mb-1 pb-4 ms-0 me-5"
+            <button className="p-0 ms-0 me-5"
               data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
               onClick={() => setMmToggle(!mmToggle)}
-              style={{ borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#a0caca" }}
+              style={{ borderColor: "transparent", width: "116px", height: "24px", fontSize: "16px", backgroundColor: "#a0caca" }}
             >{(mmToggle) ? 'Models >' : 'Metamodel <>'}</button>
           </span>
           {navmodelDiv}
@@ -623,13 +623,13 @@ const page = (props: any) => {
 
     const modellingDiv =
       <>
-        <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
-          <div className="me-4">
-             <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
+        <div className="buttonrow d-flex justify-content-between align-items-center" style={{ maxHeight: "22px", minHeight: "18px", whiteSpace: "nowrap" }}>
+          <div className="me-2 my-0">
+             {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
-              ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button>
+              ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span> */}
           </div>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
 
@@ -676,12 +676,12 @@ const page = (props: any) => {
         </div>
       </>
 
-    // return (models.length > 0) && (
-    // return (mount && (gojsmodelobjects?.length > 0)) && (
+      // return (models.length > 0) && (
+      // return (mount && (gojsmodelobjects?.length > 0)) && (
     return ( (mmToggle) 
       ? <>
           <div className="diagramtabs pb-0" >
-            <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "50px"}}>
+            <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px"}}>
               {modellingDiv}
             </div>
             <div className="modellingContent mt-1 ">

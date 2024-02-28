@@ -307,7 +307,7 @@ const importFile = async (e) => {
 
   return (
     <>
-      <button className="btn bg-primary py-1 px-2 " onClick={toggle} ><i className="fa fa-house-tsunami me-2 ms-0 "></i>{buttonLabel}</button>
+      <span><button className="btn bg-primary text-light py-1 px-2" onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0"></i>{buttonLabel}</button></span>
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
         <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import OSDU Schema (JSON-files): </ModalHeader>

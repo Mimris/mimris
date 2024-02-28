@@ -1307,7 +1307,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         // dispatch to focusCollection here ???
-        // console.log('1086 selected', data, sel);
+        console.log('1086 selected', data, sel);
         break;
       }
       case "PartResized": {

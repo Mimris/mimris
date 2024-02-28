@@ -848,6 +848,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const obj = oview.object;
       oview.group = selObj.objectview?.group;
       myMetis.addObjectView(oview);
+      const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(oview.id);
       // End fix
       const objtypeview = oview.typeview;
       myDiagram.selection.each(function(sel) {
@@ -871,6 +872,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }
             try {
               objview[prop] = selObj[prop];
+              goNode[prop] = selObj[prop];
             } catch {}
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
@@ -919,7 +921,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.model.setDataProperty(data, 'image', obj['image']);
           }
         }
-        myDiagram.requestUpdate;
         // Do dispatch
         const jsnObjview = new jsn.jsnObjectView(objview);
         let data = JSON.parse(JSON.stringify(jsnObjview));

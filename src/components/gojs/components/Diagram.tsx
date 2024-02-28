@@ -347,7 +347,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             initialContentAlignment: go.Spot.Center,       // center the content
             initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": function () {
-              this.diagram.lastInput.shift = true;
+              // this.diagram.lastInput.shift = true;
               // go.ContextMenuTool.prototype.standardMouseSelect.call(this);
             },
             // layout: new go.TreeLayout({ isOngoing: false }),
@@ -2157,18 +2157,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const fromLink = link.from;
                   const toLink = link.to;
                   let relview: akm.cxRelationshipView = link.relshipview;
-                  relview = myModelview.findRelationshipView(relview.id);
-                  const fromObjview = relview.fromObjview;
-                  const toObjview = relview.toObjview;
-                  link.points = [];
-                  link.from = fromLink;
-                  link.to = toLink;
-                  myDiagram.model.setDataProperty(link, "points", []);
-                  relview.points = [];
-                  relview.fromObjview = fromObjview;
-                  relview.toObjview = toObjview;
-                  const jsnRelView = new jsn.jsnRelshipView(relview);
-                  modifiedRelshipViews.push(jsnRelView);
+                  relview = myModelview.findRelationshipView(relview?.id);
+                  if (relview) {
+                    const fromObjview = relview.fromObjview;
+                    const toObjview = relview.toObjview;
+                    link.points = [];
+                    link.from = fromLink;
+                    link.to = toLink;
+                    myDiagram.model.setDataProperty(link, "points", []);
+                    relview.points = [];
+                    relview.fromObjview = fromObjview;
+                    relview.toObjview = toObjview;
+                    const jsnRelView = new jsn.jsnRelshipView(relview);
+                    modifiedRelshipViews.push(jsnRelView);
+                  }
                 }
               }),
                 modifiedRelshipViews.map(mn => {
@@ -3698,7 +3700,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let obj1 = this.myMetis.findObject(obj?.id);
       if (!obj1) obj1 = obj;
       if (obj1?.type?.name === 'Method')
-        useTabs = false;
+        useTabs = true;
       if (obj1?.hasInheritedProperties(myModel)) {
         includeInherited = true;
         useTabs = true;

@@ -1014,7 +1014,6 @@ export function askForTargetMetamodel(context: any) {
 
 export function generateTargetMetamodel2(context: any) { // postoperation
     let modelviewList = constants.core.AKM_MODELVIEWS;
-    // ['01-Property', '02-EntityType', '03-MethodTypes', '1-AKM Core', '2-IRTV', '1-AKM Core'];
     const myMetis: akm.cxMetis = context.myMetis;
     let sourcemodelview = buildTemporaryModelView(context);
     sourcemodelview = context.myCurrentModelview;
@@ -1025,15 +1024,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     if (!sourcemodelview)
         return false;
     targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
-    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
-        if (sourcemodelview.name !== '1-AKM Core') {
-            modelviewList = [];
-            modelviewList.push(sourcemodelview.name);
-        }
-    } else {
-        modelviewList = [];
-        modelviewList.push(sourcemodelview.name);
-    }
+    modelviewList.push(sourcemodelview.name);
     // Now go through the modelviewList and execute 'generate metamodel' for each modelview
     let sourcemodel = context.myModel;
     for (let i=0; i<modelviewList.length; i++) {
@@ -1117,8 +1108,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     // Check if there already exists models based on the generated metamodel
     // const models = myMetis.getModelsByMetamodel()
     alert("The metamodel " + targetMetamodel.name + " has been successfully generated!");
-    const myObject = context.myCurrentObjectview.object;
-    uid.addSubModels(myObject, myMetis, context.myDiagram);
+    // const myObject = context.myCurrentObjectview.object;
+    // uid.addSubModels(myObject, myMetis, context.myDiagram);
     return true;
 }
 

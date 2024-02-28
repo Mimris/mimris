@@ -33,7 +33,7 @@ const page = (props: any) => {
 
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [minimized, setMinimized] = useState(true);
 
   function dispatchLocalStore(locStore) {

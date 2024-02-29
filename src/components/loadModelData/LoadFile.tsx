@@ -101,7 +101,11 @@ const LoadFile = (props: any) => {
     // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
     console.log('194 Loadfile', metamodels, data)
-
+    if (!data) {
+      console.log('196 Loadfile', data)
+      alert('No metamodel found in this modelview')
+      return
+    }
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
     // replace the _MM in 

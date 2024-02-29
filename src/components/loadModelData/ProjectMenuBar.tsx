@@ -45,7 +45,7 @@ export const ProjectMenuBar = (props: any) => {
     const projectModalRef = useRef(null);
 
     // const handleToggleDropdown = () => {
-    //     setIsDropdownOpen(!isDropdownOpen);
+    // setIsDropdownOpen(!isDropdownOpen);
     // };
 
     const handleReadProjectFile = (e: any) => {
@@ -54,11 +54,10 @@ export const ProjectMenuBar = (props: any) => {
 
     const handleSaveAllToFile = () => {
         setProjectname(props.props.phFocus.focusProj.name);
-        if (!debug) console.log('46 handleSaveAllToFile', props, projectname, props.props.phData, props.props.phFocus, props.props.phSource, props.props.phUser)
-        SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
         const data = `${projectname}_PR`
-        if ((!debug)) console.log('48 handleSaveAllToFile', data)
-            dispatch({ type: 'LOAD_TO_STORE_PHSOURCE', data: data })
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+        if (!debug) console.log('57 handleSaveAllToFile', props, projectname, props.props.phFocus)
+        SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
     }
 
     const handleCloseModal = () => {
@@ -133,10 +132,11 @@ export const ProjectMenuBar = (props: any) => {
         };
     }, []);
 
-    const loadGitHub = <LoadGitHub buttonLabel='Open' className='ContextModal' ph={props.props} refresh={props.refresh} setRefresh={props.toggleRefresh} />;
-    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New' className='ContextModal' ph={props} refresh={props.refresh} toggleRefresh={props.toggleRefresh} />;
+    const loadGitHub = <LoadGitHub buttonLabel='Open GitHub file' className='ContextModal' ph={props.props} refresh={props.refresh} setRefresh={props.toggleRefresh} />;
+    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New from template' className='ContextModal' ph={props} refresh={props.refresh} toggleRefresh={props.toggleRefresh} />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.toggleRefresh} />
-    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.toggleRefresh} />
+    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU JSON Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.toggleRefresh} />
+    const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh(!toggleRefresh)} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'Reload models' : 'Reload models'} </span>
 
     const loadFile = (
         <>
@@ -148,7 +148,7 @@ export const ProjectMenuBar = (props: any) => {
                 title="Click here to Open a Project file from local file system"
                 onClick={() => fileInputRef.current.click()}
                 >
-                <i className="fa fa-folder pe-1"></i>Open
+                <i className="fa fa-folder fa-lg pe-1"></i>Open local File
             </button>
             <input
                 type="file"
@@ -172,72 +172,81 @@ export const ProjectMenuBar = (props: any) => {
                 title="Click here to Save the Project file to the local file system"
                 onClick={handleSaveAllToFile}
                 >
-                <i className="fa fa-save"></i> Save
+                <i className="fa fa-save fa-lg"></i> Save to Local File
             </button>
         </>
     )
 
     const dropLeftMenuDiv =  (isDropdownOpen) &&
-        <div className="bg-light p-1" 
-        style={{ whiteSpace: "nowrap", position: "relative", top: "5px",left: "-10px", width: "12rem", height: "100%", backgroundColor: "#b0cfcf", zIndex: "9"}}
+        <div className="bg-light rounded-2 p-1" 
+        style={{ whiteSpace: "nowrap", position: "relative", top: "5px",left: "-10px", width: "16rem", height: "100%", 
+            backgroundColor: "#b0cfcf", zIndex: "9"}}
         >
-        <ul className="bg-light mx-1 rounded">
-        {['Open', 'New', 'File', 'Save'].map((item, index) => (
-            <li className="context-item border p-1 rounded-2"
-            key={index}
-            onClick={() => handleItemClick(item)}
-            style={{ backgroundColor: item === activeItem ? 'blue' : 'white' }}
-            >
-            {item === 'Open' 
-                ?  <div className="bg-secondary rounded">{loadGitHub}</div>
-                : item === 'New'
-                    ? <div className="bg-secondary rounded">{loadNewModelProject}</div>
-                    : item === 'File'
-                        ? <div className="bg-light rounded">{loadFile}</div>
-                        : item === 'Save'
-                        ? <div className="bg-light rounded">{saveFile}</div>
-                        : item    
-            }
-            </li>
-        ))}
-        </ul> 
+            <ul className="bg-light mx-1 rounded">
+                {['Open', 'New', 'File', 'Save'].map((item, index) => (
+                    <li className={`context-item border p-1 rounded-2 ${item === activeItem ? 'active' : ''}`}
+                    key={index}
+                    >
+                    <div onClick={() => handleItemClick(item)}
+                        style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
+                    >
+                        {item === 'Open' 
+                            ?  <div className="bg-secondary rounded">{loadGitHub}</div>
+                            : item === 'New'
+                                ? <div className="bg-secondary rounded">{loadNewModelProject}</div>
+                                : item === 'File'
+                                    ? <div className="bg-light rounded">{loadFile}</div>
+                                    : item === 'Save'
+                                    ? <div className="bg-light rounded">{saveFile}</div>
+                                    : item    
+                        }
+                    </div>
+                    </li>
+                ))}
+            </ul>
     </div>
 
     const dropRightMenuDiv =  (isRightDropdownOpen) &&
-        <div className="bg-light rounded-2 p-1" 
-        style={{ whiteSpace: "nowrap", position: "absolute", top: "32px", right: "-10px", width: "14rem",  backgroundColor: "#b0cfcf", zIndex: "9"}}
+        <div className="bg-light " 
+            style={{ whiteSpace: "nowrap", position: "absolute", top: "32px", right: "-12px", width: "16rem", height: "100%", 
+            backgroundColor: "#b0cfcf", zIndex: "99"}}
         >
-        <ul className="bg-light rounded">
-            {['EditProjectDetails', 'Import/Export', 'OSDU Import'].map((item, index) => (
-            <li className="context-item d-flex justify-content-start align-items-center border p-1 rounded-2"
-                key={index}
-                onClick={() => handleRightItemClick(item)}
-                style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
-            >
-                    {(item === 'EditProjectDetails') 
-                        ?   <button className="btn rounded-2 bg-light text-secondary" 
-                                style={{ whiteSpace: "nowrap", width: "100%", 
+            <ul className="bg-light mx-1 rounded">
+                {['EditProjectDetails', 'Import/Export', 'OSDU Import', 'Reload models'].map((item, index) => (
+                <li className={`context-item border p-1 rounded-2 ${item === activeItem ? 'active' : ''}`}
+                    key={index}
+                    >
+                    <div
+                        onClick={() => handleRightItemClick(item)}
+                        style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
+                    >
+                        {(item === 'EditProjectDetails') 
+                            ?   <div className="btn rounded-2 m-1 bg-light text-secondary" 
+                                    style={{ whiteSpace: "nowrap", width: "100%", 
                                     textAlign: "left", padding: "0px 0px 0px 6px", margin: "0px"
-                                }}
-                                data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                                title="Edit the Project details like the Project Name, GitHub Repository, Branch, File, etc."
-                                onClick={handleShowProjectModal} >
-                                <i className="fa fa-edit fa-lg"> </i> Project Details
-                            </button> 
-                        : (item === 'Import/Export')
-                            ? <div className="bg-light rounded w-100 "> {loadfile}</div>     
-                            : (item === 'OSDU Import')
-                                ? <div className="bg-light rounded w-100"> {loadjsonfile}</div>
-                                : <> more to come</>
-                }
-            </li>
-        ))}
-        </ul> 
-    </div>
+                                    }}
+                                    data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                                    title="Edit the Project details like the Project Name, GitHub Repository, Branch, File, etc."
+                                    onClick={handleShowProjectModal} >
+                                    <i className="fa fa-edit fa-lg"> </i> Project Details
+                                </div> 
+                            : (item === 'Import/Export')
+                                ? <div className="bg-light rounded w-100 "> {loadfile}</div>     
+                                : (item === 'OSDU Import')
+                                    ? <div className="bg-light rounded w-100"> {loadjsonfile}</div>
+                                    : (item === 'Reload models')
+                                        ? <div className="bg-light rounded w-100">{reload} </div> //{props.setToggleRefresh(!toggleRefresh)}</div>
+                                        : <> more to come</>
+                        }
+                    </div>
+                </li>
+            ))}
+            </ul> 
+        </div>
 
     const menubarDiv =   (props.expanded) 
         ?   <>
-                <div className="bg-transparent p-1"
+                <div className="bar-menu-left bg-transparent p-1"
                     style={{ 
                         position: "absolute",     
                         top: "4px", 
@@ -249,7 +258,7 @@ export const ProjectMenuBar = (props: any) => {
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
                 </div>
-                <div className="bg-light"
+                 <div className="bar-menu-right bg-light" 
                     style={{ 
                         position: "absolute",     
                         top: "6px", 
@@ -261,19 +270,22 @@ export const ProjectMenuBar = (props: any) => {
                     <i className="fa fa-ellipsis-v fa-lg"></i>
                     {dropRightMenuDiv}
                 </div>
+
                 <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-1" 
                     style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
                     <div className="d-flex justify-content-between align-items-center">
-                        <div className="menu-buttons"
-                            style={{  minWidth: "300px", scale: "0.8", whiteSpace: "nowrap"}}
-                        >
-                            <span className="ms-0">{loadGitHub}</span>
-                            <span className="ms-1">{loadNewModelProject}</span>
-                            {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
-                            {loadFile}
-                            {saveFile}
-                        </div>
+                        <details> <summary><i className="fa fa-ellipsis-h fa-lg me-4"></i></summary>
+                            <div className="menu-buttons"
+                                style={{  minWidth: "300px", scale: "0.8", whiteSpace: "nowrap"}}
+                            >
+                                <span className="ms-0">{loadGitHub}</span>
+                                <span className="ms-1">{loadNewModelProject}</span>
+                                {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
+                                {loadFile}
+                                {saveFile}
+                            </div>
+                        </details>
                         <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center ms-2">
                             <span className="context-item border rounded-2 " style={{  backgroundColor: "#ded" }}
                                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -381,9 +393,14 @@ export const ProjectMenuBar = (props: any) => {
                     <i className="fa fa-ellipsis-v fa-lg"></i>
                     {dropRightMenuDiv}
                 </div>
-                <div 
+                <div className="d-flex"
                     onClick={() => props.setExpanded(true)}
                 >
+                    <div className="ms-auto me-5 px-1 rounded-2" 
+                        style={{ whiteSpace: "nowrap", position: "relative", top: "-2px", right: "120px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                    >
+                        Project file: {props.props.phFocus.focusProj.file}
+                    </div>             
                     <div className="ms-auto me-5 px-1 rounded-2" 
                         style={{ whiteSpace: "nowrap", position: "relative", top: "-0px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
@@ -392,8 +409,6 @@ export const ProjectMenuBar = (props: any) => {
                 </div>
                 <div 
                     onClick={() => props.setExpanded(true)}
-                    // onClick={() => props.setFocusExpanded(true)}
-                    // onClick={() => props.setFocusExpanded(!props.focusExpanded)}
                 >
                     <div className="ms-auto me-5 px-1 rounded-2" 
                         style={{ whiteSpace: "nowrap", position: "relative", top: "16px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}

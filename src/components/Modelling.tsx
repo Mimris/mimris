@@ -123,7 +123,9 @@ const page = (props: any) => {
 
   if (debug) console.log('169 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
-  function toggleRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
+
+
+  function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('71 Modelling GenGojsModel run') //, memoryLocState, (Array.isArray(memoryLocState)));
     GenGojsModel(props, dispatch)
     // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
@@ -177,10 +179,10 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
 
-  // useEffect(() => {
-  //   if (debug) useEfflog('168');
-  //   setRefresh(!refresh)
-  // }, [curmod.objects])
+  useEffect(() => {
+    if (debug) useEfflog('183');
+    doRefresh()
+  }, [props.toggleRefresh])
 
   // useEffect(() => {
   //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
@@ -273,12 +275,15 @@ const page = (props: any) => {
 
 
     const handleSaveAllToFile = () => {
-      const projectname = props.phData.metis.name
+      let projectname = props.phSource
+      if (props.phFocus.focusProj.name !== '' || undefined) {
+        projectname = props.phFocus.focusProj.name
+        const data = `${projectname}_PR`
+        if ((debug)) console.log('292 handleSaveAllToFile', data)
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+      } 
       if ((debug)) console.log('289 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)  
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
-      const data = `${projectname}_PR`
-      if ((debug)) console.log('292 handleSaveAllToFile', data)
-      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
     }
 
     // const toggleTab = tab => {
@@ -342,10 +347,10 @@ const page = (props: any) => {
               onClick={() => {
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
-                toggleRefresh();
+                doRefresh();
               }}
             >
-              {m.name}
+              {(m.name.startsWith('_'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}}>{m.name}</span> : m.name}
             </NavLink>
           </NavItem>
         );
@@ -603,11 +608,11 @@ const page = (props: any) => {
     const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
-    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
-    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} toggleRefresh={toggleRefresh} />
-    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={toggleRefresh} />
+    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
+    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
+    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} doRefresh={doRefresh} />
+    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
+    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
     // const modelType = (activeTab === '0') ? 'metamodel' : 'model'
@@ -631,7 +636,7 @@ const page = (props: any) => {
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
           </div>
-          <span className="btn ps-auto mt-0 pt-1 text-light" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+          <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
 
           {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
@@ -672,7 +677,7 @@ const page = (props: any) => {
               onClick={handleSaveAllToFile}>Save
             </button>
           </div> */}
-          <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+          <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
         </div>
       </>
 

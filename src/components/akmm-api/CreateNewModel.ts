@@ -28,17 +28,11 @@ const CreateNewModel = (props: any) => {
   const metamodelGenerated = metamodels?.find(m => m.name === objectviewoftypemetamodel?.name)
   console.log('31 CreateNewModel', metamodelGenerated)
 
+  if (!metamodelGenerated) return null;
+
   const createNewModelJson = () => {
 
-    const submodels = [curmodel]
-    const submetamodels = metamodels?.filter(smm => smm.name === 'AKM-Core_MM' && smm.id !== metamodelGenerated?.id)
-
-    // const submetamodels = metamodels.filter(m => submodels.find(sm => sm.metamodelRef === m.id))
-    // create an empty model object with an empty modelview all with uuids
-    if (debug) console.log('45 CreateNewModel', submodels, submetamodels)
-
-
-    const newProjectName = (metamodelGenerated.name === 'AKM-Core_MM')
+    const newProjectName = (metamodelGenerated?.name === 'AKM-Core_MM')
       ? `${metamodelGenerated?.name.slice(0, -3)}-Metamodelling-Template`
       : (metamodelGenerated.name === 'AKM-IRTV_MM')
         ? `${metamodelGenerated?.name.slice(0, -3)}-Conceptmodelling-Template`
@@ -46,7 +40,7 @@ const CreateNewModel = (props: any) => {
           ? `${metamodelGenerated?.name.slice(0, -3)}-Schemamodelling-Template`
           : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
 
-    const newModelName = (metamodelGenerated.name === 'AKM-Core_MM')
+    const newModelName = (metamodelGenerated?.name === 'AKM-Core_MM')
       ? 'Typedefinitionmodel_TD'
       : (metamodelGenerated.name === 'AKM-IRTV_MM')
         ? 'Conceptmodel_CM'
@@ -54,15 +48,15 @@ const CreateNewModel = (props: any) => {
           ? 'OSDU-Schema-model_TD'
           : 'Model_' + metamodelGenerated.name
 
-    const newModelDesc = (metamodelGenerated.name === 'AKM-Core_MM')
+    const newModelDesc = (metamodelGenerated?.name === 'AKM-Core_MM')
       ? 'Type Definition Model, modeling with the EntityTypes'
-      : (metamodelGenerated.name === 'AKM-IRTV_MM')
+      : (metamodelGenerated?.name === 'AKM-IRTV_MM')
         ? 'Concept Model, modeling based on AKM-IRTV_MM Metamodel'
-        : (metamodelGenerated.name === 'AKM-OSDU_MM')
+        : (metamodelGenerated?.name === 'AKM-OSDU_MM')
           ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel'
-          : 'Model based on' + metamodelGenerated.name + ' Metamodel'
+          : 'Model based on' + metamodelGenerated?.name + ' Metamodel'
 
-    const newmodel = {
+    const newmodel = (metamodelGenerated) && {
       id: uuidv4(),
       name: newModelName,
       description: newModelDesc,
@@ -93,8 +87,8 @@ const CreateNewModel = (props: any) => {
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
-    const repo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
-    const projNo = (metamodelGenerated.name === 'AKM-OSDU_MM') ? 3 : 1  // hardcoded for now
+    const repo = (metamodelGenerated?.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
+    const projNo = (metamodelGenerated?.name === 'AKM-OSDU_MM') ? 3 : 1  // hardcoded for now
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
@@ -108,10 +102,6 @@ const CreateNewModel = (props: any) => {
           metamodels: [
             {
               ...metamodelGenerated,
-              // subMetamodelRefs: [submetamodels[0]?.id],
-              // subModelRefs: [submodels[0]?.id],
-              // subModels: submodels,
-              // subMetamodels: submetamodels,
             },
             adminmetamodel,
             (coremetamodel !== metamodelGenerated) && coremetamodel,

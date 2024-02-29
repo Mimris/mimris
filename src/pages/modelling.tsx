@@ -31,6 +31,8 @@ const page = (props: any) => {
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
+  const [toggleRefresh, setToggleRefresh] = useState(false)
+
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -227,7 +229,8 @@ const page = (props: any) => {
             </div> */}
             <ProjectMenuBar props={props} 
                expanded={expanded} setExpanded={setExpanded}  
-                focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}          
+                focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded} 
+                toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}         
                />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea"}}>
@@ -251,7 +254,7 @@ const page = (props: any) => {
             </div>
             <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling />
+                <Modelling toggleRefresh={toggleRefresh} />
               </div>
             </div>
             <div className="footer">

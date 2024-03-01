@@ -342,7 +342,7 @@ const LoadGitHub = (props: any) => {
   return  (
     <>
       <button className="btn bg-secondary py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
-      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref}>
+      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref} style={{zIndex: "9999"}}>
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="p-1">
           <div className="bg-light" > 

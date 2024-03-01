@@ -15,13 +15,13 @@ import { is } from 'cheerio/lib/api/traversing';
 const debug = false;
 
 export const ProjectMenuBar = (props: any) => {
-    if ((debug)) console.log('15 ProjectMenuBar', props);
+    if (!debug) console.log('18 ProjectMenuBar', props);
     const dispatch = useDispatch();
 
     const project = props.props.phData.metis;
     const source = props.props.phSource;
-    const refresh = props.props.refresh;
-    const toggleRefresh = props.props.setRefresh;
+    // const refresh = props.props.toggleRefresh;
+    // const toggleRefresh = props.props.setRefresh;
     const [minimized, setMinimized] = useState(false);
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -132,11 +132,11 @@ export const ProjectMenuBar = (props: any) => {
         };
     }, []);
 
-    const loadGitHub = <LoadGitHub buttonLabel='Open GitHub file' className='ContextModal' ph={props.props} refresh={props.refresh} setRefresh={props.toggleRefresh} />;
-    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New from template' className='ContextModal' ph={props} refresh={props.refresh} toggleRefresh={props.toggleRefresh} />;
-    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.toggleRefresh} />
-    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU JSON Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.toggleRefresh} />
-    const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh(!toggleRefresh)} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'Reload models' : 'Reload models'} </span>
+    const loadGitHub = <LoadGitHub buttonLabel='Open GitHub file' className='ContextModal' ph={props.props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />;
+    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New from template' className='ContextModal' ph={props} refresh={props.toggleRefresh} toggleRefresh={props.toggleRefresh} />;
+    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
+    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU JSON Import' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
+    const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
 
     const loadFile = (
         <>
@@ -234,8 +234,8 @@ export const ProjectMenuBar = (props: any) => {
                                 ? <div className="bg-light rounded w-100 "> {loadfile}</div>     
                                 : (item === 'OSDU Import')
                                     ? <div className="bg-light rounded w-100"> {loadjsonfile}</div>
-                                    : (item === 'Reload models')
-                                        ? <div className="bg-light rounded w-100">{reload} </div> //{props.setToggleRefresh(!toggleRefresh)}</div>
+                                    // : (item === 'Reload models')
+                                    //     ? <div className="bg-light rounded w-100">{reload} </div> //{props.setToggleRefresh(!toggleRefresh)}</div>
                                         : <> more to come</>
                         }
                     </div>
@@ -253,7 +253,7 @@ export const ProjectMenuBar = (props: any) => {
                         left: "3px",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onClick={() => setIsDropdownOpen(true)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
@@ -265,7 +265,7 @@ export const ProjectMenuBar = (props: any) => {
                         right: "8px",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
+                    onClick={() => setIsRightDropdownOpen(true)}
                 >
                     <i className="fa fa-ellipsis-v fa-lg"></i>
                     {dropRightMenuDiv}
@@ -275,9 +275,9 @@ export const ProjectMenuBar = (props: any) => {
                     style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
                     <div className="d-flex justify-content-between align-items-center">
-                        <details> <summary><i className="fa fa-ellipsis-h fa-lg me-4"></i></summary>
-                            <div className="menu-buttons"
-                                style={{  minWidth: "300px", scale: "0.8", whiteSpace: "nowrap"}}
+                        <details className="mx-0 p-0"> <summary><i className="fa fa-ellipsis-h fa-lg me-4"></i></summary>
+                            <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center"
+                                // style={{ scale: "1", whiteSpace: "wrap"}}
                             >
                                 <span className="ms-0">{loadGitHub}</span>
                                 <span className="ms-1">{loadNewModelProject}</span>
@@ -384,7 +384,7 @@ export const ProjectMenuBar = (props: any) => {
                         left: "3px",
                         zIndex: "99"
                      }}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onClick={() => setIsDropdownOpen(true)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
@@ -396,14 +396,14 @@ export const ProjectMenuBar = (props: any) => {
                         right: "8px",
                         zIndex: "999"
                     }}
-                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
+                    onClick={() => setIsRightDropdownOpen(true)}
                     // onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                     >
                     <i className="fa fa-ellipsis-v fa-lg"> </i> 
                     {dropRightMenuDiv}
                 </div>
                 <div className="d-flex"
-                    onClick={() => props.setExpanded(!props.expanded)}
+                    onClick={() => props.setExpanded(true)}
                 >
                     <div className="ms-auto me-5 p- my-1 rounded-2" 
                         style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}

@@ -1,8 +1,12 @@
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
+import { Dropdown } from 'react-bootstrap';
 import { FaUser, FaEnvelope } from 'react-icons/fa';
 import { domain } from 'process';
+
+import { ReadModelFromFile } from './utils/ReadModelFromFile';
 
 const debug = false;
 
@@ -31,7 +35,7 @@ const DropdownMenu = ({ options, domainName }) => {
 			</button>
 			<div className={`dropdown-menu ${isOpen ? 'show' : ''}`}>
 				{options.map((option) => (
-					<Link href={option.href} key={option.label}
+					<Link href={option.href || '#'} key={option.label} // Add default value for href prop
 						className={`dropdown-item ${option.active ? 'active' : ''}`}
 						onClick={() => handleOptionClick(option)}>{option.label}</Link>
 				))}
@@ -42,10 +46,27 @@ const DropdownMenu = ({ options, domainName }) => {
 
 const Navbar = (props) => {
 	const router = useRouter();
+	// const fileInput = useRef(null);
+	// const dispatch = useDispatch();
+
 	const currentRoute = router.pathname;
-	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
+	if (!debug) console.log('42 Navbar currentRoute', currentRoute, props);
 	const [version, setVersion] = useState("");
 	const [domainName, setDomainName] = useState("");
+
+	// const [activeItem, setActiveItem] = useState(null);
+
+	// const handleReadProjectFile = (e) => {
+	// 	console.log('60 handleReadProjectFile', e.target.files[0], props, dispatch);
+	// 	// handle file reading here
+	// 	ReadModelFromFile(props, dispatch, e);
+	// 	// const file = e.target.files[0];
+	// 	// console.log(file);
+	// };
+
+	// const handleFileOpen = () => {
+	// 	fileInput.current.click();
+	// };
 
 	useEffect(() => {
 		setDomainName(window.location.hostname);
@@ -87,10 +108,22 @@ const Navbar = (props) => {
 	];
 
 	return (
-		<nav className="navbar navbar-expand-sm navbar-toggler" style={(domainName === "localhost") ? { backgroundColor: "#efe" } : { backgroundColor: " #efefef" }}>				
+		<nav className="navbar navbar-expand-sm navbar-toggler ps-0" 
+			style={(domainName === "localhost") ? { marginLeft: "32px", marginRight: "32px", backgroundColor: "#efe" } : { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>				
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
+				{/* <div>
+					<Dropdown>
+						<Dropdown.Toggle variant="success" id="dropdown-basic">
+							More
+						</Dropdown.Toggle>
+						<Dropdown.Menu>
+							<Dropdown.Item onClick={handleFileOpen}>Open File</Dropdown.Item>
+						</Dropdown.Menu>
+					</Dropdown>
+					<input type="file" style={{ display: 'none' }} ref={fileInput} onChange={handleReadProjectFile} />
+				</div> */}
 				<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
-					<Link className="navbar-brand navbar-left mx-2" href="#">
+					<Link className="navbar-brand navbar-left mx-1 mb-2" href="#">
 						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 					</Link>
 					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
@@ -154,8 +187,8 @@ const Navbar = (props) => {
 					</span>
 				</div>
 				<div className="navbar-nav">
-					<Link className="navbar-brand navbar-right p-1 mt-0 ms-auto" href="http://www.kavca.no" target="_blank">
-						<div className="d-flex justify-content-center align-items-baseline">
+					<Link className="navbar-brand navbar-right me-0" href="http://www.kavca.no" target="_blank">
+						<div className="d-flex justify-content-end align-items-baseline">
 							<img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
 							<span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
 						</div>
@@ -172,7 +205,7 @@ const Navbar = (props) => {
 					aria-expanded="false"
 					aria-label="Toggle navigation"
 				>
-					<span className="navbar-toggler-icon ">toggler icon</span>aaaaa
+					<span className="navbar-toggler-icon ">toggler icon</span>
 				</button>
 			</div>
 			<style jsx>{`

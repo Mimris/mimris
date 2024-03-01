@@ -35,8 +35,8 @@ const page = (props: any) => {
   const [mount, setMount] = useState(false)
   
   const [showModal, setShowModal] = useState(false);
-  const [expanded, setExpanded] = useState(true);
-  const [minimized, setMinimized] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [minimized, setMinimized] = useState(false);
 
   function dispatchLocalStore(locStore) { 
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })

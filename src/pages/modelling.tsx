@@ -31,9 +31,12 @@ const page = (props: any) => {
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
 
+  const [toggleRefresh, setToggleRefresh] = useState(false)
+
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(true);
 
   function dispatchLocalStore(locStore) {
@@ -204,7 +207,7 @@ const page = (props: any) => {
   }, []);
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
-  const contextDiv = (  (expanded) &&  // the top context area (green)
+  const contextDiv = ((expanded ||focusExpanded ) &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
       <ContextView ph={props} 
@@ -224,7 +227,11 @@ const page = (props: any) => {
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
-            <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
+            <ProjectMenuBar props={props} 
+               expanded={expanded} setExpanded={setExpanded}  
+                focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded} 
+                toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}         
+               />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea"}}>
               {expanded && <>
@@ -247,7 +254,7 @@ const page = (props: any) => {
             </div>
             <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling />
+                <Modelling toggleRefresh={toggleRefresh} />
               </div>
             </div>
             <div className="footer">

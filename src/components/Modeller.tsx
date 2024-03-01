@@ -355,8 +355,6 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
- 
-
   // const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
   //   if (debug) console.log('Palette handleSetOfilter', filter);
   //   setOfilter(filter)

@@ -253,19 +253,19 @@ export const ProjectMenuBar = (props: any) => {
                         left: "3px",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsDropdownOpen(true)}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
                 </div>
-                 <div className="bar-menu-right bg-light" 
+                 <div className="bar-menu-right px-2" 
                     style={{ 
                         position: "absolute",     
                         top: "6px", 
-                        right: "18px",
+                        right: "8px",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsRightDropdownOpen(true)}
+                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                 >
                     <i className="fa fa-ellipsis-v fa-lg"></i>
                     {dropRightMenuDiv}
@@ -338,7 +338,7 @@ export const ProjectMenuBar = (props: any) => {
                             </span>
                         </div>
                     </div>
-                    <div className="ms-auto d-flex justify-content-between align-items-center"
+                    <div className="ms-auto d-flex justify-content-between align-items-top"
                         style={{  
                             position: "relative", 
                             top: "-10px", 
@@ -357,67 +357,75 @@ export const ProjectMenuBar = (props: any) => {
                                 title="This is the Project File name"
                                 > {props.props.phFocus.focusProj.file}</span>
                         </div>
-                        <div className="d-fle justify-content-end align-items-center rounded-2 my-0 px-1" 
-                            onClick={() => props.setExpanded(false)}
+                        <div className="d-fle justify-content-end align-items-top rounded-2 my-0 px-1" 
+                            style={{ whiteSpace: "nowrap"}}
+                            onClick={() => props.setExpanded(!props.expanded)}
                             >
                             <i className="fa fa-arrow-up fa-sm"></i> Project-bar
+                        </div>
+                        <div 
+                            onClick={() => props.setFocusExpanded(!props.focusExpanded)}
+                        >
+                            <div className="ms-auto me-5 px-1 rounded-2" 
+                                style={{ whiteSpace: "nowrap", position: "relative", top: "0px", right: "-4px", width: "22px", height: "2px", transition: "height 1s ease-in-out"}}
+                            >
+                                <i className="fa fa-arrow-down fa-sm"></i> Focus-bar
+                            </div>
                         </div>
                     </div>
                 </div>
             </>
         :  
             <>
-                <div className="bg-transparent p-1"
+                <div className="bar-menu-left bg-transparent p-1"
                     style={{ 
                         position: "absolute",     
                         top: "4px", 
                         left: "3px",
                         zIndex: "99"
                      }}
-                    onClick={() => setIsDropdownOpen(true)}
-                    // onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
                 </div>
-                <div className="bg-transparent p-1"
+                <div className="bar-menu-right px-2"
                     style={{ 
                         position: "absolute",     
-                        top: "3px", 
-                        right: "15px",
-                        zIndex: "99"
+                        top: "6px", 
+                        right: "8px",
+                        zIndex: "999"
                     }}
-                    onClick={() => setIsRightDropdownOpen(true)}
+                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                     // onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                     >
-                    <i className="fa fa-ellipsis-v fa-lg"></i>
+                    <i className="fa fa-ellipsis-v fa-lg"> </i> 
                     {dropRightMenuDiv}
                 </div>
                 <div className="d-flex"
-                    onClick={() => props.setExpanded(true)}
+                    onClick={() => props.setExpanded(!props.expanded)}
                 >
-                    <div className="ms-auto me-5 px-1 rounded-2" 
-                        style={{ whiteSpace: "nowrap", position: "relative", top: "-2px", right: "120px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                    <div className="ms-auto me-5 p- my-1 rounded-2" 
+                        style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
                         Project file: {props.props.phFocus.focusProj.file}
                     </div>             
                     <div className="ms-auto me-5 px-1 rounded-2" 
-                        style={{ whiteSpace: "nowrap", position: "relative", top: "-0px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                        style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "120px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
-                        <i className="fa fa-arrow-left fa-sm"></i> Project-bar
+                        <i className="fa fa-arrow-down fa-sm"></i> Project-bar
                     </div>
                 </div>
                 <div 
-                    onClick={() => props.setExpanded(true)}
+                    onClick={() => props.setFocusExpanded(!props.focusExpanded)}
                 >
                     <div className="ms-auto me-5 px-1 rounded-2" 
-                        style={{ whiteSpace: "nowrap", position: "relative", top: "16px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                        style={{ whiteSpace: "nowrap", position: "relative", top: "-15px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
-                        <i className="fa fa-arrow-down fa-sm"></i> Focus-bar
+                        {(props.focusExpanded) ? <i className="fa fa-arrow-up fa-sm"></i> : <i className="fa fa-arrow-down fa-sm"></i>} Focus-bar
                     </div>
                 </div>
             </>
-
 
     return (
         <>

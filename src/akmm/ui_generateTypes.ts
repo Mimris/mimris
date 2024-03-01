@@ -1102,7 +1102,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             context.myTargetMetamodel = targetMetamodel;
             targetMetamodel = generateMetamodel(objviews, relshipviews, context);
         }
-        console.log('1108 sourcemodelview has been generated: ' + sourcemodelview.name);    
+        if (sourcemodelview)
+            console.log('1108 sourcemodelview has been generated: ' + sourcemodelview.name);    
     }
 
     // Check if there already exists models based on the generated metamodel

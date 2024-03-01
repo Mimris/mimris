@@ -1180,11 +1180,11 @@ export function scaleSubnodes(node: any, nodes: any[]): any[] {
 // functions to handle links
 export function createRelationship(data: any, context: any) {
     const myDiagram = context.myDiagram;
-    const myGoModel = context.myGoModel;
-    const myMetis = context.myMetis; 
+    const myGoModel: gjs.goModel = context.myGoModel;
+    const myMetis: akm.cxMetis = context.myMetis; 
     const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-    let   myMetamodel = myMetis.currentMetamodel;
-    const myModelview = context.myModelview;
+    let   myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
+    const myModelview: akm.cxModelView = context.myModelview;
     const fromNode = myGoModel.findNode(data.from);
     let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const fromPort = data.fromPort;
@@ -1242,9 +1242,17 @@ export function createRelationship(data: any, context: any) {
         if (myModelview.includeInheritedReltypes) {
             includeInherited = true;
         }
-        let reltypes = [];
+        let reltypes: akm.cxRelationshipType[] = [];
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+            const genericRelType: akm.cxRelationshipType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
+            if (genericRelType) {
+                reltypes.push(genericRelType);
+            }
+            const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+            if (refersToRelType) {
+                reltypes.push(refersToRelType);
+            }
         } else {
             const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
             for (let i=0; i<rtypes.length; i++) {

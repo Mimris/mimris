@@ -265,55 +265,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
     let run = false;
-    this.setState(
+      this.setState(
       produce((draft: AppState) => {
         if (run === false) {
           run = true;
-          let data = draft.selectedData as any;  // only reached if selectedData isn't null
-          if (debug) console.log('273 data, value, this', data, value, draft, this);
-          data[propname] = value;
-          if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur, data[propname], data);
-          // if (!this.mapNodeKeyIdx || this.mapNodeKeyIdx.size === 0) {
-          //   draft.skipsDiagramUpdate = false;
-          //   return;
-          // }
-          const key = data.key;
-          if (debug) console.log('277 key', key, this.mapNodeKeyIdx.size, data);
-
-            if (obj.category === constants.gojs.C_OBJECT) {
-              const idx = this.mapNodeKeyIdx.get(key);
-              if (idx !== undefined) {
-                draft.nodeDataArray[idx] = data;
-                draft.skipsDiagramUpdate = false;
-              }
-            }
-            if (obj.category === constants.gojs.C_RELATIONSHIP) {
-              const idx = this.mapLinkKeyIdx.get(key);
-              if (idx !== undefined) {
-                draft.linkDataArray[idx] = data;
-                draft.skipsDiagramUpdate = false;
-              }
-            }
-            if (obj.category === constants.gojs.C_OBJECTTYPE) {
-              const idx = this.mapNodeKeyIdx.get(key);
-              if (idx !== undefined) {
-                draft.nodeDataArray[idx] = data;
-                draft.skipsDiagramUpdate = false;
-              }
-            }
-            if (obj.category === constants.gojs.C_RELSHIPTYPE) {
-              const idx = this.mapLinkKeyIdx.get(key);
-              if (idx !== undefined) {
-                draft.linkDataArray[idx] = data;
-                draft.skipsDiagramUpdate = false;
-              }
-            }
-          
+          draft.selectedData[propname] = value;
         }
       })
     );
-    if (debug) console.log('309 obj, context', obj, context);
-    if (!debug) console.log('310 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
+  
+  if (debug) console.log('309 obj, context', obj, context);
+    if (debug) console.log('310 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -1316,24 +1278,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let node = obj.part.data;
               const goModel = myMetis.gojsModel;
               const objview = node?.objectview;
-              if (!objview.isGroup) {
-                // const noLevels = 9;
-                // let reltypes = 'has';
-                // reltypes = prompt('Enter relationship type to follow', reltypes);
-                // const objectviews = [];
-                // uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
-                // uid.addToSelection(obj, myDiagram);
-                const mySelection = myDiagram.selection;
-                const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
-              } else {
-                  if (objview.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram);
+              if (objview) {
+                if (!objview.isGroup) {
+                  // const noLevels = 9;
+                  // let reltypes = 'has';
+                  // reltypes = prompt('Enter relationship type to follow', reltypes);
+                  // const objectviews = [];
+                  // uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
+                  // uid.addToSelection(obj, myDiagram);
+                  const mySelection = myDiagram.selection;
+                  const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
+                } else {
+                    if (objview.groupLayout)
+                      uid.doGroupLayout(objview, myDiagram);
+                }
               }
             },
             function (obj: any) {
               let node = obj.part.data;
               const objview = node?.objectview;
-              if (!objview.isGroup)
+              if (!objview?.isGroup)
                 return true;
               else
                 return false;

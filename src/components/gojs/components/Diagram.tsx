@@ -265,20 +265,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
     let run = false;
-    this.setState(
+      this.setState(
       produce((draft: AppState) => {
         if (run === false) {
           run = true;
           draft.selectedData[propname] = value;
           if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur);
-          //   draft.skipsDiagramUpdate = false;
-          //   return;
-    
         }
       })
     );
-    if (debug) console.log('309 obj, context', obj, context);
-    if (!debug) console.log('310 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
+  
+  if (debug) console.log('309 obj, context', obj, context);
+    if (debug) console.log('310 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -1281,24 +1279,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let node = obj.part.data;
               const goModel = myMetis.gojsModel;
               const objview = node?.objectview;
-              if (!objview.isGroup) {
-                // const noLevels = 9;
-                // let reltypes = 'has';
-                // reltypes = prompt('Enter relationship type to follow', reltypes);
-                // const objectviews = [];
-                // uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
-                // uid.addToSelection(obj, myDiagram);
-                const mySelection = myDiagram.selection;
-                const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
-              } else {
-                  if (objview.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram);
+              if (objview) {
+                if (!objview.isGroup) {
+                  // const noLevels = 9;
+                  // let reltypes = 'has';
+                  // reltypes = prompt('Enter relationship type to follow', reltypes);
+                  // const objectviews = [];
+                  // uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
+                  // uid.addToSelection(obj, myDiagram);
+                  const mySelection = myDiagram.selection;
+                  const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
+                } else {
+                    if (objview.groupLayout)
+                      uid.doGroupLayout(objview, myDiagram);
+                }
               }
             },
             function (obj: any) {
               let node = obj.part.data;
               const objview = node?.objectview;
-              if (!objview.isGroup)
+              if (!objview?.isGroup)
                 return true;
               else
                 return false;

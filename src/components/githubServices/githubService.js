@@ -76,6 +76,9 @@ export async function searchGithub(repo, path, filename, branch = 'main', search
         `${query}`,
         axiosConfig
       );
+    } else {
+      // geting the complete url
+      query = `filename`
     }
     if (debug) console.log('75 searcGithub ', query);
     const searchres = await axios.get(

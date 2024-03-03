@@ -199,7 +199,8 @@ let includeNoType = false;
     let showRelshipNames = modelview.showRelshipNames;
     if (showRelshipNames == undefined) 
       showRelshipNames = true;
-    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
+    const guid = modelview.id;
+    const myGoModel = new gjs.goModel(guid, "myModel", modelview);
     // load object views
     let objviews = modelview?.getObjectViews() as akm.cxObjectView[];
     if (objviews) {

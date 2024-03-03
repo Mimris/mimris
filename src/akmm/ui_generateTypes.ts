@@ -444,6 +444,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         modifiedObjectTypeViews?.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
+            if (!debug) console.log('447 update objecttypeview', data);
             myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
         });
         modifiedRelshipTypes.map(mn => {
@@ -1102,7 +1103,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             context.myTargetMetamodel = targetMetamodel;
             targetMetamodel = generateMetamodel(objviews, relshipviews, context);
         }
-        console.log('1108 sourcemodelview has been generated: ' + sourcemodelview.name);    
+        if (sourcemodelview)
+            console.log('1108 sourcemodelview has been generated: ' + sourcemodelview.name);    
     }
 
     // Check if there already exists models based on the generated metamodel
@@ -1714,7 +1716,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             // First get all typeviews for the relship type in the target metamodel
                             const typeview = reltype?.typeview;
                             const typeviews = targetMetamodel.removeAllRelshipTypeViewsByRelshipType(reltype);
-                            // Remove them all
+                            // Add current typeview
                             if (typeview) {
                                 typeviews.push(typeview);
                                 const jsnRelTypeview = new jsn.jsnRelshipTypeView(typeview);
@@ -1870,6 +1872,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     myMetis.currentTargetModel = myModel;
     { // Remove duplicate relationship types
         const reltypes = targetMetamodel.relshiptypes;
+        if (false) {
         for (let j=0; j<reltypes?.length; j++) {
             const reltype = reltypes[j];
             for (let k=j+1; k<reltypes?.length; k++) {
@@ -1881,6 +1884,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     k--;
                 }
             }
+        }
+        targetMetamodel.relshiptypes = reltypes;
         }
         // Prepare the dispatches
         for (let j=0; j<reltypes?.length; j++) {

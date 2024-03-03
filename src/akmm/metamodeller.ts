@@ -4753,6 +4753,10 @@ export class cxMetaModel extends cxMetaObject {
                 continue;
             if (reltype.name === constants.types.AKM_IS) 
                 continue;
+            if (reltype.name === constants.types.AKM_GENERIC_REL) {
+                    reltypes.push(reltype);
+                    continue;
+            }
             const fromObjType = reltype.getFromObjType();
             const toObjType = reltype.getToObjType();
             if (fromObjType && toObjType) {
@@ -4771,7 +4775,7 @@ export class cxMetaModel extends cxMetaObject {
                         } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
                             reltypes.push(reltype);
                         }
-                } else {
+                } else if (includeGen) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
                         toObjType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);                    

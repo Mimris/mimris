@@ -70,12 +70,10 @@ export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
         }
         if (metamodel) {
             const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-            if (debug) console.log('35 New Metamodel', jsnMetamodel);
             const modifiedMetamodels = new Array();
             modifiedMetamodels.push(jsnMetamodel);
             modifiedMetamodels.map(mn => {
                 let data = mn;
-                if (debug) console.log('40 data', data);
                 data = JSON.parse(JSON.stringify(data));
                 myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
             });

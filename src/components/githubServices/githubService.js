@@ -80,7 +80,7 @@ export async function searchGithub(repo, path, filename, branch = 'main', search
       // geting the complete url
       query = `filename`
     }
-    if (debug) console.log('75 searcGithub ', query);
+    if (!debug) console.log('83 searcGithub ', query);
     const searchres = await axios.get(
       `${query}`,
       axiosConfigRaw2

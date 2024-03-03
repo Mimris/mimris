@@ -200,7 +200,7 @@ const LoadGitHub = (props: any) => {
         };
         if (debug) console.log('166 ', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      } else {// it is a Model and will be loaded into current project
+      } else {// it is a Project file
         const data = {
           phData: {
               ...model.phData,
@@ -359,9 +359,7 @@ const LoadGitHub = (props: any) => {
                 {/* ----- Repository name input ------------------------------ */}
                 <span ><TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> </span>
                 <hr className="bg-primary my-2 mx-4" />
-
                 {/* ----- Model Path input ---------------------------------- */}
-     
                 {/* <hr className="bg-secondary my-1 mx-4" /> */}
                 <span style={{maxWidth: "180px"}}>
                   <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 

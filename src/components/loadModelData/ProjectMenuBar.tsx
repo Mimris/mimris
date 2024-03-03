@@ -133,7 +133,7 @@ export const ProjectMenuBar = (props: any) => {
     }, []);
 
     const loadGitHub = <LoadGitHub buttonLabel='Open GitHub file' className='ContextModal' ph={props.props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />;
-    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New from template' className='ContextModal' ph={props} refresh={props.toggleRefresh} toggleRefresh={props.toggleRefresh} />;
+    const loadNewModelProject =  <LoadNewModelProjectFromGitHub buttonLabel='New from Template' className='ContextModal' ph={props} refresh={props.toggleRefresh} toggleRefresh={props.toggleRefresh} />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
     const loadjsonfile = <LoadJsonFile buttonLabel='OSDU JSON Import' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
@@ -148,7 +148,7 @@ export const ProjectMenuBar = (props: any) => {
                 title="Click here to Open a Project file from local file system"
                 onClick={() => fileInputRef.current.click()}
                 >
-                <i className="fa fa-folder fa-lg pe-1"></i>Open local File
+                <i className="fa fa-folder fa-lg pe-1"></i>Open local file
             </button>
             <input
                 type="file"
@@ -172,14 +172,14 @@ export const ProjectMenuBar = (props: any) => {
                 title="Click here to Save the Project file to the local file system"
                 onClick={handleSaveAllToFile}
                 >
-                <i className="fa fa-save fa-lg"></i> Save to Local File
+                <i className="fa fa-save fa-lg"></i> Save to local file
             </button>
         </>
     )
 
     const dropLeftMenuDiv =  (isDropdownOpen) &&
         <div className="bg-light rounded-2 p-1" 
-        style={{ whiteSpace: "nowrap", position: "relative", top: "5px",left: "-10px", width: "16rem", height: "100%", 
+        style={{ whiteSpace: "nowrap", position: "relative", top: "5px",left: "-10px", width: "20rem", height: "100%", 
             backgroundColor: "#b0cfcf", zIndex: "9"}}
         >
             <ul className="bg-light mx-1 rounded">
@@ -191,13 +191,13 @@ export const ProjectMenuBar = (props: any) => {
                         style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
                     >
                         {item === 'Open' 
-                            ?  <div className="bg-secondary rounded">{loadGitHub}</div>
+                            ?  <div className="bg-secondary rounded text-white"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
                             : item === 'New'
-                                ? <div className="bg-secondary rounded">{loadNewModelProject}</div>
+                                ? <div className="bg-secondary rounded text-white"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
                                 : item === 'File'
-                                    ? <div className="bg-light rounded">{loadFile}</div>
+                                    ? <div className="bg-light rounded ">{loadFile}</div>
                                     : item === 'Save'
-                                    ? <div className="bg-light rounded">{saveFile}</div>
+                                    ? <div className="bg-light rounded ">{saveFile}</div>
                                     : item    
                         }
                     </div>
@@ -275,15 +275,13 @@ export const ProjectMenuBar = (props: any) => {
                     style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
                     <div className="d-flex justify-content-between align-items-center">
-                        <details className="mx-0 p-0"> <summary><i className="fa fa-ellipsis-h fa-lg me-4"></i></summary>
-                            <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center"
-                                // style={{ scale: "1", whiteSpace: "wrap"}}
-                            >
-                                <span className="ms-0">{loadGitHub}</span>
+                        <details className="mx-0 p-0"> <summary><i className="fa fa-ellipsis-h fa-lg"></i></summary>
+                            <div className="bar-buttons" >
+                                <span className="ms-1">{loadGitHub}</span>
                                 <span className="ms-1">{loadNewModelProject}</span>
                                 {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
-                                {loadFile}
-                                {saveFile}
+                                <span className="ms-1">{loadFile}</span>
+                                <span className="ms-2">{saveFile}</span>
                             </div>
                         </details>
                         <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center ms-2">

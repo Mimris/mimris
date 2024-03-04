@@ -2,8 +2,10 @@ import * as uib from '../../akmm/ui_buildmodels';
 
 export function loadMyModeldata(props: any) {
     let debug = false
-    let myMetis = props.phMyMetis
-    if (!myMetis) return null
+    console.log('5 LoadMyModeldata ', props, 'myMetis', props.myMetis);
+    // let myMetis = props.phMyMetis
+    // if (!myMetis) return null
+    let myMetis = props.myMetis
     let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
     let myModel, myGoModel, myGoObjectPalette, myGoRelshipPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
     let myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, myTargetMetamodelPalette
@@ -29,7 +31,7 @@ export function loadMyModeldata(props: any) {
     myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
     myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
-    if (!debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+    if (!debug) console.log('33 LoadMyModeldata ', props, myMetis, myModel, myModelview, myMetamodel);
     if (!myMetis && !myModel && !myModelview && !myMetamodel) {
         console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
         return null;
@@ -45,7 +47,7 @@ export function loadMyModeldata(props: any) {
     } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis); }
     if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
     // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
-    if (debug) console.log('188 Modelling ', myGoObjectPalette);
+    if (debug) console.log('188 LoadMyModeldata ', myGoObjectPalette);
     // myMetis?.setGojsModel(myGoModel);
     // myMetis?.setCurrentMetamodel(myMetamodel);
     // myMetis?.setCurrentModel(myModel);
@@ -63,7 +65,7 @@ export function loadMyModeldata(props: any) {
     gojstargetmodel = (myTargetModel) && { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }//props.phGojs?.gojsTargetModel 
     gojstargetmetamodel = (myTargetMetamodel) && { nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes, linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links } // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
 
-    return {
+    const allprops ={
         myMetis: myMetis,
         myModel: myModel,
         myModelview: myModelview,
@@ -86,5 +88,11 @@ export function loadMyModeldata(props: any) {
         gojstargetmodel: gojstargetmodel,
         gojstargetmetamodel: gojstargetmetamodel,
     };
+
+    if (!debug) console.log('91 LoadMyModeldata ', allprops);
+
+    return (
+        {allprops}
+    )
     
 };

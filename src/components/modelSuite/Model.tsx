@@ -1,35 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+
+import Page from '../page';
 import Palette from "../Palette";
 import Modeller from "../Modeller";
-import { loadMyModeldata } from "./loadMyModeldata";
+import { loadMyModeldata } from "./LoadMyModeldata";
 import classnames from 'classnames';
-import { useSelector, useDispatch } from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
+import * as uib from '../../akmm/ui_buildmodels';
+
+import GenGojsModel from "../GenGojsModel";
+import useLocalStorage from '../../hooks/use-local-storage'
+
+const debug = false;
+
+const page = (props) => {
+  console.log('11 Model props', props);
+
+  const dispatch = useDispatch();
+
+  if (!props) return <>file not found</>;
 
 
-const Model = (props) => {
+  const [refresh, setRefresh] = useState(false);
+    // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
-    console.log('9 Model props', props)
-    const { phData, phFocus, phUser, phSource, phMyGoModel, phMyGoMetamodel, phMyGoMetamodelModel, 
-        phMyGoMetamodelPalette, phMyGoObjectPalette, phMyGoRelshipPalette, phGojs, metis, memoryAkmmUser, dispatch } = props;
-    const { myMetis, myModel, myModelview, myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, 
-        myTargetMetamodelPalette, myGoModel, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette, myGoObjectPalette, 
-        myGoRelshipPalette, gojsmetamodelpalette, gojsmetamodelmodel, 
-        gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel } = loadMyModeldata(props) || {};
+  // const [mmToggle, setMmToggle] = useState(false);
+  const [activeTab, setActiveTab] = useState('0');
+  // const toggle = (tab) => {
+  //   if (activeTab !== tab) setActiveTab(tab);
+  // }
 
-    const [activeTab, setActiveTab] = useState('0');
-    const toggle = (tab) => {
-      if (activeTab !== tab) setActiveTab(tab);
-    }
-    
-    const doRefresh = () => {
-      console.log('doRefresh')
-    }
+  const modelData = props ?? {};
+  
+  const phData = modelData.phData;
+  const phFocus = modelData.phFocus;
+  const phUser = modelData.phUser;
+  const phSource = modelData.phSource;
+  const phMymetis = modelData.phMymetis;
 
-    const [mmToggle, setMmToggle] = useState(false);
+  const metis = phData.metis;
+  const models = metis?.models;
 
+  const curmod = (models && phFocus.focusModel?.id) && models?.find((m: any) => m?.id === phFocus.focusModel?.id) || models[0] // find the current model
+  const curmodview = (curmod && phFocus.focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === phFocus.focusModelview.id))
+    ? curmod?.modelviews?.find((mv: any) => mv.id === phFocus.focusModelview.id)
+    : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
 
-    const models = metis.models;
+  
+  console.log('32 Model props', phMymetis);
+  const modelview = phData?.focusView?.name;
 
     const sortedmodels = (models) && models
     .sort((a, b) => {
@@ -45,11 +65,92 @@ const Model = (props) => {
         return a.name.localeCompare(b.name);
       }
     })
+    let  activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === phFocus.focusModel.id) // if no model in focus, set the active tab to 0
 
-    const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
+  useEffect(() => {
+      // if (!debug) console.log('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
+      // set the focusModel and focusModelview to the first model and modelview if they are not set
+      GenGojsModel(props, dispatch);
+      // setMount(true);
+      setActiveTab(activetabindex);
+      // loadMyModeldata();
+  }, []);
+
+  const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
+  const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+  const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
+  const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+  const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
 
 
-      const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {
+  const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
+
+  let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
+  let myMetis, myModel, myGoModel, myGoObjectPalette, myGoRelshipPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
+  let myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, myTargetMetamodelPalette
+  let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
+
+
+  function loadMyModeldata() {
+    myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
+    if (!myMetis) return <></>
+    myModel = myMetis?.findModel(curmod?.id);
+    myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+    myMetamodel = myModel?.metamodel;
+    myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
+    myTargetModel = myMetis?.findModel(curtargetmodel?.id);
+    myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
+    myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
+    myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
+
+    if (!debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+    if (!myMetis && !myModel && !myModelview && !myMetamodel) {
+      console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
+      return null;
+    }
+    myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
+    myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
+    myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
+    myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
+    myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
+    if (!myModel?.objects) { console.log('196 myModel.objects is undefined', myMetis);
+      // return null
+    } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}
+    if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
+    // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
+    if (debug) console.log('188 Modelling ', myGoObjectPalette);
+
+    gojsmetamodelpalette = (myGoMetamodel) &&  {nodeDataArray: myGoMetamodel?.nodes,linkDataArray: myGoMetamodel?.links }  // props.phGojs?.gojsMetamodelPalette 
+    gojsmetamodelmodel = (myGoMetamodelModel) && { nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links}
+    gojsmodel = (myGoModel) && { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
+    gojsmetamodel = (myGoMetamodelPalette) && { nodeDataArray: myGoMetamodelPalette?.nodes, linkDataArray: myGoMetamodelPalette?.links}// props.phGojs?.gojsMetamodel 
+    gojsmodelobjects = (myGoModel) && { nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] } // props.phGojs?.gojsModelObjects // || []
+    gojstargetmodel = (myTargetModel) &&  { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }//props.phGojs?.gojsTargetModel 
+    gojstargetmetamodel = (myTargetMetamodel) && { nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links} // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  };
+
+  loadMyModeldata()
+    
+    const doRefresh = () => {
+      console.log('doRefresh')
+    }
+
+  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
+    GenGojsModel(props, dispatch);
+    const timer = setTimeout(() => {
+      setRefresh(!refresh)
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusModelview?.id])
+
+  const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
+
+  const modelindex =  models.findIndex((m: any) => m?.id === phFocus.focusModel?.id)
+
+    const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
         const data = { id: m.id, name: m.name };
@@ -82,51 +183,26 @@ const Model = (props) => {
                 doRefresh();
               }}
             >
-              {(m.name.startsWith('_'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}}>{m.name}</span> : m.name}
+              {(m.name.startsWith('_A'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
             </NavLink>
           </NavItem>
         );
       }
     });
 
-    return (
+    const modellingtabs =
         <>
             <Nav tabs style={{ minWidth: "50px", borderBottom: "white"}} >
-            <span className="ms-1 me-5">
-                <button className="p-0 ms-0 me-5"
-                data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
-                onClick={() => setMmToggle(!mmToggle)}
-                style={{ borderColor: "transparent", width: "116px", height: "24px", fontSize: "16px", backgroundColor: "#a0caca" }}
-                >{(mmToggle) ? 'Models >' : 'Metamodel <>'}</button>
-            </span>
             {navmodelDiv}
             </Nav>
             <TabContent  >
             <TabPane >   {/* Model ---------------------------------------*/}
                 <div className="workpad p-1 pt-2 bg-white">
                 <Row className="row1">
-                    {/* Objects Palette area */}
-                    <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
-                    <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                        <Palette // this is the Objects Palette area
-                        gojsModelObjects={gojsmodelobjects}
-                        gojsModel={gojsmodel}
-                        gojsMetamodel={gojsmetamodel}
-                        myMetis={myMetis}
-                        myGoModel={myGoModel}
-                        myGoMetamodel={myGoMetamodel}
-                        metis={metis}
-                        phFocus={phFocus}
-                        dispatch={dispatch}
-                        modelType='model'
-                        phUser={phUser}
-                        />
-                    </div>
-                    </Col>
-                    {/* Modelling area */}
+
                     <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                    <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                        <Modeller // this is the Modeller ara
+                    <div className="modelling-area myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                        <Modeller 
                         gojsModelObjects={gojsmodelobjects}
                         gojsModel={gojsmodel}
                         gojsMetamodel={gojsmetamodel}
@@ -140,7 +216,7 @@ const Model = (props) => {
                         metis={metis}
                         dispatch={dispatch}
                         modelType='model'
-                        userSettings={memoryAkmmUser}
+                        userSettings={null}
                         />
                     </div>
                     </Col>
@@ -149,7 +225,12 @@ const Model = (props) => {
             </TabPane>
             </TabContent>
         </>
+    return (
+        <div className="p-1" style={{backgroundColor: "#eee"}}>
+          {modellingtabs}
+          {/* {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>} */}
+        </div>
     )
 }
 
-export default Model;
+export default Page(connect(state => state)(page));

@@ -61,7 +61,7 @@ const Modeller = (props: any) => {
   const [projectName, setProjectName] = useState(props.metis.name); // the value to be displayed
   const [mvName, setMvName] = useState(); // the value to be displayed
 
-  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', null); //props);
+  // const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', null); //props);
   // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
@@ -168,7 +168,7 @@ const Modeller = (props: any) => {
       phSource: props.phSource,
     }
     if (debug) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
-    setMemoryLocState(propps)
+    if (props.userSetting) (setMemoryLocState(propps))
     // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
     const timer = setTimeout(() => {
       SaveAkmmUser(props, 'akmmUser')

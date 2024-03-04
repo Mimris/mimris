@@ -3,7 +3,7 @@ import { connect, useSelector, useDispatch } from  'react-redux';
 import { useRouter } from 'next/router';
 import Page from '../components/page';
 
-import Model from '../components/Model'
+import Model from '../components/modelSuite/Model'
 import Modelling from '../components/Modelling'
 
 import { searchGithub } from '../components/githubServices/githubService';
@@ -35,25 +35,28 @@ const page = (props: any) => {
   let queryModel, queryModelview = null;
 
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        if (!debug) console.log('26 modelling useEffect 1', query) 
-        if (query) {  
-          setDomainName(window.location.hostname);
-          setQueryParam(new URLSearchParams(window.location.search));
-          setFilename(queryParam.get('file'));
-          setModel(queryParam.get('model'));
-          setModelview(queryParam.get('modelview'));
-        }
+  useEffect(() => {
+
+    const timer = setTimeout(() => {// wait for the query to be set
+      if (!debug) console.log('26 model useEffect 1', query) 
+      if (query) {  
+        setDomainName(window.location.hostname);
+        setQueryParam(new URLSearchParams(window.location.search));
+        setFilename(queryParam.get('file'));
+        setModel(queryParam.get('model'));
+        setModelview(queryParam.get('modelview'));
+      }
         setMount(true)
       }, 1000);
       return () => clearTimeout(timer);
-    }, []);
+  }, [query]);
 
+  useEffect(() => {
     if (mount) {
-      if (!debug) console.log('53 modelling useEffect 2', query) 
+      if (!debug) console.log('53 model useEffect 2', query) 
         const getQuery = async () => {
           try {
+            console.log('57 model query', query, filename, model, modelview)
             if (query) {
               const org = query.org;
               const repo = query.repo;
@@ -62,23 +65,26 @@ const page = (props: any) => {
               const filename = query.file;
               const model = query.model;
               const modelview = query.modelview;
-            if(!debug) console.log('64 modelling query', query, filename, model, modelview)
-              if (!debug) console.log('65 modelling queryParam', queryParam, model, modelview, filename )
+              if(!debug) console.log('64 model query', query, filename, model, modelview)
+              if (!debug) console.log('65 model queryParam', queryParam, model, modelview, filename )
               // first lets get the file from GitHub
-              if (!debug) console.log('67 modelling query', query, filename, model, modelview)
+              if (!debug) console.log('67 model query', query, filename, model, modelview)
               const response = await searchGithub(org+'/'+repo, path, filename, branch, 'file') // filename is the complete url
-              console.log('69 modelling githubData:', response)
+              console.log('70 model githubData:', response)
               const responseData = await response.data
-              console.log('71 modelling githubData:', responseData)
               if (responseData) {
+                console.log('72 model githubData:', responseData)
                 const phData = responseData.phData
                 const phFocus = responseData.phFocus
                 const phUser = responseData.phUser
                 const phSource = responseData.phSource
                 const metis = phData.metis
+                console.log('80 model metis', phData, metis)
                 const curmodel = metis.models.find(m => m.name === model)
-                const curmodelview = curmodel.views.find(v => v.name === modelview)
+                console.log('83 model curmodel', curmodel.modelviews, modelview)
+                const curmodelview = curmodel.modelviews.find(v => v.name === modelview)
                 // it is a Project file
+                console.log('85 model curmodelview', curmodelview)
                   data = {
                     phData: {
                         ...phData,
@@ -113,15 +119,16 @@ const page = (props: any) => {
                     phSource: phSource
                     // phSource: model.phData.metis.name || model.phSource 
                   }
-                  if (debug) console.log('116', data)
+                  if (!debug) console.log('116 model', data)
                   if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
                   if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
                   if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
                   if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
               } 
             }
+
             setRefresh(true)
-          if (!debug) console.log('122', model, modelview)
+            if (!debug) console.log('122', model, modelview)
 
           } catch (error) { 
             console.log('128 query error', error)
@@ -129,10 +136,9 @@ const page = (props: any) => {
         }
         getQuery()  
     }
+  } , [mount]);
 
-return (refresh) 
-?  (<><Modelling props={data}/></>  )
-  : ( <> <Modelling  props={data}/> </>)
+  return (<Model props={data} />)
+  // return (<Modelling props={data}/>)
 }
-
 export default Page(connect(state => state)(page));

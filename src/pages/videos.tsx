@@ -95,8 +95,9 @@ const page = (props: any) => {
                       <hr />
                       <h5 className="card-title">Github Project</h5>
                       <div className="card-text m-2">
-                        <a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects" 
-                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                        <a href="
+https://docs.github.com/en/issues/planning-and-tracking-with-projects/managing-items-in-your-project/adding-items-to-your-project"
+className="button btn-link bg-light text-primary rounded p-2" target="_blank">
                           <i className="fa fa-arrow-left fa-sm"></i>
                           Quickstart for GitHub Projects
                         </a>

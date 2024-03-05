@@ -545,7 +545,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </>
     );
 
-  const objectsTabDiv =
+  const objectsTabDiv = 
     <>  
       <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none",}}> 
           {/* <div className="d-flex justify-content-between"> */}

@@ -4,12 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link';
 import { useRouter } from "next/router";
 import SelectContext from '../components/utils/SelectContext'
+import { URLPattern } from 'next/server';
 
 const debug = false
 
 const ContextView = (props: any) =>  {
-  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
-
+  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=SELL-A-CAR_PR.json
   const [minimized, setMinimized] = useState(true);
   const toggleMinimized = () => setMinimized(!minimized);
  
@@ -40,29 +40,23 @@ const ContextView = (props: any) =>  {
     }
     props.setShowIssueModal(true);
   };
-
+  
+  let focusUrl = '';
+  let urlParams = '';
   const copyToClipboard = async () => { 
     const host = window.location.host;
-    const paramFocus = {
-      githubFile: {
-        org: phFocus.focusProj.org,
-        repo: phFocus.focusProj.repo, 
-        branch: phFocus.focusProj.branch, 
-        path: phFocus.focusProj.path,
-        filename: phFocus.focusProj.file,
-      },
-      // focusModel: (phFocus.focusModel.description) ? {id: phFocus.focusModel.id, name:phFocus.focusModel.name} : phFocus.focusModel, // just in case the whole model is written to the focus
-      // focusModelview: phFocus.focusModelview,
-      // focusObject: phFocus.focusObject,
-      // focusObjectview: phFocus.focusObjectview,
-      // focusRole: '', //phFocus.focusRole,
-      // focusTask: '' //phFocus.focusTask,
-    };
-    const urlParams = encodeURIComponent(JSON.stringify(paramFocus));
-    console.log('27 paramFocus', paramFocus, phFocus.focusProj);
-    const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-beta.vercel.app'
-    // const focus = await navigator.clipboard.writeText(`http://akmmclient-beta.vercel.app/modelling?focus=${JSON.stringify(paramFocus)}`);
-    const focusUrl = `http://${tmphost}/modelling?focus=${urlParams}`;
+    urlParams = `
+        org=${phFocus.focusProj.org}&
+        repo=${phFocus.focusProj.repo}& 
+        branch=${phFocus.focusProj.branch}& 
+        path=${phFocus.focusProj.path}&
+        file=${phFocus.focusProj.file}
+        model=${phFocus.focusModel.id || phFocus.focusModel.name}&
+        modelview=${phFocus.focusModelview.id || phFocus.focusModelview.name}
+      `;
+    console.log('27 paramFocus', urlParams, phFocus.focusProj);
+    const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-alfa.vercel.app'
+    focusUrl = `http://${tmphost}/model?${urlParams}`;
     if (debug) console.log('42 focus', focusUrl);
     const focus = await navigator.clipboard.writeText(focusUrl);
     if (debug) console.log('44 focus', focus);

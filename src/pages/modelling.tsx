@@ -38,6 +38,15 @@ const page = (props: any) => {
   const [expanded, setExpanded] = useState(false);
   const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(true);
+  const [org, setOrg] = useState("");
+  const [repo, setRepo] = useState("");
+  const [branch, setBranch] = useState("");
+  const [path, setPath] = useState("");
+  const [file, setFile] = useState("");
+  const [model, setModel] = useState("");
+  const [modelview, setModelview] = useState("");
+
+
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -64,23 +73,11 @@ const page = (props: any) => {
   const [memoryAkmmUser, setMemoryAkmmUser] = useSessionStorage('akmmUser', ''); //props);
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
-  const [akmmUser, setAkmmUser] = useState(props.phUser);
 
-  function getUserSettings(key) {
-    if (memoryAkmmUser !== '' && memoryAkmmUser !== null) {
-      if (debug) console.log('63 Modelling', memoryAkmmUser)
-      return memoryAkmmUser
-    }
-  }
-
-  function setUserSettings(key, value) {
-    if (debug) console.log('69 Modelling', value.appSkin.visibleContext)
-    localStorage.setItem(key, JSON.stringify(value));
-  }
 
   useEffect(() => {
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (debug) console.log('73 modelling page reloaded', memoryLocState);
+      if (!debug) console.log('73 modelling page reloaded', memoryLocState);
       if (memoryLocState?.phData) {
         const locStore = memoryLocState;
         if (debug) console.log('modelling 1 ', locStore);
@@ -110,12 +107,15 @@ const page = (props: any) => {
           }
         }
       }
+    } else {
+      if (debug) console.log('111 modelling page not reloaded', memoryLocState);
+
     }
   }, [])
 
   useEffect(() => {
     if (debug) console.log('89 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
-
+    let org = null, repo = null, path = null, branch = null, file = null, model = null, modelview = null;
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
@@ -132,6 +132,14 @@ const page = (props: any) => {
           const githubFile = params?.githubFile;
           if (debug) console.log('126 modelling githubFile', githubFile)
           if (githubFile) {
+              org = query.org;
+              repo = query.repo;
+              path = query.path;
+              branch = query.branch;
+              file = query.file;
+              model = query.model;
+              modelview = query.modelview;
+
             focusProj = {
               org: githubFile.org,
               repo: githubFile.repo,
@@ -253,6 +261,11 @@ const page = (props: any) => {
                }
             </div>
             <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
+                      <Link className="link " href={`/model`}  //?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}
+                        style={{position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "#ccc"}}
+                        >
+                          <i className="fa fa-minimize" aria-hidden="true"></i>
+                        </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling toggleRefresh={toggleRefresh} />
               </div>

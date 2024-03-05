@@ -38,13 +38,13 @@ const page = (props: any) => {
   const [expanded, setExpanded] = useState(false);
   const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(true);
-  const [org, setOrg] = useState("");
-  const [repo, setRepo] = useState("");
-  const [branch, setBranch] = useState("");
-  const [path, setPath] = useState("");
-  const [file, setFile] = useState("");
-  const [model, setModel] = useState("");
-  const [modelview, setModelview] = useState("");
+  // const [org, setOrg] = useState("");
+  // const [repo, setRepo] = useState("");
+  // const [branch, setBranch] = useState("");
+  // const [path, setPath] = useState("");
+  // const [file, setFile] = useState("");
+  // const [model, setModel] = useState("");
+  // const [modelview, setModelview] = useState("");
 
 
 
@@ -76,25 +76,24 @@ const page = (props: any) => {
 
 
   useEffect(() => {
+
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (!debug) console.log('73 modelling page reloaded', memoryLocState);
+      if (!debug) console.log('81 modelling page reloaded', memoryLocState);
       if (memoryLocState?.phData) {
         const locStore = memoryLocState;
         if (debug) console.log('modelling 1 ', locStore);
         if (locStore) {
           const data = locStore;
-          // {
-          //   ...locStore,
-          //   phFocus: {
-          //     ...locStore.phFocus,
-          //     ...focus,
-          //   },
-          // };
-          if (debug) console.log('143 modelling ', data);
+          if (debug) console.log('87 modelling ', data);
           dispatchLocalStore(data);
           // window.location.reload();
+            const timer = setTimeout(() => {
+              setRefresh(!refresh);
+            }, 100);
+            return () => clearTimeout(timer);
         }
       } else {
+        if (!debug) console.log('92 modelling page not reloaded', memoryLocState);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
@@ -104,114 +103,82 @@ const page = (props: any) => {
             const timer = setTimeout(() => {
               setRefresh(!refresh);
             }, 100);
+            return () => clearTimeout(timer);
           }
         }
       }
     } else {
-      if (debug) console.log('111 modelling page not reloaded', memoryLocState);
-
+      if (!debug) console.log('104 modelling page not reloaded', memoryLocState);
     }
-  }, [])
+  }, [!query])
 
+  let org = query.org;
+  let repo = query.repo;
+  let path = query.path;
+  let branch = query.branch;
+  let file = query.file;
+  let model = query.model;
+  let modelview = query.modelview;
+    
   useEffect(() => {
     if (debug) console.log('89 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
-    let org = null, repo = null, path = null, branch = null, file = null, model = null, modelview = null;
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
-      let queryParam = null;
       try {
-        queryParam = new URLSearchParams(window.location.search);
+        if (query) {
+          if (debug) console.log('120 modelling query', query, query)
+          org = query.org;
+          repo = query.repo;
+          path = query.path;
+          branch = query.branch;
+          file = query.file;
+          model = query.model;
+          modelview = query.modelview;
+        
+          if (!debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
+          const res = await searchGithub(org+'/'+repo, path, file, branch, 'file')
+          const githubData = await res.data
+          const sha = await res.data.sha
 
-        if (queryParam) {
-          if (debug) console.log('120 modelling queryParam', query, queryParam)
-          const queryParams = queryParam.get('focus');
-          // const queryParams = (queryParam) ? JSON.parse(JSON.stringify(queryParam?.focus)) : null;
-          const params = JSON.parse(queryParams);
-          if (debug) console.log('124 modelling params', params)
-          const githubFile = params?.githubFile;
-          if (debug) console.log('126 modelling githubFile', githubFile)
-          if (githubFile) {
-              org = query.org;
-              repo = query.repo;
-              path = query.path;
-              branch = query.branch;
-              file = query.file;
-              model = query.model;
-              modelview = query.modelview;
-
-            focusProj = {
-              org: githubFile.org,
-              repo: githubFile.repo,
-              branch: githubFile.branch,
-              path: githubFile.path,
-              file: githubFile.filename,
-            }
-            const orgrepo = githubFile.org + '/' + githubFile.repo
-            console.log('134 modelling orgrepo:', orgrepo)
-            const res = await searchGithub(orgrepo, githubFile.path, githubFile.filename, githubFile.branch, 'file')
-            const githubData = await res.data
-            const sha = await res.data.sha
-            console.log('138 modelling githubData:', githubData, sha)
-            // const data = {
-            //   githubData
-            // }
-            // const data = {
-            //   phData: githubData.phData,
-            //   phFocus: {
-            //     ...props.phFocus,
-            //     focusProj: focusProj,
-            //     focusModel:  params.focusModel,
-            //     focusModelview: params.focusModelview,
-            //     focusObject: params.focusObject,
-            //     focusObjectview:  params.focusObjectview,
-            //     focusRole: params.focusRole,
-            //     focusTask: params.focusTask,
-            //   },
-            //   phSource: props.phSource,
-            //   phUser: props.phUser,
-            //   lastUpdate: props.lastUpdate,
-            // };
-            // dispatchLocalStore(data); // dispatch to store the latest [0] from local storage
-            console.log('159 modelling', data)
-            dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
-            // const timer = setTimeout(() => {
-            //   setRefresh(!refresh);
-            // } , 2000);
+          console.log('138 modelling githubData:', githubData, sha)
+          dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
+          const timer = setTimeout(() => {
+            setRefresh(!refresh);
+          } , 200);
 
 
-          } else if (focus && !githubFile) {
-            if (debug) console.log('155 modelling', focus);
-            if (params) {
-              const data = {
-                phFocus: {
-                  ...props.phFocus,
-                  focusProj: focusProj,
-                  focusModel: params.focusModel,
-                  focusModelview: params.focusModelview,
-                  focusObject: params.focusObject,
-                  focusObjectview: params.focusObjectview,
-                  focusRole: params.focusRole,
-                  focusTask: params.focusTask,
-                },
-              };
+          let curmodel = githubData.phData.metis.models.find(m => m.id === model)
+          if (!curmodel) curmodel = githubData.phData.metis.models.find(m => m.name === model)
+          console.log('83 model curmodel', curmodel.modelviews, modelview)
+          let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
+          if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
 
-              dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
-            }
-          }
-        }
+          const data = {
+            phFocus: {
+              ...props.phFocus,
+              focusProj: focusProj,
+              focusModel: params.focusModel,
+              focusModelview: params.focusModelview,
+              focusObject: params.focusObject,
+              focusObjectview: params.focusObjectview,
+              focusRole: params.focusRole,
+              focusTask: params.focusTask,
+            },
+          };
+          dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+        }    
       } catch (error) {
         console.log('117 modelling query error ', error);
       }
 
     }
-    if (debug) console.log('177 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (!debug) console.log('168 modelling useEffect 1', query, org)//memoryLocState[0], props.phFocus.focusModelview.name)
     const timer = setTimeout(() => {
       getQuery()
     }
       , 1000);
     setMount(true)
-    // }, [])
   }, []);
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
@@ -261,11 +228,12 @@ const page = (props: any) => {
                }
             </div>
             <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
-                      <Link className="link " href={`/model`}  //?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}
-                        style={{position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "#ccc"}}
-                        >
-                          <i className="fa fa-minimize" aria-hidden="true"></i>
-                        </Link>
+              <Link className="link " href={`/model?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}
+                target="_blank"
+                style={{position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "gray"}}
+                >
+                <i className="fas fa-external-link-alt" aria-hidden="true"></i>
+              </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling toggleRefresh={toggleRefresh} />
               </div>

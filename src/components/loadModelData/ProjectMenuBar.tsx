@@ -403,7 +403,7 @@ export const ProjectMenuBar = (props: any) => {
                 <div className="d-flex"
                     onClick={() => props.setExpanded(true)}
                 >
-                    <div className="ms-auto me-5 p- my-1 rounded-2" 
+                    <div className="ms-auto me-5 mt-1 rounded-2" 
                         style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
                         Project file: {props.props.phFocus.focusProj.file}
@@ -418,7 +418,7 @@ export const ProjectMenuBar = (props: any) => {
                     onClick={() => props.setFocusExpanded(!props.focusExpanded)}
                 >
                     <div className="ms-auto me-5 px-1 rounded-2" 
-                        style={{ whiteSpace: "nowrap", position: "relative", top: "-15px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
+                        style={{ whiteSpace: "nowrap", position: "relative", top: "-11px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
                         {(props.focusExpanded) ? <i className="fa fa-arrow-up fa-sm"></i> : <i className="fa fa-arrow-down fa-sm"></i>} Focus-bar
                     </div>

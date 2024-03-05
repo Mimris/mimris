@@ -2,13 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { connect, useSelector, useDispatch } from  'react-redux';
 import { useRouter } from 'next/router';
 import Page from '../components/page';
-
 import Model from '../components/modelSuite/Model'
-import Modelling from '../components/Modelling'
-
 import { searchGithub } from '../components/githubServices/githubService';
-import GenGojsModel from '../components/GenGojsModel';
-import { setfocusRefresh } from '../actions/actions';
 import Link from 'next/link';
 
 // example: http://localhost:3000/model?org=Kavca&repo=kavca-akm-models&path=models&branch=main&file=SELL-A-CAR_PR.json&model=SELL_A_CAR_CM&modelview=1-Overview
@@ -138,11 +133,13 @@ const page = (props: any) => {
 
   return (
     <>
-      <div className="ms-aut expand-button"> {/* Changed className to "ms-auto expand-button" */}
-        <Link className="link " href={`/modelling?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}
-          style={{position: "fixed", marginRight: "9px", right: "0", top: "0"}}
+      <div className=""> 
+        <Link href={`/modelling?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}
+          style={{backgroundColor: "#ddd",position: "absolute", marginRight: "9px", right: "0", top: "0"}}
         >
-          <i className="fa fa-maximize" aria-hidden="true"></i>
+          <i className="fa fa-maximize" aria-hidden="true"> Expand </i>
+          <i className="fas fa-external-link-alt" aria-hidden="true"></i>
+
         </Link>
         <Model props={data} />
       </div>  

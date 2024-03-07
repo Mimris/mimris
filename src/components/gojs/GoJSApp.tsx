@@ -1237,9 +1237,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('969 New object', jsnObj);
             }
           }
-          if (debug) console.log('972 myGoModel', myGoModel, myMetis);
           node.updateTargetBindings();
         })
+        if (!debug) console.log('1242 myGoModel', myGoModel);
         break;
       }
       case "ObjectDoubleClicked": {

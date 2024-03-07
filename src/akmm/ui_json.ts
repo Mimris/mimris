@@ -1,11 +1,11 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false; 
 
 const utils = require('./utilities');
 import * as akm from './metamodeller';
 const constants = require('./constants');
 
-let jsnMetis = null;
+let jsnMetis: akm.cxMetis;
 
 export class jsnExportMetis {
     name:                       string;
@@ -1237,6 +1237,7 @@ export class jsnObject {
     typeRef:         string;
     typeName:        string;
     typeDescription: string;
+    propertyGroups:  any[];
     propertyValues:  any[];
     ports:           jsnPort[] | null;
     markedAsDeleted: boolean;
@@ -1251,6 +1252,7 @@ export class jsnObject {
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";
+        this.propertyGroups  = [];
         this.propertyValues  = [];
         this.ports           = [];
         this.markedAsDeleted = object.markedAsDeleted;
@@ -1270,6 +1272,7 @@ export class jsnObject {
                 case 'allProperties':
                 case 'fromObject':
                 case 'parentModel':
+                case 'propertyGroups':
                 case 'propertyValues':
                 case 'toObject':
                 case 'type':
@@ -1291,13 +1294,15 @@ export class jsnObject {
 
         const properties = object.allProperties;
         if (debug) console.log('879 object, properties', object, properties);
-        for (let i=0; i<properties?.length; i++) {
-          const prop = properties[i];
-          if (!prop) continue;
-          const propname = prop.name;
-          const value = object.getStringValue2(propname);
-          if (debug) console.log('885 propname, value', propname, value);
-          this[propname] = value;                      
+        if (properties) {
+            for (let i=0; i<properties?.length; i++) {
+                const prop = properties[i];
+                if (!prop) continue;
+                const propname = prop.name;
+                const value = object.getStringValue2(propname);
+                if (debug) console.log('885 propname, value', propname, value);
+                this[propname] = value;                      
+            }
         }
         if (debug) console.log('888 this', this);
 
@@ -1311,6 +1316,18 @@ export class jsnObject {
                 this.ports.push(gPort);
             }
         }
+        // Handle property groups
+        const groups = object.propertyGroups;
+        if (groups) {
+            this.propertyGroups = [];
+            for (let i=0; i<groups.length; i++) {
+                const group = groups[i];
+                const pGroup = new jsnPropertyGroup(group.id, group.name, group.description);
+                this.propertyGroups.push(pGroup);
+            }
+        }
+
+
     // Handle property values    }
     // addPropertyValue(val: akm.cxPropertyValue) {
     //     if (!val)
@@ -1472,13 +1489,41 @@ export class jsnRelationship {
 }
 
 export class jsnPropertyValue {
-    property:   akm.cxProperty;
+    property:   jsnProperty;
     value:      string;
-    constructor(propval: akm.cxPropertyValue) {
+    constructor(propval: jsnPropertyValue) {
         this.property   = propval.property;
         this.value      = propval.value;
     }
 }
+
+export class jsnPropertyGroup {
+    id:     string;
+    name:   string;
+    description: string;
+    propertyValues: jsnPropertyValue[];
+    constructor(id: string, name: string, description: string) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.propertyValues = new Array();
+    }
+    addPropertyValue(propval: jsnPropertyValue) {
+        this.propertyValues.push(propval);
+    }
+    getPropertyValues(): jsnPropertyValue[] {
+        return this.propertyValues;
+    }
+    findPropertyValue(propname: string): jsnPropertyValue | null {
+        for (let i = 0; i < this.propertyValues.length; i++) {
+            const propval = this.propertyValues[i];
+            if (propval.property.name === propname)
+                return propval;
+        }
+        return null;
+    }
+}
+
 export class jsnModelView {
     id:                 string;
     name:               string;
@@ -1489,7 +1534,7 @@ export class jsnModelView {
     showCardinality:    boolean;
     showRelshipNames:   boolean;
     askForRelshipName:  boolean;
-    includeInheritedReltypes: boolean;
+    includeInheritedReltypes: boolean | null;
     UseUMLrelshipkinds: boolean;
     modelRef:           string;
     viewstyleRef:       string;

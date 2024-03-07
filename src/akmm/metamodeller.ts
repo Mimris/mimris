@@ -5053,6 +5053,7 @@ export class cxType extends cxMetaObject {
     supertypes: cxType[] | null;
     supertypeRefs: string[] | null;
     properties: cxProperty[] | null;
+    propertyGroups: cxPropertyGroup[] | null;
     propertyRefs: string[] | null;
     attributes: cxAttribute[] | null;
     methods: cxMethod[] | null;
@@ -5071,6 +5072,7 @@ export class cxType extends cxMetaObject {
         this.supertypeRefs = [];
         this.properties = [];
         this.propertyRefs = [];
+        this.propertyGroups = [];
         this.attributes = [];
         this.typeview = null; // Default typeview
         this.typeviewRef = ""; // Default typeview
@@ -5127,6 +5129,14 @@ export class cxType extends cxMetaObject {
         prop.setDatatype(dtype);
         this.properties.push(prop);
         return prop;
+    }
+    addPropertyGroup(group: cxPropertyGroup) {
+        if (!group) return;
+        if (group.category === constants.gojs.C_PROPERTYGROUP) {
+            if (!this.propertyGroups)
+                this.propertyGroups = new Array();
+            this.propertyGroups.push(group);
+        }
     }
     addAttribute(attr: cxAttribute) {
         if (attr) {
@@ -5238,6 +5248,23 @@ export class cxType extends cxMetaObject {
             }
         }
         return null;
+    }
+    findPropertyGroupByName(groupname: string): cxPropertyGroup | null {
+        let propertyGroups = this.propertyGroups;
+        if (!propertyGroups) {
+            return null;
+        } else {
+            const noPropertyGroups = propertyGroups.length;
+            let i = 0;
+            while (i < noPropertyGroups) {
+                if (propertyGroups[i]?.name === groupname) {
+                    const propGroup = propertyGroups[i] as cxPropertyGroup;
+                    return propGroup;
+                }
+                i++;
+            }
+            return null;
+        }
     }
     findMethod(mtdid: string): cxMethod | null {
         let methods = this.methods;
@@ -5379,6 +5406,17 @@ export class cxType extends cxMetaObject {
             }
         }
         return props2;
+    }
+    getPropertyGroups(): cxPropertyGroup[] | null {
+        return this.propertyGroups;
+    }
+    hasPropertyGroups() {
+        if (!utils.objExists(this.propertyGroups))
+            return false;
+        else if (utils.isArrayEmpty(this.propertyGroups))
+            return false;
+        else
+            return true;
     }
     getAttributes() {
         return this.attributes;
@@ -7572,6 +7610,7 @@ export class cxInstance extends cxMetaObject {
     outputrels: cxRelationship[] | null;
     parentModel: cxModel | null;
     allProperties: cxProperty[] | null;
+    propertyGroups: cxPropertyGroup[] | null;
     copiedFromId: string;
     constructor(id: string, name: string, type: cxObjectType | cxRelationshipType | null, description: string) {
         super(id, name, description);
@@ -7592,6 +7631,7 @@ export class cxInstance extends cxMetaObject {
         this.outputrels = null;
         this.parentModel = null;
         this.allProperties = null;
+        this.propertyGroups = null;
         this.copiedFromId = "";
         if (this.type) {
             this.relshipkind = this.getRelshipKind();
@@ -8629,7 +8669,35 @@ export class cxPropertyValue {
         this.property = prop;
         this.value = value;
     }
-    // Methods
+}
+
+export class cxPropertyGroup {
+    id:     string;
+    name:   string;
+    category: string;
+    description: string;
+    propertyValues: cxPropertyValue[];
+    constructor(id: string, name: string, description: string) {
+        this.category = constants.gojs.C_PROPERTYGROUP;
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.propertyValues = new Array();
+    }
+    addPropertyValue(propval: cxPropertyValue) {
+        this.propertyValues.push(propval);
+    }
+    getPropertyValues(): cxPropertyValue[] {
+        return this.propertyValues;
+    }
+    findPropertyValue(propname: string): cxPropertyValue | null {
+        for (let i = 0; i < this.propertyValues.length; i++) {
+            const propval = this.propertyValues[i];
+            if (propval.property.name === propname)
+                return propval;
+        }
+        return null;
+    }
 }
 
 // ---------------------------------------------------------------------

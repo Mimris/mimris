@@ -78,7 +78,7 @@ const page = (props: any) => {
   useEffect(() => {
 
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (!debug) console.log('81 modelling page reloaded', memoryLocState);
+      if (debug) console.log('81 modelling page reloaded', memoryLocState);
       if (memoryLocState?.phData) {
         const locStore = memoryLocState;
         if (debug) console.log('modelling 1 ', locStore);
@@ -93,7 +93,7 @@ const page = (props: any) => {
             return () => clearTimeout(timer);
         }
       } else {
-        if (!debug) console.log('92 modelling page not reloaded', memoryLocState);
+        if (debug) console.log('92 modelling page not reloaded', memoryLocState);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
@@ -108,7 +108,7 @@ const page = (props: any) => {
         }
       }
     } else {
-      if (!debug) console.log('104 modelling page not reloaded', memoryLocState);
+      if (debug) console.log('104 modelling page not reloaded', memoryLocState);
     }
   }, [!query])
 
@@ -136,7 +136,7 @@ const page = (props: any) => {
           model = query.model;
           modelview = query.modelview;
         
-          if (!debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
+          if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
           const res = await searchGithub(org+'/'+repo, path, file, branch, 'file')
           const githubData = await res.data
           const sha = await res.data.sha
@@ -173,7 +173,7 @@ const page = (props: any) => {
       }
 
     }
-    if (!debug) console.log('168 modelling useEffect 1', query, org)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('168 modelling useEffect 1', query, org)//memoryLocState[0], props.phFocus.focusModelview.name)
     const timer = setTimeout(() => {
       getQuery()
     }

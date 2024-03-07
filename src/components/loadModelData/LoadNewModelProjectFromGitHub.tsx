@@ -20,7 +20,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const modalRef = useRef(null);
   // const backdropref = useRef(null);
 
-  if ((!debug)) console.log('23 LoadNewModel....', props)
+  if ((debug)) console.log('23 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -251,7 +251,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
   return  (
     <>
-    <button className="btn bg-secondary py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
+    <button className="btn bg-transparent py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
   
      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  >
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>

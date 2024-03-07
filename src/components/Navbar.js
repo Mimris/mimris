@@ -50,7 +50,7 @@ const Navbar = (props) => {
 	// const dispatch = useDispatch();
 
 	const currentRoute = router.pathname;
-	if (!debug) console.log('42 Navbar currentRoute', currentRoute, props);
+	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
 	const [version, setVersion] = useState("");
 	const [domainName, setDomainName] = useState("");
 
@@ -78,7 +78,7 @@ const Navbar = (props) => {
 		} else if (domainName === "akmmclient-beta.vercel.app") {
 			setVersion("beta");
 		} else if (domainName === "akmmclient-alfa.vercel.app") {
-		// } else if (domainName === "akmmclient-alpha.vercel.app") { // Change to alpha when alpha is ready
+			// } else if (domainName === "akmmclient-alpha.vercel.app") { // Change to alpha when alpha is ready
 			setVersion("alpha");
 		}
 
@@ -108,8 +108,8 @@ const Navbar = (props) => {
 	];
 
 	return (
-		<nav className="navbar navbar-expand-sm navbar-toggler ps-0" 
-			style={(domainName === "localhost") ? { marginLeft: "32px", marginRight: "32px", backgroundColor: "#efe" } : { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>				
+		<nav className="navbar navbar-expand-sm navbar-toggler ps-0"
+			style={(domainName === "localhost") ? { marginLeft: "32px", marginRight: "32px", backgroundColor: "#efe" } : { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
 				{/* <div>
 					<Dropdown>
@@ -128,7 +128,7 @@ const Navbar = (props) => {
 					</Link>
 					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
 					<div className="mx-4 d-flex justify-content-between align-items-center">
-						<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8"}} >ver. {version}</span>
+						<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >ver. {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />
 					</div>
 				</div>

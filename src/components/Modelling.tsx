@@ -137,7 +137,7 @@ const page = (props: any) => {
   }
 
     useEffect(() => {
-      if (!debug) useEfflog('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
+      if (debug) useEfflog('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
       // set the focusModel and focusModelview to the first model and modelview if they are not set
       GenGojsModel(props, dispatch);
       setMount(true);
@@ -210,7 +210,7 @@ const page = (props: any) => {
     myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
     myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
-    if (!debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+    if (debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
     if (!myMetis && !myModel && !myModelview && !myMetamodel) {
       console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
       return null;

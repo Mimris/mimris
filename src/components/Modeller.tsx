@@ -19,7 +19,7 @@ import Selector from './utils/Selector'
 // import { SaveModelToLocState } from "./utils/SaveModelToLocState";
 import { SaveModelviewToSvgFile, SaveModelviewToSvgFileAuto } from "./utils/SaveModelToFile";
 import { SaveAkmmUser } from "./utils/SaveAkmmUser";
-import ReportModule from "./ReportModule";
+import ReportModule from "./export/ReportModule";
 // import { gojs } from "../akmm/constants";
 
 import Modal from "react-bootstrap/Modal";

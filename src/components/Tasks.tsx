@@ -10,7 +10,7 @@ import { wrapper } from '../store'; // import RootState type
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import taskIcon from "/public/images/task.png";
-import ReportModule from "./ReportModule";
+import ReportModule from "./export/ReportModule";
 
 // import {ObjDetailTable} from './forms/ObjDetailTable';
 // import { set } from 'immer/dist/internal';
@@ -175,7 +175,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   };
 
   const handleClick = (task: { id: any; name: any; }, role: { id: any; name: any; }) => {
-    if (!debug) console.log('178 handleClick', task, role);
+    if (debug) console.log('178 handleClick', task, role);
     if (task) {
       dispatch({
         type: "SET_FOCUS_TASK",

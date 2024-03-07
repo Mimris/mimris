@@ -175,7 +175,7 @@ const Issues = (props) => {
 // }
 
   const handleSetFocusIssue = (e) => {
-    if (!debug) console.log('190 setFocusIssue', e)
+    if (debug) console.log('190 setFocusIssue', e)
     setFocusIssue(e);
   };
 
@@ -185,12 +185,12 @@ const Issues = (props) => {
   };
 
   const handleShowModal = () => {
-    if (!debug) console.log('183 showModal', props.showIssueModal, props.minimized)
+    if (debug) console.log('183 showModal', props.showIssueModal, props.minimized)
     // if (props.minimized) {
   //   props.setMinimized(false);
   // }
   props.setShowIssueModal(true);
-  if (!debug) console.log('188 showModal', props.showIssueModal)
+  if (debug) console.log('188 showModal', props.showIssueModal)
   };
   
   const handleCloseModal = () => props.setShowIssueModal(false);
@@ -276,7 +276,7 @@ const Issues = (props) => {
     );
   }
 
-  if (!debug) console.log('266 Issues', props.minimized)
+  if (debug) console.log('266 Issues', props.minimized)
   if (props.minimized) {
     return (
       <div className=" " >

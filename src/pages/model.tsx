@@ -27,7 +27,7 @@ const page = (props: any) => {
   useEffect(() => {
 
     const timer = setTimeout(() => {// wait for the query to be set
-      if (!debug) console.log('26 model useEffect 1', query) 
+      if (debug) console.log('26 model useEffect 1', query) 
       if (query) {  
         setDomainName(window.location.hostname);
         setQueryParam(new URLSearchParams(window.location.search));
@@ -42,7 +42,7 @@ const page = (props: any) => {
 
   useEffect(() => {
     if (mount) {
-      if (!debug) console.log('53 model useEffect 2', query) 
+      if (debug) console.log('53 model useEffect 2', query) 
         const getQuery = async () => {
           try {
             console.log('57 model query', query, file, model, modelview)
@@ -56,10 +56,10 @@ const page = (props: any) => {
               modelview = query.modelview;
 
       
-              if(!debug) console.log('64 model query', query, file, model, modelview)
-              if (!debug) console.log('65 model queryParam', queryParam, model, modelview, file )
+              if(debug) console.log('64 model query', query, file, model, modelview)
+              if (debug) console.log('65 model queryParam', queryParam, model, modelview, file )
               // first lets get the file from GitHub
-              if (!debug) console.log('71 model ', org, repo, path, file, branch, model, modelview)
+              if (debug) console.log('71 model ', org, repo, path, file, branch, model, modelview)
               const response = await searchGithub(org+'/'+repo, path, file, branch, 'file') // file is the complete url
               console.log('70 model response:', response)
               const responseData = await response.data
@@ -112,7 +112,7 @@ const page = (props: any) => {
                     phSource: phSource
                     // phSource: model.phData.metis.name || model.phSource 
                   }
-                  if (!debug) console.log('116 model', data)
+                  if (debug) console.log('116 model', data)
                   if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
                   if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
                   if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -121,7 +121,7 @@ const page = (props: any) => {
             }
 
             setRefresh(true)
-            if (!debug) console.log('122', model, modelview)
+            if (debug) console.log('122', model, modelview)
 
           } catch (error) { 
             console.log('128 query error', error)

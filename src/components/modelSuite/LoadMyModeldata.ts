@@ -31,7 +31,7 @@ export function loadMyModeldata(props: any) {
     myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
     myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
-    if (!debug) console.log('33 LoadMyModeldata ', props, myMetis, myModel, myModelview, myMetamodel);
+    if (debug) console.log('33 LoadMyModeldata ', props, myMetis, myModel, myModelview, myMetamodel);
     if (!myMetis && !myModel && !myModelview && !myMetamodel) {
         console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
         return null;
@@ -89,7 +89,7 @@ export function loadMyModeldata(props: any) {
         gojstargetmetamodel: gojstargetmetamodel,
     };
 
-    if (!debug) console.log('91 LoadMyModeldata ', allprops);
+    if (debug) console.log('91 LoadMyModeldata ', allprops);
 
     return (
         {allprops}

@@ -1197,7 +1197,9 @@ export function createRelationship(data: any, context: any) {
     fromType = myMetamodel.findObjectType(fromType?.id);
     toType   = myMetamodel.findObjectType(toType?.id);
     if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
+    if (!fromType) fromType = myMetis.findObjectType(fromNode?.object?.typeRef);
     if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
+    if (!toType) toType = myMetis.findObjectType(toNode?.object?.typeRef);
     if (fromType) {
         fromType.allObjecttypes = myMetamodel.objecttypes;
         fromType.allRelationshiptypes = myMetamodel.relshiptypes;
@@ -1245,10 +1247,10 @@ export function createRelationship(data: any, context: any) {
         let reltypes: akm.cxRelationshipType[] = [];
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            const genericRelType: akm.cxRelationshipType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
-            if (genericRelType) {
-                reltypes.push(genericRelType);
-            }
+            // const genericRelType: akm.cxRelationshipType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
+            // if (genericRelType) {
+            //     reltypes.push(genericRelType);
+            // }
             const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
             if (refersToRelType) {
                 reltypes.push(refersToRelType);
@@ -1257,10 +1259,10 @@ export function createRelationship(data: any, context: any) {
             const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
             for (let i=0; i<rtypes.length; i++) {
                 const rtype = rtypes[i];
-                if (rtype.name === 'generic') {
-                    reltypes.push(rtype);
-                }
-                if (rtype.name === 'refersTo') {
+                // if (rtype.name === 'generic') {
+                //     reltypes.push(rtype);
+                // }
+                if (rtype.name === constants.types.AKM_REFERS_TO) { 
                     reltypes.push(rtype);
                 }
             }
@@ -1271,6 +1273,8 @@ export function createRelationship(data: any, context: any) {
             let choices2: string[]  = [];
             for (let i=0; i<reltypes.length; i++) {
                 const rtype = reltypes[i];
+                if (rtype.name === constants.types.AKM_GENERIC_REL) 
+                    continue
                 choices2.push(rtype.name);  
             }  
             choices2 = [...new Set(choices2)];
@@ -1329,11 +1333,10 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const context  = args.context;
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType   = args.toType;
-    fromType = myMetamodel.findObjectType(fromType?.id);
-    toType   = myMetamodel.findObjectType(toType?.id);
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
+    if (!reltypes) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
     let reltype: akm.cxRelationshipType = null;
-    for (let i=0; i<reltypes.length; i++) {
+    for (let i=0; i<reltypes?.length; i++) {
         let rtype = reltypes[i];
         if (rtype.name === typename) {
             reltype = rtype;

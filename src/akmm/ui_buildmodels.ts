@@ -440,6 +440,7 @@ let includeNoType = false;
     modelview.relshipviews = relshipviews;
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
+    if (!debug) console.log('443 myGoModel', myGoModel);
     return myGoModel;
   }
 

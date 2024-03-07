@@ -382,13 +382,16 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         // const typeprops = objtype.properties;
         let props = getAllPropertytypes(currentObj, typeprops, myModel);
         addProperties(objtype, typeprops, context);
-
         // Handle properties
         //     objtype.properties = new Array();
         //     objtype.description = currentObj.description;
         //     const typeprops = new Array();
         //     getTypeProperties(object, typeprops, myModel);
         //     addProperties(objtype, typeprops, context);
+        let propgroups: akm.cxPropertyGroup[] = new Array();
+        propgroups = addPropertyGroups(currentObj, propgroups, myModel);
+
+
     }
     { // Handle ports
         const porttype = myMetis.findObjectTypeByName(constants.types.AKM_PORT);
@@ -2515,6 +2518,20 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxPro
             myDiagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
         });
     }
+}
+
+function addPropertyGroups(currentObj: akm.cxObject, propgroups: akm.cxPropertyGroup[], myModel: akm.cxModel): akm.cxPropertyGroup[] {
+    const rels = currentObj.getOutputRelships(myModel, constants.relkinds.REL);
+    for (let i = 0; i < rels?.length; i++) {
+        const rel = rels[i];
+        if (rel.type.name === constants.types.AKM_HAS_PROPERTYGROUP) {
+            const toObj = rel.toObject;
+            if (toObj && toObj.type.name === constants.types.AKM_PROPERTYGROUP) {
+                propgroups.push(toObj);
+            }
+        }
+    }
+    return propgroups;
 }
 
 function isIRTVtype(objview: akm.cxObject) { }

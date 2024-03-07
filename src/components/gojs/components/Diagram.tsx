@@ -1806,10 +1806,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
               for (let i=0; i<rtypes.length; i++) {
                 const rtype = rtypes[i];
-                if (rtype.name === 'generic') {
+                if (rtype.name === constants.types.AKM_GENERIC_REL) {
                     reltypes.push(rtype);
                 }
-                if (rtype.name === 'refersTo') {
+                if (rtype.name === constants.types.AKM_REFERS_TO) {
                     reltypes.push(rtype);
                 }
               }

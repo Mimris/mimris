@@ -4,7 +4,6 @@ import * as go from 'gojs';
 import * as utils from './utilities';
 import * as uic from './ui_common';
 import * as uit from './ui_templates';
-import * as uib from './ui_buildmodels';
 import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';

@@ -713,7 +713,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     modelview = myMetis.findModelView(modelview.id);
     const goModel = myMetis.gojsModel;
     const objview = node?.objectview;
-    let noLevels = '1';
+    let noLevels = '9';
     let reltypes = 'All';
     let reldir   = 'All';
     let useDefaults = confirm('Use default parameters?');
@@ -739,7 +739,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     gjsNode.isSelected = true;
     gjsNode.isHighlighted = true;
     const mySelection = myDiagram.selection;
-    // doTreeLayout(mySelection, myDiagram, true); 
+    doTreeLayout(mySelection, myDiagram, true); 
 }
 
 export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -1036,7 +1036,7 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
         let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
         linktypeNames = uniqueSet;
     }
-    let reltypeNames = [];
+    let reltypeNames = [constants.types.AKM_REFERS_TO];
     const myMetamodel = myMetis.currentMetamodel;
     if (debug) console.log('608 myMetamodel', myMetamodel);
     let objtypenames = [];

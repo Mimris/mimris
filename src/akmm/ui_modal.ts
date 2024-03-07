@@ -155,7 +155,12 @@ export function handleSelectDropdownChange(selected, context) {
             continue;
           toType = myMetis.findObjectType(toType.id);
           const typename = (selectedOption) && selectedOption;
-          const reltype  = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+          let reltype: akm.cxRelationshipType;
+          if (typename === constants.types.AKM_REFERS_TO)
+            reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+          else
+            reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+          
           // create a link data between the actual nodes
           let linkdata = {
             key:    utils.createGuid(),
@@ -1394,7 +1399,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         objTo = myMetis.findObject(objTo.id);
         let toType = nodeTo.data.objecttype;
         toType = myMetis.findObjectType(toType.id);
-        const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+        let reltype: akm.cxRelationshipType;
+        if (typename === constants.types.AKM_REFERS_TO) { 
+          reltype = myMetis.findRelationshipTypeByName(typename);
+        } else {
+          reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+        }
         if (reltype) {
           const rel = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
           myModel.addRelationship(rel); 

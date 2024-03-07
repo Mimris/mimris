@@ -200,7 +200,7 @@ const LoadGitHub = (props: any) => {
         };
         if (debug) console.log('166 ', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      } else {// it is a Model and will be loaded into current project
+      } else {// it is a Project file
         const data = {
           phData: {
               ...model.phData,
@@ -342,7 +342,7 @@ const LoadGitHub = (props: any) => {
   return  (
     <>
       <button className="btn bg-secondary py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
-      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref}>
+      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref} style={{zIndex: "9999"}}>
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="p-1">
           <div className="bg-light" > 
@@ -359,9 +359,7 @@ const LoadGitHub = (props: any) => {
                 {/* ----- Repository name input ------------------------------ */}
                 <span ><TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> </span>
                 <hr className="bg-primary my-2 mx-4" />
-
                 {/* ----- Model Path input ---------------------------------- */}
-     
                 {/* <hr className="bg-secondary my-1 mx-4" /> */}
                 <span style={{maxWidth: "180px"}}>
                   <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 

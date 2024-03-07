@@ -207,7 +207,7 @@ const page = (props: any) => {
   }, []);
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
-  const contextDiv = ((expanded ||focusExpanded ) &&  // the top context area (green)
+  const contextDiv = (focusExpanded  &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
       <ContextView ph={props} 
@@ -234,13 +234,13 @@ const page = (props: any) => {
                />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea"}}>
-              {expanded && <>
+              {focusExpanded && <>
               <div className="issuesarea">
                 <Issues props={props} 
                   showModal={showModal} setShowModal={setShowModal} 
                   showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
                   minimized={minimized} setMinimized={setMinimized} 
-                  expanded={expanded} setExpanded={setExpanded}
+                  expanded={expanded}
                 />
               </div>
               <div className="contextarea">

@@ -226,15 +226,7 @@ const page = (props: any) => {
     if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
     // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
     if (debug) console.log('188 Modelling ', myGoObjectPalette);
-    // myMetis?.setGojsModel(myGoModel);
-    // myMetis?.setCurrentMetamodel(myMetamodel);
-    // myMetis?.setCurrentModel(myModel);
-    // myMetis?.setCurrentModelview(myModelview);
-    // (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
-    
-    // (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
 
-    // set the gojs objects from the myMetis objects
     gojsmetamodelpalette = (myGoMetamodel) &&  {nodeDataArray: myGoMetamodel?.nodes,linkDataArray: myGoMetamodel?.links }  // props.phGojs?.gojsMetamodelPalette 
     gojsmetamodelmodel = (myGoMetamodelModel) && { nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links}
     gojsmodel = (myGoModel) && { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
@@ -350,7 +342,7 @@ const page = (props: any) => {
                 doRefresh();
               }}
             >
-              {(m.name.startsWith('_'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}}>{m.name}</span> : m.name}
+            {(m.name.startsWith('_A'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
             </NavLink>
           </NavItem>
         );

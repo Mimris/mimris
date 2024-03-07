@@ -261,7 +261,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const obj = props.obj;
     const context = props.context;
     const pattern = props.pattern;
-    if (debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
+    if (!debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
     let run = false;
@@ -270,6 +270,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (run === false) {
           run = true;
           draft.selectedData[propname] = value;
+          if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur);
         }
       })
     );

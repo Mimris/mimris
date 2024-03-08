@@ -518,10 +518,10 @@ export const ReadConvertJSONFromFileToAkm = async (
                 //     if (debug) console.log("428 ", oId, oName, oKey, oValProps);
                 //     createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
             } else if (inclProps && (oVal.type === "string" || oVal.type === "number" || oVal.type === "integer" || oVal.type === "boolean")) {
-                // const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
+                // const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropType")?.id;
                 if (!oVal.items) {
                     if (oName !== 'items') {
-                        osduType = "Property";
+                        osduType = "PropType";
                         console.log('491  : ', oName, oVal, parentName, gparentName);
                         createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
                     } else {
@@ -1207,7 +1207,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     //     objecttypeRef: string
     // ) {
     //     if (debug) console.log("1092  primitive", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-    //     const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
+    //     const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropType")?.id;
     //     create P
     //     // if (inclPropLinks && oName.length > 4 && oName.substring(oName.length - 4) === "Type") {
     //     //     oValProps.linkID = oName;
@@ -1282,7 +1282,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         curModel: any,
         objecttypeRef: string
     ) {
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropType")?.id;
         if (debug) console.log("1185  property", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         createObjectAndRelationships(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
     }

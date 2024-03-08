@@ -382,16 +382,13 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         // const typeprops = objtype.properties;
         let props = getAllPropertytypes(currentObj, typeprops, myModel);
         addProperties(objtype, typeprops, context);
+
         // Handle properties
         //     objtype.properties = new Array();
         //     objtype.description = currentObj.description;
         //     const typeprops = new Array();
         //     getTypeProperties(object, typeprops, myModel);
         //     addProperties(objtype, typeprops, context);
-        let propgroups: akm.cxPropertyGroup[] = new Array();
-        propgroups = addPropertyGroups(currentObj, propgroups, myModel);
-
-
     }
     { // Handle ports
         const porttype = myMetis.findObjectTypeByName(constants.types.AKM_PORT);
@@ -447,7 +444,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         modifiedObjectTypeViews?.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('447 update objecttypeview', data);
             myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
         });
         modifiedRelshipTypes.map(mn => {
@@ -1027,7 +1023,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     if (!sourcemodelview)
         return false;
     targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
-    modelviewList.push(sourcemodelview.name);
+    if (targetMetamodel.name !== constants.core.AKM_CORE_MM) {
+        modelviewList = new Array();
+        modelviewList.push(sourcemodelview.name);
+    }
     // Now go through the modelviewList and execute 'generate metamodel' for each modelview
     let sourcemodel = context.myModel;
     for (let i = 0; i < modelviewList.length; i++) {
@@ -1385,7 +1384,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     targetMetamodel.generatedFromModelRef = myModel.id;
     // targetMetamodel.includeSystemtypes = false; 
     const mmname = targetMetamodel.name;
-
+    if (!debug) console.log('1385 generateMetamodel 1');
     let isCoreMetamodel = false;
     if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         isCoreMetamodel = true;
@@ -1495,9 +1494,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     let objecttypes = new Array();
     let objecttypes0 = new Array();
     const coreMetamodel = myMetis.findMetamodelByName("AKM-Core_MM");
-    let containsType = coreMetamodel.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
+    let containsType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
     let containsTypeView = containsType?.typeview;
-    let hasSubMetamodelType = coreMetamodel.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
+    let hasSubMetamodelType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
     let hasSubMetamodelView = hasSubMetamodelType?.typeview;
     let typenames = getContainedTypenames(myObjectview, containsType);
     if (typenames?.length > 0) {
@@ -1718,7 +1717,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             // First get all typeviews for the relship type in the target metamodel
                             const typeview = reltype?.typeview;
                             const typeviews = targetMetamodel.removeAllRelshipTypeViewsByRelshipType(reltype);
-                            // Add current typeview
+                            // Remove them all
                             if (typeview) {
                                 typeviews.push(typeview);
                                 const jsnRelTypeview = new jsn.jsnRelshipTypeView(typeview);
@@ -1874,20 +1873,17 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     myMetis.currentTargetModel = myModel;
     { // Remove duplicate relationship types
         const reltypes = targetMetamodel.relshiptypes;
-        if (false) {
-            for (let j = 0; j < reltypes?.length; j++) {
-                const reltype = reltypes[j];
-                for (let k = j + 1; k < reltypes?.length; k++) {
-                    const rtype = reltypes[k];
-                    if (reltype.fromobjtypeRef === rtype.fromobjtypeRef
-                        && reltype.toobjtypeRef === rtype.toobjtypeRef
-                        && reltype.name === rtype.name) {
-                        reltypes.splice(k, 1);
-                        k--;
-                    }
+        for (let j = 0; j < reltypes?.length; j++) {
+            const reltype = reltypes[j];
+            for (let k = j + 1; k < reltypes?.length; k++) {
+                const rtype = reltypes[k];
+                if (reltype.fromobjtypeRef === rtype.fromobjtypeRef
+                    && reltype.toobjtypeRef === rtype.toobjtypeRef
+                    && reltype.name === rtype.name) {
+                    reltypes.splice(k, 1);
+                    k--;
                 }
             }
-            targetMetamodel.relshiptypes = reltypes;
         }
         // Prepare the dispatches
         for (let j = 0; j < reltypes?.length; j++) {
@@ -1903,10 +1899,14 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     myMetis.addMetamodel(targetMetamodel);
     myMetis.metamodels = [...new Set(myMetis.metamodels)];
 
-    let jsnRelTypeview = new jsn.jsnRelshipTypeView(containsTypeView);
-    modifiedRelTypeViews.push(jsnRelTypeview);
-    jsnRelTypeview = new jsn.jsnRelshipTypeView(hasSubMetamodelView);
-    modifiedRelTypeViews.push(jsnRelTypeview);
+    if (containsTypeView) {
+        let jsnRelTypeview = new jsn.jsnRelshipTypeView(containsTypeView);
+        modifiedRelTypeViews.push(jsnRelTypeview);
+    }
+    if (hasSubMetamodelView) {
+        let jsnRelTypeview = new jsn.jsnRelshipTypeView(hasSubMetamodelView);
+        modifiedRelTypeViews.push(jsnRelTypeview);
+    }
 
     // Check if the metamodel is used as a sub-metamodel in another metamodel
     const metamodels = myMetis.metamodels;
@@ -1923,6 +1923,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         metamodel.submetamodels = subMetamodels;
         jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
+        if (!debug) console.log('1920 generateMetamodel 2');
     }
 
     // Do the dispatches
@@ -2518,20 +2519,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxPro
             myDiagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
         });
     }
-}
-
-function addPropertyGroups(currentObj: akm.cxObject, propgroups: akm.cxPropertyGroup[], myModel: akm.cxModel): akm.cxPropertyGroup[] {
-    const rels = currentObj.getOutputRelships(myModel, constants.relkinds.REL);
-    for (let i = 0; i < rels?.length; i++) {
-        const rel = rels[i];
-        if (rel.type.name === constants.types.AKM_HAS_PROPERTYGROUP) {
-            const toObj = rel.toObject;
-            if (toObj && toObj.type.name === constants.types.AKM_PROPERTYGROUP) {
-                propgroups.push(toObj);
-            }
-        }
-    }
-    return propgroups;
 }
 
 function isIRTVtype(objview: akm.cxObject) { }

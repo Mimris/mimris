@@ -1247,10 +1247,7 @@ export function createRelationship(data: any, context: any) {
         let reltypes: akm.cxRelationshipType[] = [];
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            // const genericRelType: akm.cxRelationshipType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
-            // if (genericRelType) {
-            //     reltypes.push(genericRelType);
-            // }
+            reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
             const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
             if (refersToRelType) {
                 reltypes.push(refersToRelType);
@@ -1316,6 +1313,7 @@ export function createRelationship(data: any, context: any) {
 }
 
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
+    let relshipview: akm.cxRelationshipView;
     const myDiagram = args.context.myDiagram;
     const myGoModel: gjs.goModel = args.context.myGoModel;
     const myMetis: akm.cxMetis = args.context.myMetis; 
@@ -1335,103 +1333,111 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     let toType: akm.cxObjectType   = args.toType;
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
     if (!reltypes) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-    let reltype: akm.cxRelationshipType = null;
-    for (let i=0; i<reltypes?.length; i++) {
-        let rtype = reltypes[i];
-        if (rtype.name === typename) {
-            reltype = rtype;
-            break;
+    let reltype: akm.cxRelationshipType;
+    if (reltypes) {
+        for (let i=0; i<reltypes.length; i++) {
+            reltype = reltypes[i];
+            if (reltype.name === constants.types.AKM_GENERIC_REL) {
+                continue;
+            } else {
+                if (reltype.name === typename)
+                    break;
+            }
         }
-    }
+    } else 
+        reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    const rel = myModel.findRelationship2(objFrom, objTo, reltype, typename, portFrom, portTo);
+    let rel = myModel.findRelationship2(objFrom, objTo, reltype, typename, portFrom, portTo);
     if (rel) {
         alert("Relationship already exists!\nOperation is cancelled.")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    let relshipview: akm.cxRelationshipView;
-    data.relshiptype = reltype;
-    data.type = "";
-    data.name = reltype.nameFrom;
-    const reltypeview = reltype.typeview;
-    relshipview = createLink(data, context); 
-    if (relshipview) {
-        relshipview.setTypeView(reltypeview);
-        const relship = relshipview.relship; 
-        relship.type = reltype;
-        relship.relshipkind = reltype.relshipkind;
-        relshipview.setFromArrow2(rel?.relshipkind);
-        relshipview.setToArrow2(rel?.relshipkind);
-        relship.fromPortid = data.fromPort;
-        relship.toPortid = data.toPort;
-        relshipview.fromPortid = data.fromPort;
-        relshipview.toPortid = data.toPort;
-        let name = data.name;  
-        myDiagram.model.setDataProperty(data, "name", new String(name).valueOf());
-        const id = relshipview.id;
-        if (context.myModelview.askForRelshipName){
-            name = prompt('Enter relationship name', name);
-            if (name?.length == 0) name = " ";
-        }   
-        relshipview = updateRelationshipView(relshipview);
-        relshipview.id = id;
-        relshipview.name = name;
-        relship.name = name;
-        data.name = name;
-        updateLink(data, relshipview.typeview, myDiagram);
+    else {
+        rel = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        let relshipview: akm.cxRelationshipView;
+        data.relshiptype = reltype;
+        data.type = "";
+        data.name = reltype.nameFrom;
+        const reltypeview = reltype.typeview;
+        relshipview = createLink(data, context); 
+        if (relshipview) {
+            relshipview.setTypeView(reltypeview);
+            const relship = relshipview.relship; 
+            relship.type = reltype;
+            relship.relshipkind = reltype.relshipkind;
+            relshipview.setFromArrow2(rel?.relshipkind);
+            relshipview.setToArrow2(rel?.relshipkind);
+            relship.fromPortid = data.fromPort;
+            relship.toPortid = data.toPort;
+            relshipview.fromPortid = data.fromPort;
+            relshipview.toPortid = data.toPort;
+            let name = data.name;  
+            myDiagram.model.setDataProperty(data, "name", new String(name).valueOf());
+            const id = relshipview.id;
+            if (context.myModelview.askForRelshipName){
+                name = prompt('Enter relationship name', name);
+                if (name?.length == 0) name = " ";
+            }   
+            relshipview = updateRelationshipView(relshipview);
+            relshipview.id = id;
+            relshipview.name = name;
+            relship.name = name;
+            data.name = name;
+            updateLink(data, relshipview.typeview, myDiagram);
 
-        let link = myGoModel.findLink(data.key);
-        uid.resetToTypeview(link, myMetis, myDiagram); 
-        relshipview.markedAsDeleted = false;
-        relship.addRelationshipView(relshipview);
-        myModelview.addRelationshipView(relshipview);
-        myMetis.addRelationshipView(relshipview);
-        myModel.addRelationship(relship);
-        myMetis.addRelationship(relship);
-        // Dispatch
-        const modifiedRelships = new Array();
-        const jsnRelship = new jsn.jsnRelationship(relship);
-        modifiedRelships.push(jsnRelship);
-        modifiedRelships.map(mn => {
+            let link = myGoModel.findLink(data.key);
+            uid.resetToTypeview(link, myMetis, myDiagram); 
+            relshipview.markedAsDeleted = false;
+            relship.addRelationshipView(relshipview);
+            myModelview.addRelationshipView(relshipview);
+            myMetis.addRelationshipView(relshipview);
+            myModel.addRelationship(relship);
+            myMetis.addRelationship(relship);
+            // Dispatch
+            const modifiedRelships = new Array();
+            const jsnRelship = new jsn.jsnRelationship(relship);
+            modifiedRelships.push(jsnRelship);
+            modifiedRelships.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+            })      
+            const modifiedRelviews = new Array();
+            const jsnRelview = new jsn.jsnRelshipView(relshipview);
+            modifiedRelviews.push(jsnRelview);
+            modifiedRelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('1314 data', data);
+                (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+            })              
+            const modifiedModelviews = new Array();
+            const jsnModelview = new jsn.jsnModelView(myModelview);
+            modifiedModelviews.push(jsnModelview);
+            modifiedModelviews.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
-            (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-        })      
-        const modifiedRelviews = new Array();
-        const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        modifiedRelviews.push(jsnRelview);
-        modifiedRelviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1314 data', data);
-            (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        })              
-        const modifiedModelviews = new Array();
-        const jsnModelview = new jsn.jsnModelView(myModelview);
-        modifiedModelviews.push(jsnModelview);
-        modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-        })
-        link = myDiagram.findLinkForKey(data.key);
-        if (link) {
-            const lnk = link.data;
-            if (name === " ") {
-                myDiagram.model.setDataProperty(lnk, "name", ".");  // Hack
-            } else {
-                myDiagram.model.setDataProperty(lnk, "name", name);
+            myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+            })
+            link = myDiagram.findLinkForKey(data.key);
+            if (link) {
+                const lnk = link.data;
+                if (name === " ") {
+                    myDiagram.model.setDataProperty(lnk, "name", ".");  // Hack
+                } else {
+                    myDiagram.model.setDataProperty(lnk, "name", name);
+                }
+                if (link.strokeWidth == 0) link.strokeWidth = 1;
+                if (link.strokeWidth == 0) link.strokeWidth = 1;
+                myDiagram.model.setDataProperty(lnk, "category", "Relationship");
             }
-            if (link.strokeWidth == 0) link.strokeWidth = 1;
-            if (link.strokeWidth == 0) link.strokeWidth = 1;
-            myDiagram.model.setDataProperty(lnk, "category", "Relationship");
-        }
-    }        
+        }        
+    }
     myDiagram.requestUpdate();
     return relshipview;
 }

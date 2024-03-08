@@ -752,8 +752,8 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
                         let valueObj = toObj;
-                        if (valueObj.fieldType)
-                            datatype.setFieldType(valueObj.fieldType);
+                        if (valueObj.name)
+                            datatype.setFieldType(valueObj.name);
                     }
                 }
                 // Add the datatype

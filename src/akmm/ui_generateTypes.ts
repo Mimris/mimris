@@ -1384,7 +1384,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     targetMetamodel.generatedFromModelRef = myModel.id;
     // targetMetamodel.includeSystemtypes = false; 
     const mmname = targetMetamodel.name;
-    if (!debug) console.log('1385 generateMetamodel 1');
+    if (debug) console.log('1385 generateMetamodel 1');
     let isCoreMetamodel = false;
     if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         isCoreMetamodel = true;
@@ -1923,7 +1923,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         metamodel.submetamodels = subMetamodels;
         jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
-        if (!debug) console.log('1920 generateMetamodel 2');
+        if (debug) console.log('1920 generateMetamodel 2');
     }
 
     // Do the dispatches

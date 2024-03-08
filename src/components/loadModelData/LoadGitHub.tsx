@@ -19,7 +19,7 @@ const LoadGitHub = (props: any) => {
   const [refresh, setRefresh] = useState(true);
   const modalRef = useRef(null);
   const backdropref = useRef(null);
-  console.log('11 LoadGithub', props)
+  if(debug) console.log('11 LoadGithub', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -54,6 +54,8 @@ const LoadGitHub = (props: any) => {
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
   function toggleRefresh() { setRefresh(!refresh); }
+
+  // if (props.path !== '') setPathText(props.path);
 
   const data = {
     phData:   props.ph.phData,
@@ -341,7 +343,7 @@ const LoadGitHub = (props: any) => {
 
   return  (
     <>
-      <button className="btn bg-secondary py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
+      <button className="btn bg-transparent py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
       <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref} style={{zIndex: "9999"}}>
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="p-1">
@@ -357,12 +359,20 @@ const LoadGitHub = (props: any) => {
                 {/* <div className="w-100 mt-1 text-secondary"> {githubLink} </div> */}
                 {/* <hr className="bg-primary my-1 mx-4" /> */}
                 {/* ----- Repository name input ------------------------------ */}
-                <span ><TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> </span>
+                <span >
+                  {(props.path !== '')
+                    ? <TextInput  label="Repository :" value={'kavca-akm-models'} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> 
+                    : <TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> 
+                  }
+                </span>
                 <hr className="bg-primary my-2 mx-4" />
                 {/* ----- Model Path input ---------------------------------- */}
                 {/* <hr className="bg-secondary my-1 mx-4" /> */}
                 <span style={{maxWidth: "180px"}}>
-                  <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
+                  {(props.path !== '') ?  
+                    <TextInput label="Path :" value={props.path} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
+                    : <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
+                  }
                 </span>
                 {(dirs?.length !== 0) 
                   ? <div>Model paths (folders) found:<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 

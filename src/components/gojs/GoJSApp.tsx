@@ -1239,7 +1239,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           node.updateTargetBindings();
         })
-        if (!debug) console.log('1242 myGoModel', myGoModel);
+        if (debug) console.log('1242 myGoModel', myGoModel);
         break;
       }
       case "ObjectDoubleClicked": {

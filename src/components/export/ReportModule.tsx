@@ -7,8 +7,9 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 import 'react-tabs/style/react-tabs.css';
 
-import FocusDetails from './FocusDetails';
-import MarkdownEditor from './forms/MarkdownEditor';
+import FocusDetails from '../FocusDetails';
+import MarkdownEditor from '../forms/MarkdownEditor';
+import ExportObjects from './ExportObjects';
 
 const debug = false
 
@@ -23,9 +24,9 @@ const ReportModule = (props) => {
   if (!props.modelInFocusId) return <>No objects</> 
 
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
-  function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
+  // function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
 
   const [activeTab, setActiveTab] = useState(0);
@@ -45,7 +46,7 @@ const ReportModule = (props) => {
             <TabList style={{ margin: '0px' }}>
               <Tab>Focus Object</Tab>
               <Tab >MarkDown</Tab>
-              <Tab></Tab>
+              <Tab>Export</Tab>
               {/* <Tab><FaPlaneArrival />Main</Tab>
                   <Tab ><FaCompass /></Tab> */}
             </TabList>
@@ -56,6 +57,7 @@ const ReportModule = (props) => {
               <MarkdownEditor props={props} />
             </TabPanel>
             <TabPanel>
+              <ExportObjects props={props} />
             </TabPanel>
           </Tabs>
           </>

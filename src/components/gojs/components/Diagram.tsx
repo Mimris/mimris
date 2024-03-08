@@ -261,7 +261,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const obj = props.obj;
     const context = props.context;
     const pattern = props.pattern;
-    if (!debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
+    if (debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
     let run = false;
@@ -3876,7 +3876,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       <>
         <Nav tabs >
           {navitemDiv}
-          <NavItem > {toolTip} </NavItem>
+          {/* <NavItem > {toolTip} </NavItem> */}
         </Nav>
         <TabContent activeTab={this.state.currentActiveTab} >
           <TabPane tabId={this.state.currentActiveTab} >

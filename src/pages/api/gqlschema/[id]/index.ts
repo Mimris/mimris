@@ -8,7 +8,7 @@ export default async function getSchemaById(
 
   
   if (req.method === 'PUT') { 
-    console.log('11 index', req.query.id);
+    // console.log('11 index', req.query.id);
     if (req.query.id == 'current') {
         //console.log('12 index', req.body);
         
@@ -20,7 +20,7 @@ export default async function getSchemaById(
           const mmName = gqlmm.gql.name
           const version = '1'
           const defs = gqlmm.gql.defs
-          console.log('22', defs);
+          // console.log('22', defs);
 
           const nowtime = new Date().toJSON()
             .replace(/\//g, '-')

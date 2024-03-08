@@ -14,7 +14,7 @@ import { get } from 'http';
 const debug = false;
 
 const Project = (props) => {
-  if (!debug) console.log('25 Tasks props', props.props.phData, props);
+  if (debug) console.log('25 Tasks props', props.props.phData, props);
   
   const dispatch = useDispatch();
   const projectModalRef = useRef(null);

@@ -15,7 +15,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 const debug = false;
 
 const page = (props) => {
-  console.log('11 Model props', props);
+  if (debug) console.log('11 Model props', props);
 
   const dispatch = useDispatch();
 
@@ -68,7 +68,7 @@ const page = (props) => {
     let  activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === phFocus.focusModel.id) // if no model in focus, set the active tab to 0
 
   useEffect(() => {
-      // if (!debug) console.log('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
+      // if (debug) console.log('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
       // set the focusModel and focusModelview to the first model and modelview if they are not set
       GenGojsModel(props, dispatch);
       // setMount(true);
@@ -106,7 +106,7 @@ const page = (props) => {
     myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
     myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
 
-    if (!debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+    if (debug) console.log('109 Model ', props, myMetis, myModel, myModelview, myMetamodel);
     if (!myMetis && !myModel && !myModelview && !myMetamodel) {
       console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
       return null;
@@ -116,12 +116,12 @@ const page = (props) => {
     myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
     myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
     myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
-    if (!myModel?.objects) { console.log('196 myModel.objects is undefined', myMetis);
+    if (!myModel?.objects) { console.log('119 myModel.objects is undefined', myMetis);
       // return null
     } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}
     if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
     // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
-    if (debug) console.log('188 Modelling ', myGoObjectPalette);
+    if (debug) console.log('124 Model ', myGoObjectPalette);
 
     gojsmetamodelpalette = (myGoMetamodel) &&  {nodeDataArray: myGoMetamodel?.nodes,linkDataArray: myGoMetamodel?.links }  // props.phGojs?.gojsMetamodelPalette 
     gojsmetamodelmodel = (myGoMetamodelModel) && { nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links}

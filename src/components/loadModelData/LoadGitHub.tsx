@@ -19,7 +19,7 @@ const LoadGitHub = (props: any) => {
   const [refresh, setRefresh] = useState(true);
   const modalRef = useRef(null);
   const backdropref = useRef(null);
-  console.log('11 LoadGithub', props)
+  if(debug) console.log('11 LoadGithub', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`

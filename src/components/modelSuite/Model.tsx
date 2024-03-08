@@ -15,7 +15,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 const debug = false;
 
 const page = (props) => {
-  console.log('11 Model props', props);
+  if (debug) console.log('11 Model props', props);
 
   const dispatch = useDispatch();
 

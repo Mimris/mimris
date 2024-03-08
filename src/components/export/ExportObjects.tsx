@@ -86,7 +86,7 @@ const ExportObjects = (props) => {
     // const handlePopupAMsg = () => {
     //   // setMdString('Your markdown string here');
     //   setShowModal(true);
-    //   if (!debug) console.log('88 popupAMsg', mdString, showModal);
+    //   if (debug) console.log('88 popupAMsg', mdString, showModal);
     // }
     
     // const MDEditor = dynamic(
@@ -205,7 +205,7 @@ const ExportObjects = (props) => {
  
     const titles = Object.values(objectPropertiesOsdu);
     const values = titles.map(v => curobject[v]);
-    if (!debug) console.log('214 keys1', values);
+    if (debug) console.log('214 keys1', values);
 
     const valueList = ObjectToCsv({obj: csvheader3}).valueList
 

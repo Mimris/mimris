@@ -764,7 +764,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';            
               break;
             default:
-              fieldType = 'textarea';
+              if (!fieldType)
+                fieldType = 'textarea';
               break;
           }
         }

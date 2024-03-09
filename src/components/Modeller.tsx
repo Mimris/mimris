@@ -60,25 +60,18 @@ const Modeller = (props: any) => {
   const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
   const [projectName, setProjectName] = useState(props.metis.name); // the value to be displayed
   const [mvName, setMvName] = useState(); // the value to be displayed
-
-  // const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', null); //props);
-  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
-
   const [exportSvg, setExportSvg] = useState(null);
   const [diagramReady, setDiagramReady] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Objects in this Modelview');
   const [ofilteredArr, setOfilteredArr] = useState([]);
   const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
-
-
   const diagramRef = useRef(null);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
   let activetabindex = 0
-
   const models = props.metis?.models
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
@@ -88,21 +81,19 @@ const Modeller = (props: any) => {
   const metamodels = props.metis?.metamodels
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
-  const toggleShowContext = () => {
-    // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleFocusDetails  })
-    // setVisibleFocusDetails(!visibleFocusDetails)
-    SaveAkmmUser({ ...memoryAkmmUser, visibleFocusDetails }, locStateKey = 'akmmUser')
-    // setMemoryAkmmUser({...memoryAkmmUser, visibleFocusDetails: !visibleFocusDetails})
-    if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleFocusDetails)
-  }
-
-  const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
+  // const toggleShowContext = () => {
+  //   // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleFocusDetails  })
+  //   // setVisibleFocusDetails(!visibleFocusDetails)
+  //   SaveAkmmUser({ ...memoryAkmmUser, visibleFocusDetails }, locStateKey = 'akmmUser')
+  //   // setMemoryAkmmUser({...memoryAkmmUser, visibleFocusDetails: !visibleFocusDetails})
+  //   if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleFocusDetails)
+  // }
+  // const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
 
   useEffect(() => { // set activTab when focusModelview.id changes
     if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
     setActiveTab(activetabindex)
   }, [props.phFocus?.focusModelview?.id])
-  // }, [props.phFocus.focusModelview?.id])
 
   // ------------------------------
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];

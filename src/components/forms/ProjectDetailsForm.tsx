@@ -78,7 +78,8 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     dispatch({ type: 'SET_FOCUS_PROJ', data });
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
-      SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
+      // SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
+      setMemoryLocState(props.props);
     }, 2000);
     return () => clearTimeout(timer);
   };

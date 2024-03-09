@@ -106,12 +106,12 @@ export const ProjectMenuBar = (props: any) => {
     //     props.setExpanded(true);
     // };
 
-    const handleContractDiv = () => {
-        props.setExpanded(false);
-        // const timer = setTimeout(() => {
-        //  setExpanded(false);
-        // } , 20000);
-    };
+    // const handleContractDiv = () => {
+    //     props.setExpanded(false);
+    //     // const timer = setTimeout(() => {
+    //     //  setExpanded(false);
+    //     // } , 20000);
+    // };
 
     const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
@@ -184,7 +184,7 @@ export const ProjectMenuBar = (props: any) => {
             backgroundColor: "#b0cfcf", zIndex: "9"}}
         >
             <ul className="bg-light mx-1 rounded">
-                {['Open', 'New', 'Metamodel', 'File', 'Save'].map((item, index) => (
+                {['Open', 'New', 'File', 'Save', 'Metamodel'].map((item, index) => (
                     <li className={`context-item border p-1 rounded-2 ${item === activeItem ? 'active' : ''}`}
                     key={index}
                     >
@@ -192,17 +192,22 @@ export const ProjectMenuBar = (props: any) => {
                         style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
                     >
                         {item === 'Open' 
-                            ?  <div className="bg-secondary border border-2 rounded text-white ps-1 "><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
+                            ?  <div className="bg-secondary border border-2 rounded text-white ps-1 "
+                                ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
                             : item === 'New'
-                                ? <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
-                                : item === 'Metamodel'
-                                    ? <div className=" border rounded text-white ps-1"
-                                        style={{ backgroundColor: "#999"}}
-                                    ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div>
-                                    : item === 'File'
-                                        ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
-                                        : item === 'Save'
-                                            ? <div className="bg-light border  border-4 rounded">{saveFile}</div>
+                                ? <div className="bg-secondary border rounded text-white ps-1"
+                                    ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
+                                : item === 'File'
+                                    ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
+                                    : item === 'Save'
+                                        ? <div className="bg-light border  border-4 rounded">{saveFile}</div>
+                                        : item === 'Metamodel'
+                                            ? <details className=" border rounded text-white ps-1"
+                                                style={{ backgroundColor: "#999"}}
+                                                ><summary className="bg-light my-1 me-1 ps-1 text-black">More ...</summary>
+                                                <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div>
+                                                 {/* <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div> */}
+                                            </details>
                                             : item    
                         }
                     </div>

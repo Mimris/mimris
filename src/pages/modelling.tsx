@@ -30,13 +30,11 @@ const page = (props: any) => {
 
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
-
   const [toggleRefresh, setToggleRefresh] = useState(false)
-
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [focusExpanded, setFocusExpanded] = useState(false);
+  const [focusExpanded, setFocusExpanded] = useState(true);
   const [minimized, setMinimized] = useState(true);
   // const [org, setOrg] = useState("");
   // const [repo, setRepo] = useState("");
@@ -45,8 +43,6 @@ const page = (props: any) => {
   // const [file, setFile] = useState("");
   // const [model, setModel] = useState("");
   // const [modelview, setModelview] = useState("");
-
-
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -67,24 +63,23 @@ const page = (props: any) => {
   const [refreshContext, setRefreshContext] = useState(true);
   const [render, setRender] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
-  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
-  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
+  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', []); //props);
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
   const [focus, setFocus] = useState(props.phFocus)
   const [memoryAkmmUser, setMemoryAkmmUser] = useSessionStorage('akmmUser', ''); //props);
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
 
-
   useEffect(() => {
-
+    
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (debug) console.log('81 modelling page reloaded', memoryLocState);
-      if (memoryLocState?.phData) {
-        const locStore = memoryLocState;
-        if (debug) console.log('modelling 1 ', locStore);
+      if (!debug) console.log('81 modelling page reloaded', memorySessionState);
+      if (memorySessionState[0].phData) {
+        const locStore = memorySessionState[0];
+        if (!debug) console.log('79modelling 1 ', locStore);
         if (locStore) {
           const data = locStore;
-          if (debug) console.log('87 modelling ', data);
+          if (!debug) console.log('87 modelling ', data);
           dispatchLocalStore(data);
           // window.location.reload();
             const timer = setTimeout(() => {
@@ -93,8 +88,8 @@ const page = (props: any) => {
             return () => clearTimeout(timer);
         }
       } else {
-        if (debug) console.log('92 modelling page not reloaded', memoryLocState);
-        if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open intial project.")) {
+        if (!debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
+        if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
               setIsReloading(true);
@@ -108,9 +103,9 @@ const page = (props: any) => {
         }
       }
     } else {
-      if (debug) console.log('104 modelling page not reloaded', memoryLocState);
+      if (!debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
     }
-  }, [!query])
+  }, [!query && memorySessionState[0] && mount])
 
   let org = query.org;
   let repo = query.repo;
@@ -121,7 +116,7 @@ const page = (props: any) => {
   let modelview = query.modelview;
     
   useEffect(() => {
-    if (debug) console.log('89 modelling useEffect 1', query)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('89 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
@@ -173,7 +168,7 @@ const page = (props: any) => {
       }
 
     }
-    if (debug) console.log('168 modelling useEffect 1', query, org)//memoryLocState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('168 modelling useEffect 1', query, org)
     const timer = setTimeout(() => {
       getQuery()
     }
@@ -182,7 +177,7 @@ const page = (props: any) => {
   }, []);
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
-  const contextDiv = (focusExpanded  &&  // the top context area (green)
+  const contextDiv = ( //focusExpanded  &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
       <ContextView ph={props} 
@@ -206,26 +201,27 @@ const page = (props: any) => {
                expanded={expanded} setExpanded={setExpanded}  
                 focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded} 
                 toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}         
-               />
+            />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea"}}>
-              {focusExpanded && <>
-              <div className="issuesarea">
-                <Issues props={props} 
-                  showModal={showModal} setShowModal={setShowModal} 
-                  showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
-                  minimized={minimized} setMinimized={setMinimized} 
-                  expanded={expanded}
-                />
-              </div>
-              <div className="contextarea">
-                {contextDiv}
-              </div>
-              <div className="tasksarea mr-1 bg-transparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-              </div>
-              </>
-               }
+              {focusExpanded && 
+                <>
+                  <div className="issuesarea">
+                    <Issues props={props} 
+                      showModal={showModal} setShowModal={setShowModal} 
+                      showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
+                      minimized={minimized} setMinimized={setMinimized} 
+                      expanded={expanded}
+                    />
+                  </div>
+                  <div className="contextarea">
+                    {contextDiv}
+                  </div>
+                  <div className="tasksarea mr-1 bg-transparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                    <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                  </div>
+                </>
+              }
             </div>
             <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
               <Link className="link " href={`/model?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}

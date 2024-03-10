@@ -33,7 +33,6 @@ const ReportModule = (props) => {
 
   const tabsDiv = (
     <>
-
       {visibleTabsDiv ?
         <>
           {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 

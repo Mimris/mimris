@@ -18,13 +18,6 @@ const FocusDetails = (props, edit) => {
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
 
-    const ph = props.props.props || props.props
-    const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
-    const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
-    if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
-
-    if (!ph?.phData?.metis?.models) return <></>
-
     const [selectedId, setSelectedId] = useState(null);
     const [value, setValue] = useState("");
     // const [visibleContext, setVisibleContext] = useState(true);
@@ -33,18 +26,20 @@ const FocusDetails = (props, edit) => {
     const [formValuesObjecttype, setFormValuesObjecttype] = useState({});
     const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
 
+    const ph = props.props.props || props.props
+    if (!ph?.phData?.metis?.models) return <></>
+
+    const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
+    const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
+    const modelviewInFocusId = props.props.modelviewInFocusId
+    if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
+
     const models = ph.phData?.metis?.models  // selecting the models array
-
     const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
-
-    // const curmodel = modelInFocus
     const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
-
-    if (debug) console.log('53 Context:', curmodel, curmodel.objects)
-
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
+    const curmodelview = modelviews?.find((mv: any) => mv?.id === modelviewInFocusId)
     const objects = curmodel?.objects //.map((o: any) => o)
-
     const focusModel =  (reportType === 'task') ?  models.find(m => m.id === modelInFocusId) :  ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
     const focusUser = ph.phUser?.focusUser
     const focusModelview =  ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
@@ -56,14 +51,11 @@ const FocusDetails = (props, edit) => {
     if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
     
 
+    const curobject = objects?.find(o => o.id === focusObject?.id) 
+    const curobjectview = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
     const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
     const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
     const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-    if (debug) console.log('62 Context:', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
-    const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
-    if (debug) console.log('64 Context:', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
-
-    const curobject = objects?.find(o => o.id === focusObject?.id) 
     // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
     if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
@@ -185,9 +177,6 @@ const FocusDetails = (props, edit) => {
     if (debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
     // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
     // find parent object
-
-    const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
-    if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
     const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
     let parentobject =  objects?.find(o => o.id === parentobjectview?.objectRef)
     parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
@@ -195,7 +184,7 @@ const FocusDetails = (props, edit) => {
     if (debug) console.log('58 Context', parentobject);
 
     // functions to find objects and objectviews etc ----------------------------------------------------------------------
-    function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
+    function findObjectviewsWithCurrentObjectviewAsParent(objectviews: any[], currentObjectviewId: string): any[] {
       return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
     }
   
@@ -227,7 +216,7 @@ const FocusDetails = (props, edit) => {
     //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
     // }
   
-    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview?.objectviews; 
+    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectviewAsParent(curobjectviews, curobjectview?.id) : curmodelview?.objectviews; 
     let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
     if (debug) console.log('227 Context',  curobjectview, curmodelview?.objectviews);
     if (debug) console.log('228 Context', objectviewChildren);

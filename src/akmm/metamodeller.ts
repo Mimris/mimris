@@ -8218,7 +8218,7 @@ export class cxObject extends cxInstance {
     getConnectedObjects2(metis: cxMetis): cxObject[] {
         const type = this.type;
         const properties = type?.properties;
-        const objlist = [];
+        const objlist: cxObject[] = [];
         for (let i = 0; i < properties?.length; i++) {
             const prop = properties[i];
             if (prop) {

@@ -71,7 +71,6 @@ const page = (props: any) => {
   const [visibleContext, setVisibleContext] = useState(false);
 
   useEffect(() => {
-    
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
       if (!debug) console.log('81 modelling page reloaded', memorySessionState);
       if (memorySessionState[0]?.phData) {

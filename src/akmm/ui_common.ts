@@ -1323,12 +1323,14 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     let data       = args.data;
     const typename = args.typename;
     const nodeFrom = args.nodeFrom;
-    const objFrom  = nodeFrom.data.object;
     const portFrom = args.fromPort;
     const nodeTo   = args.nodeTo;
-    const objTo    = nodeTo.data.object;
     const portTo   = args.toPort;
     const context  = args.context;
+    let objFrom: akm.cxObject = nodeFrom.data.object;
+    objFrom = myModel.findObject(objFrom.id);
+    let objTo: akm.cxObject = nodeTo.data.object;
+    objTo = myModel.findObject(objTo.id);
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType   = args.toType;
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);

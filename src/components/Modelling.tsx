@@ -312,7 +312,7 @@ const page = (props: any) => {
    
   const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
 
-  const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {
+  const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
         const data = { id: m.id, name: m.name };
@@ -356,19 +356,19 @@ const page = (props: any) => {
     // Divs
     if (debug) console.log('362 Modelling: ', gojsmetamodelpalette);
     if (debug) console.log('363 Modelling: ', gojsmetamodelmodel);
+    
     const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
-      ?
-      <Palette
-        gojsModel={gojsmetamodelmodel}
-        gojsMetamodel={gojsmetamodelpalette}
-        myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
-        metis={metis}
-        phFocus={phFocus}
-        dispatch={dispatch}
-        modelType='metamodel'
-      />
+      ? <Palette
+          gojsModel={gojsmetamodelmodel}
+          gojsMetamodel={gojsmetamodelpalette}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          myGoMetamodel={myGoMetamodel}
+          metis={metis}
+          phFocus={phFocus}
+          dispatch={dispatch}
+          modelType='metamodel'
+        />
       : <></>;
 
     const paletteMetamodelDiv = (gojsmetamodelmodel) // this is the metamodel modelling area
@@ -491,7 +491,7 @@ const page = (props: any) => {
               style={{ borderColor: "transparent", width: "116px", height: "24px", fontSize: "16px", backgroundColor: "#a0caca" }}
             >{(mmToggle) ? 'Models >' : 'Metamodel <>'}</button>
           </span>
-          {navmodelDiv}
+          {modelTabsDiv}
         </Nav>
         <TabContent  >
           <TabPane >   {/* Model ---------------------------------------*/}
@@ -656,22 +656,22 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
           </div>
-          {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
-            <div className=" d-flex align-items-center me-0 pe-0">
-              <i className="fa fa-folder text-secondary px-1"></i>
-              <div className=""  style={{ whiteSpace: "nowrap" }}></div>
-            </div>
-            <div className="">
-              <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "380px"}}/>
+            {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
+              <div className=" d-flex align-items-center me-0 pe-0">
+                <i className="fa fa-folder text-secondary px-1"></i>
+                <div className=""  style={{ whiteSpace: "nowrap" }}></div>
               </div>
-            </div>
-            <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
-            </button>
-          </div> */}
+              <div className="">
+                <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
+                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "380px"}}/>
+                </div>
+              </div>
+              <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
+                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button>
+            </div> */}
           <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" 
             onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
         </div>

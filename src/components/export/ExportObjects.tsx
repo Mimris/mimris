@@ -79,9 +79,8 @@ const ExportObjects = (props) => {
 
   
 
-    useEffect(() => {
-  
-    }, []);
+    // useEffect(() => {
+    // }, []);
 
     // const handlePopupAMsg = () => {
     //   // setMdString('Your markdown string here');
@@ -203,7 +202,7 @@ const ExportObjects = (props) => {
     const csvheader3 = '	Properties								Attribution			References				Behaviors			Proposals						Final Output													'.split('\t');
     const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
  
-    const titles = Object.values(objectPropertiesOsdu);
+    const titles = (Object) && Object?.values(objectPropertiesOsdu);
     const values = titles.map(v => curobject[v]);
     if (debug) console.log('214 keys1', values);
 
@@ -213,34 +212,38 @@ const ExportObjects = (props) => {
     const lineNo = 5;
 
     const relatedToObjects = curRelatedFromObectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+    // escape semicolon in values of relatedToObjects
+
+  
     if (debug) console.log('209 relatedToObjects', curRelatedFromObectRels,  curRelatedToObectRels, relatedToObjects, currelationships);
 
     const relatedObjList = relatedToObjects.map((toObj: any, index) => (
-      `${(index+1)
+      `${String(index+1)
       };${toObj.name
-      };${toObj.title || ""
-      };${toObj.description || ""
-      };${toObj.type || ""
-      };${toObj.format || ""
-      };${toObj.frameOfReferance || ""
-      };${toObj.Constant || ""
-      };${toObj.Example || ""
-      };${toObj.Authority || ""
-      };${toObj.Publication || ""
-      };${toObj.Revision || ""
-      };${toObj.ReferencedObject || ""
-      };${(toObj.LinkID) ? toObj.ROVersion : ""
-      };${(toObj.LinkID) ? toObj.ROGroupType : ""
-      };${(toObj.LinkID) ? toObj.ExistingStandard : ""
-      };${(toObj.LinkID) ? toObj.IsRequired : ""
-      };${(toObj.LinkID) ? toObj.IsDerived : ""
-      };${(toObj.LinkID) ? toObj.IsIndexed : ""
-      };${(toObj.LinkID) ? toObj.Action : ""
-      };${(toObj.LinkID) ? toObj.Priority : ""
-      };${(toObj.LinkID) ? toObj.Proposal : ""
-      };${(toObj.LinkID) ? toObj.Operators : ""
-      };${(toObj.LinkID) ? toObj.AdditionalComments : ""
-      };${(toObj.LinkID) ? toObj.State : ""
+      };${(toObj.title) ? toObj.title : ""
+      };${(toObj.description) ? `"${toObj.description}"` : ""
+      };${(toObj.type) ? toObj.type : ""
+      };${(toObj.pattern) ? toObj.pattern : ""
+      };${(toObj.frameOfReference) ? toObj['x-osdu-frame-of-reference'] : ""
+      };${(toObj.constant) ? toObj.constant : ""
+      };${(toObj.example) ? toObj.example : ""
+      // };${(toObj.example) ? toObj.example : ""
+      };${(toObj.Authority) ? toObj.Authority : ""
+      };${(toObj.Publication) ? toObj.Publication : ""
+      };${(toObj.Revision) ? toObj.Revision : ""
+      };${(toObj.EntityType) ? toObj.EntityType : ""
+      };${(toObj.ROVersion) ? toObj.ROVersion : ""
+      };${(toObj.groupType) ? toObj.groupType : ""
+      };${(toObj.ExistingStandard) ? toObj.ExistingStandard : ""
+      };${(toObj.IsRequired) ? toObj.IsRequired : ""
+      };${(toObj.IsDerived) ? toObj.IsDerived : ""
+      };${(toObj.IsIndexed) ? toObj.IsIndexed : ""
+      };${(toObj.Action) ? toObj.Action : ""
+      };${(toObj.Priority) ? toObj.Priority : ""
+      };${(toObj.Proposal) ? toObj.Proposal : ""
+      };${(toObj.Operators) ? toObj.Operators : ""
+      };${(toObj.AdditionalComments) ? `"${toObj.AdditionalComments}"` : ""
+      };${(toObj.State) ? toObj.State : ""
       };"=IF(ISBLANK(B${lineNo + index});"""";B${lineNo + index
       })";"=IF(ISBLANK(C${lineNo + index});"""";C${lineNo + index
       })";"=IF(ISBLANK(D${lineNo + index});"""";D${lineNo + index

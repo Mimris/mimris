@@ -478,6 +478,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                     const rKey = oKey + "|" + rel.EntityType; // add the relationship name to the oKey
                     // const propLinkName = 'has' + rel.EntityType
                     oValProps.EntityType = (rel.EntityType) ? rel.EntityType : parentName;
+                    oValProps.linkID = (rel.EntityType) ? rel.EntityType : parentName;
                     oValProps.groupType = rel.GroupType;
                     osduType = "PropLink";
                     const propLinkName = (oVal.title)
@@ -1244,6 +1245,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         // const propLinkName = `has${oName}`;
         objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
         oValProps.EntityType = propLinkName;
+        oValProps.linkID = propLinkName;
         createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         if (debug) console.log("1189 Collections", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         // createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType);

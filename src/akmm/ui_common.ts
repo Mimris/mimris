@@ -1346,7 +1346,8 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
                     break;
             }
         }
-    } else 
+    }
+    if (!reltype || reltype.name !== typename)
         reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
     if (!reltype) {
         alert("Relationship type given does not exist!")

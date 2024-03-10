@@ -74,7 +74,7 @@ const page = (props: any) => {
     
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
       if (!debug) console.log('81 modelling page reloaded', memorySessionState);
-      if (memorySessionState[0].phData) {
+      if (memorySessionState[0]?.phData) {
         const locStore = memorySessionState[0];
         if (!debug) console.log('79modelling 1 ', locStore);
         if (locStore) {

@@ -57,6 +57,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis as akm.cxMetis;
+    if (!debug) console.log('68 SelectionInspector: myMetis', myMetis);
     const activeTab = this.props.activeTab;
     const myMetamodel = myMetis.currentMetamodel as akm.cxMetamodel;
     const myModel = myMetis.currentModel as akm.cxModel;

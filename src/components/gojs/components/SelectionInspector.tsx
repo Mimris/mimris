@@ -68,11 +68,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let inst, inst1, instview, instview1;
-    let type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenInst, description, currentType, pointerProps;
+    let inst: akm.cxObject | akm.cxRelationship;
+    let inst1: akm.cxObject | akm.cxRelationship;
+    let instview: akm.cxObjectView | akm.cxRelationshipView;
+    let  instview1: akm.cxObjectView | akm.cxRelationshipView;
+    let type: akm.cxObjectType | akm.cxRelationshipType; 
+    let type1: akm.cxObjectType | akm.cxRelationshipType;
+    let typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView; 
+    let objtypeview: akm.cxObjectTypeView; 
+    let reltypeview: akm.cxRelationshipTypeView;
+    let currentType: akm.cxObjectType | akm.cxRelationshipType;
+    let chosenInst: akm.cxObject | akm.cxRelationship;
     let properties: akm.cxProperty[];
-    let chosenType: akm.cxObjectType;
+    let chosenType: akm.cxObjectType | akm.cxRelationshipType;
+    let item, description;
     let typename = "";
     let typedescription = "";
     switch(category) {
@@ -86,7 +95,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type = selObj.objecttype as akm.cxObjectType;
         type1 = myMetis.findObjectType(type?.id) as akm.cxObjectType;
         if (type1) type = type1;
-        let objtypeview = type1?.typeview as akm.cxObjectTypeView;
+        objtypeview = type1?.typeview as akm.cxObjectTypeView;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id) as akm.cxObjectTypeView;
         typeview = objtypeview;
         break;
@@ -102,8 +111,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst = selObj.relship;
         inst1 = myMetis.findRelationship(inst?.id);   
         if (inst1) inst = inst1;
-        currentType = inst.type as akm.cxObjectType;
-        chosenType = currentType as akm.cxObjectType;
+        currentType = inst.type;
+        chosenType = currentType;
         chosenInst = inst;
         typename = currentType?.name;
         typedescription = currentType?.description;
@@ -146,7 +155,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             inheritedTypes = [...new Set(inheritedTypes)];
             if (inst?.hasInheritedProperties(myModel)) 
               includeInherited = true;
-            const connectedObjects = inst?.getConnectedObjects2(myMetis);
+            const connectedObjects: akm.cxObject[] = inst?.getConnectedObjects2(myMetis);
             if (connectedObjects?.length>0) 
               includeConnected = true;
             const context = {
@@ -159,7 +168,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             let namelist = uic.getNameList(inst, context, true); 
             if (context.includeInherited) {
               typename = namelist[activeTab];
-              const objs = inst.getInheritanceObjects(myModel);
+              const objs = inst.getInheritanceObjects(myModel) as akm.cxObject[];
               for (let i=0; i<objs.length; i++) {
                 if (objs[i].type.name === typename) {
                   chosenType = objs[i].type;
@@ -217,6 +226,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           } catch {
             // Do nothing
           }
+          if (debug) console.log('229 properties: ', properties);
         } 
         else if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
@@ -278,10 +288,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         test = item;
         break;
       case "editObject":
-        item = chosenInst;
         if (type?.name === constants.types.AKM_LABEL)
           isLabel = true;
-        test = item;
+        item = chosenInst;
+        test = item as akm.cxObject;
         break;
       case "editRelationshipType":
         item = type;

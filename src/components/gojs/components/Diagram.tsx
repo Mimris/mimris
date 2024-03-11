@@ -311,7 +311,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": function () {
               // this.diagram.lastInput.shift = true;
-              // go.ContextMenuTool.prototype.standardMouseSelect.call(this);
+              go.ContextMenuTool.prototype.standardMouseSelect.call(this);
             },
             // layout: new go.TreeLayout({ isOngoing: false }),
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,

@@ -202,7 +202,7 @@ const ExportObjects = (props) => {
     const csvheader3 = '	Properties								Attribution			References				Behaviors			Proposals						Final Output													'.split('\t');
     const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
  
-    const titles = (Object) && Object?.values(objectPropertiesOsdu);
+    const titles = (objectPropertiesOsdu) && Object.values(objectPropertiesOsdu);
     const values = titles.map(v => curobject[v]);
     if (debug) console.log('214 keys1', values);
 

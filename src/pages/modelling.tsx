@@ -72,13 +72,13 @@ const page = (props: any) => {
 
   useEffect(() => {
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (!debug) console.log('81 modelling page reloaded', memorySessionState);
+      if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (memorySessionState[0]?.phData) {
         const locStore = memorySessionState[0];
-        if (!debug) console.log('79modelling 1 ', locStore);
+        if (debug) console.log('79modelling 1 ', locStore);
         if (locStore) {
           const data = locStore;
-          if (!debug) console.log('87 modelling ', data);
+          if (debug) console.log('87 modelling ', data);
           dispatchLocalStore(data);
           // window.location.reload();
             const timer = setTimeout(() => {
@@ -87,7 +87,7 @@ const page = (props: any) => {
             return () => clearTimeout(timer);
         }
       } else {
-        if (!debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
+        if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
@@ -102,7 +102,7 @@ const page = (props: any) => {
         }
       }
     } else {
-      if (!debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
+      if (debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
     }
   }, [!query && memorySessionState[0] && mount])
 

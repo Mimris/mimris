@@ -8,23 +8,23 @@ const debug = false
 
 export const setColorsTopEntityTypes = (osduType: string) => {
     switch (osduType) {
-        case 'MasterData':
+        case 'master-data':
             return '#FEA07A';
-        case 'WorkProduct':
+        case 'work-product':
             return '#FEFECE';
-        case 'WorkProductComponent':
+        case 'work-product-component':
             return '#FFD701';
-        case 'Abstract':
+        case 'abstract':
             return '#B0C4DE';
-        case 'Content':
+        case 'content':
             return '#F9C846';
-        case 'ReferenceData':
+        case 'reference-data':
             return '#40E0D0';
-        case 'Type':
+        case 'type':
             return '#87CEFE';
-        case 'Dataset':
+        case 'dataset':
             return '#F9C846';
-        case 'Manifest':
+        case 'manifest':
             return '#F9C846';
         case 'Collection':
             return '#BEFFC2';

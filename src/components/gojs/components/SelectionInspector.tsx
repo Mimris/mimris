@@ -51,17 +51,32 @@ const useTabs = true;
 
 const booleanAsCheckbox = true;
 
+// safely handles circular references
+JSON.safeStringify = (obj, indent = 2) => {
+    let cache = [];
+    const retVal = JSON.stringify(
+      obj,
+      (key, value) =>
+        typeof value === "object" && value !== null
+          ? cache.includes(value)
+            ? undefined // Duplicate reference found, discard key
+            : cache.push(value) && value // Store value in our collection
+          : value,
+      indent
+    );
+    cache = null;
+    return retVal;
+};
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
    */
   private renderObjectDetails() {
-    let myMetis = this.props.myMetis as akm.cxMetis;
-    // remove recurcive references from myMetis
-    myMetis.submodels = [];
-    myMetis.submetamodels = [];
-
-    if (!debug) console.log('68 SelectionInspector: myMetis', myMetis);
+    let myMetisTmp = this.props.myMetis;
+    myMetisTmp.submodels = []
+    let myMetis = myMetisTmp;
+    if (debug) console.log('60 SelectionInspector: myMetis', myMetis);
     const activeTab = this.props.activeTab;
     const myMetamodel = myMetis?.currentMetamodel as akm.cxMetamodel;
     const myModel = myMetis?.currentModel as akm.cxModel;
@@ -896,6 +911,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   
   public render() {
     const modalContext = this.props.context;
+    if (debug) console.log('950 SelectionInspector: modalContext', modalContext);
     if (!modalContext)
       return null;
     return (

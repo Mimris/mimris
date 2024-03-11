@@ -105,7 +105,6 @@ const Modeller = (props: any) => {
   let locStateKey
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   const showModified = props.phUser?.focusUser?.diagram?.showModified
-
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })

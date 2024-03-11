@@ -3700,6 +3700,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         selpropgroup.push(proptab);
       }
     }
+
     switch (modalContext?.what) {
       case 'selectDropdown':
         let options = '';
@@ -3805,7 +3806,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modalContent =
             <div className="modal-prop">
               <SelectionInspector
-                myMetis={this.myMetis}
+                myMetis={myMetis}
                 selectedData={this.state.selectedData}
                 context={this.state.modalContext}
                 onInputChange={this.handleInputChange}
@@ -3827,7 +3828,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modalContent =
             <div className="modal-prop" >
               <SelectionInspector
-                myMetis={this.myMetis}
+                myMetis={myMetis}
                 selectedData={this.state.selectedData}
                 context={this.state.modalContext}
                 onInputChange={this.handleInputChange}

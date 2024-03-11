@@ -2,7 +2,7 @@
 // It allows the user to edit the object's properties and view related objects.
 import React, { useRef,useContext, useState, useEffect } from 'react'
 import { Modal, Button } from 'react-bootstrap';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
 import Markdown from 'markdown-to-jsx';
@@ -79,9 +79,8 @@ const ExportObjects = (props) => {
 
   
 
-    useEffect(() => {
-  
-    }, []);
+    // useEffect(() => {
+    // }, []);
 
     // const handlePopupAMsg = () => {
     //   // setMdString('Your markdown string here');
@@ -203,46 +202,68 @@ const ExportObjects = (props) => {
     const csvheader3 = '	Properties								Attribution			References				Behaviors			Proposals						Final Output													'.split('\t');
     const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
  
-    const titles = Object.values(objectPropertiesOsdu);
+    const titles = (Object) && Object?.values(objectPropertiesOsdu);
     const values = titles.map(v => curobject[v]);
     if (debug) console.log('214 keys1', values);
 
     const valueList = ObjectToCsv({obj: csvheader3}).valueList
 
     if (debug) console.log('194 objecstodiv', valueList);
-
+    const lineNo = 5;
 
     const relatedToObjects = curRelatedFromObectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+    // escape semicolon in values of relatedToObjects
+
+  
     if (debug) console.log('209 relatedToObjects', curRelatedFromObectRels,  curRelatedToObectRels, relatedToObjects, currelationships);
 
-    const relatedObjList = relatedToObjects.map((toObj: any) => (
-          `No.;${toObj.name};${toObj.title || ''};${toObj.description || ''};${toObj.type || ''};${toObj.format || ''};${toObj.unit || ''};"";"";"";"";"";"";"";"";${toObj.groupType || ''};"";"";"";"";"";"";"";"";"";"";\n`
-    ));
-        // {/* {toObj.name};  */}
-          // {/* {toObj.title};  */}
-          // {/* {toObj.description};  */}
-          // {/* {toObj.type};  */}
-          // {/* {toObj.format};  */}
-          // {/* {toObj.unit
-          // {/* {toObj.frameOfReference};  */}
-          // {/* {toObj.constant};  */}
-          // {/* {toObj.example};  */}
-          // {/* {toObj.authority};  */}
-          // {/* {toObj.publication};  */}
-          // {/* {toObj.revision};  */}
-          // {/* {toObj.referencedObject};  */}
-          // {/* {toObj.roVersion};  */}
-          // {/* {toObj.roGroupType};  */}
-          // {/* {toObj.existingStandard};  */}
-          // {/* {toObj.isRequired};  */}
-          // {/* {toObj.isDerived};  */}
-          // {/* {toObj.isIndexed};  */}
-          // {/* {toObj.action};  */}
-          // {/* {toObj.priority};  */}
-          // {/* {toObj.proposal};  */}
-          // {/* {toObj.operators};  */}
-          // {/* {toObj.additionalComments};  */}
-          // {/* {toObj.state} */}
+    const relatedObjList = relatedToObjects.map((toObj: any, index) => (
+      `${String(index+1)
+      };${toObj.name
+      };${(toObj.title) ? toObj.title : ""
+      };${(toObj.description) ? `"${toObj.description}"` : ""
+      };${(toObj.type) ? toObj.type : ""
+      };${(toObj.pattern) ? toObj.pattern : ""
+      };${(toObj.frameOfReference) ? toObj['x-osdu-frame-of-reference'] : ""
+      };${(toObj.constant) ? toObj.constant : ""
+      };${(toObj.example) ? toObj.example : ""
+      // };${(toObj.example) ? toObj.example : ""
+      };${(toObj.Authority) ? toObj.Authority : ""
+      };${(toObj.Publication) ? toObj.Publication : ""
+      };${(toObj.Revision) ? toObj.Revision : ""
+      };${(toObj.EntityType) ? toObj.EntityType : ""
+      };${(toObj.ROVersion) ? toObj.ROVersion : ""
+      };${(toObj.groupType) ? toObj.groupType : ""
+      };${(toObj.ExistingStandard) ? toObj.ExistingStandard : ""
+      };${(toObj.IsRequired) ? toObj.IsRequired : ""
+      };${(toObj.IsDerived) ? toObj.IsDerived : ""
+      };${(toObj.IsIndexed) ? toObj.IsIndexed : ""
+      };${(toObj.Action) ? toObj.Action : ""
+      };${(toObj.Priority) ? toObj.Priority : ""
+      };${(toObj.Proposal) ? toObj.Proposal : ""
+      };${(toObj.Operators) ? toObj.Operators : ""
+      };${(toObj.AdditionalComments) ? `"${toObj.AdditionalComments}"` : ""
+      };${(toObj.State) ? toObj.State : ""
+      };"=IF(ISBLANK(B${lineNo + index});"""";B${lineNo + index
+      })";"=IF(ISBLANK(C${lineNo + index});"""";C${lineNo + index
+      })";"=IF(ISBLANK(D${lineNo + index});"""";D${lineNo + index
+      })";"=IF(ISBLANK(E${lineNo + index});"""";E${lineNo + index
+      })";"=IF(ISBLANK(F${lineNo + index});"""";F${lineNo + index
+      })";"=IF(ISBLANK(G${lineNo + index});"""";G${lineNo + index
+      })";"=IF(ISBLANK(H${lineNo + index});"""";H${lineNo + index
+      })";"=IF(ISBLANK(J${lineNo + index});"""";J${lineNo + index
+      })";"=IF(ISBLANK(K${lineNo + index});"""";K${lineNo + index
+      })";"=IF(ISBLANK(L${lineNo + index});"""";L${lineNo + index
+      })";"=IF(ISBLANK(M${lineNo + index});"""";M${lineNo + index
+      })";"=IF(ISBLANK(N${lineNo + index});"""";N${lineNo + index
+      })";"=IF(ISBLANK(O${lineNo + index});"""";O${lineNo + index
+      })";"=IF(ISBLANK(P${lineNo + index});"""";P${lineNo + index
+      })"\n`
+      )
+    );
+    // const relatedObjList = relatedObjListtmp.map(l => l.replace(/semicolon/g, ';'));
+
+     
 
 
     if (debug) console.log('222 relatedToObjects', relatedObjList);
@@ -281,14 +302,7 @@ const ExportObjects = (props) => {
             </button>
         </CopyToClipboard>
         <button className="btn btn-sm bg-light border border-dark text-dark px-3 ms-4" 
-              // data-toggle="tooltip"
-              // data-placement="top"
-              // data-bs-html="true"
-              // title="
-              //   1. Open your spreadsheet software (e.g., Microsoft Excel, Google Sheets).
-              //   2. Create a new spreadsheet.
-              //   3. Click on the first cell (A1), and then paste (Ctrl+V or Command+V).
-              //   4. Your data should now be populated into the spreadsheet."
+
               onClick={() => setShowModal(true)}
           >? How to paste the csv into a Spreadsheet</button>
           {/* {(showModal) && <PopupAMsg showModal={!showModal} />} */}

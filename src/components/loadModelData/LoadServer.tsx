@@ -123,7 +123,7 @@ const SelectSource = (props: any) => {
     <>
       <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>
  
-      <Modal isOpen={modal} toggle={toggle} className={className} >
+      {/* <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong>{props.ph?.phSource}</strong>
@@ -143,7 +143,7 @@ const SelectSource = (props: any) => {
           </div>
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle()  }}>Done</Button>
        </ModalFooter>
-      </Modal>
+      </Modal> */}
       <style jsx>{`
             .list-obj {
               min-Width: 90px;

@@ -31,6 +31,7 @@ import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 // import ReportModule from "./ReportModule";
 // import ProjectDetailsModal from "./modals/ProjectDetailsModal";
 import useLocalStorage from '../hooks/use-local-storage'
+import useSessionStorage from '../hooks/use-session-storage'
 
 // import * as akm from '../akmm/metamodeller';
 import * as uib from '../akmm/ui_buildmodels';
@@ -53,7 +54,8 @@ const page = (props: any) => {
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
-  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', null); //props);
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
   const [activeTab, setActiveTab] = useState();
@@ -126,10 +128,11 @@ const page = (props: any) => {
 
 
   function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (debug) console.log('71 Modelling GenGojsModel run') //, memoryLocState, (Array.isArray(memoryLocState)));
+    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:', 'isArray:', (Array.isArray(memoryLocState)));
+    
     GenGojsModel(props, dispatch)
-    // SaveModelToLocState(props, memoryLocState, setMemoryLocState)  // this does not work
     const timer = setTimeout(() => {
+      if (!debug) console.log('132 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:')
     loadMyModeldata()
       setRefresh(!refresh)
     }, 1000);
@@ -137,7 +140,7 @@ const page = (props: any) => {
   }
 
     useEffect(() => {
-      if (debug) useEfflog('125 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
+      if (debug) useEfflog('141 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
       // set the focusModel and focusModelview to the first model and modelview if they are not set
       GenGojsModel(props, dispatch);
       setMount(true);
@@ -146,7 +149,7 @@ const page = (props: any) => {
     }, []);
     
     useEffect(() => {
-      if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
+      if (debug) useEfflog('155 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
       setActiveTab(activetabindex);
     }, [props.phFocus?.focusModel?.id]);
 
@@ -220,7 +223,7 @@ const page = (props: any) => {
     myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
     myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
     myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
-    if (!myModel?.objects) { console.log('196 myModel.objects is undefined', myMetis);
+    if (!myModel?.objects) { console.log('224 myModel.objects is undefined', myMetis);
       // return null
     } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}
     if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
@@ -238,21 +241,21 @@ const page = (props: any) => {
 
   loadMyModeldata()
 
-  if (debug) console.log('233 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
+  if (debug) console.log('242 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
 
   if (!mount) {
     return <></>
   } else {
 
-    if (debug) console.log('185 Modelling myModel', myMetis, myModel);
+    if (debug) console.log('248 Modelling myModel', myMetis, myModel);
 
     //let myGoMetamodel = props.phGojs?.gojsMetamodel
     let phFocus = props.phFocus;
     let phData = props.phData
     let phUser = props.phUser
 
-    if (debug) console.log('130 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
-    if (debug) console.log('131 Modelling', curmod, curmodview);
+    if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
+    if (debug) console.log('256 Modelling', curmod, curmodview);
 
     // function handleSaveAllToFileDate() {
     //   const projectname = props.phData.metis.name
@@ -271,10 +274,10 @@ const page = (props: any) => {
       if (props.phFocus.focusProj.name !== '' || undefined) {
         projectname = props.phFocus.focusProj.name
         const data = `${projectname}_PR`
-        if ((debug)) console.log('292 handleSaveAllToFile', data)
+        if ((debug)) console.log('275 handleSaveAllToFile', data)
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
       } 
-      if ((debug)) console.log('289 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)  
+      if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)  
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 
@@ -309,7 +312,7 @@ const page = (props: any) => {
    
   const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
 
-  const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {
+  const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
         const data = { id: m.id, name: m.name };
@@ -351,21 +354,21 @@ const page = (props: any) => {
 
     // ===================================================================
     // Divs
-    if (debug) console.log('162 Modelling: ', gojsmetamodelpalette);
-    if (debug) console.log('163 Modelling: ', gojsmetamodelmodel);
+    if (debug) console.log('362 Modelling: ', gojsmetamodelpalette);
+    if (debug) console.log('363 Modelling: ', gojsmetamodelmodel);
+    
     const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
-      ?
-      <Palette
-        gojsModel={gojsmetamodelmodel}
-        gojsMetamodel={gojsmetamodelpalette}
-        myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
-        metis={metis}
-        phFocus={phFocus}
-        dispatch={dispatch}
-        modelType='metamodel'
-      />
+      ? <Palette
+          gojsModel={gojsmetamodelmodel}
+          gojsMetamodel={gojsmetamodelpalette}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          myGoMetamodel={myGoMetamodel}
+          metis={metis}
+          phFocus={phFocus}
+          dispatch={dispatch}
+          modelType='metamodel'
+        />
       : <></>;
 
     const paletteMetamodelDiv = (gojsmetamodelmodel) // this is the metamodel modelling area
@@ -488,7 +491,7 @@ const page = (props: any) => {
               style={{ borderColor: "transparent", width: "116px", height: "24px", fontSize: "16px", backgroundColor: "#a0caca" }}
             >{(mmToggle) ? 'Models >' : 'Metamodel <>'}</button>
           </span>
-          {navmodelDiv}
+          {modelTabsDiv}
         </Nav>
         <TabContent  >
           <TabPane >   {/* Model ---------------------------------------*/}
@@ -595,7 +598,7 @@ const page = (props: any) => {
       </>
     )
 
-    if (debug) console.log('383 Modelling', activeTab);
+    if (debug) console.log('583 Modelling', activeTab);
     const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
@@ -653,23 +656,24 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
           </div>
-          {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
-            <div className=" d-flex align-items-center me-0 pe-0">
-              <i className="fa fa-folder text-secondary px-1"></i>
-              <div className=""  style={{ whiteSpace: "nowrap" }}></div>
-            </div>
-            <div className="">
-              <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "380px"}}/>
+            {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
+              <div className=" d-flex align-items-center me-0 pe-0">
+                <i className="fa fa-folder text-secondary px-1"></i>
+                <div className=""  style={{ whiteSpace: "nowrap" }}></div>
               </div>
-            </div>
-            <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
-              data-toggle="tooltip" data-placement="top" data-bs-html="true"
-              title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFile}>Save
-            </button>
-          </div> */}
-          <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+              <div className="">
+                <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
+                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "380px"}}/>
+                </div>
+              </div>
+              <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
+                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFile}>Save
+              </button>
+            </div> */}
+          <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" 
+            onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
         </div>
       </>
 

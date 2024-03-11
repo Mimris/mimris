@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import useLocalStorage  from '../../hooks/use-local-storage'
 import useSessionStorage from "../../hooks/use-session-storage";
 
-import { SaveModelToLocState } from "../utils/SaveModelToLocState";
+// import { SaveModelToLocState } from "../utils/SaveModelToLocState";
 
 const debug = false;
 
@@ -78,7 +78,8 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     dispatch({ type: 'SET_FOCUS_PROJ', data });
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
-      SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
+      // SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
+      setMemoryLocState(props.props);
     }, 2000);
     return () => clearTimeout(timer);
   };

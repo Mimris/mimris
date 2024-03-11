@@ -56,18 +56,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    * Render the object data, passing down property keys and values.
    */
   private renderObjectDetails() {
-    const myMetis = this.props.myMetis as akm.cxMetis;
+    let myMetis = this.props.myMetis as akm.cxMetis;
+    // remove recurcive references from myMetis
+    myMetis.submodels = [];
+    myMetis.submetamodels = [];
+
+    if (!debug) console.log('68 SelectionInspector: myMetis', myMetis);
     const activeTab = this.props.activeTab;
-    const myMetamodel = myMetis.currentMetamodel as akm.cxMetamodel;
-    const myModel = myMetis.currentModel as akm.cxModel;
-    const allowsMetamodeling = myModel.includeSystemtypes;
+    const myMetamodel = myMetis?.currentMetamodel as akm.cxMetamodel;
+    const myModel = myMetis?.currentModel as akm.cxModel;
+    const allowsMetamodeling = myModel?.includeSystemtypes;
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
     if (selObj?.type === 'GraphLinksModel') {
       return;
     } 
-    let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
+    // let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst: akm.cxObject | akm.cxRelationship;
     let inst1: akm.cxObject | akm.cxRelationship;
     let instview: akm.cxObjectView | akm.cxRelationshipView;

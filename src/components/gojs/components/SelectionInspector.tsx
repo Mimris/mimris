@@ -103,6 +103,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         objtypeview = type1?.typeview as akm.cxObjectTypeView;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id) as akm.cxObjectTypeView;
         typeview = objtypeview;
+        type.typeview = objtypeview;
+        inst.type = type;
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = selObj.objecttype;

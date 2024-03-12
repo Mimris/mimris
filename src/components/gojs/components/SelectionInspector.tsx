@@ -200,9 +200,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             }
-            // if (namelist.length > 1 && 
-            //     typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
-            if (namelist.length > 1 && typename !== 'Element'/* && typename !== 'All'*/) {
+            if (namelist.length > 1 && typename !== 'Element') {
               for (let i=0; i<inheritedTypes.length; i++) {
                 const tname = inheritedTypes[i]?.name;
                 if (tname === typename) {
@@ -211,9 +209,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             } 
-            // if (typename === 'All') {
-            //   chosenType = null;
-            // }  
             if (!inst?.hasInheritedProperties(myModel)) {
               chosenType = null;
             }
@@ -438,9 +433,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   )
                 found = true;
               break;
-            // case 'All':
-            //     found = true;
-            //     break;
             default:
               if ((k === 'id') || (k === 'name') || (k === 'description'))
                 found = true;

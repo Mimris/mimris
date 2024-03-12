@@ -3851,7 +3851,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     const navitemDiv = (!selpropgroup) ? <></> : selpropgroup.map((pg, index) => {
-      const tabName = pg?.tabName; // || 'All';
+      const tabName = pg?.tabName;
       if (debug) console.log('2646', index, tabName, pg)
       if (pg) {
         const strindex = index.toString()

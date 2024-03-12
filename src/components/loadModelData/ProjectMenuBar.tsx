@@ -17,7 +17,7 @@ const debug = false;
 export const ProjectMenuBar = (props: any) => {
     if (debug) console.log('18 ProjectMenuBar', props);
     const dispatch = useDispatch();
-
+    if (!props.props.phData) return null;
     const project = props.props.phData.metis;
     const source = props.props.phSource;
     // const refresh = props.props.toggleRefresh;

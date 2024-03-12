@@ -92,7 +92,7 @@ const Issues = (props) => {
     // return () => {
     //   document.removeEventListener('click', handleClickOutside);
     // };' 
-  }, []);
+  }, [repo, org, path, file, branch, focus, ghtype, projectNumber]);
 
   const toggleMinimize = () => {
       props.setMinimized(!props.minimized);

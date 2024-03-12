@@ -3984,7 +3984,7 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
             }
         }
         if (context.includeInherited) {
-            namelist.push('All');
+            // namelist.push('All');
             try {
                 const inheritedTypes = obj?.getInheritedTypes();
                 if (debug) console.log('3015 inheritedTypes', inheritedTypes);

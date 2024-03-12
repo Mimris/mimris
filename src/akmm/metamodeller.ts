@@ -6138,6 +6138,7 @@ export class cxProperty extends cxMetaObject {
     methodRef: string;
     unitCategory: cxUnitCategory | null;
     unitCategoryRef: string;
+    subProperties: cxProperty[] | null;
     defaultValue: string;
     readOnly: boolean;
     inputPattern: string;
@@ -6153,6 +6154,7 @@ export class cxProperty extends cxMetaObject {
         this.methodRef          = "";
         this.unitCategory       = null;
         this.unitCategoryRef    = "";
+        this.subProperties      = null;
         this.defaultValue       = " ";
         this.readOnly           = false;
         this.inputPattern       = "";
@@ -6193,6 +6195,24 @@ export class cxProperty extends cxMetaObject {
             return this.unitCategory;
         else
             return null;
+    }
+    addSubProperty(subprop: cxProperty) {
+        if (this.subProperties == null)
+            this.subProperties = new Array();
+        this.subProperties.push(subprop);
+    }
+    getSubProperties(): cxProperty[] | null {
+        return this.subProperties;
+    }
+    getSubProperty(name: string): cxProperty | null {
+        if (this.subProperties) {
+            for (let i = 0; i < this.subProperties.length; i++) {
+                const subprop = this.subProperties[i];
+                if (subprop.name === name)
+                    return subprop;
+            }
+        }
+        return null;
     }
     // defaultValue is not an object, but a value
     setDefaultValue(value: string) {
@@ -7680,12 +7700,12 @@ export class cxInstance extends cxMetaObject {
         this.typeName = type.name;
     }
     getType(): cxObjectType | cxRelationshipType | null {
-        return this.type;
+            return this.type as cxObjectType | cxRelationshipType;
     }
     getInheritedTypes(): cxType[] | null {
-        const typelist = [];
+        const typelist: cxType[] = [];
         const type = this.getType() as cxObjectType;
-        let types = [];
+        let types: cxType[] = [];
         try {
             types = type?.findSupertypes(0);
         } catch (error) {

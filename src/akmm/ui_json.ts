@@ -1237,7 +1237,6 @@ export class jsnObject {
     typeRef:         string;
     typeName:        string;
     typeDescription: string;
-    propertyGroups:  any[];
     propertyValues:  any[];
     ports:           jsnPort[] | null;
     markedAsDeleted: boolean;
@@ -1252,7 +1251,6 @@ export class jsnObject {
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";
-        this.propertyGroups  = [];
         this.propertyValues  = [];
         this.ports           = [];
         this.markedAsDeleted = object.markedAsDeleted;
@@ -1272,7 +1270,6 @@ export class jsnObject {
                 case 'allProperties':
                 case 'fromObject':
                 case 'parentModel':
-                case 'propertyGroups':
                 case 'propertyValues':
                 case 'toObject':
                 case 'type':
@@ -1316,17 +1313,6 @@ export class jsnObject {
                 this.ports.push(gPort);
             }
         }
-        // Handle property groups
-        const groups = object.propertyGroups;
-        if (groups) {
-            this.propertyGroups = [];
-            for (let i=0; i<groups.length; i++) {
-                const group = groups[i];
-                const pGroup = new jsnPropertyGroup(group.id, group.name, group.description);
-                this.propertyGroups.push(pGroup);
-            }
-        }
-
 
     // Handle property values    }
     // addPropertyValue(val: akm.cxPropertyValue) {

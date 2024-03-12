@@ -692,7 +692,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       : // metamodelling
       <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
         <div className="modeller--topbar  mt-1 p-0">
-          <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
+          <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
           <div className="">
           </div>
           <div>

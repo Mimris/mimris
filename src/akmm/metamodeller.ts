@@ -848,11 +848,8 @@ export class cxMetis {
         if (subMetamodelRefs && subMetamodelRefs.length) {
             subMetamodelRefs.forEach(subMetamodelRef => {
                 if (subMetamodelRef) {
-                    const subMetamodel = this.findMetamodel(subMetamodelRef);
-                    if (subMetamodel) {
-                        metamodel.addSubMetamodel(subMetamodel);
-                    }
-                }
+                    metamodel.addSubMetamodelRef(subMetamodelRef);
+                }                
             });
         }
         let subModelRefs = item.subModelRefs;
@@ -3513,8 +3510,8 @@ export class cxMethodType extends cxMetaObject {
 
 export class cxMetaModel extends cxMetaObject {
     metamodels: cxMetaModel[] | null;
-    submetamodels: cxMetaModel[] | null;
     submodels: cxModel[] | null;
+    submetamodelRefs: string[] | null;
     submodelRefs: string[] | null;
     viewstyle: cxViewStyle | null;
     viewstyles: cxViewStyle[] | null;
@@ -3551,8 +3548,9 @@ export class cxMetaModel extends cxMetaObject {
     // Methods
     clearContent() {
         this.metamodels = [];
-        this.submetamodels = [];
         this.submodels = [];
+        this.submetamodelRefs = [];
+        this.submodelRefs = [];
         this.viewstyle = null; // Current viewstyle
         this.viewstyles = [];
         this.geometries = [];
@@ -3721,11 +3719,14 @@ export class cxMetaModel extends cxMetaObject {
     getContainedMetamodels(): cxMetaModel[] | null {
         return this.metamodels;
     }
-    getSubMetamodels(): cxMetaModel[] | null {
-        return this.submetamodels;
+    getSubMetamodelRefs(): string[] | null {
+        return this.submetamodelRefs;
     }
     getSubModels(): cxModel[] | null {
         return this.submodels;
+    }
+    getSubModelRefs(): string[] | null {
+        return this.submodelRefs;
     }
     getCategories(): cxUnitCategory[] | null {
         return this.categories;
@@ -3938,14 +3939,11 @@ export class cxMetaModel extends cxMetaObject {
                 this.metamodels.push(metamodel);
         }
     }
-    addSubMetamodel(metamodel: cxMetaModel) {
-        // Check if input is of correct category and not already in list (TBD)
-        if (metamodel?.category === constants.gojs.C_METAMODEL) {
-            if (this.submetamodels == null)
-                this.submetamodels = new Array();
-            if (!this.findSubMetamodel(metamodel.id))
-                this.submetamodels.push(metamodel);
-        }
+    addSubMetamodelRef(metamodelRef: string) {
+        if (this.submetamodelRefs == null)
+            this.submetamodelRefs = new Array();
+        if (!this.findSubMetamodelRef(metamodelRef))
+            this.submetamodelRefs.push(metamodelRef);
     }
     addMetamodelContent(metamodel: cxMetaModel) {
         // 
@@ -4302,10 +4300,10 @@ export class cxMetaModel extends cxMetaObject {
     addSubMetamodel(metamodel: cxMetaModel) {
         // Check if input is of correct category and not already in list (TBD)
         if (metamodel.category === constants.gojs.C_METAMODEL) {
-            if (this.submetamodels == null)
-                this.submetamodels = new Array();
-            if (!this.findSubMetamodel(metamodel.id))
-                this.submetamodels.push(metamodel);
+            if (this.submetamodelRefs == null)
+                this.submetamodelRefs = new Array();
+            if (!this.findSubMetamodelRef(metamodel.id))
+                this.submetamodelRefs.push(metamodel.id);
         }
     }
     addMetaContainer(container: cxMetaContainer) {
@@ -4831,16 +4829,15 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
-    findSubMetamodel(id: string): cxMetaModel | null {
-        let submetamodels = this.submetamodels;
-        if (!submetamodels) return null;
+    findSubMetamodelRef(id: string): cxMetaModel | null {
+        let submetamodelRefs = this.submetamodelRefs;
+        if (!submetamodelRefs) return null;
         let i = 0;
-        let submeta = null;
-        for (i = 0; i < submetamodels.length; i++) {
-            submeta = submetamodels[i];
-            if (submeta.isDeleted()) continue;
-            if (submeta.id === id)
-                return submeta;
+        let submetaRef = null;
+        for (i = 0; i < submetamodelRefs.length; i++) {
+            submetaRef = submetamodelRefs[i];
+            if (submetaRef === id)
+                return submetaRef;
         }
         return null;
     }

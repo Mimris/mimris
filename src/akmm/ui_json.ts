@@ -195,7 +195,6 @@ export class jsnMetaModel {
     metamodelRefs:      string[];
     subMetamodelRefs:   string[];
     subModelRefs:       string[];
-    subMetamodels:      jsnMetaModel[] | null;
     subModels:          jsnModel[] | null;
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
@@ -226,7 +225,7 @@ export class jsnMetaModel {
         this.metamodelRefs = [];
         this.subMetamodelRefs = [];
         this.subModelRefs = [];
-        this.subMetamodels = [];
+        // this.subMetamodels = [];
         this.subModels = [];
         this.viewstyles = [];
         this.geometries = [];
@@ -261,15 +260,7 @@ export class jsnMetaModel {
                 this.metamodelRefs.push(metamodel.id);
             }
         }
-        let subMetamodels = metamodel.getSubMetamodels();
-        if (subMetamodels) {
-            const cnt = subMetamodels.length;
-            for (let i = 0; i < cnt; i++) {
-                const subMetamodel = subMetamodels[i];
-                if (!subMetamodel) break;
-                this.subMetamodelRefs.push(subMetamodel.id);
-            }
-        }
+        this.subMetamodelRefs = metamodel.getSubMetamodelRefs();
         let subModels = metamodel.getSubModels();
         if (subModels) {
             const cnt = subModels.length;

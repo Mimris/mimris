@@ -74,11 +74,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    * Render the object data, passing down property keys and values.
    */
   private renderObjectDetails() {
-    let myMetisTmp = this.props.myMetis;
-    myMetisTmp.submodels = []
-    let myMetis = myMetisTmp;
-    if (debug) console.log('60 SelectionInspector: myMetis', myMetis);
+    let myMetis = this.props.myMetis as akm.cxMetis;
+    // remove recurcive references from myMetis
+    myMetis.submodels = [];
+    myMetis.submetamodels = [];
+
+    if (!debug) console.log('64 SelectionInspector: myMetis', myMetis);
     const activeTab = this.props.activeTab;
+    if (!debug) console.log('66 activeTab', activeTab);
     const myMetamodel = myMetis?.currentMetamodel as akm.cxMetamodel;
     const myModel = myMetis?.currentModel as akm.cxModel;
     const allowsMetamodeling = myModel?.includeSystemtypes;
@@ -215,9 +218,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             }
-            // if (namelist.length > 1 && 
-            //     typename !== constants.types.AKM_ELEMENT && typename !== 'All') {
-            if (namelist.length > 1 && typename !== 'Element' && typename !== 'All') {
+            if (namelist.length > 1 && typename !== 'Element') {
               for (let i=0; i<inheritedTypes.length; i++) {
                 const tname = inheritedTypes[i]?.name;
                 if (tname === typename) {
@@ -226,9 +227,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             } 
-            if (typename === 'All') {
-              chosenType = null;
-            }  
             if (!inst?.hasInheritedProperties(myModel)) {
               chosenType = null;
             }
@@ -249,7 +247,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           } catch {
             // Do nothing
           }
-          if (debug) console.log('229 properties: ', properties);
+          if (!debug) console.log('237 chosenType, properties: ', chosenType, properties);
         } 
         else if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
@@ -271,6 +269,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           } catch {
             // Do nothing
           }
+          if (!debug) console.log('259 chosenType, properties: ', chosenType, properties);
         }
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {
@@ -452,9 +451,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   )
                 found = true;
               break;
-            case 'All':
-                found = true;
-                break;
             default:
               if ((k === 'id') || (k === 'name') || (k === 'description'))
                 found = true;

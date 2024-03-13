@@ -2,7 +2,7 @@
 // It allows the user to edit the object's properties and view related objects.
 import React, { useRef,useContext, useState, useEffect } from 'react'
 import { Modal, Button } from 'react-bootstrap';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
 import Markdown from 'markdown-to-jsx';

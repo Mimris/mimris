@@ -102,6 +102,7 @@ const CreateNewModel = (props: any) => {
           metamodels: [
             {
               ...metamodelGenerated,
+              subMetamodels: [],
             },
             adminmetamodel,
             (coremetamodel !== metamodelGenerated) && coremetamodel,

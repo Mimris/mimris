@@ -128,8 +128,8 @@ const page = (props: any) => {
 
 
   function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:', 'isArray:', (Array.isArray(memoryLocState)));
-    setMemorySessionState(props)
+    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props);
+    // setMemorySessionState(props)
     setMemoryLocState(props)
     GenGojsModel(props, dispatch)
     const timer = setTimeout(() => {
@@ -166,18 +166,10 @@ const page = (props: any) => {
 
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('122 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',
-      props.phFocus.focusModel?.name,
-      props.phFocus.focusModelview?.name,
-      props.phFocus?.focusRefresh?.name,
-    );
+    if (debug) useEfflog('122 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name,props.phFocus?.focusRefresh?.name);
     GenGojsModel(props, dispatch);
     const timer = setTimeout(() => {
-      if (debug) console.log('134 ',
-        props.phFocus.focusModel?.name,
-        props.phFocus.focusModelview?.name,
-        props.phFocus?.focusRefresh?.name,
-      );
+      if (debug) console.log('134 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
     }, 50);
     return () => clearTimeout(timer);
@@ -224,7 +216,7 @@ const page = (props: any) => {
     myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
     myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
     myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
-    if (!myModel?.objects) { console.log('224 myModel.objects is undefined', myMetis);
+    if (!myModel?.objects) { console.log('227 myModel.objects is undefined', myModel, myMetis);
       // return null
     } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}
     if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
@@ -264,11 +256,8 @@ const page = (props: any) => {
     // }
 
     const handleGetNewProject = () => {
-
       alert('Deprecated: Use the "New" button in Project-bar at top-left')
-
     }
-
 
     const handleSaveAllToFile = () => {
       let projectname = props.phSource
@@ -306,14 +295,9 @@ const page = (props: any) => {
     //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
     // }
 
+    const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
 
-
-
-  
-   
-  const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
-
-  const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
+    const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
         const data = { id: m.id, name: m.name };
@@ -552,6 +536,7 @@ const page = (props: any) => {
         </TabContent>
       </>
     )
+
     const solutionModellingDiv = (
       <>
         {/* <TabContent> */}
@@ -600,8 +585,8 @@ const page = (props: any) => {
     )
 
     if (debug) console.log('583 Modelling', activeTab);
-    const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
@@ -619,8 +604,6 @@ const page = (props: any) => {
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
-
-    
 
     const modellingDiv =
       <>

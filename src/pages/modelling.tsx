@@ -70,6 +70,7 @@ const page = (props: any) => {
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const focus = useSelector((state: any) => state.phFocus)
+  
   useEffect(() => {
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
       let locStore = memorySessionState;

@@ -31,9 +31,9 @@ const arrowheads = ['None',
                     'Circle', 'Block'];
 
 const colornames = ['black', 'white', 
-                    'lightsalmon','lightskyblue','turquoise', 
+                    'lightsalmon','lightsteelblue','turquoise', 
                     'red', 'darkred', 'pink', 
-                    'green', 'lightgreen', 'darkgreen', 'seagreen',
+                    'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
                     'blue', 'lightblue', 'darkblue', 'skyblue', 
                     'grey', 'lightgrey', 'darkgrey',
                     'yellow', 'lightyellow', 'yellowgreen', 'orange', 

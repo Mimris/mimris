@@ -129,7 +129,8 @@ const page = (props: any) => {
 
   function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     if (debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:', 'isArray:', (Array.isArray(memoryLocState)));
-    
+    setMemorySessionState(props)
+    setMemoryLocState(props)
     GenGojsModel(props, dispatch)
     const timer = setTimeout(() => {
       if (debug) console.log('132 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:')

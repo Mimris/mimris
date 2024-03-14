@@ -64,7 +64,7 @@ export const ReadConvertJSONFromFileToAkm = async (
 
     const JsonObjectType = curObjTypes.find((co: { name: string }) => co.name === "JsonObject" && co);
 
-    const entityType = curObjTypes.find((co: { name: string }) => co.name === "EntityType" && co);
+    const entityType = curObjTypes.find((co: { name: string }) => co.name === "OSDUType" && co);
     const hasPartType = curRelTypes.find((co: { name: string }) => co.name === "hasPart" && co);
     // const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
     const containsType = curRelTypes.find((co: { name: string }) => co.name === "contains" && co);
@@ -141,7 +141,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             typeStrokeColor = "red";
         }
 
-        typeColor = (osduType === 'EntityType')
+        typeColor = (osduType === 'OSDUType')
             ? setColorsTopEntityTypes(groupType)
             : (osduType === 'Collection' || osduType === 'Item')
                 ? lightenColor(setColorsTopEntityTypes(osduType), 6)
@@ -1095,8 +1095,8 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (osduType === "Abstract") {
             oValProps.abstract = true;
         }
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "EntityType")?.id;
-        osduType = "EntityType";
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "OSDUType")?.id;
+        osduType = "OSDUType";
         groupType = oValProps.groupType;
         if (topObjName.includes("Abstract")) {
             if (topObjName !== "AbstractWorkProductComponent") {

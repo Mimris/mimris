@@ -99,8 +99,6 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
-
-
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -111,12 +109,12 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const [inclProps, setInclProps ] = useState(true)
   const [inclPropLinks, setInclPropLinks ] = useState(true)
   const [inclArrayProperties, setInclArrayProperties ] = useState(true)
-  const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(false)
+  const [inclAbstractPropLinks, setInclAbstractPropLinks ] = useState(true)
   const [inclReference, setInclReference ] = useState(true)
   const [inclMasterdata, setInclMasterdata ] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent ] = useState(true)
   const [inclAbstract, setInclAbstract ] = useState(false)
-  const [inclXOsduProperties, setInclXOsduProperties ] = useState(false)
+  const [inclXOsduProperties, setInclXOsduProperties ] = useState(true)
   const [inclDeprecated, setInclDeprecated ] = useState(false) 
   const [inclGeneric, setInclGeneric ] = useState(false)
 

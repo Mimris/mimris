@@ -303,7 +303,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myMetis.deleteViewsOnly = false;
       myMetis.pasteViewsOnly = false;
     }
-    {
+    { // define myDiagram
       myDiagram =
         $(go.Diagram,
           { 
@@ -330,7 +330,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
-            // "draggingTool.dragsTree": true,
+            "draggingTool.dragsTree": false,
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {

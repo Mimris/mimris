@@ -128,9 +128,11 @@ const page = (props: any) => {
 
 
   function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props);
-    // setMemorySessionState(props)
-    setMemoryLocState(props)
+    const locProps = { ...props, phMymetis: null } // remove the myMetis and circular structure object from the props 
+    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props , locProps);
+
+    setMemorySessionState(locProps)
+    setMemoryLocState(locProps)
     GenGojsModel(props, dispatch)
     const timer = setTimeout(() => {
       if (debug) console.log('132 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:')

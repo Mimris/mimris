@@ -184,7 +184,8 @@ const page = (props: any) => {
   }, []);
 
   useEffect(() => {
-    setMemorySessionState(props)
+    const locProps = { ...props, phMymetis: null } 
+    setMemorySessionState(locProps)
   }, [props])
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)

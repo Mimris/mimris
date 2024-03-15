@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import useLocalStorage from '../hooks/use-local-storage'
-import useSessionStorage from "../hooks/use-session-storage";
+// import useSessionStorage from "../hooks/use-session-storage";
 
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -418,7 +418,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
               'WorkProductComponent': 1,
               'ReferenceData': 2,
               'Abstract': 3,
-              'EntityType': 4,
+              'OSDUType': 4,
               'PropLink': 5,
               'Property': 6,
               'Collection': 7,

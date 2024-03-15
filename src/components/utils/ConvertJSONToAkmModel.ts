@@ -1089,7 +1089,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (osduType === "master-data" && !inclMasterdata) return;
         if (osduType === "abstract" && !inclAbstract) return;
         if (osduType === "work-product-component" && !inclWorkProductComponent) return;
-        let topObjName = oName.split(".")[0];
+        let topObjName = oName//.split(".")[0];
         if (!debug) console.log("1089 topObjName", topObjName, osduType, groupType);
 
         if (osduType === "Abstract") {

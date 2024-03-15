@@ -255,7 +255,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
-    if (debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
+    if (debug) console.log('258 Diagram: props, value, isBlur: ', props, value, isBlur);
     const propname = props.id;
     const fieldType = props.type;
     const obj = props.obj;
@@ -3700,7 +3700,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         selpropgroup.push(proptab);
       }
     }
-
+    if (debug) console.log('3720 myNewMetis',  myMetis);
     switch (modalContext?.what) {
       case 'selectDropdown':
         let options = '';

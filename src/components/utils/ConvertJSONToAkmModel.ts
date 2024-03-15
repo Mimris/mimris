@@ -64,7 +64,7 @@ export const ReadConvertJSONFromFileToAkm = async (
 
     const JsonObjectType = curObjTypes.find((co: { name: string }) => co.name === "JsonObject" && co);
 
-    const entityType = curObjTypes.find((co: { name: string }) => co.name === "EntityType" && co);
+    const entityType = curObjTypes.find((co: { name: string }) => co.name === "OSDUType" && co);
     const hasPartType = curRelTypes.find((co: { name: string }) => co.name === "hasPart" && co);
     // const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
     const containsType = curRelTypes.find((co: { name: string }) => co.name === "contains" && co);
@@ -111,10 +111,11 @@ export const ReadConvertJSONFromFileToAkm = async (
         oValProps: {},
         groupType,
         propLinkGroupType,
+        propLinkEntityType
     ) => {
 
 
-        if ((debug)) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType);
+        if ((debug)) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType, propLinkEntityType);
 
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
@@ -139,7 +140,8 @@ export const ReadConvertJSONFromFileToAkm = async (
             oName = oName + " DEPRECATED";
             typeStrokeColor = "red";
         }
-        typeColor = (osduType === 'EntityType')
+
+        typeColor = (osduType === 'OSDUType')
             ? setColorsTopEntityTypes(groupType)
             : (osduType === 'Collection' || osduType === 'Item')
                 ? lightenColor(setColorsTopEntityTypes(osduType), 6)
@@ -177,6 +179,9 @@ export const ReadConvertJSONFromFileToAkm = async (
             osduId: oKey,
             osduType: osduType,
             groupType: groupType,
+            datatype: oValProps.type,
+            linkGroupType: propLinkGroupType,
+            linkEntityType: propLinkEntityType,
             // jsonType: jsonType,
             // jsonKey: oName,˝
             // (groupType === 'EntityType') ? typeColor : (groupType === 'Collection') && lightenColor(typeColor, 20),
@@ -274,7 +279,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     // if (debug) console.log('121 osduSchema', osduSchema)
 
     const osduSchema = JSON.parse(jsonFile.toString()); // imported JSON file
-    if (debug) console.log("121 osduSchema", osduSchema);
+    if (!debug) console.log("277 osduSchema", osduSchema);
 
     let parentId = null; //topModel.id || osduSchema["$id"]
     let mainArray = [];
@@ -453,7 +458,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";
 
         const entityPathElement = oVal.$id ? oVal.$id.split("/").slice(-2)[0] : "";
-        osduType = camelCase(entityPathElement, { pascalCase: true });
+        osduType = entityPathElement // camelCase(entityPathElement, { pascalCase: true });
+        // const version = oval.$id.split("/").slice(-1)[0].split(".")[1];
+        const version = oVal['x-osdu-schema-source']?.split(":").slice(-1)[0];
         // ==================== -------------------- ==================== -------------------- ====================
         // first we create the objects ----------------------------------------------------------------------------
         if (debug) console.log("434 start ---- ", oName, oVal, jsonType, osduObj, parentName, gparentName)
@@ -461,8 +468,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (debug) console.log("444 start ---- ", oName, oVal.type)
         if (index === 0) {
             // the first object is the main-object (topObj)
-            if (debug) console.log('438 topObject', oId, oName, oKey, oVal, jsonType, osduType, oValProps);
-            groupType = osduType;
+            if (!debug) console.log('438 topObject', oId, oName, oKey, oVal, jsonType, osduType, oValProps);
+            oValProps.groupType = entityPathElement;
+            oValProps.version = version;
             processTopObject(oId, oName, oKey, jsonType, osduType, oValProps, oVal);
         } else if (parentName === "properties" || parentName === "items" || gparentName === "properties" || gparentName === "items") {
             // this is property and proplink objects
@@ -477,11 +485,11 @@ export const ReadConvertJSONFromFileToAkm = async (
                     const pLId = utils.createGuid();  // ???? check if exist?
                     const rKey = oKey + "|" + rel.EntityType; // add the relationship name to the oKey
                     // const propLinkName = 'has' + rel.EntityType
-                    oValProps.EntityType = (rel.EntityType) ? rel.EntityType : parentName;
-                    oValProps.linkID = (rel.EntityType) ? rel.EntityType : parentName;
-                    oValProps.groupType = rel.GroupType;
+                    const linkGroupType = rel.GroupType;
+                    const linkEntityType = (rel.EntityType) ? rel.EntityType : parentName;
+                    // oValProps.linkID = (rel.EntityType) ? rel.EntityType : parentName; // DEPRECATED
                     osduType = "PropLink";
-                    const propLinkName = (oVal.title)
+                    const propLinkName = (oVal.title)  // create a name for the propLink object just to show where its pointing
                         ? oVal.title.replace(/\s+/g, "")
                         : (oName.includes("ID"))
                             ? oName
@@ -494,14 +502,10 @@ export const ReadConvertJSONFromFileToAkm = async (
                                         : parentName;
                     if (debug) console.log("423 ", propLinkName, oId, oName, oVal);
                     const pLName = propLinkName;
-                    const capitalizeFirstChar = (str: string) => {
-                        return str.charAt(0).toUpperCase() + str.slice(1);
-                    };
                     // const pLName = 'has' + propLinkName;
-                    const linkGroupType = capitalizeFirstChar(camelCase(rel.GroupType));
                     console.log('502 ', pLName, oValProps, linkGroupType, rel);
                     if (inclPropLinks) {
-                        processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, linkGroupType, osduObj, oVal, curModel, objecttypeRef);
+                        processPropertyLinks(pLId, pLName, rKey, osduType, jsonType, oValProps, linkGroupType, linkEntityType, osduObj, oVal, curModel, objecttypeRef);
                         if (debug) console.log("427 ", pLName, oValProps, rel);
                     }
                     if (debug) console.log("429 ", pLId, pLName, oKey, jsonType, oValProps, osduObj, oVal, curModel, objecttypeRef);
@@ -1080,20 +1084,20 @@ export const ReadConvertJSONFromFileToAkm = async (
         oValProps: any,
         oVal: any
     ) {
-        if (debug) console.log("942 topObjName", oName, oKey, jsonType, osduType, oValProps, oVal);
+        if (!debug) console.log("1083 topObjName", oName, oKey, jsonType, osduType, oValProps, oVal);
         if (osduType === "reference-data" && !inclReference) return;
-        if (osduType === "Master" && !inclMasterdata) return;
-        if (osduType === "Abstract" && !inclAbstract) return;
-        if (osduType === "WorkProductComponent" && !inclWorkProductComponent) return;
+        if (osduType === "master-data" && !inclMasterdata) return;
+        if (osduType === "abstract" && !inclAbstract) return;
+        if (osduType === "work-product-component" && !inclWorkProductComponent) return;
         let topObjName = oName.split(".")[0];
-        if (debug) console.log("948 topObjName", topObjName, osduType, groupType);
-
+        if (!debug) console.log("1089 topObjName", topObjName, osduType, groupType);
 
         if (osduType === "Abstract") {
             oValProps.abstract = true;
         }
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "EntityType")?.id;
-        osduType = "EntityType";
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "OSDUType")?.id;
+        osduType = "OSDUType";
+        groupType = oValProps.groupType;
         if (topObjName.includes("Abstract")) {
             if (topObjName !== "AbstractWorkProductComponent") {
                 topObjName = topObjName.replace("Abstract", "");
@@ -1130,6 +1134,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         jsonType: string,
         oValProps: any,
         propLinkGroupType,
+        propLinkEntityType,
         osduObj: any,
         oVal: any,
         curModel: any,
@@ -1138,8 +1143,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (debug) console.log("981 parent = properties :", oName, oVal, oValProps, inclPropLinks);
         if (inclPropLinks && oVal["x-osdu-relationship"]) {
             objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
+            // oValProps.EntityType = oName;
             if (debug) console.log("996  relationship", oName, objecttypeRef, oValProps, oVal["x-osdu-relationship"]);
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType);
+            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, propLinkGroupType, propLinkEntityType);
             if (debug) console.log("980 a-osdu-relship ", oId, oName, objecttypeRef, oKey, osduType, jsonType, osduObj, oValProps, groupType, propLinkGroupType);
             findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
         }
@@ -1162,7 +1168,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             case oName.substring(oName.length - 3) === "Set" || oName === "Markers" || oName === "CandidateReferenceCurveIDs" || oName === "GeologicUnitInterpretationIDs":
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
                 oValProps.viewkind = "container";
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '');
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '','');
                 if (debug) console.log("1007  array :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
@@ -1175,14 +1181,14 @@ export const ReadConvertJSONFromFileToAkm = async (
                     let EntityType = oName.replace("ID", ""); // remove ID from the name
                     const propLinkName = "has" + oName;
                     oValProps.EntityType = oName;
-                    createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '');
+                    createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '','');
                     if (debug) console.log("1020  array ID", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                     findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 }
                 break;
             case oValProps["$ref"]:
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '');
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '', '');
                 if (debug) console.log("1097  array $ref", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
@@ -1190,7 +1196,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 if (debug) console.log("418  ProcessArray", oId, oName, oKey, jsonType);
                 objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Collection")?.id;
                 if (oName === "Markers") oName = oName.substring(0, oName.length - 1); // remove the last character from the name
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '');
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType, '', '');
                 if (debug) console.log("1105  array else", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
                 findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
                 break;
@@ -1230,28 +1236,28 @@ export const ReadConvertJSONFromFileToAkm = async (
     //     // }
     // }
 
-    function createLinkedObject(
-        oId: string,
-        oName: string,
-        oKey: string,
-        osduType: string,
-        jsonType: string,
-        oValProps: any,
-        osduObj: any,
-        curModel: any,
-        objecttypeRef: string
-    ) {
-        const propLinkName = `${parentName}`;
-        // const propLinkName = `has${oName}`;
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
-        oValProps.EntityType = propLinkName;
-        oValProps.linkID = propLinkName;
-        createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-        if (debug) console.log("1189 Collections", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-        // createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType);
-        // if (debug) console.log("349 Set", oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
-        // findOwnerandCreateRelationship(osduObj, curModel);
-    }
+    // function createLinkedObject(
+    //     oId: string,
+    //     oName: string,
+    //     oKey: string,
+    //     osduType: string,
+    //     jsonType: string,
+    //     oValProps: any,
+    //     osduObj: any,
+    //     curModel: any,
+    //     objecttypeRef: string
+    // ) {
+    //     const propLinkName = `${parentName}`;
+    //     // const propLinkName = `has${oName}`;
+    //     objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "PropLink")?.id;
+    //     oValProps.EntityType = propLinkName;
+    //     oValProps.linkID = propLinkName;
+    //     createObjectAndRelationships(oId, propLinkName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+    //     if (debug) console.log("1189 Collections", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+    //     // createObject(oId, propLinkName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType);
+    //     // if (debug) console.log("349 Set", oId, propLinkName, objecttypeRef, oKey, jsonType, oValProps);
+    //     // findOwnerandCreateRelationship(osduObj, curModel);
+    // }
 
     // function createCollectionObject(
     //     oId: string,
@@ -1286,7 +1292,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         objecttypeRef: string
     ) {
         objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
-        if (debug) console.log("1185  property", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+        if (!debug) console.log("1289  property", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         createObjectAndRelationships(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
     }
 

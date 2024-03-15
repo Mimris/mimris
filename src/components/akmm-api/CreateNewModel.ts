@@ -87,8 +87,8 @@ const CreateNewModel = (props: any) => {
     const adminmetamodel = metamodels.find(m => m.id === adminmodel?.metamodelRef)
     const coremetamodel = metamodels.find(m => m.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m.name === 'AKM-IRTV_MM')
-    const repo = (metamodelGenerated?.name === 'AKM-OSDU_MM') ? 'osdu-akm-models' : 'kavca-akm-models'
-    const projNo = (metamodelGenerated?.name === 'AKM-OSDU_MM') ? 3 : 1  // hardcoded for now
+    const repo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 'osdu-akm-models' : 'kavca-akm-models'
+    const projNo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 3 : 1  // hardcoded for now
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
@@ -102,6 +102,7 @@ const CreateNewModel = (props: any) => {
           metamodels: [
             {
               ...metamodelGenerated,
+              subMetamodels: [],
             },
             adminmetamodel,
             (coremetamodel !== metamodelGenerated) && coremetamodel,

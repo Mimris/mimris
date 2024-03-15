@@ -105,7 +105,6 @@ const Modeller = (props: any) => {
   let locStateKey
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
   const showModified = props.phUser?.focusUser?.diagram?.showModified
-
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
@@ -693,7 +692,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       : // metamodelling
       <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
         <div className="modeller--topbar  mt-1 p-0">
-          <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta-Modeller</span>
+          <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
           <div className="">
           </div>
           <div>

@@ -31,8 +31,9 @@ const arrowheads = ['None',
                     'Circle', 'Block'];
 
 const colornames = ['black', 'white', 
+                    'lightsalmon','lightsteelblue','turquoise', 
                     'red', 'darkred', 'pink', 
-                    'green', 'lightgreen', 'darkgreen', 'seagreen',
+                    'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
                     'blue', 'lightblue', 'darkblue', 'skyblue', 
                     'grey', 'lightgrey', 'darkgrey',
                     'yellow', 'lightyellow', 'yellowgreen', 'orange', 
@@ -50,6 +51,23 @@ const curves = ['None', 'Bezier', 'JumpOver', 'JumpGap'];
 const useTabs = true;
 
 const booleanAsCheckbox = true;
+
+// safely handles circular references
+JSON.safeStringify = (obj, indent = 2) => {
+    let cache = [];
+    const retVal = JSON.stringify(
+      obj,
+      (key, value) =>
+        typeof value === "object" && value !== null
+          ? cache.includes(value)
+            ? undefined // Duplicate reference found, discard key
+            : cache.push(value) && value // Store value in our collection
+          : value,
+      indent
+    );
+    cache = null;
+    return retVal;
+};
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
@@ -892,6 +910,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   
   public render() {
     const modalContext = this.props.context;
+    if (debug) console.log('950 SelectionInspector: modalContext', modalContext);
     if (!modalContext)
       return null;
     return (

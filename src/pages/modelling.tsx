@@ -65,29 +65,29 @@ const page = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', []); //props);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
-  const [focus, setFocus] = useState(props.phFocus)
+  // const [focus, setFocus] = useState(props.phFocus)
   const [memoryAkmmUser, setMemoryAkmmUser] = useSessionStorage('akmmUser', ''); //props);
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
-
+  const focus = useSelector((state: any) => state.phFocus)
+  
   useEffect(() => {
     if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
-      if (!debug) console.log('81 modelling page reloaded', memorySessionState);
-      if (memorySessionState[0]?.phData) {
-        const locStore = memorySessionState[0];
-        if (!debug) console.log('79modelling 1 ', locStore);
-        if (locStore) {
-          const data = locStore;
-          if (!debug) console.log('87 modelling ', data);
-          dispatchLocalStore(data);
-          // window.location.reload();
-            const timer = setTimeout(() => {
-              setRefresh(!refresh);
-            }, 100);
-            return () => clearTimeout(timer);
-        }
+      let locStore = memorySessionState;
+      if (debug) console.log('81 modelling page reloaded', memorySessionState);
+      if (!memorySessionState) locStore = memoryLocState;
+      if (debug) console.log('79modelling 1 ', locStore);
+      if (locStore) {
+        const data = locStore;
+        if (debug) console.log('87 modelling ', data);
+        dispatchLocalStore(data);
+        // window.location.reload();
+          const timer = setTimeout(() => {
+            setRefresh(!refresh);
+          }, 100);
+          return () => clearTimeout(timer);
       } else {
-        if (!debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
+        if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
@@ -102,7 +102,7 @@ const page = (props: any) => {
         }
       }
     } else {
-      if (!debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
+      if (debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
     }
   }, [!query && memorySessionState[0] && mount])
 
@@ -122,13 +122,13 @@ const page = (props: any) => {
       try {
         if (query) {
           if (debug) console.log('120 modelling query', query, query)
-          org = query.org;
-          repo = query.repo;
-          path = query.path;
-          branch = query.branch;
-          file = query.file;
-          model = query.model;
-          modelview = query.modelview;
+            org = props.phFocus.focusProj.org;
+            repo = props.phFocus.focusProj.repo;
+            path = props.phFocus.focusProj.path;
+            branch = props.phFocus.focusProj.branch;
+            file = props.phFocus.focusProj.file;
+            model = props.phFocus.focusProj.model;
+            modelview = props.phFocus.focusProj.modelview;
         
           if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
           const res = await searchGithub(org+'/'+repo, path, file, branch, 'file')
@@ -161,7 +161,15 @@ const page = (props: any) => {
             },
           };
           dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
-        }    
+        } else {
+            org = props.phFocus.focusProj.org;
+            repo = props.phFocus.focusProj.repo;
+            path = props.phFocus.focusProj.path;
+            branch = props.phFocus.focusProj.branch;
+            file = props.phFocus.focusProj.file;
+            model = props.phFocus.focusProj.model;
+            modelview = props.phFocus.focusProj.modelview;
+        }
       } catch (error) {
         console.log('117 modelling query error ', error);
       }
@@ -175,6 +183,9 @@ const page = (props: any) => {
     setMount(true)
   }, []);
 
+  useEffect(() => {
+    setMemorySessionState(props)
+  }, [props])
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
@@ -223,12 +234,15 @@ const page = (props: any) => {
               }
             </div>
             <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
-              <Link className="link " href={`/model?org=${org}&repo=${repo}&path=${path}&branch=${branch}&file=${file}&model=${model}&modelview=${modelview}`}
-                target="_blank"
-                style={{position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "gray"}}
-                >
-                <i className="fas fa-external-link-alt" aria-hidden="true"></i>
-              </Link>
+              
+                <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
+                }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`}
+                  target="_blank"
+                  style={{position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "gray"}}
+                  >
+                  <i className="fas fa-external-link-alt" aria-hidden="true"></i>
+                </Link>
+              
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling toggleRefresh={toggleRefresh} />
               </div>

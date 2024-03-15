@@ -2,7 +2,7 @@
 // It allows the user to edit the object's properties and view related objects.
 import React, { useRef,useContext, useState, useEffect } from 'react'
 import { Modal, Button } from 'react-bootstrap';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
 import Markdown from 'markdown-to-jsx';
@@ -187,7 +187,7 @@ const ExportObjects = (props) => {
       '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType', 'typeName', 'typeDescription',
       'fillcolor', 'fillcolor2', 'strokecolor','icon', 'image'
     ];
-    const includedKeyskOSDU = [ 'typeName', 'name', 'title', 'description'];
+    const includedKeyskOSDU = [ 'typeName', 'name', 'title', 'description', 'groupType','governanceModel', 'governaceAuthorities', 'fileFormats'];
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
         'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
     // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
@@ -202,8 +202,8 @@ const ExportObjects = (props) => {
     const csvheader3 = '	Properties								Attribution			References				Behaviors			Proposals						Final Output													'.split('\t');
     const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
  
-    const titles = (Object) && Object?.values(objectPropertiesOsdu);
-    const values = titles.map(v => curobject[v]);
+    const titles = (objectPropertiesOsdu) && Object.values(objectPropertiesOsdu);
+    const values = titles?.map(v => curobject[v]);
     if (debug) console.log('214 keys1', values);
 
     const valueList = ObjectToCsv({obj: csvheader3}).valueList

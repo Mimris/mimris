@@ -24,9 +24,9 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   
   const debug = false
   const dispatch = useDispatch()  
-  const refresh = props.refresh
-  const setRefresh = props.setRefresh
-  function toggleRefresh() { setRefresh(!refresh); }
+  // const refresh = props.refresh
+  // const setRefresh = props.setRefresh
+  // function toggleRefresh() { props.setRefresh(!props.refresh); }
 
   const modelNames = props.ph.phData?.metis?.models.map((mn,index) => <span key={mn.id+index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn,index) => (mn) && <span key={mn.id+index}>{mn.name} | </span>)
@@ -65,8 +65,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
     const modelview = model.modelviews[focusModelviewIndex]
-    console.log('43', focusModelviewIndex, modelview);
-    
+    console.log('43', focusModelviewIndex, modelview); 
     SaveModelToFile({modelview: modelview}, modelview.name, 'Modelview')
     // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
@@ -308,7 +307,7 @@ const importFile = async (e) => {
       <span><button className="btn bg-primary text-light py-1 px-2" onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0"></i>{buttonLabel}</button></span>
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
-        <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import OSDU Schema (JSON-files): </ModalHeader>
+        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck(){}} }>Export/Import OSDU Schema (JSON-files): </ModalHeader>
           {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
             {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
         <ModalBody className="d-flex flex-column bg-primary">
@@ -443,7 +442,7 @@ const importFile = async (e) => {
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+            title="Click here when done!" onClick={() => {toggle(); props.setRefresh(!props.refresh)}}>Done
           </Button>
         </ModalFooter>
       </Modal>

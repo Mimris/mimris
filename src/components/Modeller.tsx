@@ -63,7 +63,7 @@ const Modeller = (props: any) => {
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [exportSvg, setExportSvg] = useState(null);
   const [diagramReady, setDiagramReady] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('Objects in this Modelview');
+  const [selectedOption, setSelectedOption] = useState('Sorted by type');
   const [ofilteredArr, setOfilteredArr] = useState([]);
   const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
@@ -380,10 +380,10 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
 
   useEffect(() => {
-    if (model?.objects?.length < 100) {
+    if (model?.objects?.length < 500) {
       setSelectedOption('Sorted by type')
     } else {
-      setSelectedOption('EntityType')
+      setSelectedOption('OSDUType')
     }
     if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(true)
   }, [])
@@ -408,24 +408,24 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
       // Sort the sortedByType within each type using the node.object.osduType
       // check if the osduType is a topEntity attribute, if so then sort by the order of the topEntity attributes
 
-      const osduTypeFound = initialArr?.find((node: { object: { osduType: string; }; }) => node && (node.object.osduType));
+      const osduTypeFound = initialArr?.find((node: { object: { osduType: string; }; }) => node && (node?.object?.osduType));
 
-      const sortedArr = (osduTypeFound) ? 
-        sortedByType?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => (a.object.osduType > b.object.osduType) ? 1 : -1)
-          ?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => {
-            const typeOrder = {
-              'MasterData': 0,
-              'WorkProductComponent': 1,
-              'ReferenceData': 2,
-              'Abstract': 3,
-              'OSDUType': 4,
-              'PropLink': 5,
-              'Property': 6,
-              'Collection': 7,
-              'Item': 8,
-            };
-            return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
-          })
+      const sortedArr = (osduTypeFound) 
+        ? sortedByType?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => (a.object.osduType > b.object.osduType) ? 1 : -1)
+            ?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => {
+              const typeOrder = {
+                'MasterData': 0,
+                'WorkProductComponent': 1,
+                'ReferenceData': 2,
+                'Abstract': 3,
+                'OSDUType': 4,
+                'PropLink': 5,
+                'Property': 6,
+                'Collection': 7,
+                'Item': 8,
+              };
+              return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
+            })
         : sortedByType;
 
       if (debug) console.log('455 Palette ofilteredOnTypes', sortedArr);

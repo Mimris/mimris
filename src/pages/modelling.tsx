@@ -77,7 +77,7 @@ const page = (props: any) => {
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (!memorySessionState) locStore = memoryLocState;
       if (debug) console.log('79modelling 1 ', locStore);
-      if (locStore) {
+      if (locStore && locStore.phData) {
         const data = locStore;
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);

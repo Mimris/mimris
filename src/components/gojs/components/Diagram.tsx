@@ -1097,7 +1097,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (debug) console.log('983 node, myMetis', node, myMetis);
-              uid.editTypeview(node, myMetis, myDiagram);
+              uid.editObjectTypeview(node, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;

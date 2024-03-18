@@ -89,8 +89,8 @@ const Palette = (props: any) => {
     // setFilteredNewtypesNodeDataArray(buildFilter(focusRole, focusTask, metamodelList, types, mmodel));  // build the palette for current metamodel
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
-    if (debug) console.log('89 Palette useEffect 1',  mmodel);
-    const coremetamodel = props.myMetis?.metamodels.find(m => m?.name === 'AKM-Core_MM')
+    if (!debug) console.log('89 Palette useEffect 1',  mmodel, props);
+    const coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
     const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);

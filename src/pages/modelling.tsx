@@ -77,7 +77,7 @@ const page = (props: any) => {
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (!memorySessionState) locStore = memoryLocState;
       if (debug) console.log('79modelling 1 ', locStore);
-      if (locStore) {
+      if (locStore && locStore.phData) {
         const data = locStore;
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
@@ -184,7 +184,8 @@ const page = (props: any) => {
   }, []);
 
   useEffect(() => {
-    setMemorySessionState(props)
+    const locProps = { ...props, phMymetis: null } 
+    setMemorySessionState(locProps)
   }, [props])
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)

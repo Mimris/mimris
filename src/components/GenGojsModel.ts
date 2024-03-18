@@ -24,7 +24,7 @@ const constants = require('../akmm/constants');
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
-const GenGojsModel = async (props: any, dispatch: any) =>  {
+const GenGojsModel = async (props: any,  dispatch: any) =>  {
   if (debug) console.log('28 GenGojsModel started', props);
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;

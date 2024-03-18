@@ -10,6 +10,8 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 
+// import * as akm from '../akmm/metamodeller';
+
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
@@ -78,6 +80,7 @@ const page = (props: any) => {
   const ph = props
   const metis = ph.phData?.metis
   const models = metis?.models || []
+  // let myMetis = new akm.cxMetis();
 
   const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
   const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
@@ -128,9 +131,11 @@ const page = (props: any) => {
 
 
   function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props);
-    // setMemorySessionState(props)
-    setMemoryLocState(props)
+    const locProps = { ...props, phMymetis: null } // remove the myMetis and circular structure object from the props 
+    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props , locProps);
+
+    setMemorySessionState(locProps)
+    setMemoryLocState(locProps)
     GenGojsModel(props, dispatch)
     const timer = setTimeout(() => {
       if (debug) console.log('132 Modelling doRefresh memoryLocState:', memorySessionState, 'setMemLS:')
@@ -143,7 +148,8 @@ const page = (props: any) => {
     useEffect(() => {
       if (debug) useEfflog('141 Modelling useEffect 1 [] : ',  activeTab, activetabindex ,props);
       // set the focusModel and focusModelview to the first model and modelview if they are not set
-      GenGojsModel(props, dispatch);
+      GenGojsModel(props,  dispatch);
+      // GenGojsModel(props, myMetis,  dispatch);
       setMount(true);
       setActiveTab(activetabindex);
       // loadMyModeldata();
@@ -178,7 +184,7 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('183');
     doRefresh()
-  }, [props.toggleRefresh])
+  }, [curmod.objects.length])
 
   // useEffect(() => {
   //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
@@ -589,11 +595,11 @@ const page = (props: any) => {
     // const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
-    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
-    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} doRefresh={doRefresh} />
-    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={doRefresh} />
+    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
     // const modelType = (activeTab === '0') ? 'metamodel' : 'model'

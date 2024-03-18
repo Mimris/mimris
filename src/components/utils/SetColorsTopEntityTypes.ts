@@ -15,7 +15,8 @@ export const setColorsTopEntityTypes = (osduType: string) => {
         case 'work-product-component':
             return '#FFD701';
         case 'abstract':
-            return '#B0C4DE';
+            return '#87CEFA';
+            // return '#B0C4DE';
         case 'content':
             return '#F9C846';
         case 'reference-data':

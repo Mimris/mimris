@@ -104,7 +104,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
 
     let topLevelObject: { id: any; name: any; }
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
-    const genrel = propLinks.forEach(o => {
+    const genrelPropLinks = propLinks.forEach(o => {
         // use the referenceObject to find the top object
         if ((debug)) console.log('118 PropLink: ', o.name, o.title, o.id, o.referenceObject, o);
         if (debug) console.log('119 ', o.referenceObject, o.refVersion);
@@ -162,6 +162,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             }
         }
     });
+
+    // 
 
     // console.log('171 ', genrel); 
     // $ref.......Find RelshipType objects with a $ref attribute and and generate a relship between this top oject and the $ref object

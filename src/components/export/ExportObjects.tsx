@@ -50,6 +50,7 @@ const ExportObjects = (props) => {
     const models = ph.phData?.metis?.models  // selecting the models array
 
     const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
+    const curmetamodel = metamodels?.find(mm => mm.id === models?.find(m => m.id === modelInFocusId)?.metamodelRef)
 
     // const curmodel = modelInFocus
     const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
@@ -77,8 +78,17 @@ const ExportObjects = (props) => {
     // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
     if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
-  
+    // add refersTo relationship as a propLink
+    // find refersTo relationship type
+    const refersTo = curmetamodel?.relshiptypes?.find(ot => ot.name === 'refersTo')
+    const refersTorelships = currelationships.filter(r => r.typeRef === refersTo?.id) // find all relships with type refersTo
+    // filter out the fromTo as current object
+    const fromRefersToObectRels = refersTorelships.filter(r => r.fromobjectRef === curobject.id)
+    const refersToObjects = fromRefersToObectRels.map(r => objects.find(o => o.id === r.toobjectRef)) // find objects in the other end of the relationship
+    const propLinkTemp = refersToObjects.map(o => ({...o, refGroupType: o.name, type: 'PropLink'}))
+    if (!debug) console.log('73 Context:', currelationships ,refersTo ,refersTorelships, fromRefersToObectRels, refersToObjects, propLinkTemp);
 
+  
     // useEffect(() => {
     // }, []);
 
@@ -212,6 +222,7 @@ const ExportObjects = (props) => {
     const lineNo = 5;
 
     const relatedToObjects = curRelatedFromObectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+
     // escape semicolon in values of relatedToObjects
 
   
@@ -222,7 +233,7 @@ const ExportObjects = (props) => {
       };${toObj.name
       };${(toObj.title) ? toObj.title : ""
       };${(toObj.description) ? `"${toObj.description}"` : ""
-      };${(toObj.type) ? toObj.type : ""
+      };${(toObj.type) ? toObj.dataType : ""
       };${(toObj.pattern) ? toObj.pattern : ""
       };${(toObj.frameOfReference) ? toObj['x-osdu-frame-of-reference'] : ""
       };${(toObj.constant) ? toObj.constant : ""
@@ -231,9 +242,9 @@ const ExportObjects = (props) => {
       };${(toObj.Authority) ? toObj.Authority : ""
       };${(toObj.Publication) ? toObj.Publication : ""
       };${(toObj.Revision) ? toObj.Revision : ""
-      };${(toObj.EntityType) ? toObj.EntityType : ""
-      };${(toObj.ROVersion) ? toObj.ROVersion : ""
-      };${(toObj.groupType) ? toObj.groupType : ""
+      };${(toObj.referenceObject) ? toObj.referenceObject : toObj.name.split('.')[0]
+      };${(toObj.ROVersion) ? toObj.ROVersion : toObj.name.split('.').slice(1).join('.')
+      };${(toObj.refGroupType) ? toObj.refGroupType : toObj.groupType || ""
       };${(toObj.ExistingStandard) ? toObj.ExistingStandard : ""
       };${(toObj.IsRequired) ? toObj.IsRequired : ""
       };${(toObj.IsDerived) ? toObj.IsDerived : ""

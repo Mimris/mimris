@@ -470,16 +470,65 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(node?.icon);
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
-    if (debug) console.log('469 myMetis', myMetis);
+    const object = myMetis.findObject(node?.object?.id);
+    const objectview = myMetis.findObjectView(node?.objectview?.id);
+    const objecttype = myMetis.findObjectType(object?.type?.id);
+    const objecttypeview = objecttype?.typeview;
+    const myContext = {
+        object:     object,
+        objectview: objectview,
+        objecttype: objecttype,
+        objecttypeview: objecttypeview,
+        relship:     null,
+        relshipview: null,
+        relshiptype: null,
+        relshiptypeview: null,
+        model:      myMetis.currentModel,
+        modelview:  myMetis.currentModelview,
+        metamodel:  myMetis.currentMetamodel,
+    }
+    if (debug) console.log('490 myMetis', myMetis);
     const modalContext = {
         what:       "editObject",
         title:      "Edit Object",
         icon:       icon,
-        myMetis:    myMetis,
-        myDiagram:  myDiagram
+        myDiagram:  myDiagram,
+        myContext:  myContext
       }
-      if (debug) console.log('477 node, modalContext', node, modalContext);
+      if (debug) console.log('498 ui_diagram: node, modalContext', node, modalContext);
       myDiagram.handleOpenModal(node, modalContext);
+}
+
+export function editRelationship(link: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('417 myMetis', myMetis);
+    myMetis.currentLink = link;
+    myMetis.myDiagram = myDiagram;
+    const relship = myMetis.findRelationship(link?.relship?.id);
+    const relshipview = myMetis.findRelationshipView(link?.relshipview?.id);
+    const relshiptype = myMetis.findRelationshipType(relship?.type?.id);
+    const relshiptypeview = relshiptype?.typeview;
+    const myContext = {
+        object:     null,
+        objectview: null,
+        objecttype: null,
+        objecttypeview: null,
+        relship:     relship,
+        relshipview: relshipview,
+        relshiptype: relshiptype,
+        relshiptypeview: relshiptypeview,
+        model:      myMetis.currentModel,
+        modelview:  myMetis.currentModelview,
+        metamodel:  myMetis.currentMetamodel,
+    }
+    const modalContext = {
+        what:       "editRelationship",
+        title:      "Edit Relationship",
+        icon:       null,
+        myDiagram:  myDiagram,
+        myContext:  myContext
+      }
+      if (debug) console.log('530 ui_diagram: link, modalContext', link, modalContext);
+      myDiagram.handleOpenModal(link, modalContext);
 }
 
 export function editPort(port: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -498,7 +547,6 @@ export function editPort(port: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('428 myMetis', myMetis);
     myDiagram.handleOpenModal(port, modalContext);
 }
-
 
 // export function editPort(node: any, side: string, portname: string, myMetis: akm.cxMetis, myDiagram: any) {
 //     const modalContext = {
@@ -531,31 +579,136 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 }
 
 export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('583 node, myMetis', node, myMetis);
     const icon = uit.findImage(node.icon);
+    myMetis.currentNode = node;
+    myMetis.myDiagram = myDiagram;
+    const object = myMetis.findObject(node?.object?.id);
+    const objectview = myMetis.findObjectView(node?.objectview?.id);
+    const objecttype = myMetis.findObjectType(object?.type?.id);
+    const objecttypeview = objecttype?.typeview;
+    const myContext = {
+        object:     object,
+        objectview: objectview,
+        objecttype: objecttype,
+        objecttypeview: objecttypeview,
+        relship:    null,
+        relshipview: null,
+        relshiptype: null,
+        relshiptypeview: null,
+        model:      myMetis.currentModel,
+        modelview:  myMetis.currentModelview,
+        metamodel:  myMetis.currentMetamodel,
+    }
     const modalContext = {
       what:       "editObjectview",
       title:      "Edit Object View",
       icon:       icon,
-      myMetis:    myMetis,
-      myDiagram:  myDiagram
+      myDiagram:  myDiagram,
+      myContext:  myContext,
     }
-    myMetis.currentNode = node;
-    myMetis.myDiagram = myDiagram;
+    if (debug) console.log('566 ui_diagram: node, modalContext', node, modalContext);
     myDiagram.handleOpenModal(node, modalContext);
 }    
 
-export function editTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('615 link, myMetis', link, myMetis);
+    myMetis.currentLink = link;
+    myMetis.myDiagram = myDiagram;
+    const rel = link.relship;
+    const relview = link.relshipview;
+    const relship = myMetis.findRelationship(rel?.id) as akm.cxRelationship;
+    const relshipview = myMetis.findRelationshipView(relview?.id);
+    const relshiptype = myMetis.findRelationshipType(relship?.type?.id);
+    const relshiptypeview = relshiptype?.typeview;
+    const myContext = {
+        object:     null,
+        objectview: null,
+        objecttype: null,
+        objecttypeview: null,
+        relship:     relship,
+        relshipview: relshipview,
+        relshiptype: relshiptype,
+        relshiptypeview: relshiptypeview,
+        model:      myMetis.currentModel,
+        modelview:  myMetis.currentModelview,
+        metamodel:  myMetis.currentMetamodel,
+    }
+    const modalContext = {
+        what:       "editRelshipview",
+        title:      "Edit Relationship View",
+        icon:       null,
+        myDiagram:  myDiagram,
+        myContext:  myContext
+    }
+    if (debug) console.log('642 ui_diagram: link, modalContext', link, modalContext);
+    myDiagram.handleOpenModal(link, modalContext);
+}
+
+export function editObjectTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('649 node, myMetis', node, myMetis);
     const icon = uit.findImage(node.icon);
+    myMetis.myDiagram = myDiagram;
+    myMetis.currentNode = node;
+    const object = myMetis.findObject(node?.object?.id);
+    const objectview = myMetis.findObjectView(node?.objectview?.id);
+    const objecttype = myMetis.findObjectType(object?.type?.id);
+    const objecttypeview = objecttype?.typeview;
+    const myContext = {
+        object:     object,
+        objectview: objectview,
+        objecttype: objecttype,
+        objecttypeview: objecttypeview,
+        relship:    null,
+        relshipview: null,
+        relshiptype: null,
+        relshiptypeview: null,
+        model:      myMetis.currentModel,
+        modelview:  myMetis.currentModelview,
+        metamodel:  myMetis.currentMetamodel,
+    }
+    const modalContext = {
+      what:       "editTypeview",
+      title:      "Edit Object Typeview",
+      icon:       icon,
+      myDiagram:  myDiagram,
+      myContext:  myContext,
+    }
+    if (debug) console.log('566 ui_diagram: node, modalContext', node, modalContext);
+    myDiagram.handleOpenModal(node, modalContext);
+}    
+
+export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('682 link, myMetis', link, myMetis);
+    myMetis.myDiagram = myDiagram;
+    myMetis.currentLink = link;
+    const relship = myMetis.findRelationship(link?.relship?.id);
+    const relshipview = myMetis.findRelationshipView(link?.relshipview?.id);
+    const relshiptype = myMetis.findRelationshipType(relship?.type?.id);
+    const relshiptypeview = relshiptype?.typeview;
+    const myContext = {
+        object:     null,
+        objectview: null,
+        objecttype: null,
+        objecttypeview: null,
+        relship:     relship,
+        relshipview: relshipview,
+        relshiptype: relshiptype,
+        relshiptypeview: relshiptypeview,
+        model:      myMetis.currentModel,
+        modelview:  myMetis.currentModelview,
+        metamodel:  myMetis.currentMetamodel,
+    }
     const modalContext = {
       what:       "editTypeview",
       title:      "Edit Typeview",
-      icon:       icon,
-      myMetis:    myMetis,
-      myDiagram:  myDiagram
+      icon:       null,
+      myDiagram:  myDiagram,
+      myContext:  myContext,
     }
-    myMetis.currentNode = node;
-    myMetis.myDiagram = myDiagram;
-    myDiagram.handleOpenModal(node, modalContext);
+    if (debug) console.log('710 ui_diagram: link, modalContext', link, modalContext);
+    myDiagram.handleOpenModal(link, modalContext);
+
 }    
 
 export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -612,7 +765,6 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
                     case 'modified':
                     case 'sourceUri':
                     case 'typeRef':
-                    case 'abstract':
                     case 'class':
                     case 'relshipkind':      
                         continue;              
@@ -1476,7 +1628,6 @@ function clearMetamodel2(context: any) {
             //             let viewdata: any = typeview.data;
             //             let prop: string;
             //             for (prop in viewdata) {
-            //                 if (prop === 'abstract') continue;
             //                 if (prop === 'class') continue;
             //                 if (prop === 'group') continue;
             //                 if (prop === 'isGroup') continue;

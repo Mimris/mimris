@@ -94,10 +94,20 @@ const page = (props: any) => {
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
 
-  let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
+  // let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
   let myModel, myGoModel, myGoObjectPalette, myGoRelshipPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
   let myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, myTargetMetamodelPalette
   let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
+
+
+  const [gojsmodel, setGojsmodel] = useState(null)
+  const [gojsmetamodel, setGojsmetamodel] = useState(null)
+  const [gojsmodelobjects, setGojsmodelobjects] = useState(null)
+  const [gojstargetmodel, setGojstargetmodel] = useState(null)
+  const [gojstargetmetamodel, setGojstargetmetamodel] = useState(null)
+  const [gojsmetamodelpalette, setGojsmetamodelpalette] = useState(null)
+  const [gojsmetamodelmodel, setGojsmetamodelmodel] = useState(null)
+
 
   
 
@@ -146,21 +156,21 @@ const page = (props: any) => {
 
     const myGoModel = myMetis?.gojsModel
     const myGoMetamodel = myMetis?.gojsMetamodel
-    console.log('150 Modelling', myGoModel, myGoMetamodel);
+    console.log('150 Modelling', myGoModel.nodes[0], myGoMetamodel);
     
     myGoMetamodelModel = myMetis?.myGoMetamodelModel
     myGoMetamodelPalette = myMetis?.myGoMetamodelPalette
     myGoObjectPalette = myMetis?.myGoObjectPalette
     myGoRelshipPalette = myMetis?.myGoRelshipPalette
     
-    if (!debug) console.log('172 Modelling ', myGoModel, myGoMetamodel, myGoMetamodelModel, myMetis);
-    gojsmetamodelpalette = (myGoMetamodel) &&  {nodeDataArray: myGoMetamodel.object?.nodes,linkDataArray: myGoMetamodel?.links }  // props.phGojs?.gojsMetamodelPalette 
-    gojsmetamodelmodel = (myGoMetamodelModel) && { nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links}
-    gojsmodel = (myGoModel) && { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
-    gojsmetamodel = (myGoMetamodelPalette) && { nodeDataArray: myGoMetamodelPalette?.nodes, linkDataArray: myGoMetamodelPalette?.links}// props.phGojs?.gojsMetamodel 
-    gojsmodelobjects = (myGoModel) && { nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] } // props.phGojs?.gojsModelObjects // || []
-    gojstargetmodel = (myTargetModel) &&  { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }//props.phGojs?.gojsTargetModel 
-    gojstargetmetamodel = (myTargetMetamodel) && { nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links} // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+    if (!debug) console.log('156 Modelling ', myGoModel, myGoMetamodel, myGoMetamodelModel, myMetis);
+    (myGoMetamodel) && setGojsmetamodelpalette({nodeDataArray: myGoMetamodel?.nodes,linkDataArray: myGoMetamodel?.links }) // props.phGojs?.gojsMetamodelPalette 
+    (myGoMetamodelModel) && setGojsmetamodelmodel({ nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links})
+    (myGoModel) && setGojsmodel({ nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links })
+    (myGoMetamodelPalette) && setGojsmetamodel({ nodeDataArray: myGoMetamodelPalette?.nodes, linkDataArray: myGoMetamodelPalette?.links})// props.phGojs?.gojsMetamodel 
+    (myGoModel) && setGojsmodelobjects({ nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] }) // props.phGojs?.gojsModelObjects // || []
+    (myTargetModel) && setGgojstargetmodel({ nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links })//props.phGojs?.gojsTargetModel 
+    (myTargetMetamodel) && setGojstargetmetamodel({ nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links}) // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
     console.log('163 Modelling',  gojsmodel, gojsmetamodel, gojsmodelobjects, gojsmetamodelpalette, gojsmetamodelmodel, gojstargetmodel, gojstargetmetamodel);
   };
 
@@ -472,7 +482,7 @@ const page = (props: any) => {
                 {/* Objects Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                    <Palette // this is the Objects Palette area
+                    {(gojsmodel) && <Palette // this is the Objects Palette area
                       gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
@@ -484,7 +494,7 @@ const page = (props: any) => {
                       dispatch={dispatch}
                       modelType='model'
                       phUser={phUser}
-                    />
+                    />}
                   </div>
                 </Col>
                 {/* Modelling area */}

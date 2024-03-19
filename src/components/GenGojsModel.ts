@@ -24,8 +24,9 @@ const constants = require('../akmm/constants');
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
-const GenGojsModel = async (props: any, myMetis: any, dispatch: any) =>  {
-  if (!debug) console.log('28 GenGojsModel started', props, myMetis);
+const GenGojsModel = async (props: any, yourMetis: any) =>  {
+  let myMetis = yourMetis;
+  if (!debug) console.log('28 GenGojsModel started', props, yourMetis, myMetis);
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -135,10 +136,11 @@ const GenGojsModel = async (props: any, myMetis: any, dispatch: any) =>  {
       // myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
       // myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
       // myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
-      // const myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
+      // let myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
       let myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
       let myGoRelshipPalette = (myModel?.relship) ? uib.buildRelshipPalette(myModel?.relships, myMetis) : [] 
       let myGoMetamodelModel = (myMetamodel) ? uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) : [] 
+      // let myMetamodelPalette = (myMetamodel) ? uib.buildGoPalette(myMetamodel, myMetis) : []
       
       // if (!myModel?.objects) {
       //   console.log('227 myModel.objects is undefined', myModel, myMetis);
@@ -149,16 +151,20 @@ const GenGojsModel = async (props: any, myMetis: any, dispatch: any) =>  {
       // if (debug) console.log('188 Modelling ', myGoObjectPalette);
 
       // myMetis?.setGoObjectPalette(myGoObjectPalette);
+      // myMetis?.myGoModel = myGoModel;
       myMetis.myGoObjectPalette = myGoObjectPalette;
       myMetis.myGoRelshipPalette = myGoRelshipPalette
       myMetis.myGoMetamodelModel = myGoMetamodelModel;
+      myMetis.myGoMetamodelPalette = myMetamodelPalette;
 
-      if (!debug) console.log('156 Modelling ', myMetis, myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel);  
+      if (debug) console.log('160 GenGojsModel ', myMetis, myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel);  
       
 
       // dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
 
     }
   }
+  if (!debug) console.log('165 GenGojsModel myMetis', myMetis);
+  return myMetis;
 }
 export default GenGojsModel;

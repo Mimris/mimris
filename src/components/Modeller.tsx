@@ -39,7 +39,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
 
-  if (debug) console.log('19 Modeller: props', props);
+  if (!debug) console.log('42 Modeller: props', props);
   if (!props.metis) return <> not found</>
 
   const dispatch = useDispatch();

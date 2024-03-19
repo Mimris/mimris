@@ -517,11 +517,12 @@ function addNodeText(contextMenu: any) {
                 minSize: new go.Size(120, 36), 
                 textAlign: "center",
                 height: 46,
+                width : 120,
                 // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
                 verticalAlignment: go.Spot.Center,
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                margin: new go.Margin(0,2,0,0),
+                margin: new go.Margin(0,3,0,0),
                 name: "name"
             },        
             new go.Binding("text", "name").makeTwoWay(),

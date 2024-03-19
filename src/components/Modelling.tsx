@@ -168,7 +168,7 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
     GenGojsModel(props, dispatch);
-  }, [curmodview?.objectviews.length])
+  }, [curmodview?.objectviews.length === 0])
 
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
@@ -184,7 +184,7 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('183');
     doRefresh()
-  }, [curmod.objects.length])
+  }, [curmod.objects.length === 0])
 
   // useEffect(() => {
   //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);

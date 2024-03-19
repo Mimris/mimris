@@ -86,7 +86,7 @@ const ExportObjects = (props) => {
     const fromRefersToObectRels = refersTorelships.filter(r => r.fromobjectRef === curobject.id)
     const refersToObjects = fromRefersToObectRels.map(r => objects.find(o => o.id === r.toobjectRef)) // find objects in the other end of the relationship
     const propLinkTemp = refersToObjects.map(o => ({...o, refGroupType: o.name, type: 'PropLink'}))
-    if (!debug) console.log('73 Context:', currelationships ,refersTo ,refersTorelships, fromRefersToObectRels, refersToObjects, propLinkTemp);
+    if (debug) console.log('73 Context:', currelationships ,refersTo ,refersTorelships, fromRefersToObectRels, refersToObjects, propLinkTemp);
 
   
     // useEffect(() => {
@@ -197,7 +197,7 @@ const ExportObjects = (props) => {
       '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType', 'typeName', 'typeDescription',
       'fillcolor', 'fillcolor2', 'strokecolor','icon', 'image'
     ];
-    const includedKeyskOSDU = [ 'typeName', 'name', 'title', 'description', 'groupType','governanceModel', 'governaceAuthorities', 'fileFormats'];
+    const includedKeyskOSDU = [ 'version', 'name', 'title', 'description', 'groupType','governanceModel', 'governaceAuthorities', 'fileFormats'];
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
         'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
     // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
@@ -226,10 +226,10 @@ const ExportObjects = (props) => {
     // escape semicolon in values of relatedToObjects
 
   
-    if (debug) console.log('209 relatedToObjects', curRelatedFromObectRels,  curRelatedToObectRels, relatedToObjects, currelationships);
+    if (!debug) console.log('229 relatedToObjects', curRelatedFromObectRels,  curRelatedToObectRels, relatedToObjects, currelationships);
 
     const relatedObjList = relatedToObjects.map((toObj: any, index) => (
-      `${String(index+1)
+      `\n ${index+1
       };${toObj.name
       };${(toObj.title) ? toObj.title : ""
       };${(toObj.description) ? `"${toObj.description}"` : ""
@@ -242,9 +242,9 @@ const ExportObjects = (props) => {
       };${(toObj.Authority) ? toObj.Authority : ""
       };${(toObj.Publication) ? toObj.Publication : ""
       };${(toObj.Revision) ? toObj.Revision : ""
-      };${(toObj.referenceObject) ? toObj.referenceObject : toObj.name.split('.')[0]
+      };${(toObj.referenceObject) ? toObj.referenceObject : (toObj.typeName === 'OSDUType') ? toObj.name.split('.')[0] : ""
       };${(toObj.ROVersion) ? toObj.ROVersion : toObj.name.split('.').slice(1).join('.')
-      };${(toObj.refGroupType) ? toObj.refGroupType : toObj.groupType || ""
+      };${(toObj.referenceObject && toObj.refGroupType) ? toObj.refGroupType : (toObj.typeName === 'OSDUType') ? toObj.groupType : ""
       };${(toObj.ExistingStandard) ? toObj.ExistingStandard : ""
       };${(toObj.IsRequired) ? toObj.IsRequired : ""
       };${(toObj.IsDerived) ? toObj.IsDerived : ""
@@ -269,7 +269,7 @@ const ExportObjects = (props) => {
       })";"=IF(ISBLANK(N${lineNo + index});"""";N${lineNo + index
       })";"=IF(ISBLANK(O${lineNo + index});"""";O${lineNo + index
       })";"=IF(ISBLANK(P${lineNo + index});"""";P${lineNo + index
-      })"\n`
+      })"`
       )
     );
     // const relatedObjList = relatedObjListtmp.map(l => l.replace(/semicolon/g, ';'));
@@ -282,7 +282,7 @@ const ExportObjects = (props) => {
     let csvString = `${ObjectToCsv({obj: csvheader1}).valueList}\n`;
     csvString += `${ObjectToCsv({obj: values}).valueList}\n`;
     csvString += `${ObjectToCsv({obj: csvheader3}).valueList}\n`;
-    csvString += `${ObjectToCsv({obj: csvheader4}).valueList}\n`;
+    csvString += `${ObjectToCsv({obj: csvheader4}).valueList}`;
     csvString += relatedObjList;
     csvString += "\n";
 

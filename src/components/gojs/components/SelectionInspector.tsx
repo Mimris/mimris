@@ -63,9 +63,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     myMetis.submodels = [];
     myMetis.submetamodels = [];
 
-    if (!debug) console.log('64 SelectionInspector: myMetis', myMetis);
+    if (debug) console.log('64 SelectionInspector: myMetis', myMetis);
     const activeTab = this.props.activeTab;
-    if (!debug) console.log('66 activeTab', activeTab);
+    if (debug) console.log('66 activeTab', activeTab);
     const myMetamodel = myMetis?.currentMetamodel as akm.cxMetamodel;
     const myModel = myMetis?.currentModel as akm.cxModel;
     const allowsMetamodeling = myModel?.includeSystemtypes;
@@ -231,7 +231,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           } catch {
             // Do nothing
           }
-          if (!debug) console.log('237 chosenType, properties: ', chosenType, properties);
+          if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
         } 
         else if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
@@ -253,7 +253,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           } catch {
             // Do nothing
           }
-          if (!debug) console.log('259 chosenType, properties: ', chosenType, properties);
+          if (debug) console.log('259 chosenType, properties: ', chosenType, properties);
         }
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {

@@ -132,7 +132,7 @@ const page = (props: any) => {
 
   function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
     const locProps = { ...props, phMymetis: null } // remove the myMetis and circular structure object from the props 
-    if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props , locProps);
+    if (debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props , locProps);
 
     setMemorySessionState(locProps)
     setMemoryLocState(locProps)

@@ -318,8 +318,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "scrollMode": go.Diagram.InfiniteScroll,
             // "initialAutoScale": go.Diagram.UniformToFill,
 
-            // "undoManager.isEnabled": true,  // must be set to allow for model change listening
-            // "undoManager.maxHistoryLength": 100,  // uncomment disable undo/redo functionality
+            "undoManager.isEnabled": true,  // must be set to allow for model change listening
+            "undoManager.maxHistoryLength": 0,  // uncomment disable undo/redo functionality
 
             // "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
             // "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below

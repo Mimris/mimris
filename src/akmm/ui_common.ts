@@ -1504,8 +1504,20 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
               if (mrv.id === rv.id) {
                   if (rv.markedAsDeleted)
                     rv.markedAsDeleted = false;
-                else
-                    found = true;
+                else {
+                    const fromObjview = rv.fromObjview;
+                    const toObjview = rv.toObjview;
+                    // Add link
+                    let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, rv);
+                    link.loadLinkContent(myGoModel);
+                    link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                    link.from = link.fromNode?.key;
+                    link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                    link.to = link.toNode?.key;
+                    myGoModel.addLink(link);
+                    links.push(link);
+                    myDiagram.model.addLinkData(link);
+                }
                 break;
               }
             }                      
@@ -4048,6 +4060,18 @@ export function isGenericMetamodel(myMetis: akm.cxMetis) {
     return false;
 }
 
+export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectView {
+    const object = data.object;
+    const objview = data.objectview;
+    const typeview = data.typeview;
+    for (let prop in typeview?.data) {
+        if (objview[prop] && objview[prop] !== "") {
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+        } else if (typeview?.data[prop] && typeview?.data[prop] !== "") {
+            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        }
+    }
+}
 export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
     const object = data.object;
     const objview = data.objectview;

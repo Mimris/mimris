@@ -1301,7 +1301,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         relview.fromObjview = fromObjview;
                         relview.toObjview = toObjview;
                         const jsnRelView = new jsn.jsnRelshipView(relview);
-                        // modifiedRelshipViews.push(jsnRelView);
+                        modifiedRelshipViews.push(jsnRelView);
                       }
                     }
                   })                     

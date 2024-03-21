@@ -77,7 +77,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       diagramStyle: this.props.diagramStyle,
       onExportSvgReady: this.props.onExportSvgReady
     };
-    if (debug) console.log('76 this.state.linkDataArray: ', this.state.linkDataArray);
+    if (!debug) console.log('80 this.state: ', this.state);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -1834,7 +1834,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     if (debug) console.log('1542 dispatch', this.state.myMetis.dispatch);
-    if (debug) console.log('1543 linkdataarray:', this.state.linkDataArray);
+    if (!debug) console.log('1837 dataarray:', this.state);
+    if (!debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
     return ((this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

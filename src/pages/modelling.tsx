@@ -104,7 +104,7 @@ const page = (props: any) => {
     } else {
       if (debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
     }
-  }, [!query && memorySessionState[0] && mount])
+  }, [Object.keys(query).length !== 0 && memorySessionState[0] && mount])
 
   let org = query.org;
   let repo = query.repo;
@@ -115,39 +115,35 @@ const page = (props: any) => {
   let modelview = query.modelview;
     
   useEffect(() => {
-    if (debug) console.log('89 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
+    if (!debug) console.log('118 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
       try {
-        if (query) {
+        if (Object.keys(query).length !== 0) {
           if (debug) console.log('120 modelling query', query, query)
-            org = props.phFocus.focusProj.org;
-            repo = props.phFocus.focusProj.repo;
-            path = props.phFocus.focusProj.path;
-            branch = props.phFocus.focusProj.branch;
-            file = props.phFocus.focusProj.file;
-            model = props.phFocus.focusProj.model;
-            modelview = props.phFocus.focusProj.modelview;
+          org = props.phFocus.focusProj.org;
+          repo = props.phFocus.focusProj.repo;
+          path = props.phFocus.focusProj.path;
+          branch = props.phFocus.focusProj.branch;
+          file = props.phFocus.focusProj.file;
+          model = props.phFocus.focusProj.model;
+          modelview = props.phFocus.focusProj.modelview;
         
           if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
           const res = await searchGithub(org+'/'+repo, path, file, branch, 'file')
           const githubData = await res.data
           const sha = await res.data.sha
-
           console.log('138 modelling githubData:', githubData, sha)
           dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
           const timer = setTimeout(() => {
             setRefresh(!refresh);
           } , 200);
-
-
           let curmodel = githubData.phData.metis.models.find(m => m.id === model)
           if (!curmodel) curmodel = githubData.phData.metis.models.find(m => m.name === model)
           console.log('83 model curmodel', curmodel.modelviews, modelview)
           let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
           if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
-
           const data = {
             phFocus: {
               ...props.phFocus,
@@ -159,7 +155,7 @@ const page = (props: any) => {
               focusRole: params.focusRole,
               focusTask: params.focusTask,
             },
-          };
+          };        
           dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
         } else {
             org = props.phFocus.focusProj.org;
@@ -171,15 +167,13 @@ const page = (props: any) => {
             modelview = props.phFocus.focusProj.modelview;
         }
       } catch (error) {
-        console.log('117 modelling query error ', error);
+        console.log('174 modelling query error ', error);
       }
-
     }
-    if (debug) console.log('168 modelling useEffect 1', query, org)
-    const timer = setTimeout(() => {
-      getQuery()
-    }
-      , 1000);
+    if (!debug) console.log('178 modelling useEffect 1', query, org, props)
+    const timer = setTimeout(() => { 
+      getQuery() 
+    }, 1000);
     setMount(true)
   }, []);
 
@@ -187,6 +181,7 @@ const page = (props: any) => {
     const locProps = { ...props, phMymetis: null } 
     setMemorySessionState(locProps)
   }, [props])
+
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
@@ -245,7 +240,8 @@ const page = (props: any) => {
                 </Link>
               
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling toggleRefresh={toggleRefresh} />
+                <Modelling  />
+                {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>
             </div>
             <div className="footer">

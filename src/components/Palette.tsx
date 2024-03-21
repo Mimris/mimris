@@ -20,7 +20,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Palette = (props: any) => {
 
-  if (debug) clog('22 Palette', props);
+  if (!debug) clog('22 Palette', props);
 
   const dispatch = useDispatch();
 
@@ -47,11 +47,11 @@ const Palette = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;
-  
+
   const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined)?.map((m: any) => ({ id: m?.id, name: m?.name }));
 
   // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
-  if (debug) console.log('47', model, mmodel, metamodels,  metamodelList);
+  if (debug) console.log('47', model, mmodel, metamodels, metamodelList);
 
   // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
   const gojsmetamodel = props.gojsMetaModel //(props.myGoMetamodel?.nodes) ? {nodeDataArray: props.myGoMetamodel?.nodes, linkDataArray: props.myGoMetamodel?.links} : [];
@@ -78,22 +78,22 @@ const Palette = (props: any) => {
 
     if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false);
     const { focusRole, focusTask } = props.phFocus;
-    const objecttypes  = mmodel?.objecttypes;
+    const objecttypes = mmodel?.objecttypes;
     if (!metamodels) return null;
-  
+
     setRole(focusRole);
     setTask(focusTask);
     setTypes(objecttypes?.map((t: any) => t?.name));
-  
+
     setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
     // setFilteredNewtypesNodeDataArray(buildFilter(focusRole, focusTask, metamodelList, types, mmodel));  // build the palette for current metamodel
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
-    if (!debug) console.log('89 Palette useEffect 1',  mmodel, props);
+    if (debug) console.log('89 Palette useEffect 1', mmodel, props);
     const coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
-    const seltypes =  additionalmetamodel?.objecttypes.map((t: any) => t?.name);
+    const seltypes = additionalmetamodel?.objecttypes.map((t: any) => t?.name);
     setSelMetamodelName(additionalmetamodel?.name)
     if (debug) console.log('115 Palette', additionalmetamodel);
     setAddMetamodelName(additionalmetamodel?.name)
@@ -177,69 +177,69 @@ const Palette = (props: any) => {
   );
 
   const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
-      <div className="metamodel-pad mt-0 p-1  bg-white" style={{ height: "44vh" }}>
-        <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</div>
-        <div className="modellingtask bg-light w-100" >
-        </div>
-        {/* Top palette with current metamodelpalette */}
-        <GoJSPaletteApp
-          nodeDataArray={filteredNewtypesNodeDataArray}
-          linkDataArray={[]}
-          metis={props.metis}
-          myMetis={props.myMetis}
-          myGoModel={props.myGoModel}
-          phFocus={props.phFocus}
-          dispatch={props.dispatch}
-          diagramStyle={{ height: "42vh" }}
-        />
+    <div className="metamodel-pad mt-0 p-1  bg-white" style={{ height: "44vh" }}>
+      <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</div>
+      <div className="modellingtask bg-light w-100" >
       </div>
+      {/* Top palette with current metamodelpalette */}
+      <GoJSPaletteApp
+        nodeDataArray={filteredNewtypesNodeDataArray}
+        linkDataArray={[]}
+        metis={props.metis}
+        myMetis={props.myMetis}
+        myGoModel={props.myGoModel}
+        phFocus={props.phFocus}
+        dispatch={props.dispatch}
+        diagramStyle={{ height: "42vh" }}
+      />
+    </div>
 
-    const gojsappPaletteBottomDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
-      <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" 
-        style={(filteredOtNodeDataArray?.length === 0) ? { height: "78vh" } : { height: "37vh" }} >
-        <div className="modellingtask bg-light w-100" >
-          {otDiv}
-          <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
-        </div>
-        {/* Lower palette with selected metamodel or first metamodel */}
-        <GoJSPaletteApp
-          nodeDataArray={filteredOtNodeDataArray}
-          linkDataArray={[]}
-          myMetis={props.myMetis}
-          metis={props.metis}
-          myGoModel={props.myGoModel}
-          phFocus={props.phFocus}
-          dispatch={props.dispatch}
-          diagramStyle={{ height: "32vh" }}
-        />
+  const gojsappPaletteBottomDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
+    <div className="metamodel-pad mt-1 p-1 pt-1 bg-white"
+      style={(filteredOtNodeDataArray?.length === 0) ? { height: "78vh" } : { height: "37vh" }} >
+      <div className="modellingtask bg-light w-100" >
+        {otDiv}
+        <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
       </div>
-    
-    const gojsappPaletteDiv = 
-          <>
-            {gojsappPaletteTopDiv}
-            {gojsappPaletteBottomDiv}
-          </>
+      {/* Lower palette with selected metamodel or first metamodel */}
+      <GoJSPaletteApp
+        nodeDataArray={filteredOtNodeDataArray}
+        linkDataArray={[]}
+        myMetis={props.myMetis}
+        metis={props.metis}
+        myGoModel={props.myGoModel}
+        phFocus={props.phFocus}
+        dispatch={props.dispatch}
+        diagramStyle={{ height: "32vh" }}
+      />
+    </div>
+
+  const gojsappPaletteDiv =
+    <>
+      {gojsappPaletteTopDiv}
+      {gojsappPaletteBottomDiv}
+    </>
 
   const palette = // this is the left pane with the palette and toggle for refreshing
     <>
-      <button className="btn-sm text-light bg-transparent border border-0 border-transparent" 
-        onClick={togglePalette}> {visiblePalette 
+      <button className="btn-sm text-light bg-transparent border border-0 border-transparent"
+        onClick={togglePalette}> {visiblePalette
           ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i>  Palette: Obj. Types </span>
           // ? <span> &lt;- Palette: Src Metamodel</span> 
-          : <i className="fa fa-lg fa-angle-right pull-right-container"></i> 
+          : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
         }
       </button>
       <div>
         {visiblePalette
           ? (refreshPalette)
             ? <>
-                {gojsappPaletteDiv}  
-              </> // these two lines needs to be different to refresh the palette
+              {gojsappPaletteDiv}
+            </> // these two lines needs to be different to refresh the palette
             : <div>
-                {/* <div className="btn-horizontal bg-light mx-0 px-0 mb-0" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "160px" }}> */}
-                  {gojsappPaletteDiv} 
-                {/* </div> */}
-              </div>
+              {/* <div className="btn-horizontal bg-light mx-0 px-0 mb-0" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "160px" }}> */}
+              {gojsappPaletteDiv}
+              {/* </div> */}
+            </div>
           : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
         }
       </div>

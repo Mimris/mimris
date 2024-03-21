@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // modelling
 
 const debug = false;
@@ -65,7 +65,7 @@ const page = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   // const [visibleContext, setVisibleContext] = useState(true)
-  
+
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
@@ -80,7 +80,8 @@ const page = (props: any) => {
   const ph = props
   const metis = ph.phData?.metis
   const models = metis?.models || []
-  let myMetis = new akm.cxMetis();
+
+  // let goParams = {}
 
   const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
   const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
@@ -94,11 +95,13 @@ const page = (props: any) => {
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
 
+  let myModel, myModelview, myMetamodel
+  let myGoModel, myGoMetamodel
+  let myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel, myGoMetamodelPalette, myGoTargetMetamodel
+  let myGoTargetModel, myTargetModelview, myTargetMetamodel, myTargetModel, myTargetMetamodelPalette
+  
+  
   // let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
-  let myModel, myGoModel, myGoObjectPalette, myGoRelshipPalette, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette
-  let myMetamodel, myTargetModel, myTargetModelview, myTargetMetamodel, myTargetMetamodelPalette
-  let myModelview, myGoModelview, myGoMetamodelView, myGoMetamodelModelview, myGoMetamodelPaletteview
-
 
   const [gojsmodel, setGojsmodel] = useState(null)
   const [gojsmetamodel, setGojsmetamodel] = useState(null)
@@ -107,9 +110,6 @@ const page = (props: any) => {
   const [gojstargetmetamodel, setGojstargetmetamodel] = useState(null)
   const [gojsmetamodelpalette, setGojsmetamodelpalette] = useState(null)
   const [gojsmetamodelmodel, setGojsmetamodelmodel] = useState(null)
-
-
-  
 
   const sortedmodels = (models) && models.sort((a, b) => {
     if (a.name.startsWith('_') && !b.name.startsWith('_')) {
@@ -125,10 +125,9 @@ const page = (props: any) => {
     }
   })
 
-  let  activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
+  let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
 
-
-  const modelindex =  models.findIndex((m: any) => m?.id === focusModel?.id)
+  const modelindex = models.findIndex((m: any) => m?.id === focusModel?.id)
   // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -1
 
   const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
@@ -139,127 +138,113 @@ const page = (props: any) => {
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
-  function loadMyModeldata(myMetis) {
-    // let myMetis = props.myMetis // get the myMetis object from  the store
-    // myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
-    console.log('135 Modelling', myMetis);
-    if (!myMetis.gojsModel) return <>No myMetis</>
-    myModel = myMetis?.findModel(curmod?.id);
-    myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
-    myMetamodel = myModel?.metamodel;
-    // myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
-    console.log('141 Modelling', myModel, myModelview, myMetamodel);
-    myTargetModel = myMetis?.findModel(curtargetmodel?.id);
-    myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
-    myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
-    myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
+  let myMetis = new akm.cxMetis();
+  let goParams = {}
+  async function loadMyModeldata(myMetis: akm.cxMetis, goParams: any)   {
+    goParams = await GenGojsModel(props, myMetis, goParams);
+    if (!debug) console.log('145 Modelling', goParams);
+    myGoModel = goParams.myGoModel
+    myGoMetamodel = goParams.myGoMetamodel
+    myGoMetamodelModel = goParams.myGoMetamodelModel
+    myGoMetamodelPalette = goParams.myGoMetamodelPalette
+    myGoObjectPalette = goParams.myGoObjectPalette
+    myGoRelshipPalette = goParams.myGoRelshipPalette
+    myGoTargetModel = goParams.myGoTargetModel
+    myGoTargetMetamodel = goParams.myGoTargetMetamodel
+    
+    // if (!debug) console.log('165 Modelling', myGoMetamodel, myMetis);
+    if (debug) console.log('166 Modelling', myGoModel, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette, myGoObjectPalette, myGoRelshipPalette, myGoTargetModel, myGoTargetMetamodel);
 
-    const myGoModel = myMetis?.gojsModel
-    const myGoMetamodel = myMetis?.gojsMetamodel
-    console.log('150 Modelling', myGoModel.nodes[0], myGoMetamodel);
-    
-    myGoMetamodelModel = myMetis?.myGoMetamodelModel
-    myGoMetamodelPalette = myMetis?.myGoMetamodelPalette
-    myGoObjectPalette = myMetis?.myGoObjectPalette
-    myGoRelshipPalette = myMetis?.myGoRelshipPalette
-    
-    if (!debug) console.log('156 Modelling ', myGoModel, myGoMetamodel, myGoMetamodelModel, myMetis);
-    (myGoMetamodel) && setGojsmetamodelpalette({nodeDataArray: myGoMetamodel?.nodes,linkDataArray: myGoMetamodel?.links }) // props.phGojs?.gojsMetamodelPalette 
-    (myGoMetamodelModel) && setGojsmetamodelmodel({ nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links})
-    (myGoModel) && setGojsmodel({ nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links })
-    (myGoMetamodelPalette) && setGojsmetamodel({ nodeDataArray: myGoMetamodelPalette?.nodes, linkDataArray: myGoMetamodelPalette?.links})// props.phGojs?.gojsMetamodel 
-    (myGoModel) && setGojsmodelobjects({ nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] }) // props.phGojs?.gojsModelObjects // || []
-    (myTargetModel) && setGgojstargetmodel({ nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links })//props.phGojs?.gojsTargetModel 
-    (myTargetMetamodel) && setGojstargetmetamodel({ nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links}) // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
-    console.log('163 Modelling',  gojsmodel, gojsmetamodel, gojsmodelobjects, gojsmetamodelpalette, gojsmetamodelmodel, gojstargetmodel, gojstargetmetamodel);
+    setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+    setGojsmetamodelpalette({ nodeDataArray: myGoMetamodelPalette.nodes, linkDataArray: myGoMetamodelPalette.links });
+    setGojsmetamodelmodel({ nodeDataArray: myGoMetamodelModel.nodes, linkDataArray: myGoMetamodelModel.links });
+    setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
+    setGojsmodelobjects({ nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette });
+    setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+    setGojstargetmetamodel({ nodeDataArray: myGoTargetMetamodel.nodes, linkDataArray: myGoTargetMetamodel.links });
+
+    if (debug) console.log('174 Modelling', myMetis, myGoModel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojsmetamodelpalette, gojsmetamodelmodel, gojstargetmodel, gojstargetmetamodel);
+
   };
 
-  // loadMyModeldata(props.myMetis)
+   goParams = GenGojsModel(props, myMetis, goParams);
+  //  (mount) && loadMyModeldata(myMetis, goParams);
 
-  function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
-    // const locProps = { ...props, myMetis: null } // remove the myMetis and circular structure object from the props 
-    // if (!debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props , locProps);
-    setMemorySessionState(props)
-    setMemoryLocState(props)
-    GenGojsModel(props, myMetis)
-    const timer = setTimeout(() => {
-      if (!debug) console.log('191 Modelling doRefresh memoryLocState:', memorySessionState, props, myMetis) 
-      loadMyModeldata(myMetis)
-      setRefresh(!refresh)
-    }, 1000);
-    return () => clearTimeout(timer);
-  }
+  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
+    if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
+    loadMyModeldata(myMetis, goParams)
+    if (!debug) console.log('226 ', myMetis, goParams, activeTab, activetabindex);
+    setActiveTab(activetabindex);
+    setMount(true);
+  }, [])
+  
+  // useEffect(() => {
+  //   loadMyModeldata(myMetis, goParams)
+  //   if (!debug) console.log('224 Modelling', myMetis, goParams);
+  // }, [props.phFocus?.focusModel?.id])
+  // useEffect(() => {
+  //   if (!debug) console.log('199 Modelling useEffect 1 [] : ', activeTab)//, props, myMetis, GenGojsModel(props, myMetis));
+  //   GenGojsModel(props, myMetis)
+  //     .then((data) => {
+  //       if (!debug) console.log('195 Modelling', data.myMetis);
+  //       loadMyModeldata(data.myMetis);
+  //       if (!debug) console.log('197 Modelling useEffect 1 [] : ', activeTab, myMetis);
+  //       setMount(true);
+  //       setActiveTab(activeTab);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error generating myGomodels:', error);
+  //     });
+  //     console.log('205 Modelling useEffect 1 [] : ', myMetis);
+  // }, []);
 
   useEffect(() => {
-    if (!debug) console.log('199 Modelling useEffect 1 [] : ',  activeTab, props, myMetis);
-    GenGojsModel(props, myMetis)
-      .then((updatedMyMetis) => {
-        console.log('202', updatedMyMetis);
-        loadMyModeldata(updatedMyMetis);
-        console.log('205 Modelling useEffect 1 [] : ',  activeTab, updatedMyMetis, myMetis);
-        
-        setMount(true);
-        setActiveTab(activeTab);
-      })
-      .catch((error) => {
-        console.error('Error generating GoJs model:', error);
-      });
-  }, []);
-    
-  useEffect(() => {
-    if (debug) console.log('155 Modeller useEffect 2 [props.phFocus.focusModelview?.id] : ', activeTab, props.phFocus.focusModel?.name);
-    setActiveTab(activeTab);
+    if (debug) console.log('207 Modeller useEffect 2 [props.phFocus.focusModelview?.id] : ', activeTab, props.phFocus.focusModel?.name);
+    setActiveTab(activetabindex);
   }, [props.phFocus?.focusModel?.id]);
 
   // useEffect(() => {
   //   if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
-  //   GenGojsModel(props, dispatch);
+  //   GenGojsModel(props, myMetis);
   // }, [activeTab])
 
-  useEffect(() => {
-    if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
-     GenGojsModel(props, myMetis)
-  }, [curmodview?.objectviews.length === 0])
+  // useEffect(() => {
+  //   if (!debug) useEfflog('217 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
+  //   GenGojsModel(props, myMetis)
+  // }, [curmodview?.objectviews.length === 0])
 
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('122 Modelling useEffect 4 [props.phFocus?.focusModelview.id]',props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name,props.phFocus?.focusRefresh?.name);
-     GenGojsModel(props, myMetis)
+    if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+    // GenGojsModel(props, myMetis)
+    loadMyModeldata(myMetis, goParams)
     const timer = setTimeout(() => {
-      if (debug) console.log('134 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
     }, 50);
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
 
-  useEffect(() => {
-    if (debug) useEfflog('183');
-    // doRefresh()
-  }, [curmod.objects.length === 0])
-
-  // useEffect(() => {
-  //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
-  //   setRefresh(!refresh)
-  // }, [memoryAkmmUser])
-
-  // useEffect(() => {
-  //   if (debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
-  //   GenGojsModel(props, dispatch);
-  //   const timer = setTimeout(() => {
-  //     setRefresh(!refresh)
-  //   }, 200);
-  //   return () => clearTimeout(timer);
-  // }, [props.phFocus?.focusRefresh?.id])
+  function doRefresh() { // 
+    setMemorySessionState(props)
+    setMemoryLocState(props)
+    // goParams = GenGojsModel(props, myMetis)
+    const timer = setTimeout(() => {
+      if (debug) console.log('184 Modelling doRefresh memoryLocState:', memorySessionState, props, myMetis)
+      loadMyModeldata(myMetis, goParams)
+      setRefresh(!refresh)
+    }, 1000);
+    return () => clearTimeout(timer);
+  }
 
 
+  if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
 
-  if (debug) console.log('242 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
+  if (mount && myMetis) {
+    // return <></>
+  // } else {
 
-  if (!mount) {
-    return <></>
-  } else {
-
-    if (debug) console.log('248 Modelling myModel', myMetis, myModel);
+    if (!debug) console.log('291 Modelling myModel', myMetis, myModel);
 
     //let myGoMetamodel = props.phGojs?.gojsMetamodel
     let phFocus = props.phFocus;
@@ -285,14 +270,14 @@ const page = (props: any) => {
         const data = `${projectname}_PR`
         if ((debug)) console.log('275 handleSaveAllToFile', data)
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-      } 
-      if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)  
+      }
+      if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
       SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 
 
 
-    const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
+    const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
 
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
@@ -327,7 +312,7 @@ const page = (props: any) => {
                 doRefresh();
               }}
             >
-            {(m.name.startsWith('_A'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
+              {(m.name.startsWith('_A')) ? <span className="text-secondary" style={{ scale: "0.8", whiteSpace: "nowrap" }} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
             </NavLink>
           </NavItem>
         );
@@ -338,19 +323,19 @@ const page = (props: any) => {
     // Divs
     if (debug) console.log('362 Modelling: ', gojsmetamodelpalette);
     if (debug) console.log('363 Modelling: ', gojsmetamodelmodel);
-    
+
     const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
       ? <Palette
-          gojsModel={gojsmetamodelmodel}
-          gojsMetamodel={gojsmetamodelpalette}
-          myMetis={myMetis}
-          myGoModel={myGoModel}
-          myGoMetamodel={myGoMetamodel}
-          metis={metis}
-          phFocus={phFocus}
-          dispatch={dispatch}
-          modelType='metamodel'
-        />
+        gojsModel={gojsmetamodelmodel}
+        gojsMetamodel={gojsmetamodelpalette}
+        myMetis={myMetis}
+        myGoModel={myGoModel}
+        myGoMetamodel={myGoMetamodel}
+        metis={metis}
+        phFocus={phFocus}
+        dispatch={dispatch}
+        modelType='metamodel'
+      />
       : <></>;
 
     const paletteMetamodelDiv = (gojsmetamodelmodel) // this is the metamodel modelling area
@@ -393,37 +378,37 @@ const page = (props: any) => {
         <Nav tabs style={{ minWidth: "350px" }} >
           <span className="ms-1 me-5">
             <button className="mb-1 pb-4 ms-0 me-5"
-              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
+              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model"
               onClick={() => setMmToggle(!mmToggle)}
-              style={{borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#77aacc" }}
+              style={{ borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#77aacc" }}
             >{(mmToggle) ? '< Metamodel >' : '< Metamodel >'}</button>
           </span>
         </Nav>
-          <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
-            <div className="workpad p-1 pt-2 bg-white" >
-              <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                <Col className="col1 m-0 p-0 pl-3" xs="auto">
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                    {paletteDiv}
-                  </div>
-                </Col>
-                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac",  width: "100%",  border: "solid 1px black" }}>
-                    {paletteMetamodelDiv}
-                  </div>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
+        <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
+          <div className="workpad p-1 pt-2 bg-white" >
+            <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+              <Col className="col1 m-0 p-0 pl-3" xs="auto">
+                <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                  {paletteDiv}
+                </div>
+              </Col>
+              <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
+                <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", width: "100%", border: "solid 1px black" }}>
+                  {paletteMetamodelDiv}
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </TabPane>
       </>
     )
 
     const templatemodellingDiv = (
       <>
-            {/* Template ------------------------------------------*/}
-            {/* <TabPane tabId="0">
+        {/* Template ------------------------------------------*/}
+        {/* <TabPane tabId="0">
               <Tab /> */}
-            {/* <div className="workpad p-1 pt-2 bg-white">
+        {/* <div className="workpad p-1 pt-2 bg-white">
                   <Row >
                   <Col xs="auto m-0 p-0 pl-3">
                     <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
@@ -459,16 +444,16 @@ const page = (props: any) => {
                     </Col>
                   </Row>
                 </div>          */}
-            {/* </TabPane>  */}
+        {/* </TabPane>  */}
       </>
     )
 
-    const modellingtabs = (myMetis) && (
+    const modellingtabs = (
       <>
-        <Nav tabs style={{ minWidth: "50px", borderBottom: "white"}} >
+        <Nav tabs style={{ minWidth: "50px", borderBottom: "white" }} >
           <span className="ms-1 me-5">
             <button className="p-0 ms-0 me-5"
-              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model" 
+              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model"
               onClick={() => setMmToggle(!mmToggle)}
               style={{ borderColor: "transparent", width: "116px", height: "24px", fontSize: "16px", backgroundColor: "#a0caca" }}
             >{(mmToggle) ? '< Model >' : '< Model >'}</button>
@@ -482,7 +467,7 @@ const page = (props: any) => {
                 {/* Objects Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                    {(gojsmodel) && <Palette // this is the Objects Palette area
+                    <Palette // this is the Objects Palette area
                       gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
@@ -494,7 +479,7 @@ const page = (props: any) => {
                       dispatch={dispatch}
                       modelType='model'
                       phUser={phUser}
-                    />}
+                    />
                   </div>
                 </Col>
                 {/* Modelling area */}
@@ -522,7 +507,7 @@ const page = (props: any) => {
                  {(visibleContext) ? <ReportModule  props={props}/> : <></>}
                 </Col> */}
                 <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
-                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" 
+                  <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right"
                     style={{ minHeight: "6h", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                     {targetmetamodelDiv}
                   </div>
@@ -537,8 +522,8 @@ const page = (props: any) => {
     const solutionModellingDiv = (
       <>
         {/* <TabContent> */}
-          {/* Solution Modelling ------------------------------------*/}
-          {/* <TabPane tabId="3">
+        {/* Solution Modelling ------------------------------------*/}
+        {/* <TabPane tabId="3">
               <div className="workpad p-1 pt-2 bg-white">
                 <Row >
                   <Col xs="auto m-0 p-0 pr-0">
@@ -582,10 +567,6 @@ const page = (props: any) => {
     )
 
     if (debug) console.log('583 Modelling', activeTab);
-    // const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-    // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
     const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -593,20 +574,13 @@ const page = (props: any) => {
     const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
-    // const modelType = (activeTab === '0') ? 'metamodel' : 'model'
-    // const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-    // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-
     if (debug) console.log('460 Modelling', gojsmodelobjects);
 
     const modellingDiv =
       <>
         <div className="buttonrow d-flex justify-content-between align-items-center" style={{ maxHeight: "22px", minHeight: "18px", whiteSpace: "nowrap" }}>
           <div className="me-2 my-0">
-             {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
+            {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
               ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
@@ -628,7 +602,7 @@ const page = (props: any) => {
         </div>
       </>
 
-    const metamodellingDiv =  (myMetis) && 
+    const metamodellingDiv = (myMetis) &&
       <>
         <div className="buttonrow d-flex justify-content-end align-items-center me-4" style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
           <div className="me-4">
@@ -637,7 +611,7 @@ const page = (props: any) => {
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
           </div>
-            {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
+          {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
               <div className=" d-flex align-items-center me-0 pe-0">
                 <i className="fa fa-folder text-secondary px-1"></i>
                 <div className=""  style={{ whiteSpace: "nowrap" }}></div>
@@ -653,31 +627,32 @@ const page = (props: any) => {
                 onClick={handleSaveAllToFile}>Save
               </button>
             </div> */}
-          <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary" 
+          <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary"
             onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
         </div>
       </>
 
-      // return (models.length > 0) && (
-      // return (mount && (gojsmodelobjects?.length > 0)) && (
-    return ( (mmToggle) 
-      ? <>
-          <div className="diagramtabs pb-0" >
-            <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px"}}>
-              {modellingDiv}
-            </div>
-            <div className="modellingContent mt-1 ">
-              {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
-            </div>
+    // return (models.length > 0) && (
+    // return (mount && (gojsmodelobjects?.length > 0)) && (
+    return ((mmToggle) 
+      ? (myMetis) &&
+      <>
+        <div className="diagramtabs pb-0" >
+          <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+            {modellingDiv}
           </div>
-        </>
-      : <>  
-          <div className="diagramtabs pb-0 " >
-            <div className="modellingContent mt-1">
-              {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
-            </div>
+          <div className="modellingContent mt-1 ">
+            {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
           </div>
-        </>
+        </div>
+      </>
+      : <>
+        <div className="diagramtabs pb-0 " >
+          <div className="modellingContent mt-1">
+            {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
+          </div>
+        </div>
+      </>
     )
   }
 }
@@ -726,3 +701,45 @@ export default Page(connect(state => state)(page));
     //   // setMemoryAkmmUser({...memoryAkmmUser, visibleContext: !visibleContext})
     //   console.log('182 toggleShowContext', memoryAkmmUser, visibleContext)
     // }
+
+    // const loginserver = (typeof window !== 'undefined') && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const loadserver = (typeof window !== 'undefined') && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const loadlocal =  (typeof window !== 'undefined') && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} />
+    // const loadgitlocal =  (typeof window !== 'undefined') && <LoadSaveGit  buttonLabel='GitLocal'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} />
+
+    // const modelType = (activeTab === '0') ? 'metamodel' : 'model'
+    // const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name) && <EditFocusModal buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal" buttonLabel='R' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+
+
+    // if (!debug) console.log('166 Modelling ', myGoModel, myGoMetamodel, myGoMetamodelModel, myMetis);
+    // gojsmodel = { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
+    // gojsmetamodel = { nodeDataArray: myGoMetamodel?.nodes, linkDataArray: myGoMetamodel?.links }
+    // gojsmodelobjects = { nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] }
+    // gojsmetamodelpalette = { nodeDataArray: myGoMetamodelPalette?.nodes, linkDataArray: myGoMetamodelPalette?.links }
+    // gojsmetamodelmodel = { nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links }
+    // gojstargetmodel = { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
+    // gojstargetmetamodel = { nodeDataArray: myGoTargetMetamodel?.nodes, linkDataArray: myGoTargetMetamodel?.links }
+
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('233');
+  //   // doRefresh()
+  // }, [curmod.objects.length === 0])
+  
+  // useEffect(() => {
+  //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
+  //   setRefresh(!refresh)
+  // }, [memoryAkmmUser])
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+  //   GenGojsModel(props, dispatch);
+  //   const timer = setTimeout(() => {
+  //     setRefresh(!refresh)
+  //   }, 200);
+  //   return () => clearTimeout(timer);
+  // }, [props.phFocus?.focusRefresh?.id])

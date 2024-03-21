@@ -78,7 +78,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             nameTo: toobjectName //(toobjectName.contains('.') ? toobjectName.split(".")[0] : toobjectName),
         }
 
-        if (!debug) console.log('81 CreatedRel', fromobjectId, rel.nameFrom, toobjectId, rel.nameTo, rel);
+        if (debug) console.log('81 CreatedRel', fromobjectId, rel.nameFrom, toobjectId, rel.nameTo, rel);
         if (!relship) {
             if (fromobjectId && toobjectId) {
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
@@ -110,7 +110,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
         if (debug) console.log('119 ', o.referenceObject, o.refVersion);
         const targetObjectVersion = (o.refVersion && o.refVersion !== '') && utils.findObjectByNameVersion(curModel.objects, {}, o.referenceObject + o.refVersion)
         const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
-        if (!debug) console.log('122 ', targetObject?.name, o.referenceObject, o.name, o.title, o.id, targetObjectVersion?.name, o.refVersion, targetObject);
+        if (debug) console.log('122 ', targetObject?.name, o.referenceObject, o.name, o.title, o.id, targetObjectVersion?.name, o.refVersion, targetObject);
         if (!targetObject) return; // if no targetObject, skip this relationship
 
         // find top level object
@@ -118,7 +118,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects, curRelships) : null; // top level object is the object that the propLink parent
             if (debug) console.log('136 ', o.name, targetObject) //, curObjects, curRelships);  
             if (debug) console.log('137 ', topLevelObject, curObjects, o) //, curObjects, curRelships);  
-            if (debug) console.log('139 ', targetObject, o.name, curObjects, topLevelObject);       
+            if (debug) console.log('139 ', targetObject, o.name, curObjects, topLevelObject);
             fromobjectId = topLevelObject?.id
             fromobjectName = topLevelObject?.name
             const fromtypeRef = curObjects.find((o: { id: any; }) => o.id === fromobjectId)?.typeRef
@@ -131,7 +131,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             const torelName = curObjTypes.find((ot: { id: any; }) => ot.id === totypeRef)?.name
 
             let existRelship = utils.findRelshipByFromIdToIdAndType(curRelships, fromobjectId, toobjectId, relshipType?.id) // check if the relationship with is type exists between the objects
-            if ((!debug)) console.log('139 ', fromobjectId, fromobjectName, toobjectId, toobjectName, existRelship);
+            if ((debug)) console.log('139 ', fromobjectId, fromobjectName, toobjectId, toobjectName, existRelship);
             relId = (existRelship) ? existRelship.id : utils.createGuid();
             // relId = (existRelship) ? existRelship.id : utils.createGuid();
             reltypeRef = relshipType?.id //refersTo?.id || hasType?.id

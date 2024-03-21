@@ -794,6 +794,10 @@ export function setTreeLayoutParameters(): go.TreeLayout {
         angle: 0,
         layerSpacing: 100,
         nodeSpacing: 50,
+        setsPortSpot: false,
+        setsChildPortSpot: false,
+        alternateSetsChildPortSpot: false,
+        alternateSetsPortSpot: false,
         sorting: go.TreeLayout.SortingAscending,
         arrangement: go.TreeLayout.ArrangementFixedRoots,        
         alignment: go.TreeLayout.AlignmentStart, // AlignmentStart, CenterChildren;
@@ -897,17 +901,21 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     myDiagram.startTransaction('selectNodesAndLinks');
 
     // Now generate the nodes and links, and select them
+    const myObjectViews = [];
+    const myRelshipViews = [];
     const myCollection = new go.Set<go.Part | go.Link>();
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
         const gjsNode = new gjs.goObjectNode(utils.createGuid(), objview);
         objview = uic.setObjviewAttributes(gjsNode, myDiagram);
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        myObjectViews.push(jsnObjview);
         myDiagram.model.addNodeData(gjsNode);
         const node = myDiagram.findNodeForData(gjsNode)
         myCollection.add(node);
     }
     for (let i=0; i<relshipviews.length; i++) {
-        const relview = relshipviews[i];
+        let relview = relshipviews[i];
         const fromObjview = relview.fromObjview;
         const toObjview = relview.toObjview;
         // Add link
@@ -918,11 +926,30 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         gjsLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
         gjsLink.to = gjsLink.toNode?.key;
         goModel.addLink(gjsLink);
+        relview = uic.setRelviewAttributes(gjsLink, myDiagram);
+        const jsnRelview = new jsn.jsnRelshipView(relview);
+        myRelshipViews.push(jsnRelview);
         myDiagram.model.addLinkData(gjsLink);
         const link = myDiagram.findLinkForData(gjsLink)
         myCollection.add(link);
     }
     myDiagram.commitTransaction('selectNodesAndLinks');
+
+    myObjectViews.map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        }
+    })   
+    myRelshipViews.map(mn => {
+    let data = (mn) && mn
+    if (mn.id) {
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    }
+    })                 
+    
 }
 
 export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {

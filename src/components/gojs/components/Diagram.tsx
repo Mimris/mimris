@@ -1283,8 +1283,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (!objview.isGroup) {
                   const mySelection = myDiagram.selection;
                   const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
-
-                  mySelection.each(function (sel) {
+                  myDiagram.selection.each(function (sel) {
                     const link = sel.data;
                     if (link.category === constants.gojs.C_RELATIONSHIP) {
                       const fromLink = link.from;
@@ -1297,7 +1296,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         link.points = [];
                         link.from = fromLink;
                         link.to = toLink;
-                        myDiagram.model.setDataProperty(link, "points", []);
+                        myDiagram.model.setDataProperty(link, "points", link.points);
                         relview.points = [];
                         relview.fromObjview = fromObjview;
                         relview.toObjview = toObjview;
@@ -1311,6 +1310,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       uid.doGroupLayout(objview, myDiagram);
                 }
               }
+              myDiagram.requestUpdate();
             },
             function (obj: any) {
               let node = obj.part.data;

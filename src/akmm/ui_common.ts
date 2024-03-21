@@ -4072,6 +4072,19 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
         }
     }
 }
+export function setRelviewAttributes(data: any, myDiagram: any): akm.cxObjectView {
+    const relship = data.relship;
+    const relview = data.relshipview;
+    const typeview = data.typeview;
+    for (let prop in typeview?.data) {
+        if (relview[prop] && relview[prop] !== "") {
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        } else if (typeview?.data[prop] && typeview?.data[prop] !== "") {
+            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        }
+    }
+}
+
 export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
     const object = data.object;
     const objview = data.objectview;

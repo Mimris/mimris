@@ -1235,24 +1235,21 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     let linktypeNames = [];
     let n = myDiagram.findNodeForKey(node.key);
     let links = n.findLinksOutOf();
-    if (debug) console.log('596 links', links);
     if (links.count > 0) {
         for (let it = links?.iterator; it?.next();) {
             let lv = it.value;
             const ltypename = lv.data.name;
             linktypeNames.push(ltypename);
         }
-        if (debug) console.log('603 linktypeNames', linktypeNames);
         let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
         linktypeNames = uniqueSet;
     }
     let reltypeNames = [constants.types.AKM_REFERS_TO];
     const myMetamodel = myMetis.currentMetamodel;
-    if (debug) console.log('608 myMetamodel', myMetamodel);
     let objtypenames = [];
     let objtypes = [];
     let fromType = node.objecttype;
-    fromType = myMetis.findObjectType(fromType.id);
+    fromType = myMetamodel.findObjectType(fromType.id);
     for (let it = selection.iterator; it?.next();) {
         let n = it.value;
         if (n.data.key === node.key) 
@@ -1268,41 +1265,34 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     objtypenames = uniqueSet;
     uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
-    if (debug) console.log('626 objtypenames, objtypes', objtypenames, objtypes);
-    if (debug) console.log('627 myMetis', myMetis);
     const myModelview = myMetis.currentModelview;
     const includeInheritedReltypes = myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
     for (let i=0; i<objtypes.length; i++) {
         let toType = objtypes[i];
-        toType = myMetis.findObjectType(toType.id);
-        if (debug) console.log('632 fromType, toType', fromType, toType);
-        const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+        toType = myMetamodel.findObjectType(toType.id);
+        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
         if (i == 0) {
             // First time
             reltypes = rtypes;
-            if (debug) console.log('637 reltypes', reltypes);
         } else {
             // The other times
             const types = utils.getIntersection(reltypes, rtypes);
-            if (debug) console.log('641 reltypes, rtypes, types', reltypes, rtypes, types);
             reltypes = types;
         }
-        for (let i=0; i<reltypes.length; i++) {
+        for (let i=0; i<reltypes?.length; i++) {
             const rtname = reltypes[i].name;
+            if (rtname === constants.types.AKM_GENERIC_REL)
+                continue;
             reltypeNames.push(rtname);
         }
     }
-    if (debug) console.log('648 reltypeNames', reltypeNames);
     if (reltypeNames.length > 0) {
         uniqueSet = utils.removeArrayDuplicates(reltypeNames);
         reltypeNames = uniqueSet;
-        // let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
-        // reltypeNames = difference;
         reltypeNames.sort();
     }
-    if (debug) console.log('655 reltypeNames', reltypeNames);
     return reltypeNames;
 }
 

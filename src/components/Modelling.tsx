@@ -184,7 +184,7 @@ const page = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('183');
     doRefresh()
-  }, [curmod.objects.length])
+  }, [curmod.objects.length === 0])
 
   // useEffect(() => {
   //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);

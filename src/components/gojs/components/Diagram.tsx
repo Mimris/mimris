@@ -310,7 +310,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             initialContentAlignment: go.Spot.Center,       // center the content
             initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": function () {
-              // this.diagram.lastInput.shift = true;
+              this.diagram.lastInput.shift = true;
               go.ContextMenuTool.prototype.standardMouseSelect.call(this);
             },
             // layout: new go.TreeLayout({ isOngoing: false }),
@@ -319,7 +319,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // "initialAutoScale": go.Diagram.UniformToFill,
 
             // "undoManager.isEnabled": true,  // must be set to allow for model change listening
-            // "undoManager.maxHistoryLength": 100,  // uncomment disable undo/redo functionality
+            // "undoManager.maxHistoryLength": 1,  // uncomment disable undo/redo functionality
 
             // "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
             // "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
@@ -1281,19 +1281,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const objview = node?.objectview;
               if (objview) {
                 if (!objview.isGroup) {
-                  // const noLevels = 9;
-                  // let reltypes = 'has';
-                  // reltypes = prompt('Enter relationship type to follow', reltypes);
-                  // const objectviews = [];
-                  // uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
-                  // uid.addToSelection(obj, myDiagram);
                   const mySelection = myDiagram.selection;
                   const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
+                  myDiagram.selection.each(function (sel) {
+                    const link = sel.data;
+                    if (link.category === constants.gojs.C_RELATIONSHIP) {
+                      const fromLink = link.from;
+                      const toLink = link.to;
+                      let relview: akm.cxRelationshipView = link.relshipview;
+                      relview = myModelview.findRelationshipView(relview?.id);
+                      if (relview) {
+                        const fromObjview = relview.fromObjview;
+                        const toObjview = relview.toObjview;
+                        link.points = [];
+                        link.from = fromLink;
+                        link.to = toLink;
+                        myDiagram.model.setDataProperty(link, "points", link.points);
+                        relview.points = [];
+                        relview.fromObjview = fromObjview;
+                        relview.toObjview = toObjview;
+                        const jsnRelView = new jsn.jsnRelshipView(relview);
+                        // modifiedRelshipViews.push(jsnRelView);
+                      }
+                    }
+                  })                     
                 } else {
                     if (objview.groupLayout)
                       uid.doGroupLayout(objview, myDiagram);
                 }
               }
+              myDiagram.requestUpdate();
             },
             function (obj: any) {
               let node = obj.part.data;
@@ -2840,7 +2857,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uic.clearRelationshipPoints(modelview, myMetis);
             },
             function (o: any) {
-              // return false; 
+              return false; 
               if (myMetis.modelType === 'Modelling')
                 return true;
               return false;

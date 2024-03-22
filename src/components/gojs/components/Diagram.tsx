@@ -1300,8 +1300,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         relview.points = [];
                         relview.fromObjview = fromObjview;
                         relview.toObjview = toObjview;
-                        const jsnRelView = new jsn.jsnRelshipView(relview);
-                        modifiedRelshipViews.push(jsnRelView);
+                        // const jsnRelView = new jsn.jsnRelshipView(relview);
+                        // modifiedRelshipViews.push(jsnRelView);
                       }
                     }
                   })                     

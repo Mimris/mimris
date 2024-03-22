@@ -1464,125 +1464,116 @@ export function unhideHiddenRelationshipViews(modelview: akm.cxModelView, myMeti
 export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
     const myGoModel = myMetis.gojsModel;
+    const myModel   = myMetis.currentModel;
     const objviews = modelview.objectviews;
     const links = new Array();
     const modifiedRelshipViews = new Array();
-    for (let i=0; i<objviews?.length; i++) {
-      const objview = objviews[i];
-      if (objview.markedAsDeleted) continue;
-      const obj = objview?.object;
-      const outrels = obj?.outputrels;
-      for (let j=0; j<outrels?.length; j++) {
-        let rel = outrels[j];
-        if (rel.markedAsDeleted) continue;
-        rel = myMetis.findRelationship(rel.id);
-        if (!rel) 
+    for (let i=0; i<objviews?.length; i++) {    // All objectviews in modelview
+        const objview = objviews[i];
+        if (objview.markedAsDeleted) 
             continue;
-        const reltype = rel?.type;
-        // Check if from- and to-objects have views in this modelview
-        const fromObj = rel?.fromObject as akm.cxObject;
-        const fromObjviews = fromObj?.objectviews;
-        if (fromObjviews?.length == 0) {
-          // From objview is NOT in modelview - do nothing
-          continue;
-        }
-        if (debug) console.log('1784 fromObjviews', fromObjviews);
-        const toObj = rel?.toObject as akm.cxObject;
-        const toObjviews = toObj?.objectviews;
-        if (toObjviews?.length == 0) {
-          // To objview is NOT in modelview - do nothing
-          continue;
-        }
-        const rviews = rel?.relshipviews;
-        const mrelviews = modelview.relshipviews;    
         let found = false;
-        if (rviews?.length > 0) {
-          for (let i=0; i<rviews?.length; i++) {
-            const rv = rviews[i];
-            for (let j=0; j<mrelviews?.length; j++) {
-              const mrv = mrelviews[j];
-              if (mrv.id === rv.id) {
-                  if (rv.markedAsDeleted)
-                    rv.markedAsDeleted = false;
-                else {
-                    const fromObjview = rv.fromObjview;
-                    const toObjview = rv.toObjview;
-                    // Add link
-                    let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, rv);
-                    link.loadLinkContent(myGoModel);
-                    link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-                    link.from = link.fromNode?.key;
-                    link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-                    link.to = link.toNode?.key;
-                    myGoModel.addLink(link);
-                    links.push(link);
-                    myDiagram.model.addLinkData(link);
+        let rel;
+        const obj = objview?.object;              // One object in modelview
+        const outrels = obj?.outputrels;          // All outputrels from object
+        for (let j=0; j<outrels?.length; j++) {
+            rel = outrels[j];                   // One outputrel from object
+            if (rel.markedAsDeleted) 
+                continue;
+            rel = myModel.findRelationship(rel.id); // Find relationship in model
+            if (!rel) 
+                continue;                   // Relationship does not exist in model
+            const reltype = rel?.type;              // Relationship exists - get type
+            // Check if from- and to-objects have views in this modelview
+            const fromObj = rel?.fromObject as akm.cxObject;
+            const fromObjviews = modelview.findObjectViewsByObject(fromObj);
+            const toObj = rel?.toObject as akm.cxObject;
+            const toObjviews = modelview.findObjectViewsByObject(toObj);
+            if (fromObjviews.length == 0 || toObjviews.length == 0)
+                continue; // One or both objects are not in the modelview
+            // Check if relview exists in modelview
+            const rviews = modelview.findRelationshipViewsByRel(rel);
+            if (rviews?.length > 0) {
+                // Relview(s) exist 
+                const rv = rviews[0];                    
+                const fromObjview = rv.fromObjview;
+                const toObjview = rv.toObjview;
+                // Check if link exists
+                let link;
+                const myLink = uid.getLinkByViewId(rv.id, myDiagram);
+                if (myLink) {
+                    link = myDiagram.findLinkForKey(myLink?.key);
+                    if (link)
+                        continue;  // Link exists - do nothing
                 }
-                break;
-              }
-            }                      
-          }
-          // Relview is NOT missing - do nothing
-          if (found)
-            continue;        
-        }
-        if (debug) console.log('1776 rviews', rel, rviews);
-        // Relview(s) does not exist, but from and to objviews exist, create relview(s)
-        const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
-        if (relview?.markedAsDeleted) continue;
-        let fromObjview = null;
-        for (let i=0; i<fromObjviews?.length; i++) {
-          const oview = fromObjviews[i];
-          const moviews = modelview.objectviews;
-          for (let j=0; j<moviews?.length; j++) {
-            if (moviews[j].id === oview.id) {
-              fromObjview = oview;;
-              break;
+                // Link does not exist - create it
+                link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, rv);
+                link.loadLinkContent(myGoModel);
+                link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                link.from = link.fromNode?.key;
+                link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                link.to = link.toNode?.key;
+                myGoModel.addLink(link);
+                links.push(link);
+                myDiagram.model.addLinkData(link);
+                continue;
+            } else {
+                // Relview is missing - create it
+                // Relview(s) does not exist, but from and to objviews exist, create relview(s)
+                const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                let fromObjview = null;
+                for (let i=0; i<fromObjviews?.length; i++) {
+                    const oview = fromObjviews[i];
+                    const moviews = modelview.objectviews;
+                    for (let j=0; j<moviews?.length; j++) {
+                        if (moviews[j].id === oview.id) {
+                        fromObjview = oview;;
+                        break;
+                        }
+                    }
+                }
+                let toObjview = null;
+                for (let i=0; i<toObjviews?.length; i++) {
+                const oview = toObjviews[i];
+                const moviews = modelview.objectviews;
+                for (let j=0; j<moviews.length; j++) {
+                    if (moviews[j].id === oview.id) {
+                    toObjview = oview;;
+                    break;
+                    }
+                }
             }
-          }
-        }
-        let toObjview = null;
-        for (let i=0; i<toObjviews?.length; i++) {
-          const oview = toObjviews[i];
-          const moviews = modelview.objectviews;
-          for (let j=0; j<moviews.length; j++) {
-            if (moviews[j].id === oview.id) {
-              toObjview = oview;;
-              break;
+            if (fromObjview && toObjview) {
+                relview.setFromObjectView(fromObjview);
+                relview.setToObjectView(toObjview);
+                rel.addRelationshipView(relview);
+                if (debug) console.log('1682 relview', relview);
+                modelview.addRelationshipView(relview);
+                // Add link
+                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                link.loadLinkContent(myGoModel);
+                link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                link.from = link.fromNode?.key;
+                link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                link.to = link.toNode?.key;
+                myGoModel.addLink(link);
+                links.push(link);
+                myDiagram.model.addLinkData(link);
+                // Prepare dispatch
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                modifiedRelshipViews.push(jsnRelview);
             }
-          }
         }
-        if (fromObjview && toObjview) {
-            relview.setFromObjectView(fromObjview);
-            relview.setToObjectView(toObjview);
-            rel.addRelationshipView(relview);
-            if (debug) console.log('1682 relview', relview);
-            modelview.addRelationshipView(relview);
-            // Add link
-            let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-            link.loadLinkContent(myGoModel);
-            link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-            link.from = link.fromNode?.key;
-            link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-            link.to = link.toNode?.key;
-            myGoModel.addLink(link);
-            links.push(link);
-            myDiagram.model.addLinkData(link);
-            // Prepare dispatch
-            const jsnRelview = new jsn.jsnRelshipView(relview);
-            modifiedRelshipViews.push(jsnRelview);
-        }
-      }
+        }    
+        // Dispatch
+        modifiedRelshipViews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        });
+        return links;
     }
-    // Dispatch
-    modifiedRelshipViews.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-    });
-    return links;
 }
-
 export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, objview: akm.cxObjectView, myMetis: akm.cxMetis) {
     const relviews = new Array();
     const modifiedRelshipViews = new Array();

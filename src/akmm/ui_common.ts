@@ -939,41 +939,42 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
             if (reltype.name === constants.types.AKM_GENERIC_REL) {
                 continue;
             } else {
-                if (reltype.name === typename)
+                if (reltype.name === typename) // reltype found
                     break;
             }
         }
     }
-    if (!reltype || reltype.name !== typename)
+    if (!reltype || reltype.name !== typename) // reltype not found, try another way
         reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    let rel = myModel.findRelationship2(objFrom, objTo, reltype, typename, portFrom, portTo);
-    if (rel) {
-        alert("Relationship already exists!\nOperation is cancelled.")
-        myDiagram.model.removeLinkData(data);
-        return;
+    // reltype is found - look for the relationship
+    let relship = myModel.findRelationship2(objFrom, objTo, typename, reltype, portFrom, portTo);
+    if (relship && !relship.markedAsDeleted) {
+        // The relationship already exists
+        // Check if relationship view also exists
+        const relviews = myModelview.findRelationshipViewsByRel(relship);
+       for (let i=0; i<relviews.length; i++) {
+            const relview = relviews[i];
+            if (!relview.markedAsDeleted) {
+                // Relationship view already exists
+                // Do nothing
+                alert("Relationship already exists!\nOperation is cancelled.")
+                return relviews[i];
+            }
+        }
+    } else {
+        relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
     }
-    else {
-        rel = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
-        let relshipview: akm.cxRelationshipView;
-        data.relshiptype = reltype;
-        data.type = "";
-        data.name = reltype.nameFrom;
-        const reltypeview = reltype.typeview;
-        relshipview = createLink(data, context); 
+    if (relship) {
+        // Create a new relationship view
+        let relshipview = createLink(data, context); 
         if (relshipview) {
-            relshipview.setTypeView(reltypeview);
-            const relship = relshipview.relship; 
-            relship.type = reltype;
-            relship.relshipkind = reltype.relshipkind;
-            relshipview.setFromArrow2(rel?.relshipkind);
-            relshipview.setToArrow2(rel?.relshipkind);
-            relship.fromPortid = data.fromPort;
-            relship.toPortid = data.toPort;
+            relshipview.setFromArrow2(relship?.relshipkind);
+            relshipview.setToArrow2(relship?.relshipkind);
             relshipview.fromPortid = data.fromPort;
             relshipview.toPortid = data.toPort;
             let name = data.name;  

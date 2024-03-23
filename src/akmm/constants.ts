@@ -264,6 +264,7 @@ export let admin = {
      AKM_ADMIN_MODELVIEW:     "_ADMIN",
      AKM_ADMIN_GOMODEL:       "_ADMIN_GOMODEL",
      AKM_PROJECT:             "Project",
+     AKM_MODELSUITE:          "ModelSuite",
      AKM_METAMODEL:           "Metamodel",
      AKM_MODEL:               "Model",
      AKM_MODELVIEW:           "Modelview",

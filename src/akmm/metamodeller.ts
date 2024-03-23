@@ -4750,7 +4750,7 @@ export class cxMetaModel extends cxMetaObject {
                 continue;
             if (reltype.name === constants.types.AKM_IS) 
                 continue;
-            if (reltype.name === constants.types.AKM_GENERIC_REL) {
+            if (reltype.name === constants.types.AKM_REFERS_TO) {
                     reltypes.push(reltype);
                     continue;
             }

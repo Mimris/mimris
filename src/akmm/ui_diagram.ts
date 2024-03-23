@@ -1232,30 +1232,17 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
 } 
 
 export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
-    let linktypeNames = [];
-    let n = myDiagram.findNodeForKey(node.key);
-    let links = n.findLinksOutOf();
-    if (links.count > 0) {
-        for (let it = links?.iterator; it?.next();) {
-            let lv = it.value;
-            const ltypename = lv.data.name;
-            linktypeNames.push(ltypename);
-        }
-        let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
-        linktypeNames = uniqueSet;
-    }
     let reltypeNames = [constants.types.AKM_REFERS_TO];
     const myMetamodel = myMetis.currentMetamodel;
     let objtypenames = [];
     let objtypes = [];
     let fromType = node.objecttype;
     fromType = myMetamodel.findObjectType(fromType.id);
+    // Get a list of selected object types to connect to
     for (let it = selection.iterator; it?.next();) {
         let n = it.value;
         if (n.data.key === node.key) 
             continue;
-        // Check if a link of this type already exists
-        // If so, continue
         if (n.data.objecttype) {
             objtypes.push(n.data.objecttype);
             objtypenames.push(n.data.objecttype.name);

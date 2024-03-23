@@ -35,266 +35,266 @@ const ExportObjects = (props) => {
   };
 
 
-  const ph = props.props.props || props.props
-  const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
-  const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
-  if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
+    const ph = props.props.props || props.props
+    const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
+    const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
+    if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
 
-  if (!ph?.phData?.metis?.models) return <></>
+    if (!ph?.phData?.metis?.models) return <></>
 
-  const [value, setValue] = useState("");
-  // const [visibleContext, setVisibleContext] = useState(true);
-  const [formValues, setFormValues] = useState({});
-
-
-  const models = ph.phData?.metis?.models  // selecting the models array
-
-  const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
-  const curmetamodel = metamodels?.find(mm => mm.id === models?.find(m => m.id === modelInFocusId)?.metamodelRef)
-
-  // const curmodel = modelInFocus
-  const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
-
-  if (debug) console.log('53 Context:', curmodel, curmodel.objects)
-
-  const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const objects = curmodel?.objects //.map((o: any) => o)
-
-  const focusModel = (reportType === 'task') ? models.find(m => m.id === modelInFocusId) : ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
-  const focusUser = ph.phUser?.focusUser
-  const focusModelview = ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
-  const focusObjectview = ph.phFocus?.focusObjectview
-  const focusTask = ph.phFocus?.focusTask
-  const focusObject = (reportType === 'task') ? ph.phFocus.focusTask : ph.phFocus?.focusObject
-
-  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (debug) console.log('62 Context:', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
-  const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
-  if (debug) console.log('64 Context:', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
-
-  const curobject = objects?.find(o => o.id === focusObject?.id)
-  // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-  if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
-
-  // add refersTo relationship as a propLink
-  // find refersTo relationship type
-  const refersTo = curmetamodel?.relshiptypes?.find(ot => ot.name === 'refersTo')
-  const refersTorelships = currelationships.filter(r => r.typeRef === refersTo?.id) // find all relships with type refersTo
-  // filter out the fromTo as current object
-  const fromRefersToObectRels = refersTorelships.filter(r => r.fromobjectRef === curobject.id)
-  const refersToObjects = fromRefersToObectRels.map(r => objects.find(o => o.id === r.toobjectRef)) // find objects in the other end of the relationship
-  const propLinkTemp = refersToObjects.map(o => ({ ...o, refGroupType: o.name, type: 'PropLink' }))
-  if (debug) console.log('73 Context:', currelationships, refersTo, refersTorelships, fromRefersToObectRels, refersToObjects, propLinkTemp);
+    const [value, setValue] = useState("");
+    // const [visibleContext, setVisibleContext] = useState(true);
+    const [formValues, setFormValues] = useState({});
 
 
-  // useEffect(() => {
-  // }, []);
+    const models = ph.phData?.metis?.models  // selecting the models array
 
-  // const handlePopupAMsg = () => {
-  //   // setMdString('Your markdown string here');
-  //   setShowModal(true);
-  //   if (debug) console.log('88 popupAMsg', mdString, showModal);
-  // }
+    const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
+    const curmetamodel = metamodels?.find(mm => mm.id === models?.find(m => m.id === modelInFocusId)?.metamodelRef)
 
-  // const MDEditor = dynamic(
-  //   () => import("@uiw/react-md-editor"),
-  //   { ssr: false }
-  // );
+    // const curmodel = modelInFocus
+    const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
 
-  // remove duplicate objects
-  const uniqueovs = curobjectviews?.filter((ov, index, self) =>
-    index === self.findIndex((t) => (
-      t.place === ov.place && t.id === ov.id
-    ))
-  ) || []
+    if (debug) console.log('53 Context:', curmodel, curmodel.objects)
 
-  const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
+    const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
+    const objects = curmodel?.objects //.map((o: any) => o)
 
-  // find object with type
-  const type = (metamodels, model, objects, curov) => {
-    const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
-    const o = objects.find(o => o.id === curov.objectRef)
-    // if (debug) console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
-    const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
-    // if (debug) console.log('43 SelectContext', mmod.objecttypes.name, o, type);
-    return type
-  }
+    const focusModel =  (reportType === 'task') ?  models.find(m => m.id === modelInFocusId) :  ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
+    const focusUser = ph.phUser?.focusUser
+    const focusModelview =  ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
+    const focusObjectview = ph.phFocus?.focusObjectview
+    const focusTask = ph.phFocus?.focusTask
+    const focusObject = (reportType === 'task') ? ph.phFocus.focusTask :  ph.phFocus?.focusObject
 
-  // if (!curobject) curobject = curmodelview
-  const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
-  if (debug) console.log('115 Context', curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
-  // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
-  // find parent object
+    const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
+    const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
+    const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
+    if (debug) console.log('62 Context:', focusModelview?.id, curobjectviews,  modelviews,  modelviews?.find(mv => mv.id === focusModelview?.id),currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+    const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
+    if (debug) console.log('64 Context:', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
-  const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
-  if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
-  const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
-  let parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
-  parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
-  if (debug) console.log('58 Context', parentobjectview);
-  if (debug) console.log('58 Context', parentobject);
+    const curobject = objects?.find(o => o.id === focusObject?.id) 
+    // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
+    if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
 
-  // functions to find objects and objectviews etc ----------------------------------------------------------------------
-  function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
-    return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
-  }
+    // add refersTo relationship as a propLink
+    // find refersTo relationship type
+    const refersTo = curmetamodel?.relshiptypes?.find(ot => ot.name === 'refersTo')
+    const refersTorelships = currelationships.filter(r => r.typeRef === refersTo?.id) // find all relships with type refersTo
+    // filter out the fromTo as current object
+    const fromRefersToObectRels = refersTorelships.filter(r => r.fromobjectRef === curobject.id)
+    const refersToObjects = fromRefersToObectRels.map(r => objects.find(o => o.id === r.toobjectRef)) // find objects in the other end of the relationship
+    const propLinkTemp = refersToObjects.map(o => ({...o, refGroupType: o.name, type: 'PropLink'}))
+    if (debug) console.log('73 Context:', currelationships ,refersTo ,refersTorelships, fromRefersToObectRels, refersToObjects, propLinkTemp);
 
-  function findObjectsForObjectviews(objectviews: any[], objects: any[]): any[] {
-    return objectviews?.map((objectview) => objects?.find((object) => object.id === objectview.objectRef)) || [];
-  }
+  
+    // useEffect(() => {
+    // }, []);
 
-  function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmodel: any): any[] {
-    return objectviews?.map((objectview) => {
-      const object = objects?.find((object) => object.id === objectview.objectRef)
-      const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
-      const objecttype = metamodel.objecttypes.find((ot) => ot.id === object?.typeRef)
-      return objecttype
-    }) || [];
-  }
+    // const handlePopupAMsg = () => {
+    //   // setMdString('Your markdown string here');
+    //   setShowModal(true);
+    //   if (debug) console.log('88 popupAMsg', mdString, showModal);
+    // }
+    
+    // const MDEditor = dynamic(
+    //   () => import("@uiw/react-md-editor"),
+    //   { ssr: false }
+    // );
 
-  function findRelationshipsForObjectviews(objectviews: any[], relationships: any[]): any[] {
-    return objectviews?.map((objectview) => relationships.find((relationship) => relationship.id === objectview.relationshipRef)) || [];
-  }
+    // remove duplicate objects
+    const uniqueovs = curobjectviews?.filter((ov, index, self) =>
+      index === self.findIndex((t) => (
+        t.place === ov.place && t.id === ov.id
+      ))
+    ) || []
 
-  function findTypeviewForcurrentObjecttype(objecttype: any, objecttypeviews: any[]): any[] {
-    return objecttypeviews?.find((tv) => tv.typeRef === objecttype?.id) || [];
-  }
+    const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
+    
+    // find object with type
+    const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
+      const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
+      const o = objects.find(o => o.id === curov.objectRef)
+      // if (debug) console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
+      const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
+      // if (debug) console.log('43 SelectContext', mmod.objecttypes.name, o, type);
+      return type
+    }
+    
+    // if (!curobject) curobject = curmodelview
+    const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) &&  ({id: cmv.id, name: cmv.name}))
+    if (debug) console.log('115 Context',  curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
+    // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
+    // find parent object
 
-  let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview?.objectviews;
-  let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
-  if (debug) console.log('227 Context', curobjectview, curmodelview?.objectviews);
-  if (debug) console.log('228 Context', objectviewChildren);
-  if (debug) console.log('229 Context', objectChildren);
+    const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+    if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
+    const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
+    let parentobject =  objects?.find(o => o.id === parentobjectview?.objectRef)
+    parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
+    if (debug) console.log('58 Context', parentobjectview);
+    if (debug) console.log('58 Context', parentobject);
 
-  // find related objects
-  const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
-  const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
-  if (debug) console.log('211 Context', currelationships, curRelatedFromObectRels, curRelatedToObectRels);
+    // functions to find objects and objectviews etc ----------------------------------------------------------------------
+    function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
+      return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
+    }
+  
+    function findObjectsForObjectviews(objectviews: any[], objects: any[]): any[] {
+      return objectviews?.map((objectview) => objects?.find((object) => object.id === objectview.objectRef)) || [];
+    }
 
-  const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
-  if (debug) console.log('216 Context', curobjecttype);
-  const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews)
-  if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
+    function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmodel: any): any[] {
+      return objectviews?.map((objectview) => {
+        const object = objects?.find((object) => object.id === objectview.objectRef)
+        const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
+        const objecttype = metamodel.objecttypes.find((ot) => ot.id === object?.typeRef)
+        return objecttype
+      }) || [];
+    }
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [activeTab2, setActiveTab2] = useState(0);
+    function findRelationshipsForObjectviews(objectviews: any[], relationships: any[]): any[] {
+      return objectviews?.map((objectview) => relationships.find((relationship) => relationship.id === objectview.relationshipRef)) || [];
+    }
 
-  const setObjview = (o) => {
-    let ovdata = (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : { id: '', name: 'no objectview selected' }
-    let odata = (o) ? { id: o.id, name: o.name } : { id: '', name: 'no object selected' }
-    if (debug) console.log('246 setObjview', ovdata, odata)
-    dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })
-    dispatch({ type: 'SET_FOCUS_OBJECT', data: odata })
-  }
+    function findTypeviewForcurrentObjecttype(objecttype: any, objecttypeviews: any[]): any[] {
+      return objecttypeviews?.find((tv) => tv.typeRef === objecttype?.id) || [];
+    }
+  
+    let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectview(curobjectviews, curobjectview?.id) : curmodelview?.objectviews; 
+    let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
+    if (debug) console.log('227 Context',  curobjectview, curmodelview?.objectviews);
+    if (debug) console.log('228 Context', objectviewChildren);
+    if (debug) console.log('229 Context', objectChildren);
 
-  const includedKeysAllTypeview = (curobjtypeview) && Object.keys(curobjtypeview).reduce((a, b) => a.concat(b), [])
-  const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
-  const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
-  const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => !['name', 'description', 'typeName', 'typeDescription', 'objectRef',].includes(key))
-  const includedKeysMain = ['name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source',
-    '----', 'externalID', 'groupType', 'osduId', 'osduType', 'id', 'proposedType', 'typeName', 'typeDescription',
-    'fillcolor', 'fillcolor2', 'strokecolor', 'icon', 'image'
-  ];
-  const includedKeyskOSDU = ['typeName', 'name', 'title', 'description', 'groupType', 'governanceModel', 'governaceAuthorities', 'fileFormats'];
-  const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract', 'ports', 'propertyValues', 'valueset',
-    'markedAsDeleted', 'modified', 'sourceUri', 'relshipkind', 'Associationvalueset', 'copiedFromId', 'typeRef', 'typeName', 'typeDescription']
-  // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
-  // , $id, $schema, $ref, externalID, groupType, osduId, osduType, x-osdu-license, x-osdu-review-status, x-osdu-schema-source
+    // find related objects
+    const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
+    const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
+    if (debug) console.log('211 Context', currelationships, curRelatedFromObectRels, curRelatedToObectRels);
 
-  const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key)).sort((a, b) => includedKeysMain.indexOf(a) - includedKeysMain.indexOf(b));
-  const objectPropertiesOsdu = (curobject) && Object.keys(curobject).filter(key => includedKeyskOSDU.includes(key)).sort((a, b) => includedKeyskOSDU.indexOf(a) - includedKeyskOSDU.indexOf(b));
+    const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
+    if (debug) console.log('216 Context', curobjecttype);
+    const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews) 
+    if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
 
-  const objectPropertiesMore = (curobject) && Object.keys(curobject).filter(key => includedKeysMore.includes(key));
+    const [activeTab, setActiveTab] = useState(0);
+    const [activeTab2, setActiveTab2] = useState(0);
 
-  const csvheader1 = 'Version	Object Name	Title	Description	Group Type	Governance Model	Governance Authorities	Supported File Formats	Superseding Kind											Action	Priority				State	Object Name	Title	Description	Group Type	Governance Model	Governance Authorities	Supported File Formats'.split('\t');
-  const csvheader3 = '	Properties								Attribution			References				Behaviors			Proposals						Final Output													'.split('\t');
-  const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
+    const setObjview = (o) => {
+      let ovdata =  (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : {id: '', name: 'no objectview selected'}
+      let odata = (o) ? {id: o.id, name: o.name} : {id: '', name: 'no object selected'}
+      if (debug) console.log('246 setObjview', ovdata, odata )
+      dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })
+      dispatch({ type: 'SET_FOCUS_OBJECT', data: odata })
+    }
 
-  const titles = (objectPropertiesOsdu) && Object.values(objectPropertiesOsdu);
-  const values = titles?.map(v => curobject[v]);
-  if (debug) console.log('214 keys1', values);
+    const includedKeysAllTypeview = (curobjtypeview) && Object.keys(curobjtypeview).reduce((a, b) => a.concat(b), [])
+    const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
+    const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
+    const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
+    const includedKeysMain = [ 'name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source', 
+      '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType', 'typeName', 'typeDescription',
+      'fillcolor', 'fillcolor2', 'strokecolor','icon', 'image'
+    ];
+    const includedKeyskOSDU = [ 'version', 'name', 'title', 'description', 'groupType','governanceModel', 'governaceAuthorities', 'fileFormats'];
+    const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
+        'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
+    // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+    // , $id, $schema, $ref, externalID, groupType, osduId, osduType, x-osdu-license, x-osdu-review-status, x-osdu-schema-source
 
-  const valueList = ObjectToCsv({ obj: csvheader3 }).valueList
+    const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key)).sort((a, b) => includedKeysMain.indexOf(a) - includedKeysMain.indexOf(b));
+    const objectPropertiesOsdu = (curobject) && Object.keys(curobject).filter(key => includedKeyskOSDU.includes(key)).sort((a, b) => includedKeyskOSDU.indexOf(a) - includedKeyskOSDU.indexOf(b));
 
-  if (debug) console.log('194 objecstodiv', valueList);
-  const lineNo = 5;
+    const objectPropertiesMore = (curobject) && Object.keys(curobject).filter(key => includedKeysMore.includes(key));
 
-  const relatedToObjects = curRelatedFromObectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+    const csvheader1 = 'Version	Object Name	Title	Description	Group Type	Governance Model	Governance Authorities	Supported File Formats	Superseding Kind											Action	Priority				State	Object Name	Title	Description	Group Type	Governance Model	Governance Authorities	Supported File Formats'.split('\t');
+    const csvheader3 = '	Properties								Attribution			References				Behaviors			Proposals						Final Output													'.split('\t');
+    const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
+ 
+    const titles = (objectPropertiesOsdu) && Object.values(objectPropertiesOsdu);
+    const values = titles?.map(v => curobject[v]);
+    if (debug) console.log('214 keys1', values);
 
-  // escape semicolon in values of relatedToObjects
+    const valueList = ObjectToCsv({obj: csvheader3}).valueList
 
+    if (debug) console.log('194 objecstodiv', valueList);
+    const lineNo = 5;
 
-  if (debug) console.log('209 relatedToObjects', curRelatedFromObectRels, curRelatedToObectRels, relatedToObjects, currelationships);
+    const relatedToObjects = curRelatedFromObectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
 
-  const relatedObjList = relatedToObjects.map((toObj: any, index) => (
-    `${String(index + 1)
-    };${toObj.name
-    };${(toObj.title) ? toObj.title : ""
-    };${(toObj.description) ? `"${toObj.description}"` : ""
-    };${(toObj.type) ? toObj.dataType : ""
-    };${(toObj.pattern) ? toObj.pattern : ""
-    };${(toObj.frameOfReference) ? toObj['x-osdu-frame-of-reference'] : ""
-    };${(toObj.constant) ? toObj.constant : ""
-    };${(toObj.example) ? toObj.example : ""
-    // };${(toObj.example) ? toObj.example : ""
-    };${(toObj.Authority) ? toObj.Authority : ""
-    };${(toObj.Publication) ? toObj.Publication : ""
-    };${(toObj.Revision) ? toObj.Revision : ""
-    };${(toObj.referenceObject) ? toObj.referenceObject : toObj.name.split('.')[0]
-    };${(toObj.ROVersion) ? toObj.ROVersion : toObj.name.split('.').slice(1).join('.')
-    };${(toObj.refGroupType) ? toObj.refGroupType : toObj.groupType || ""
-    };${(toObj.ExistingStandard) ? toObj.ExistingStandard : ""
-    };${(toObj.IsRequired) ? toObj.IsRequired : ""
-    };${(toObj.IsDerived) ? toObj.IsDerived : ""
-    };${(toObj.IsIndexed) ? toObj.IsIndexed : ""
-    };${(toObj.Action) ? toObj.Action : ""
-    };${(toObj.Priority) ? toObj.Priority : ""
-    };${(toObj.Proposal) ? toObj.Proposal : ""
-    };${(toObj.Operators) ? toObj.Operators : ""
-    };${(toObj.AdditionalComments) ? `"${toObj.AdditionalComments}"` : ""
-    };${(toObj.State) ? toObj.State : ""
-    };"=IF(ISBLANK(B${lineNo + index});"""";B${lineNo + index
-    })";"=IF(ISBLANK(C${lineNo + index});"""";C${lineNo + index
-    })";"=IF(ISBLANK(D${lineNo + index});"""";D${lineNo + index
-    })";"=IF(ISBLANK(E${lineNo + index});"""";E${lineNo + index
-    })";"=IF(ISBLANK(F${lineNo + index});"""";F${lineNo + index
-    })";"=IF(ISBLANK(G${lineNo + index});"""";G${lineNo + index
-    })";"=IF(ISBLANK(H${lineNo + index});"""";H${lineNo + index
-    })";"=IF(ISBLANK(J${lineNo + index});"""";J${lineNo + index
-    })";"=IF(ISBLANK(K${lineNo + index});"""";K${lineNo + index
-    })";"=IF(ISBLANK(L${lineNo + index});"""";L${lineNo + index
-    })";"=IF(ISBLANK(M${lineNo + index});"""";M${lineNo + index
-    })";"=IF(ISBLANK(N${lineNo + index});"""";N${lineNo + index
-    })";"=IF(ISBLANK(O${lineNo + index});"""";O${lineNo + index
-    })";"=IF(ISBLANK(P${lineNo + index});"""";P${lineNo + index
-    })"\n`
-  )
-  );
-  // const relatedObjList = relatedObjListtmp.map(l => l.replace(/semicolon/g, ';'));
+    // escape semicolon in values of relatedToObjects
 
+  
+    if (!debug) console.log('229 relatedToObjects', curRelatedFromObectRels,  curRelatedToObectRels, relatedToObjects, currelationships);
 
+    const relatedObjList = relatedToObjects.map((toObj: any, index) => (
+      `\n ${index+1
+      };${toObj.name
+      };${(toObj.title) ? toObj.title : ""
+      };${(toObj.description) ? `"${toObj.description}"` : ""
+      };${(toObj.type) ? toObj.dataType : ""
+      };${(toObj.pattern) ? toObj.pattern : ""
+      };${(toObj.frameOfReference) ? toObj['x-osdu-frame-of-reference'] : ""
+      };${(toObj.constant) ? toObj.constant : ""
+      };${(toObj.example) ? toObj.example : ""
+      // };${(toObj.example) ? toObj.example : ""
+      };${(toObj.Authority) ? toObj.Authority : ""
+      };${(toObj.Publication) ? toObj.Publication : ""
+      };${(toObj.Revision) ? toObj.Revision : ""
+      };${(toObj.referenceObject) ? toObj.referenceObject : (toObj.typeName === 'OSDUType') ? toObj.name.split('.')[0] : ""
+      };${(toObj.ROVersion) ? toObj.ROVersion : toObj.name.split('.').slice(1).join('.')
+      };${(toObj.referenceObject && toObj.refGroupType) ? toObj.refGroupType : (toObj.typeName === 'OSDUType') ? toObj.groupType : ""
+      };${(toObj.ExistingStandard) ? toObj.ExistingStandard : ""
+      };${(toObj.IsRequired) ? toObj.IsRequired : ""
+      };${(toObj.IsDerived) ? toObj.IsDerived : ""
+      };${(toObj.IsIndexed) ? toObj.IsIndexed : ""
+      };${(toObj.Action) ? toObj.Action : ""
+      };${(toObj.Priority) ? toObj.Priority : ""
+      };${(toObj.Proposal) ? toObj.Proposal : ""
+      };${(toObj.Operators) ? toObj.Operators : ""
+      };${(toObj.AdditionalComments) ? `"${toObj.AdditionalComments}"` : ""
+      };${(toObj.State) ? toObj.State : ""
+      };"=IF(ISBLANK(B${lineNo + index});"""";B${lineNo + index
+      })";"=IF(ISBLANK(C${lineNo + index});"""";C${lineNo + index
+      })";"=IF(ISBLANK(D${lineNo + index});"""";D${lineNo + index
+      })";"=IF(ISBLANK(E${lineNo + index});"""";E${lineNo + index
+      })";"=IF(ISBLANK(F${lineNo + index});"""";F${lineNo + index
+      })";"=IF(ISBLANK(G${lineNo + index});"""";G${lineNo + index
+      })";"=IF(ISBLANK(H${lineNo + index});"""";H${lineNo + index
+      })";"=IF(ISBLANK(J${lineNo + index});"""";J${lineNo + index
+      })";"=IF(ISBLANK(K${lineNo + index});"""";K${lineNo + index
+      })";"=IF(ISBLANK(L${lineNo + index});"""";L${lineNo + index
+      })";"=IF(ISBLANK(M${lineNo + index});"""";M${lineNo + index
+      })";"=IF(ISBLANK(N${lineNo + index});"""";N${lineNo + index
+      })";"=IF(ISBLANK(O${lineNo + index});"""";O${lineNo + index
+      })";"=IF(ISBLANK(P${lineNo + index});"""";P${lineNo + index
+      })"`
+      )
+    );
+    // const relatedObjList = relatedObjListtmp.map(l => l.replace(/semicolon/g, ';'));
 
-
-  if (debug) console.log('222 relatedToObjects', relatedObjList);
-
-  let csvString = `${ObjectToCsv({ obj: csvheader1 }).valueList}\n`;
-  csvString += `${ObjectToCsv({ obj: values }).valueList}\n`;
-  csvString += `${ObjectToCsv({ obj: csvheader3 }).valueList}\n`;
-  csvString += `${ObjectToCsv({ obj: csvheader4 }).valueList}\n`;
-  csvString += relatedObjList;
-  csvString += "\n";
-
-  // Add a Byte Order Mark (BOM) to the beginning of the CSV string
-  // csvString = "\uFEFF" + csvString;
-
+     
 
 
-  // console.log('214 keys1', setMdString, contentDiv);
-  const tabsDiv = (
-    <>
-      <Tabs onSelect={index => setActiveTab(index)}>
+    if (debug) console.log('222 relatedToObjects', relatedObjList);
+    
+    let csvString = `${ObjectToCsv({obj: csvheader1}).valueList}\n`;
+    csvString += `${ObjectToCsv({obj: values}).valueList}\n`;
+    csvString += `${ObjectToCsv({obj: csvheader3}).valueList}\n`;
+    csvString += `${ObjectToCsv({obj: csvheader4}).valueList}`;
+    csvString += relatedObjList;
+    csvString += "\n";
+
+    // Add a Byte Order Mark (BOM) to the beginning of the CSV string
+    // csvString = "\uFEFF" + csvString;
+
+
+
+    // console.log('214 keys1', setMdString, contentDiv);
+    const tabsDiv = (
+      <>
+      <Tabs  onSelect={index => setActiveTab(index)}>
         <TabList className="">
           <Tab>CSV</Tab>
         </TabList>

@@ -165,7 +165,9 @@ const page = (props: any) => {
 
     if (debug) console.log('174 Modelling', myMetis, myGoModel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojsmetamodelpalette, gojsmetamodelmodel, gojstargetmodel, gojstargetmetamodel);
 
-  };
+  function doRefresh() { // when refresh is toggled, first change focusModel if not exist then  save the current state to memoryLocState, then refresh
+    const locProps = { ...props, phMymetis: null } // remove the myMetis and circular structure object from the props 
+    if (debug) console.log('129 Modelling doRefresh memoryLocState:', memorySessionState, props , locProps);
 
    goParams = GenGojsModel(props, myMetis, goParams);
   //  (mount) && loadMyModeldata(myMetis, goParams);
@@ -225,17 +227,62 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
 
-  function doRefresh() { // 
-    setMemorySessionState(props)
-    setMemoryLocState(props)
-    // goParams = GenGojsModel(props, myMetis)
-    const timer = setTimeout(() => {
-      if (debug) console.log('184 Modelling doRefresh memoryLocState:', memorySessionState, props, myMetis)
-      loadMyModeldata(myMetis, goParams)
-      setRefresh(!refresh)
-    }, 1000);
-    return () => clearTimeout(timer);
-  }
+  useEffect(() => {
+    if (debug) useEfflog('183');
+    doRefresh()
+  }, [curmod.objects.length === 0])
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
+  //   setRefresh(!refresh)
+  // }, [memoryAkmmUser])
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('154 Modelling useEffect 6 [props.phFocus?.focusRefresh?.id]');
+  //   GenGojsModel(props, dispatch);
+  //   const timer = setTimeout(() => {
+  //     setRefresh(!refresh)
+  //   }, 200);
+  //   return () => clearTimeout(timer);
+  // }, [props.phFocus?.focusRefresh?.id])
+
+  function loadMyModeldata() {
+    myMetis = props.phMymetis?.myMetis // get the myMetis object from  the store
+    if (!myMetis) return <></>
+    myModel = myMetis?.findModel(curmod?.id);
+    myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+    myMetamodel = myModel?.metamodel;
+    myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
+    myTargetModel = myMetis?.findModel(curtargetmodel?.id);
+    myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
+    myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
+    myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
+
+    if (debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
+    if (!myMetis && !myModel && !myModelview && !myMetamodel) {
+      console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
+      return null;
+    }
+    myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
+    myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
+    myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
+    myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
+    myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
+    if (!myModel?.objects) { console.log('227 myModel.objects is undefined', myModel, myMetis);
+      // return null
+    } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}
+    if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
+    // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
+    if (debug) console.log('188 Modelling ', myGoObjectPalette);
+
+    gojsmetamodelpalette = (myGoMetamodel) &&  {nodeDataArray: myGoMetamodel?.nodes,linkDataArray: myGoMetamodel?.links }  // props.phGojs?.gojsMetamodelPalette 
+    gojsmetamodelmodel = (myGoMetamodelModel) && { nodeDataArray: myGoMetamodelModel?.nodes, linkDataArray: myGoMetamodelModel?.links}
+    gojsmodel = (myGoModel) && { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
+    gojsmetamodel = (myGoMetamodelPalette) && { nodeDataArray: myGoMetamodelPalette?.nodes, linkDataArray: myGoMetamodelPalette?.links}// props.phGojs?.gojsMetamodel 
+    gojsmodelobjects = (myGoModel) && { nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] } // props.phGojs?.gojsModelObjects // || []
+    gojstargetmodel = (myTargetModel) &&  { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }//props.phGojs?.gojsTargetModel 
+    gojstargetmetamodel = (myTargetMetamodel) && { nodeDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).nodes,linkDataArray: uib.buildGoPalette(myTargetMetamodel, myMetis).links} // props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  };
 
 
   if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);

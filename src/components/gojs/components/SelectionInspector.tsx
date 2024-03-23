@@ -232,7 +232,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // Do nothing
           }
           if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
-        }
+        } 
         else if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
           if (inst1) inst = inst1;

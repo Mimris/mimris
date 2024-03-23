@@ -179,6 +179,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             osduId: oKey,
             osduType: osduType,
             groupType: groupType,
+            // groupType: (osduType) ? groupType : "",
             dataType: oValProps.type,
             referenceObject: propLinkReferenceObject,
             refGroupType: propLinkGroupType,

@@ -448,7 +448,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const draftProp = constants.props.DRAFT;
                 rel.setStringValue2(draftProp, text);
                 const relviews = rel.relshipviews;
-                for (let i = 0; i < relviews.length; i++) {
+                for (let i = 0; i < relviews?.length; i++) {
                   const relview = relviews[i];
                   relview.name = text;
                   if (text === 'Is') {

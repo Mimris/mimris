@@ -60,7 +60,7 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
     // const myMetis = new akm.cxMetis();
     // myMetis = props.myMetis;
 
-    if (debug) console.log('51 GenGojsModel: metis', metis);
+    if (!debug) console.log('51 GenGojsModel: metis', metis, myMetis);
     myMetis?.importData(metis, true);
 
     adminModel = uib.buildAdminModel(myMetis);

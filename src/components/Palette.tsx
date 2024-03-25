@@ -108,7 +108,7 @@ const Palette = (props: any) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // if (!metamodels) return null;
+  if (!metamodels) return null;
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
     if (debug) console.log('106 Palette', mmodel, props.myMetis);
 

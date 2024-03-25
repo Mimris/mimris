@@ -54,7 +54,7 @@ interface AppState {
 class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
-    if (debug) console.log('62 GoJSApp', this.props.nodeDataArray);
+    if (!debug) console.log('62 GoJSApp', this.props.nodeDataArray, this.props);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -1705,7 +1705,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
     }
     // Dispatches
-    if (true) {
+    if (true) { // Dispatches to store individual objects/types
       modifiedObjectViews.map(mn => {
         let data = (mn) && mn
         if (mn.id) {
@@ -1774,10 +1774,10 @@ class GoJSApp extends React.Component<{}, AppState> {
  
   public render() {
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1483 selectedData', selectedData, this.props);
+    if (!debug) console.log('1777 selectedData', selectedData, this.props);
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('1486 modalContext ', modalContext);
+    if (debug) console.log('1780 modalContext ', modalContext);
     if (modalContext?.what === 'selectDropdown') {
       let options = ''
       let comps = ''

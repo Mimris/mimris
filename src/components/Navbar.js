@@ -50,7 +50,7 @@ const Navbar = (props) => {
 	// const dispatch = useDispatch();
 
 	const currentRoute = router.pathname;
-	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
+	if (!debug) console.log('42 Navbar currentRoute', currentRoute, props);
 	const [version, setVersion] = useState("");
 	const [domainName, setDomainName] = useState("");
 
@@ -109,7 +109,7 @@ const Navbar = (props) => {
 
 	return (
 		<nav className="navbar navbar-expand-sm navbar-toggler ps-0"
-			style={(domainName === "localhost") ? { marginLeft: "32px", marginRight: "32px", backgroundColor: "#efe" } : { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
+			style={(domainName === "localhost") ? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" } : { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
 				{/* <div>
 					<Dropdown>
@@ -122,13 +122,14 @@ const Navbar = (props) => {
 					</Dropdown>
 					<input type="file" style={{ display: 'none' }} ref={fileInput} onChange={handleReadProjectFile} />
 				</div> */}
-				<div className="navbar-nav d-flex justify-content-center align-items-center m-0 p-0">
-					<Link className="navbar-brand navbar-left mx-1 mb-2" href="#">
+				<div className="navbar-nav d-flex justify-content-center align-items-center ms-2 p-0">
+					{/* <Link className="navbar-brand navbar-left mx-1 mb-2" href="#">
 						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
-					</Link>
-					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
-					<div className="mx-4 d-flex justify-content-between align-items-center">
-						<span className="mx-1 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >ver. {version}</span>
+					</Link> */}
+					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Project : </strong>
+					<div className="navbar-brand navbar-left ms-0 me-4 text-black bg-whit"> <spank className="bg-white px-2 py-1 fs-5">{props.projName}</spank></div>
+					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">
+						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >ver. {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />
 					</div>
 				</div>
@@ -187,12 +188,12 @@ const Navbar = (props) => {
 					</span>
 				</div>
 				<div className="navbar-nav">
-					<Link className="navbar-brand navbar-right me-0" href="http://www.kavca.no" target="_blank">
+					{/* <Link className="navbar-brand navbar-right me-0" href="http://www.kavca.no" target="_blank">
 						<div className="d-flex justify-content-end align-items-baseline">
 							<img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
 							<span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
 						</div>
-					</Link>
+					</Link> */}
 				</div>
 			</div>
 			<div className='buttons' aria-expanded="false">

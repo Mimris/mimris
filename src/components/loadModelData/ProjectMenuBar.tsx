@@ -180,9 +180,32 @@ export const ProjectMenuBar = (props: any) => {
 
     const dropLeftMenuDiv =  (isDropdownOpen) &&
         <div className="bg-light rounded-2 p-1" 
-        style={{ whiteSpace: "nowrap", position: "relative", top: "5px",left: "-10px", width: "20rem", height: "100%", 
-            backgroundColor: "#b0cfcf", zIndex: "9"}}
+            style={{ whiteSpace: "nowrap", position: "absolute", top: "-4px", left: "-2px", width: "16vw", height: "30vh", 
+            backgroundColor: "#b0cfcf"}}
         >
+            <strong className="text-success ms-5 fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
+            <div className="d-flex justify-content-between align-items-center mx-3 ms-4 ps-4">
+                <div className="bar-menu-left bg-transparent"
+                    style={{
+                        position: "absolute",
+                        top: "8px",
+                        left: "5px",
+                        zIndex: "99"
+                    }}
+                    onClick={() => setIsDropdownOpen(false)}
+                >
+                <i className="fa fa-bars fa-lg"></i>
+                </div>
+                <Link className="mb-" href="#">
+                    <img src="images/equinor-logo.svg" width="110px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
+                </Link>
+                <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
+                    <div className="d-flex ms-1 justify-content-end align-items-baseline">
+                        <img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
+                        <span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
+                    </div>
+                </Link>
+            </div>
             <ul className="bg-light mx-1 rounded">
                 {['Open', 'New', 'File', 'Save', 'Metamodel'].map((item, index) => (
                     <li className={`context-item border p-1 rounded-2 ${item === activeItem ? 'active' : ''}`}
@@ -423,7 +446,7 @@ export const ProjectMenuBar = (props: any) => {
                     <div className="ms-auto me-5 mt-1 rounded-2" 
                         style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}
                     >
-                        Project file: {props.props.phFocus.focusProj.file}
+                        {/* Project file: {props.props.phFocus.focusProj.file} */}
                     </div>             
                     <div className="ms-auto me-5 px-1 rounded-2" 
                         style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "120px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out"}}

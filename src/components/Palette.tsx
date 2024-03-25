@@ -31,6 +31,8 @@ const Palette = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
+  const [IRTVOtNodeDataArray, setIRTVOtNodeDataArray] = useState([])
+  const [CoreOtNodeDataArray, setCoreOtNodeDataArray] = useState([])
   const [filteredNewtypesNodeDataArray, setFilteredNewtypesNodeDataArray] = useState([])
   // const [metamodelList, setMetamodelList] = useState([])
   const [role, setRole] = useState('')
@@ -38,6 +40,11 @@ const Palette = (props: any) => {
   const [types, setTypes] = useState([])
   const [addMetamodelName, setAddMetamodelName] = useState(false)
   const [selMetamodelName, setSelMetamodelName] = useState('')
+  const [openDetail, setOpenDetail] = useState<string | null>('top');
+
+  const handleToggle = (id: string) => {
+    setOpenDetail(openDetail === id)// ? null : id);
+  };
 
   let focusModel = props.phFocus?.focusModel
 
@@ -48,7 +55,7 @@ const Palette = (props: any) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;
 
-  const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined)?.map((m: any) => ({ id: m?.id, name: m?.name }));
+  const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined && m?.name !== 'AKM-ADMIN_MM')?.map((m: any) => ({ id: m?.id, name: m?.name }));
 
   // const metamodelList = mmodel.submetamodels?.map((m: any) => ({ id: m?.id, name: m?.name }));
   if (debug) console.log('47', model, mmodel, metamodels, metamodelList);
@@ -81,6 +88,8 @@ const Palette = (props: any) => {
     const objecttypes = mmodel?.objecttypes;
     if (!metamodels) return null;
 
+    if (props.modelType === 'metamodel') setVisiblePalette(false);
+
     setRole(focusRole);
     setTask(focusTask);
     setTypes(objecttypes?.map((t: any) => t?.name));
@@ -91,14 +100,19 @@ const Palette = (props: any) => {
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
     const coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+    const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
+    const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
     const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
     const seltypes = additionalmetamodel?.objecttypes.map((t: any) => t?.name);
     setSelMetamodelName(additionalmetamodel?.name)
     if (debug) console.log('115 Palette', additionalmetamodel);
     setAddMetamodelName(additionalmetamodel?.name)
 
-    setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for current metamodel
+    setCoreOtNodeDataArray(buildFilterOtNodeDataArray(coreTypes, coremetamodel));
+    setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, additionalmetamodel));  
+
+    setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for additional metamodel
     if (debug) console.log('92 Palette useEffect 2', filteredOtNodeDataArray, buildFilterOtNodeDataArray(seltypes, mmodel));
     // setFilteredOtNodeDataArray(buildFilter(role, task, metamodelList, seltypes, mmodel.submetamodels[0]));  // build the palette for current metamodel
 
@@ -177,10 +191,8 @@ const Palette = (props: any) => {
   );
 
   const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
-    <div className="metamodel-pad mt-0 p-1  bg-white" style={{ height: "44vh" }}>
-      <div className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</div>
-      <div className="modellingtask bg-light w-100" >
-      </div>
+    <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
+      <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</summary>
       {/* Top palette with current metamodelpalette */}
       <GoJSPaletteApp
         nodeDataArray={filteredNewtypesNodeDataArray}
@@ -190,34 +202,44 @@ const Palette = (props: any) => {
         myGoModel={props.myGoModel}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
-        diagramStyle={{ height: "42vh" }}
+        diagramStyle={{ height: "76vh" }}
       />
-    </div>
-
-  const gojsappPaletteBottomDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
-    <div className="metamodel-pad mt-1 p-1 pt-1 bg-white"
-      style={(filteredOtNodeDataArray?.length === 0) ? { height: "78vh" } : { height: "37vh" }} >
-      <div className="modellingtask bg-light w-100" >
-        {otDiv}
-        <div className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#8bc", minWidth: "184px", maxWidth: "212px" }}>{selMetamodelName}</div>
-      </div>
-      {/* Lower palette with selected metamodel or first metamodel */}
+    </details>
+//     style={(filteredOtNodeDataArray?.length === 0) ? { height: "0vh" } : { height: "37vh" }} 
+  const gojsappPaletteIRTVDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
+    <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
+        <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>IRTV Metamodel</summary>
       <GoJSPaletteApp
-        nodeDataArray={filteredOtNodeDataArray}
+        nodeDataArray={IRTVOtNodeDataArray}
         linkDataArray={[]}
         myMetis={props.myMetis}
         metis={props.metis}
         myGoModel={props.myGoModel}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
-        diagramStyle={{ height: "32vh" }}
+        diagramStyle={{ height: "30vh" }}
       />
-    </div>
+    </details>
+  const gojsappPaletteCoreDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
+    <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
+      <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>Core Metamodel</summary>
+      <GoJSPaletteApp
+        nodeDataArray={CoreOtNodeDataArray}
+        linkDataArray={[]}
+        myMetis={props.myMetis}
+        metis={props.metis}
+        myGoModel={props.myGoModel}
+        phFocus={props.phFocus}
+        dispatch={props.dispatch}
+        diagramStyle={{ height: "52vh" }}
+      />
+    </details>
 
   const gojsappPaletteDiv =
     <>
       {gojsappPaletteTopDiv}
-      {gojsappPaletteBottomDiv}
+      {gojsappPaletteCoreDiv}
+      {gojsappPaletteIRTVDiv}
     </>
 
   const palette = // this is the left pane with the palette and toggle for refreshing

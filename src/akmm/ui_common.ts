@@ -1566,14 +1566,15 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 }
             }
         }    
-        // Dispatch
-        modifiedRelshipViews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        });
-        return links;
+        continue;
     }
+    // Dispatch
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    });
+    return links;
 }
 export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, objview: akm.cxObjectView, myMetis: akm.cxMetis) {
     const relviews = new Array();

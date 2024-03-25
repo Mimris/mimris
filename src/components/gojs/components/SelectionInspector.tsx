@@ -30,17 +30,17 @@ const arrowheads = ['None',
   'LineFork', 'BackwardLineFork',
   'Circle', 'Block'];
 
-const colornames = ['black', 'white',
-  'lightsalmon', 'lightsteelblue', 'turquoise',
-  'red', 'darkred', 'pink',
-  'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
-  'blue', 'lightblue', 'darkblue', 'skyblue',
-  'grey', 'lightgrey', 'darkgrey',
-  'yellow', 'lightyellow', 'yellowgreen', 'orange',
-  'brown', 'purple',
-  'violet', 'turquoise',
-  'transparent'
-];
+const colornames = ['black', 'white', 
+                    'lightsalmon','lightsteelblue',
+                    'red', 'darkred', 'pink', 
+                    'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
+                    'blue', 'lightblue', 'darkblue', 'skyblue', 
+                    'grey', 'lightgrey', 'darkgrey',
+                    'yellow', 'lightyellow', 'yellowgreen', 'orange', 
+                    'brown', 'purple', 
+                    'violet', 'turquoise',
+                    'transparent'
+                   ];
 
 const strokewidths = ['1', '2', '3', '4', '5'];
 

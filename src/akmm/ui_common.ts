@@ -1528,43 +1528,43 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                     const moviews = modelview.objectviews;
                     for (let j=0; j<moviews?.length; j++) {
                         if (moviews[j].id === oview.id) {
-                        fromObjview = oview;;
-                        break;
+                            fromObjview = oview;
+                            break;
                         }
                     }
                 }
                 let toObjview = null;
                 for (let i=0; i<toObjviews?.length; i++) {
-                const oview = toObjviews[i];
-                const moviews = modelview.objectviews;
-                for (let j=0; j<moviews.length; j++) {
-                    if (moviews[j].id === oview.id) {
-                    toObjview = oview;;
-                    break;
+                    const oview = toObjviews[i];
+                    const moviews = modelview.objectviews;
+                    for (let j=0; j<moviews.length; j++) {
+                        if (moviews[j].id === oview.id) {
+                            toObjview = oview;;
+                            break;
+                        }
                     }
                 }
+                if (fromObjview && toObjview) {
+                    relview.setFromObjectView(fromObjview);
+                    relview.setToObjectView(toObjview);
+                    rel.addRelationshipView(relview);
+                    if (debug) console.log('1682 relview', relview);
+                    modelview.addRelationshipView(relview);
+                    // Add link
+                    let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                    link.loadLinkContent(myGoModel);
+                    link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                    link.from = link.fromNode?.key;
+                    link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                    link.to = link.toNode?.key;
+                    myGoModel.addLink(link);
+                    links.push(link);
+                    myDiagram.model.addLinkData(link);
+                    // Prepare dispatch
+                    const jsnRelview = new jsn.jsnRelshipView(relview);
+                    modifiedRelshipViews.push(jsnRelview);
+                }
             }
-            if (fromObjview && toObjview) {
-                relview.setFromObjectView(fromObjview);
-                relview.setToObjectView(toObjview);
-                rel.addRelationshipView(relview);
-                if (debug) console.log('1682 relview', relview);
-                modelview.addRelationshipView(relview);
-                // Add link
-                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                link.loadLinkContent(myGoModel);
-                link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-                link.from = link.fromNode?.key;
-                link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-                link.to = link.toNode?.key;
-                myGoModel.addLink(link);
-                links.push(link);
-                myDiagram.model.addLinkData(link);
-                // Prepare dispatch
-                const jsnRelview = new jsn.jsnRelshipView(relview);
-                modifiedRelshipViews.push(jsnRelview);
-            }
-        }
         }    
         // Dispatch
         modifiedRelshipViews.map(mn => {

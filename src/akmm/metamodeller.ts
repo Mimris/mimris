@@ -23,7 +23,7 @@ export class cxMetis {
     name: string;
     description: string;
     category: string;
-    projects: cxProject[] | null;
+    projects: cxModelSuite[] | null;
     metamodels: cxMetaModel[] | null = null;
     coreMetamodel: cxMetaModel | null = null;
     viewstyles: cxViewStyle[] | null;
@@ -100,7 +100,7 @@ export class cxMetis {
         this.name = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
-        // Handle projects
+        // Handle projects aka modelSuites
         const projects = (importedData) && importedData.projects;
         if (projects && projects.length) {
             for (let i = 0; i < projects.length; i++) {
@@ -1113,7 +1113,7 @@ export class cxMetis {
                     });
                 }
                 const relships: any[] = item.relships;
-                if (debug) console.log('845 relships', relships);
+                if (!debug) console.log('845 relships', relships);
                 if (relships && (relships.length > 0)) {
                     relships.forEach(rel => {
                         if (model) this.importRelship(rel, model);
@@ -1209,21 +1209,19 @@ export class cxMetis {
                 modelview.includeInheritedReltypes = item.includeInheritedReltypes;
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
                 model.addModelView(modelview);
-                const objectviews: any[] = (item) && item.objectviews;
+                const objectviews: cxObjectView[] = (item) && item.objectviews;
                 objectviews?.forEach(objview => {
                     if (objview && objview.id) {
                         this.importObjectView(objview, modelview);
                         if (debug) console.log('630 model', model);
                     }
                 });
-                const relshipviews: any[] = item.relshipviews;
-                if (debug) console.log('978 relshipviews', relshipviews);
+                const relshipviews: cxRelationshipView[] = item.relshipviews;
                 relshipviews?.forEach(relview => { // sf added ? 2021-05-09
                     if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });
             }
-            if (debug) console.log('641 model', model);
         }
     }
     importObjectView(item: any, modelview: cxModelView) {
@@ -3505,8 +3503,6 @@ export class cxMethodType extends cxMetaObject {
             return true;
     }
 }
-
-// -------------------------------------------------------------
 
 export class cxMetaModel extends cxMetaObject {
     metamodels: cxMetaModel[] | null;
@@ -6270,7 +6266,6 @@ export class cxMethod extends cxMetaObject {
     }
 }
 
-// ---------  View Template Definitions  -----------------------------
 export class cxViewStyle extends cxMetaObject {
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null = null;
@@ -7001,7 +6996,6 @@ export class cxRelationshipTypeView extends cxMetaObject {
     }
 }
 
-// ---------------------------------------------------------------------
 export class cxModel extends cxMetaObject {
     // modeltype: string;
     metamodel: cxMetaModel | null;
@@ -8648,7 +8642,6 @@ export class cxPropertyValue {
     // Methods
 }
 
-// ---------------------------------------------------------------------
 export class cxValue extends cxMetaObject {
     value: string;
     constructor(id: string, name: string, description: string) {
@@ -8705,7 +8698,6 @@ export class cxInputPattern extends cxMetaObject {
     }
 }
 
-// ---------------------------------------------------------------------
 export class cxModelView extends cxMetaObject {
     model: cxModel | null;
     viewstyle: cxViewStyle | null;
@@ -9820,8 +9812,6 @@ export class cxDiagram extends cxMetaObject {
         return this.content;
     }
 }
-
-// ---------------------------------------------------------------------
 
 export class cxIdent {
     id: string;

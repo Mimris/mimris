@@ -1686,7 +1686,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           break;
       }
       case "BackgroundSingleClicked": {
-        if (debug) console.log('1615 BackgroundSingleClicked', e, e.diagram);
+        console.log('1615 myMetis', myMetis);
         uid.clearFocus(myModelview); 
         break;
       }

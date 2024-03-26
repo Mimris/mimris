@@ -614,9 +614,14 @@ export function buildAdminModel(myMetis: akm.cxMetis): akm.cxModel {
   }
   // Correct some errors in the Admin Metamodel
   // First check if the type Project is in the Admin Metamodel
-  const projectType = adminMetamodel.findObjectTypeByName(constants.admin.AKM_PROJECT);
-  projectType.name = constants.admin.AKM_MODELSUITE;
-  let modelSuiteType = projectType;
+  let modelSuiteType = adminMetamodel.findObjectTypeByName(constants.admin.AKM_MODELSUITE);
+  if (!modelSuiteType) {
+    const projectType = adminMetamodel.findObjectTypeByName(constants.admin.AKM_PROJECT);
+    if (projectType) {
+      projectType.name = constants.admin.AKM_MODELSUITE;
+      modelSuiteType = projectType;
+    }
+  }
   if (!modelSuiteType) {
     if (debug) console.log('561 No ModelSuite type found in the Admin Metamodel!');
     return;
@@ -634,8 +639,7 @@ export function buildAdminModel(myMetis: akm.cxMetis): akm.cxModel {
       }
     }
     let firstTime = false;
-    let adminModel: akm.cxModel = null;
-    // adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
+    let adminModel: akm.cxModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let adminModelview: akm.cxModelView = null;
     if (!adminModel) {
       firstTime = true;

@@ -1325,8 +1325,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "connectToSelected": {     
-      let modifiedRelships = new Array();
-      let modifiedRelshipViews = new Array();
       const nodeFrom = modalContext.args.nodeFrom;
       let fromType: akm.cxObjectType = nodeFrom.objecttype;
       fromType = myMetis.findObjectType(fromType.id);
@@ -1383,54 +1381,23 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           if (relviews.length === 0) {
             // The relationship view does not exist - create it
             if (!relview) { 
-              relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
-              relview.fromObjview = fromObjview;
-              relview.toObjview = toObjview;
-              rel.addRelationshipView(relview);
-              myModelview.addRelationshipView(relview); 
-              myMetis.addRelationshipView(relview); 
-              // create a link data between the actual nodes
-              let linkdata = {
-                key:    utils.createGuid(),
-                from:   myDiagram.model.getKeyForNodeData(nodeFrom),  // or just: fromData.id
-                to:     myDiagram.model.getKeyForNodeData(nodeTo),
-                name:   relTypename,
-              };
-              // set the link attributes
-              const rtviewdata = reltype?.typeview?.data;
-              for (let prop in rtviewdata) {
-                if (prop === 'id') continue;
-                if (prop === 'name') continue;
-                if (prop === 'abstract') continue;
-                if (prop === 'class') continue;
-                if (prop === 'relshipkind') continue;
-                linkdata[prop] = rtviewdata[prop];
+              const context = {
+                myDiagram: myDiagram,
+                myMetis: myMetis,
+                myModel: myModel,
+                myModelview: myModelview,
+                reltype: reltype,
+                relTypename: relTypename,
+                fromObjview: fromObjview,
+                toObjview: toObjview,
+                nodeFrom: nodeFrom,
+                nodeTo: nodeTo,
               }
-              links.push(linkdata);
-              // and add the link data to the model
-              myDiagram.model.addLinkData(linkdata);
-
-              // Prepare for dispatch
-              const jsnRelship = new jsn.jsnRelationship(rel);
-              modifiedRelships.push(jsnRelship);
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              modifiedRelshipViews.push(jsnRelview);
+              uic.createRelationshipView(rel, context);
             }
           }
         }
       }
-      // Dispatch
-      modifiedRelships.map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-      })
-      modifiedRelshipViews.map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      })
     }
-    break;
   }
 }

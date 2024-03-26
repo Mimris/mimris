@@ -53,19 +53,6 @@
       "modified": true
     },
     {
-      "id": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-      "name": "Generic",
-      "description": "",
-      "abstract": false,
-      "viewkind": "Object",
-      "typename": "Object type",
-      "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
-      "properties": [],
-      "methods": [],
-      "markedAsDeleted": false,
-      "modified": true
-    },
-    {
       "id": "0f0ad006-dd7a-449c-f85a-f2a6d5e0ce2c",
       "name": "Metamodel",
       "description": "",
@@ -1980,7 +1967,7 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-      "icon": "https://img.icons8.com/color/2x/object.png",
+      "icon": "./../images/types/Model.png",
       "markedAsDeleted": false,
       "modified": false
     },

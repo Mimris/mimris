@@ -15,7 +15,7 @@ const grabIsAllowed = false;
 
 // functions to handle nodes
 export function createObject(data: any, context: any): akm.cxObjectView | null {
-    if (debug) console.log('14 context, data', context, data);
+    if (!debug) console.log('14 context, data', context, data, data.object);
     if (data === null) {
         return null;
     } else {

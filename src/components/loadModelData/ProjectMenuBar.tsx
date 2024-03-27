@@ -415,31 +415,32 @@ export const ProjectMenuBar = (props: any) => {
             </>
         :  
             <>
-                <div className="bar-menu-left bg-transparent p-1"
+                <button className="bar-menu-left bg-transparent p-1"
                     style={{ 
                         position: "absolute",     
                         top: "4px", 
                         left: "3px",
-                        zIndex: "99"
+                        border: "none",
+                        zIndex: "999"
                      }}
                     onClick={() => setIsDropdownOpen(true)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
-                </div>
-                <div className="bar-menu-right px-2"
+                </button>
+                <button className="bar-menu-right bg-transparent "
                     style={{ 
                         position: "absolute",     
                         top: "6px", 
                         right: "8px",
+                        border: "none",
                         zIndex: "999"
                     }}
                     onClick={() => setIsRightDropdownOpen(true)}
-                    // onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                     >
-                    <i className="fa fa-ellipsis-v fa-lg"> </i> 
+                     <i className="fa fa-ellipsis-v px-2 fa-lg"> </i> 
                     {dropRightMenuDiv}
-                </div>
+                </button>
                 <div className="d-flex"
                     onClick={() => props.setExpanded(true)}
                 >

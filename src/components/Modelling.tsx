@@ -36,10 +36,8 @@ import useLocalStorage from '../hooks/use-local-storage'
 import useSessionStorage from '../hooks/use-session-storage'
 
 import * as akm from '../akmm/metamodeller';
-import * as uib from '../akmm/ui_buildmodels';
-import { load } from "cheerio";
-// import { set } from "immer/dist/internal";
-const constants = require('../akmm/constants');
+// import * as uib from '../akmm/ui_buildmodels';
+// const constants = require('../akmm/constants');
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -80,8 +78,12 @@ const page = (props: any) => {
   const ph = props
   const metis = ph.phData?.metis
   const models = metis?.models || []
+  const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
+  const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
+    ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
 
-  // let goParams = {}
+  if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
   const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
   const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
@@ -89,17 +91,15 @@ const page = (props: any) => {
   const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
   const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
 
+  // const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  // const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  // const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  // const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
 
-  const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
-
-  let myModel, myModelview, myMetamodel
+  // let myModel, myModelview, myMetamodel
   let myGoModel, myGoMetamodel
-  let myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel, myGoMetamodelPalette, myGoTargetMetamodel
-  let myGoTargetModel, myTargetModelview, myTargetMetamodel, myTargetModel, myTargetMetamodelPalette
-  
+  // let myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel, myGoMetamodelPalette, myGoTargetMetamodel
+  // let myGoTargetModel, myTargetModelview, myTargetMetamodel, myTargetModel, myTargetMetamodelPalette
   
   // let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
 
@@ -127,42 +127,22 @@ const page = (props: any) => {
 
   let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
 
-  const modelindex = models.findIndex((m: any) => m?.id === focusModel?.id)
-  // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -1
-
-  const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
-
-  const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
-    ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-    : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
-
-  if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
+  // const modelindex = models.findIndex((m: any) => m?.id === focusModel?.id)
+  // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -
 
   let myMetis = new akm.cxMetis();
   let goParams = {}
+
   async function loadMyModeldata(myMetis: akm.cxMetis, goParams: any)   {
     goParams = await GenGojsModel(props, myMetis, goParams);
     if (!debug) console.log('145 Modelling', goParams);
-    myGoModel = goParams.myGoModel
-    myGoMetamodel = goParams.myGoMetamodel
-    myGoMetamodelModel = goParams.myGoMetamodelModel
-    myGoMetamodelPalette = goParams.myGoMetamodelPalette
-    myGoObjectPalette = goParams.myGoObjectPalette
-    myGoRelshipPalette = goParams.myGoRelshipPalette
-    myGoTargetModel = goParams.myGoTargetModel
-    myGoTargetMetamodel = goParams.myGoTargetMetamodel
-    
-    // if (debug) console.log('165 Modelling', myGoMetamodel, myMetis);
-    if (debug) console.log('166 Modelling', myGoModel, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette, myGoObjectPalette, myGoRelshipPalette, myGoTargetModel, myGoTargetMetamodel);
     setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-    setGojsmetamodelpalette({ nodeDataArray: myGoMetamodelPalette.nodes, linkDataArray: myGoMetamodelPalette.links });
-    setGojsmetamodelmodel({ nodeDataArray: myGoMetamodelModel.nodes, linkDataArray: myGoMetamodelModel.links });
+    setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
+    setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
     setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
-    setGojsmodelobjects({ nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette });
+    setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
     setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-    setGojstargetmetamodel({ nodeDataArray: myGoTargetMetamodel.nodes, linkDataArray: myGoTargetMetamodel.links });
-    if (debug) console.log('174 Modelling', myMetis, myGoModel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojsmetamodelpalette, gojsmetamodelmodel, gojstargetmodel, gojstargetmetamodel);
-
+    setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
   };
 
    goParams = GenGojsModel(props, myMetis, goParams);
@@ -175,41 +155,12 @@ const page = (props: any) => {
     setActiveTab(activetabindex);
     setMount(true);
   }, [])
-  
-  // useEffect(() => {
-  //   loadMyModeldata(myMetis, goParams)
-  //   if (debug) console.log('224 Modelling', myMetis, goParams);
-  // }, [props.phFocus?.focusModel?.id])
-  // useEffect(() => {
-  //   if (debug) console.log('199 Modelling useEffect 1 [] : ', activeTab)//, props, myMetis, GenGojsModel(props, myMetis));
-  //   GenGojsModel(props, myMetis)
-  //     .then((data) => {
-  //       if (debug) console.log('195 Modelling', data.myMetis);
-  //       loadMyModeldata(data.myMetis);
-  //       if (debug) console.log('197 Modelling useEffect 1 [] : ', activeTab, myMetis);
-  //       setMount(true);
-  //       setActiveTab(activeTab);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error generating myGomodels:', error);
-  //     });
-  //     console.log('205 Modelling useEffect 1 [] : ', myMetis);
-  // }, []);
 
   useEffect(() => {
     if (debug) console.log('207 Modeller useEffect 2 [props.phFocus.focusModelview?.id] : ', activeTab, props.phFocus.focusModel?.name);
     setActiveTab(activetabindex);
   }, [props.phFocus?.focusModel?.id]);
 
-  // useEffect(() => {
-  //   if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
-  //   GenGojsModel(props, myMetis);
-  // }, [activeTab])
-
-  // useEffect(() => {
-  //   if (debug) useEfflog('217 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
-  //   GenGojsModel(props, myMetis)
-  // }, [curmodview?.objectviews.length === 0])
 
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
@@ -236,14 +187,13 @@ const page = (props: any) => {
   }
 
 
-  if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
+  // if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
 
   if (mount && myMetis) {
     // return <></>
-  // } else {
+    // } else {
 
-    if (debug) console.log('291 Modelling myModel', myMetis, myModel);
-
+    // if (debug) console.log('291 Modelling myModel', myMetis, myModel); 
     //let myGoMetamodel = props.phGojs?.gojsMetamodel
     let phFocus = props.phFocus;
     let phData = props.phData
@@ -658,24 +608,6 @@ const page = (props: any) => {
 export default Page(connect(state => state)(page));
 
 
-
-    // if (debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
-      // if (!myMetis && !myModel && !myModelview && !myMetamodel) {
-      //   console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
-      //   return null;
-      // }
-      // myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) //props.phMyGoModel?.myGoModel
-      // myGoMetamodel = uib.buildGoMetaPalette() //props.phMyGoMetamodel?.myGoMetamodel
-      // myGoMetamodelModel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) //props.phMyGoMetamodelModel?.myGoMetamodelModel
-      // myGoMetamodelPalette = uib.buildGoPalette(myMetamodel, myMetis) //props.phMyGoMetamodelPalette?.myGoMetamodelPalette
-      // myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
-      // if (!myModel?.objects) { console.log('227 myModel.objects is undefined', myModel, myMetis);
-      //   // return null
-      // } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis);}
-      // if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
-      // // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
-      // if (debug) console.log('188 Modelling ', myGoObjectPalette);
-
           // const toggleTab = tab => {
     //   if (activeTab !== tab) setActiveTab(tab);
     //   const data = (tab === '1') ? 'Metamodel' : 'Model'
@@ -727,7 +659,7 @@ export default Page(connect(state => state)(page));
   //   if (debug) useEfflog('233');
   //   // doRefresh()
   // }, [curmod.objects.length === 0])
-  
+
   // useEffect(() => {
   //   if (debug) useEfflog('149 Modelling useEffect 5 [memoryAkmmUser]', memoryAkmmUser);
   //   setRefresh(!refresh)
@@ -741,3 +673,35 @@ export default Page(connect(state => state)(page));
   //   }, 200);
   //   return () => clearTimeout(timer);
   // }, [props.phFocus?.focusRefresh?.id])
+
+
+
+  // useEffect(() => {
+  //   loadMyModeldata(myMetis, goParams)
+  //   if (debug) console.log('224 Modelling', myMetis, goParams);
+  // }, [props.phFocus?.focusModel?.id])
+  // useEffect(() => {
+  //   if (debug) console.log('199 Modelling useEffect 1 [] : ', activeTab)//, props, myMetis, GenGojsModel(props, myMetis));
+  //   GenGojsModel(props, myMetis)
+  //     .then((data) => {
+  //       if (debug) console.log('195 Modelling', data.myMetis);
+  //       loadMyModeldata(data.myMetis);
+  //       if (debug) console.log('197 Modelling useEffect 1 [] : ', activeTab, myMetis);
+  //       setMount(true);
+  //       setActiveTab(activeTab);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error generating myGomodels:', error);
+  //     });
+  //     console.log('205 Modelling useEffect 1 [] : ', myMetis);
+  // }, []);
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('112 Modelling useEffect 2 [activTab]', props);
+  //   GenGojsModel(props, myMetis);
+  // }, [activeTab])
+
+  // useEffect(() => {
+  //   if (debug) useEfflog('217 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
+  //   GenGojsModel(props, myMetis)
+  // }, [curmodview?.objectviews.length === 0])

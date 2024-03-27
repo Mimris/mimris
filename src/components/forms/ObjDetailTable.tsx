@@ -33,7 +33,7 @@ export const ObjDetailTable = (props) => {
                 <details key={objrel.id+'details'} open={objrel?.id === selectedId} onToggle={() => setSelectedId(objrel.id)}> 
                   <summary style={{ display: 'flex' }}>  
                     <span style={{ display: 'inline-block', width: '1.5em' }}>{objrel?.id === selectedId ? '▼' : '▶'}</span>
-                    {(title === 'Children' || curobject.id === curmodelview.id) ? (
+                    {(title === 'Children' || curobject.id === curmodelview?.id) ? (
                       <div className="d-flex" >
                           <span style={{ marginLeft: '6px' }}>{objrel?.name}</span>
                           {/* <span style={{ marginLeft: '126px' }}> </span> */}

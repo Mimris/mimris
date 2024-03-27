@@ -126,10 +126,15 @@ const Navbar = (props) => {
 					{/* <Link className="navbar-brand navbar-left mx-1 mb-2" href="#">
 						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 					</Link> */}
-					<div className="navbar-brand navbar-left ms-0 me-4 text-black bg-white m-0" > 
+					<div className="navbar-brand navbar-left ms-0 me-4 rounded text-black bg-white" > 
 						<span className="bg-white mb-0 py-1"
-							style={{ fontSize: "1rem", color: "gray", fontWeight: "normal",fontStretch: "condensed", whiteSpace: "nowrap"}} 
-						>{props.projName}</span>
+							type="button"
+							data-toggle="tooltip" data-placement="top" data-bs-html="true"
+							title={props.projName}
+							style={{ fontSize: "1rem", color: "gray", fontWeight: "normal", fontStretch: "condensed", whiteSpace: "nowrap", maxWidth: "48vh", overflow: "hidden", textOverflow: "ellipsis" }}
+						>
+							{props.projName.length > 48 ? '...' + props.projName.slice(-48) : props.projName}
+						</span>
 					</div>
 					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>AKMM</strong>
 					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">

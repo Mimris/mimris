@@ -234,7 +234,7 @@ const page = (props: any) => {
               <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
                 }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`}
                 target="_blank"
-                style={{ position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "gray" }}
+                style={{ position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "lightgray" }}
               >
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
               </Link>

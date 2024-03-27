@@ -39,7 +39,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Modeller = (props: any) => {
   if (!props.metis) return <> not found</>
-  if (!props.myMetis.currentModel) return <> not found</>
+  if (!props.myMetis?.currentModel) return <> not found</>
   if (debug) console.log('42 Modeller: props', props);
 
   const dispatch = useDispatch();
@@ -585,10 +585,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
   const footerButtonsDiv =
     <div className="modeller--footer-buttons d-flex justify-content-end" data-placement="top" title="Modelview footer area" >
-      <button className="btn btn-sm mt-0 py-0" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file"
+      {/* <button className="btn btn-sm mt-0 py-0" onClick={handleExportClick} data-toggle="tooltip" data-placement="top" title="Export to Svg file"
         style={{ fontSize: "12px", maxHeight: "20px" }}>
         Export Modelview to Svg
-      </button>
+      </button> */}
       {/* <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={toggleRefreshObjects} data-toggle="tooltip" data-placement="top" title="Save current state to LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'save2memory' : 'save2memory'} </span>
       <span className="btn mx-2 py-0 mt-1 pt-1 bg-light text-secondary" onClick={loadLocalStorageModel} data-toggle="tooltip" data-placement="top" title="Get last saved from LocalStorage" style={{ fontSize: "12px" }}> {refresh ? 'getMemory' : 'getmemory'} </span> */}
       {/* <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
@@ -602,21 +602,21 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showModified) ? ' Hide modified' : 'Show modified'}
       </button> */}
-      <button className="btn btm-sm bg-secondary mt-0 py-0"
+      {/* <button className="btn btm-sm bg-secondary mt-0 py-0"
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" style={{ fontSize: "12px" }}
         style={{ fontSize: "12px", maxHeight: "20px" }}
         onClick={() => {
           dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }); setRefresh(!refresh)
           // dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
-      </button>
+      </button> */}
       {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
     </div>
 
   const modelviewTabDiv = // this is the modelview tabs
     <>
       <Nav tabs > {/* objects  */}
-        <button className="btn btn-sm bg-transparent text-light"
+        {/* <button className="btn btn-sm bg-transparent text-light"
           data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
           onClick={toggleObjects}
         >
@@ -624,7 +624,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             ? <span className="fs-8"><i className="fa fa-lg fa-angle-left  pull-right-container me-1"></i>Objects </span>
             : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container me-1"></i>Objects </span>
           }
-        </button>
+        </button> */}
         {navitemDiv} {/* modelviewtabs  */}
         <NavItem > {/* ?  */}
           <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -646,10 +646,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <TabContent className="bg-white p-0 m-0 border border-white">
         <TabPane className="">
           <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
-            {(visibleObjects)
+            {/* {(visibleObjects)
               ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
               : <></>
-            }
+            } */}
             <Col className="me-2 my-1 p-1 border" xe="auto" >
               <div className="workpad bg-white border-light mt-0 pe-0">
                 {gojsapp}

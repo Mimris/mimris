@@ -144,10 +144,10 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [query.repo !== undefined]);
 
-  useEffect(() => {
-    if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
-    GenGojsModel(props, dispatch);
-  }, [props.phFocus?.focusRefresh?.id])
+  // useEffect(() => {
+  //   if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
+  //   // GenGojsModel(props, dispatch, goParams);
+  // }, [props.phFocus?.focusRefresh?.id])
 
 
   // useEffect(() => {

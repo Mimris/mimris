@@ -229,7 +229,7 @@ const LoadMetamodelFromGithub = (props: any) => {
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
       } 
       
-      GenGojsModel(data.phData, dispatch)
+      // GenGojsModel(data.phData, dispatch)
     }
   }
 

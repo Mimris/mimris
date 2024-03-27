@@ -8,6 +8,7 @@ const constants = require('./constants');
 let jsnMetis: akm.cxMetis;
 
 export class jsnExportMetis {
+    id:                         string;
     name:                       string;
     description:                string;
     metamodels:                 jsnMetaModel[];
@@ -26,6 +27,7 @@ export class jsnExportMetis {
     currentTaskModelRef:        string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
+        this.id                             = metis.id;
         this.name                           = metis.name;
         this.description                    = metis.description;
         this.allowGenerateCurrentMetamodel  = metis.allowGenerateCurrentMetamodel;

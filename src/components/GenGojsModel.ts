@@ -27,7 +27,7 @@ const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'F
 const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
   // let myMetis = yourMetis;
   // let goParams = {};
-  if (!debug) console.log('28 GenGojsModel started', props, myMetis);
+  if (debug) console.log('28 GenGojsModel started', props, myMetis);
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -60,7 +60,7 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
     // const myMetis = new akm.cxMetis();
     // myMetis = props.myMetis;
 
-    if (!debug) console.log('51 GenGojsModel: metis', metis, myMetis);
+    if (debug) console.log('51 GenGojsModel: metis', metis, myMetis);
     myMetis?.importData(metis, true);
 
     adminModel = uib.buildAdminModel(myMetis);
@@ -72,11 +72,11 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
       let myModelview = (curmodview) && myModel?.findModelView(curmodview?.id);
       if (debug) console.log('73 myModelview', myModelview);
       const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
-      if (!debug) console.log('75 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
+      if (debug) console.log('75 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       let myMetamodel = myModel?.metamodel;
-      if (!debug) console.log('77 myMetamodel :', myMetamodel);
+      if (debug) console.log('77 myMetamodel :', myMetamodel);
       const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified);
-      if (!debug) console.log('79 myGoMetamodel', myGoMetamodel);
+      if (debug) console.log('79 myGoMetamodel', myGoMetamodel);
       const myGoMetamodelPalette = (myMetamodel) && uib.buildGoMetaPalette();
       if (debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
       const myGoPalette = (myMetamodel) && uib.buildGoPalette(myMetamodel, myMetis);
@@ -115,10 +115,10 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
         console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
         return null;
       }
-          let myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
+      let myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
       let myGoRelshipPalette = (myModel?.relship) ? uib.buildRelshipPalette(myModel?.relships, myMetis) : []
       let myGoMetamodelModel = (myMetamodel) ? uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) : []
-      
+
       goParams.myGoModel = myGoModel;
       goParams.myGoMetamodel = myGoMetamodel;
       goParams.myGoObjectPalette = myGoObjectPalette;
@@ -134,7 +134,7 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
       if (debug) console.log('165 GenGojsModel ', myMetis, myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel);
     }
   }
-  if (!debug) console.log('172 GenGojsModel myMetis', myMetis);
+  if (debug) console.log('172 GenGojsModel myMetis', myMetis);
   return goParams;
 
 }

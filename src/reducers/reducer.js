@@ -306,7 +306,7 @@ function reducer(state = InitialState, action) {
         phUser: action.data
       }
     case LOAD_TOSTORE_PHSOURCE:
-      if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action);
+      if (debug) console.log('309 LOAD_TOSTORE_PHSOURCE', action);
       return {
         ...state,
         phSource: action.data

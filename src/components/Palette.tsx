@@ -110,7 +110,7 @@ const Palette = (props: any) => {
     setAddMetamodelName(additionalmetamodel?.name)
 
     setCoreOtNodeDataArray(buildFilterOtNodeDataArray(coreTypes, coremetamodel));
-    setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, additionalmetamodel));  
+    setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, additionalmetamodel));
 
     setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for additional metamodel
     if (debug) console.log('92 Palette useEffect 2', filteredOtNodeDataArray, buildFilterOtNodeDataArray(seltypes, mmodel));
@@ -124,7 +124,7 @@ const Palette = (props: any) => {
 
   if (!metamodels) return null;
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
-    if (debug) console.log('106 Palette', mmodel, props.myMetis);
+    if (!debug) console.log('106 Palette', mmodel, props.myMetis);
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     if (debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
@@ -205,10 +205,10 @@ const Palette = (props: any) => {
         diagramStyle={{ height: "76vh" }}
       />
     </details>
-//     style={(filteredOtNodeDataArray?.length === 0) ? { height: "0vh" } : { height: "37vh" }} 
-  const gojsappPaletteIRTVDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
+  //     style={(filteredOtNodeDataArray?.length === 0) ? { height: "0vh" } : { height: "37vh" }} 
+  const gojsappPaletteIRTVDiv = (mmodel && IRTVOtNodeDataArray) && // this is the palette with the current metamodel
     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-        <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>IRTV Metamodel</summary>
+      <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>IRTV Metamodel</summary>
       <GoJSPaletteApp
         nodeDataArray={IRTVOtNodeDataArray}
         linkDataArray={[]}
@@ -220,7 +220,7 @@ const Palette = (props: any) => {
         diagramStyle={{ height: "30vh" }}
       />
     </details>
-  const gojsappPaletteCoreDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
+  const gojsappPaletteCoreDiv = (mmodel && CoreOtNodeDataArray) && // this is the palette with the current metamodel
     <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
       <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>Core Metamodel</summary>
       <GoJSPaletteApp

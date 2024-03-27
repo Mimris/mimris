@@ -152,9 +152,8 @@ const page = (props: any) => {
     myGoTargetModel = goParams.myGoTargetModel
     myGoTargetMetamodel = goParams.myGoTargetMetamodel
     
-    // if (!debug) console.log('165 Modelling', myGoMetamodel, myMetis);
+    // if (debug) console.log('165 Modelling', myGoMetamodel, myMetis);
     if (debug) console.log('166 Modelling', myGoModel, myGoMetamodel, myGoMetamodelModel, myGoMetamodelPalette, myGoObjectPalette, myGoRelshipPalette, myGoTargetModel, myGoTargetMetamodel);
-
     setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
     setGojsmetamodelpalette({ nodeDataArray: myGoMetamodelPalette.nodes, linkDataArray: myGoMetamodelPalette.links });
     setGojsmetamodelmodel({ nodeDataArray: myGoMetamodelModel.nodes, linkDataArray: myGoMetamodelModel.links });
@@ -162,7 +161,6 @@ const page = (props: any) => {
     setGojsmodelobjects({ nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette });
     setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
     setGojstargetmetamodel({ nodeDataArray: myGoTargetMetamodel.nodes, linkDataArray: myGoTargetMetamodel.links });
-
     if (debug) console.log('174 Modelling', myMetis, myGoModel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojsmetamodelpalette, gojsmetamodelmodel, gojstargetmodel, gojstargetmetamodel);
 
   };
@@ -172,23 +170,23 @@ const page = (props: any) => {
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
-    loadMyModeldata(myMetis, goParams)
-    if (!debug) console.log('226 ', myMetis, goParams, activeTab, activetabindex);
+    // loadMyModeldata(myMetis, goParams)
+    if (debug) console.log('226 ', myMetis, goParams, activeTab, activetabindex);
     setActiveTab(activetabindex);
     setMount(true);
   }, [])
   
   // useEffect(() => {
   //   loadMyModeldata(myMetis, goParams)
-  //   if (!debug) console.log('224 Modelling', myMetis, goParams);
+  //   if (debug) console.log('224 Modelling', myMetis, goParams);
   // }, [props.phFocus?.focusModel?.id])
   // useEffect(() => {
-  //   if (!debug) console.log('199 Modelling useEffect 1 [] : ', activeTab)//, props, myMetis, GenGojsModel(props, myMetis));
+  //   if (debug) console.log('199 Modelling useEffect 1 [] : ', activeTab)//, props, myMetis, GenGojsModel(props, myMetis));
   //   GenGojsModel(props, myMetis)
   //     .then((data) => {
-  //       if (!debug) console.log('195 Modelling', data.myMetis);
+  //       if (debug) console.log('195 Modelling', data.myMetis);
   //       loadMyModeldata(data.myMetis);
-  //       if (!debug) console.log('197 Modelling useEffect 1 [] : ', activeTab, myMetis);
+  //       if (debug) console.log('197 Modelling useEffect 1 [] : ', activeTab, myMetis);
   //       setMount(true);
   //       setActiveTab(activeTab);
   //     })
@@ -209,7 +207,7 @@ const page = (props: any) => {
   // }, [activeTab])
 
   // useEffect(() => {
-  //   if (!debug) useEfflog('217 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
+  //   if (debug) useEfflog('217 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
   //   GenGojsModel(props, myMetis)
   // }, [curmodview?.objectviews.length === 0])
 
@@ -244,7 +242,7 @@ const page = (props: any) => {
     // return <></>
   // } else {
 
-    if (!debug) console.log('291 Modelling myModel', myMetis, myModel);
+    if (debug) console.log('291 Modelling myModel', myMetis, myModel);
 
     //let myGoMetamodel = props.phGojs?.gojsMetamodel
     let phFocus = props.phFocus;
@@ -715,7 +713,7 @@ export default Page(connect(state => state)(page));
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
 
-    // if (!debug) console.log('166 Modelling ', myGoModel, myGoMetamodel, myGoMetamodelModel, myMetis);
+    // if (debug) console.log('166 Modelling ', myGoModel, myGoMetamodel, myGoMetamodelModel, myMetis);
     // gojsmodel = { nodeDataArray: myGoModel.nodes, linkDataArray: myGoModel.links }
     // gojsmetamodel = { nodeDataArray: myGoMetamodel?.nodes, linkDataArray: myGoMetamodel?.links }
     // gojsmodelobjects = { nodeDataArray: myGoObjectPalette, linkDataArray: myGoRelshipPalette || [] }

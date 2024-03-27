@@ -44,7 +44,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    if (!debug) console.log('47 GoJSPaletteApp', props.nodeDataArray, props);
+    if (debug) console.log('47 GoJSPaletteApp', props.nodeDataArray, props);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -104,8 +104,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     switch (name) {
       case "InitialLayoutCompleted": {
         const nodes = this.state.nodeDataArray;
-        for (let i= 0; i< nodes.length; i++) {
-            const node = nodes[i];
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
           if (!node.fillcolor) {
             const obj = node.object;
             if (obj?.fillcolor) {
@@ -144,11 +144,11 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const myDiagram = myModelview.diagram;
         const nodes = myDiagram?.nodes;
         for (let it = nodes?.iterator; it?.next();) {
-            const node = it.value;
-            if (node.data.object.id == object.id) {
-              node.isSelected = true;
-              // node.isHighlighted = true;
-            }
+          const node = it.value;
+          if (node.data.object.id == object.id) {
+            node.isSelected = true;
+            // node.isHighlighted = true;
+          }
         }
         // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
         let dataov = { id: '', name: '' };

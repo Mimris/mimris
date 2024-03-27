@@ -50,7 +50,7 @@ const Navbar = (props) => {
 	// const dispatch = useDispatch();
 
 	const currentRoute = router.pathname;
-	if (!debug) console.log('42 Navbar currentRoute', currentRoute, props);
+	if (debug) console.log('42 Navbar currentRoute', currentRoute, props);
 	const [version, setVersion] = useState("");
 	const [domainName, setDomainName] = useState("");
 
@@ -122,14 +122,18 @@ const Navbar = (props) => {
 					</Dropdown>
 					<input type="file" style={{ display: 'none' }} ref={fileInput} onChange={handleReadProjectFile} />
 				</div> */}
-				<div className="navbar-nav d-flex justify-content-center align-items-center ms-2 p-0">
+				<div className="navbar-nav d-flex justify-content-center align-items-top">
 					{/* <Link className="navbar-brand navbar-left mx-1 mb-2" href="#">
 						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 					</Link> */}
-					<strong className="text-success fs-4" style={{ whiteSpace: "nowrap" }}>AKM Project : </strong>
-					<div className="navbar-brand navbar-left ms-0 me-4 text-black bg-whit"> <spank className="bg-white px-2 py-1 fs-5">{props.projName}</spank></div>
+					<div className="navbar-brand navbar-left ms-0 me-4 text-black bg-white m-0" > 
+						<span className="bg-white mb-0 py-1"
+							style={{ fontSize: "1rem", color: "gray", fontWeight: "normal",fontStretch: "condensed", whiteSpace: "nowrap"}} 
+						>{props.projName}</span>
+					</div>
+					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>AKMM</strong>
 					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">
-						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >ver. {version}</span>
+						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >version: {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />
 					</div>
 				</div>

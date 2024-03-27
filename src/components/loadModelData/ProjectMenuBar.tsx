@@ -190,7 +190,7 @@ export const ProjectMenuBar = (props: any) => {
                         position: "absolute",
                         top: "8px",
                         left: "5px",
-                        zIndex: "99"
+                        zIndex: "99999"
                     }}
                     onClick={() => setIsDropdownOpen(false)}
                 >
@@ -293,7 +293,7 @@ export const ProjectMenuBar = (props: any) => {
                         left: "3px",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsDropdownOpen(true)}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
@@ -305,7 +305,7 @@ export const ProjectMenuBar = (props: any) => {
                         right: "8px",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsRightDropdownOpen(true)}
+                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                 >
                     <i className="fa fa-ellipsis-v fa-lg"></i>
                     {dropRightMenuDiv}
@@ -423,7 +423,7 @@ export const ProjectMenuBar = (props: any) => {
                         border: "none",
                         zIndex: "999"
                      }}
-                    onClick={() => setIsDropdownOpen(true)}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                     <i className="fa fa-bars fa-lg"></i>
                     {dropLeftMenuDiv}
@@ -436,7 +436,7 @@ export const ProjectMenuBar = (props: any) => {
                         border: "none",
                         zIndex: "999"
                     }}
-                    onClick={() => setIsRightDropdownOpen(true)}
+                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                     >
                      <i className="fa fa-ellipsis-v px-2 fa-lg"> </i> 
                     {dropRightMenuDiv}

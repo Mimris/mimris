@@ -3676,47 +3676,76 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const modalContext = this.state.modalContext;
     let selpropgroup = [{ tabName: 'Default' }];
     if (modalContext?.what === 'editObject') {
-      let includeInherited = false;
-      let includeConnected = false;
-      let obj = this.state.selectedData?.object;
-      let obj1 = this.myMetis.findObject(obj?.id);
-      if (!obj1) obj1 = obj;
-      if (obj1?.type?.name === 'Method')
-        useTabs = true;
-      if (obj1?.hasInheritedProperties(myModel)) {
-        includeInherited = true;
-        useTabs = true;
-      }
-      const connectedObjects = obj1?.getConnectedObjects2(myMetis);
-      if (connectedObjects?.length > 0) {
-        includeConnected = true;
-        useTabs = true;
-      }
-      const context = {
-        myMetis: myMetis,
-        myModel: myModel,
-        myMetamodel: myMetamodel,
-        includeConnected: includeConnected,
-        includeInherited: includeInherited,
-      }
-      let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
-      const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
-      // Define the tabs
-      selpropgroup = [];
-      for (let i = 0; i < namelist.length; i++) {
-        let name = namelist[i];
-        if (name === constants.types.AKM_ELEMENT)
-          continue; // name = 'Default';
-        if (connectedRoles && connectedRoles.length > 0) {
-          if (i > 0) {
-            let role = connectedRoles[i - 1];
-            if (role) name = role;
-          }
+
+        let includeInherited = false;
+        let includeConnected = false;
+        let obj = this.state.selectedData?.object;
+        let obj1 = this.myMetis.findObject(obj?.id);
+        if (!obj1) obj1 = obj;
+        if (obj1?.type?.name === 'Method')
+          useTabs = true;
+        if (obj1?.hasInheritedProperties(myModel)) {
+          includeInherited = true;
+          useTabs = true;
         }
-        const proptab = { tabName: name };
-        selpropgroup.push(proptab);
-      }
+        const connectedObjects = obj1?.getConnectedObjects2(myMetis);
+        if (connectedObjects?.length > 0) {
+          includeConnected = true;
+          useTabs = true;
+        }
+        const context = {
+          myMetis: myMetis,
+          myModel: myModel,
+          myMetamodel: myMetamodel,
+          includeConnected: includeConnected,
+          includeInherited: includeInherited,
+        }
+        let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
+        const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
+        // Define the tabs
+        selpropgroup = [];
+        for (let i = 0; i < namelist.length; i++) {
+          let name = namelist[i];
+          if (name === constants.types.AKM_ELEMENT)
+            continue; // name = 'Default';
+          if (connectedRoles && connectedRoles.length > 0) {
+            if (i > 0) {
+              let role = connectedRoles[i - 1];
+              if (role) name = role;
+            }
+          }
+          const proptab = { tabName: name };
+          selpropgroup.push(proptab);
+        }
     }
+    if (modalContext?.what === 'editRelationship') {
+        let includeInherited = false;
+        let includeConnected = false;
+        let rel = this.state.selectedData?.relship;
+        let rel1 = this.myMetis.findRelationship(rel?.id);
+        if (!rel1) rel1 = rel;
+        if (rel1?.hasInheritedProperties(myModel)) {
+          includeInherited = true;
+          useTabs = true;
+        }
+        const context = {
+          myMetis: myMetis,
+          myModel: myModel,
+          myMetamodel: myMetamodel,
+          includeConnected: includeConnected,
+          includeInherited: includeInherited,
+        }
+        let namelist = useTabs ? uic.getNameList(rel1, context, true) : [];
+        // Define the tabs
+        selpropgroup = [];
+        for (let i = 0; i < namelist.length; i++) {
+          let name = namelist[i];
+
+          const proptab = { tabName: name };
+          selpropgroup.push(proptab);
+        }
+      }
+
     if (debug) console.log('3720 myNewMetis',  myMetis);
     switch (modalContext?.what) {
       case 'selectDropdown':

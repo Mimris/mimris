@@ -156,11 +156,10 @@ const page = (props: any) => {
     setMount(true);
   }, [])
 
-  useEffect(() => {
-    if (debug) console.log('207 Modeller useEffect 2 [props.phFocus.focusModelview?.id] : ', activeTab, props.phFocus.focusModel?.name);
-    setActiveTab(activetabindex);
-  }, [props.phFocus?.focusModel?.id]);
-
+  // useEffect(() => {
+  //   if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
+  //   GenGojsModel(props, dispatch);
+  // }, [curmodview?.objectviews.length === 0])
 
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes

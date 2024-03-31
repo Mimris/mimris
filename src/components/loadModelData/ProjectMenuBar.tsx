@@ -27,10 +27,12 @@ export const ProjectMenuBar = (props: any) => {
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const [projectname, setProjectname] = useState(props.props.phFocus.focusProj.name);
 
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isLeftDropdownOpen, setIsLeftDropdownOpen] = useState(false);
     const [isRightDropdownOpen, setIsRightDropdownOpen] = useState(false);
     const [activeItem, setActiveItem] = useState(null);
     const [activeRightItem, setActiveRightItem] = useState(null);   
+    const [isLeftHovered, setIsLeftHovered] = useState(false);
+    const [isRightHovered, setIsRightHovered] = useState(false);
 
     const handleItemClick = (item) => {
         setActiveItem(item);
@@ -45,7 +47,7 @@ export const ProjectMenuBar = (props: any) => {
     const projectModalRef = useRef(null);
 
     // const handleToggleDropdown = () => {
-    // setIsDropdownOpen(!isDropdownOpen);
+    // setIsLeftDropdownOpen(!isLeftDropdownOpen);
     // };
 
     const handleReadProjectFile = (e: any) => {
@@ -120,7 +122,7 @@ export const ProjectMenuBar = (props: any) => {
             !target.closest('.fa-bars') &&
             !target.closest('.fa-ellipsis-v')
         ) {
-            setIsDropdownOpen(false);
+            setIsLeftDropdownOpen(false);
             setIsRightDropdownOpen(false);
         }
     };
@@ -178,68 +180,122 @@ export const ProjectMenuBar = (props: any) => {
         </>
     )
 
-    const dropLeftMenuDiv =  (isDropdownOpen) &&
-        <div className="bg-light rounded-2 p-1" 
-            style={{ whiteSpace: "nowrap", position: "absolute", top: "-4px", left: "-2px", width: "16vw", height: "30vh", 
-            backgroundColor: "#b0cfcf"}}
+    const dropLeftMenuDiv = (isLeftDropdownOpen || isLeftHovered) && (
+        <div
+            className="bg-light rounded-2 p-1"
+            style={{
+                whiteSpace: "nowrap",
+                position: "absolute",
+                top: "36px",
+                left: "-2px",
+                width: "16vw", //!isLeftDropdownOpen ? "5vw" : "16vw",
+                height: "30vh",
+                backgroundColor: "#b0cfcf",
+            }}
         >
-            <strong className="text-success ms-5 fs-4" style={{ whiteSpace: "nowrap" }}>AKM Modeller</strong>
-            <div className="d-flex justify-content-between align-items-center mx-3 ms-4 ps-4">
-                <div className="bar-menu-left bg-transparent"
-                    style={{
-                        position: "absolute",
-                        top: "8px",
-                        left: "5px",
-                        zIndex: "99999"
-                    }}
-                    onClick={() => setIsDropdownOpen(false)}
-                >
-                <i className="fa fa-bars fa-lg"></i>
+            {(isLeftDropdownOpen || isLeftHovered) && 
+                <div className="context-item"> 
+                    <strong className="text-success ms-2 fs-4" style={{ whiteSpace: "nowrap" }}>
+                        AKM Modeller
+                    </strong>
+                    {/* {(isLeftDropdownOpen) && */}
+                    <div
+                        className="d-flex justify-content-around p-1 m-0 w-100"
+                        style={{ position: "relative", top: "-8px", left: "0px" }}
+                    >
+                        <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
+                            <div className="d-flex ms-1 justify-content-end align-items-baseline">
+                                <img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
+                                <span className="fw-bold fs-5" style={{ color: "#0083e2" }}>
+                                    avca AS
+                                </span>
+                            </div>
+                        </Link>
+                        <Link className="mb-" href="#">
+                            <img
+                                src="images/equinor-logo.svg"
+                                width="110px"
+                                height="40px"
+                                className="d-inline-block align-top"
+                                alt="Equinor logo"
+                            />
+                        </Link>
+                    </div>
+                    {/* } */}
                 </div>
-                <Link className="mb-" href="#">
-                    <img src="images/equinor-logo.svg" width="110px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
-                </Link>
-                <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
-                    <div className="d-flex ms-1 justify-content-end align-items-baseline">
-                        <img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
-                        <span className="fw-bold fs-5" style={{ color: "#0083e2" }}>avca AS</span>
-                    </div>
-                </Link>
-            </div>
-            <ul className="bg-light mx-1 rounded">
-                {['Open', 'New', 'File', 'Save', 'Metamodel'].map((item, index) => (
-                    <li className={`context-item border p-1 rounded-2 ${item === activeItem ? 'active' : ''}`}
-                    key={index}
+            }                 
+            <ul className="bg-light mx-1 rounded w-100">
+                {["Open", "New", "File", "Save", "Metamodel"].map((item, index) => (
+                    <li
+                        className={`context-item border p-1 rounded-2 ${item === activeItem ? "active" : ""}`}
+                        key={index}
                     >
-                    <div onClick={() => handleItemClick(item)}
-                        style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
-                    >
-                        {item === 'Open' 
-                            ?  <div className="bg-secondary border border-2 rounded text-white ps-1 "
-                                ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
-                            : item === 'New'
-                                ? <div className="bg-secondary border rounded text-white ps-1"
-                                    ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
-                                : item === 'File'
-                                    ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
-                                    : item === 'Save'
-                                        ? <div className="bg-light border  border-4 rounded">{saveFile}</div>
-                                        : item === 'Metamodel'
-                                            ? <details className=" border rounded text-white ps-1"
-                                                style={{ backgroundColor: "#999"}}
-                                                ><summary className="bg-light my-1 me-1 ps-1 text-black">More ...</summary>
-                                                <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div>
-                                                 {/* <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div> */}
-                                            </details>
-                                            : item    
-                        }
-                    </div>
+                        <div
+                            onClick={() => handleItemClick(item)}
+                            style={{ backgroundColor: item === activeRightItem ? "blue" : "white" }}
+                        >
+                            {item === "Open" ? (
+                                <div className="bg-secondary border border-2 rounded text-white ps-1">
+                                    <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
+                                    {/* <i className="fab fa-github fa-lg my-0 py-0 me-1 "></i> */}
+                                     <span className="icon-text">{loadGitHub}</span>
+                                </div>
+                            ) : item === "New" ? (
+                                <div className="bg-secondary border rounded text-white ps-1">
+                                    <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
+                                    {/* {!isLeftDropdownOpen && <i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>} */}
+                                   <span className="icon-text">{loadNewModelProject}</span>
+                                </div>
+                            ) : item === "File" ? (
+                                <div className="bg-light border border-4 rounded">                                  
+                                    <span className="icon-text">{loadFile}</span>
+                                </div>
+                            ) : item === "Save" ? (
+                                <div className="bg-light border  border-4 rounded">
+                                    <span className="icon-text">{saveFile}</span>
+                                </div>
+                            ) : item === "Metamodel" ? (
+                                <div
+                                    className=" border rounded text-white ps-1"
+                                    style={{ backgroundColor: "#999" }}
+                                >
+                                    <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
+                                    <span className="icon-text">{loadGitHubMetamodel}</span>
+                                </div>
+                            ) : (
+                                item
+                            )}
+                        </div>
                     </li>
                 ))}
             </ul>
-    </div>
+            <hr className="bg-light my-1" />   
+            <>
+                <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
+                    GitHub Repo: 
+                    <Link
+                        className="text-primary ms-1"
+                        href={`https:/github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
+                        target="_blank"
+                    >
+                        {props.props.phFocus.focusProj.repo}
+                    </Link>
+                </div>
+                <div className="bg-light d-flex justify-content-between  border border-2 rounded mx-1 ps-2">
+                    GitHub Project No. :
+                    <Link
+                        className="text-primary"
+                        href={`https:/github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
+                        target="_blank"
+                    >
+                        <button className="text-primary border rounded bg-transparent px-5" >{props.props.phFocus.focusProj.projectNumber} </button>
+                    </Link>
+                </div>
+            </>
+        </div>
+    );
 
-    const dropRightMenuDiv =  (isRightDropdownOpen) &&
+    const dropRightMenuDiv = (isRightDropdownOpen || isRightHovered) &&
         <div className="bg-light " 
             style={{ whiteSpace: "nowrap", position: "absolute", top: "32px", right: "-12px", width: "18rem", height: "100%", 
             backgroundColor: "#b0cfcf", zIndex: "99"}}
@@ -286,31 +342,6 @@ export const ProjectMenuBar = (props: any) => {
 
     const menubarDiv =   (props.expanded) 
         ?   <>
-                <div className="bar-menu-left bg-transparent p-1"
-                    style={{ 
-                        position: "absolute",     
-                        top: "4px", 
-                        left: "3px",
-                        zIndex: "999"
-                     }}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <i className="fa fa-bars fa-lg"></i>
-                    {dropLeftMenuDiv}
-                </div>
-                 <div className="bar-menu-right px-2" 
-                    style={{ 
-                        position: "absolute",     
-                        top: "6px", 
-                        right: "8px",
-                        zIndex: "999"
-                     }}
-                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
-                >
-                    <i className="fa fa-ellipsis-v fa-lg"></i>
-                    {dropRightMenuDiv}
-                </div>
-
                 <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-1" 
                     style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                 >
@@ -415,32 +446,6 @@ export const ProjectMenuBar = (props: any) => {
             </>
         :  
             <>
-                <button className="bar-menu-left bg-transparent p-1"
-                    style={{ 
-                        position: "absolute",     
-                        top: "4px", 
-                        left: "3px",
-                        border: "none",
-                        zIndex: "999"
-                     }}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <i className="fa fa-bars fa-lg"></i>
-                    {dropLeftMenuDiv}
-                </button>
-                <button className="bar-menu-right bg-transparent "
-                    style={{ 
-                        position: "absolute",     
-                        top: "6px", 
-                        right: "8px",
-                        border: "none",
-                        zIndex: "999"
-                    }}
-                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
-                    >
-                     <i className="fa fa-ellipsis-v px-2 fa-lg"> </i> 
-                    {dropRightMenuDiv}
-                </button>
                 <div className="d-flex"
                     onClick={() => props.setExpanded(true)}
                 >
@@ -469,9 +474,36 @@ export const ProjectMenuBar = (props: any) => {
     return (
         <>
             <div
-                className={`project-menu-bar ${props.expanded ? 'expanded' : ''}`}
-                style={{ backgroundColor: "#b0cfcf" }}
+                className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
             >
+                <div className="bar-menu-left bg-transparent p-1 pb-2"
+                    style={{
+                        position: "absolute",
+                        top: "4px",
+                        left: "3px",
+                        zIndex: "999"
+                    }}
+                    onMouseEnter={() => setIsLeftHovered(true)}
+                    onMouseLeave={() => setIsLeftHovered(false)}
+                    onClick={() => setIsLeftDropdownOpen(!isLeftDropdownOpen)}
+                >
+                    <i className={`${isLeftDropdownOpen ? 'fa fa-bars fa-lg' : 'fa fa-bars bg-dark fa-lg'}`}></i>
+                    {dropLeftMenuDiv}
+                </div>
+                <div className="bar-menu-right px-2 pb-2 bg-transparent"
+                    style={{
+                        position: "absolute",
+                        top: "6px",
+                        right: "8px",
+                        zIndex: "999"
+                    }}
+                    onMouseEnter={() => setIsRightHovered(true)}
+                    onMouseLeave={() => setIsRightHovered(false)}
+                    onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
+                >
+                    <i className="fa fa-ellipsis-v fa-lg"></i>
+                    {dropRightMenuDiv}
+                </div>
                 {menubarDiv}
             </div>
             <div className="modal fade" id="openFileModal" aria-labelledby="openFileModalLabel" aria-hidden="true">                {/* modal for open file */}

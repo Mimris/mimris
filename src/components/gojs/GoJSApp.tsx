@@ -1165,7 +1165,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('916 node', node);
           if (debug) console.log('917 myMetis', myMetis);
           if (debug) console.log('918 myGoModel', myGoModel, myGoMetamodel);
-          if (debug) console.log('919 part, node', part, node);
+          if (!debug) console.log('919 part, node', part, node);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('922 myMetis', myMetis);

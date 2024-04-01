@@ -1118,16 +1118,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
 
 export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myDiagram = context.myDiagram;
-    const myGoModel = context.myGoModel;
-    const myMetis   = context.myMetis;
-    const myModel   = context.myModel;
-    const myModelview = myMetis.currentModelview;
+    const myGoModel: gjs.goGoModel = context.myGoModel;
+    const myMetis: akm.cxMetis   = context.myMetis;
+    const myModel: akm.cxModel   = context.myModel;
+    const myModelview: akm.cxModelView = myMetis.currentModelview;
     const pasteViewsOnly = myMetis.pasteViewsOnly;
-    if (debug) console.log('1134 pasteViewsOnly', pasteViewsOnly);
-    if (debug) console.log('1135 myMetis', myMetis, myGoModel);
-    if (debug) console.log('1136 pasteRelationship', data);
     // Relationship type must exist
-    let reltype = data.relshiptype;
+    let reltype: akm.cxRelationshipType = data.relshiptype;
     reltype = myMetis.findRelationshipType(reltype?.id);
     // if (reltype) 
     //     reltype = myMetis.findRelationshipType(reltype.id);
@@ -1141,10 +1138,10 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const fromNode = myDiagram.findNodeForKey(fromNodeRef);
     const toNode = myDiagram.findNodeForKey(toNodeRef);
     if (debug) console.log('1151 fromNode, toNode, pasteViewsOnly', fromNode, toNode, pasteViewsOnly);
-    const fromObjview = fromNode?.data.objectview;
-    const toObjview   = toNode?.data.objectview;
-    let   relship     = data.relshipview.relship;
-    const typeview    = data.relshipview.typeview;
+    const fromObjview: akm.cxObjectView = fromNode?.data.objectview;
+    const toObjview: akm.cxObjectView   = toNode?.data.objectview;
+    let   relship: akm.cxRelationship = data.relshipview.relship;
+    const typeview: akm.cxRelationshipTypeView    = data.relshipview.typeview;
     if (debug) console.log('1156 pasteRelationship', fromObjview, toObjview);
     if (!pasteViewsOnly) {
         let fromObj = fromObjview?.object;
@@ -1162,10 +1159,9 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     } else {
         relship = myMetis.findRelationship(relship?.id);
     }
-    if (debug) console.log('1175 relationship', relship);
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
     if (relshipview) {
-        relshipview.setTypeView(typeview);              // Uses same typeview as from relview
+        relshipview.setTypeView(typeview);        // Uses same typeview as from relview
         relshipview.setFromObjectView(fromObjview);
         relshipview.setToObjectView(toObjview);
         relshipview.setModified();
@@ -1174,8 +1170,6 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
     }
-    if (debug) console.log('1186 relshipview', relshipview, myMetis);
-    if (debug) console.log('1187 myModel', myModel);
     myDiagram.requestUpdate();
     return relshipview; 
 }

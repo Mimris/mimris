@@ -121,20 +121,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst = selObj.relship;
         inst1 = myMetis.findRelationship(inst?.id);   
         if (inst1) inst = inst1;
-        currentType = inst.type;
-        chosenType = currentType;
-        chosenInst = inst;
-        typename = currentType?.name;
-        typedescription = currentType?.description;
-        instview = selObj.relshipview;
-        instview1 = myMetis.findRelationshipView(instview?.id);
+        instview = selObj.relshipview as akm.cxRelationshipView;
+        instview1 = myMetis.findRelationshipView(instview?.id) as akm.cxRelationshipView;
         if (instview1) instview = instview1;
-        type = selObj.relshiptype;
-        type1 = myMetis.findRelationshipType(type?.id);
+        type = selObj.relshiptype as akm.cxRelationshipType;
+        type1 = myMetis.findRelationshipType(type?.id) as akm.cxRelationshipType;
         if (type1) type = type1;
         reltypeview = type?.typeview;
         reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
         typeview = reltypeview;
+        type.typeview = reltypeview;
+        inst.type = type;
         break;
       case constants.gojs.C_RELSHIPTYPE:
         type = selObj.reltype;
@@ -216,6 +213,50 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           }
         }
+      } else if (category === constants.gojs.C_RELATIONSHIP) {
+        currentType = inst.type as akm.cxRelationshipType;
+        chosenType = currentType;
+        chosenInst = inst;
+        typename = currentType.name;
+        typedescription = currentType.description;
+        if (useTabs && modalContext?.what === 'editRelationship') {
+          let inheritedTypes = inst?.getInheritedTypes();
+          inheritedTypes.push(currentType);
+          inheritedTypes = [...new Set(inheritedTypes)];
+          if (inst?.hasInheritedProperties(myModel)) 
+            includeInherited = true;
+          const context = {
+            myMetis: myMetis,
+            myModel: myModel,
+            myMetamodel: myMetamodel,
+            includeConnected: false,
+            includeInherited: includeInherited,
+          }
+          let namelist = uic.getNameList(inst, context, true); 
+          if (context.includeInherited) {
+            typename = namelist[activeTab];
+            const objs = inst.getInheritanceObjects(myModel) as akm.cxObject[];
+            for (let i=0; i<objs.length; i++) {
+              if (objs[i].type.name === typename) {
+                chosenType = objs[i].type;
+                chosenInst = objs[i];
+                break;
+              }
+            }
+          }
+          if (namelist.length > 1 && typename !== 'Element') {
+            for (let i=0; i<inheritedTypes.length; i++) {
+              const tname = inheritedTypes[i]?.name;
+              if (tname === typename) {
+                type = inheritedTypes[i];
+                chosenType = type as akm.cxObjectType;
+              }
+            }
+          } 
+          if (!inst?.hasInheritedProperties(myModel)) {
+            chosenType = null;
+          }
+        }
       }
     }
     if (typeof(type) !== 'object')
@@ -257,15 +298,36 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {
-        let flag = false;
-        const typeProps = type?.getProperties(flag);
-        properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
-        properties = typeProps;
-      }
-      else if (category === constants.gojs.C_RELSHIPTYPE) {
+        let includeInherited = true;
+        if (chosenType) {
+          try {
+          properties = chosenType.getProperties(includeInherited);
+          // pointerProps = chosenType.getPointerProperties(false);
+          } catch {
+            // Do nothing
+          }
+          if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
+        } 
+        else {
+          let includeInherited = true;
+          inst = myMetis.findRelationship(inst.id);
+          type = myMetis.findRelationshipType(type.id);
+          try {
+            const typeProps = type?.getProperties(includeInherited);
+            const inheritedProps = inst?.getInheritedProperties(myModel);
+            if (inheritedProps?.length>0)
+              properties = typeProps.concat(inheritedProps);
+            else
+              properties = typeProps;
+          } catch {
+            // Do nothing
+          }
+          if (!debug) console.log('259 chosenType, properties: ', chosenType, properties);
+        }
+    }
+    else if (category === constants.gojs.C_RELSHIPTYPE) {
 
-      }
-
+    }
       // Handle property values that are undefined
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];

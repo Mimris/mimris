@@ -93,7 +93,7 @@ const page = (props) => {
   let goParams = {}
 
   async function loadMyModeldata(myMetis: akm.cxMetis, goParams: any) {
-    goParams = await GenGojsModel(props, myMetis, goParams);
+    goParams = await GenGojsModel(props, myMetis);
     if (!debug) console.log('84 Model', goParams);
     setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
     setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
@@ -103,7 +103,7 @@ const page = (props) => {
     setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
     setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
   };
-  goParams = GenGojsModel(props, myMetis, goParams);
+  goParams = GenGojsModel(props, myMetis);
 
   useEffect(() => {
     setActiveTab(activetabindex);

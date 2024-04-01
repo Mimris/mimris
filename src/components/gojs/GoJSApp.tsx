@@ -73,7 +73,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       diagramStyle: this.props.diagramStyle,
       onExportSvgReady: this.props.onExportSvgReady
     };
-    if (debug) console.log('80 this.state: ', this.state);
+    if (!debug) console.log('76 this.state: ', this.state.myMetis, this.state.metis);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -218,28 +218,29 @@ class GoJSApp extends React.Component<{}, AppState> {
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
-    const myGoModel = this.state.myMetis.gojsModel;
-    const myGoMetamodel = myMetamodel?.gojsModel;
+    const myGoModel = this.state.myMetis.myGoModel;
+    // const myGoMetamodel = this.state.myGoMetamodel;
+    if (!debug) console.log('223 handleDiagramEvent - myGoModel', myGoModel, myMetis);
     // const myGoMetamodel = this.state.myGoMetamodel;
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
     }
     const nodes = new Array();
-    const nods = myGoMetamodel?.nodes;
-    for (let i = 0; i < nods?.length; i++) {
-      const node = nods[i] as gjs.goObjectTypeNode;
-      const objtype = node.objecttype;
-      if (objtype?.abstract) continue;
-      if (objtype?.markedAsDeleted) continue;
-      nodes.push(node);
-    }
-    if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
+    // const nods = myGoMetamodel?.nodes;
+    // for (let i = 0; i < nods?.length; i++) {
+    //   const node = nods[i] as gjs.goObjectTypeNode;
+    //   const objtype = node.objecttype;
+    //   if (objtype?.abstract) continue;
+    //   if (objtype?.markedAsDeleted) continue;
+    //   nodes.push(node);
+    // }
+    // if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
 
-    const gojsMetamodel = {
-      nodeDataArray: myGoMetamodel?.nodes,
-      linkDataArray: myGoMetamodel?.links
-    }
+    // const gojsMetamodel = {
+    //   nodeDataArray: myGoMetamodel?.nodes,
+    //   linkDataArray: myGoMetamodel?.links
+    // }
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
     let modifiedObjectTypeGeos = new Array();
@@ -259,7 +260,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModel": myModel,
       "myModelview": myModelview,
       "myGoModel": myGoModel,
-      "myGoMetamodel": myGoMetamodel,
+      // "myGoMetamodel": myGoMetamodel,
       "myDiagram": myDiagram,
       "dispatch": dispatch,
       "pasted": pasted,

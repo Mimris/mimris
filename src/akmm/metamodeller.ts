@@ -5763,7 +5763,6 @@ export class cxObjectType extends cxType {
         try {
             if (!level) level = 0;
             const rtypes = this.outputreltypes;
-            if (debug) console.log('5005 this, rtypes', this, rtypes);
             if (rtypes) {
                 for (let i = 0; i < rtypes?.length; i++) {
                     const rtype = rtypes[i];
@@ -5774,7 +5773,6 @@ export class cxObjectType extends cxType {
                             supertypes = [...new Set(supertypes)];
                             if (level > 5)
                                 return supertypes;
-                            if (debug) console.log('5015 this, supertypes', this, supertypes);
                             const stypes = stype.findSupertypes(++level);
                             if (stypes) {
                                 for (let j = 0; j < stypes.length; j++) {
@@ -5782,7 +5780,6 @@ export class cxObjectType extends cxType {
                                     supertypes.push(stype);
                                     supertypes = [...new Set(supertypes)];
                                 }
-                                if (debug) console.log('5022 this, supertype', this, supertypes);
                             }
                         }
                     }
@@ -7036,7 +7033,7 @@ export class cxModel extends cxMetaObject {
         this.isTemplate = false;
         this.isMetamodel = false;
         this.includeSystemtypes = true;
-        this.includeRelshipkind = false;
+        this.includeRelshipkind = true;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
@@ -7610,8 +7607,12 @@ export class cxInstance extends cxMetaObject {
     // Methods
     setAndGetAllProperties(metis: cxMetis): cxProperty[] | null {
         let type = metis.findObjectType(this.type.id);
-        if (!type)
+        if (!type) {
+            type = metis.findRelationshipType(this.type.id);
+        }
+        if (!type) {
             return null;
+        }
         const typeprops = type.getProperties(true);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
@@ -7695,7 +7696,7 @@ export class cxInstance extends cxMetaObject {
     }
     getInheritedTypes(): cxType[] | null {
         const typelist: cxType[] = [];
-        const type = this.getType() as cxObjectType;
+        const type = this.getType() as cxType;
         let types: cxType[] = [];
         try {
             types = type?.findSupertypes(0);
@@ -7726,6 +7727,158 @@ export class cxInstance extends cxMetaObject {
     }
     getFromObject(): cxObject | null {
         return this.fromObject as cxObject;
+    }
+    getInheritanceObjects(model: cxModel): cxObject[] | null {
+        const objlist = [];
+        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
+        if (relships?.length) {
+            for (let i = 0; i < relships?.length; i++) {
+                const rel = relships[i];
+                if (rel) {
+                    const toObj = rel.toObject;
+                    if (toObj)
+                        objlist.push(toObj);
+                }
+            }
+        }
+        if (debug) console.log('6459 objlist', objlist);
+        return objlist;
+    }
+    getInheritedObjectTypes(model: cxModel): cxType[] | null {
+        const typelist = [];
+        // Handle Is relationships from the object
+        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
+        for (let i = 0; i < relships?.length; i++) {
+            const rel = relships[i];
+            if (rel) {
+                const toObj = rel.toObject;
+                if (toObj && toObj.type) {
+                    // if (toObj.type.properties.length > 0)
+                    typelist.push(toObj.type);
+                }
+            }
+        }
+        // Then handle the type itself
+        const type = this.type;
+        try {
+            const supertypes = type?.getSupertypes();
+            for (let i = 0; i < supertypes?.length; i++) {
+                const stype = supertypes[i];
+                typelist.push(stype);
+            }
+        } catch (error) {
+            if (debug) console.log('6470 error', error);
+        }
+        if (debug) console.log('6472 typelist', typelist);
+        return typelist;
+    }
+    hasInheritedProperties(model: cxModel): boolean {
+        let retval = false;
+        let types = this.getInheritedTypes();
+        if (types?.length > 0) {
+            for (let i = 0; i < types.length; i++) {
+                const type = types[i];
+                if (type.hasProperties())
+                    return true;
+            }
+        }
+        types = this.getInheritedObjectTypes(model);
+        if (types?.length > 0) {
+            for (let i = 0; i < types?.length; i++) {
+                const type = types[i];
+                if (type.hasProperties())
+                    return true;
+            }
+        }
+        let objects = this.getInheritanceObjects(model);
+        if (debug) console.log('6496 this, objects', this, objects);
+        if (types?.length > 0) {
+            for (let i = 0; i < objects?.length; i++) {
+                const obj = objects[i];
+                const type = obj?.type;
+                if (type?.hasProperties())
+                    return true;
+            }
+        }
+        return retval;
+    }
+    getInheritedProperties(model: cxModel): cxProperty[] {
+        const properties = new Array();
+        let objects = this.getInheritanceObjects(model);
+        if (debug) console.log('7159 inheritanceObjects', objects);
+        for (let i = 0; i < objects?.length; i++) {
+            const obj = objects[i];
+            const type = obj?.type;
+            if (type?.hasProperties()) {
+                const props = type.properties;
+                for (let j = 0; j < props.length; j++) {
+                    const prop = props[j];
+                    properties.push(prop);
+                }
+            }
+        }
+        if (debug) console.log('7171 inherited Properties', properties);
+        return properties;
+    }
+    getConnectedProperties(metis: cxMetis): cxProperty[] {
+        const properties = new Array();
+        const objects = this.getConnectedObjects2(metis);
+        for (let i = 0; i < objects?.length; i++) {
+            const obj = objects[i];
+            const prop = new cxProperty(utils.createGuid(), obj.type.name, "");
+            properties.push(prop);
+        }
+        return properties;
+    }
+    isOfType(typeName: string): boolean {
+        let retval = false;
+        if (this.type?.name === typeName) {
+            return true;
+        }
+        const stypes = this.type?.supertypes;
+        for (let i = 0; i < stypes?.length; i++) {
+            const stype = stypes[i];
+            if (stype?.name === typeName)
+                return true;
+        }
+        return retval;
+    }
+    isOfSystemType(systemtypeName: string): boolean {
+        let retval = false;
+        const type = this.type;
+        if ((this.name === type?.name) || (type?.name === systemtypeName)) {
+            return true;
+        }
+        const stypes = type?.supertypes;
+        for (let i = 0; i < stypes?.length; i++) {
+            const stype = stypes[i];
+            if (stype?.name === systemtypeName)
+                return true;
+        }
+        return retval;
+    }
+    addPort(side: string, name: string): cxPort {
+        const port = new cxPort(utils.createGuid(), name, "", side);
+        port.color = constants.gojs.C_PORT_COLOR;
+        this.ports.push(port);
+        return port;
+    }
+    deletePort(side: string, name: string) {
+        this.ports = this.ports.filter(p => p.name !== name && p.side !== side);
+    }
+    deleteSidePorts(side: string) {
+        this.ports = this.ports.filter(p => p.side !== side);
+    }
+    getPort(side: string, name: string): cxPort {
+        let port = null;
+        for (let i = 0; i < this.ports?.length; i++) {
+            const p = this.ports[i];
+            if ((p.side === side) && (p.name === name)) {
+                port = p;
+                break;
+            }
+        }
+        return port;
     }
     setToObject(obj: cxObject) {
         this.toObject = obj;
@@ -8095,50 +8248,6 @@ export class cxObject extends cxInstance {
     getObjectType(): cxObjectType | null {
         return this.type;
     }
-    getInheritanceObjects(model: cxModel): cxObject[] | null {
-        const objlist = [];
-        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
-        if (relships?.length) {
-            for (let i = 0; i < relships?.length; i++) {
-                const rel = relships[i];
-                if (rel) {
-                    const toObj = rel.toObject;
-                    if (toObj)
-                        objlist.push(toObj);
-                }
-            }
-        }
-        if (debug) console.log('6459 objlist', objlist);
-        return objlist;
-    }
-    getInheritedObjectTypes(model: cxModel): cxType[] | null {
-        const typelist = [];
-        // Handle Is relationships from the object
-        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
-        for (let i = 0; i < relships?.length; i++) {
-            const rel = relships[i];
-            if (rel) {
-                const toObj = rel.toObject;
-                if (toObj && toObj.type) {
-                    // if (toObj.type.properties.length > 0)
-                    typelist.push(toObj.type);
-                }
-            }
-        }
-        // Then handle the type itself
-        const type = this.type;
-        try {
-            const supertypes = type?.getSupertypes();
-            for (let i = 0; i < supertypes?.length; i++) {
-                const stype = supertypes[i];
-                typelist.push(stype);
-            }
-        } catch (error) {
-            if (debug) console.log('6470 error', error);
-        }
-        if (debug) console.log('6472 typelist', typelist);
-        return typelist;
-    }
     getConnectedObject(prop: cxProperty, metis: cxMetis): cxObject {
         let obj = null;
         const inst: any = this;
@@ -8255,114 +8364,6 @@ export class cxObject extends cxInstance {
             }
         }
         return rolelist;
-    }
-    hasInheritedProperties(model: cxModel): boolean {
-        let retval = false;
-        let types = this.getInheritedTypes();
-        if (types?.length > 0) {
-            for (let i = 0; i < types.length; i++) {
-                const type = types[i];
-                if (type.hasProperties())
-                    return true;
-            }
-        }
-        types = this.getInheritedObjectTypes(model);
-        if (types?.length > 0) {
-            for (let i = 0; i < types?.length; i++) {
-                const type = types[i];
-                if (type.hasProperties())
-                    return true;
-            }
-        }
-        let objects = this.getInheritanceObjects(model);
-        if (debug) console.log('6496 this, objects', this, objects);
-        if (types?.length > 0) {
-            for (let i = 0; i < objects?.length; i++) {
-                const obj = objects[i];
-                const type = obj?.type;
-                if (type?.hasProperties())
-                    return true;
-            }
-        }
-        return retval;
-    }
-    getInheritedProperties(model: cxModel): cxProperty[] {
-        const properties = new Array();
-        let objects = this.getInheritanceObjects(model);
-        if (debug) console.log('7159 inheritanceObjects', objects);
-        for (let i = 0; i < objects?.length; i++) {
-            const obj = objects[i];
-            const type = obj?.type;
-            if (type?.hasProperties()) {
-                const props = type.properties;
-                for (let j = 0; j < props.length; j++) {
-                    const prop = props[j];
-                    properties.push(prop);
-                }
-            }
-        }
-        if (debug) console.log('7171 inherited Properties', properties);
-        return properties;
-    }
-    getConnectedProperties(metis: cxMetis): cxProperty[] {
-        const properties = new Array();
-        const objects = this.getConnectedObjects2(metis);
-        for (let i = 0; i < objects?.length; i++) {
-            const obj = objects[i];
-            const prop = new cxProperty(utils.createGuid(), obj.type.name, "");
-            properties.push(prop);
-        }
-        return properties;
-    }
-    isOfType(typeName: string): boolean {
-        let retval = false;
-        if (this.type?.name === typeName) {
-            return true;
-        }
-        const stypes = this.type?.supertypes;
-        for (let i = 0; i < stypes?.length; i++) {
-            const stype = stypes[i];
-            if (stype?.name === typeName)
-                return true;
-        }
-        return retval;
-    }
-    isOfSystemType(systemtypeName: string): boolean {
-        let retval = false;
-        const type = this.type;
-        if ((this.name === type?.name) || (type?.name === systemtypeName)) {
-            return true;
-        }
-        const stypes = type?.supertypes;
-        for (let i = 0; i < stypes?.length; i++) {
-            const stype = stypes[i];
-            if (stype?.name === systemtypeName)
-                return true;
-        }
-        return retval;
-    }
-    addPort(side: string, name: string): cxPort {
-        const port = new cxPort(utils.createGuid(), name, "", side);
-        port.color = constants.gojs.C_PORT_COLOR;
-        this.ports.push(port);
-        return port;
-    }
-    deletePort(side: string, name: string) {
-        this.ports = this.ports.filter(p => p.name !== name && p.side !== side);
-    }
-    deleteSidePorts(side: string) {
-        this.ports = this.ports.filter(p => p.side !== side);
-    }
-    getPort(side: string, name: string): cxPort {
-        let port = null;
-        for (let i = 0; i < this.ports?.length; i++) {
-            const p = this.ports[i];
-            if ((p.side === side) && (p.name === name)) {
-                port = p;
-                break;
-            }
-        }
-        return port;
     }
     getPorts(): cxPort[] {
         return this.ports;

@@ -21,10 +21,25 @@ const constants = require('../akmm/constants');
 // Parameters to configure loads 
 // const includeNoObject = false;
 // const includeInstancesOnly = true 
+type goParams = {
+  myGoModel: any,
+  myGoMetamodel: any,
+  myGoObjectPalette: any,
+  myGoRelshipPalette: any,
+  myGoMetamodelModel: any,
+  myGoMetamodelPalette: any,
+  myGoTargetMetamodel: any,
+  myGoModelview: any,
+  myGoMetamodelview: any,
+  myGoTargetModel: any,
+  myGoTargetModelview: any,
+  myGoTargetMetamodelview: any,
+  myGoTargetMetamodelPalette: any,
+}
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
-const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
+const GenGojsModel = async (props: any, myMetis: any) => {
   // let myMetis = yourMetis;
   // let goParams = {};
   if (debug) console.log('28 GenGojsModel started', props, myMetis);
@@ -42,6 +57,7 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
   const metamodels = (metis) && metis.metamodels
   let adminModel;
+
   if (metis != null) {
     if (debug) clog('42 GenGojsModel: props', props);
     if (debug) clog('43 GenGojsModel: metis', props.phData.metis);
@@ -119,20 +135,24 @@ const GenGojsModel = async (props: any, myMetis: any, goParams: any) => {
       let myGoRelshipPalette = (myModel?.relship) ? uib.buildRelshipPalette(myModel?.relships, myMetis) : []
       let myGoMetamodelModel = (myMetamodel) ? uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) : []
 
-      goParams.myGoModel = myGoModel;
-      goParams.myGoMetamodel = myGoMetamodel;
-      goParams.myGoObjectPalette = myGoObjectPalette;
-      goParams.myGoRelshipPalette = myGoRelshipPalette
-      goParams.myGoMetamodelModel = myGoMetamodelModel;
-      goParams.myGoPalette = myGoPalette;
-      goParams.myGoMetamodelPalette = myGoMetamodelPalette;
-      goParams.myGoTargetModel = myGoTargetModel;
-      goParams.myGoTargetModelview = myTargetModelview;
-      goParams.myGoTargetMetamodel = myGoTargetMetamodel;
-      goParams.myGoTargetMetamodelPalette = myGoTargetMetamodelPalette;
+      let goParams: goParams = {
+        myGoModel: myGoModel,
+        myGoMetamodel: myGoMetamodel,
+        myGoObjectPalette: myGoObjectPalette,
+        myGoRelshipPalette: myGoRelshipPalette,
+        myGoMetamodelModel: myGoMetamodelModel,
+        myGoMetamodelPalette: myGoMetamodelPalette,
+        myGoTargetMetamodel: myGoTargetMetamodel,
+        myGoModelview: myModelview,
+        myGoMetamodelview: myModelview,
+        myGoTargetModel: myTargetModel,
+        myGoTargetModelview: myTargetModelview,
+        myGoTargetMetamodelview: myTargetModelview,
+        myGoTargetMetamodelPalette: myGoTargetMetamodelPalette,
+      }
       // myMetis.myGoTargetMetamodelModel = myTargetMetamodel?.model;
       if (debug) console.log('165 GenGojsModel ', myMetis, myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel);
-    }
+      return goParams;}
   }
   if (debug) console.log('172 GenGojsModel myMetis', myMetis);
   return goParams;

@@ -38,9 +38,9 @@ const ctrace = console.trace.bind(console, '%c %s',
   'background: green; color: white');
 
 const Modeller = (props: any) => {
-  if (!props.metis) return <> not found</>
-  if (!props.myMetis?.currentModel) return <> not found</>
-  if (debug) console.log('42 Modeller: props', props);
+  if (!props.metis) return <> metis not found</>
+  if (!props.myMetis?.currentModel) return <> current model not found</>
+  if (!debug) console.log('42 Modeller: props', props);
 
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
@@ -504,8 +504,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       linkDataArray={gojsmodel.linkDataArray}
       metis={props.metis}
       myMetis={props.myMetis}
-      myGoModel={props.myGoModel}
-      myGoMetamodel={props.myGoMetamodel}
       phFocus={props.phFocus}
       dispatch={props.dispatch}
       modelType={props.phFocus.focusTab}
@@ -575,7 +573,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           linkDataArray={gojsobjects.linkDataArray}
           metis={props.metis}
           myMetis={props.myMetis}
-          myGoModel={props.myGoModel}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
           diagramStyle={{ height: "74vh" }}

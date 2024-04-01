@@ -39,8 +39,6 @@ interface AppState {
   skipsDiagramUpdate: boolean;
   metis: any;
   myMetis: akm.cxMetis;
-  myGoModel: gjs.goModel;
-  myGoMetamodel: gjs.goModel;
   phFocus: any;
   dispatch: any;
   modelType: any;
@@ -66,8 +64,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       skipsDiagramUpdate: false,
       metis: this.props.metis,
       myMetis: this.props.myMetis,
-      myGoModel: this.props.myGoModel,
-      myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
       modelType: this.props.phFocus.focusTab,
@@ -95,7 +91,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleSelectDropdownChange = (selected: any) => {
-    if (debug) console.log('94 handleSelectDropdownChange');
+    if (debug) console.log('94 handleSelectDropdownChange', this.state.myMetis);
     const myMetis = this.state.myMetis;
     const modalContext = this.state.modalContext;
     const context = {
@@ -222,8 +218,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
-    const myGoModel = this.state.myGoModel;
-    const myGoMetamodel = this.state.myGoMetamodel;
+    const myGoModel = this.state.myMetis.gojsModel;
+    const myGoMetamodel = myMetamodel?.gojsModel;
+    // const myGoMetamodel = this.state.myGoMetamodel;
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
@@ -281,7 +278,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "modifiedObjectTypeGeos": [],
       "modifiedModelviews": [],
     }
-    if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
+    if (!debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
     if (debug) console.log('267 this', this);
     if (debug) console.log('268 event name', name);
@@ -482,7 +479,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
       case "SelectionMoved": {
-        if (debug) console.log('412 context', context);
+        if (!debug) console.log('412 context', context);
         const goModel = context.myGoModel;
         // First remember the original locs
         const dragTool = myDiagram.toolManager.draggingTool;
@@ -1139,13 +1136,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
-          if (!debug) console.log('1149 n.data', n.data, n);
+          if (!debug) console.log('1139 n.data', n.data, n);
           const node = myDiagram.findNodeForKey(n.data.key);
+          if (!debug) console.log('1141 node', node);
           let typeview = n.data.typeview;
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
           let part = node.data;
+          if (!debug) console.log('1146 data', part, node);
           part.scale = node.scale;
           if (part.size === "") {
             if (part.isGroup) {
@@ -1164,7 +1163,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('916 node', node);
           if (debug) console.log('917 myMetis', myMetis);
           if (debug) console.log('918 myGoModel', myGoModel, myGoMetamodel);
-          if (debug) console.log('1167 part, node', part, node, context);
+          if (!debug) console.log('1167 part, node, context :', part, node, context);
           if (!debug) console.log('1168 myMetis', part, part.object);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
@@ -1192,10 +1191,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             part.category = 'Object';
             if (debug) console.log('944 part', part);
             if (isLabel) part.text = 'label';
-            if (debug) console.log('949 part', part);
+            if (debug) console.log('1194 part', part);
             if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
-            if (debug) console.log('952 myMetis', myMetis);
+            if (!debug) console.log('1196 myMetis', part, context, myMetis);
             let objview = uic.createObject(part, context);
             if (debug) console.log('954 myMetis', myMetis);
             if (debug) console.log('955 part, objview', part, objview);
@@ -1848,8 +1847,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           onModelChange={this.handleModelChange}
           onInputChange={this.handleInputChange}
           myMetis={this.state.myMetis}
-          myGoModel={this.state.myGoModel}
-          myGoMetamodel={this.state.myGoMetamodel}
           dispatch={this.state.dispatch}
           diagramStyle={this.state.diagramStyle}
           onExportSvgReady={this.state.onExportSvgReady}

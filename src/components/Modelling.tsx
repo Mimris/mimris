@@ -36,6 +36,7 @@ import useLocalStorage from '../hooks/use-local-storage'
 import useSessionStorage from '../hooks/use-session-storage'
 
 import * as akm from '../akmm/metamodeller';
+import { type } from "os";
 // import * as uib from '../akmm/ui_buildmodels';
 // const constants = require('../akmm/constants');
 
@@ -62,6 +63,8 @@ const page = (props: any) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
+  const [mount, setMount] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   // const [visibleContext, setVisibleContext] = useState(true)
 
 
@@ -74,7 +77,6 @@ const page = (props: any) => {
   const phSource = useSelector(phSource => props.phSource)
   if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
-  const [mount, setMount] = useState(false)
   const ph = props
   const metis = ph.phData?.metis
   const models = metis?.models || []
@@ -97,7 +99,7 @@ const page = (props: any) => {
   // const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
 
   // let myModel, myModelview, myMetamodel
-  let myGoModel, myGoMetamodel
+  // let myGoModel, myGoMetamodel
   // let myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel, myGoMetamodelPalette, myGoTargetMetamodel
   // let myGoTargetModel, myTargetModelview, myTargetMetamodel, myTargetModel, myTargetMetamodelPalette
   
@@ -131,30 +133,64 @@ const page = (props: any) => {
   // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -
 
   let myMetis = new akm.cxMetis();
-  let goParams = {}
+  // let goParams = null
+  type goParams = {
+    myGoModel: any,
+    myGoMetamodel: any,
+    myGoObjectPalette: any,
+    myGoRelshipPalette: any,
+    myGoMetamodelModel: any,
+    myGoMetamodelPalette: any,
+    myGoTargetMetamodel: any,
+    myGoModelview: any,
+    myGoMetamodelview: any,
+    myGoTargetModel: any,
+    myGoTargetModelview: any,
+    myGoTargetMetamodelview: any,
+    myGoTargetMetamodelPalette: any,
+  }
 
-  async function loadMyModeldata(myMetis: akm.cxMetis, goParams: any)   {
-    goParams = await GenGojsModel(props, myMetis, goParams);
-    if (!debug) console.log('145 Modelling', goParams);
-    setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-    setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
-    setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
-    setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
-    setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
-    setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-    setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
+  GenGojsModel(props, myMetis)
+
+  async function loadMyModeldata(myMetis: akm.cxMetis)   {
+    const goParams = await GenGojsModel(props, myMetis)
+    .then((goParams) => { 
+      setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+      setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
+      setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
+      setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
+      setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
+      setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+      setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
+    }) 
+    .catch((error) => {
+      console.error('Error in loadMyModeldata:', error);
+    });
+    if (!debug) console.log('145 Modelling', goParams, myMetis,  props);
   };
 
-   goParams = GenGojsModel(props, myMetis, goParams);
-  //  (mount) && loadMyModeldata(myMetis, goParams);
+  // if (mount) {
+
+
+
+
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
-    // loadMyModeldata(myMetis, goParams)
-    if (debug) console.log('226 ', myMetis, goParams, activeTab, activetabindex);
-    setActiveTab(activetabindex);
+    if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
+    loadMyModeldata(myMetis)
+    setRefresh(!refresh)
+    setActiveTab(activetabindex)
     setMount(true);
   }, [])
+
+  // useEffect(() => {
+  //     loadMyModeldata(myMetis)
+  // }, [mount]) // add mount to the dependency array
+  // useEffect(() => { 
+  //   loadMyModeldata(myMetis)
+  // }
+  // , [])
 
   // useEffect(() => {
   //   if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
@@ -165,7 +201,7 @@ const page = (props: any) => {
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
     // GenGojsModel(props, myMetis)
-    loadMyModeldata(myMetis, goParams)
+    loadMyModeldata(myMetis)
     const timer = setTimeout(() => {
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
@@ -179,7 +215,7 @@ const page = (props: any) => {
     // goParams = GenGojsModel(props, myMetis)
     const timer = setTimeout(() => {
       if (debug) console.log('184 Modelling doRefresh memoryLocState:', memorySessionState, props, myMetis)
-      loadMyModeldata(myMetis, goParams)
+      loadMyModeldata(myMetis)
       setRefresh(!refresh)
     }, 1000);
     return () => clearTimeout(timer);
@@ -188,8 +224,9 @@ const page = (props: any) => {
 
   // if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
 
-  if (mount && myMetis) {
-    // return <></>
+  if (mount) {
+  // if (mount && myMetis) {
+    // return <>not loaded</>
     // } else {
 
     // if (debug) console.log('291 Modelling myModel', myMetis, myModel); 
@@ -276,8 +313,6 @@ const page = (props: any) => {
         gojsModel={gojsmetamodelmodel}
         gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
         metis={metis}
         phFocus={phFocus}
         dispatch={dispatch}
@@ -291,8 +326,6 @@ const page = (props: any) => {
         gojsModel={gojsmetamodelmodel}
         gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
         metis={metis}
         phData={phData}
         phFocus={phFocus}
@@ -306,13 +339,11 @@ const page = (props: any) => {
 
     const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
       ?
-      <TargetMeta
+      <TargetMeta // maybe replaced by Palette?
         gojsModel={gojsmodel}
         gojsMetamodel={gojsmetamodel}
-        gojsTargetMetamodel={gojstargetmetamodel}
+        gojsTargetMetamodel={gojstargetmetamodel} 
         myMetis={myMetis}
-        myGoModel={myGoModel}
-        myGoMetamodel={myGoMetamodel}
         phFocus={phFocus}
         metis={metis}
         dispatch={dispatch}
@@ -364,8 +395,6 @@ const page = (props: any) => {
                         gojsMetamodel={gojsmetamodel}
                         gojsModelObjects={gojsmodelobjects}
                         myMetis={myMetis}
-                        myGoModel={myGoModel}
-                        myGoMetamodel={myGoMetamodel}
                         metis={metis}
                         phFocus={phFocus}
                         dispatch={dispatch}
@@ -379,8 +408,6 @@ const page = (props: any) => {
                           gojsModel={gojsmodel}
                           gojsMetamodel={gojsmetamodel}
                           myMetis={myMetis}
-                          myGoModel={myGoModel}
-                          myGoMetamodel={myGoMetamodel}
                           metis={metis}
                           phData={phData}
                           phFocus={phFocus}
@@ -419,8 +446,6 @@ const page = (props: any) => {
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
-                      myGoModel={myGoModel}
-                      myGoMetamodel={myGoMetamodel}
                       metis={metis}
                       phFocus={phFocus}
                       dispatch={dispatch}
@@ -437,8 +462,6 @@ const page = (props: any) => {
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
-                      myGoModel={myGoModel}
-                      myGoMetamodel={myGoMetamodel}
                       phData={phData}
                       phFocus={phFocus}
                       phUser={phUser}
@@ -480,8 +503,6 @@ const page = (props: any) => {
                         gojsMetamodel={gojsmetamodel}
                         gojsTargetMetamodel={gojstargetmetamodel}
                         myMetis={myMetis}
-                        myGoModel={myGoModel}
-                        myGoMetamodel={myGoMetamodel}
                         metis={metis}
                         phFocus={phFocus}
                         dispatch={dispatch}
@@ -497,8 +518,6 @@ const page = (props: any) => {
                         gojsTargetModel={gojstargetmodel}
                         gojsMetamodel={gojsmetamodel}
                         myMetis={myMetis}
-                        myGoModel={myGoModel}
-                        myGoMetamodel={myGoMetamodel}
                         metis={metis}
                         phFocus={phFocus}
                         dispatch={dispatch}

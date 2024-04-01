@@ -32,7 +32,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        if (debug) console.log('30 myMetis, data', myMetis, data);
+        if (!debug) console.log('30 myMetis, data', myMetis, data);
         let obj = data.object;
         if (obj.id === "")
             obj.id = utils.createGuid();
@@ -2395,9 +2395,11 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
     if (data.category === 'Object') {
         let objview;
         let node = goModel?.findNode(data.key);
+        if (debug) console.log('2398 goModel', goModel, node);
         if (!node) node = data;
+        if (debug) console.log('2399 goModel', node);
         if (node) {
-            if (debug) console.log('944 data, node, tonode', data, node, toloc);
+            if (debug) console.log('2401 data, node, tonode', data, node, tolo);
             node.loc = toloc;
             node.size = data.size;
             node.scale1 = node.getMyScale(goModel).toString();;

@@ -132,6 +132,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         typeview = reltypeview;
         type.typeview = reltypeview;
         inst.type = type;
+        selObj = inst1;
         break;
       case constants.gojs.C_RELSHIPTYPE:
         type = selObj.reltype;

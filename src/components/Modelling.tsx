@@ -174,7 +174,6 @@ const page = (props: any) => {
 
 
 
-
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
     if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
@@ -209,6 +208,7 @@ const page = (props: any) => {
     }, 50);
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
+
 
   function doRefresh() { // 
     setMemorySessionState(props)

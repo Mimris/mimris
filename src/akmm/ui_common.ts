@@ -34,10 +34,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             return null;
         if (debug) console.log('30 myMetis, data', myMetis, data);
         let obj = data.object;
-        if (obj.id === "")
-            obj.id = utils.createGuid();
-        const obj1 = myMetis.findObject(obj.id);
-        if (obj1) obj = obj1;
+        if (obj) {
+            const obj1 = myMetis.findObject(obj.id);
+            if (obj1) obj = obj1;
+        }
+        if (!obj || obj?.id === "") {
+            const id = utils.createGuid();
+            obj = new akm.cxObject(id, data.name, objtype, data.description);
+        }
+        data.object = obj;
         let name = context.pasted ? data.name : "";
         if (!data.parentModel) name = data.name;
         if (debug) console.log('38 context, name', context, name);

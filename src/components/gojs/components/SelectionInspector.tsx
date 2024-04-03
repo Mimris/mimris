@@ -30,17 +30,17 @@ const arrowheads = ['None',
   'LineFork', 'BackwardLineFork',
   'Circle', 'Block'];
 
-const colornames = ['black', 'white', 
-                    'lightsalmon','lightsteelblue',
-                    'red', 'darkred', 'pink', 
-                    'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
-                    'blue', 'lightblue', 'darkblue', 'skyblue', 
-                    'grey', 'lightgrey', 'darkgrey',
-                    'yellow', 'lightyellow', 'yellowgreen', 'orange', 
-                    'brown', 'purple', 
-                    'violet', 'turquoise',
-                    'transparent'
-                   ];
+const colornames = ['black', 'white',
+  'lightsalmon', 'lightsteelblue',
+  'red', 'darkred', 'pink',
+  'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
+  'blue', 'lightblue', 'darkblue', 'skyblue',
+  'grey', 'lightgrey', 'darkgrey',
+  'yellow', 'lightyellow', 'yellowgreen', 'orange',
+  'brown', 'purple',
+  'violet', 'turquoise',
+  'transparent'
+];
 
 const strokewidths = ['1', '2', '3', '4', '5'];
 
@@ -223,7 +223,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           let inheritedTypes = inst?.getInheritedTypes();
           inheritedTypes.push(currentType);
           inheritedTypes = [...new Set(inheritedTypes)];
-          if (inst?.hasInheritedProperties(myModel)) 
+          if (inst?.hasInheritedProperties(myModel))
             includeInherited = true;
           const context = {
             myMetis: myMetis,
@@ -232,11 +232,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             includeConnected: false,
             includeInherited: includeInherited,
           }
-          let namelist = uic.getNameList(inst, context, true); 
+          let namelist = uic.getNameList(inst, context, true);
           if (context.includeInherited) {
             typename = namelist[activeTab];
             const objs = inst.getInheritanceObjects(myModel) as akm.cxObject[];
-            for (let i=0; i<objs.length; i++) {
+            for (let i = 0; i < objs.length; i++) {
               if (objs[i].type.name === typename) {
                 chosenType = objs[i].type;
                 chosenInst = objs[i];
@@ -245,14 +245,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           }
           if (namelist.length > 1 && typename !== 'Element') {
-            for (let i=0; i<inheritedTypes.length; i++) {
+            for (let i = 0; i < inheritedTypes.length; i++) {
               const tname = inheritedTypes[i]?.name;
               if (tname === typename) {
                 type = inheritedTypes[i];
                 chosenType = type as akm.cxObjectType;
               }
             }
-          } 
+          }
           if (!inst?.hasInheritedProperties(myModel)) {
             chosenType = null;
           }
@@ -273,7 +273,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // Do nothing
           }
           if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
-        } 
+        }
         else if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
           if (inst1) inst = inst1;
@@ -301,13 +301,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let includeInherited = true;
         if (chosenType) {
           try {
-          properties = chosenType.getProperties(includeInherited);
-          // pointerProps = chosenType.getPointerProperties(false);
+            properties = chosenType.getProperties(includeInherited);
+            // pointerProps = chosenType.getPointerProperties(false);
           } catch {
             // Do nothing
           }
           if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
-        } 
+        }
         else {
           let includeInherited = true;
           inst = myMetis.findRelationship(inst.id);
@@ -315,19 +315,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           try {
             const typeProps = type?.getProperties(includeInherited);
             const inheritedProps = inst?.getInheritedProperties(myModel);
-            if (inheritedProps?.length>0)
+            if (inheritedProps?.length > 0)
               properties = typeProps.concat(inheritedProps);
             else
               properties = typeProps;
           } catch {
             // Do nothing
           }
-          if (!debug) console.log('259 chosenType, properties: ', chosenType, properties);
+          if (debug) console.log('259 chosenType, properties: ', chosenType, properties);
         }
-    }
-    else if (category === constants.gojs.C_RELSHIPTYPE) {
+      }
+      else if (category === constants.gojs.C_RELSHIPTYPE) {
 
-    }
+      }
       // Handle property values that are undefined
       for (let i = 0; i < properties?.length; i++) {
         const prop = properties[i];

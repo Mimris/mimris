@@ -40,7 +40,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const Modeller = (props: any) => {
   if (!props.metis) return <> metis not found</>
   if (!props.myMetis?.currentModel) return <> current model not found</>
-  if (!debug) console.log('42 Modeller: props', props);
+  if (debug) console.log('42 Modeller: props', props);
 
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
@@ -99,7 +99,7 @@ const Modeller = (props: any) => {
   // const gojsmodel = props.gojsModel;
   // const gojsobjects = props.gojsModelObjects;
 
-  if (!debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
+  if (debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
 
   let seltasks = props.phFocus?.focusRole?.tasks || []
   let focusTask = props.phFocus?.focusTask

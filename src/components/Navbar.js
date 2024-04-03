@@ -126,7 +126,7 @@ const Navbar = (props) => {
 					{/* <Link className="navbar-brand navbar-left mx-1 mb-2" href="#">
 						<img src="images/equinor-logo.svg" width="90px" height="40px" className="d-inline-block align-top" alt="Equinor logo" />
 					</Link> */}
-					<div className="navbar-brand navbar-left ms-0 me-4 rounded text-black bg-white" > 
+					<div className="navbar-brand navbar-left ms-0 me-4 pb-0 rounded text-black bg-white" > 
 						<span className="bg-white mb-0 py-1"
 							type="button"
 							data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -221,7 +221,7 @@ const Navbar = (props) => {
 			<style jsx>{`
 		  	nav {
 				height:38px;
-				padding-bottom: 5px;
+				padding-bottom: 2px;
 				display: flex;
 				justify-content: between;
 				align-items: center;

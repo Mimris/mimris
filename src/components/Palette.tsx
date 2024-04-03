@@ -20,7 +20,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Palette = (props: any) => {
 
-  if (!debug) clog('22 Palette', props);
+  if (debug) clog('22 Palette', props);
 
   const dispatch = useDispatch();
 
@@ -73,8 +73,8 @@ const Palette = (props: any) => {
   function togglePalette() { setVisiblePalette(!visiblePalette); }
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
-  let ndarr = props.gojsMetamodel?.nodeDataArray // error first render???
-  //let ndarr1 = props.gojsMetaModel?.nodeDataArray // error first render???
+  let ndarr = props.gojsMetamodel?.nodeDataArray
+
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
   let taskNodeDataArray: any[] = ndarr
@@ -124,7 +124,7 @@ const Palette = (props: any) => {
 
   if (!metamodels) return null;
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
-    if (!debug) console.log('106 Palette', mmodel, props.myMetis);
+    if (debug) console.log('106 Palette', mmodel, props.myMetis);
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     if (debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
@@ -199,13 +199,14 @@ const Palette = (props: any) => {
         linkDataArray={[]}
         metis={props.metis}
         myMetis={props.myMetis}
-        myGoModel={props.myGoModel}
+        // myGoModel={props.myGoModel}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
         diagramStyle={{ height: "76vh" }}
       />
     </details>
   //     style={(filteredOtNodeDataArray?.length === 0) ? { height: "0vh" } : { height: "37vh" }} 
+
   const gojsappPaletteIRTVDiv = (mmodel && IRTVOtNodeDataArray) && // this is the palette with the current metamodel
     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>IRTV Metamodel</summary>
@@ -214,12 +215,13 @@ const Palette = (props: any) => {
         linkDataArray={[]}
         myMetis={props.myMetis}
         metis={props.metis}
-        myGoModel={props.myGoModel}
+        // myGoModel={props.myGoModel}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
         diagramStyle={{ height: "30vh" }}
       />
     </details>
+
   const gojsappPaletteCoreDiv = (mmodel && CoreOtNodeDataArray) && // this is the palette with the current metamodel
     <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
       <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>Core Metamodel</summary>
@@ -228,7 +230,7 @@ const Palette = (props: any) => {
         linkDataArray={[]}
         myMetis={props.myMetis}
         metis={props.metis}
-        myGoModel={props.myGoModel}
+        // myGoModel={props.myGoModel}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
         diagramStyle={{ height: "52vh" }}

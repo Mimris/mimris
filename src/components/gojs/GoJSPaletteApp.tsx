@@ -44,7 +44,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    if (debug) console.log('47 GoJSPaletteApp', props.nodeDataArray, props);
+    if (debug) console.log('47 GoJSPaletteApp', this.props.nodeDataArray, this.props);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -55,7 +55,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       skipsDiagramUpdate: false,
       metis: this.props.metis,
       myMetis: this.props.myMetis,
-      myGoModel: this.props.myGoModel,
+      // myGoModel: this.props.myGoModel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
       diagramStyle: this.props.diagramStyle
@@ -119,7 +119,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const sel = e.subject.first();
         if (!sel) break;
         let part = sel.data;
-        if (debug) console.log('104 data', sel.data);
+        if (debug) console.log('122 data', part, sel, sel.data, e);
         const myMetis = this.state.myMetis;
         if (debug) console.log('106 myMetis', myMetis);
         let object = sel.data.object;

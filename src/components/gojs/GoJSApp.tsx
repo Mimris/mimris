@@ -218,14 +218,14 @@ class GoJSApp extends React.Component<{}, AppState> {
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
-    const myGoModel = this.state.myMetis.myGoModel;
+    const myGoModel = this.state.myMetis.gojsModel;
     // const myGoMetamodel = this.state.myGoMetamodel;
     if (!debug) console.log('223 handleDiagramEvent - myGoModel', myGoModel, myMetis);
     // const myGoMetamodel = this.state.myGoMetamodel;
-    const gojsModel = {
-      nodeDataArray: myGoModel?.nodes,
-      linkDataArray: myGoModel?.links
-    }
+    // const gojsModel = {
+    //   nodeDataArray: myGoModel?.nodes,
+    //   linkDataArray: myGoModel?.links
+    // }
     const nodes = new Array();
     // const nods = myGoMetamodel?.nodes;
     // for (let i = 0; i < nods?.length; i++) {
@@ -259,7 +259,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myMetamodel": myMetamodel,
       "myModel": myModel,
       "myModelview": myModelview,
-      "myGoModel": myGoModel,
+      "myGoModel": myMetis.gojsModel,
       // "myGoMetamodel": myGoMetamodel,
       "myDiagram": myDiagram,
       "dispatch": dispatch,
@@ -1137,7 +1137,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
-          if (!debug) console.log('1139 n.data', n.data, n);
+          if (debug) console.log('1139 n.data', n.data, n);
           const node = myDiagram.findNodeForKey(n.data.key);
           if (!debug) console.log('1141 node', node);
           let typeview = n.data.typeview;

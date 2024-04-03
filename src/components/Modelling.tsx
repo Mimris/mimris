@@ -102,7 +102,7 @@ const page = (props: any) => {
   // let myGoModel, myGoMetamodel
   // let myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel, myGoMetamodelPalette, myGoTargetMetamodel
   // let myGoTargetModel, myTargetModelview, myTargetMetamodel, myTargetModel, myTargetMetamodelPalette
-  
+
   // let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
 
   const [gojsmodel, setGojsmodel] = useState(null)
@@ -152,21 +152,21 @@ const page = (props: any) => {
 
   GenGojsModel(props, myMetis)
 
-  async function loadMyModeldata(myMetis: akm.cxMetis)   {
+  async function loadMyModeldata(myMetis: akm.cxMetis) {
     const goParams = await GenGojsModel(props, myMetis)
-    .then((goParams) => { 
-      setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-      setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
-      setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
-      setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
-      setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
-      setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-      setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
-    }) 
-    .catch((error) => {
-      console.error('Error in loadMyModeldata:', error);
-    });
-    if (!debug) console.log('145 Modelling', goParams, myMetis,  props);
+      .then((goParams) => {
+        setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+        setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
+        setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
+        setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
+        setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
+        setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+        setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
+      })
+      .catch((error) => {
+        console.error('Error in loadMyModeldata:', error);
+      });
+    if (!debug) console.log('169 Modelling', goParams, myMetis, props);
   };
 
   // if (mount) {
@@ -181,6 +181,7 @@ const page = (props: any) => {
     loadMyModeldata(myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
+    if (!debug) console.log('184 Modelling', gojsmetamodel, gojsmetamodelmodel, gojsmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
     setMount(true);
   }, [])
 
@@ -221,11 +222,14 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }
 
+  if (mount && gojsmodel) {
+    if (!debug) console.log('226 Modelling', gojsmodel, gojsmetamodel, gojsmetamodelmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
+  }
 
   // if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
 
   if (mount) {
-  // if (mount && myMetis) {
+    // if (mount && myMetis) {
     // return <>not loaded</>
     // } else {
 
@@ -342,7 +346,7 @@ const page = (props: any) => {
       <TargetMeta // maybe replaced by Palette?
         gojsModel={gojsmodel}
         gojsMetamodel={gojsmetamodel}
-        gojsTargetMetamodel={gojstargetmetamodel} 
+        gojsTargetMetamodel={gojstargetmetamodel}
         myMetis={myMetis}
         phFocus={phFocus}
         metis={metis}
@@ -460,7 +464,7 @@ const page = (props: any) => {
                     <Modeller // this is the Modeller ara
                       gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}
-                      gojsMetamodel={gojsmetamodel}
+                      // gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
                       phData={phData}
                       phFocus={phFocus}
@@ -600,7 +604,7 @@ const page = (props: any) => {
 
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
-    return ((mmToggle) 
+    return ((mmToggle)
       ? (myMetis) &&
       <>
         <div className="diagramtabs pb-0" >

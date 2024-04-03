@@ -24,7 +24,7 @@ const page = (props) => {
   if (!props) return <>file not found</>;
 
   const [refresh, setRefresh] = useState(false);
-    // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+  // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
 
   // const [mmToggle, setMmToggle] = useState(false);
   const [activeTab, setActiveTab] = useState('0');
@@ -94,7 +94,7 @@ const page = (props) => {
 
   async function loadMyModeldata(myMetis: akm.cxMetis, goParams: any) {
     goParams = await GenGojsModel(props, myMetis);
-    if (!debug) console.log('84 Model', goParams);
+    if (debug) console.log('84 Model', goParams);
     setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
     setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
     setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
@@ -107,7 +107,7 @@ const page = (props) => {
 
   useEffect(() => {
     setActiveTab(activetabindex);
-      setRefresh(!refresh)
+    setRefresh(!refresh)
     setMount(true);
   }, []);
 
@@ -132,9 +132,9 @@ const page = (props) => {
     console.log('doRefresh')
   }
 
-  const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false): []
+  const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
 
-  const modelindex =  models.findIndex((m: any) => m?.id === phFocus.focusModel?.id)
+  const modelindex = models.findIndex((m: any) => m?.id === phFocus.focusModel?.id)
 
   const navmodelDiv = (!selmods) ? <></> : selmods.map((m, index) => {
     if (m && !m.markedAsDeleted) {
@@ -169,7 +169,7 @@ const page = (props) => {
               doRefresh();
             }}
           >
-            {(m.name.startsWith('_A'))? <span className="text-secondary" style={{scale: "0.8", whiteSpace: "nowrap"}} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
+            {(m.name.startsWith('_A')) ? <span className="text-secondary" style={{ scale: "0.8", whiteSpace: "nowrap" }} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
           </NavLink>
         </NavItem>
       );
@@ -177,46 +177,46 @@ const page = (props) => {
   });
 
   const modellingtabs =
-      <>
-          <Nav tabs style={{ minWidth: "50px", borderBottom: "white"}} >
-          {navmodelDiv}
-          </Nav>
-          <TabContent  >
-          <TabPane >   {/* Model ---------------------------------------*/}
-              <div className="workpad p-1 pt-2 bg-white">
-              <Row className="row1">
+    <>
+      <Nav tabs style={{ minWidth: "50px", borderBottom: "white" }} >
+        {navmodelDiv}
+      </Nav>
+      <TabContent  >
+        <TabPane >   {/* Model ---------------------------------------*/}
+          <div className="workpad p-1 pt-2 bg-white">
+            <Row className="row1">
 
-                  <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                  <div className="modelling-area myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                      <Modeller 
-                        gojsModelObjects={null} // do not use/show gojsmodelobjects
-                        // gojsModelObjects={gojsmodelobjects}
-                        gojsModel={gojsmodel}
-                        gojsMetamodel={gojsmetamodel}
-                        myMetis={myMetis}
-                        myGoModel={myGoModel}
-                        myGoMetamodel={myGoMetamodel}
-                        phData={phData}
-                        phFocus={phFocus}
-                        phUser={phUser}
-                        phSource={phSource}
-                        metis={metis}
-                        dispatch={dispatch}
-                        modelType='model'
-                        userSettings={null}
-                      />
-                  </div>
-                  </Col>
-              </Row>
-              </div>
-          </TabPane>
-          </TabContent>
-      </>
+              <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
+                <div className="modelling-area myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                  <Modeller
+                    gojsModelObjects={null} // do not use/show gojsmodelobjects
+                    // gojsModelObjects={gojsmodelobjects}
+                    gojsModel={gojsmodel}
+                    gojsMetamodel={gojsmetamodel}
+                    myMetis={myMetis}
+                    myGoModel={myGoModel}
+                    myGoMetamodel={myGoMetamodel}
+                    phData={phData}
+                    phFocus={phFocus}
+                    phUser={phUser}
+                    phSource={phSource}
+                    metis={metis}
+                    dispatch={dispatch}
+                    modelType='model'
+                    userSettings={null}
+                  />
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </TabPane>
+      </TabContent>
+    </>
   return (mount) && (
-      <div className="p-1" style={{backgroundColor: "#eee"}}>
-        {/* {modellingtabs} */}
-        {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
-      </div>
+    <div className="p-1" style={{ backgroundColor: "#eee" }}>
+      {/* {modellingtabs} */}
+      {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+    </div>
   )
 }
 

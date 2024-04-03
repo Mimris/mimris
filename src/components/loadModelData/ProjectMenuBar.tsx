@@ -447,6 +447,7 @@ export const ProjectMenuBar = (props: any) => {
         :  
             <>
                 <div className="d-flex"
+                    style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
                     onClick={() => props.setExpanded(true)}
                 >
                     <div className="ms-auto me-5 mt-1 rounded-2" 

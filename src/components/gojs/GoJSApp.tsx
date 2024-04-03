@@ -224,10 +224,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
-    const gojsModel = {
-      nodeDataArray: myGoModel?.nodes,
-      linkDataArray: myGoModel?.links
-    }
+    // const gojsModel = {
+    //   nodeDataArray: myGoModel?.nodes,
+    //   linkDataArray: myGoModel?.links
+    // }
     const nodes = new Array();
     const nods = myGoMetamodel?.nodes;
     for (let i = 0; i < nods?.length; i++) {
@@ -239,10 +239,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
 
-    const gojsMetamodel = {
-      nodeDataArray: myGoMetamodel?.nodes,
-      linkDataArray: myGoMetamodel?.links
-    }
+    // const gojsMetamodel = {
+    //   nodeDataArray: myGoMetamodel?.nodes,
+    //   linkDataArray: myGoMetamodel?.links
+    // }
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
     let modifiedObjectTypeGeos = new Array();

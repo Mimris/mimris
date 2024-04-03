@@ -132,6 +132,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         typeview = reltypeview;
         type.typeview = reltypeview;
         inst.type = type;
+        selObj = inst1;
         break;
       case constants.gojs.C_RELSHIPTYPE:
         type = selObj.reltype;
@@ -482,7 +483,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // Filter attributes to show in a given tab
         {
           let found = false;
-          for (let n = 0; n<properties.length; n++) {
+          for (let n = 0; n<properties?.length; n++) {
             const p = properties[n];
             if (p.name === k) {
               found = true;
@@ -597,7 +598,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   
         // Get property values
         if (properties?.length > 0) {
-          for (let i=0; i<properties.length; i++) {
+          for (let i=0; i<properties?.length; i++) {
             let prop = properties[i] as akm.cxProperty;
             if (prop) {
               if (prop.name !== k)

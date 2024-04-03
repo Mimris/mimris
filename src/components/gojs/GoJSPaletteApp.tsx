@@ -119,15 +119,23 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const sel = e.subject.first();
         if (!sel) break;
         let part = sel.data;
+        let myDiagram = e.diagram;
+        let node = myDiagram.findNodeForKey(part.key);
         if (debug) console.log('122 data', part, sel, sel.data, e);
         const myMetis = this.state.myMetis;
         if (debug) console.log('106 myMetis', myMetis);
-        let object = sel.data.object;
+        let object = node.data.object;
+        if (!object) {
+            // This is in the Types Palette
+            // There are no objects in the Types Palette
+            break;
+        }
+        // This is in the Objects Palette
         const obj = myMetis.findObject(object?.id);
         object = obj ? obj : object;
         if (debug) console.log('110 obj', obj);
-        if (obj) {
-          const jsnObj = new jsn.jsnObject(obj);
+        if (object) {
+          const jsnObj = new jsn.jsnObject(object);
           const modifiedObjects = new Array();
           modifiedObjects.push(jsnObj);
           modifiedObjects.map(mn => {
@@ -138,10 +146,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
             this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
           })
         }
-        // find  all objectviews in currentModelview of object
+        // find  all nodes of a given object in the current diagram (modelview)
         const myModelview = myMetis.currentModelview;
         let objview = myModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
-        const myDiagram = myModelview.diagram;
         const nodes = myDiagram?.nodes;
         for (let it = nodes?.iterator; it?.next();) {
           const node = it.value;

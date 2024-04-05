@@ -290,7 +290,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           continue;
         if (!includeNoType && !objview.object?.type)
           continue;
-        const node = new gjs.goObjectNode(utils.createGuid(), objview);
+        const node = new gjs.goObjectNode(objview.id, objview);
         node.scale = objview.scale1;
         if (node.template === "")
           node.template = 'textAndIcon';

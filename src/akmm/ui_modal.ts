@@ -739,6 +739,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       relship = myMetis.findRelationship(relship.id);
       relship['cardinalityFrom'] = relship.getCardinalityFrom();
       relship['cardinalityTo'] = relship.getCardinalityTo();
+      relship['relshipkind'] = rel.relshipkind;
       if (relship.name === "") relship.name = " ";
       for (let k in rel) {
         if (typeof(rel[k]) === 'object')    continue;

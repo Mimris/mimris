@@ -455,14 +455,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (isLabel)
             continue;
         }
-        if (k === 'relshipkind') {
-          if (what !== 'editRelationshipType') {
-            if (!myModel.includeRelshipkind)
-              continue;
-            if (what !== 'editRelationship')
-              continue;
-          }
-        }
+        // if (k === 'relshipkind') {
+        //   if (what !== 'editRelationshipType') {
+        //     if (!myModel.includeRelshipkind)
+        //       continue;
+        //     if (what !== 'editRelationship')
+        //       continue;
+        //   }
+        // }
         if (k === 'text') {
           if (!isLabel)
             continue;

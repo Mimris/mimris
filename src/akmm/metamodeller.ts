@@ -7739,7 +7739,7 @@ export class cxInstance extends cxMetaObject {
         return this.type as cxObjectType | cxRelationshipType;
     }
     getInheritedTypes(): cxObjectType[] | cxRelationshipType[] | null {
-        const typelist: cxType[] = [];
+        let typelist: cxType[] = [];
         const type = this.getType() as cxType;
         if (!type) return null;
         if (type.supertypes.length > 0)
@@ -7756,7 +7756,8 @@ export class cxInstance extends cxMetaObject {
             if (tname !== constants.types.AKM_ELEMENT)
                 typelist.push(types[i]);
         }
-        if (debug) console.log('6703 typelist', typelist);
+        const uniqueSet = new Set(typelist); 
+        typelist = [...uniqueSet];    
         return typelist;
     }
     getInheritedTypeNames(): string[] {

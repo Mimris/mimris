@@ -761,19 +761,20 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 }
 
 // functions to handle relationships
-export function createRelationship(data: any, context: any) {
+export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel: gjs.goModel = context.myGoModel;
     const myMetis: akm.cxMetis = context.myMetis;
     const entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
     let myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
     const myModelview: akm.cxModelView = context.myModelview;
-    const fromNode = myGoModel.findNode(data.from);
-    let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
-    const fromPort = data.fromPort;
-    const toNode = myGoModel.findNode(data.to);
-    let nodeTo = myDiagram.findNodeForKey(toNode?.key)
-    const toPort = data.toPort;
+
+    // const fromNode = myGoModel.findNode(data.from);
+    let fromNode = nodeFrom?.data;
+    const fromPort = "";
+    // const toNode = myGoModel.findNode(data.to);
+    let toNode = nodeTo?.data;
+    const toPort = "";
     let reltype;
     let fromType = fromNode?.objecttype;
     let toType = toNode?.objecttype;
@@ -859,7 +860,7 @@ export function createRelationship(data: any, context: any) {
             choices = utils.removeArrayDuplicates(choices);
             // Calling routine to select reltype from list
             const args = {
-                data: data,
+                data: context.data,
                 typename: defText,
                 fromType: fromType,
                 toType: toType,
@@ -868,7 +869,6 @@ export function createRelationship(data: any, context: any) {
                 fromPort: fromPort,
                 toPort: toPort,
                 diagramModel: myDiagram.diagramModel,
-                context: context
             }
             const modalContext = {
                 what: "selectDropdown",
@@ -877,7 +877,7 @@ export function createRelationship(data: any, context: any) {
                 myDiagram: myDiagram,
                 myMetamodel: metamodel,
                 context: context,
-                data: data,
+                // data: data,
                 typename: defText,
                 fromType: fromType,
                 toType: toType,
@@ -905,7 +905,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     const portFrom = args.fromPort;
     const nodeTo = args.nodeTo;
     const portTo = args.toPort;
-    // const context  = args.context;
+    const context  = args.context;
     let objFrom: akm.cxObject = nodeFrom.data.object;
     objFrom = myModel.findObject(objFrom.id);
     let objTo: akm.cxObject = nodeTo.data.object;
@@ -1035,7 +1035,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             }
         }
     }
-    // myDiagram.requestUpdate();
+    const link = context.link;
+    myDiagram.remove(link);
     return relshipview;
 }
 
@@ -1072,7 +1073,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         if (prop === 'name') continue;
         if (prop === 'abstract') continue;
         if (prop === 'class') continue;
-        if (prop === 'relshipkind') continue;
+        // if (prop === 'relshipkind') continue;
         linkdata[prop] = rtviewdata[prop];
     }
     // and add the link data to the model

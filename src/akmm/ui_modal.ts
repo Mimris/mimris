@@ -432,13 +432,13 @@ export function handleSelectDropdownChange(selected, context) {
       const myGoModel = context.myGoModel;
       const myDiagram = context.myDiagram;
       const modalContext = context.modalContext;
-      const data = modalContext.data;
+      // const data = modalContext.data;
       const typename = selected.value;
-      modalContext.selected = selected;
-      const fromNode = myGoModel.findNode(modalContext.data.from);
-      const fromPortId = modalContext.data.fromPort;
-      const toNode = myGoModel.findNode(modalContext.data.to);
-      const toPortId = modalContext.data.toPort;
+      modalContext.typename = typename;
+      const fromNode = myGoModel.findNode(modalContext.nodeFrom);
+      const fromPortId = modalContext.portFrom;
+      const toNode = myGoModel.findNode(modalContext.nodeTo);
+      const toPortId = modalContext.portTo;
       let fromType = modalContext.fromType; 
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
       if (fromType) {
@@ -465,7 +465,7 @@ export function handleSelectDropdownChange(selected, context) {
           })
         }
       }
-      data.relshiptype = reltype;
+      context.relshiptype = reltype;
       break;
     }
     default:

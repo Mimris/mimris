@@ -1364,9 +1364,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             node.loc = objview.loc;
             node.size = objview.size;
             const n = myGoModel.findNode(key);
-            n.loc = objview.loc;
-            n.size = objview.size;
-            if (debug) console.log('1360 data, objview, node, n', data, objview, node, n);
+            if (n) {
+              n.loc = objview.loc;
+              n.size = objview.size;
+            }
           }
         }
         // Nodes and objectviews are now filled with values
@@ -1536,6 +1537,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
+        context.link = link;
+        context.data = data;
         if (debug) console.log('1498 link', link.data, link.fromNode, link.toNode);
 
         if (false) { // Prepare for linkToLink
@@ -1592,7 +1595,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          uic.createRelationship(data, context);
+          uic.createRelationship(fromNode, toNode, context);
         }
         myDiagram.requestUpdate();
         break;

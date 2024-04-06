@@ -395,7 +395,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     } else {
       setSelectedOption('OSDUType')
     }
-    if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(true)
+    if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false)
   }, [])
 
   useEffect(() => {

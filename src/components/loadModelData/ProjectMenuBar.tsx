@@ -144,7 +144,7 @@ export const ProjectMenuBar = (props: any) => {
     const loadFile = (
         <>
             <button
-                className="btn rounded bg-light text-dark px-1 my-0 py-0 pe-2 me-auto"
+                className="btn rounded bg-light d-flex justify-content-start align-items-center text-dark px-1 my-0 py-0 pe-2 me-auto w-100"
                 data-toggle="tooltip"
                 data-placement="top"
                 data-bs-html="true"
@@ -168,14 +168,14 @@ export const ProjectMenuBar = (props: any) => {
     const saveFile = (
         <>
             <button
-                className="btn btn-sm rounded bg-light text-dark px-1 my-0 py-0 pe-2 ps- me-1"
+                className="btn btn-sm rounded bg-primary text-light w-100 px-2 d-flex justify-content-start align-items-center"
                 data-toggle="tooltip"
                 data-placement="top"
                 data-bs-html="true"
                 title="Click here to Save the Project file to the local file system"
                 onClick={handleSaveAllToFile}
-                >
-                <i className="fa fa-save fa-lg"></i> Save to local file
+            >
+                <i className="fa fa-save fa-lg pe-2"></i> Save to local file
             </button>
         </>
     )
@@ -230,42 +230,29 @@ export const ProjectMenuBar = (props: any) => {
                         className={`context-item border p-1 rounded-2 ${item === activeItem ? "active" : ""}`}
                         key={index}
                     >
-                        <div
-                            onClick={() => handleItemClick(item)}
-                            style={{ backgroundColor: item === activeRightItem ? "blue" : "white" }}
-                        >
-                            {item === "Open" ? (
-                                <div className="bg-secondary border border-2 rounded text-white ps-1">
-                                    <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
-                                    {/* <i className="fab fa-github fa-lg my-0 py-0 me-1 "></i> */}
-                                     <span className="icon-text">{loadGitHub}</span>
-                                </div>
-                            ) : item === "New" ? (
-                                <div className="bg-secondary border rounded text-white ps-1">
-                                    <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
-                                    {/* {!isLeftDropdownOpen && <i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>} */}
-                                   <span className="icon-text">{loadNewModelProject}</span>
-                                </div>
-                            ) : item === "File" ? (
-                                <div className="bg-light border border-4 rounded">                                  
-                                    <span className="icon-text">{loadFile}</span>
-                                </div>
-                            ) : item === "Save" ? (
-                                <div className="bg-light border  border-4 rounded">
-                                    <span className="icon-text">{saveFile}</span>
-                                </div>
-                            ) : item === "Metamodel" ? (
-                                <div
-                                    className=" border rounded text-white ps-1"
-                                    style={{ backgroundColor: "#999" }}
-                                >
-                                    <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
-                                    <span className="icon-text">{loadGitHubMetamodel}</span>
-                                </div>
-                            ) : (
-                                item
-                            )}
-                        </div>
+                    <div onClick={() => handleItemClick(item)}
+                        style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
+                    >
+                        {item === 'Open' 
+                            ?  <div className="bg-secondary border border-2 rounded text-white ps-1 "
+                                ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
+                            : item === 'New'
+                                ? <div className="bg-secondary border rounded text-white ps-1"
+                                    ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
+                                : item === 'File'
+                                    ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
+                                    : item === 'Save'
+                                        ? <div className="bg-light border  border-4 rounded">{saveFile}</div>
+                                        : item === 'Metamodel'
+                                            ? <details className=" border rounded text-white ps-1"
+                                                style={{ backgroundColor: "#999"}}
+                                                ><summary className="bg-light my-1 me-1 ps-1 text-black">More ...</summary>
+                                                <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div>
+                                                 {/* <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div> */}
+                                            </details>
+                                            : item    
+                        }
+                    </div>
                     </li>
                 ))}
             </ul>

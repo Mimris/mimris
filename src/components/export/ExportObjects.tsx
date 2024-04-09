@@ -213,7 +213,7 @@ const ExportObjects = (props) => {
   const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
 
   const titles = (objectPropertiesOsdu) && Object.values(objectPropertiesOsdu);
-  const values = titles?.map(v => curobject[v]);
+  const values = titles?.map(v =>  (v === 'name') ? (curobject.groupType === 'abstract') ? 'Abstract'+curobject[v]: curobject[v] : curobject[v]);
   if (debug) console.log('214 keys1', values);
 
   const valueList = ObjectToCsv({ obj: csvheader3 }).valueList
@@ -230,7 +230,7 @@ const ExportObjects = (props) => {
 
   const relatedObjList = relatedToObjects.map((toObj: any, index) => (
     `\n ${index + 1
-    };${toObj.name
+    };${(toObj.groupType === 'abstract') ? 'Abstract' + toObj.name.split('.')[0] : toObj.name.split('.')[0]
     };${(toObj.title) ? toObj.title : ""
     };${(toObj.description) ? `"${toObj.description}"` : ""
     };${(toObj.type) ? toObj.dataType : ""

@@ -1178,6 +1178,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             let objview = uic.createObject(part, context);
+            if (debug) console.log('954 myMetis', myMetis);
+            if (debug) console.log('955 part, objview', part, objview);
             objview = uic.setObjviewColors(part, myDiagram);
             if (objview) {
               const object = objview.object;

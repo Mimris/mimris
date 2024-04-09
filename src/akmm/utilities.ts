@@ -160,14 +160,19 @@ export function findObjectsByType(objects: any, objecttypes: any,  objTypeName: 
    return objects.filter(o => o.typeRef === objtype?.id && o);
 }
 
-export function findObjectByName(objects: any, arg1: {}, restName: any) {
-    return objects.find(o => o.name === restName && o);
+export function findObjectByName(objects: any,  name: any) {
+    return objects.find(o => o.name === name && o);
 }
-export function findObjectByNameVersion(objects: any, arg1: {}, restNameVersion: any) {
-    return objects.find(o => o.name === restNameVersion && o);
+export function findObjectByNameOnly(objects: any, name: any) { // find object by name only, exclude version
+    const obj = objects.find(o => (o.name.split('.')[0] === name) && o);
+    if (debug) console.log('124 ',objects[0].name.split('.')[0], name, obj, objects);
+    return obj;
 }
-export function findObjectByTitle(objects: any, arg1: {}, restTitle: any) {
-    return objects.find(o => o.title === restTitle && o);
+export function findObjectByNameVersion(objects: any,nameVersion: any) {
+    return objects.find(o => o.name === nameVersion && o);
+}
+export function findObjectByTitle(objects: any, title: any) {
+    return objects.find(o => o.title === title && o);
 }
 
 export function findFromObjects( o: any, objects: any, torships: any ) {

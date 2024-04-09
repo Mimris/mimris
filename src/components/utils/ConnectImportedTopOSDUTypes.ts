@@ -96,21 +96,26 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
         if (debug) console.log('85 CreatedRel', fromobjectId, toobjectId, rel);
     }
     // console.log('56 :', stringifyEntries(deepEntries(topModel))); 
-    const propLinkObjects = utils.findObjectsByType(curModel.objects, curObjTypes, 'PropLink') // find all PropLink objects, this is temporary objedts representing on end of a relship
-    if (debug) console.log('101 :', curModel.objects, propLinkObjects);
+    const proxyObjects = utils.findObjectsByType(curModel.objects, curObjTypes, 'Proxy') // find all Proxy objects, this is temporary objedts representing on end of a relship
+    if (debug) console.log('101 :', curModel.objects, proxyObjects);
 
-    const propLinks = propLinkObjects
-    if (debug) console.log('112 ', propLinks);
+    const proxies = proxyObjects
+    if (debug) console.log('112 ', proxies);
 
     let topLevelObject: { id: any; name: any; }
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
-    const genrelPropLinks = propLinks.forEach(o => {
+    const genrelProxys = proxies.forEach(o => {
         // use the referenceObject to find the top object
-        if ((debug)) console.log('118 PropLink: ', o.name, o.title, o.id, o.referenceObject, o);
-        if (debug) console.log('119 ', o.referenceObject, o.refVersion);
-        const targetObjectVersion = (o.refVersion && o.refVersion !== '') && utils.findObjectByNameVersion(curModel.objects, {}, o.referenceObject + o.refVersion)
-        const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
-        if (debug) console.log('122 ', targetObject?.name, o.referenceObject, o.name, o.title, o.id, targetObjectVersion?.name, o.refVersion, targetObject);
+        if (!debug) console.log('110 Proxy: ', o.name, o.title, o.id, o);
+        if (debug) console.log('111 ', o.refGroupType, o.referenceObject, o.refVersion);
+        const targetObjectVersion =  (o.refVersion === '' || o.refVersion === undefined)
+            ?   utils.findObjectByNameOnly(curModel.objects, o.referenceObject)
+            :   utils.findObjectByNameVersion(curModel.objects, o.referenceObject + o.refVersion)
+        console.log('114 ', targetObjectVersion);
+        const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByName(curModel.objects, o.referenceObject)
+        // const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
+        // const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
+        if (!debug) console.log('118 ', targetObject?.name, targetObjectVersion?.name, targetObject, targetObjectVersion);
         if (!targetObject) return; // if no targetObject, skip this relationship
 
         // find top level object
@@ -164,20 +169,19 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     });
 
     // 
-
     // console.log('171 ', genrel); 
     // $ref.......Find RelshipType objects with a $ref attribute and and generate a relship between this top oject and the $ref object
-    const propLinkObjectsWithRef = propLinkObjects.filter((o: { [x: string]: any; }) => o['$ref'])  // find objects with a $ref
-    if (debug) console.log('174 ', propLinkObjects, propLinkObjectsWithRef);
+    const proxyObjectsWithRef = proxyObjects.filter((o: { [x: string]: any; }) => o['$ref'])  // find objects with a $ref
+    if (debug) console.log('174 ', proxyObjects, proxyObjectsWithRef);
 
-    const genref = propLinkObjectsWithRef.forEach((o: { [x: string]: string; id: any; }) => {
+    const genref = proxyObjectsWithRef.forEach((o: { [x: string]: string; id: any; }) => {
         if (debug) console.log('177 ', o['$ref'])//, curObjects, curRelships);
         //remove the the ../abstract and .1.0.0.json and find another object with the rest name
 
         const lastElement = o['$ref'].split('/').pop()  // find last element in $ref path
         const firstElement = lastElement.split('.')[0]   // find what is before the first "."    
         const removedAbstract = (firstElement === 'AbstractWorkProductComponent' || 'AbstractCommonResources') ? firstElement : firstElement.replace('Abstract', '')
-        const targetObject = utils.findObjectByName(curModel.objects, {}, removedAbstract)
+        const targetObject = utils.findObjectByName(curModel.objects, removedAbstract)
 
         if (debug) console.log('185 ', o, firstElement, targetObject);
         // check if the relationship exists between the objects

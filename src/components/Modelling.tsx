@@ -157,6 +157,7 @@ const page = (props: any) => {
     
     useEffect(() => {
       if (debug) useEfflog('155 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
+      GenGojsModel(props, dispatch);
       setActiveTab(activetabindex);
     }, [props.phFocus?.focusModel?.id]);
 

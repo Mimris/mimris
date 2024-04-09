@@ -171,7 +171,7 @@ const page = (props: any) => {
             modelview = props.phFocus.focusProj.modelview;
         }
       } catch (error) {
-        console.log('117 modelling query error ', error);
+        console.log('174 modelling No URL query detected! \n', error);
       }
 
     }

@@ -76,7 +76,7 @@ const Palette = (props: any) => {
 
   useEffect(() => {
 
-    if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false);
+    if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(true);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes  = mmodel?.objecttypes;
     if (!metamodels) return null;
@@ -194,7 +194,7 @@ const Palette = (props: any) => {
         />
       </div>
 
-    const gojsappPaletteBottomDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
+    const gojsappPaletteBottomDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette for additional mm
       <div className="metamodel-pad mt-1 p-1 pt-1 bg-white" 
         style={(filteredOtNodeDataArray?.length === 0) ? { height: "78vh" } : { height: "37vh" }} >
         <div className="modellingtask bg-light w-100" >

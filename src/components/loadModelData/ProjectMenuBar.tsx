@@ -142,7 +142,7 @@ export const ProjectMenuBar = (props: any) => {
     const loadFile = (
         <>
             <button
-                className="btn rounded bg-light text-dark px-1 my-0 py-0 pe-2 me-auto"
+                className="btn rounded bg-light d-flex justify-content-start align-items-center text-dark px-1 my-0 py-0 pe-2 me-auto w-100"
                 data-toggle="tooltip"
                 data-placement="top"
                 data-bs-html="true"
@@ -166,14 +166,14 @@ export const ProjectMenuBar = (props: any) => {
     const saveFile = (
         <>
             <button
-                className="btn btn-sm rounded bg-light text-dark px-1 my-0 py-0 pe-2 ps- me-1"
+                className="btn btn-sm rounded bg-primary text-light w-100 px-2 d-flex justify-content-start align-items-center"
                 data-toggle="tooltip"
                 data-placement="top"
                 data-bs-html="true"
                 title="Click here to Save the Project file to the local file system"
                 onClick={handleSaveAllToFile}
-                >
-                <i className="fa fa-save fa-lg"></i> Save to local file
+            >
+                <i className="fa fa-save fa-lg pe-2"></i> Save to local file
             </button>
         </>
     )
@@ -200,7 +200,7 @@ export const ProjectMenuBar = (props: any) => {
                                 : item === 'File'
                                     ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
                                     : item === 'Save'
-                                        ? <div className="bg-light border  border-4 rounded">{saveFile}</div>
+                                        ? <div className="bg-light border border-4 rounded">{saveFile}</div>
                                         : item === 'Metamodel'
                                             ? <details className=" border rounded text-white ps-1"
                                                 style={{ backgroundColor: "#999"}}

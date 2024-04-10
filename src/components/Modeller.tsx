@@ -4,29 +4,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import useLocalStorage from '../hooks/use-local-storage'
-// import useSessionStorage from "../hooks/use-session-storage";
 
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 
-// import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
-// import GenGojsModel from './GenGojsModel'
-// import { handleInputChange } from "../akmm/ui_modal";
-// import { disconnect } from "process";
-// import { SaveModelToLocState } from "./utils/SaveModelToLocState";
+
 import { SaveModelviewToSvgFile, SaveModelviewToSvgFileAuto } from "./utils/SaveModelToFile";
 import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./export/ReportModule";
-// import { gojs } from "../akmm/constants";
+
+import * as uib from '../akmm/ui_buildmodels';
 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-// import { eventChannel } from "redux-saga";
-// import { set } from "immer/dist/internal";
+
 import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
+import { gojs } from "../akmm/constants";
 
 const debug = false;
 
@@ -40,9 +36,10 @@ const ctrace = console.trace.bind(console, '%c %s',
 const Modeller = (props: any) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
-    if (debug) console.log('42 Modeller: props', props);
+    if (!debug) console.log('42 Modeller: props', props, props.myMetis.gojsModel);
 
     const dispatch = useDispatch();
+    const [mounted, setMounted] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -63,8 +60,9 @@ const Modeller = (props: any) => {
     const [diagramReady, setDiagramReady] = useState(false);
     const [selectedOption, setSelectedOption] = useState('Sorted by type');
     const [ofilteredArr, setOfilteredArr] = useState([]);
-    const [gojsobjects, setGojsobjects] = useState(props.gojsModelObjects);
-    const [gojsmodel, setGojsmodel] = useState(props.gojsModel);
+
+    const [gojsobjects, setGojsobjects] = useState({nodeDataArray: [], linkDataArray: []});
+    // const [gojsmodel, setGojsmodel] = useState(props.myMetis.gojsModel);
 
     const diagramRef = useRef(null);
 
@@ -80,32 +78,22 @@ const Modeller = (props: any) => {
     const metamodels = props.metis?.metamodels
     const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
-    // const toggleShowContext = () => {
-    //   // dispatch({ type: 'SET_VISIBLE_CONTEXT', data: !props.phUser.appSkin.visibleFocusDetails  })
-    //   // setVisibleFocusDetails(!visibleFocusDetails)
-    //   SaveAkmmUser({ ...memoryAkmmUser, visibleFocusDetails }, locStateKey = 'akmmUser')
-    //   // setMemoryAkmmUser({...memoryAkmmUser, visibleFocusDetails: !visibleFocusDetails})
-    //   if (debug) console.log('182 toggleShowContext', memoryAkmmUser, visibleFocusDetails)
-    // }
-    // const toggleIsExpanded = () => { setIsExpanded(!isExpanded) }
+    const handleExportSvgReady = (exportSvgFunction, isReady) => {
+        setExportSvg(() => exportSvgFunction);
+        setDiagramReady(isReady);
+    };
 
     useEffect(() => { // set activTab when focusModelview.id changes
         if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
         setActiveTab(activetabindex)
     }, [props.phFocus?.focusModelview?.id])
 
-    // ------------------------------
-    // const gojsmodel = (props.myGoModel?.nodes) ? {nodeDataArray: props.myGoModel?.nodes, linkDataArray: props.myGoModel?.links} : [];
-    // const gojsmodel = props.gojsModel;
-    // const gojsobjects = props.gojsModelObjects;
-
     if (debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
 
-    let seltasks = props.phFocus?.focusRole?.tasks || []
-    let focusTask = props.phFocus?.focusTask
-    let locStateKey
+
     const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
     const showModified = props.phUser?.focusUser?.diagram?.showModified
+    const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
 
     function dispatchLocalStore(locStore) {
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -125,32 +113,18 @@ const Modeller = (props: any) => {
         setRefresh(!refresh)
     }
 
-    // function loadLocalStorageModel() {
-    //   if (debug) console.log('94 Modeller: loadLocalStorageModel', memoryLocState);
-    //   if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-    //     const locStore = (memoryLocState[1])
-    //     if (locStore) {
-    //       dispatchLocalStore(locStore) // dispatch to store the lates [0] from local storage
-    //       // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-    //       // console.log('modelling 73 ', data)
-    //     }
-    //   }
-    //   if (debug) console.log('97 Modeller: loadLocalStorageModel', memoryLocState[0].phFocus);
-    //   setRefresh(!refresh)
-    // }
 
-    // if (debug) console.log('83 Modeller: props, refresh', props, refresh);
 
-    // function saveModelsToLocState(props: any, memoryLocState: any, setMemoryLocState: any) {
-    //   const propps = {
-    //     phData: props.phData,
-    //     phFocus: props.phFocus,
-    //     phUser: props.phUser,
-    //     phSource: props.phSource,
-    //   }
-    //   setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-    //   SaveAkmmUser(props, 'akmmUser')
-    // }
+    useEffect(() => {
+        setRefresh(!refresh)
+        if (model?.objects?.length < 500) {
+            setSelectedOption('Sorted by type')
+        } else {
+            setSelectedOption('OSDUType')
+        }
+        if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false)
+        setMounted(true)
+    }, [])
 
     useEffect(() => {
         const propps = {
@@ -167,9 +141,6 @@ const Modeller = (props: any) => {
         }, 250);
         return () => clearTimeout(timer);
     }, [props.phFocus?.focusObjectview?.id])
-
-    // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
-    // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
 
     // put current modell on top 
     const selmods = (models) ? [
@@ -222,86 +193,20 @@ const Modeller = (props: any) => {
             const data2 = { id: mv.id, name: mv.name }
             dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
             if (debug) console.log('209 Selector', data, data2);
-            // const timer = setTimeout(() => {
-            //   GenGojsModel(props, dispatch);
-            // }, 1000);
-            // setRefresh(!refresh)
-            // return () => clearTimeout(timer);
         }
     }
-
-    // const handleMVDoubleClick = (e) => {
-    //   <input type="text" value={e.value} onChange={handleMVChange} />
-    // }
 
     const options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
         selmodels.map((m: any, index) => (m) && (m.name !== 'Select ' + props.selName + '...') &&
             <option key={m.id + index} value={JSON.stringify({ id: m.id, name: m.name })}>{m.name}</option>)
     )
 
-    // Selector for selecting models ---------------------------------------------------------
-    const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-        // <div className="Selector--menu d-flex gap-1 border border-rounded rounded-4 border-4">
-        <div className="Selector--menu d-flex justify-content-between gap-2 pt-1">
-            <div className="d-flex ">
-
-                {/* <input className=" px-2" style={{ width: '300px' }} label="test" type="text" value={props.metis.name} onBlur={(event) => handleProjectChange({ value: event.target.value })} onChange={(event) => handleProjectChange({ value: event.target.value })} /> */}
-            </div>
-
-            <span className="model-selection border-top border-bottom border-success bg-light px-2 text-nowrap" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                title={
-                    `Description: ${model?.description}
-    
-To change Model name, rigth click the background below and select 'Edit Model'.`
-                }> <span className="bg-light"> Model : </span>
-                <select key='select-title' className="list-obj" style={{ width: "400px", minWidth: "32%" }}
-                    value={JSON.stringify({ id: focusModel?.id, name: focusModel?.name })}
-                    onChange={(event) => handleSelectModelChange({ value: event.target.value })}
-                >
-                    {/* onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}> */}
-                    {options}
-                </select>
-            </span>
-        </div>
-
     activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
     // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
     // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
     if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
-    // let ndarr = props.gojsMetamodel?.nodeDataArray
-    // let taskNodeDataArray: any[] = ndarr
-
-    // if (debug) console.log('176 taskNodeDataArray', taskNodeDataArray, ndarr, props.gojsMetamodel);
-    // ================================================================================================
-    // Show all the objects in this model
-    // const gojsmodelObjects = props.gojsModelObjects
-    // const exportToSvg = () => {
-    //   if (!this.diagramRef.current) return;
-    //   const diagram = this.diagramRef.current.getDiagram();
-    //   if (!diagram) return;
-
-
-
-    //   console.log('3521 Diagram :', myModel.name);
-    //   const svg = diagram.makeSvg({ scale: .4, background: 'lightgray' });
-    //   const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
-    //   console.log('SVG string:', svgString);
-    //   // Create a Blob from the SVG string
-    //   const blob = new Blob([svgString], { type: 'image/svg+xml' });
-    //   SaveModelviewToSvgFile(blob, myModel.name, "_MV.", "image/svg+xml")
-    //   // Revoke the old Blob URL and create a new one
-    //   // if (downloadUrl) {
-    //   //   URL.revokeObjectURL(downloadUrl);
-    //   // }
-    //   // setDownloadUrl(URL.createObjectURL(blob))
-    // };
-    // let objArr = props.myMetis.gojsModel?.model.objects
-
-    const handleExportSvgReady = (exportSvgFunction, isReady) => {
-        setExportSvg(() => exportSvgFunction);
-        setDiagramReady(isReady);
-    };
+  
 
     const handleExportClick = async () => {
         console.log('294 handleExportClick', exportSvg);
@@ -324,26 +229,13 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
         }
     };
 
-    // seltasks = (props.phFocus?.focusRole?.tasks) && props.phFocus?.focusRole?.tasks?.map((t: any) => t)
-    let ndArr = props.gojsModelObjects?.nodeDataArray
-    let ldArr = props.gojsModelObjects?.linkDataArray || []
-    // let ndArr = props.gojsModel?.nodeDataArray
-    // let ldArr = props.gojsModel?.linkDataArray || []
+    // Objects palette
+    const myModel = props.myMetis?.findModel(model.id);
+    let ndArr = uib.buildObjectPalette(myModel?.objects, props.myMetis)
+    let ldArr = []
 
     const ndTypes = ndArr?.map((nd: any) => nd.typename)
-
     const uniqueTypes = [...new Set(ndTypes)].sort();
-
-    // // tsconfig.json
-    // {
-    //   "compilerOptions": {
-    //     "target": "es2015",
-    //       "downlevelIteration": true
-    //   }
-    // }
-
-    // if (debug) console.log('349 Modeller ndTypes', uniqueTypes);
-    // let ndArr = props.gojsModel?.nodeDataArray
     const nodeArray_all = ndArr
 
     // if OSDU import then set fillcolor according to osduType
@@ -355,71 +247,25 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
     const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
     if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
-    // const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
-    //   if (debug) console.log('Palette handleSetOfilter', filter);
-    //   setOfilter(filter)
-    //   // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
-    //   toggleRefreshObjects()
-    // }
-
-    {/* <div style={{transform: "scale(0.9)" }}> */ }
-    // const selectedObjDiv = (
-    //   <div >
-    //     {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('EntityType') }}>EntityType</button>}
-    //     {<button className="btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Property') }}>Property</button>}
-    //   </div>
-    // )
-
-    // let selectTaskDiv =
-    //   <>
-    //     <details><summary markdown="span"  >Modelling Task : </summary>
-    //       <div className="seltask w-100">
-    //         <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Objects by type' focusTask={focusTask} focustype='focusTask' refresh={refresh} setRefresh={setRefresh} />
-    //       </div>
-    //     </details>
-    //     <div>{focusTask?.name}</div>
-    //   </>
-
-    // // filter out all objects of type 
-    // setOfilteredArr(objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Container')))
-    // if (debug) console.log('354 Modeller ofilteredArr', ofilteredArr, objectsNotDeleted, ndArr);
-    // if (ofilter === 'Sorted') setOfilteredArr = roleTaskObj
-    // if (ofilter === '!Property') ofilteredArr = noPropertyObj
-    // let gojsobjects =  {nodeDataArray: ndArr, linkDataArray: []}
-
-    // setGojsobjects({ nodeDataArray: ofilteredArr, linkDataArray: ldArr })
-
-    useEffect(() => {
-        if (model?.objects?.length < 500) {
-            setSelectedOption('Sorted by type')
-        } else {
-            setSelectedOption('OSDUType')
-        }
-        if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false)
-    }, [])
-
     useEffect(() => {
         const initialArr = objectsNotDeleted;
         if (debug) console.log('409 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
         if (selectedOption === 'In this modelview') {
             const objectviewsInThisModelview = modelview?.objectviews
             const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id))
-
             const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name))).filter((node: any) => node)
             if (debug) console.log('422 Modeller ofilteredOnTypes', mvfilteredArr);
             setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
         } else if (selectedOption === 'Sorted alfabetical') {
             const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
             setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-            if (debug) console.log('417 Modeller ofilteredOnTypes', sortedArr, gojsobjects);
+            if (debug) console.log('417 Modeller ofilteredOnTypes', sortedArr,);
         } else if (selectedOption === 'Sorted by type') {
             const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
             const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
             // Sort the sortedByType within each type using the node.object.osduType
             // check if the osduType is a topEntity attribute, if so then sort by the order of the topEntity attributes
-
             const osduTypeFound = initialArr?.find((node: { object: { osduType: string; }; }) => node && (node?.object?.osduType));
-
             const sortedArr = (osduTypeFound)
                 ? sortedByType?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => (a.object.osduType > b.object.osduType) ? 1 : -1)
                     ?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => {
@@ -429,41 +275,28 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
                             'ReferenceData': 2,
                             'Abstract': 3,
                             'OSDUType': 4,
-                            'PropLink': 5,
+                            'Proxy': 5,
                             'Property': 6,
-                            'Collection': 7,
+                            'Array': 7,
                             'Item': 8,
                         };
                         return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
                     })
                 : sortedByType;
-
             if (debug) console.log('455 Palette ofilteredOnTypes', sortedArr);
             setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-
         } else {
             const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
             if (debug) console.log('417 Modeller ofilteredOnTypes', selOfilteredArr, uniqueTypes, uniqueTypes[selectedOption], selectedOption);
             // setOfilteredArr(selOfilteredArr);
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
-            if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr, gojsobjects);
+            // if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr,);
         }
         setRefresh(!refresh)
-        if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
-        if (debug) console.log('433 Modeller', gojsobjects);
+        // if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
+        // if (debug) console.log('433 Modeller');
     }, [selectedOption])
 
-    if (debug) console.log('436  Modeller', gojsobjects.nodeDataArray, gojsobjects.linkDataArray, gojsobjects);
-
-    // const objArr = taskNodeDataArray
-    // // Hack: if viewkind === 'Container' then set isGroup to true
-    // if (debug) console.log('269 objArr', props.gojsModel, objArr)
-    // for (let i = 0; i < objArr?.length; i++) {
-    //   if (objArr[i]?.viewkind === 'Container') {
-    //     objArr[i].isGroup = true;
-    //   }
-    // }
-    // if (debug) console.log('274 objArr', objArr)
 
     const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {  // map over the modelviews and create a tab for each
         if (mv && !mv.markedAsDeleted) {
@@ -483,14 +316,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         className={classnames({ active: activeTab == strindex })}
                         onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
                     >
-                        {/* <input
-            className="form-control form-control-sm"
-            // style={{ width: '300px' }}
-            type="text"
-            value={data.name}
-            onChange={handleModelviewChange}
-            onBlur={handleModelviewBlur}
-          /> */}
                         {mv.name}
                     </NavLink>
                 </NavItem>
@@ -498,18 +323,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         }
     })
 
-    const gojsapp = (gojsmodel) && // GOJSApp this is used both for the metamodelview and the modelview
-        <GoJSApp
-            nodeDataArray={gojsmodel.nodeDataArray}
-            linkDataArray={gojsmodel.linkDataArray}
-            metis={props.metis}
-            myMetis={props.myMetis}
-            phFocus={props.phFocus}
-            dispatch={props.dispatch}
-            modelType={props.phFocus.focusTab}
-            onExportSvgReady={handleExportSvgReady}
-            diagramStyle={{ height: "77vh" }}
-        />
+
 
     const handleSelectOTypes = (event: any) => {
         if (debug) console.log('495 Palette handleSelectOTypes', event.target?.value);
@@ -542,6 +356,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </select>
         </>
     );
+
+    const myMetamodel = myModel.metamodel;
+    const gojsMetamodel =  uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
 
     const objectsTabDiv =
         <>
@@ -649,7 +466,18 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         }
                         <Col className="me-2 my-1 p-1 border" xe="auto" >
                             <div className="workpad bg-white border-light mt-0 pe-0">
-                                {gojsapp}
+                                {/* {props.myMetis.gojsModel.nodes[0].name} */}
+                                <GoJSApp
+                                    nodeDataArray={props.myMetis.gojsModel.nodes}
+                                    linkDataArray={props.myMetis.gojsModel.links}
+                                    metis={props.metis}
+                                    myMetis={props.myMetis}
+                                    phFocus={props.phFocus}
+                                    dispatch={props.dispatch}
+                                    modelType={props.phFocus.focusTab}
+                                    onExportSvgReady={handleExportSvgReady}
+                                    diagramStyle={{ height: "77vh" }}
+                                />
                             </div>
                             <div className="smaller-div m-0 p-0">{footerButtonsDiv}</div>
                         </Col>
@@ -669,8 +497,17 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const metamodelTabDiv =
         <>
             <div className="workpad">
-                {gojsapp}
-                {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+                <GoJSApp
+                    nodeDataArray={gojsMetamodel?.nodes}
+                    linkDataArray={gojsMetamodel.links}
+                    metis={props.metis}
+                    myMetis={props.myMetis}
+                    phFocus={props.phFocus}
+                    dispatch={props.dispatch}
+                    modelType={props.phFocus.focusTab}
+                    onExportSvgReady={handleExportSvgReady}
+                    diagramStyle={{ height: "77vh" }}
+                />
             </div>
         </>
     if (debug) console.log('372 Modeller ', props.modelType)
@@ -698,7 +535,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </div >
             : // metamodelling
             <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
-                <div className="modeller--topbar  mt-1 p-0">
+                <div className="modeller--topbar mt-1 p-0">
                     <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
                     <div className="">
                     </div>

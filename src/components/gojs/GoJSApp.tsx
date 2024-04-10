@@ -73,7 +73,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       diagramStyle: this.props.diagramStyle,
       onExportSvgReady: this.props.onExportSvgReady
     };
-    if (debug) console.log('76 this.state: ', this.state.myMetis, this.state.metis);
+    if (debug) console.log('76 this.state: ', this.state.myMetis, this.state.nodeDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);

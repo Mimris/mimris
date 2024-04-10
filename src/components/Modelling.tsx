@@ -157,9 +157,9 @@ const page = (props: any) => {
       .then((goParams) => {
         setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
         setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
-        setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
-        setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
-        setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
+        // setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
+        // setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
+        // setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
         setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
         setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
       })
@@ -312,23 +312,22 @@ const page = (props: any) => {
     if (debug) console.log('362 Modelling: ', gojsmetamodelpalette);
     if (debug) console.log('363 Modelling: ', gojsmetamodelmodel);
 
-    const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
-      ? <Palette
-        gojsModel={gojsmetamodelmodel}
-        gojsMetamodel={gojsmetamodelpalette}
+    const paletteDiv = // this is the div for the palette with the types tab and the objects tab
+       <Palette
+        // gojsModel={gojsmetamodelmodel}
+        // gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
         dispatch={dispatch}
         modelType='metamodel'
       />
-      : <></>;
+   
 
-    const paletteMetamodelDiv = (gojsmetamodelmodel) // this is the metamodel modelling area
-      ?
+    const paletteMetamodelDiv =  // this is the metamodel modelling area
       <Modeller
-        gojsModel={gojsmetamodelmodel}
-        gojsMetamodel={gojsmetamodelpalette}
+        // gojsModel={gojsmetamodelmodel}
+        // gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
         metis={metis}
         phData={phData}
@@ -339,7 +338,6 @@ const page = (props: any) => {
         phSource={phSource}
         userSettings={memoryAkmmUser}
       />
-      : <></>;
 
     const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
       ?
@@ -446,7 +444,7 @@ const page = (props: any) => {
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
-                      gojsModelObjects={gojsmodelobjects}
+                      // gojsModelObjects={gojsmodelobjects}
                       gojsModel={gojsmodel}
                       gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
@@ -462,8 +460,8 @@ const page = (props: any) => {
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
-                      gojsModelObjects={gojsmodelobjects}
-                      gojsModel={gojsmodel}
+                      // gojsModelObjects={gojsmodelobjects}
+                      // gojsModel={gojsmodel}
                       // gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
                       phData={phData}

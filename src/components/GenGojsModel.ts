@@ -138,8 +138,8 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       let goParams: goParams = {
         myGoModel: myGoModel,
         myGoMetamodel: myGoMetamodel,
-        myGoObjectPalette: myGoObjectPalette,
-        myGoRelshipPalette: myGoRelshipPalette,
+        // myGoObjectPalette: myGoObjectPalette,
+        // myGoRelshipPalette: myGoRelshipPalette,
         myGoMetamodelModel: myGoMetamodelModel,
         myGoMetamodelPalette: myGoMetamodelPalette,
         myGoTargetMetamodel: myGoTargetMetamodel,

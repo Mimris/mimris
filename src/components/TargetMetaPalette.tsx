@@ -8,6 +8,8 @@ import Page from './page';
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteTargetApp from "./gojs/GoJSPaletteTargetApp";
 
+import * as uib from '../akmm/ui_buildmodels';
+
 const TargetMeta = (props) => {
   const dispatch = useDispatch();
   if (debug) console.log('10 TargetMeta', props);
@@ -15,20 +17,32 @@ const TargetMeta = (props) => {
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
   const model = models?.find((m: any) => m?.id === focusModel?.id)
-
   let targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
   const targetmodel = models?.find((m: any) => m?.id === model?.targetModelRef)
-  // console.log('16', props, targetmodel?.name, model.targetModelRef);
 
 
-  const gojstypes = props.gojsTargetMetamodel
+  const myTargetMetamodel = props.myMetis.findMetamodel(model.targetMetamodelRef)
+  const gojstypes = uib.buildGoPalette(myTargetMetamodel, props.myMetis)
+  if (!debug) console.log('22 TargetMeta', gojstypes, gojstypes.nodes)
 
-  // /** Toggle divs */
+  const wotArr = ['Container', 'OSDUType', 'Property', 'Proxy', 'DataType', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat'];
+
+  const otsArrSorted = gojstypes.nodes.sort((a, b) => {
+    const aIndex = wotArr.indexOf(a?.name);
+    const bIndex = wotArr.indexOf(b?.name);
+
+    if (aIndex === -1) return 1; // a is not found in wotArr, sort a to the end
+    if (bIndex === -1) return -1; // b is not found in wotArr, sort b to the end
+
+    return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
+  });
+
+
+ 
+  // const gojstypes = props.gojsTargetMetamodel
+  // if (!debug) console.log('27 TargetMeta', otsArr, otsArrSorted);
   const [visiblePalette, setVisiblePalette] = useState(false)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
-
-  // const [refresh, setRefresh] = useState(true)
-  // function toggleRefresh() { setRefresh(!refresh); }
 
   useEffect(() => {
     if (debug) console.log('35 TargetMeta useEffect', model?.targetMetamodelRef, 'targetmm', targetmetamodel?.id, targetmetamodel?.name);
@@ -49,26 +63,12 @@ const TargetMeta = (props) => {
     // return () => clearTimeout(timer);
   }, [(targetmetamodel !== undefined && targetmetamodel?.id !== "")]);
 
-
-  /**  * Get the state and metie from the store,  */
-  // const gojstypes = props.phFocus.gojsMetamodel
-  // console.log('18 Palette', gojstypes, props);
-  // console.log('24 TargetMeta', gojstypes);
   if (debug) console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
-
-  // const toglRefreshid = () => {
-  //   console.log('53 togRefreshid', props);
-  //   if (visiblePalette) {
-  //     dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
-  //   }
-  // }
-
   if (!model?.targetMetamodelRef) return <></>
-
 
   const gojsapp = (gojstypes) &&
     < GoJSPaletteTargetApp
-      nodeDataArray={gojstypes.nodeDataArray}
+      nodeDataArray={gojstypes.nodes}
       linkDataArray={[]}
       // linkDataArray={gojstypes.linkDataArray}
       metis={props.metis}
@@ -93,10 +93,6 @@ const TargetMeta = (props) => {
           : <i className="fa fa-lg fa-angle-left pull-right-container"></i> 
         }
       </button>
-      {/* <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
-        onChange={toglRefreshid()} 
-        >Refresh
-      </button> */}
       {visiblePalette
         ? <>
           <div className="mmname bg-transparent fs-6" style={{ fontSize: "10px" }}>{targetmmnamediv}</div>

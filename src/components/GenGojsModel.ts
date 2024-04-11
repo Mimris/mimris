@@ -18,25 +18,6 @@ import * as uib from '../akmm/ui_buildmodels';
 
 const constants = require('../akmm/constants');
 
-// Parameters to configure loads 
-// const includeNoObject = false;
-// const includeInstancesOnly = true 
-type goParams = {
-  myGoModel: any,
-  myGoMetamodel: any,
-  myGoObjectPalette: any,
-  myGoRelshipPalette: any,
-  myGoMetamodelModel: any,
-  myGoMetamodelPalette: any,
-  myGoTargetMetamodel: any,
-  myGoModelview: any,
-  myGoMetamodelview: any,
-  myGoTargetModel: any,
-  myGoTargetModelview: any,
-  myGoTargetMetamodelview: any,
-  myGoTargetMetamodelPalette: any,
-}
-
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
 const GenGojsModel = async (props: any, myMetis: any) => {
@@ -108,19 +89,6 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
       if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
-      // let instancesModel;
-      // instancesModel = uib.buildInstancesModel(myMetis, dispatch, myModel);
-
-      // if (debug) console.log('98 phFocus', props.phFocus);
-      // if (props.phFocus && props.phFocus.focusModelview && props.phFocus.focusModelview.id) {
-      //   const fModelview = myMetis.findModelView(focusModelview?.id);
-      //   if (fModelview) {
-      //     let fObjview = props.phFocus?.focusObjectview?.id
-      //     fObjview = fModelview.findObjectView(fObjview);
-      //     if (fObjview)
-      //       fModelview.setFocusObjectview(fObjview);
-      //   }
-      // }
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
@@ -131,52 +99,8 @@ const GenGojsModel = async (props: any, myMetis: any) => {
         console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
         return null;
       }
-      let myGoObjectPalette = (myModel?.objects) ? uib.buildObjectPalette(myModel?.objects, myMetis) : [] //props.phMyGoObjectPalette?.myGoObjectPalette
-      let myGoRelshipPalette = (myModel?.relship) ? uib.buildRelshipPalette(myModel?.relships, myMetis) : []
-      let myGoMetamodelModel = (myMetamodel) ? uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) : []
-
-      let goParams: goParams = {
-        // myGoModel: myGoModel,
-        // myGoMetamodel: myGoMetamodel,
-        // myGoObjectPalette: myGoObjectPalette,
-        // myGoRelshipPalette: myGoRelshipPalette,
-        // myGoMetamodelModel: myGoMetamodelModel,
-        // myGoMetamodelPalette: myGoMetamodelPalette,
-        myGoTargetMetamodel: myGoTargetMetamodel,
-        // myGoModelview: myModelview,
-        // myGoMetamodelview: myModelview,
-        myGoTargetModel: myTargetModel,
-        myGoTargetModelview: myTargetModelview,
-        myGoTargetMetamodelview: myTargetModelview,
-        myGoTargetMetamodelPalette: myGoTargetMetamodelPalette,
-      }
-      // myMetis.myGoTargetMetamodelModel = myTargetMetamodel?.model;
-      if (debug) console.log('165 GenGojsModel ', myMetis, myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel);
-      return goParams;}
+    }
   }
   if (debug) console.log('172 GenGojsModel myMetis', myMetis);
-  return goParams;
-
 }
 export default GenGojsModel;
-
-
-
-
-      // myModel = myMetis?.findModel(curmod?.id);
-      // myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
-      // myMetamodel = myModel?.metamodel;
-      // myMetamodel = (myMetamodel) ? myMetis.findMetamodel(myMetamodel?.id) : null;
-      // myTargetModel = myMetis?.findModel(curtargetmodel?.id);
-      // myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
-      // myTargetMetamodel = (myMetis) && myMetis.findMetamodel(curmod?.targetMetamodelRef) || null;
-      // myTargetMetamodelPalette = (myTargetMetamodel) && uib.buildGoPalette(myTargetMetamodel, myMetis);
-
-
-      // if (!myModel?.objects) {
-      //   console.log('227 myModel.objects is undefined', myModel, myMetis);
-      //   // return null
-      // } else { myGoObjectPalette = uib.buildObjectPalette(myModel.objects, myMetis); }
-      // if (!myGoObjectPalette) { console.log('202 myGoObjectPalette is undefined after function call'); }
-      // myGoRelshipPalette = uib.buildRelshipPalette(myModel?.relships, myMetis) //props.phMyGoRelshipPalette?.myGoRelshipPalette  Todo: build this
-      // if (debug) console.log('188 Modelling ', myGoObjectPalette);

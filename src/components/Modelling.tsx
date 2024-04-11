@@ -16,7 +16,7 @@ import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
-import TargetMeta from "./TargetMeta";
+import TargetMeta from "./TargetMetaPalette";
 import GenGojsModel from './GenGojsModel'
 import LoadServer from '../components/loadModelData/LoadServer'
 import LoginServer from './loadModelData/LoginServer'
@@ -129,55 +129,14 @@ const page = (props: any) => {
 
   let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
 
-  // const modelindex = models.findIndex((m: any) => m?.id === focusModel?.id)
-  // const modelindex = (focusModel) ? models.findIndex((m: any) => m.id === focusModel.id) : -
-
   let myMetis = new akm.cxMetis();
-  // let goParams = null
-  type goParams = {
-    myGoModel: any,
-    myGoMetamodel: any,
-    myGoObjectPalette: any,
-    myGoRelshipPalette: any,
-    myGoMetamodelModel: any,
-    myGoMetamodelPalette: any,
-    myGoTargetMetamodel: any,
-    myGoModelview: any,
-    myGoMetamodelview: any,
-    myGoTargetModel: any,
-    myGoTargetModelview: any,
-    myGoTargetMetamodelview: any,
-    myGoTargetMetamodelPalette: any,
-  }
 
   GenGojsModel(props, myMetis)
-
-  async function loadMyModeldata(myMetis: akm.cxMetis) {
-    const goParams = await GenGojsModel(props, myMetis)
-      .then((goParams) => {
-        // setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-        // setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
-        // setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
-        // setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
-        // setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
-        setGojstargetmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-        setGojstargetmetamodel({ nodeDataArray: goParams.myGoTargetMetamodel.nodes, linkDataArray: goParams.myGoTargetMetamodel.links });
-      })
-      .catch((error) => {
-        console.error('Error in loadMyModeldata:', error);
-      });
-    if (!debug) console.log('169 Modelling', goParams, myMetis, props);
-  };
-
-  // if (mount) {
-
-
-
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
     if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
-    loadMyModeldata(myMetis)
+    // loadMyModeldata(myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
     if (!debug) console.log('184 Modelling', gojsmetamodel, gojsmetamodelmodel, gojsmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
@@ -185,25 +144,11 @@ const page = (props: any) => {
   }, [])
 
   useEffect(() => {
-  //     loadMyModeldata(myMetis)
   setRefresh(!refresh)
   }, [mount]) // add mount to the dependency array
 
-  // useEffect(() => { 
-  //   loadMyModeldata(myMetis)
-  // }
-  // , [])
-
-  // useEffect(() => {
-  //   if (debug) useEfflog('117 Modelling useEffect 3 [curmodview?.objectviews.length]', props);
-  //   GenGojsModel(props, dispatch);
-  // }, [curmodview?.objectviews.length === 0])
-
-
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-    // GenGojsModel(props, myMetis)
-    loadMyModeldata(myMetis)
     const timer = setTimeout(() => {
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
@@ -211,14 +156,13 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
 
-
   function doRefresh() { // 
     setMemorySessionState(props)
     setMemoryLocState(props)
     // goParams = GenGojsModel(props, myMetis)
     const timer = setTimeout(() => {
       if (debug) console.log('184 Modelling doRefresh memoryLocState:', memorySessionState, props, myMetis)
-      loadMyModeldata(myMetis)
+      // loadMyModeldata(myMetis)
       setRefresh(!refresh)
     }, 1000);
     return () => clearTimeout(timer);
@@ -231,12 +175,6 @@ const page = (props: any) => {
   // if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
 
   if (mount) {
-    // if (mount && myMetis) {
-    // return <>not loaded</>
-    // } else {
-
-    // if (debug) console.log('291 Modelling myModel', myMetis, myModel); 
-    //let myGoMetamodel = props.phGojs?.gojsMetamodel
     let phFocus = props.phFocus;
     let phData = props.phData
     let phUser = props.phUser

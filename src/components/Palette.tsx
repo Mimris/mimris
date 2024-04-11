@@ -144,6 +144,17 @@ const Palette = (props: any) => {
         })
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
+      // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
+      const wotArr = ['Container', 'Label', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType'];
+      const otsArrSorted = otsArr.sort((a, b) => {
+        const aIndex = wotArr.indexOf(a?.name);
+        const bIndex = wotArr.indexOf(b?.name);
+
+        if (aIndex === -1) return 1; // a is not found in wotArr, sort a to the end
+        if (bIndex === -1) return -1; // b is not found in wotArr, sort b to the end
+
+        return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
+      });
       return otsArr
     } else { return ndarr }
   };

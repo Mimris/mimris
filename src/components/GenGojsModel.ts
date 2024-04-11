@@ -136,15 +136,15 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       let myGoMetamodelModel = (myMetamodel) ? uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) : []
 
       let goParams: goParams = {
-        myGoModel: myGoModel,
-        myGoMetamodel: myGoMetamodel,
+        // myGoModel: myGoModel,
+        // myGoMetamodel: myGoMetamodel,
         // myGoObjectPalette: myGoObjectPalette,
         // myGoRelshipPalette: myGoRelshipPalette,
-        myGoMetamodelModel: myGoMetamodelModel,
-        myGoMetamodelPalette: myGoMetamodelPalette,
+        // myGoMetamodelModel: myGoMetamodelModel,
+        // myGoMetamodelPalette: myGoMetamodelPalette,
         myGoTargetMetamodel: myGoTargetMetamodel,
-        myGoModelview: myModelview,
-        myGoMetamodelview: myModelview,
+        // myGoModelview: myModelview,
+        // myGoMetamodelview: myModelview,
         myGoTargetModel: myTargetModel,
         myGoTargetModelview: myTargetModelview,
         myGoTargetMetamodelview: myTargetModelview,

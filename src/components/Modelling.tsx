@@ -155,8 +155,8 @@ const page = (props: any) => {
   async function loadMyModeldata(myMetis: akm.cxMetis) {
     const goParams = await GenGojsModel(props, myMetis)
       .then((goParams) => {
-        setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
-        setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
+        // setGojsmodel({ nodeDataArray: goParams.myGoModel.nodes, linkDataArray: goParams.myGoModel.links });
+        // setGojsmetamodelpalette({ nodeDataArray: goParams.myGoMetamodelPalette.nodes, linkDataArray: goParams.myGoMetamodelPalette.links });
         // setGojsmetamodelmodel({ nodeDataArray: goParams.myGoMetamodelModel.nodes, linkDataArray: goParams.myGoMetamodelModel.links });
         // setGojsmetamodel({ nodeDataArray: goParams.myGoMetamodel.nodes, linkDataArray: goParams.myGoMetamodel.links });
         // setGojsmodelobjects({ nodeDataArray: goParams.myGoObjectPalette, linkDataArray: goParams.myGoRelshipPalette });
@@ -184,9 +184,11 @@ const page = (props: any) => {
     setMount(true);
   }, [])
 
-  // useEffect(() => {
+  useEffect(() => {
   //     loadMyModeldata(myMetis)
-  // }, [mount]) // add mount to the dependency array
+  setRefresh(!refresh)
+  }, [mount]) // add mount to the dependency array
+
   // useEffect(() => { 
   //   loadMyModeldata(myMetis)
   // }

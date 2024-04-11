@@ -339,13 +339,11 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           node.typename = node.object['proposedType'];
         myGoModel.addNode(node);
       } else {
-        if (debug) console.log('336 objview, typeview', objview, typeview);
         if (!typeview) {
           typeview = objview.object?.type?.getDefaultTypeView();
           if (typeview) {
             typeview = metis.findObjectTypeView(typeview.id);
             objview.setTypeView(typeview);
-            if (debug) console.log('338 typeview', typeview);
           }
         }
       }
@@ -443,7 +441,6 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   modelview.relshipviews = relshipviews;
   // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
   uic.repairGoModel(myGoModel, modelview);
-  if (debug) console.log('443 myGoModel', myGoModel);
   return myGoModel;
 }
 

@@ -42,12 +42,12 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             if (myMetis.pasteViewsOnly) {
                 const pastedobj = obj1;
                 if (objtype.name === constants.types.AKM_CONTAINER) {
-                    const guid = utils.createGuid();
+                    const guid = data.key;
                     obj = new akm.cxObject(guid, name, objtype, description);
                 }
                 else if (!pastedobj) {
                     // This is not a pasted object, create a new one
-                    let guid = obj.id;
+                    let guid = data.key;
                     obj = new akm.cxObject(guid, name, objtype, description);
                     myMetis.pasteViewsOnly = false;
                 } else {
@@ -55,7 +55,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 }
             }
         } else {
-            obj = new akm.cxObject(utils.createGuid(), name, objtype, description);
+            const guid = data.key;
+            obj = new akm.cxObject(guid, name, objtype, description);
             copyProperties(obj, data.object);
             // Check if obj is dropped on a group that is a Model
             // If so, add the obj to the model

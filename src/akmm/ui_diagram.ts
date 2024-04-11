@@ -869,7 +869,8 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         return;
     modelview = myMetis.findModelView(modelview.id);
     const goModel = myMetis.gojsModel;
-    const objview = node?.objectview;
+    let objview: akm.cxObjectView = node?.objectview;
+    objview = myMetis.findObjectView(objview?.id);
     objectviews.push(objview);
     let noLevels = '9';
     let reltypes = 'All';
@@ -1995,15 +1996,16 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
     const myDiagram = myMetis.myDiagram;
     let object: akm.cxObject = objview.object;
     if (object)
-        object = myMetis.findObject(object.id);
+        object = myMetis.currentModel.findObject(object.id);
     if (objview)
-        objview = myMetis.findObjectView(objview.id);
+        objview = myMetis.currentModelview.findObjectView(objview.id);
     let ny = 0;
     if (objview && object && objview.loc) {
         const nodeLoc = objview.loc.split(" ");
         const nx = parseInt(nodeLoc[0]);
         ny += parseInt(nodeLoc[1]);
-        const objtype: akm.cxObjectType = object.type;
+        let objtype: akm.cxObjectType = object.type;
+        objtype = myMetis.findObjectType(objtype.id);
         if (objtype && objtype?.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
@@ -2045,7 +2047,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     toObj = rel.fromObject as akm.cxObject;
                 else
                     toObj = rel.toObject as akm.cxObject;
-                toObj = myMetis.findObject(toObj.id);
+                toObj = myMetis.currentModel.findObject(toObj.id);
                 if (!toObj || toObj.markedAsDeleted)
                     continue;
                 const toObjtype = toObj.type;

@@ -1151,11 +1151,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const noPorts = confirm("No Ports (OK) or Allow Ports?");
               const allowPorts = !noPorts;
-              const n = obj.part.data;
-              let objview = n.objectview;
+              const node = obj.part.data;
+              let objview = node.objectview;
               objview = myMetis.findObjectView(objview?.id);
               objview.viewkind = 'Container';
-              let template = n.template;
+              let template = node.template;
               switch (template) {
                 case 'textAndGeometry':
                   template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
@@ -1171,8 +1171,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               objview.template = template;
               objview.isGroup = true;
               objview.size = "200 100";
-              n.objectview = objview;
-              n.template = template;
+              objview.viewkind = 'Container';
+              node.objectview = objview;
+              node.template = template;
+              node.viewkind = 'Container';
               const jsnObjview = new jsn.jsnObjectView(objview);
               jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
@@ -1182,22 +1184,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                const objview = node.objectview;
-                if (objview.viewkind === 'Object')
+                if (node.viewkind !== 'Container')
                   return true;
               }
               return false;
             }),
           makeButton("Convert to Node",
             function (e: any, obj: any) {
-              const n = obj.part.data;
-              let objview = n.objectview;
+              const node = obj.part.data;
+              let objview = node.objectview;
               objview = myMetis.findObjectView(objview.id);
               objview.viewkind = 'Object';
               objview.template = 'textAndIcon'
               objview.isGroup = false;
               // objview.size = "200 100";
-              n.objectview = objview;
+              node.objectview = objview;
+              node.viewkind = 'Object';
               const jsnObjview = new jsn.jsnObjectView(objview);
               console.log('1052 objview, jsnObjview', objview, jsnObjview);
               const data = JSON.parse(JSON.stringify(jsnObjview));
@@ -3011,6 +3013,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return false;
               // return true;
+            }),
+          makeButton("Modelview nodes",
+            function (e: any, obj: any) {
+              const objviews = myModelview.objectviews;
+              for (let i=0; i<objviews?.length; i++) {
+                const objview = objviews[i];
+                const goNode = myMetis.gojsModel.findNodeByViewId(objview.id);
+                if (goNode) {
+                  for (let it = myDiagram.nodes; it?.next();) {
+                    const n = it.value;
+                    const data = n.data;
+                    // if (data.key === goNode.key) {
+                      console.log('300 objview, goNode, node: ', objview, goNode, n, data);
+                    // }
+                  }
+                }
+              }
+                  },
+            function (o: any) {
+              return true;
             }),
           makeButton("----------",
             function (e: any, obj: any) {

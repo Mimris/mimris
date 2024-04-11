@@ -286,6 +286,24 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
+        console.log("Begin: After Reload:");
+        const objviews = myModelview.objectviews;
+        for (let i=0; i<objviews?.length; i++) {
+          const objview = objviews[i];
+          const goNode = myGoModel.findNodeByViewId(objview.id);
+          if (goNode) {
+            for (let it = myDiagram.nodes; it?.next();) {
+              const n = it.value;
+              const data = n.data;
+              if (data.key === goNode.key) {
+                console.log('300 objview, goNode, node: ', objview, goNode, n, data);
+              }
+            }
+          }
+        }
+        const links = myDiagram.links;
+        console.log("End: After Reload:");
+        if (false) {
         const modelview = myMetis.currentModelview;
         const objviews = modelview.objectviews;
         const nodes = myDiagram.nodes;
@@ -329,6 +347,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+        }
         }
         break;
       }
@@ -752,9 +771,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                         let nod = myGoModel.findNodeByViewId(n.objectview.id) as any;
                         if (nod) {
                           nod = myDiagram.findNodeForKey(nod.key);
-                          nod.loc = loc;
-                          nod.scale1 = node.getMyScale(myGoModel).toString();
-                          myDiagram.model.setDataProperty(nod.data, "loc", loc);
+                          if (nod) {
+                            nod.loc = loc;
+                            nod.scale1 = node.getMyScale(myGoModel).toString();
+                            myDiagram.model.setDataProperty(nod.data, "loc", loc);
+                          }
                         }
                       } else {
                         let nod = myGoModel.findNodeByViewId(n.objectview.id) as any;
@@ -1189,32 +1210,44 @@ class GoJSApp extends React.Component<{}, AppState> {
                 otype = myMetis.findObjectType(objview.object.typeRef);
                 object.type = otype;
               }
-              objview.viewkind = part.viewkind;
-              objview.scale1 = node.data.scale1;
-              if (!objview.size) {
-                // Hack
-                if (objview.isGroup) {
-                  node.data.isGroup = true;
-                  if (node.data, size = "") {
-                    node.data.size = "200 100";
-                    myDiagram.model?.setDataProperty(n.data, "size", node.data.size);
-                    objview.size = node.data.size;
-                  } 
-                } else {
-                  if (node.data.size = "")
-                    node.data.size = "160 70";
-                  objview.size = node.size;
-                  myDiagram.model?.setDataProperty(n.data, "size", node.data.size);
-                }                
-                node.data.loc = node.location;
-                // End hack
+              objview.viewkind = otype.viewkind;
+              objview.scale1 = part.scale;
+              if (objview.viewkind === 'Container') {
+                objview.isGroup = true;
               }
+              // Hack
+              if (objview.isGroup) {
+                if (objview.size = "") 
+                  objview.size = "200 100";
+                  objview.viewkind = 'Container';
+              } else {
+                if (objview.size = "") 
+                  objview.size = "160 70";
+                  objview.viewkind = 'Object';
+              }            
+              part.key = objview.id;    
+              part.viewkind = objview.viewkind;
+              // End hack
               const jsnObjview = new jsn.jsnObjectView(objview);
               modifiedObjectViews.push(jsnObjview);
               uic.addItemToList(modifiedObjectViews, jsnObjview);
-
               const jsnObj = new jsn.jsnObject(objview.object);
               modifiedObjects.push(jsnObj);
+              if (false) { // Hack
+              if (objview.isGroup) {
+                // Create the goObjectNode
+                let node = myDiagram.findNodeForKey(n.data.key);
+                myDiagram.remove(node);
+                const key = objview.id;
+                node = new gjs.goObjectNode(key, objview);
+                node.template = 'groupNoPorts';
+                node.fillcolor = 'white';
+                myDiagram.model.addNodeData(node);       
+                myDiagram.model.setDataProperty(node.data, "template", "groupNoPorts");
+                myDiagram.model.setDataProperty(node.data, "fillcolor", "white");
+              }       
+              // End hack
+              }
             }
           }
           node.updateTargetBindings();
@@ -1284,6 +1317,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             let objview = n.data.objectview;
             objview.loc = n.data.loc;
             objview.size = n.data.size;
+            const myNode = myGoModel.findNodeByViewId(objview.id);
+            myNode.size = objview.size;
             const jsnObjview = new jsn.jsnObjectView(objview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
             let children = n.memberParts;
@@ -1558,8 +1593,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        const fromNode = myDiagram.findNodeForKey(data.from);
-        const toNode = myDiagram.findNodeForKey(data.to);
+        let fromNode = myDiagram.findNodeForKey(data.from);
+        if (!fromNode) { 
+          fromNode = myDiagram.findNodeForKey(data.from);
+        }
+        let toNode = myDiagram.findNodeForKey(data.to);
+        if (!toNode) {
+          toNode = myDiagram.findNodeForKey(data.to);
+        }
 
         // Handle relationship types
         if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {

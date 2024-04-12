@@ -1156,6 +1156,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           type = myMetis.findObjectType(type.id);
           let typeview: akm.cxObjectTypeView = n.data.typeview;
           typeview = myMetis.findObjectTypeView(typeview.id);
+          let object: akm.cxObject = n.data.object;
+          let obj = myMetis.findObject(object.id);
+          let objview: akm.cxObjectView = n.data.objectview;
+
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
@@ -1168,14 +1172,33 @@ class GoJSApp extends React.Component<{}, AppState> {
               part.size = "160 70";
             }
           }
-          let object: akm.cxObject = part.object;
-          if (object) {
-            object = myMetis.findObject(object.id);
-            fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
-            strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
-            textcolor = object.textcolor ? object.textcolor : part.textcolor;
+
+          if (obj) {
+            fillcolor = obj.fillcolor ? obj.fillcolor : part.fillcolor;
+            strokecolor = obj.strokecolor ? obj.strokecolor : part.strokecolor;
+            textcolor = obj.textcolor ? obj.textcolor : part.textcolor;
           }
+          if (!obj) {
+            object = new akm.cxObject(object.id, object.name, type, object.description);
+            object.setModified();
+            myModel.addObject(object);
+            myMetis.addObject(object);
+          }
+          if (!objview || !(objview instanceof akm.cxObjectView)) {
+            objview = new akm.cxObjectView(objview.id, objview.name, object, objview.description, myModelview);
+            objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
+            objview.loc = part.loc;
+            objview.viewkind = object.type.viewkind;
+            objview.scale1 = part.scale;
+            if (objview.viewkind === 'Container') {
+              objview.isGroup = true;
+            }
+            objview.setModified();
+            myModelview.addObjectView(objview);
+            myMetis.addObjectView(objview);
+          }    
           const isLabel = (part.typename === 'Label');
+
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (otype) {
@@ -1194,61 +1217,66 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           } else // object
           {
-            part.category = 'Object';
-            if (isLabel) part.text = 'label';
-            if (!part.parentModelRef)
-              myMetis.pasteViewsOnly = true;
-            let objview = uic.createObject(part, context);
-            if (debug) console.log('954 myMetis', myMetis);
-            if (debug) console.log('955 part, objview', part, objview);
-            objview = uic.setObjviewColors(part, myDiagram);
-            if (objview) {
-              const object = objview.object;
-              object.name = part.name;
-              let otype = object.type;
-              if (!otype) {
-                otype = myMetis.findObjectType(objview.object.typeRef);
-                object.type = otype;
-              }
-              objview.viewkind = otype.viewkind;
-              objview.scale1 = part.scale;
-              if (objview.viewkind === 'Container') {
-                objview.isGroup = true;
-              }
-              // Hack
-              if (objview.isGroup) {
-                if (objview.size = "") 
-                  objview.size = "200 100";
-                  objview.viewkind = 'Container';
-              } else {
-                if (objview.size = "") 
-                  objview.size = "160 70";
-                  objview.viewkind = 'Object';
-              }            
-              part.key = objview.id;    
-              part.viewkind = objview.viewkind;
-              // End hack
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              modifiedObjectViews.push(jsnObjview);
-              uic.addItemToList(modifiedObjectViews, jsnObjview);
-              const jsnObj = new jsn.jsnObject(objview.object);
-              modifiedObjects.push(jsnObj);
-              if (false) { // Hack
-              if (objview.isGroup) {
-                // Create the goObjectNode
-                let node = myDiagram.findNodeForKey(n.data.key);
-                myDiagram.remove(node);
-                const key = objview.id;
-                node = new gjs.goObjectNode(key, objview);
-                node.template = 'groupNoPorts';
-                node.fillcolor = 'white';
-                myDiagram.model.addNodeData(node);       
-                myDiagram.model.setDataProperty(node.data, "template", "groupNoPorts");
-                myDiagram.model.setDataProperty(node.data, "fillcolor", "white");
-              }       
-              // End hack
-              }
+            {
+              // part.category = 'Object';
+              // if (isLabel) part.text = 'label';
+              // if (!part.parentModelRef)
+              //   myMetis.pasteViewsOnly = true;
+              // // let objview = uic.createObject(part, context);
+              // objview = new akm.cxObjectView(objview.id, objview.name, object, objview.description, myModelview);
+              // if (debug) console.log('954 myMetis', myMetis);
+              // if (debug) console.log('955 part, objview', part, objview);
+              // objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
+              // if (objview) {
+                // const object = objview.object;
+                // object.name = part.name;
+                // let otype = object.type;
+                // if (!otype) {
+                //   otype = myMetis.findObjectType(objview.object.typeRef);
+                //   object.type = otype;
+                // }
+                // objview.viewkind = object.type.viewkind;
+                // objview.scale1 = part.scale;
+                // if (objview.viewkind === 'Container') {
+                //   objview.isGroup = true;
+                // }
+                // Hack
+                // if (objview.isGroup) {
+                //   if (objview.size = "") 
+                //     objview.size = "200 100";
+                //     objview.viewkind = 'Container';
+                // } else {
+                //   if (objview.size = "") 
+                //     objview.size = "160 70";
+                //     objview.viewkind = 'Object';
+                // }            
+                // part.key = objview.id;    
+                // part.viewkind = objview.viewkind;
+                // End hack
+                // 
             }
+
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            modifiedObjectViews.push(jsnObjview);
+            uic.addItemToList(modifiedObjectViews, jsnObjview);
+            const jsnObj = new jsn.jsnObject(objview.object);
+            modifiedObjects.push(jsnObj);
+
+            if (false) { // Hack
+            if (objview.isGroup) {
+              // Create the goObjectNode
+              let node = myDiagram.findNodeForKey(n.data.key);
+              myDiagram.remove(node);
+              const key = objview.id;
+              node = new gjs.goObjectNode(key, objview);
+              node.template = 'groupNoPorts';
+              node.fillcolor = 'white';
+              myDiagram.model.addNodeData(node);       
+              myDiagram.model.setDataProperty(node.data, "template", "groupNoPorts");
+              myDiagram.model.setDataProperty(node.data, "fillcolor", "white");
+            }       
+            // End hack
+            }            
           }
           node.updateTargetBindings();
         })

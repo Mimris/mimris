@@ -7954,8 +7954,12 @@ export class cxInstance extends cxMetaObject {
         if (!retval) retval = "";
         if (retval.length == 0) {
             const reltype = this.type as cxRelationshipType;
-            retval = reltype.getRelshipKind();
-            this.relshipkind = retval;
+            try {
+                retval = reltype.getRelshipKind();
+                this.relshipkind = retval;
+            } catch (error) {
+                retval = "";
+            }
         }
         return retval;
     }

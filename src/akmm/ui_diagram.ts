@@ -1958,12 +1958,12 @@ function relshipsSortedByNameTypeAndToNames(relships: akm.cxRelationship[], reld
         const nameA = a.name;
         const nameB = b.name;
         let toObjA, toObjB, toTypeA, toTypeB;
-        if (reldir === 'in') {
+        if (reldir === 'in' && a.fromObject.type && b.fromObject.type) {
             toTypeA = a.fromObject.type.name;
             toObjA = a.fromObject.name;
             toTypeB = b.fromObject.type.name;
             toObjB = b.fromObject.name;
-        } else {
+        } else if (a.toObject.type && b.toObject.type) {
             toTypeA = a.toObject.type.name;
             toObjA = a.toObject.name;
             toTypeB = b.toObject.type.name;

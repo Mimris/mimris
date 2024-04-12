@@ -30,32 +30,33 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        let obj = data.object;
+        let obj: akm.cxObject = data.object;
         let name = data.name;
         let description = data.description;
+        let guid = obj.id;
         if (obj) {
             const obj1 = myMetis.findObject(obj.id);
             if (obj1) obj = obj1;
+        }
+        if (obj) {
             data.object = obj;
             let name = context.pasted ? data.name : "";
             if (!data.parentModel) name = data.name;
             if (myMetis.pasteViewsOnly) {
                 const pastedobj = obj1;
                 if (objtype.name === constants.types.AKM_CONTAINER) {
-                    const guid = data.key;
                     obj = new akm.cxObject(guid, name, objtype, description);
                 }
                 else if (!pastedobj) {
                     // This is not a pasted object, create a new one
-                    let guid = data.key;
                     obj = new akm.cxObject(guid, name, objtype, description);
                     myMetis.pasteViewsOnly = false;
                 } else {
                     obj = pastedobj;
                 }
             }
-        } else {
-            const guid = data.key;
+        } 
+        if (!obj || !(obj instanceof akm.cxObject)) {
             obj = new akm.cxObject(guid, name, objtype, description);
             copyProperties(obj, data.object);
             // Check if obj is dropped on a group that is a Model
@@ -193,13 +194,14 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     // Create the new node                          
                     const node = new gjs.goObjectNode(objview.id, objview);
                     updateNode(node, objtypeView, myDiagram, myGoModel);
-
                     node.isGroup = data.isGroup;
                     node.loc = data.loc;
                     node.size = data.size;
                     node.scale1 = data.scale1;
                     node.memberscale = data.memberscale;
-                    const n = myDiagram.findNodeForKey(data.key);
+                    myGoModel.addNode(node);
+                    myDiagram.model.addNodeData(node);
+                    // const n = myDiagram.findNodeForKey(data.key);
                     const group = getGroupByLocation(myGoModel, objview.loc, objview.size, node);
                     if (group) {
                         group.memberscale = group.memberscale ? group.memberscale : group.typeview.memberscale;
@@ -209,12 +211,11 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         node.scale1 = scale1.toString();
                         objview.group = group.objectview.id;
                         objview.scale1 = node.scale1;
-                        myDiagram.model.setDataProperty(n.data, "group", node.group);
-                        myDiagram.model.setDataProperty(n.data, "memberscale", Number(data.memberscale));
+                        myDiagram.model.setDataProperty(node, "group", node.group);
+                        myDiagram.model.setDataProperty(node, "memberscale", Number(data.memberscale));
                     }
-                    myDiagram.model.setDataProperty(n.data, "memberscale", Number(data.memberscale));
-                    myDiagram.model.setDataProperty(n, "scale", Number(data.scale1));
-                    myGoModel.addNode(node);
+                    // myDiagram.model.setDataProperty(node, "memberscale", Number(data.memberscale));
+                    // myDiagram.model.setDataProperty(n, "scale", Number(data.scale1));
                 }
                 // Dispatch hasMember relationships
                 modifiedRelships?.map(mn => {
@@ -4133,10 +4134,7 @@ export function setRelviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
     }
 }
 
-export function setObjviewColors(data: any, myDiagram: any): akm.cxObjectView {
-    const object = data.object;
-    const objview = data.objectview;
-    const typeview = data.typeview;
+export function setObjviewColors(data: any, object: any, objview: any, typeview: any, myDiagram: any): akm.cxObjectView {
     if (object) {
         let fillcolor = "";
         let strokecolor = "";

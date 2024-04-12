@@ -23,7 +23,7 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
-        if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)
+        if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', filename)
         if (data.phUser) dispatchLocalFile('LOAD_TOSTORE_PHUSER', data.phUser)
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
     };
@@ -495,7 +495,6 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         const mmlength = props.phData?.metis?.metamodels.length
         if (mmmindex < 0) { mmmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
         if (debug) console.log('174 ReadModelFromFile', metamodelff, mmmindex, mmlength);
-
         const data = {
             phData: {
                 ...props.phData,

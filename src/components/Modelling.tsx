@@ -37,6 +37,7 @@ import useSessionStorage from '../hooks/use-session-storage'
 
 import * as akm from '../akmm/metamodeller';
 import { type } from "os";
+import genGqlSchema from "../../pagestmp/genGqlSchema";
 // import * as uib from '../akmm/ui_buildmodels';
 // const constants = require('../akmm/constants');
 
@@ -136,7 +137,7 @@ const page = (props: any) => {
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
     if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
-    // loadMyModeldata(myMetis)
+    GenGojsModel(props, myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
     if (!debug) console.log('184 Modelling', gojsmetamodel, gojsmetamodelmodel, gojsmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
@@ -144,8 +145,16 @@ const page = (props: any) => {
   }, [])
 
   useEffect(() => {
-  setRefresh(!refresh)
+    setRefresh(!refresh)
   }, [mount]) // add mount to the dependency array
+
+  useEffect(() => { 
+    const timer = setTimeout(() => {
+      doRefresh()
+      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      setRefresh(!refresh)
+    }, 50);
+  }, [props.phData.phSource])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
@@ -198,9 +207,9 @@ const page = (props: any) => {
         const data = `${projectname}_PR`
         if ((debug)) console.log('275 handleSaveAllToFile', data)
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-      }
-      if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
-      SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+        if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
+        SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
+    }
     }
 
 

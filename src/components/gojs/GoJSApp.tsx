@@ -1186,7 +1186,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
               modifiedObjectTypeViews.push(jsnObjtypeView);
 
-              const loc = part.loc;
+              const loc = part.loc; 
               const size = part.size;
               const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
               const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);

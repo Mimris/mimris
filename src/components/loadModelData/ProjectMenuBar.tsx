@@ -58,7 +58,7 @@ export const ProjectMenuBar = (props: any) => {
         setProjectname(props.props.phFocus.focusProj.name);
         const data = `${projectname}_PR`
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-        if (debug) console.log('57 handleSaveAllToFile', props, projectname, props.props.phFocus)
+        if (!debug) console.log('57 handleSaveAllToFile', props, projectname, props.props.phFocus)
         SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
     }
 
@@ -262,7 +262,7 @@ export const ProjectMenuBar = (props: any) => {
                     GitHub Repo: 
                     <Link
                         className="text-primary ms-1"
-                        href={`https:/github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
+                        href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
                         target="_blank"
                     >
                         {props.props.phFocus.focusProj.repo}
@@ -272,7 +272,7 @@ export const ProjectMenuBar = (props: any) => {
                     GitHub Project No. :
                     <Link
                         className="text-primary"
-                        href={`https:/github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
+                        href={`https://github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
                         target="_blank"
                     >
                         <button className="text-primary border rounded bg-transparent px-5" >{props.props.phFocus.focusProj.projectNumber} </button>
@@ -356,7 +356,7 @@ export const ProjectMenuBar = (props: any) => {
                                     >
                                     <Link
                                         className="text-primary"
-                                        href={`https:/github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
+                                        href={`https://github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
                                         target="_blank"
                                     >
                                         <button className="px-2 text-primary border-light rounded" style={{  backgroundColor: "#efe" }} >no. {props.props.phFocus.focusProj.projectNumber} </button>
@@ -376,7 +376,7 @@ export const ProjectMenuBar = (props: any) => {
                                     >
                                     <Link
                                         className="text-primary"
-                                        href={`https:/github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
+                                        href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
                                         target="_blank"
                                     >
                                         <button className="px-2 text-primary border-light rounded" style={{  backgroundColor: "#efe" }}> {props.props.phFocus.focusProj.repo} </button>

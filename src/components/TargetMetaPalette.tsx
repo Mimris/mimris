@@ -23,7 +23,7 @@ const TargetMeta = (props) => {
 
   const myTargetMetamodel = props.myMetis.findMetamodel(model.targetMetamodelRef)
   const gojstypes = uib.buildGoPalette(myTargetMetamodel, props.myMetis)
-  if (!debug) console.log('22 TargetMeta', gojstypes, gojstypes.nodes)
+  if (debug) console.log('22 TargetMeta', gojstypes, gojstypes.nodes)
 
   const wotArr = ['Container', 'OSDUType', 'Property', 'Proxy', 'DataType', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat'];
 
@@ -38,9 +38,9 @@ const TargetMeta = (props) => {
   });
 
 
- 
+
   // const gojstypes = props.gojsTargetMetamodel
-  // if (!debug) console.log('27 TargetMeta', otsArr, otsArrSorted);
+  // if (debug) console.log('27 TargetMeta', otsArr, otsArrSorted);
   const [visiblePalette, setVisiblePalette] = useState(false)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
 
@@ -78,7 +78,7 @@ const TargetMeta = (props) => {
       dispatch={props.dispatch}
     />
 
-  const targetmmnamediv = (targetmetamodel) 
+  const targetmmnamediv = (targetmetamodel)
     ? <div className="mmname bg-transparent mx-0 px-1 my-0" >{targetmetamodel?.name}</div>
     : <span>No target metamodel</span>
 
@@ -86,11 +86,11 @@ const TargetMeta = (props) => {
 
   const palette =
     <>
-      <button className="btn-sm text-light bg-transparent border border-0 border-transparent" 
-        onClick={togglePalette}> {visiblePalette 
+      <button className="btn-sm text-light bg-transparent border border-0 border-transparent"
+        onClick={togglePalette}> {visiblePalette
           ? <span className="ps-1 fs-8"><i className="fa fa-lg fa-angle-right pull-right-container"></i>  Target Metamodel - -</span>
           // ? <span> &lt;- Palette: Src Metamodel</span> 
-          : <i className="fa fa-lg fa-angle-left pull-right-container"></i> 
+          : <i className="fa fa-lg fa-angle-left pull-right-container"></i>
         }
       </button>
       {visiblePalette
@@ -99,7 +99,7 @@ const TargetMeta = (props) => {
           <div className="m-1"> {gojsapp} </div>
           <div className="mmname bg-light m-0 mx-1" style={{ fontSize: "10px" }}>{targetmnamediv}</div>
         </>
-        : <div className="btn-vertical m-0 pl-2" 
+        : <div className="btn-vertical m-0 pl-2"
           style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", paddingLeft: "1px", fontSize: "12px", display: "flex", alignItems: "center" }}><span> T a r g e t - M e t a m o d e l</span></div>
       }
     </>

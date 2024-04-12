@@ -294,7 +294,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     // };
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
     if (debug) console.log('296 Palette nodeDataArray', this.props.nodeDataArray);
-    // if (!debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
+    // if (debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
     // https://github.com/NorthwoodsSoftware/gojs-react-basic/blob/master/src/components/DiagramWrapper.tsx
 

@@ -106,16 +106,16 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
     const genrelProxys = proxies.forEach(o => {
         // use the referenceObject to find the top object
-        if (!debug) console.log('110 Proxy: ', o.name, o.title, o.id, o);
+        if (debug) console.log('110 Proxy: ', o.name, o.title, o.id, o);
         if (debug) console.log('111 ', o.refGroupType, o.referenceObject, o.refVersion);
-        const targetObjectVersion =  (o.refVersion === '' || o.refVersion === undefined)
-            ?   utils.findObjectByNameOnly(curModel.objects, o.referenceObject)
-            :   utils.findObjectByNameVersion(curModel.objects, o.referenceObject + o.refVersion)
+        const targetObjectVersion = (o.refVersion === '' || o.refVersion === undefined)
+            ? utils.findObjectByNameOnly(curModel.objects, o.referenceObject)
+            : utils.findObjectByNameVersion(curModel.objects, o.referenceObject + o.refVersion)
         console.log('114 ', targetObjectVersion);
         const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByName(curModel.objects, o.referenceObject)
         // const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
         // const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
-        if (!debug) console.log('118 ', targetObject?.name, targetObjectVersion?.name, targetObject, targetObjectVersion);
+        if (debug) console.log('118 ', targetObject?.name, targetObjectVersion?.name, targetObject, targetObjectVersion);
         if (!targetObject) return; // if no targetObject, skip this relationship
 
         // find top level object

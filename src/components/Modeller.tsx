@@ -36,7 +36,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const Modeller = (props: any) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
-    if (!debug) console.log('42 Modeller: props', props, props.myMetis.gojsModel);
+    if (debug) console.log('42 Modeller: props', props, props.myMetis.gojsModel);
 
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
@@ -61,7 +61,7 @@ const Modeller = (props: any) => {
     const [selectedOption, setSelectedOption] = useState('Sorted by type');
     const [ofilteredArr, setOfilteredArr] = useState([]);
 
-    const [gojsobjects, setGojsobjects] = useState({nodeDataArray: [], linkDataArray: []});
+    const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
     // const [gojsmodel, setGojsmodel] = useState(props.myMetis.gojsModel);
 
     const diagramRef = useRef(null);
@@ -206,7 +206,7 @@ const Modeller = (props: any) => {
     // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
     if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
-  
+
 
     const handleExportClick = async () => {
         console.log('294 handleExportClick', exportSvg);
@@ -358,7 +358,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     );
 
     const myMetamodel = myModel.metamodel;
-    const gojsMetamodel =  uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
+    const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
 
     const objectsTabDiv =
         <>

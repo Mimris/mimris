@@ -23,9 +23,10 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
-        if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', filename)
+        dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', filename)
         if (data.phUser) dispatchLocalFile('LOAD_TOSTORE_PHUSER', data.phUser)
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+        if (!debug) console.log('356 ReadModelFromFile', filename, props)
     };
     reader.readAsText(e.target.files[0])
 }

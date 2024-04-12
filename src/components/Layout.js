@@ -11,7 +11,7 @@ const Layout = (props) => {
   const projName = props.children.props.children.props.children[0].props.props.phData.metis.name;
   const projSource = props.children.props.children.props.children[0].props.props.phSource
   // console.log("17 projName", projSource);
-  // const projName = props.phSource.;
+  // const projName = props.phSource;
   // const [darkMode, setDarkMode] = useDarkMode();
   return (
     <div style={{ backgroundColor: "#fff" }} >

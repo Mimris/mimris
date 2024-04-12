@@ -52,7 +52,7 @@ const page = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (debug) console.log('52 Modelling:', props)//, props);        
+  if (!debug) console.log('52 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
@@ -140,7 +140,7 @@ const page = (props: any) => {
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
-    if (!debug) console.log('184 Modelling', gojsmetamodel, gojsmetamodelmodel, gojsmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
+    if (debug) console.log('184 Modelling', gojsmetamodel, gojsmetamodelmodel, gojsmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
     setMount(true);
   }, [])
 
@@ -148,7 +148,7 @@ const page = (props: any) => {
     setRefresh(!refresh)
   }, [mount]) // add mount to the dependency array
 
-  useEffect(() => { 
+  useEffect(() => {
     const timer = setTimeout(() => {
       doRefresh()
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
@@ -178,7 +178,7 @@ const page = (props: any) => {
   }
 
   if (mount && gojsmodel) {
-    if (!debug) console.log('226 Modelling', gojsmodel, gojsmetamodel, gojsmetamodelmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
+    if (debug) console.log('226 Modelling', gojsmodel, gojsmetamodel, gojsmetamodelmodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel, gojsmetamodelpalette);
   }
 
   // if (debug) console.log('285 Modelling: ', refresh, gojsmodelobjects, myModel, myModelview);
@@ -207,9 +207,9 @@ const page = (props: any) => {
         const data = `${projectname}_PR`
         if ((debug)) console.log('275 handleSaveAllToFile', data)
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-        if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
-        SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
-    }
+      }
+    if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
+    SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
     }
 
 
@@ -262,7 +262,7 @@ const page = (props: any) => {
     if (debug) console.log('363 Modelling: ', gojsmetamodelmodel);
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
-       <Palette
+      <Palette
         // gojsModel={gojsmetamodelmodel}
         // gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
@@ -271,7 +271,7 @@ const page = (props: any) => {
         dispatch={dispatch}
         modelType='metamodel'
       />
-   
+
 
     const paletteMetamodelDiv =  // this is the metamodel modelling area
       <Modeller

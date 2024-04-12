@@ -145,6 +145,7 @@ function ProjectDetailsForm(props) {
             <label>Filename:</label>
             <input className='rounded bg-light border-light px-1 w-75'
               type="text"
+              readOnly
               value={file}
             // onChange={(e) => {setFile(e.target.value)}}
             />

@@ -188,7 +188,7 @@ export const ProjectMenuBar = (props: any) => {
                 position: "absolute",
                 top: "36px",
                 left: "-2px",
-                width: "16vw", //!isLeftDropdownOpen ? "5vw" : "16vw",
+                width: "18vw", //!isLeftDropdownOpen ? "5vw" : "16vw",
                 height: "30vh",
                 backgroundColor: "#b0cfcf",
             }}
@@ -260,7 +260,7 @@ export const ProjectMenuBar = (props: any) => {
             <>
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.props.phFocus.focusProj.org && props.props.phFocus.focusProj.repo && props.props.phFocus.focusProj.branch && props.props.phFocus.focusProj.path) &&                    
+                    {(props.props.phFocus.focusProj.org !== '' && props.props.phFocus.focusProj.repo !== '' && props.props.phFocus.focusProj.branch !== '' && props.props.phFocus.focusProj.path !== '') &&                    
                         <Link
                             className="text-primary ms-1"
                             href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
@@ -380,7 +380,7 @@ export const ProjectMenuBar = (props: any) => {
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
                             >
-                                { (props.props.phFocus.focusProj.org && props.props.phFocus.focusProj.repo && props.props.phFocus.focusProj.branch && props.props.phFocus.focusProj.path) &&                                  
+                                {(props.props.phFocus.focusProj.org !== '' && props.props.phFocus.focusProj.repo !== '' && props.props.phFocus.focusProj.branch !== '' && props.props.phFocus.focusProj.path !== '') &&                                  
                                     <Link
                                     className="text-primary"
                                     href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
@@ -480,7 +480,12 @@ export const ProjectMenuBar = (props: any) => {
                         zIndex: "999"
                     }}
                     onMouseEnter={() => setIsLeftHovered(true)}
-                    onMouseLeave={() => setIsLeftHovered(false)}
+                    onMouseLeave={() => {
+                        const timer = setTimeout(() => {
+                            setIsLeftHovered(false)
+                        }
+                        , 5000); 
+                    }}
                     onClick={() => setIsLeftDropdownOpen(!isLeftDropdownOpen)}
                 >
                     <i className={`${isLeftDropdownOpen ? 'fa fa-bars fa-lg' : 'fa fa-bars bg-dark fa-lg'}`}></i>

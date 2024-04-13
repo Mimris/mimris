@@ -56,7 +56,7 @@ function ProjectDetailsForm(props) {
     setPath(path);
     setBranch(branch);
     setFile(file);
-    setSource(org + '/' + repo + '/' + path + '/' + file);
+    setSource(`${org}/${repo}${(path === '') ? '/' : `/${path.toString()}/`}${file}`);
     setProjectNumber(projectNumber);
   }, [file, name, org, repo, path, branch, projectNumber]);
 
@@ -156,7 +156,7 @@ function ProjectDetailsForm(props) {
             <label>github.com/</label>
             <input className='rounded bg-white px-1 border-light w-100'
               type="text"
-              value={org+'/'+repo+'/'+path+'/'+file}
+              value={`${org}/${repo}${(path === '') ? '/' : `/${path.toString()}/`}${file}`}
               // onChange={(e) => setSource(e.target.value)}
             />
           </div>

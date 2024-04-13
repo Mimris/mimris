@@ -33,9 +33,9 @@ const LoadFile = (props: any) => {
   const modelNames = props.ph.phData?.metis?.models?.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
 
-  if (debug) console.log('26 LoadLocal', props, typeof (window));
+  if (debug) console.log('36 LoadLocal', props, typeof (window));
 
-  if (debug) console.log('28 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (!debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
     phData: props.ph.phData,

@@ -154,7 +154,7 @@ const page = (props: any) => {
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
     }, 50);
-  }, [props.phData.phSource])
+  }, [props.phSource])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
@@ -202,7 +202,7 @@ const page = (props: any) => {
 
     const handleSaveAllToFile = () => {
       let projectname = props.phSource
-      if (props.phFocus.focusProj.name !== '' || undefined) {
+      if (props.phFocus.focusProj.name === '' || undefined) {
         projectname = props.phFocus.focusProj.name
         const data = `${projectname}_PR`
         if ((debug)) console.log('275 handleSaveAllToFile', data)

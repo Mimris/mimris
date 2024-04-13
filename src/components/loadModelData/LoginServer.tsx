@@ -65,16 +65,17 @@ function LoginServer(props: any) {
         <ModalHeader toggle={() => { toggle(); toggleRefresh(); } }>Model Server login: </ModalHeader>
         <ModalBody className="pt-0">
           <br />
-          <p>
+          <div>
             If you are already logged in, you will see a Model list
             of all models in the repository below.(in JSON format)
             <br /><br />
-            (It may take some time for the list to appear!)</p>
+            (It may take some time for the list to appear!)
+          </div>
           {/* <iframe style={{ width: "100%", height: "33vh" }} src="http://localhost:4000/akm-model-list" name={frameId}></iframe> */}
           <iframe style={{ width: "100%", height: "33vh" }} src={akmmodellist} name={frameId}></iframe>
           {/* <iframe style={{ width: "100%", height: "33vh" }} src={profile} name={frameId}></iframe> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame">Click to Login/Logout</a></p> */}
-          <p><a href={profile} target="myFrame">Click to Login/Logout</a></p>
+          <div><a href={profile} target="myFrame">Click to Login/Logout</a></div>
 
         </ModalBody>
         <ModalFooter>

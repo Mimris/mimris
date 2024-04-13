@@ -7,7 +7,7 @@ import { i } from "./SvgLetters";
 const debug = false
 
 export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Project from file
-
+    if (!debug) console.log('10 ReadModelFromFile', props, e)
     e.preventDefault();
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
@@ -21,12 +21,12 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
         const filename = reader.fileName
         data = importedfile
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
-        dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
-        if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
-        dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', filename)
-        if (data.phUser) dispatchLocalFile('LOAD_TOSTORE_PHUSER', data.phUser)
+        props.dispatch('LOAD_TOSTORE_PHDATA', data.phData)
+        if (data.phFocus) props.dispatch('SET_FOCUS_PHFOCUS', data.phFocus)
+        props.dispatch('LOAD_TOSTORE_PHSOURCE', filename)
+        if (data.phUser) props.dispatch('LOAD_TOSTORE_PHUSER', data.phUser)
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
-        if (!debug) console.log('356 ReadModelFromFile', filename, props)
+        if (!debug) console.log('29 ReadModelFromFile', filename, props)
     };
     reader.readAsText(e.target.files[0])
 }

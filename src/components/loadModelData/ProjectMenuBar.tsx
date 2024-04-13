@@ -260,13 +260,15 @@ export const ProjectMenuBar = (props: any) => {
             <>
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    <Link
-                        className="text-primary ms-1"
-                        href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
-                        target="_blank"
-                    >
-                        {props.props.phFocus.focusProj.repo}
-                    </Link>
+                    {(props.props.phFocus.focusProj.org && props.props.phFocus.focusProj.repo && props.props.phFocus.focusProj.branch && props.props.phFocus.focusProj.path) &&                    
+                        <Link
+                            className="text-primary ms-1"
+                            href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
+                            target="_blank"
+                        >
+                            {props.props.phFocus.focusProj.repo}
+                        </Link>
+                    }
                 </div>
                 <div className="bg-light d-flex justify-content-between  border border-2 rounded mx-1 ps-2">
                     GitHub Project No. :
@@ -378,13 +380,15 @@ export const ProjectMenuBar = (props: any) => {
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
                             >
-                                <Link
+                                { (props.props.phFocus.focusProj.org && props.props.phFocus.focusProj.repo && props.props.phFocus.focusProj.branch && props.props.phFocus.focusProj.path) &&                                  
+                                    <Link
                                     className="text-primary"
                                     href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
                                     target="_blank"
-                                >
+                                    >
                                     <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.props.phFocus.focusProj.repo} </button>
                                 </Link>
+                                }
                             </span>
                         </span>
                         {/* <span className="px-1" style={{ backgroundColor: "#ded", whiteSpace: "nowrap" }}>{project.name}</span> */}

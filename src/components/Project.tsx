@@ -85,20 +85,21 @@ const Project = (props) => {
             <CardTitle className="card-title-bold nobreak">Project: {props.props.phData.metis.name}</CardTitle>
             <CardSubtitle className="card-subtitle-bold"> {props.props.phData.metis.description}</CardSubtitle>
             <CardText className="card-text">
-              GitHub:
+              <span>GitHub:</span>
               <div className="d-flex justify-content-between align-items-baseline border">
                 <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusProj.projectNumber} </div>
                 <div className="border fs-6 p-1 w-75">Repository: {props.props.phFocus.focusProj.repo} </div>
                 <div className="border fs-6 p-1 ">Path: {(props.props.phFocus.focusProj.path) ? props.props.phFocus.focusProj.path : 'models'}</div>
                 <div className="border fs-6 p-1">Branch: {props.props.phFocus.focusProj.branch}</div>
-              </div>File:
+              </div>
+            <span>File:</span>
               <div className="borde fs-6">{props.props.phFocus.focusProj.file}</div>
-              <hr />
-              Current User:
-                <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser.name} </div>
-                <div className="border fs-6 p-1">E-mail: {props.props.phUser.focusUser.email} </div>
-                <div className="border fs-6 p-1">Role: {props.props.phFocus.focusRole.name} </div>
-                <div className="border fs-6 p-1">Task: {props.props.phFocus.focusTask.name} </div>
+              {/* <hr /> */}
+            <span>Current User:</span>
+              <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser.name} </div>
+              <div className="border fs-6 p-1">E-mail: {props.props.phUser.focusUser.email} </div>
+              <div className="border fs-6 p-1">Role: {props.props.phFocus.focusRole.name} </div>
+              <div className="border fs-6 p-1">Task: {props.props.phFocus.focusTask.name} </div>
               <div className="justify-content-between align-items-baseline borde mt-2">In Focus:
                 <div className="border fs-6 p-1">Model: {props.props.phFocus.focusModel.name} </div>
                 <div className="border fs-6 p-1">Modelview: {props.props.phFocus.focusModelview.name} </div>
@@ -106,12 +107,9 @@ const Project = (props) => {
                 <div className="border fs-6 p-1">Objecttype: {props.props.phFocus.focusObjecttype.name} </div>
                 <div className="border fs-6 p-1">Target metamodel: {props.props.phFocus.focusTargetMetamodel.name} </div>
                 {/* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModel} </div> */}
-                {/* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModelview} </div> */}
-
+                { /* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModelview} </div> */}
                 <div className="border fs-6 p-1">Source: {props.props.phFocus.focusSource.name} </div>
-
               </div>
-
             </CardText>
           </CardBody>
         </Card>
@@ -129,16 +127,18 @@ const Project = (props) => {
                     <CardSubtitle className="card-subtitle-bold"><span className=" fs-5">{model.name}</span></CardSubtitle>
                     <div className="text-secondary">{model.description}</div>
                     <CardSubtitle className="card-subtitle-bold">Modelviews:</CardSubtitle>
-                    <ul style={{ listStyleType: 'disc', listStylePosition: 'inside' }}>
-                      {model.modelviews.map((modelview: any, index: any) => {
-                        return (
-                          <li className="align-items-center" key={index} style={{ listStyleType: 'circle', listStylePosition: 'inside' }}>
-                            <span className="text-bold fs-5">{modelview.name}</span>
-                            <span className="text-secondary">{modelview.description}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <div>
+                      <ul style={{ listStyleType: 'disc', listStylePosition: 'inside' }}>
+                        {model.modelviews.map((modelview: any, index: any) => {
+                          return (
+                            <li className="align-items-center" key={index} style={{ listStyleType: 'circle', listStylePosition: 'inside' }}>
+                              <span className="text-bold fs-5">{modelview.name}</span>
+                              <span className="text-secondary">{modelview.description}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
                   </Card>
                 );
               })}

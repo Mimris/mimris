@@ -320,8 +320,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
             <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
               {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
               <h5>Import JSON-Schema files :</h5>
-              <p>
-                (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
+              <p> (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
               <div className="selectbox3 mb-1 border">
                 {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
                 <div className='mt-2'> Include EntityTypes:</div>

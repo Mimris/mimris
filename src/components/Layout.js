@@ -7,9 +7,9 @@ import TopMenu from './Navbar';
 // import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
-  // console.log("11 Layout props", props);
-  const projName = props.children.props.children.props.children[0].props.props.phData.metis.name;
-  const projSource = props.children.props.children.props.children[0].props.props.phSource
+  console.log("11 Layout props", props);
+  const projName = "AKMM APP" //props?.children?.props?.children?.props?.children[0]?.props?.props?.phData?.metis?.name || "AKMM APP";
+  const projSource = "AKMM Source file not found"//props.children.props.children.props.children[0].props.props.phSource || "AKMM Source file not found";
   // console.log("17 projName", projSource);
   // const projName = props.phSource;
   // const [darkMode, setDarkMode] = useDarkMode();
@@ -17,7 +17,8 @@ const Layout = (props) => {
     <div style={{ backgroundColor: "#fff" }} >
       <Head>
       <title>
-         {(projName) ? projName : "AKMM"}
+        {projName}
+         {/* {(projName) ? projName : "AKMM"} */}
       </title>
         <link rel="icon" href="" />
       </Head>

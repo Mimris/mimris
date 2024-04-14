@@ -372,7 +372,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                     if (debug) console.log('----- oName = items -------------------------------------------------------------------------------------------------')
                                     if (debug) console.log('345', oVal, oId, oName, objTypeName, 'i', i);
                                     // find key of child object 
-                                    console.log('348 ', (oVal.allOf) && Object.keys(oVal?.allOf[0]?.properties))
+                                    if (debug) console.log('348 ', (oVal.allOf) && Object.keys(oVal?.allOf[0]?.properties))
                                     const gchildKeyName = (oVal.allOf) ? Object.keys(oVal?.allOf[0]?.properties).find(k => k.includes('ID')).replace('ID', '') : null
 
                                     // const gchildTitle = oVal.allOf[0]?.properties?.title?.includes('ID') || null

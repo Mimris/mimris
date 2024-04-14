@@ -111,7 +111,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
         const targetObjectVersion = (o.refVersion === '' || o.refVersion === undefined)
             ? utils.findObjectByNameOnly(curModel.objects, o.referenceObject)
             : utils.findObjectByNameVersion(curModel.objects, o.referenceObject + o.refVersion)
-        console.log('114 ', targetObjectVersion);
+        if (debug) console.log('114 ', targetObjectVersion);
         const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByName(curModel.objects, o.referenceObject)
         // const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
         // const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
@@ -225,7 +225,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
 
             if (curRelships.find((r: { fromobjectRef: any; toobjectRef: any; reltypeRef: any; }) => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype?.id)) {
                 // relship exists do nothing
-                console.log('227 Relship exisit ', fromobjectName, toobjectName, reltype.name);
+                if (debug) console.log('227 Relship exisit ', fromobjectName, toobjectName, reltype.name);
             } else {
                 if (debug) console.log('229 ', fromType?.id, reltype);
                 reltypeRef = reltype?.id

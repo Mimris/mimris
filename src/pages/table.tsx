@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useState, useEffect } from "react";
 // import { connect } from 'react-redux';
-import { connect, useDispatch }  from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
@@ -12,10 +12,11 @@ import SetContext from '../defs/ContextView'
 import TasksHelp from '../components/TasksHelp'
 import ContextView from "../defs/ContextView";
 
+const debug = false;
 const page = (props: any) => {
 
-  console.log('17',props)
-//   // const dispatch = useDispatch()
+  if (debug) console.log('17', props)
+  //   // const dispatch = useDispatch()
 
   // if (!props.phData) {
   //   dispatch(loadData())
@@ -27,22 +28,22 @@ const page = (props: any) => {
   // function toggleTasks() {
   //   setVisibleTasks(!visibleTasks);
   // }
- // /**
+  // /**
 
-// * Set up the Context items and link to select Context modal,
-// */
+  // * Set up the Context items and link to select Context modal,
+  // */
   const ContextDiv = (props.phFocus) && <ContextView ph={props.phFocus} />
 
-//   useEffect(() => {
-//     return () => {
-//       <ContextView ph={props} />
-//     };
-//   }, [props.phFocus.focusModel.id])
+  //   useEffect(() => {
+  //     return () => {
+  //       <ContextView ph={props} />
+  //     };
+  //   }, [props.phFocus.focusModel.id])
 
 
   return (
     <div>
-      <Layout user={ props.phUser?.focusUser } >
+      <Layout user={props.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper">
             <div className="header">
@@ -62,7 +63,7 @@ const page = (props: any) => {
             </div>
             <div className="footer">
               <Footer />
-            </div>           
+            </div>
           </div>
         </div>
       </Layout>

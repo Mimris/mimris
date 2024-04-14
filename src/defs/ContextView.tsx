@@ -23,7 +23,7 @@ const ContextView = (props: any) => {
   if (!phFocus) return null;
   // if phFocus is change then refresh the page
   if (phFocus !== props.ph.phFocus) {
-    console.log('phFocus', phFocus, props.ph.phFocus);
+    if(debug) console.log('phFocus', phFocus, props.ph.phFocus);
     window.location.reload();
   }
 
@@ -54,7 +54,7 @@ const ContextView = (props: any) => {
         model=${phFocus.focusModel.id || phFocus.focusModel.name}&
         modelview=${phFocus.focusModelview.id || phFocus.focusModelview.name}
       `;
-    console.log('27 paramFocus', urlParams, phFocus.focusProj);
+    if (debug) console.log('27 paramFocus', urlParams, phFocus.focusProj);
     const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-alfa.vercel.app'
     focusUrl = `http://${tmphost}/model?${urlParams}`;
     if (debug) console.log('42 focus', focusUrl);

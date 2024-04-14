@@ -45,7 +45,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
-    console.log('37 LoadFile', data);
+    if (debug) console.log('37 LoadFile', data);
 
     SaveAllToFile(data, projectname, 'Project')
     // SaveAllToFile(data, projectname, 'AKMM-Project')
@@ -65,7 +65,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id)
     const modelview = model.modelviews[focusModelviewIndex]
-    console.log('43', focusModelviewIndex, modelview);
+    if (debug) console.log('43', focusModelviewIndex, modelview);
     SaveModelToFile({ modelview: modelview }, modelview.name, 'Modelview')
     // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')

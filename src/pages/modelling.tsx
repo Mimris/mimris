@@ -134,14 +134,14 @@ const page = (props: any) => {
           const res = await searchGithub(org + '/' + repo, path, file, branch, 'file')
           const githubData = await res.data
           const sha = await res.data.sha
-          console.log('138 modelling githubData:', githubData, sha)
+          if (debug) console.log('138 modelling githubData:', githubData, sha)
           dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
           const timer = setTimeout(() => {
             setRefresh(!refresh);
           }, 200);
           let curmodel = githubData.phData.metis.models.find(m => m.id === model)
           if (!curmodel) curmodel = githubData.phData.metis.models.find(m => m.name === model)
-          console.log('83 model curmodel', curmodel.modelviews, modelview)
+          if (debug) console.log('83 model curmodel', curmodel.modelviews, modelview)
           let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
           if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
           const data = {
@@ -167,7 +167,7 @@ const page = (props: any) => {
           modelview = props.phFocus.focusProj.modelview;
         }
       } catch (error) {
-        console.log('174 modelling query error ', error);
+        if (debug) console.log('174 modelling query error ', error);
       }
     }
     if (debug) console.log('178 modelling useEffect 1', query, org, props)

@@ -52,7 +52,7 @@ const page = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (!debug) console.log('52 Modelling:', props)//, props);        
+  if (debug) console.log('52 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
@@ -208,8 +208,8 @@ const page = (props: any) => {
         if ((debug)) console.log('275 handleSaveAllToFile', data)
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
       }
-    if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
-    SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
+      if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
+      SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
     }
 
 

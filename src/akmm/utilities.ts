@@ -145,10 +145,10 @@ export let readKeyValueArrays = (myArray: any[]) => {
         return;
     items.forEach(function (item) {
         Object.keys(item).forEach(function (key) {
-            console.log("key: " + key + " value " + item[key]);
+             if (debug) console.log("key: " + key + " value " + item[key]);
             const propkey = key;
             const propval = item[key];
-            console.log(propkey + ": " + propval);
+            if (debug) console.log(propkey + ": " + propval);
         });
     });
 }

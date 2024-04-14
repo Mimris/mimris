@@ -35,7 +35,7 @@ const LoadFile = (props: any) => {
 
   if (debug) console.log('36 LoadLocal', props, typeof (window));
 
-  if (!debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
     phData: props.ph.phData,
@@ -100,9 +100,9 @@ const LoadFile = (props: any) => {
     // const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
     // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
-    console.log('194 Loadfile', metamodels, data)
+    if (debug) console.log('194 Loadfile', metamodels, data)
     if (!data) {
-      console.log('196 Loadfile', data)
+      if (debug) console.log('196 Loadfile', data)
       alert('No metamodel found in this modelview')
       return
     }
@@ -111,7 +111,7 @@ const LoadFile = (props: any) => {
     // replace the _MM in 
     const filename = data.phData.metis.name//.replace('AKM-', '')
 
-    console.log('199 Loadfile', newmm, filename)
+    if(debug) console.log('199 Loadfile', newmm, filename)
     SaveAllToFile(data, filename, '_PR')
     const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
     SaveMetamodelToFile(newmm, metamodelname, '_MM')

@@ -209,7 +209,7 @@ const Modeller = (props: any) => {
 
 
     const handleExportClick = async () => {
-        console.log('294 handleExportClick', exportSvg);
+        if (debug) console.log('294 handleExportClick', exportSvg);
         if (exportSvg) {
             const svg = await exportSvg();
             if (svg) {

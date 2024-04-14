@@ -1201,7 +1201,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               node.objectview = objview;
               node.viewkind = 'Object';
               const jsnObjview = new jsn.jsnObjectView(objview);
-              console.log('1052 objview, jsnObjview', objview, jsnObjview);
+              if (debug) console.log('1052 objview, jsnObjview', objview, jsnObjview);
               const data = JSON.parse(JSON.stringify(jsnObjview));
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
               alert("You need to a Reload to see the change!");
@@ -1733,7 +1733,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     typeview.modified = true;
                     currentRelshipView.typeview = typeview;
                     const viewdata = typeview.data;
-                    console.log('796 viewdata', typeview.data);
+                    if (debug) console.log('796 viewdata', typeview.data);
                     for (let prop in typeview.data) {
                       myDiagram.model.setDataProperty(link, prop, viewdata[prop]);
                     }

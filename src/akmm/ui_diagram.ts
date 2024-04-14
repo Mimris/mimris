@@ -869,8 +869,8 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         return;
     modelview = myMetis.findModelView(modelview.id);
     const goModel = myMetis.gojsModel;
-    let objview: akm.cxObjectView = node?.objectview;
-    objview = myMetis.findObjectView(objview?.id);
+    let objview: akm.cxObjectView;
+    objview = myMetis.findObjectView(node.key);
     objectviews.push(objview);
     let noLevels = '9';
     let reltypes = 'All';
@@ -2066,7 +2066,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         if (toObjtype.isContainer())
                             oview.viewkind = constants.viewkinds.CONT;
                         toObjview = oview;
-                        const toNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
+                        const toNode = new gjs.goObjectNode(toObjview.id, toObjview);
                         toObjview = uic.setObjviewAttributes(toNode, myDiagram);
                         const jsnObjview = new jsn.jsnObjectView(toObjview);
                         modifiedObjectViews.push(jsnObjview);
@@ -2110,6 +2110,9 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     // The objectview has been created
                     const jsnObjview = new jsn.jsnObjectView(toObjview);
                     modifiedObjectViews.push(jsnObjview);
+                    // Create the node
+                    const goNode = new gjs.goObjectNode(toObjview.id, toObjview);
+                    goModel.addNode(goNode);
                     // Now create a relship view from object to toObj
                     const oviewFrom = useinp ? toObjview : objview;
                     const oviewTo = useinp ? objview : toObjview;
@@ -2125,6 +2128,11 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         allRelshipviews.push(relview);
                         const jsnRelView = new jsn.jsnRelshipView(relview);
                         modifiedRelshipViews.push(jsnRelView);
+                        // Then add links
+                        const goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
+                        goModel.addLink(goLink);
+                        myDiagram.model.addLinkData(goLink);
+                        myDiagram.requestUpdate();
                     }                   
                 }
             }

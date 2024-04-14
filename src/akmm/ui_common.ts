@@ -522,16 +522,19 @@ export function copyRelationship(fromRel: akm.cxRelationship, fromObj: akm.cxObj
 
 export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
     for (let prop in fromObj) {
-        if (prop === 'id') continue;
-        if (prop === 'name') continue;
-        if (prop === 'description') continue;
-        if (prop === 'inputrels') continue;
-        if (prop === 'outputrels') continue;
-        if (prop === 'objectviews') continue;
-        if (prop === 'relshipviews') continue;
-        if (prop === 'modified') continue;
-        if (prop === 'generatedTypeId') continue;
-        toObj[prop] = fromObj[prop];
+    //     if (prop === 'id') continue;
+    //     if (prop === 'name') continue;
+    //     if (prop === 'description') continue;
+    //     if (prop === 'inputrels') continue;
+    //     if (prop === 'outputrels') continue;
+    //     if (prop === 'objectviews') continue;
+    //     if (prop === 'relshipviews') continue;
+    //     if (prop === 'modified') continue;
+    //     if (prop === 'generatedTypeId') continue;
+    //     toObj[prop] = fromObj[prop];
+    // }
+        if (isPropIncluded(prop, toObj.type))
+            toObj[prop] = fromObj[prop];
     }
 }
 

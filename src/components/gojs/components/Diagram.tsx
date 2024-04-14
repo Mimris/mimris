@@ -1243,7 +1243,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const n = obj.part.data;
               let objview = n.objectview;
-              objview = myModelview.findObjectView(objview.id);
+              objview = myModelview.findObjectView(n.key);
               const layoutList = () => [
                 { value: "Circular", label: "Circular Layout" },
                 { value: "Grid", label: "Grid Layout" },
@@ -1400,7 +1400,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 reltypes = prompt('Enter relationship type to follow', reltypes);
                 const myModelview = myMetis.currentModelview;
                 let objectview = node.objectview as akm.cxObjectView;
-                objectview = myModelview.findObjectView(objectview.id);
+                objectview = myModelview.findObjectView(node.key);
                 const objectviews = new Array();
                 objectviews.push(objectview);
                 const relshipviews = new Array();
@@ -3024,13 +3024,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   for (let it = myDiagram.nodes; it?.next();) {
                     const n = it.value;
                     const data = n.data;
-                    // if (data.key === goNode.key) {
-                      console.log('300 objview, goNode, node: ', objview, goNode, n, data);
-                    // }
+                    if (data.key === objview.id) {
+                      // if (debug) 
+                     console.log('300 ', objview.name,'\n objview: ', objview, "\n goNode: ", goNode, "\n node: ", n, data);
+                    }
                   }
                 }
               }
-                  },
+            },
+            function (o: any) {
+              return true;
+            }),
+          makeButton("Modelview links",
+            function (e: any, obj: any) {
+              const relviews = myModelview.relshipviews;
+              for (let i=0; i<relviews?.length; i++) {
+                const relview = relviews[i];
+                const goLink = myMetis.gojsModel.findLinkByViewId(relview.id);
+                if (goLink) {
+                  for (let it = myDiagram.links; it?.next();) {
+                    const l = it.value;
+                    const data = l.data;
+                    if (data.key === relview.id) {
+                      // if (debug) 
+                      const text = relview.name + " " + relview.toObjview.name;
+                      console.log('300 ', text,'\n relview: ', relview, 
+                                  "\n goLink: ", goLink, "\n link: ", l, data);
+                    }
+                  }
+                }
+              }
+            },
             function (o: any) {
               return true;
             }),
@@ -3090,7 +3114,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const data = node.data;
                 let objview = data.objectview;
                 if (objview)
-                  objview = myModelview.findObjectView(objview.id);
+                  objview = myModelview.findObjectView(data.key);
                 if (objview) {
                   objview.loc = data.loc;
                 }
@@ -3129,7 +3153,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const node = it.value;
                   const data = node.data;
                   let objview = data.objectview;
-                  objview = myModelview.findObjectView(objview?.id);
+                  objview = myModelview.findObjectView(data.key);
                   if (objview) {
                     objview.loc = data.loc;
                   }

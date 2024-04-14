@@ -99,7 +99,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.myMetis.modelType = props.modelType;
     this.diagramRef = React.createRef();
     this.state = {
-      myMetis: props.myMetis,
+      // myMetis: props.myMetis,
       showModal: false,
       selectedData: null,
       modalContext: null,

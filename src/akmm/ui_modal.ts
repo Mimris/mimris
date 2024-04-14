@@ -578,8 +578,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (node) node.isSelected = true;
       // Do a fix
       const oview = myMetis.findObjectView(selObj.objectview.id);
-      oview.group = selObj.objectview?.group;
-      myMetis.addObjectView(oview);
+      if (oview) {
+        oview.group = selObj.objectview?.group;
+        myMetis.addObjectView(oview);
+      }
       // End fix
       let obj;
       if (selObj.object) {

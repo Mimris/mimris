@@ -1108,7 +1108,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const sel = it.value;
             const data = sel.data;
             if (data.category === constants.gojs.C_OBJECT) {
-              const key = data.key;
+              const key = data.objectview.id;
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
                 uic.deleteNode(myNode, deletedFlag, context);
@@ -1180,16 +1180,18 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (!obj) {
             object = new akm.cxObject(object.id, object.name, type, object.description);
+            uic.copyProperties(object, part);
             object.setModified();
             myModel.addObject(object);
             myMetis.addObject(object);
           }
           if (!objview || !(objview instanceof akm.cxObjectView)) {
-            objview = new akm.cxObjectView(objview.id, objview.name, object, objview.description, myModelview);
+            objview = new akm.cxObjectView(part.key, part.name, object, part.description, myModelview);
             objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
             objview.loc = part.loc;
-            objview.viewkind = object.type.viewkind;
+            objview.viewkind = type.viewkind;
             objview.scale1 = part.scale;
+            objview.size = part.size;
             if (objview.viewkind === 'Container') {
               objview.isGroup = true;
             }
@@ -1197,6 +1199,26 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
           }    
+          let goNode = myGoModel.findNodeByViewId(objview.id);
+          if (!goNode) {
+            goNode = new gjs.goObjectNode(objview.id, objview);
+            // uic.updateNode(goNode, typeview, myDiagram, myGoModel);
+            myGoModel.addNode(goNode);
+            // myDiagram.model.addNodeData(goNode);
+
+
+
+            // Check if goNode is member of a group
+            const group = uic.getGroupByLocation(myGoModel, goNode.loc, goNode.size, goNode);
+            if (group) {
+              const parentgroup = group;
+              goNode.group = parentgroup.key;
+              goNode.objectview.group = parentgroup.objectview.id;
+              myDiagram.model.setDataProperty(part, "group", goNode.group);
+              goNode.scale1 = new String(goNode.getMyScale(myGoModel));
+              part.scale1 = Number(goNode.scale1);
+            }
+          }
           const isLabel = (part.typename === 'Label');
 
           if (part.type === 'objecttype') {
@@ -1259,24 +1281,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             const jsnObjview = new jsn.jsnObjectView(objview);
             modifiedObjectViews.push(jsnObjview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
-            const jsnObj = new jsn.jsnObject(objview.object);
+            const jsnObj = new jsn.jsnObject(object);
             modifiedObjects.push(jsnObj);
-
-            if (false) { // Hack
-            if (objview.isGroup) {
-              // Create the goObjectNode
-              let node = myDiagram.findNodeForKey(n.data.key);
-              myDiagram.remove(node);
-              const key = objview.id;
-              node = new gjs.goObjectNode(key, objview);
-              node.template = 'groupNoPorts';
-              node.fillcolor = 'white';
-              myDiagram.model.addNodeData(node);       
-              myDiagram.model.setDataProperty(node.data, "template", "groupNoPorts");
-              myDiagram.model.setDataProperty(node.data, "fillcolor", "white");
-            }       
-            // End hack
-            }            
           }
           node.updateTargetBindings();
         })
@@ -1342,11 +1348,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
           if (n.data.isGroup) {
-            let objview = n.data.objectview;
+            let objview: akm.cxObjectView;
+            objview = myModelview.findObjectView(n.data.key);
             objview.loc = n.data.loc;
             objview.size = n.data.size;
-            const myNode = myGoModel.findNodeByViewId(objview.id);
+            let myNode = myGoModel.findNodeByViewId(n.data.key);
             myNode.size = objview.size;
+            myNode.key = objview.id;
             const jsnObjview = new jsn.jsnObjectView(objview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
             let children = n.memberParts;

@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import useLocalStorage  from '../../hooks/use-local-storage'
 import useSessionStorage from "../../hooks/use-session-storage";
 
-import { SaveModelToLocState } from "../utils/SaveModelToLocState";
+// import { SaveModelToLocState } from "../utils/SaveModelToLocState";
 
 const debug = false;
 
@@ -18,7 +18,7 @@ function ProjectDetailsForm(props) {
   const [org, setOrg] = useState(props.props.phFocus?.focusProj?.org || props.props.phFocus?.focusOrg.name);
   const [repo, setRepo] = useState(props.props.phFocus?.focusProj.repo);
   const [path, setPath] = useState(props.props.phFocus?.focusProj.path);
-  const [file, setFile] = useState( props.props.phData.metis.name || props.props.phFocus?.focusProj.file || props.props.phSource+'.json');
+  const [file, setFile] = useState(props.props.phFocus?.focusProj.file || props.props.phData.metis.name  || props.props.phSource+'.json');
   const [branch, setBranch] = useState(props.props.phFocus?.focusProj.branch);
 
   const [focusModel, setFocusModel] = useState(props.props.phFocus?.focusModel);
@@ -46,26 +46,31 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     // setFocusProj(props.props.phData?.metis.name)
   }, []);
 
+  useEffect(() => {
+    console.log("53 ProjectDetailsForm", props.props.phFocus);
+    setId(id);
+    setName(name);
+    setOrg(org);
+    setRepo(repo);
+    setPath(path);
+    setBranch(branch);
+    setFile(file);
+    setProjectNumber(projectNumber);  
+  }, [file, name, org, repo, path, branch, projectNumber]);
+
+  useEffect(() => {
+    console.log("57 ProjectDetailsForm", props.props.phFocus);
+    setFile(props.props.phFocus?.focusProj.file);
+    setName(props.props.phFocus?.focusProj.name);
+  }, []);
+  
   const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org+repo+path+file+branch;
   const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
-
-      const updateFocusProj = (value) => {
-      setFocusProj(value);
-      // update metis object
-      //dialog box and ask for description and update metis object
-      const dialog = window.confirm("Pls update name and descr of the project?");
-      if (dialog) {
-        const namenew = window.prompt("Please enter the name of the project", "Name");
-        const descriptionnew = window.prompt("Please enter the description of the project", "Description");
-        props.props.phData.metis.name = namenew;
-        props.props.phData.metis.description = descriptionnew;
-      }
-    }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
-    const data = { id: idnew, name: namenew, org, repo, path, file, branch, projectNumber };
+    const data = { id: name, name, org, repo, path, file, branch, projectNumber };
 
     // Todo: has to set id but show name in the list  ( look at Context button)
     const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
@@ -73,152 +78,84 @@ if (debug)console.log("14 ProjectDetailsForm", org, repo, path, file, branch, fo
     dispatch({ type: 'SET_FOCUS_PROJ', data });
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
-      SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
-    }, 200);
+      // SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
+      setMemoryLocState(props.props);
+    }, 2000);
     return () => clearTimeout(timer);
   };
 
-    
   return (
     <>  
-      <div>Project:</div>
-      <div>id: {idnew}</div>
-      <div>name: {namenew}</div>
+      <div  className="h5 w-100">Project name : <span className="bg-light ms-2 px-2 w-100"> {namenew}</span></div>    
       <hr />
-        <form onSubmit={handleSubmit}>
-          <div className='d-flex justify-content-between'>
-            <div>
-              <div>GitHub Repository:</div>
-              <div>
-                <label>Project Number (github):</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={projectNumber}
-                  onChange={(e) => setProjectNumber(e.target.value)}
-                /> 
-                <div> --- </div>
-              </div>
-              <div>
-                <label>Organisation:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={org}
-                  onChange={(e) => setOrg(e.target.value)}
-                /> 
-              </div>
-              <div>
-                <label>Repo:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
-                  onChange={(e) => setRepo(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>Path:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={path}
-                  onChange={(e) => setPath(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>File:</label>
-                <input className='rounded bg-white'
-                  type="text"
-                  value={file}
-                  onChange={(e) => setFile(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>Branch:</label>
-                <input className='rounded bg-white px-1'
-                  type="text"
-                  value={branch}
-                  onChange={(e) => setBranch(e.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              {/* <div>Context Focus:</div>
-              <div>
-                <div>
-                  <label>Model:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusModel?.name}
-                    onChange={(e) => setFocusModel(e.target.value)}
-                  /> 
-                </div>
-                <div>
-                  <label>Modelview:</label> 
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusModelview?.name}
-                    onChange={(e) => setFocusModelview(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Object:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusObject?.name}
-                    onChange={(e) => setFocusObject(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Objectview:</label>
-                  <input className='rounded bg-white'
-                    type="text"
-                    value={focusObjectview?.name}
-                    onChange={(e) => setFocusObjectview(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Org:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusOrg?.name}
-                    onChange={(e) => setFocusOrg(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Project:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusProj?.name}
-                    onChange={(e) => setFocusProj(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Role:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusRole?.name}
-                    onChange={(e) => setFocusRole(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Task:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusTask?.name}
-                    onChange={(e) => setFocusTask(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Issue:</label>
-                  <input className='rounded bg-white px-1'
-                    type="text"
-                    value={focusIssue?.name}
-                    onChange={(e) => setFocusIssue(e.target.value)}
-                  />
-                </div>
-              </div> */}
-            </div>
+      <div className='d-flex justify-content-around '>
+        GitHub repository parameters necessary to access the repository and the project file.
+      </div>
+      <hr />
+      <form onSubmit={handleSubmit}>
+        <div className='d-flex flex-column justify-content-between border mx-2'>
+          {/* <div>GitHub Repository:</div> */}
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Project:</label>
+            <input className='rounded bg-white px-1 border-light w-50'
+              type="text"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setFile(e.target.value+'_PR.json'); }}
+            /> 
           </div>
-          <button type="submit">Save</button>
-        </form>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Organisation:</label>
+            <input className='rounded bg-white px-1 border-light w-50'
+              type="text"
+              value={org}
+              onChange={(e) => setOrg(e.target.value)}
+            /> 
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Repo:</label>
+            <input className='rounded bg-white px-1 border-light w-50'
+              type="text"
+              value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
+              onChange={(e) => setRepo(e.target.value)}
+            />
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Path:</label>
+            <input className='rounded bg-white px-1 border-light w-50'
+              type="text"
+              placeholder="models"
+              value={path}
+              onChange={(e) => setPath(e.target.value)}
+            />
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Branch:</label>
+            <input className='rounded bg-white border-light px-1 w-50'
+              type="text"
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+            />
+          </div>
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Filename:</label>
+            <input className='rounded bg-light border-light px-1 w-50'
+              type="text"
+              value={file}
+              // onChange={(e) => {setFile(e.target.value)}}
+            />
+          </div>
+          <hr />
+          <div className='d-flex justify-content-between mb-2'>
+            <label>Project Number (github):</label>
+            <input className='rounded bg-white px-1 border-light w-50'
+              type="text"
+              value={projectNumber}
+              onChange={(e) => setProjectNumber(e.target.value)}
+            /> 
+          </div>
+        </div>
+        <button className="button btn bg-success btn-sm  w-100 ms-auto mt-4" type="submit">Save</button>
+      </form>
     </>
   );
 }

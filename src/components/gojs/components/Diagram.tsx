@@ -38,7 +38,7 @@ const RegexParser = require("regex-parser");
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
-import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
+import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
@@ -255,7 +255,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
-    if (debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
+    if (debug) console.log('258 Diagram: props, value, isBlur: ', props, value, isBlur);
     const propname = props.id;
     const fieldType = props.type;
     const obj = props.obj;
@@ -265,49 +265,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
     let run = false;
-    this.setState(
+      this.setState(
       produce((draft: AppState) => {
         if (run === false) {
           run = true;
-          let data = draft.selectedData as any;  // only reached if selectedData isn't null
-          if (debug) console.log('248 data, value, this', data, value, this);
-          data[propname] = value;
-          if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur, data[propname], data);
-          const key = data.key;
-          if (debug) console.log('253 key', key);
-          if (obj.category === constants.gojs.C_OBJECT) {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
-          if (obj.category === constants.gojs.C_RELATIONSHIP) {
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
-          if (obj.category === constants.gojs.C_OBJECTTYPE) {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
-          if (obj.category === constants.gojs.C_RELSHIPTYPE) {
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
+          draft.selectedData[propname] = value;
+          if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur);
         }
       })
     );
-    if (debug) console.log('287 obj, context', obj, context);
-    if (debug) console.log('288 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
+  
+  if (debug) console.log('309 obj, context', obj, context);
+    if (debug) console.log('310 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -334,7 +303,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myMetis.deleteViewsOnly = false;
       myMetis.pasteViewsOnly = false;
     }
-    {
+    { // define myDiagram
       myDiagram =
         $(go.Diagram,
           { 
@@ -342,7 +311,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": function () {
               this.diagram.lastInput.shift = true;
-              // go.ContextMenuTool.prototype.standardMouseSelect.call(this);
+              go.ContextMenuTool.prototype.standardMouseSelect.call(this);
             },
             // layout: new go.TreeLayout({ isOngoing: false }),
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
@@ -350,7 +319,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // "initialAutoScale": go.Diagram.UniformToFill,
 
             // "undoManager.isEnabled": true,  // must be set to allow for model change listening
-            // "undoManager.maxHistoryLength": 100,  // uncomment disable undo/redo functionality
+            // "undoManager.maxHistoryLength": 1,  // uncomment disable undo/redo functionality
 
             // "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
             // "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
@@ -361,7 +330,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
-            // "draggingTool.dragsTree": true,
+            "draggingTool.dragsTree": false,
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -1128,7 +1097,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (debug) console.log('983 node, myMetis', node, myMetis);
-              uid.editTypeview(node, myMetis, myDiagram);
+              uid.editObjectTypeview(node, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;
@@ -1184,7 +1153,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const allowPorts = !noPorts;
               const n = obj.part.data;
               let objview = n.objectview;
-              objview = myMetis.findObjectView(objview.id);
+              objview = myMetis.findObjectView(objview?.id);
               objview.viewkind = 'Container';
               let template = n.template;
               switch (template) {
@@ -1310,22 +1279,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let node = obj.part.data;
               const goModel = myMetis.gojsModel;
               const objview = node?.objectview;
-              if (!objview.isGroup) {
-                const noLevels = 9;
-                let reltypes = 'has';
-                reltypes = prompt('Enter relationship type to follow', reltypes);
-                const objectviews = [];
-                uid.selectConnectedObjects1(myModelview, objview, goModel, myMetis, noLevels, reltypes, 'out', objectviews);
-                uid.addToSelection(obj, myDiagram);
-                const mySelection = myDiagram.selection;
-                const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
-              } else {
-                  if (objview.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram);
+              if (objview) {
+                if (!objview.isGroup) {
+                  const mySelection = myDiagram.selection;
+                  const lay = uid.doTreeLayout(mySelection, myDiagram, true); 
+                  myDiagram.selection.each(function (sel) {
+                    const link = sel.data;
+                    if (link.category === constants.gojs.C_RELATIONSHIP) {
+                      const fromLink = link.from;
+                      const toLink = link.to;
+                      let relview: akm.cxRelationshipView = link.relshipview;
+                      relview = myModelview.findRelationshipView(relview?.id);
+                      if (relview) {
+                        const fromObjview = relview.fromObjview;
+                        const toObjview = relview.toObjview;
+                        link.points = [];
+                        link.from = fromLink;
+                        link.to = toLink;
+                        myDiagram.model.setDataProperty(link, "points", link.points);
+                        relview.points = [];
+                        relview.fromObjview = fromObjview;
+                        relview.toObjview = toObjview;
+                        // const jsnRelView = new jsn.jsnRelshipView(relview);
+                        // modifiedRelshipViews.push(jsnRelView);
+                      }
+                    }
+                  })                     
+                } else {
+                    if (objview.groupLayout)
+                      uid.doGroupLayout(objview, myDiagram);
+                }
               }
+              myDiagram.requestUpdate();
             },
-            function (o: any) {
-              return true;
+            function (obj: any) {
+              let node = obj.part.data;
+              const objview = node?.objectview;
+              if (!objview?.isGroup)
+                return true;
+              else
+                return false;
             }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
@@ -1442,11 +1435,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Select Connected Objects",
             function (e: any, obj: any) {
-              const node = obj.part.data;
+              let node = obj.part.data;
+              if (debug) console.log('1453 obj.part: ', obj.part.toString());
               uid.selectConnectedObjects(node, myMetis, myDiagram);
-              const gjsNode = myDiagram.findNodeForKey(node?.key)
-              gjsNode.isSelected = true;
-              uid.addToSelection(gjsNode, myDiagram);
           },
             function (o: any) {
               const node = o.part.data;
@@ -1686,6 +1677,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
+          makeButton("Add to Selection",
+            function (e: any, obj: any) {
+              const link = obj.part.data ? obj.part.data : obj.part;
+              link.isSelected = true;
+              const relship = link.relship;
+              const relshipview = link.relshipview;
+            },
+            function (o: any) {
+                return false;
+            }),
           makeButton("----------"),
           makeButton("TEST",
             function (e: any, obj: any) {
@@ -1822,10 +1823,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
               for (let i=0; i<rtypes.length; i++) {
                 const rtype = rtypes[i];
-                if (rtype.name === 'generic') {
+                if (rtype.name === constants.types.AKM_GENERIC_REL) {
                     reltypes.push(rtype);
                 }
-                if (rtype.name === 'refersTo') {
+                if (rtype.name === constants.types.AKM_REFERS_TO) {
                     reltypes.push(rtype);
                 }
               }
@@ -2138,18 +2139,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const fromLink = link.from;
                   const toLink = link.to;
                   let relview: akm.cxRelationshipView = link.relshipview;
-                  relview = myModelview.findRelationshipView(relview.id);
-                  const fromObjview = relview.fromObjview;
-                  const toObjview = relview.toObjview;
-                  link.points = [];
-                  link.from = fromLink;
-                  link.to = toLink;
-                  myDiagram.model.setDataProperty(link, "points", []);
-                  relview.points = [];
-                  relview.fromObjview = fromObjview;
-                  relview.toObjview = toObjview;
-                  const jsnRelView = new jsn.jsnRelshipView(relview);
-                  modifiedRelshipViews.push(jsnRelView);
+                  relview = myModelview.findRelationshipView(relview?.id);
+                  if (relview) {
+                    const fromObjview = relview.fromObjview;
+                    const toObjview = relview.toObjview;
+                    link.points = [];
+                    link.from = fromLink;
+                    link.to = toLink;
+                    myDiagram.model.setDataProperty(link, "points", []);
+                    relview.points = [];
+                    relview.fromObjview = fromObjview;
+                    relview.toObjview = toObjview;
+                    const jsnRelView = new jsn.jsnRelshipView(relview);
+                    modifiedRelshipViews.push(jsnRelView);
+                  }
                 }
               }),
                 modifiedRelshipViews.map(mn => {
@@ -2476,17 +2479,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("Edit Project",
+          makeButton("Edit Model Suite",
             function (e: any, obj: any) {
               const currentName = myMetis.name;
-              const projectName = prompt("Enter Project name:", currentName);
-              if (projectName?.length > 0) {
-                myMetis.name = projectName;
+              const modelSuiteName = prompt("Enter the name of the Model Suite:", currentName);
+              if (modelSuiteName?.length > 0) {
+                myMetis.name = modelSuiteName;
               }
               const currentDescr = myMetis.description;
-              const projectDescr = prompt("Enter Project description:", currentDescr);
-              if (projectDescr?.length > 0) {
-                myMetis.description = projectDescr;
+              const modelSuiteDescr = prompt("Enter Model Suite description:", currentDescr);
+              if (modelSuiteDescr?.length > 0) {
+                myMetis.description = modelSuiteDescr;
               }
 
               const myMetamodel = myMetis.currentMetamodel;
@@ -2854,7 +2857,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uic.clearRelationshipPoints(modelview, myMetis);
             },
             function (o: any) {
-              // return false; 
+              return false; 
               if (myMetis.modelType === 'Modelling')
                 return true;
               return false;
@@ -3104,7 +3107,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const node = it.value;
                   const data = node.data;
                   let objview = data.objectview;
-                  objview = myModelview.findObjectView(objview.id);
+                  objview = myModelview.findObjectView(objview?.id);
                   if (objview) {
                     objview.loc = data.loc;
                   }
@@ -3673,47 +3676,77 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const modalContext = this.state.modalContext;
     let selpropgroup = [{ tabName: 'Default' }];
     if (modalContext?.what === 'editObject') {
-      let includeInherited = false;
-      let includeConnected = false;
-      let obj = this.state.selectedData?.object;
-      let obj1 = this.myMetis.findObject(obj?.id);
-      if (!obj1) obj1 = obj;
-      if (obj1?.type?.name === 'Method')
-        useTabs = false;
-      if (obj1?.hasInheritedProperties(myModel)) {
-        includeInherited = true;
-        useTabs = true;
-      }
-      const connectedObjects = obj1?.getConnectedObjects2(myMetis);
-      if (connectedObjects?.length > 0) {
-        includeConnected = true;
-        useTabs = true;
-      }
-      const context = {
-        myMetis: myMetis,
-        myModel: myModel,
-        myMetamodel: myMetamodel,
-        includeConnected: includeConnected,
-        includeInherited: includeInherited,
-      }
-      let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
-      const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
-      // Define the tabs
-      selpropgroup = [];
-      for (let i = 0; i < namelist.length; i++) {
-        let name = namelist[i];
-        if (name === constants.types.AKM_ELEMENT)
-          continue; // name = 'Default';
-        if (connectedRoles && connectedRoles.length > 0) {
-          if (i > 0) {
-            let role = connectedRoles[i - 1];
-            if (role) name = role;
-          }
+
+        let includeInherited = false;
+        let includeConnected = false;
+        let obj = this.state.selectedData?.object;
+        let obj1 = this.myMetis.findObject(obj?.id);
+        if (!obj1) obj1 = obj;
+        if (obj1?.type?.name === 'Method')
+          useTabs = true;
+        if (obj1?.hasInheritedProperties(myModel)) {
+          includeInherited = true;
+          useTabs = true;
         }
-        const proptab = { tabName: name };
-        selpropgroup.push(proptab);
-      }
+        const connectedObjects = obj1?.getConnectedObjects2(myMetis);
+        if (connectedObjects?.length > 0) {
+          includeConnected = true;
+          useTabs = true;
+        }
+        const context = {
+          myMetis: myMetis,
+          myModel: myModel,
+          myMetamodel: myMetamodel,
+          includeConnected: includeConnected,
+          includeInherited: includeInherited,
+        }
+        let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
+        const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
+        // Define the tabs
+        selpropgroup = [];
+        for (let i = 0; i < namelist.length; i++) {
+          let name = namelist[i];
+          if (name === constants.types.AKM_ELEMENT)
+            continue; // name = 'Default';
+          if (connectedRoles && connectedRoles.length > 0) {
+            if (i > 0) {
+              let role = connectedRoles[i - 1];
+              if (role) name = role;
+            }
+          }
+          const proptab = { tabName: name };
+          selpropgroup.push(proptab);
+        }
     }
+    if (modalContext?.what === 'editRelationship') {
+        let includeInherited = false;
+        let includeConnected = false;
+        let rel = this.state.selectedData?.relship;
+        let rel1 = this.myMetis.findRelationship(rel?.id);
+        if (!rel1) rel1 = rel;
+        if (rel1?.hasInheritedProperties(myModel)) {
+          includeInherited = true;
+          useTabs = true;
+        }
+        const context = {
+          myMetis: myMetis,
+          myModel: myModel,
+          myMetamodel: myMetamodel,
+          includeConnected: includeConnected,
+          includeInherited: includeInherited,
+        }
+        let namelist = useTabs ? uic.getNameList(rel1, context, true) : [];
+        // Define the tabs
+        selpropgroup = [];
+        for (let i = 0; i < namelist.length; i++) {
+          let name = namelist[i];
+
+          const proptab = { tabName: name };
+          selpropgroup.push(proptab);
+        }
+      }
+
+    if (debug) console.log('3720 myNewMetis',  myMetis);
     switch (modalContext?.what) {
       case 'selectDropdown':
         let options = '';
@@ -3819,7 +3852,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modalContent =
             <div className="modal-prop">
               <SelectionInspector
-                myMetis={this.myMetis}
+                myMetis={myMetis}
                 selectedData={this.state.selectedData}
                 context={this.state.modalContext}
                 onInputChange={this.handleInputChange}
@@ -3841,7 +3874,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modalContent =
             <div className="modal-prop" >
               <SelectionInspector
-                myMetis={this.myMetis}
+                myMetis={myMetis}
                 selectedData={this.state.selectedData}
                 context={this.state.modalContext}
                 onInputChange={this.handleInputChange}
@@ -3864,7 +3897,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     const navitemDiv = (!selpropgroup) ? <></> : selpropgroup.map((pg, index) => {
-      const tabName = pg?.tabName || 'All';
+      const tabName = pg?.tabName;
       if (debug) console.log('2646', index, tabName, pg)
       if (pg) {
         const strindex = index.toString()
@@ -3890,7 +3923,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       <>
         <Nav tabs >
           {navitemDiv}
-          <NavItem > {toolTip} </NavItem>
+          {/* <NavItem > {toolTip} </NavItem> */}
         </Nav>
         <TabContent activeTab={this.state.currentActiveTab} >
           <TabPane tabId={this.state.currentActiveTab} >
@@ -3900,6 +3933,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </TabPane>
         </TabContent>
       </>
+
     return (
       <div>
         <ReactDiagram

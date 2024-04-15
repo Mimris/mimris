@@ -43,7 +43,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
   return (formValues) && (
     <form onSubmit={handleSubmit}>
       <div className="form-group py-2 border border-rounded">
-      <div className='' style={{ overflowY: 'auto', overflowX: 'hidden', maxHeight: '66vh' }}>
+      <div className='pe-4' style={{ overflowY: 'auto', overflowX: 'hidden', height: "100%", maxHeight: 'vh' }}>
         {objectPropertiesMain?.map((key) => {
           let inputElement;
           switch (true) {
@@ -160,7 +160,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                 rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
                 );
-                if (!debug) console.log('162 ObjectForm', inputElement, key, formValues[key], curobject[key]);
+                if ((debug)) console.log('162 ObjectForm', inputElement, key, formValues[key], curobject[key]);
           }
           return (
             <div className="row" key={key}>
@@ -240,7 +240,7 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
 const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject, edit}) => {
   if (debug) console.log('237 ObjectDetails ', curobject, formValues, edit, objectPropertiesMain);
   return (
-    <div className='object-details' style={{ overflow: 'auto' }}>
+    <div className='object-details me-3' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />
       <div className="object-details--content " >
       {/* <div className="object-details--content " style={{ overflow: 'auto', maxHeight: '700px' }}> */}

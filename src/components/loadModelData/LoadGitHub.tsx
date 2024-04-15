@@ -17,17 +17,14 @@ const debug = false
 const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
-
   const modalRef = useRef(null);
-  const backdropRef = useRef(null);
-  // console.log('11', props)
+  const backdropref = useRef(null);
+  if(debug) console.log('11 LoadGithub', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
   // const repository = 'akm-models'
   // const path = 'models'
-
-
   // const username = 'josmiseth'
   // const url = `https://api.github.com/users/${username}/repos/`
   // const repository = 'cumulus-akm-pocc'
@@ -46,15 +43,6 @@ const LoadGitHub = (props: any) => {
   const [repoText, setRepoText] = useState(props.ph.phFocus?.focusProj?.repo);
   const [pathText, setPathText] = useState(props.ph.phFocus?.focusProj?.path);
   const [branchText, setBranchText] = useState(props.ph.phFocus?.focusProj?.branch);
-      // setOrgText(props.ph.phFocus?.focusProj?.org)
-    // setRepoText(props.ph.phFocus?.focusProj?.repo)
-    // setPathText(props.ph.phFocus?.focusProj?.path)
-    // setBranchText(props.ph.phFocus?.focusProj?.branch)
-    // setUsernameText(props.ph.phFocus?.focusProj?.username)
-  // const [orgText, setOrgText] = useState('Kavca');
-  // const [repoText, setRepoText] = useState('kavca-akm-models');
-  // const [pathText, setPathText] = useState('models');
-  // const [branchText, setBranchText] = useState('main');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
   const [models, setModels] = useState([]);
@@ -66,6 +54,8 @@ const LoadGitHub = (props: any) => {
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
   function toggleRefresh() { setRefresh(!refresh); }
+
+  // if (props.path !== '') setPathText(props.path);
 
   const data = {
     phData:   props.ph.phData,
@@ -90,7 +80,7 @@ const LoadGitHub = (props: any) => {
   };
   
   const onPathChange = (text) => {
-    (text) ? setPathText(text) : setPathText('');  
+    (text) ? setPathText(text) : setPathText('models');  
   };
 
   const onBranchChange = (text) => {
@@ -100,11 +90,8 @@ const LoadGitHub = (props: any) => {
   const onModelChange = (text) => {
     if (debug) console.log('71 onModelChange', text)
     const rep = `${orgText}/${repoText}`;
-    // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     const filename = `${text}`; // add slash
-
     loadModel(rep, filename);
-
     if (debug) console.log('52', rep, filename, )
     const  refres = () => {
       setRefresh(!refresh)
@@ -112,21 +99,21 @@ const LoadGitHub = (props: any) => {
     setTimeout(refres, 3000);
   }
 
-  const loadRepos = async (repoText, pathText) => {
-    if (orgText?.length > 0)  { 
-      setLoading(true);
-      if (debug) console.log('76 loadRepos', repoText, pathText, model)
-      if (repoText.includes('undefined')) return null;
-      const res = await searchRepos(repoText, pathText);
-      const repolist = await res.data.items?.filter(repo => repo.name === repoText);
-      setLoading(false);
-      if (debug) console.log('123 res.data.items: ', await res.data.items, repos)
-      setRepos(await repolist);
-      // setModels(await res.data.items?.filter(repo => repo.name === repoText));
-      if (debug) console.log('126', orgText, pathText, repoText, res.data.items, repos)
-      // loadModels(repoText, pathText);
-    }
-  };
+  // const loadRepos = async (repoText, pathText) => {
+  //   if (orgText?.length > 0)  { 
+  //     setLoading(true);
+  //     if (debug) console.log('76 loadRepos', repoText, pathText, model)
+  //     if ((!repoText) || repoText.includes('undefined')) return null;
+  //     const res = await searchRepos(repoText, pathText);
+  //     const repolist = await res.data.items?.filter(repo => repo.name === repoText);
+  //     setLoading(false);
+  //     if (debug) console.log('123 res.data.items: ', await res.data.items, repos)
+  //     setRepos(await repolist);
+  //     // setModels(await res.data.items?.filter(repo => repo.name === repoText));
+  //     if (debug) console.log('126', orgText, pathText, repoText, res.data.items, repos)
+  //     // loadModels(repoText, pathText);
+  //   }
+  // };
 
   // todo: loadModel should be loadProject or loadModelProject
   const loadModel = async (rep, filename) => {
@@ -215,7 +202,7 @@ const LoadGitHub = (props: any) => {
         };
         if (debug) console.log('166 ', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      } else {// it is a Model and will be loaded into current project
+      } else {// it is a Project file
         const data = {
           phData: {
               ...model.phData,
@@ -283,10 +270,10 @@ const LoadGitHub = (props: any) => {
 
   // useEffect(() => {
   //   function handleClickOutside(event: any) {
-  //     if (modalRef.current && !modalRef.current.contains(event.target) && backdropRef) {
+  //     if (modalRef.current && !modalRef.current.contains(event.target) && backdropref) {
   //       toggle();
   //     } 
-  //     if (backdropRef || !modalRef) {
+  //     if (backdropref || !modalRef) {
   //       toggle();
   //     }
   //   }
@@ -306,7 +293,11 @@ const LoadGitHub = (props: any) => {
   useEffect(() => {
     setOrgText(props.ph.phFocus?.focusProj?.org)
     setRepoText(props.ph.phFocus?.focusProj?.repo)
-    setPathText(props.ph.phFocus?.focusProj?.path)
+    if (pathText === undefined || pathText === '') {
+      setPathText('/')
+    } else {
+      setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
+    } 
     setBranchText(props.ph.phFocus?.focusProj?.branch)
     // setUsernameText(props.ph.phFocus?.focusProj?.username)
     // const orgText = props.ph.phFocus?.focusProj?.org
@@ -315,17 +306,19 @@ const LoadGitHub = (props: any) => {
     // const branchText = props.ph.phFocus?.focusProj?.branch
     // const refres = () => {
       if (debug) console.log('314 LoadGitHub ', orgText, repoText, branchText, pathText)
-      loadRepos(repoText, pathText);
-      loadModels(orgText, pathText)
-      
-    if (pathText === undefined || pathText === '') {
-      setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
-    } else {
-      setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
-    }
-      // }
-      // setTimeout(refres, 2000);
-      // setRefresh(!refresh)
+    // if (false)
+
+    // if (pathText === undefined || pathText === '') {
+    //   setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
+    // } else {
+    //   setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
+    // }
+    // const timer = setTimeout(() => {
+      // this is loading to often when testing and we run out of requests available on github
+      // loadRepos(repoText, pathText);
+      // loadModels(orgText, pathText)
+    // }, 60000);
+    // return () => clearTimeout(timer);
   }, []);
 
 
@@ -350,8 +343,8 @@ const LoadGitHub = (props: any) => {
 
   return  (
     <>
-      <button className="btn bg-secondary py-1 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg me-2 ms-0 "></i>{buttonLabel}</button>
-      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropRef={backdropRef}>
+      <button className="btn bg-transparent py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
+      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  backdropref={backdropref} style={{zIndex: "9999"}}>
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="p-1">
           <div className="bg-light" > 
@@ -366,23 +359,32 @@ const LoadGitHub = (props: any) => {
                 {/* <div className="w-100 mt-1 text-secondary"> {githubLink} </div> */}
                 {/* <hr className="bg-primary my-1 mx-4" /> */}
                 {/* ----- Repository name input ------------------------------ */}
-                <span ><TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> </span>
+                <span >
+                  {(props.path !== '')
+                    ? <TextInput  label="Repository :" value={'kavca-akm-models'} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> 
+                    : <TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> 
+                  }
+                </span>
                 <hr className="bg-primary my-2 mx-4" />
-
                 {/* ----- Model Path input ---------------------------------- */}
-     
                 {/* <hr className="bg-secondary my-1 mx-4" /> */}
                 <span style={{maxWidth: "180px"}}>
-                  <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
+                  {(props.path !== '') ?  
+                    <TextInput label="Path :" value={props.path} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
+                    : <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
+                  }
                 </span>
-                           {(dirs?.length !== 0) 
+                {(dirs?.length !== 0) 
                   ? <div>Model paths (folders) found:<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
                   : (!pathText) && <div className='text-warning min-vh-500'> 'No model paths (folders) found!'</div>
                 } 
               </div>
                 {/* {loading ? 'Loading...' :  <div className="text-success my-2 " > {repos.map((repo) => ( <span className="text-nowrap" key={repo.id} > {repo.full_name}/{pathText} </span> ))}  </div>  } */}
               {/* -------- Select model ----------------------------------- */}
-              <Button className="btn-secondary bg-secondary text-white border-dark mt-2 mb-2 pb- w-100" onClick = {() => loadModels(orgText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List Models</Button>
+              <Button className="btn-secondary bg-secondary text-white border-dark mt-2 mb-2 pb- w-100" 
+                onClick = {() => loadModels(orgText, pathText)}
+              ><i className="fab fa-github fa-lg me-2"></i>List Models
+              </Button>
               {(models?.length > 0) 
                 ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
                 : <div className='text-warning'> 'No models found!'</div>

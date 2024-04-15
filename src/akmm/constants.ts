@@ -6,6 +6,12 @@
 
 export let core = {
      AKM_CORE_MM:   "AKM-Core_MM",
+     AKM_MODELVIEWS: ['01-Property', 
+                      '02-EntityType', 
+                      '03-MethodTypes', 
+                      '1-AKM Core', 
+                      '2-IRTV', 
+                      '1-AKM Core'], 
 }
   
 export let params = {
@@ -60,6 +66,7 @@ export let gojs = {
           C_PALETTEGROUP_OBJ    : "typeitem",
           C_PORT                : "Port",
           C_PROPERTY            : "Property",
+          C_PROPERTYGROUP       : "Property group",
           C_PROPVALUE           : "Property value",
           C_RELATIONSHIP        : "Relationship",
           C_RELSHIPTYPE         : "Relationship type",
@@ -145,6 +152,7 @@ export let types = {
           AKM_PROCESS           : "Process",
           AKM_SYSTEM            : "System",
           AKM_PROPERTY          : "Property",
+          AKM_PROPERTYGROUP     : "PropertyGroup",
           AKM_METHOD            : "Method",
           AKM_METHODTYPE        : "MethodType",
           AKM_DATATYPE          : "Datatype",
@@ -164,6 +172,7 @@ export let types = {
           AKM_HAS_PORT          : "hasPort",
           AKM_HAS_PROPERTY      : "has",
           AKM_HAS_PROPERTIES    : "hasContent",
+          AKM_HAS_PROPERTYGROUP : "has",
           AKM_HAS_SUBMODEL      : "hasSub", // "hasSubModel",
           AKM_HAS_SUBMETAMODEL  : "hasSub", // "hasSubMetamodel",
           AKM_HAS_VIEWSTYLE     : "has",
@@ -255,6 +264,7 @@ export let admin = {
      AKM_ADMIN_MODELVIEW:     "_ADMIN",
      AKM_ADMIN_GOMODEL:       "_ADMIN_GOMODEL",
      AKM_PROJECT:             "Project",
+     AKM_MODELSUITE:          "ModelSuite",
      AKM_METAMODEL:           "Metamodel",
      AKM_MODEL:               "Model",
      AKM_MODELVIEW:           "Modelview",

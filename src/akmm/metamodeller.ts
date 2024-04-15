@@ -23,7 +23,7 @@ export class cxMetis {
     name: string;
     description: string;
     category: string;
-    projects: cxProject[] | null;
+    projects: cxModelSuite[] | null;
     metamodels: cxMetaModel[] | null = null;
     coreMetamodel: cxMetaModel | null = null;
     viewstyles: cxViewStyle[] | null;
@@ -100,7 +100,7 @@ export class cxMetis {
         this.name = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
-        // Handle projects
+        // Handle projects aka modelSuites
         const projects = (importedData) && importedData.projects;
         if (projects && projects.length) {
             for (let i = 0; i < projects.length; i++) {
@@ -194,22 +194,22 @@ export class cxMetis {
             })
         }
         if (false) { // Handle objects 
-        const objects: any[] = (importedData) && importedData.objects;
-        if (objects && objects.length) {
-            objects.forEach(obj => {
-                if (obj && !obj.markedAsDeleted)
-                    this.importObject(obj, null);
-            })
-        }
+            const objects: any[] = (importedData) && importedData.objects;
+            if (objects && objects.length) {
+                objects.forEach(obj => {
+                    if (obj && !obj.markedAsDeleted)
+                        this.importObject(obj, null);
+                })
+            }
 
-        // Handle relships 
-        const relships: any[] = (importedData) && importedData.relships;
-        if (relships && relships.length) {
-            relships.forEach(rel => {
-                if (rel && !rel.markedAsDeleted)
-                    this.importRelship(rel, null);
-            })
-        }
+            // Handle relships 
+            const relships: any[] = (importedData) && importedData.relships;
+            if (relships && relships.length) {
+                relships.forEach(rel => {
+                    if (rel && !rel.markedAsDeleted)
+                        this.importRelship(rel, null);
+                })
+            }
         }
         // Handle current variables
         if (importedData.currentProjectRef) {
@@ -366,6 +366,7 @@ export class cxMetis {
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item = items[i];
+                            if (item.name === 'today') continue
                             if (includeDeleted || !item.markedAsDeleted) {
                                 const dtype = new cxDatatype(item.id, item.name, item.description);
                                 if (dtype.name === 'time') dtype.fieldType = 'time';
@@ -847,10 +848,7 @@ export class cxMetis {
         if (subMetamodelRefs && subMetamodelRefs.length) {
             subMetamodelRefs.forEach(subMetamodelRef => {
                 if (subMetamodelRef) {
-                    const subMetamodel = this.findMetamodel(subMetamodelRef);
-                    if (subMetamodel) {
-                        metamodel.addSubMetamodel(subMetamodel);
-                    }
+                    metamodel.addSubMetamodelRef(subMetamodelRef);
                 }
             });
         }
@@ -1211,21 +1209,19 @@ export class cxMetis {
                 modelview.includeInheritedReltypes = item.includeInheritedReltypes;
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
                 model.addModelView(modelview);
-                const objectviews: any[] = (item) && item.objectviews;
+                const objectviews: cxObjectView[] = (item) && item.objectviews;
                 objectviews?.forEach(objview => {
                     if (objview && objview.id) {
                         this.importObjectView(objview, modelview);
                         if (debug) console.log('630 model', model);
                     }
                 });
-                const relshipviews: any[] = item.relshipviews;
-                if (debug) console.log('978 relshipviews', relshipviews);
+                const relshipviews: cxRelationshipView[] = item.relshipviews;
                 relshipviews?.forEach(relview => { // sf added ? 2021-05-09
                     if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });
             }
-            if (debug) console.log('641 model', model);
         }
     }
     importObjectView(item: any, modelview: cxModelView) {
@@ -1293,7 +1289,7 @@ export class cxMetis {
     importRelshipView(item: any, modelview: cxModelView) {
         if (modelview) {
             if (debug) console.log('1034 item (relshipview): ', item);
-            if (item.markedAsDeleted === "") 
+            if (item.markedAsDeleted === "")
                 item.markedAsDeleted = false;
             const relview = this.findRelationshipView(item.id);
             if (relview) {
@@ -2347,7 +2343,7 @@ export class cxMetis {
                 if (objecttypeview?.id === id) {
                     if (!objecttypeview.markedAsDeleted)
                         return objecttypeview;
-                }                
+                }
                 i++;
             }
         }
@@ -2365,8 +2361,8 @@ export class cxMetis {
                 objecttypeview = typeviews[i];
                 if (!objecttypeview?.markedAsDeleted) {
                     if (objecttypeview.typeRef === objtype.id)
-                            views.push(objecttypeview);
-                }               
+                        views.push(objecttypeview);
+                }
                 i++;
             }
             return views;
@@ -2765,8 +2761,7 @@ export class cxMetis {
                     }
                     if (fromType.inherits(fromObjType) && toType.inherits(toObjType)) {
                         // if (fromObjType.id === toObjType.id) {
-                        if (fromObjType.name === constants.types.AKM_ENTITY_TYPE ||
-                            fromObjType.name === constants.types.AKM_GENERIC) {
+                        if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
                             if (includeGen)
                                 reltypes.push(reltype);
                         } else
@@ -3064,14 +3059,14 @@ export class cxMetis {
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
 
 export class cxMetaObject {
-    id:                 string;
-    name:               string;
-    nameId:             string;
-    category:           string;
-    description:        string;
-    sourceUri:          string;
-    markedAsDeleted:    boolean;
-    modified:           boolean;
+    id: string;
+    name: string;
+    nameId: string;
+    category: string;
+    description: string;
+    sourceUri: string;
+    markedAsDeleted: boolean;
+    modified: boolean;
     // Constructor
     constructor(id: string, name: string, description: string) {
         this.id = id;
@@ -3236,12 +3231,12 @@ export class cxDatatype extends cxMetaObject {
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_DATATYPES;  // Firestore collection
-        this.category      = constants.gojs.C_DATATYPE;
-        this.isOfDatatype  = null;
-        this.inputPattern  = "";
-        this.viewFormat    = "";
-        this.fieldType     = "text";
-        this.readOnly      = false;
+        this.category = constants.gojs.C_DATATYPE;
+        this.isOfDatatype = null;
+        this.inputPattern = "";
+        this.viewFormat = "";
+        this.fieldType = "text";
+        this.readOnly = false;
         this.allowedValues = null;
         this.defaultValue = "";
         this.value = "";
@@ -3509,12 +3504,10 @@ export class cxMethodType extends cxMetaObject {
     }
 }
 
-// -------------------------------------------------------------
-
 export class cxMetaModel extends cxMetaObject {
     metamodels: cxMetaModel[] | null;
-    submetamodels: cxMetaModel[] | null;
     submodels: cxModel[] | null;
+    submetamodelRefs: string[] | null;
     submodelRefs: string[] | null;
     viewstyle: cxViewStyle | null;
     viewstyles: cxViewStyle[] | null;
@@ -3551,8 +3544,9 @@ export class cxMetaModel extends cxMetaObject {
     // Methods
     clearContent() {
         this.metamodels = [];
-        this.submetamodels = [];
         this.submodels = [];
+        this.submetamodelRefs = [];
+        this.submodelRefs = [];
         this.viewstyle = null; // Current viewstyle
         this.viewstyles = [];
         this.geometries = [];
@@ -3721,11 +3715,14 @@ export class cxMetaModel extends cxMetaObject {
     getContainedMetamodels(): cxMetaModel[] | null {
         return this.metamodels;
     }
-    getSubMetamodels(): cxMetaModel[] | null {
-        return this.submetamodels;
+    getSubMetamodelRefs(): string[] | null {
+        return this.submetamodelRefs;
     }
     getSubModels(): cxModel[] | null {
         return this.submodels;
+    }
+    getSubModelRefs(): string[] | null {
+        return this.submodelRefs;
     }
     getCategories(): cxUnitCategory[] | null {
         return this.categories;
@@ -3938,14 +3935,11 @@ export class cxMetaModel extends cxMetaObject {
                 this.metamodels.push(metamodel);
         }
     }
-    addSubMetamodel(metamodel: cxMetaModel) {
-        // Check if input is of correct category and not already in list (TBD)
-        if (metamodel?.category === constants.gojs.C_METAMODEL) {
-            if (this.submetamodels == null)
-                this.submetamodels = new Array();
-            if (!this.findSubMetamodel(metamodel.id))
-                this.submetamodels.push(metamodel);
-        }
+    addSubMetamodelRef(metamodelRef: string) {
+        if (this.submetamodelRefs == null)
+            this.submetamodelRefs = new Array();
+        if (!this.findSubMetamodelRef(metamodelRef))
+            this.submetamodelRefs.push(metamodelRef);
     }
     addMetamodelContent(metamodel: cxMetaModel) {
         // 
@@ -4302,10 +4296,10 @@ export class cxMetaModel extends cxMetaObject {
     addSubMetamodel(metamodel: cxMetaModel) {
         // Check if input is of correct category and not already in list (TBD)
         if (metamodel.category === constants.gojs.C_METAMODEL) {
-            if (this.submetamodels == null)
-                this.submetamodels = new Array();
-            if (!this.findSubMetamodel(metamodel.id))
-                this.submetamodels.push(metamodel);
+            if (this.submetamodelRefs == null)
+                this.submetamodelRefs = new Array();
+            if (!this.findSubMetamodelRef(metamodel.id))
+                this.submetamodelRefs.push(metamodel.id);
         }
     }
     addMetaContainer(container: cxMetaContainer) {
@@ -4748,10 +4742,14 @@ export class cxMetaModel extends cxMetaObject {
         let reltype = null;
         for (i = 0; i < rtypes.length; i++) {
             reltype = rtypes[i];
-            if (reltype.isDeleted()) 
+            if (reltype.isDeleted())
                 continue;
-            if (reltype.name === constants.types.AKM_IS) 
+            if (reltype.name === constants.types.AKM_IS)
                 continue;
+            if (reltype.name === constants.types.AKM_REFERS_TO) {
+                reltypes.push(reltype);
+                continue;
+            }
             const fromObjType = reltype.getFromObjType();
             const toObjType = reltype.getToObjType();
             if (fromObjType && toObjType) {
@@ -4759,27 +4757,25 @@ export class cxMetaModel extends cxMetaObject {
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE &&
                         toType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
-                        continue;
                     } else
                         continue;
                 }
                 if (fromType.inherits(fromObjType) && toType.inherits(toObjType)) {
-                    // if (fromObjType.id === toObjType.id) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE ||
                         fromObjType.name === constants.types.AKM_GENERIC) {
-                            if (includeGen)
-                                reltypes.push(reltype);
-                        } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                        if (includeGen)
                             reltypes.push(reltype);
-                        }
-                } else {
+                    } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                        reltypes.push(reltype);
+                    }
+                } else if (includeGen) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
                         toObjType.name === constants.types.AKM_ENTITY_TYPE) {
-                        reltypes.push(reltype);                    
+                        reltypes.push(reltype);
                     }
                 }
             }
-            if (reltype.relshipkind === constants.relkinds.GEN) 
+            if (reltype.relshipkind === constants.relkinds.GEN)
                 continue;
             if (reltype.isAllowedFromType(fromType, includeGen)) {
                 if (reltype.isAllowedToType(toType, includeGen)) {
@@ -4829,16 +4825,15 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
-    findSubMetamodel(id: string): cxMetaModel | null {
-        let submetamodels = this.submetamodels;
-        if (!submetamodels) return null;
+    findSubMetamodelRef(id: string): cxMetaModel | null {
+        let submetamodelRefs = this.submetamodelRefs;
+        if (!submetamodelRefs) return null;
         let i = 0;
-        let submeta = null;
-        for (i = 0; i < submetamodels.length; i++) {
-            submeta = submetamodels[i];
-            if (submeta.isDeleted()) continue;
-            if (submeta.id === id)
-                return submeta;
+        let submetaRef = null;
+        for (i = 0; i < submetamodelRefs.length; i++) {
+            submetaRef = submetamodelRefs[i];
+            if (submetaRef === id)
+                return submetaRef;
         }
         return null;
     }
@@ -5768,7 +5763,6 @@ export class cxObjectType extends cxType {
         try {
             if (!level) level = 0;
             const rtypes = this.outputreltypes;
-            if (debug) console.log('5005 this, rtypes', this, rtypes);
             if (rtypes) {
                 for (let i = 0; i < rtypes?.length; i++) {
                     const rtype = rtypes[i];
@@ -5779,7 +5773,6 @@ export class cxObjectType extends cxType {
                             supertypes = [...new Set(supertypes)];
                             if (level > 5)
                                 return supertypes;
-                            if (debug) console.log('5015 this, supertypes', this, supertypes);
                             const stypes = stype.findSupertypes(++level);
                             if (stypes) {
                                 for (let j = 0; j < stypes.length; j++) {
@@ -5787,7 +5780,6 @@ export class cxObjectType extends cxType {
                                     supertypes.push(stype);
                                     supertypes = [...new Set(supertypes)];
                                 }
-                                if (debug) console.log('5022 this, supertype', this, supertypes);
                             }
                         }
                     }
@@ -6136,6 +6128,7 @@ export class cxProperty extends cxMetaObject {
     methodRef: string;
     unitCategory: cxUnitCategory | null;
     unitCategoryRef: string;
+    subProperties: cxProperty[] | null;
     defaultValue: string;
     readOnly: boolean;
     inputPattern: string;
@@ -6143,19 +6136,20 @@ export class cxProperty extends cxMetaObject {
     example: string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
-        this.fs_collection      = constants.fs.FS_C_PROPERTIES;  // Firestore collection
-        this.category           = constants.gojs.C_PROPERTY;
-        this.datatype           = null;
-        this.datatypeRef        = "";            // Neccessary ???
-        this.method             = null;
-        this.methodRef          = "";
-        this.unitCategory       = null;
-        this.unitCategoryRef    = "";
-        this.defaultValue       = " ";
-        this.readOnly           = false;
-        this.inputPattern       = "";
-        this.viewFormat         = "";
-        this.example            = "";
+        this.fs_collection = constants.fs.FS_C_PROPERTIES;  // Firestore collection
+        this.category = constants.gojs.C_PROPERTY;
+        this.datatype = null;
+        this.datatypeRef = "";            // Neccessary ???
+        this.method = null;
+        this.methodRef = "";
+        this.unitCategory = null;
+        this.unitCategoryRef = "";
+        this.subProperties = null;
+        this.defaultValue = " ";
+        this.readOnly = false;
+        this.inputPattern = "";
+        this.viewFormat = "";
+        this.example = "";
     }
     // Methods
     setDatatype(datatype: cxDatatype) {
@@ -6191,6 +6185,24 @@ export class cxProperty extends cxMetaObject {
             return this.unitCategory;
         else
             return null;
+    }
+    addSubProperty(subprop: cxProperty) {
+        if (this.subProperties == null)
+            this.subProperties = new Array();
+        this.subProperties.push(subprop);
+    }
+    getSubProperties(): cxProperty[] | null {
+        return this.subProperties;
+    }
+    getSubProperty(name: string): cxProperty | null {
+        if (this.subProperties) {
+            for (let i = 0; i < this.subProperties.length; i++) {
+                const subprop = this.subProperties[i];
+                if (subprop.name === name)
+                    return subprop;
+            }
+        }
+        return null;
     }
     // defaultValue is not an object, but a value
     setDefaultValue(value: string) {
@@ -6251,7 +6263,6 @@ export class cxMethod extends cxMetaObject {
     }
 }
 
-// ---------  View Template Definitions  -----------------------------
 export class cxViewStyle extends cxMetaObject {
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null = null;
@@ -6365,7 +6376,7 @@ export class cxObjectTypeView extends cxMetaObject {
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
-        this.category    = constants.gojs.C_OBJECTTYPEVIEW;
+        this.category = constants.gojs.C_OBJECTTYPEVIEW;
         // this.type        = type;
         this.typeRef = type?.id;
         this.template = "";
@@ -6659,10 +6670,10 @@ export class cxReltypeviewData {
     fromArrow: string;
     toArrow: string;
     fromArrowColor: string;
-    toArrowColor:   string;
-    routing:        string;
-    corner:         string;
-    curve:          string;
+    toArrowColor: string;
+    routing: string;
+    corner: string;
+    curve: string;
     constructor() {
         this.abstract = false;
         this.relshipkind = constants.relkinds.REL;
@@ -6676,10 +6687,10 @@ export class cxReltypeviewData {
         this.fromArrow = "";
         this.toArrow = "OpenTriangle";
         this.fromArrowColor = "";
-        this.toArrowColor   = "white";
-        this.routing        = "Normal";
-        this.corner         = "0";
-        this.curve          = "0";
+        this.toArrowColor = "white";
+        this.routing = "Normal";
+        this.corner = "0";
+        this.curve = "0";
     }
 }
 
@@ -6697,10 +6708,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
     fromArrow: string;
     toArrow: string;
     fromArrowColor: string;
-    toArrowColor:   string;
-    routing:        string;
-    corner:         string;
-    curve:          string;
+    toArrowColor: string;
+    routing: string;
+    corner: string;
+    curve: string;
     constructor(id: string, name: string, type: cxRelationshipType | null, description: string) {
         if (name === "" || name === id) {
             name = type?.name + '_' + type?.relshipkind;
@@ -6982,7 +6993,6 @@ export class cxRelationshipTypeView extends cxMetaObject {
     }
 }
 
-// ---------------------------------------------------------------------
 export class cxModel extends cxMetaObject {
     // modeltype: string;
     metamodel: cxMetaModel | null;
@@ -7023,7 +7033,7 @@ export class cxModel extends cxMetaObject {
         this.isTemplate = false;
         this.isMetamodel = false;
         this.includeSystemtypes = true;
-        this.includeRelshipkind = false;
+        this.includeRelshipkind = true;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
@@ -7597,8 +7607,12 @@ export class cxInstance extends cxMetaObject {
     // Methods
     setAndGetAllProperties(metis: cxMetis): cxProperty[] | null {
         let type = metis.findObjectType(this.type.id);
-        if (!type)
+        if (!type) {
+            type = metis.findRelationshipType(this.type.id);
+        }
+        if (!type) {
             return null;
+        }
         const typeprops = type.getProperties(true);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
@@ -7678,12 +7692,12 @@ export class cxInstance extends cxMetaObject {
         this.typeName = type.name;
     }
     getType(): cxObjectType | cxRelationshipType | null {
-        return this.type;
+        return this.type as cxObjectType | cxRelationshipType;
     }
     getInheritedTypes(): cxType[] | null {
-        const typelist = [];
-        const type = this.getType() as cxObjectType;
-        let types = [];
+        const typelist: cxType[] = [];
+        const type = this.getType() as cxType;
+        let types: cxType[] = [];
         try {
             types = type?.findSupertypes(0);
         } catch (error) {
@@ -7713,6 +7727,158 @@ export class cxInstance extends cxMetaObject {
     }
     getFromObject(): cxObject | null {
         return this.fromObject as cxObject;
+    }
+    getInheritanceObjects(model: cxModel): cxObject[] | null {
+        const objlist = [];
+        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
+        if (relships?.length) {
+            for (let i = 0; i < relships?.length; i++) {
+                const rel = relships[i];
+                if (rel) {
+                    const toObj = rel.toObject;
+                    if (toObj)
+                        objlist.push(toObj);
+                }
+            }
+        }
+        if (debug) console.log('6459 objlist', objlist);
+        return objlist;
+    }
+    getInheritedObjectTypes(model: cxModel): cxType[] | null {
+        const typelist = [];
+        // Handle Is relationships from the object
+        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
+        for (let i = 0; i < relships?.length; i++) {
+            const rel = relships[i];
+            if (rel) {
+                const toObj = rel.toObject;
+                if (toObj && toObj.type) {
+                    // if (toObj.type.properties.length > 0)
+                    typelist.push(toObj.type);
+                }
+            }
+        }
+        // Then handle the type itself
+        const type = this.type;
+        try {
+            const supertypes = type?.getSupertypes();
+            for (let i = 0; i < supertypes?.length; i++) {
+                const stype = supertypes[i];
+                typelist.push(stype);
+            }
+        } catch (error) {
+            if (debug) console.log('6470 error', error);
+        }
+        if (debug) console.log('6472 typelist', typelist);
+        return typelist;
+    }
+    hasInheritedProperties(model: cxModel): boolean {
+        let retval = false;
+        let types = this.getInheritedTypes();
+        if (types?.length > 0) {
+            for (let i = 0; i < types.length; i++) {
+                const type = types[i];
+                if (type.hasProperties())
+                    return true;
+            }
+        }
+        types = this.getInheritedObjectTypes(model);
+        if (types?.length > 0) {
+            for (let i = 0; i < types?.length; i++) {
+                const type = types[i];
+                if (type.hasProperties())
+                    return true;
+            }
+        }
+        let objects = this.getInheritanceObjects(model);
+        if (debug) console.log('6496 this, objects', this, objects);
+        if (types?.length > 0) {
+            for (let i = 0; i < objects?.length; i++) {
+                const obj = objects[i];
+                const type = obj?.type;
+                if (type?.hasProperties())
+                    return true;
+            }
+        }
+        return retval;
+    }
+    getInheritedProperties(model: cxModel): cxProperty[] {
+        const properties = new Array();
+        let objects = this.getInheritanceObjects(model);
+        if (debug) console.log('7159 inheritanceObjects', objects);
+        for (let i = 0; i < objects?.length; i++) {
+            const obj = objects[i];
+            const type = obj?.type;
+            if (type?.hasProperties()) {
+                const props = type.properties;
+                for (let j = 0; j < props.length; j++) {
+                    const prop = props[j];
+                    properties.push(prop);
+                }
+            }
+        }
+        if (debug) console.log('7171 inherited Properties', properties);
+        return properties;
+    }
+    getConnectedProperties(metis: cxMetis): cxProperty[] {
+        const properties = new Array();
+        const objects = this.getConnectedObjects2(metis);
+        for (let i = 0; i < objects?.length; i++) {
+            const obj = objects[i];
+            const prop = new cxProperty(utils.createGuid(), obj.type.name, "");
+            properties.push(prop);
+        }
+        return properties;
+    }
+    isOfType(typeName: string): boolean {
+        let retval = false;
+        if (this.type?.name === typeName) {
+            return true;
+        }
+        const stypes = this.type?.supertypes;
+        for (let i = 0; i < stypes?.length; i++) {
+            const stype = stypes[i];
+            if (stype?.name === typeName)
+                return true;
+        }
+        return retval;
+    }
+    isOfSystemType(systemtypeName: string): boolean {
+        let retval = false;
+        const type = this.type;
+        if ((this.name === type?.name) || (type?.name === systemtypeName)) {
+            return true;
+        }
+        const stypes = type?.supertypes;
+        for (let i = 0; i < stypes?.length; i++) {
+            const stype = stypes[i];
+            if (stype?.name === systemtypeName)
+                return true;
+        }
+        return retval;
+    }
+    addPort(side: string, name: string): cxPort {
+        const port = new cxPort(utils.createGuid(), name, "", side);
+        port.color = constants.gojs.C_PORT_COLOR;
+        this.ports.push(port);
+        return port;
+    }
+    deletePort(side: string, name: string) {
+        this.ports = this.ports.filter(p => p.name !== name && p.side !== side);
+    }
+    deleteSidePorts(side: string) {
+        this.ports = this.ports.filter(p => p.side !== side);
+    }
+    getPort(side: string, name: string): cxPort {
+        let port = null;
+        for (let i = 0; i < this.ports?.length; i++) {
+            const p = this.ports[i];
+            if ((p.side === side) && (p.name === name)) {
+                port = p;
+                break;
+            }
+        }
+        return port;
     }
     setToObject(obj: cxObject) {
         this.toObject = obj;
@@ -8082,50 +8248,6 @@ export class cxObject extends cxInstance {
     getObjectType(): cxObjectType | null {
         return this.type;
     }
-    getInheritanceObjects(model: cxModel): cxObject[] | null {
-        const objlist = [];
-        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
-        if (relships?.length) {
-            for (let i = 0; i < relships?.length; i++) {
-                const rel = relships[i];
-                if (rel) {
-                    const toObj = rel.toObject;
-                    if (toObj)
-                        objlist.push(toObj);
-                }
-            }
-        }
-        if (debug) console.log('6459 objlist', objlist);
-        return objlist;
-    }
-    getInheritedObjectTypes(model: cxModel): cxType[] | null {
-        const typelist = [];
-        // Handle Is relationships from the object
-        const relships = this.getOutputRelships(model, constants.relkinds.GEN);
-        for (let i = 0; i < relships?.length; i++) {
-            const rel = relships[i];
-            if (rel) {
-                const toObj = rel.toObject;
-                if (toObj && toObj.type) {
-                    // if (toObj.type.properties.length > 0)
-                    typelist.push(toObj.type);
-                }
-            }
-        }
-        // Then handle the type itself
-        const type = this.type;
-        try {
-            const supertypes = type?.getSupertypes();
-            for (let i = 0; i < supertypes?.length; i++) {
-                const stype = supertypes[i];
-                typelist.push(stype);
-            }
-        } catch (error) {
-            if (debug) console.log('6470 error', error);
-        }
-        if (debug) console.log('6472 typelist', typelist);
-        return typelist;
-    }
     getConnectedObject(prop: cxProperty, metis: cxMetis): cxObject {
         let obj = null;
         const inst: any = this;
@@ -8216,7 +8338,7 @@ export class cxObject extends cxInstance {
     getConnectedObjects2(metis: cxMetis): cxObject[] {
         const type = this.type;
         const properties = type?.properties;
-        const objlist = [];
+        const objlist: cxObject[] = [];
         for (let i = 0; i < properties?.length; i++) {
             const prop = properties[i];
             if (prop) {
@@ -8242,114 +8364,6 @@ export class cxObject extends cxInstance {
             }
         }
         return rolelist;
-    }
-    hasInheritedProperties(model: cxModel): boolean {
-        let retval = false;
-        let types = this.getInheritedTypes();
-        if (types?.length > 0) {
-            for (let i = 0; i < types.length; i++) {
-                const type = types[i];
-                if (type.hasProperties())
-                    return true;
-            }
-        }
-        types = this.getInheritedObjectTypes(model);
-        if (types?.length > 0) {
-            for (let i = 0; i < types?.length; i++) {
-                const type = types[i];
-                if (type.hasProperties())
-                    return true;
-            }
-        }
-        let objects = this.getInheritanceObjects(model);
-        if (debug) console.log('6496 this, objects', this, objects);
-        if (types?.length > 0) {
-            for (let i = 0; i < objects?.length; i++) {
-                const obj = objects[i];
-                const type = obj?.type;
-                if (type?.hasProperties())
-                    return true;
-            }
-        }
-        return retval;
-    }
-    getInheritedProperties(model: cxModel): cxProperty[] {
-        const properties = new Array();
-        let objects = this.getInheritanceObjects(model);
-        if (debug) console.log('7159 inheritanceObjects', objects);
-        for (let i = 0; i < objects?.length; i++) {
-            const obj = objects[i];
-            const type = obj?.type;
-            if (type?.hasProperties()) {
-                const props = type.properties;
-                for (let j = 0; j < props.length; j++) {
-                    const prop = props[j];
-                    properties.push(prop);
-                }
-            }
-        }
-        if (debug) console.log('7171 inherited Properties', properties);
-        return properties;
-    }
-    getConnectedProperties(metis: cxMetis): cxProperty[] {
-        const properties = new Array();
-        const objects = this.getConnectedObjects2(metis);
-        for (let i = 0; i < objects?.length; i++) {
-            const obj = objects[i];
-            const prop = new cxProperty(utils.createGuid(), obj.type.name, "");
-            properties.push(prop);
-        }
-        return properties;
-    }
-    isOfType(typeName: string): boolean {
-        let retval = false;
-        if (this.type?.name === typeName) {
-            return true;
-        }
-        const stypes = this.type?.supertypes;
-        for (let i = 0; i < stypes?.length; i++) {
-            const stype = stypes[i];
-            if (stype?.name === typeName)
-                return true;
-        }
-        return retval;
-    }
-    isOfSystemType(systemtypeName: string): boolean {
-        let retval = false;
-        const type = this.type;
-        if ((this.name === type?.name) || (type?.name === systemtypeName)) {
-            return true;
-        }
-        const stypes = type?.supertypes;
-        for (let i = 0; i < stypes?.length; i++) {
-            const stype = stypes[i];
-            if (stype?.name === systemtypeName)
-                return true;
-        }
-        return retval;
-    }
-    addPort(side: string, name: string): cxPort {
-        const port = new cxPort(utils.createGuid(), name, "", side);
-        port.color = constants.gojs.C_PORT_COLOR;
-        this.ports.push(port);
-        return port;
-    }
-    deletePort(side: string, name: string) {
-        this.ports = this.ports.filter(p => p.name !== name && p.side !== side);
-    }
-    deleteSidePorts(side: string) {
-        this.ports = this.ports.filter(p => p.side !== side);
-    }
-    getPort(side: string, name: string): cxPort {
-        let port = null;
-        for (let i = 0; i < this.ports?.length; i++) {
-            const p = this.ports[i];
-            if ((p.side === side) && (p.name === name)) {
-                port = p;
-                break;
-            }
-        }
-        return port;
     }
     getPorts(): cxPort[] {
         return this.ports;
@@ -8629,7 +8643,6 @@ export class cxPropertyValue {
     // Methods
 }
 
-// ---------------------------------------------------------------------
 export class cxValue extends cxMetaObject {
     value: string;
     constructor(id: string, name: string, description: string) {
@@ -8686,7 +8699,6 @@ export class cxInputPattern extends cxMetaObject {
     }
 }
 
-// ---------------------------------------------------------------------
 export class cxModelView extends cxMetaObject {
     model: cxModel | null;
     viewstyle: cxViewStyle | null;
@@ -9065,6 +9077,43 @@ export class cxModelView extends cxMetaObject {
             }
         }
         return relviews;
+    }
+}
+
+export class cxCollectionOfViews {
+    modelview: cxModelView;
+    objectviews: cxObjectView[] | null;
+    relshipviews: cxRelationshipView[] | null;
+    constructor(modelview: cxModelView) {
+        this.modelview = modelview;
+        this.objectviews = modelview.objectviews;
+        this.relshipviews = modelview.relshipviews;
+    }
+    addObjectView(objview: cxObjectView) {
+        if (!this.objectviews)
+            this.objectviews = new Array();
+        const len = this.objectviews.length;
+        for (let i = 0; i < len; i++) {
+            const ov = this.objectviews[i];
+            if (ov.id === objview.id) {
+                // Object view is already in list
+                return;
+            }
+        }
+        this.objectviews.push(objview);
+    }
+    addRelshipView(relview: cxRelationshipView) {
+        if (!this.relshipviews)
+            this.relshipviews = new Array();
+        const len = this.relshipviews.length;
+        for (let i = 0; i < len; i++) {
+            const rv = this.relshipviews[i];
+            if (rv.id === relview.id) {
+                // Relship view is already in list
+                return;
+            }
+        }
+        this.relshipviews.push(relview);
     }
 }
 
@@ -9470,30 +9519,30 @@ export class cxObjectView extends cxMetaObject {
 }
 
 export class cxRelationshipView extends cxMetaObject {
-    category:       string;
-    fs_collection:  string;
-    relship:        cxRelationship | null;
-    typeview:       cxRelationshipTypeView | null;
-    fromObjview:    cxObjectView | null;
-    toObjview:      cxObjectView | null;
-    fromPortid:     string;
-    toPortid:       string;
-    template:       string;
-    arrowscale:     string;
-    strokecolor:    string;
-    strokewidth:    string;
-    textcolor:      string;
-    textscale:      string;
-    dash:           string;
-    fromArrow:      string;
-    toArrow:        string;
+    category: string;
+    fs_collection: string;
+    relship: cxRelationship | null;
+    typeview: cxRelationshipTypeView | null;
+    fromObjview: cxObjectView | null;
+    toObjview: cxObjectView | null;
+    fromPortid: string;
+    toPortid: string;
+    template: string;
+    arrowscale: string;
+    strokecolor: string;
+    strokewidth: string;
+    textcolor: string;
+    textscale: string;
+    dash: string;
+    fromArrow: string;
+    toArrow: string;
     fromArrowColor: string;
-    toArrowColor:   string;
-    routing:        string;
-    corner:         string;
-    curve:          string;
-    points:         any;
-    visible:        boolean;
+    toArrowColor: string;
+    routing: string;
+    corner: string;
+    curve: string;
+    points: any;
+    visible: boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.category = constants.gojs.C_RELSHIPVIEW;
@@ -9764,8 +9813,6 @@ export class cxDiagram extends cxMetaObject {
         return this.content;
     }
 }
-
-// ---------------------------------------------------------------------
 
 export class cxIdent {
     id: string;

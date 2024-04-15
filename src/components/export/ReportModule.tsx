@@ -7,8 +7,9 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 import 'react-tabs/style/react-tabs.css';
 
-import FocusDetails from './FocusDetails';
-import MarkdownEditor from './forms/MarkdownEditor';
+import FocusDetails from '../FocusDetails';
+import MarkdownEditor from '../forms/MarkdownEditor';
+import ExportObjects from './ExportObjects';
 
 const debug = false
 
@@ -23,27 +24,28 @@ const ReportModule = (props) => {
   if (!props.modelInFocusId) return <>No objects</> 
 
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
-  function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
+  // function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
 
   const [activeTab, setActiveTab] = useState(0);
 
   const tabsDiv = (
     <>
-
       {visibleTabsDiv ?
         <>
           {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
             onClick={props.handleVisibleContext}><span>-&gt; </span> 
           </button> */}
           <>
-          <Tabs onSelect={index => setActiveTab(index)} >
+          <Tabs onSelect={index => setActiveTab(index)} 
+            style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none'}}
+          >
             <TabList style={{ margin: '0px' }}>
               <Tab>Focus Object</Tab>
               <Tab >MarkDown</Tab>
-              <Tab></Tab>
+              <Tab>Export</Tab>
               {/* <Tab><FaPlaneArrival />Main</Tab>
                   <Tab ><FaCompass /></Tab> */}
             </TabList>
@@ -54,6 +56,7 @@ const ReportModule = (props) => {
               <MarkdownEditor props={props} />
             </TabPanel>
             <TabPanel>
+              <ExportObjects props={props} />
             </TabPanel>
           </Tabs>
           </>
@@ -74,30 +77,21 @@ const ReportModule = (props) => {
 
   const reportDiv = 
     <>
-      {visibleTabsDiv ?
+      {visibleTabsDiv 
+      ?
           <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-            style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none' }}>
+            style={{  height: '78vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
             {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
           </div>
-
         : <div className="border border-dark bg-transparent" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
       }
     </>
 
   return (
-    // (props.reportType === 'task') ? // task modal
-    // <div style={{ backgroundColor: '#faa' }}>
-      <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
+      <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
         {reportDiv}
       </div>
-    // </div>
-    // :
-    // <div >
-      // <div className="report-module pe-1 bg-transparent" style={{ minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-      //   {reportDiv}
-      // </div>
-    // </div>
   )
 }
 export default ReportModule  

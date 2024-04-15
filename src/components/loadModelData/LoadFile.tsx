@@ -101,7 +101,11 @@ const LoadFile = (props: any) => {
     // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
     console.log('194 Loadfile', metamodels, data)
-
+    if (!data) {
+      console.log('196 Loadfile', data)
+      alert('No metamodel found in this modelview')
+      return
+    }
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
     // replace the _MM in 
@@ -200,7 +204,7 @@ const LoadFile = (props: any) => {
 
   return (
     <>
-      <span><button className="btn bg-light text-secondary py-1 px-2" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button></span>
+      <span><button className="btn bg-light text-secondary py-1 px-1" onClick={toggle}><i className="fa fa-file-import fa-lg me-2 ms-0 "></i>{buttonLabel}</button></span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">

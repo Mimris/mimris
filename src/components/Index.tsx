@@ -42,23 +42,25 @@ const page = (props) => {
   // }, [focusModelview])
 
   return (
-    <div className="workpad p-0" >
-      <div className="homepage row pt-2 pr-0">
-        <div className="col p-0 pt-2">
+    <div className="workpad me-2" >
+      <div className="homepage pt-2 pr-0">
+        <div className="p-0 pt-0">
           <GettingStarted />
-        </div>
-        <div className="col"> {/* releasenotes */}
-          <Card className="card" body outline  
-          style={{
-            background: "rgba(255,255,255,0.4)",
-            borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.4)",
-            backdropFilter: "blur(5px)",
-            WebkitBackdropFilter: "blur(5px)",
-          }}
-          // style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
-          // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
-        >
+        {/* </div>
+        <div className="col" style={{maxHeight: "42px"}}> releasenotes */}
+          <Card className="card mt-2 me-3"
+                style={{
+                maxHeight: "60vh", overflow: "scroll",
+                borderRadius: "10px",
+                border: "1px solid rgba(255,255,255,0.2)",
+                position: "relative",
+                backdropFilter: "blur(5px)",
+                WebkitBackdropFilter: "blur(5px)",
+                display: "block",
+                margin: "0 auto",
+                padding: "0px"
+                }}
+          >
             <CardHeader className="card-header " >AKMM release log ... </CardHeader>
             {/* <CardBody className="card-body" >  
               <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
@@ -68,6 +70,33 @@ const page = (props) => {
                   &bull; GraphQL shema reporting from Solution models!<br />
               </CardText>
             </CardBody> */}
+             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2024.02.22</CardTitle>
+              <CardText >
+                    &bull;Added more learning material in Videos tab<br />
+              </CardText>
+            </CardBody>
+             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2024.02.21</CardTitle>
+              <CardText >
+                    &bull;Bugfixed and minor layout changes<br />
+              </CardText>
+            </CardBody>
+             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Alfa: 2024.02.19</CardTitle>
+              <CardText >
+                    &bull; New top Project menubar<br />
+                    All project related functions are now in the Project menubar. <br />
+                    &bull; New videos in the Video top menu<br />
+              </CardText>
+            </CardBody>
+             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Beta: 2024.02.19</CardTitle>
+              <CardTitle className="card-title-bold" >Release Final: 2024.02.19</CardTitle>
+              <CardText >
+                    &bull; Updated!<br />
+              </CardText>
+            </CardBody>
              <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release 2024.02.18</CardTitle>
               <CardText >

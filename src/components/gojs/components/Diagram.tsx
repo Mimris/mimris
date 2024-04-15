@@ -58,11 +58,10 @@ interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
-  selectedData: go.ObjectData | null;
-  skipsDiagramUpdate: boolean;
   modelType: string;
   myMetis: akm.cxMetis;
   dispatch: any;
+  skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
@@ -78,13 +77,6 @@ interface DiagramState {
   currentActiveTab: any;
   // onExportSvgReady: any;
 }
-// interface AppState {
-//   nodeDataArray: Array<go.ObjectData>;
-//   linkDataArray: Array<go.ObjectData>;
-//   modelData: go.ObjectData;
-//   selectedData: go.ObjectData | null;
-//   skipsDiagramUpdate: boolean;
-// }
 
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
   // Maps to store key -> arr index for quick lookups
@@ -108,12 +100,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.diagramRef = React.createRef();
     this.state = {
       // myMetis: props.myMetis,
-      nodeDataArray: props.nodeDataArray,
-      linkDataArray: props.linkDataArray,
-      modelData: props.modelData,
-      selectedData: null,
-      skipsDiagramUpdate: false,
       showModal: false,
+      selectedData: null,
       modalContext: null,
       selectedOption: null,
       currentActiveTab: null,
@@ -278,8 +266,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('223 obj', obj);
     let run = false;
       this.setState(
-      produce((draft: DiagramProps) => {
-        if (run === false && draft.selectedData[propname] !== value) {
+      produce((draft: AppState) => {
+        if (run === false) {
           run = true;
           draft.selectedData[propname] = value;
           if (debug) console.log('250 propname, value, isBlur, data[propname], data: ', propname, value, isBlur);
@@ -3998,11 +3986,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
-          nodeDataArray={this.nodeDataArray}
-          linkDataArray={this.linkDataArray}
-          modelData={this.modelData}
+          nodeDataArray={this.props.nodeDataArray}
+          linkDataArray={this.props.linkDataArray}
+          modelData={this.props.modelData}
+          // myMetis={this.props.myMetis}
+          // modelType={this.props.modelType}
           onModelChange={this.props.onModelChange}
-          skipsDiagramUpdate={this.skipsDiagramUpdate}
+          skipsDiagramUpdate={this.props.skipsDiagramUpdate}
           style={this.props.diagramStyle}
           // exportToSvg={this.props.exportToSvg}
         />

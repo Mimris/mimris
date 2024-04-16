@@ -1748,6 +1748,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "BackgroundSingleClicked": {
         if (debug) console.log('1615 myMetis', myMetis);
         uid.clearFocus(myModelview);
+        let data = {id: myModelview.id, name: myModelview.name}
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+        let data2 = {id: myModel.id, name: myModel.name}
+        data2 = JSON.parse(JSON.stringify(data2));
+        context.dispatch({ type: 'SET_FOCUS_OBJECT', data2 })
+
         break;
       }
       case "BackgroundDoubleClicked": {

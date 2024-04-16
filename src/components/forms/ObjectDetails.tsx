@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 const debug = false;
 
 const ObjectHeader = ({ curmm, curobject, setObjview, parentobject, curmodelview }) => {
-  if (debug) console.log('6 ObjectHeader', curmm.objecttypes.map((ot) => ot.id === curobject?.typeRef), curobject, parentobject);
+  if (!debug) console.log('6 ObjectHeader', curmm.objecttypes.map((ot) => ot.id === curobject?.typeRef), curobject, parentobject);
   return (
     <h4 className="p-2 bg-light mx-1">
       {curobject?.name || curmodelview?.name}
@@ -43,7 +43,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
   return (formValues) && (
     <form onSubmit={handleSubmit}>
       <div className="form-group py-2 border border-rounded">
-      <div className='pe-4' style={{ overflowY: 'auto', overflowX: 'hidden', height: "100%", maxHeight: 'vh' }}>
+      <div className='pe-4' style={{ overflowY: 'auto', overflowX: 'hidden', height: "100%", maxHeight: '72vh' }}>
         {objectPropertiesMain?.map((key) => {
           let inputElement;
           switch (true) {
@@ -69,7 +69,7 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
               inputElement = (
                 <textarea
                   // type="text"
-                  className="form-control bg-light border-0 "
+                  className="form-control border-0 "
                   id={key}
                   name={key}
                   value={formValues[key] || curobject[key]}
@@ -83,13 +83,14 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             case key === 'name':
               inputElement = (
                 <textarea
-                  className="form-control hover-white bg-white m-1 "
+                  className="form-control hover-white  m-1 "
                   id={key}
                   name={key}
                   value={formValues[key] }
                   onChange={handleChange}
-                  style={{ backgroundColor: '#eee' }}
+                  style={{ backgroundColor: edit ? '#fff' : '#eee', cursor: edit ? 'auto' : 'not-allowed' }}
                   ref={textareaRef}
+                  readOnly= {(edit) ? true : false }
                   rows={1}
                 />
               );
@@ -97,12 +98,12 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             case key === 'description':
               inputElement = (
                 <textarea
-                  className="form-control hover-white bg-white m-1 "
+                  className="form-control hover-white m-1 "
                   id={key}
                   name={key}
                   value={formValues[key] || curobject[key]}
                   onChange={handleInputChange}
-                  style={{ backgroundColor: '#eee' }}
+                  style={{ backgroundColor: edit ? '#fff' : '#eee', cursor: edit ? 'auto' : 'not-allowed' }}
                   ref={textareaRef}
                   rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
@@ -150,12 +151,12 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
             default:
               inputElement = (
                 <textarea
-                className="form-control hover-white bg-white m-1 "
+                className="form-control hover-white m-1 "
                 id={key}
                 name={key}
                 value={formValues[key] || curobject[key]}
                 onChange={handleInputChange}
-                style={{ backgroundColor: '#eee' }}
+                style={{ backgroundColor: edit ? '#fff' : '#eee', cursor: edit ? 'auto' : 'not-allowed' }}
                 ref={textareaRef}
                 rows={ Math.ceil((formValues[key]?.length || curobject[key]?.length) / 60)}
                 />
@@ -238,7 +239,7 @@ const ObjectTable = ({ curobjModelviews, curmodelview, curmodel }) => {
 };
 
 const ObjectDetails = ({ curmodel, curmodelview, curmm, curobject, objectPropertiesMain, formValues, handleChange, handleSubmit, curobjModelviews, setObjview, parentobject, edit}) => {
-  if (debug) console.log('237 ObjectDetails ', curobject, formValues, edit, objectPropertiesMain);
+  if (debug) console.log('237 ObjectDetails ', curmodel, curmodelview, curmm, curobject, formValues, edit, objectPropertiesMain);
   return (
     <div className='object-details me-3' style={{ overflow: 'auto' }}>
       <ObjectHeader curmm={curmm} curobject={curobject} setObjview={setObjview} parentobject={parentobject} curmodelview={curmodelview} />

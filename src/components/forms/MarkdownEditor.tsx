@@ -27,31 +27,36 @@ function MarkdownEditor({ props }) {
   const [selectedId, setSelectedId] = useState('');
   const [objview, setObjview] = useState(null);
 
-  const metamodels = useSelector(state => props.phData?.metis?.metamodels)  // selecting the models array
-  const focusModel = useSelector(state => props.phFocus?.focusModel)
-  const focusUser = useSelector(state => props.phUser?.focusUser)
-  const focusModelview = useSelector(state => props.phFocus?.focusModelview)
-  const focusObjectview = useSelector(state => props.phFocus?.focusObjectview)
-  const focusObject = useSelector(state => props.phFocus?.focusObject)
+  const metamodels = useSelector(state => props.props.phData?.metis?.metamodels)  // selecting the models array
+  const focusModel = useSelector(state => props.props.phFocus?.focusModel)
+  const focusUser = useSelector(state => props.props.phUser?.focusUser)
+  const focusModelview = useSelector(state => props.props.phFocus?.focusModelview)
+  const focusObjectview = useSelector(state => props.props.phFocus?.focusObjectview)
+  const focusObject = useSelector(state => props.props.phFocus?.focusObject)
+  
+  if (!debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, props);
+  
+  const models = useSelector(state => props.props.phData?.metis?.models)  // selecting the models array
 
-  const models = useSelector(state => props.phData?.metis?.models)  // selecting the models array
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const objects = curmodel?.objects //.map((o: any) => o)
-  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
-  const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
+  const curmodelview = modelviews?.find((mv: any) => mv?.id === curmodel.modelviews.find((mv: any) => mv.id === focusModelview.id)?.id)
   const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
+  const objects = curmodel?.objects //.map((o: any) => o)
+  const curobjectviews = modelviews?.objectviews
+  const currelshipviews = modelviews?.relshipviews
+  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id)) 
+  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
 
-  let curobject = objects?.find(o => o.id === focusObject?.id)
-  console.log('41 Context', focusObjectview?.name, curobject?.name, curobjectviews?.find(ov => ov.id === focusObjectview?.id));
+
+  let curobject = (focusObject?.id === 'no objects selected') ? curmodelview : objects?.find(o => o.id === focusObject?.id) || curmodelview
+  const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
+  console.log('51 Context', curobject, curobjectview, focusObjectview?.id, focusObject?.id, focusModelview?.id, curobjectviews, objects, curobjectviews?.filter(ov => ov.group === curobjectview?.id));
 
   let objectviewChildren = []
   let objectChildren = []
   console.log('45 Context', curobjectviews, focusModelview?.id,);
-  const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+
   if (debug) console.log('47 Context', curobjectviews, curobjectview?.id, focusModelview);
   console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id))
 
@@ -133,7 +138,7 @@ function MarkdownEditor({ props }) {
     curmetamodel: curmetamodel,
     selectedId,
     setSelectedId,
-    curobject: curobject,
+    curobject: curobject || curmodelview,
     curtoobjects: objectChildren,
     objects: objects,
     includedKeys: ['name', 'description'],
@@ -146,7 +151,7 @@ function MarkdownEditor({ props }) {
   let markdownStringChildren = ObjDetailToMarkdown(mdFocusObjectProps)
 
 
-  console.log('101 MarkdownEditor.tsx', markdownStringChildren)
+  if (debug) console.log('101 MarkdownEditor.tsx', markdownStringChildren)
 
   const handleAddFooter = () => {
     setMdFooterString(
@@ -237,7 +242,7 @@ function MarkdownEditor({ props }) {
   };
 
   // useEffect (() => {
-  // setMdString(`***Children:*** \n\n  ---  \n\n`)
+  //  curobject = curmodelview
   // }, [])
 
   useEffect(() => {
@@ -246,7 +251,7 @@ function MarkdownEditor({ props }) {
 
   useEffect(() => {
     setMdString(markdownStringChildren)
-    console.log('222 MarkdownEditor.tsx', markdownStringChildren)
+    if (debug)console.log('222 MarkdownEditor.tsx', markdownStringChildren)
   }, [markdownStringChildren])
 
   useEffect(() => {

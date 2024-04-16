@@ -264,6 +264,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('221 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (debug) console.log('222 this.state', this.state);
     if (debug) console.log('223 obj', obj);
+
     let run = false;
       this.setState(
       produce((draft: AppState) => {

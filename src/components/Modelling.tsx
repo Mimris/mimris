@@ -68,6 +68,8 @@ const page = (props: any) => {
   const [loaded, setLoaded] = useState(false)
   // const [visibleContext, setVisibleContext] = useState(true)
 
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
+
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
@@ -151,15 +153,15 @@ const page = (props: any) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       doRefresh()
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      if (!debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
     }, 50);
-  }, [props.phSource])
+  }, [props.phSource, props.phFocus?.focusRefresh?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
     const timer = setTimeout(() => {
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
       setRefresh(!refresh)
     }, 50);
     return () => clearTimeout(timer);
@@ -421,6 +423,8 @@ const page = (props: any) => {
                       dispatch={dispatch}
                       modelType='model'
                       userSettings={memoryAkmmUser}
+                      visibleFocusDetails={visibleFocusDetails}
+                      setVisibleFocusDetails={setVisibleFocusDetails}
                     />
                   </div>
                 </Col>

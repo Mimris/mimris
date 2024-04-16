@@ -14,7 +14,7 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const FocusDetails = (props, edit) => {
-    if ((debug)) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
+    if ((!debug)) console.log('17 context', props, props.reportType, props.props.modelInFocusId)
     // let props.= useSelector((props.any) => props. // Selecting the whole redux store
     const dispatch = useDispatch()
 
@@ -38,7 +38,7 @@ const FocusDetails = (props, edit) => {
     const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
     const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
     const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-    const curmodelview = modelviews?.find((mv: any) => mv?.id === modelviewInFocusId)
+    const curmodelview = modelviews?.find((mv: any) => mv?.id === curmodel.modelviews.find((mv: any) => mv.id === ph.phFocus.focusModelview.id)?.id)
     const objects = curmodel?.objects //.map((o: any) => o)
     const focusModel =  (reportType === 'task') ?  models.find(m => m.id === modelInFocusId) :  ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
     const focusUser = ph.phUser?.focusUser
@@ -51,13 +51,13 @@ const FocusDetails = (props, edit) => {
     if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
     
 
-    const curobject = objects?.find(o => o.id === focusObject?.id) 
-    const curobjectview = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
+    const curobject = (focusObjectview?.id === 'no objects selected') ? curmodelview : objects?.find(o => o.id === focusObject?.id) 
+    const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
     const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews 
     const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews 
     const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
     // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-    if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
+    if (!debug) console.log('67 Context:', curmodelview, curobject, objects, focusObject?.id, focusTask?.id, focusTask, modelviews);
 
 
     useEffect(() => {
@@ -90,6 +90,7 @@ const FocusDetails = (props, edit) => {
         if (debug) console.log('93 Context :',objData, objvData);
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData }) 
         dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         if (debug) console.log('105 Context ',formValues, objData, objvData);
       }
     };
@@ -245,7 +246,7 @@ const FocusDetails = (props, edit) => {
     const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
     const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => ![ 'name', 'description', 'typeName', 'typeDescription', 'objectRef', ].includes(key))
     const includedKeysMain = [ 'name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source', 
-      '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType', 'typeName', 'typeDescription',
+      '----','externalID', 'groupType', 'osduId', 'osduType','id', 'proposedType',
       'fillcolor', 'fillcolor2', 'strokecolor','icon', 'image'
     ];
     // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
@@ -254,7 +255,7 @@ const FocusDetails = (props, edit) => {
     const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key)).sort((a, b) => includedKeysMain.indexOf(a) - includedKeysMain.indexOf(b));
 
     const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract',  'ports', 'propertyValues', 'valueset',
-    'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef','typeName', 'typeDescription']
+    'markedAsDeleted', 'modified',  'sourceUri',  'relshipkind','Associationvalueset','copiedFromId', 'typeRef']
 
     const objectPropertiesMore = (curobject) && Object.keys(curobject).filter(key => includedKeysMore.includes(key));
 
@@ -411,10 +412,10 @@ const FocusDetails = (props, edit) => {
                   curobjModelviews={curobjModelviews}
                   setObjview={setObjview}
                   parentobject={parentobject}
-                  edit={props.edit}
+                  edit={false}
                 />
             </TabPanel>
-            <TabPanel className='typeview'  style={{ overflow: 'auto'}}> 
+            <TabPanel className='typeview'  style={{  overflowY: 'scroll'}}> 
               <ObjectDetails
                   curmodel={curmodel}
                   curmodelview={curmodelview}
@@ -427,7 +428,7 @@ const FocusDetails = (props, edit) => {
                   curobjModelviews={curobjModelviews}
                   setObjview={setObjview}
                   parentobject={parentobject}
-                  edit={props.edit}
+                  edit={false}
               />
             </TabPanel>
           </>

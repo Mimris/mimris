@@ -41,15 +41,13 @@ const Modeller = (props: any) => {
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
-    const handleVisibleFocusDetails = () => { setVisibleFocusDetails(!visibleFocusDetails) }
+
 
     const [refresh, setRefresh] = useState(false)
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
     const [visibleObjects, setVisiblePalette] = useState(false)
-    const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
+    // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
     const [isExpanded, setIsExpanded] = useState(false)
     const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
     const [displayValue, setDisplayValue] = useState(props.metis.name); // the value to be displayed
@@ -78,6 +76,10 @@ const Modeller = (props: any) => {
     const metamodels = props.metis?.metamodels
     const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+    const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
+
     const handleExportSvgReady = (exportSvgFunction, isReady) => {
         setExportSvg(() => exportSvgFunction);
         setDiagramReady(isReady);
@@ -103,7 +105,7 @@ const Modeller = (props: any) => {
     }
 
     function toggleObjects() { setVisiblePalette(!visibleObjects); }
-    function togglevisibleFocusDetails() { setVisibleFocusDetails(!visibleFocusDetails); }
+    function togglevisibleFocusDetails() { props.setVisibleFocusDetails(!props.visibleFocusDetails); }
 
     function toggleRefreshObjects() {
         if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
@@ -451,7 +453,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel with Object details!"
                     onClick={handleVisibleFocusDetails}
                 >
-                    {(visibleFocusDetails)
+                    {(props.visibleFocusDetails)
                         ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left  pull-right-container ms-1"></i> </span>
                         : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right pull-right-container ms-1"></i></span>
                     }
@@ -483,7 +485,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         </Col>
                         <Col className="me-1 my-1 p-1 border " xs="auto" >
                             <div className="" style={{ backgroundColor: "#cdd" }}>
-                                {(!visibleFocusDetails) ?
+                                {(!props.visibleFocusDetails) ?
                                     <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleFocusDetails={handleVisibleFocusDetails} />
                                     : <></>
                                 }

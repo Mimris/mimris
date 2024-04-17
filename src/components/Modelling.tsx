@@ -68,7 +68,7 @@ const page = (props: any) => {
   const [loaded, setLoaded] = useState(false)
   // const [visibleContext, setVisibleContext] = useState(true)
 
-  const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)

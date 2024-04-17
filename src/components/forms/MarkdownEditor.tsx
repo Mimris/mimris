@@ -33,9 +33,9 @@ function MarkdownEditor({ props }) {
   const focusModelview = useSelector(state => props.props.phFocus?.focusModelview)
   const focusObjectview = useSelector(state => props.props.phFocus?.focusObjectview)
   const focusObject = useSelector(state => props.props.phFocus?.focusObject)
-  
-  if (!debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, props);
-  
+
+  if (debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, props);
+
   const models = useSelector(state => props.props.phData?.metis?.models)  // selecting the models array
 
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
@@ -45,7 +45,7 @@ function MarkdownEditor({ props }) {
   const objects = curmodel?.objects //.map((o: any) => o)
   const curobjectviews = modelviews?.objectviews
   const currelshipviews = modelviews?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id)) 
+  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id))
   if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
 
 
@@ -251,7 +251,7 @@ function MarkdownEditor({ props }) {
 
   useEffect(() => {
     setMdString(markdownStringChildren)
-    if (debug)console.log('222 MarkdownEditor.tsx', markdownStringChildren)
+    if (debug) console.log('222 MarkdownEditor.tsx', markdownStringChildren)
   }, [markdownStringChildren])
 
   useEffect(() => {

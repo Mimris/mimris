@@ -153,7 +153,7 @@ const page = (props: any) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       doRefresh()
-      if (!debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
     }, 50);
   }, [props.phSource, props.phFocus?.focusRefresh?.id])

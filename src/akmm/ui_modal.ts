@@ -577,7 +577,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const node = myDiagram.findNodeForKey(selObj.key);
       if (node) node.isSelected = true;
       // Do a fix
-      const oview = myMetis.findObjectView(selObj.objectview.id);
+      // const oview = myMetis.findObjectView(selObj.objectview.id);
+      const oview = myMetis.findObjectView(node.key);
       if (oview) {
         oview.group = selObj.objectview?.group;
         myMetis.addObjectView(oview);
@@ -802,7 +803,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const node = myDiagram.findNodeForKey(selObj.key);
       if (node) node.isSelected = true;
       // Do a fix
-      const oview = myMetis.findObjectView(selObj.objectview.id);
+      // const oview = myMetis.findObjectView(selObj.objectview.id);
+      const oview = myMetis.findObjectView(node.key);
       if (!oview)
         break;
       const obj = oview.object;
@@ -812,9 +814,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // End fix
       const objtypeview = oview.typeview;
       myDiagram.selection.each(function(sel) {
-        let objview = sel.data.objectview;
+        // let objview = sel.data.objectview;
+        let objview = sel.key;
         if (objview) {
-          objview = myMetis.findObjectView(objview.id);
+          // objview = myMetis.findObjectView(objview.id);
+          objview = myMetis.findObjectView(sel.key);
           for (let prop in  objtypeview?.data) {
             if (prop === 'viewkind') {
               if (objview[prop] === 'Object') {

@@ -288,7 +288,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "InitialLayoutCompleted": {
         console.log("Begin: After Reload:");
         const objviews = myModelview.objectviews;
-        for (let i=0; i<objviews?.length; i++) {
+        for (let i = 0; i < objviews?.length; i++) {
           const objview = objviews[i];
           const goNode = myGoModel.findNodeByViewId(objview.id);
           if (goNode) {
@@ -304,50 +304,50 @@ class GoJSApp extends React.Component<{}, AppState> {
         const links = myDiagram.links;
         console.log("End: After Reload:");
         if (false) {
-        const modelview = myMetis.currentModelview;
-        const objviews = modelview.objectviews;
-        const nodes = myDiagram.nodes;
-        // Fix nodes (scale, loc and size, ++)
-        const modifiedObjViews = new Array();
-        for (let it = nodes.iterator; it?.next();) {
-          const node = it.value;
-          const data = node.data;
-          if (data.category === "Object type")
-            continue;
-          node.scale = data.scale;
-          node.loc = data.loc;
-          node.size = data.size;
-          node.fillcolor = data.fillcolor;
-          node.strokecolor = data.strokecolor;
-          const object = data.object;
-          let objview = data.objectview;
-          // objview = uic.setObjviewColors(data, myDiagram);          
-          const image = object?.image ? object.image : objview?.image;
-          if (image) {
-            myDiagram.model.setDataProperty(data, "image", image);
+          const modelview = myMetis.currentModelview;
+          const objviews = modelview.objectviews;
+          const nodes = myDiagram.nodes;
+          // Fix nodes (scale, loc and size, ++)
+          const modifiedObjViews = new Array();
+          for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node.data;
+            if (data.category === "Object type")
+              continue;
+            node.scale = data.scale;
+            node.loc = data.loc;
+            node.size = data.size;
+            node.fillcolor = data.fillcolor;
+            node.strokecolor = data.strokecolor;
+            const object = data.object;
+            let objview = data.objectview;
+            // objview = uic.setObjviewColors(data, myDiagram);          
+            const image = object?.image ? object.image : objview?.image;
+            if (image) {
+              myDiagram.model.setDataProperty(data, "image", image);
+            }
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            modifiedObjViews.push(jsnObjview);
           }
-          const jsnObjview = new jsn.jsnObjectView(objview);
-          modifiedObjViews.push(jsnObjview);
-        }
-        // Fix links 
-        const links = myDiagram.links;
-        for (let it = links.iterator; it?.next();) {
-          const link = it.value;
-          const data = link.data;
-          if (data.category === "Relationship") {
-            const relview = data.relshipview;
-            relview.markedAsDeleted = data.markedAsDeleted;
-            if (relview.visible === false) {
-              myDiagram.remove(link);;
-            } else {
-              const reltypename = data.typename;
-              if (reltypename === constants.types.AKM_RELATIONSHIP_TYPE) {
-                const lnk = uid.getLinkByViewId(relview.id, myDiagram);
-                if (debug) console.log('333 link, lnk', link, lnk);
+          // Fix links 
+          const links = myDiagram.links;
+          for (let it = links.iterator; it?.next();) {
+            const link = it.value;
+            const data = link.data;
+            if (data.category === "Relationship") {
+              const relview = data.relshipview;
+              relview.markedAsDeleted = data.markedAsDeleted;
+              if (relview.visible === false) {
+                myDiagram.remove(link);;
+              } else {
+                const reltypename = data.typename;
+                if (reltypename === constants.types.AKM_RELATIONSHIP_TYPE) {
+                  const lnk = uid.getLinkByViewId(relview.id, myDiagram);
+                  if (debug) console.log('333 link, lnk', link, lnk);
+                }
               }
             }
           }
-        }
         }
         break;
       }
@@ -542,11 +542,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         let rloc;
         for (let it = selection.iterator; it?.next();) {
           const sel = it.value;
-          const data = sel.data;
-          if (data.category === 'Relationship' || data.category === 'Relationship type')
+          const nod = sel.data;
+          const data = myMetis.findObjectView(nod.key);
+          // const data = sel?.data;
+          if (debug) console.log('546 data', data, nod, selection, it, sel);
+          if (data?.category === 'Relationship' || data?.category === 'Relationship type')
             continue;
+
           // Object type
-          if (data.category === 'Object type') {
+          if (data?.category === 'Object type') {
             const objtypegeos = context.myMetamodel.purgeObjtypeGeos();
             context.myMetamodel.objtypegeos = objtypegeos;
             const objtype = myMetis.findObjectType(data.objecttype.id);
@@ -566,7 +570,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const dt = JSON.parse(JSON.stringify(jsnMetamodel));
             context.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', dt });
           }
-          else if (data.category === 'Object') // Object
+          else if (data?.category === 'Object') // Object
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
@@ -574,6 +578,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myObjectviews = myModelview?.objectviews;
             // The object to move
             let fromObject = data.object;
+            if (debug) console.log('581 fromObject', fromObject, data);
             fromObject = myModel.findObject(fromObject.id);
             let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {
@@ -1185,7 +1190,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModel.addObject(object);
             myMetis.addObject(object);
           }
-          if (!objview || !(objview instanceof akm.cxObjectView)) {
+          if (!objview || !(objview instanceof akm.cxObjectView)) {
             objview = new akm.cxObjectView(part.key, part.name, object, part.description, myModelview);
             objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
             objview.loc = part.loc;
@@ -1198,7 +1203,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview.setModified();
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
-          }    
+          }
           let goNode = myGoModel.findNodeByViewId(objview.id);
           if (!goNode) {
             goNode = new gjs.goObjectNode(objview.id, objview);
@@ -1231,7 +1236,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
               modifiedObjectTypeViews.push(jsnObjtypeView);
 
-              const loc = part.loc; 
+              const loc = part.loc;
               const size = part.size;
               const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
               const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
@@ -1250,32 +1255,32 @@ class GoJSApp extends React.Component<{}, AppState> {
               // if (debug) console.log('955 part, objview', part, objview);
               // objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
               // if (objview) {
-                // const object = objview.object;
-                // object.name = part.name;
-                // let otype = object.type;
-                // if (!otype) {
-                //   otype = myMetis.findObjectType(objview.object.typeRef);
-                //   object.type = otype;
-                // }
-                // objview.viewkind = object.type.viewkind;
-                // objview.scale1 = part.scale;
-                // if (objview.viewkind === 'Container') {
-                //   objview.isGroup = true;
-                // }
-                // Hack
-                // if (objview.isGroup) {
-                //   if (objview.size = "") 
-                //     objview.size = "200 100";
-                //     objview.viewkind = 'Container';
-                // } else {
-                //   if (objview.size = "") 
-                //     objview.size = "160 70";
-                //     objview.viewkind = 'Object';
-                // }            
-                // part.key = objview.id;    
-                // part.viewkind = objview.viewkind;
-                // End hack
-                // 
+              // const object = objview.object;
+              // object.name = part.name;
+              // let otype = object.type;
+              // if (!otype) {
+              //   otype = myMetis.findObjectType(objview.object.typeRef);
+              //   object.type = otype;
+              // }
+              // objview.viewkind = object.type.viewkind;
+              // objview.scale1 = part.scale;
+              // if (objview.viewkind === 'Container') {
+              //   objview.isGroup = true;
+              // }
+              // Hack
+              // if (objview.isGroup) {
+              //   if (objview.size = "") 
+              //     objview.size = "200 100";
+              //     objview.viewkind = 'Container';
+              // } else {
+              //   if (objview.size = "") 
+              //     objview.size = "160 70";
+              //     objview.viewkind = 'Object';
+              // }            
+              // part.key = objview.id;    
+              // part.viewkind = objview.viewkind;
+              // End hack
+              // 
             }
 
             const jsnObjview = new jsn.jsnObjectView(objview);
@@ -1630,7 +1635,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         let fromNode = myDiagram.findNodeForKey(data.from);
-        if (!fromNode) { 
+        if (!fromNode) {
           fromNode = myDiagram.findNodeForKey(data.from);
         }
         let toNode = myDiagram.findNodeForKey(data.to);
@@ -1748,10 +1753,10 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "BackgroundSingleClicked": {
         if (debug) console.log('1615 myMetis', myMetis);
         uid.clearFocus(myModelview);
-        let data = {id: myModelview.id, name: myModelview.name}
+        let data = { id: myModelview.id, name: myModelview.name }
         data = JSON.parse(JSON.stringify(data));
         context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-        let data2 = {id: myModel.id, name: myModel.name}
+        let data2 = { id: myModel.id, name: myModel.name }
         data2 = JSON.parse(JSON.stringify(data2));
         context.dispatch({ type: 'SET_FOCUS_OBJECT', data2 })
 

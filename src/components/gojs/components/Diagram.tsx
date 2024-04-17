@@ -297,7 +297,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     let run = false;
     this.setState(
-      produce((draft: AppState) => {
+      produce((draft: DiagramProps) => {
         if (run === false) {
           run = true;
           draft.selectedData[propname] = value;

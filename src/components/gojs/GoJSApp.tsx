@@ -1634,17 +1634,17 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = myDiagram.findNodeForKey(data.from);
+        let fromNode = myDiagram.findNodeForKey(data.from).data;
         if (!fromNode) {
-          fromNode = myDiagram.findNodeForKey(data.from);
+          fromNode = myDiagram.findNodeForKey(data.from).data;
         }
-        let toNode = myDiagram.findNodeForKey(data.to);
+        let toNode = myDiagram.findNodeForKey(data.to).data;
         if (!toNode) {
-          toNode = myDiagram.findNodeForKey(data.to);
+          toNode = myDiagram.findNodeForKey(data.to).data;
         }
 
         // Handle relationship types
-        if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
+        if (fromNode?.category === constants.gojs.C_OBJECTTYPE) {
           data.category = constants.gojs.C_RELSHIPTYPE;
           if (debug) console.log('1523 link', fromNode, toNode);
           // link.category = constants.gojs.C_RELSHIPTYPE;
@@ -1676,7 +1676,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myDiagram.requestUpdate();
         }
         // Handle relationships
-        if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
+        if (fromNode?.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
           uic.createRelationship(fromNode, toNode, context);

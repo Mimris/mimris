@@ -774,9 +774,9 @@ export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
     let myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
     const myModelview: akm.cxModelView = context.myModelview;
 
-    const fromNode = myMetis.findObject(nodeFrom.key);
+    const fromObjview = myMetis.findObjectView(nodeFrom.key);
     const fromPort = "";
-    const toNode = myMetis.findObject(nodeTo.key);
+    const toObjview = myMetis.findObjectView(nodeTo.key);
     const toPort = "";
     let reltype;
     let fromType = nodeFrom?.objecttype;
@@ -959,17 +959,18 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             myDiagram: myDiagram,
             myMetis: myMetis,
             myModelview: myModelview,
-            fromObjview: nodeFrom.objectview,
-            toObjview: nodeTo.objectview,
+            fromObjview: args.fromObjview,
+            toObjview: args.toObjview,
             nodeFrom: nodeFrom,
             nodeTo: nodeTo,
             reltype: reltype,
             data: data,
         }
         let relshipview = createRelationshipView(relship, context);
+
         if (false) {
             // Create a new relationship view
-            let relshipview = createLink(data, context);
+            relshipview = createLink(data, context);
             if (relshipview) {
                 relshipview.setFromArrow2(relship?.relshipkind);
                 relshipview.setToArrow2(relship?.relshipkind);
@@ -1065,8 +1066,8 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // create a link data between the actual nodes
     let linkdata = {
         key: relview.id,
-        from: relview.fromObjview.id,  // or just: fromData.id
-        to: relview.toObjview.id,
+        from: fromObjview.id,  // or just: fromData.id
+        to: toObjview.id,
         name: relTypename,
     };
     // set the link attributes

@@ -95,23 +95,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let typedescription = "";
     switch (category) {
       case constants.gojs.C_OBJECT:
-        inst = selObj.object;
+        // inst = selObj.object;
         //  from sf edited 2024-04-17
         // inst1 = myMetis.findObject(inst?.id);
-        instview1 = myMetis.findObjectView(selObj?.key);
-        inst1 = myMetis.findObject(instview1.object.id);
-        if (inst1) inst = inst1;
-        instview = null //selObj.objectview as akm.cxObjectView;
+        instview = myMetis.findObjectView(selObj?.key);
+        inst = myMetis.findObject(instview.object.id);
+        // if (inst1) inst = inst1;
+        // instview = null //selObj.objectview as akm.cxObjectView;
         // instview1 = myMetis.findObjectView(instview?.id) as akm.cxObjectView;
-        if (instview1) instview = instview1;
-        type = inst1.type as akm.cxObjectType;
+        // if (instview1) instview = instview1;
+        // type = inst1.type as akm.cxObjectType;
         // type1 = myMetis.findObjectType(type?.id) as akm.cxObjectType;
         // to sf edited 2024-04-17
-        type1 = myMetis.findObjectType(type?.id) as akm.cxObjectType;
-        if (debug) console.log('104 type1', selObj, instview1, inst1, instview, instview1, type, type1);
+        type = myMetis.findObjectType(inst.type?.id) as akm.cxObjectType;
+        if (debug) console.log('104 type1', selObj,  instview,  type);
         if (debug) console.log('105 myMetis', myMetis);
-        if (type1) type = type1;
-        objtypeview = type1?.typeview as akm.cxObjectTypeView;
+        // if (type1) type = type1;
+        objtypeview = type?.typeview as akm.cxObjectTypeView;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id) as akm.cxObjectTypeView;
         typeview = objtypeview;
         type.typeview = objtypeview;
@@ -126,21 +126,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         typeview = objtypeview;
         break;
       case constants.gojs.C_RELATIONSHIP:
-        inst = selObj.relship;
-        inst1 = myMetis.findRelationship(inst?.id);
-        if (inst1) inst = inst1;
-        instview = selObj.relshipview as akm.cxRelationshipView;
-        instview1 = myMetis.findRelationshipView(instview?.id) as akm.cxRelationshipView;
-        if (instview1) instview = instview1;
-        type = selObj.relshiptype as akm.cxRelationshipType;
-        type1 = myMetis.findRelationshipType(type?.id) as akm.cxRelationshipType;
-        if (type1) type = type1;
+        // inst = selObj.relship;
+        
+        console.log('131 ', myMetis.findRelationship(selObj?.key));
+        instview = myMetis.findRelationshipView(selObj?.key) as akm.cxRelationshipView;
+        inst = myMetis.findRelationship(instview.relship.id) as akm.cxRelationship;
+        // if (inst1) inst = inst1;
+        // instview = selObj.relshipview as akm.cxRelationshipView;
+        // if (instview1) instview = instview1;
+        // type = selObj.relshiptype as akm.cxRelationshipType;
+        type = myMetis.findRelationshipType(inst.type?.id) as akm.cxRelationshipType;
+        // if (type1) type = type1;
         reltypeview = type?.typeview;
         reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
         typeview = reltypeview;
         type.typeview = reltypeview;
         inst.type = type;
-        selObj = inst1;
+        // selObj = inst;
         break;
       case constants.gojs.C_RELSHIPTYPE:
         type = selObj.reltype;

@@ -58,6 +58,7 @@ interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
+  selectedData: any;
   modelType: string;
   myMetis: akm.cxMetis;
   dispatch: any;
@@ -1182,9 +1183,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const noPorts = confirm("No Ports (OK) or Allow Ports?");
               const allowPorts = !noPorts;
-              const node = obj.part.data;
-              let objview = node.objectview;
-              objview = myMetis.findObjectView(objview?.id);
+              const node = obj.part.data; 
+              let objview = myMetis.findObjectView(node?.key);
               objview.viewkind = 'Container';
               let template = node.template;
               switch (template) {
@@ -1201,11 +1201,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               objview.template = template;
               objview.isGroup = true;
-              objview.size = "200 100";
+              // objview.size = "200 100";
               objview.viewkind = 'Container';
-              node.objectview = objview;
+              // node.objectview = objview;
               node.template = template;
               node.viewkind = 'Container';
+              // update this.state.nodeDataArray with this node
+
+              // this.setState(
+              //   {
+              //       nodeDataArray: [
+              //       ...this.state.nodeDataArray,
+              //       node
+              //     ] 
+              //   }
+              // );
               const jsnObjview = new jsn.jsnObjectView(objview);
               jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
@@ -1223,14 +1233,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Convert to Node",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              let objview = node.objectview;
+              let objview = myMetis.findObjectView(node?.key);
               objview = myMetis.findObjectView(objview.id);
               objview.viewkind = 'Object';
               objview.template = 'textAndIcon'
               objview.isGroup = false;
               // objview.size = "200 100";
-              node.objectview = objview;
+              // node.objectview = objview;
               node.viewkind = 'Object';
+              // console.log('1243 node', node, this, this.state.nodeDataArray, this.setState);
+            //  this.setState(
+            //     {
+            //       nodeDataArray: [
+            //         ...this.state.nodeDataArray,
+            //         node
+            //       ]
+            //     }
+            //   );
               const jsnObjview = new jsn.jsnObjectView(objview);
               if (debug) console.log('1052 objview, jsnObjview', objview, jsnObjview);
               const data = JSON.parse(JSON.stringify(jsnObjview));

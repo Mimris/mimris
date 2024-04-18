@@ -880,7 +880,7 @@ export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
                 myDiagram: myDiagram,
                 myMetamodel: metamodel,
                 context: context,
-                // data: data,
+                data: context.data,
                 typename: defText,
                 fromType: fromType,
                 toType: toType,

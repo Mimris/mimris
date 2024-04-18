@@ -88,7 +88,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       showModal: true
     });
     if (debug) console.log('90 node', this.state.selectedData);
-  }gi
+  }
 
   public handleSelectDropdownChange = (selected: any) => {
     if (debug) console.log('94 handleSelectDropdownChange', this.state.myMetis);

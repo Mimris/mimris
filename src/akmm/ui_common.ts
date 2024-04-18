@@ -774,21 +774,19 @@ export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
     let myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
     const myModelview: akm.cxModelView = context.myModelview;
 
-    // const fromNode = myGoModel.findNode(data.from);
-    let fromNode = nodeFrom?.data;
+    const fromNode = myMetis.findObject(nodeFrom.key);
     const fromPort = "";
-    // const toNode = myGoModel.findNode(data.to);
-    let toNode = nodeTo?.data;
+    const toNode = myMetis.findObject(nodeTo.key);
     const toPort = "";
     let reltype;
-    let fromType = fromNode?.objecttype;
-    let toType = toNode?.objecttype;
+    let fromType = nodeFrom?.objecttype;
+    let toType = nodeTo?.objecttype;
     fromType = myMetamodel.findObjectType(fromType?.id);
     toType = myMetamodel.findObjectType(toType?.id);
-    if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
-    if (!fromType) fromType = myMetis.findObjectType(fromNode?.object?.typeRef);
-    if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
-    if (!toType) toType = myMetis.findObjectType(toNode?.object?.typeRef);
+    if (!fromType) fromType = myMetamodel.findObjectType(nodeFrom?.object?.typeRef);
+    if (!fromType) fromType = myMetis.findObjectType(nodeFrom?.object?.typeRef);
+    if (!toType) toType = myMetamodel.findObjectType(nodeTo?.object?.typeRef);
+    if (!toType) toType = myMetis.findObjectType(nodeTo?.object?.typeRef);
     if (fromType) {
         fromType.allObjecttypes = myMetamodel.objecttypes;
         fromType.allRelationshiptypes = myMetamodel.relshiptypes;
@@ -911,9 +909,9 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     const nodeTo = args.nodeTo;
     const portTo = args.toPort;
     const context  = args.context;
-    let objFrom: akm.cxObject = nodeFrom.data.object;
+    let objFrom: akm.cxObject = nodeFrom.object;
     objFrom = myModel.findObject(objFrom.id);
-    let objTo: akm.cxObject = nodeTo.data.object;
+    let objTo: akm.cxObject = nodeTo.object;
     objTo = myModel.findObject(objTo.id);
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType = args.toType;
@@ -961,8 +959,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             myDiagram: myDiagram,
             myMetis: myMetis,
             myModelview: myModelview,
-            fromObjview: nodeFrom.data.objectview,
-            toObjview: nodeTo.data.objectview,
+            fromObjview: nodeFrom.objectview,
+            toObjview: nodeTo.objectview,
             nodeFrom: nodeFrom,
             nodeTo: nodeTo,
             reltype: reltype,
@@ -1040,8 +1038,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             }
         }
     }
-    const link = context.link;
-    myDiagram.remove(link);
+    // const link = context.link;
+    // myDiagram.remove(link);
     return relshipview;
 }
 
@@ -1055,9 +1053,9 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const toObjview = context.toObjview;
     const nodeFrom = context.nodeFrom;
     const nodeTo = context.nodeTo;
-    const reltype = context.reltype;
+    const reltype1 = context.reltype;
     let data = context.data;
-    const relTypename = reltype.name; // context.relTypename;
+    const relTypename = reltype1.name; // context.relTypename;
     const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
@@ -1066,13 +1064,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myMetis.addRelationshipView(relview);
     // create a link data between the actual nodes
     let linkdata = {
-        key: utils.createGuid(),
-        from: myDiagram.model.getKeyForNodeData(nodeFrom),  // or just: fromData.id
-        to: myDiagram.model.getKeyForNodeData(nodeTo),
+        key: relview.id,
+        from: relview.fromObjview.id,  // or just: fromData.id
+        to: relview.toObjview.id,
         name: relTypename,
     };
     // set the link attributes
-    const rtviewdata = reltype?.typeview?.data;
+    const rtviewdata = reltype1?.typeview?.data;
     for (let prop in rtviewdata) {
         if (prop === 'id') continue;
         if (prop === 'name') continue;

@@ -420,7 +420,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relshipviews.push(relview);
         const jsnRelview = new jsn.jsnRelshipView(relview);
         modifiedRelviews.push(jsnRelview);
-        let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+        let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
         const name = link.name;
         if (debug) console.log('382 modelview, link:', modelview, link);
         link.loadLinkContent(myGoModel);

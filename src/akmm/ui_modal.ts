@@ -46,7 +46,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     instview = myMetis.findObjectView(node?.key);
     // inst = myMetis.findObject(instview.object.id);
     // inst = node.object ? node.object : node;
-
+  
     myInst = myMetis.findObject(instview.object.id);
     if (!myInst) myInst = obj;
     myInstview = instview //myMetis.findObjectView(instview?.id);
@@ -93,10 +93,8 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   // Handle relationships
   if (obj.category === constants.gojs.C_RELATIONSHIP) {
       const link = obj;
-      inst = link.relship;
-      myInst = myMetis.findRelationship(inst?.id);
-      instview = link.relshipview;
-      myInstview = myMetis.findRelationshipView(instview?.id);    
+      myInstview = myMetis.findRelationshipView(link?.key);    
+      myInst = myMetis.findRelationship(myInstview?.relship.id);
       if (context?.what === "editRelshipview") 
           myItem = myInstview;
       else if (context?.what === "editTypeview") {

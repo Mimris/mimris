@@ -767,6 +767,7 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle relationships
 export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
+    // nodeFrom and nodeTo are the nodes connected by the relationship
     const myDiagram = context.myDiagram;
     const myGoModel: gjs.goModel = context.myGoModel;
     const myMetis: akm.cxMetis = context.myMetis;
@@ -778,11 +779,13 @@ export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
     const fromPort = "";
     const toObjview = myMetis.findObjectView(nodeTo.key);
     const toPort = "";
+    const fromObject = fromObjview.object;
+    const toObject = toObjview.object;
     let reltype;
-    let fromType = nodeFrom?.objecttype;
-    let toType = nodeTo?.objecttype;
-    fromType = myMetamodel.findObjectType(fromType?.id);
-    toType = myMetamodel.findObjectType(toType?.id);
+    let fromType = fromObject?.type;
+    let toType = toObject?.type;
+    // fromType = myMetamodel.findObjectType(fromType?.key) as akm.cxObjectType;
+    // toType = myMetamodel.findObjectType(toType?.key) as akm.cxObjectType;   
     if (!fromType) fromType = myMetamodel.findObjectType(nodeFrom?.object?.typeRef);
     if (!fromType) fromType = myMetis.findObjectType(nodeFrom?.object?.typeRef);
     if (!toType) toType = myMetamodel.findObjectType(nodeTo?.object?.typeRef);
@@ -910,9 +913,9 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     const portTo = args.toPort;
     const context  = args.context;
     let objFrom: akm.cxObject = nodeFrom.object;
-    objFrom = myModel.findObject(objFrom.id);
+    if (!objFrom) objFrom = myModel.findObject(nodeFrom.key);
     let objTo: akm.cxObject = nodeTo.object;
-    objTo = myModel.findObject(objTo.id);
+    if (!objTo) objTo = myModel.findObject(nodeTo.key);
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType = args.toType;
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
@@ -965,6 +968,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             nodeTo: nodeTo,
             reltype: reltype,
             data: data,
+            
         }
         let relshipview = createRelationshipView(relship, context);
 
@@ -1066,7 +1070,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // create a link data between the actual nodes
     let linkdata = {
         key: relview.id,
-        from: fromObjview.id,  // or just: fromData.id
+        from: fromObjview.id, 
         to: toObjview.id,
         name: relTypename,
     };

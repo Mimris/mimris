@@ -237,6 +237,26 @@ class GoJSApp extends React.Component<{}, AppState> {
     // }
     // if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
 
+
+    // filter to get only attributes (objects removed)
+    function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
+      let newobj = {};
+      for (let i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        let tmpkey = i;
+        let tmpval = obj[i];
+        if (typeof obj[i] === "object") continue
+        newobj = {
+          ...newobj,
+          [tmpkey]: tmpval,
+        };
+        if (debug) console.log("130", i, obj[i], newobj);
+
+        if (debug) console.log("513 :", obj, newobj);
+      }
+      return newobj;
+    }
+
     // const gojsMetamodel = {
     //   nodeDataArray: myGoMetamodel?.nodes,
     //   linkDataArray: myGoMetamodel?.links
@@ -1634,13 +1654,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = myDiagram.findNodeForKey(data.from).data;
+        let fromNode = filterObject(myDiagram.findNodeForKey(data.from).data);
         if (!fromNode) {
-          fromNode = myDiagram.findNodeForKey(data.from).data;
+          fromNode = filterObject(myDiagram.findNodeForKey(data.from).data);
         }
-        let toNode = myDiagram.findNodeForKey(data.to).data;
+        let toNode = filterObject(myDiagram.findNodeForKey(data.to).data);
         if (!toNode) {
-          toNode = myDiagram.findNodeForKey(data.to).data;
+          toNode = filterObject(myDiagram.findNodeForKey(data.to).data);
         }
 
         // Handle relationship types

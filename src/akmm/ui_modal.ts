@@ -738,8 +738,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (link) link.isSelected = true;
       const type = rel.type;
       const data = link.data;
-      let relship = data.relship;
-      relship = myMetis.findRelationship(relship.id);
+      let relview = myModelview.findRelationshipView(data.key);
+      let relship = relview.relship;
       relship['cardinalityFrom'] = relship.getCardinalityFrom();
       relship['cardinalityTo'] = relship.getCardinalityTo();
       relship['relshipkind'] = rel.relshipkind;
@@ -753,11 +753,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         myDiagram.model.setDataProperty(data, k, relship[k]);
       }
-      let relview = link.data.relshipview;
-      relview = myMetis.findRelationshipView(relview.id);
       if (relship.name === 'Is') {
-        // relview['fromArrow'] = 'None';
-        // relview['toArrow'] = 'Triangle';
         relship.relshipkind = 'Generalization';
       }
       if (relship.relshipkind !== constants.relkinds.REL) {
@@ -1108,18 +1104,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // selRel contains the changed values
       const selRel = selectedData;
       const link = myDiagram.findLinkForKey(selRel.key);
-      if (link) link.isSelected = true;
-      let selRelview = selRel.relshipview;
-      if (!selRelview)
+      if (!link)
         break;
-      let reltypeview = selRel.relshipview.typeview;
-      const rtypeview = myMetis.findRelationshipTypeView(reltypeview.id);
-      if (rtypeview) reltypeview = rtypeview;
+      if (link) link.isSelected = true;
+      const data = link.data;
+      const relview = myModelview.findRelationshipView(data.key);
+      const relship = relview.relship;
+      const type = relship.type;
+      let reltypeview = type.typeview;
+      // const rtypeview = myMetis.findRelationshipTypeView(reltypeview.id);
+      // if (rtypeview) reltypeview = rtypeview;
       const selection = myDiagram.selection;
       selection.each(function(sel) {
-          let relview = sel.data.relshipview;
-          if (relview) {
-            relview = myMetis.findRelationshipView(relview.id);
+          let selData = sel.data;
+          if (selData) {
+            const relview = myMetis.findRelationshipView(selData.key);
             if (relview) {
               for (let prop in reltypeview?.data) {
                 if (prop === 'class') continue;
@@ -1130,7 +1129,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               myMetis.addRelationshipView(relview);
             }
           }
-          const link = myDiagram.findLinkForKey(sel.data.key);
+          const link = myDiagram.findLinkForKey(selData.key);
           if (link && relview) {         
             const data = link.data;
             for (let prop in reltypeview?.data) {

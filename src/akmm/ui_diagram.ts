@@ -728,7 +728,7 @@ export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
 export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any) {
     const n = myDiagram.findNodeForKey(inst?.key);
     if (n) {
-        const oview = myMetis.findObjectView(inst.objectview.id);
+        const oview = myMetis.findObjectView(inst.key);
         oview.applyTypeview();
         const otview = oview.typeview;
         const otdata = otview?.data;
@@ -750,7 +750,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
     const ll = myDiagram.findLinkForKey(inst?.key);
     if (ll) {
         if (debug) console.log('463 inst', inst);
-        const rview = myMetis.findRelationshipView(inst.relshipview.id);
+        const rview = myMetis.findRelationshipView(inst.key);
         if (rview) {
             const rtview = rview.typeview;
             const rtdata = rtview.data;

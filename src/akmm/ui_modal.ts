@@ -584,14 +584,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myMetis.addObjectView(oview);
       }
       // End fix
-      let obj;
-      if (selObj.object) {
-        obj = selObj.object;
-        obj = myMetis.findObject(obj?.id);
-      } else {
-        obj = selObj;
-        obj = myMetis.findObject(obj?.id);
-      }
+      let obj = oview.object;
+      // if (selObj.object) {
+      //   obj = selObj.object;
+      //   obj = myMetis.findObject(obj?.id);
+      // } else {
+      //   obj = selObj;
+      //   obj = myMetis.findObject(obj?.id);
+      // }
       if (!obj)
         break;
       let type = obj?.type;

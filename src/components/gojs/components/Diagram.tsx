@@ -1934,36 +1934,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
             }),
           makeButton("Reset to Typeview",
-            function (e: any, obj: any) {
-              const link = obj.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP) {
-                const currentRelship = myMetis.findRelationship(link.relship.id);
-                const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
-                if (currentRelship && currentRelshipView) {
-                  const reltype = currentRelship.type;
-                  let typeview = currentRelshipView.typeview;
-                  const defaultTypeview = reltype.typeview as akm.cxRelationshipTypeView;
-                  currentRelshipView.typeview = defaultTypeview;
-                  if (debug) console.log('856 viewdata', typeview.data);
-                  for (let prop in defaultTypeview.data) {
-                    if (prop === 'abstract') continue;
-                    if (prop === 'class') continue;
-                    if (prop === 'relshipkind') continue;
-                    currentRelshipView[prop] = defaultTypeview[prop];
-                    myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
-                  }
-                  link.typeview = defaultTypeview;
-                  myDiagram.requestUpdate();
-                  const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
-                  const modifiedRelviews = new Array();
-                  modifiedRelviews.push(jsnRelView);
-                  modifiedRelviews.map(mn => {
-                    let data = mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                  })
-                }
+            function (e: any, rel: any) {
+              let selection = myDiagram.selection;
+              if (selection.count == 0) {
+                const currentLink = rel.part.data;
+                if (currentNode) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
+                selection = myDiagram.selection;
               }
+              const myGoModel = myMetis.gojsModel;
+              myDiagram.selection.each(function (sel) {
+                const inst = sel.data;
+                if (inst.category === constants.gojs.C_RELATIONSHIP) {
+                  if (debug) console.log('1000 myGoModel, inst', myGoModel, inst);
+                  uid.resetToTypeview(inst, myMetis, myDiagram);
+                }
+              })
             },
             function (o: any) {
               const link = o.part.data;
@@ -3817,10 +3802,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (modalContext?.what === 'editRelationship') {
       let includeInherited = false;
       let includeConnected = false;
-      let rel = this.state.selectedData?.relship;
-      let rel1 = this.myMetis.findRelationship(rel?.id);
-      if (!rel1) rel1 = rel;
-      if (rel1?.hasInheritedProperties(myModel)) {
+      let key = this.state.selectedData?.relship?.id;
+      if (!key) key = this.state.selectedData?.key;
+      let rel = this.myMetis.findRelationship(key);
+      if (rel?.hasInheritedProperties(myModel)) {
         includeInherited = true;
         useTabs = true;
       }
@@ -3831,7 +3816,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         includeConnected: includeConnected,
         includeInherited: includeInherited,
       }
-      let namelist = useTabs ? uic.getNameList(rel1, context, true) : [];
+      let namelist = useTabs ? uic.getNameList(rel, context, true) : [];
       // Define the tabs
       selpropgroup = [];
       for (let i = 0; i < namelist.length; i++) {

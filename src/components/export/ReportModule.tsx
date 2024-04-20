@@ -33,11 +33,11 @@ const ReportModule = (props) => {
 
   const tabsDiv = (
     <>
-      {visibleTabsDiv ?
+      {!visibleTabsDiv ?
         <>
-          {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
-            onClick={props.handleVisibleContext}><span>-&gt; </span> 
-          </button> */}
+          <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
+            onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}><span>-&gt; </span> 
+          </button>
           <>
           <Tabs onSelect={index => setActiveTab(index)} 
             style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none'}}
@@ -61,9 +61,11 @@ const ReportModule = (props) => {
           </Tabs>
           </>
         </>
-        : <div className="btn-vertical m-0  pl-2 bg-transparent "
-          style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px" }}>
-          <span style={{ backgroundColor: "#cdd" }}> C o n t e x t & F o c u s </span>
+        : <div className="btn-vertical m-0  p-0 bg-transparent"
+            onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}
+           style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "8px", paddingLeft: "0px", fontSize: "12px" }}>
+          <i className="fa fa-arrow-left fa-lg"></i>
+          <span style={{ backgroundColor: "#cdd" }}> O b j e c t - D e t a i l s </span>
         </div>
       }
       
@@ -78,7 +80,7 @@ const ReportModule = (props) => {
   const reportDiv = 
     <>
       {visibleTabsDiv 
-      ?
+        ?
           <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
             style={{  height: '78vh', overflow: 'hidden', borderTop: 'none' }}>
             {tabsDiv}
@@ -89,9 +91,9 @@ const ReportModule = (props) => {
     </>
 
   return (
-      <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-        {reportDiv}
-      </div>
-  )
-}
+        <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", overflowX: 'hidden',  maxWidth: '49vw', minWidth: (visibleTabsDiv) ? '10px' : '10vw'.toString()} }>
+            {reportDiv}
+          </div>
+      )
+    }
 export default ReportModule  

@@ -15,7 +15,7 @@ import { is } from 'cheerio/lib/api/traversing';
 const debug = false;
 
 export const ProjectMenuBar = (props: any) => {
-    if (debug) console.log('18 ProjectMenuBar', props);
+    if (!debug) console.log('18 ProjectMenuBar', props);
     const dispatch = useDispatch();
     if (!props.props.phData) return null;
     const project = props.props.phData.metis;
@@ -137,7 +137,7 @@ export const ProjectMenuBar = (props: any) => {
     const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props.props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} path='' />;
     const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} toggleRefresh={props.toggleRefresh} />;
     const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
-    const exportsonfile = <LoadJsonFile buttonLabel='OSDU Ex' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
+    // const exportjsonfile = 
     const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props.props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} path='akm-metamodels' />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
@@ -259,7 +259,7 @@ export const ProjectMenuBar = (props: any) => {
                                                     >
                                                         <summary className="bg-light my-1 me-1 ps-1 text-black">OSDU Import/Export</summary>
                                                             <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadjsonfile}</div>
-                                                            <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{exportjsonfile}</div>
+                                                            <div className="" onClick={props.setVisibleFocusDetails(true)}><i className="fa fa-folder fa-lg mx-1 mt-3"></i>exportjsonfile</div>
                                                     </details>
                                                     </>
                                                     : item === 'Export'

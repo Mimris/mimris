@@ -590,7 +590,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const dt = JSON.parse(JSON.stringify(jsnMetamodel));
             context.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', dt });
           }
-          else if (data?.category === 'Object' || data?.category === 'Object type view') // Object
+          else if (data?.category === 'Object' || data?.category === 'Object view') // Object
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
@@ -1184,7 +1184,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let object: akm.cxObject = n.data.object;
           let obj = myMetis.findObject(object.id);
           let objview: akm.cxObjectView = n.data.objectview;
-
+          objview.id = n.data.key;
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
@@ -1230,9 +1230,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             // uic.updateNode(goNode, typeview, myDiagram, myGoModel);
             myGoModel.addNode(goNode);
             // myDiagram.model.addNodeData(goNode);
-
-
-
             // Check if goNode is member of a group
             const group = uic.getGroupByLocation(myGoModel, goNode.loc, goNode.size, goNode);
             if (group) {
@@ -1264,45 +1261,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           } else // object
           {
-            {
-              // part.category = 'Object';
-              // if (isLabel) part.text = 'label';
-              // if (!part.parentModelRef)
-              //   myMetis.pasteViewsOnly = true;
-              // // let objview = uic.createObject(part, context);
-              // objview = new akm.cxObjectView(objview.id, objview.name, object, objview.description, myModelview);
-              // if (debug) console.log('954 myMetis', myMetis);
-              // if (debug) console.log('955 part, objview', part, objview);
-              // objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
-              // if (objview) {
-              // const object = objview.object;
-              // object.name = part.name;
-              // let otype = object.type;
-              // if (!otype) {
-              //   otype = myMetis.findObjectType(objview.object.typeRef);
-              //   object.type = otype;
-              // }
-              // objview.viewkind = object.type.viewkind;
-              // objview.scale1 = part.scale;
-              // if (objview.viewkind === 'Container') {
-              //   objview.isGroup = true;
-              // }
-              // Hack
-              // if (objview.isGroup) {
-              //   if (objview.size = "") 
-              //     objview.size = "200 100";
-              //     objview.viewkind = 'Container';
-              // } else {
-              //   if (objview.size = "") 
-              //     objview.size = "160 70";
-              //     objview.viewkind = 'Object';
-              // }            
-              // part.key = objview.id;    
-              // part.viewkind = objview.viewkind;
-              // End hack
-              // 
-            }
-
             const jsnObjview = new jsn.jsnObjectView(objview);
             modifiedObjectViews.push(jsnObjview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
@@ -1335,6 +1293,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         let data = sel.data;
         console.log('1313 selected', data, sel);
+        const object = myMetis.findObject(data?.object?.id);
+        const objectview = myMetis.findObjectView(data?.objectview?.id);
+        console.log('1316 object, objectview', object, objectview);
         if (false) {
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {
@@ -1637,6 +1598,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = link.data;
         context.link = link;
         context.data = data;
+        context.goModel = myGoModel;
         if (debug) console.log('1498 link', link.data, link.fromNode, link.toNode);
 
         if (false) { // Prepare for linkToLink

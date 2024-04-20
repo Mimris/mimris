@@ -118,7 +118,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case constants.gojs.C_RELATIONSHIP:
         instview1 = myMetis.findRelationshipView(selObj?.key) as akm.cxRelationshipView;
-        inst1 = myMetis.findRelationship(instview1.relship.id) as akm.cxRelationship;
+        inst1 = instview1.relship;
+        // inst1 = myMetis.findRelationship(instview1.relship.id) as akm.cxRelationship;
         if (instview1) instview = instview1;
         if (inst1) inst = inst1;
         type = inst.type as akm.cxRelationshipType;
@@ -308,8 +309,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         else {
           let includeInherited = true;
-          inst = myMetis.findRelationship(inst.id);
-          type = myMetis.findRelationshipType(type.id);
+          // inst = myMetis.findRelationship(inst.id);
+          // type = myMetis.findRelationshipType(type.id);
           try {
             const typeProps = type?.getProperties(includeInherited);
             const inheritedProps = inst?.getInheritedProperties(myModel);

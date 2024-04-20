@@ -36,8 +36,8 @@ const ctrace = console.trace.bind(console, '%c %s',
 const Modeller = (props: any) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
-    if (debug) console.log('42 Modeller: props', props, props.myMetis.gojsModel);
-
+    
+    if (!debug) console.log('39 Modeller: props', props);
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -79,7 +79,7 @@ const Modeller = (props: any) => {
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
     
-    const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
+    // const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
 
     const handleExportSvgReady = (exportSvgFunction, isReady) => {
         setExportSvg(() => exportSvgFunction);
@@ -453,7 +453,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 </NavItem>
                 <button className="btn  btn-sm bg-transparent text-light ms-auto me-0"
                     data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller right sidepanel with Object details!"
-                    onClick={handleVisibleFocusDetails}
+                    onClick={() => typeof props.setVisibleFocusDetails === 'function' && props.setVisibleFocusDetails(!props.visibleFocusDetails)}
                 >
                     {(props.visibleFocusDetails)
                         ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left  pull-right-container ms-1"></i> </span>
@@ -488,7 +488,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         <Col className="me-1 my-1 p-1 border " xs="auto" >
                             <div className="" style={{ backgroundColor: "#cdd" }}>
                                 {(!props.visibleFocusDetails) ?
-                                    <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} handleVisibleFocusDetails={handleVisibleFocusDetails} />
+                                    <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} setVisibleFocusDetails={props.setVisibleFocusDetails} />
                                     : <></>
                                 }
                             </div>

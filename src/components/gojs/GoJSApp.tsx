@@ -1152,20 +1152,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             const data = sel.data;
             const key = data.key;
             if (data.category === constants.gojs.C_RELATIONSHIP) {
-              const myLink = this.getLink(context.myGoModel, key);
+              const relview = myModelview.findRelationshipView(key);
               uic.deleteLink(data, deletedFlag, context);
-              const relview = data.relshipview;
               if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
                 relview.markedAsDeleted = deletedFlag;
-                relview.relship = myMetis.findRelationship(relview.relship.id);
-                if (!myMetis.deleteViewsOnly) {
-                  const relship = relview.relship;
-                  if (relship) {
-                    relship.markedAsDeleted = deletedFlag;
-                    const jsnRelship = new jsn.jsnRelationship(relship);
-                    modifiedRelships.push(jsnRelship);
-                  }
-                }
+                const relship = relview.relship;
+                if (myMetis.deleteViewsOnly) 
+                    relship.markedAsDeleted = false;
+                const jsnRelship = new jsn.jsnRelationship(relship);
+                modifiedRelships.push(jsnRelship);
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 modifiedRelshipViews.push(jsnRelview);
               }

@@ -692,11 +692,13 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
 }
 
 export function deleteLink(data: any, deletedFlag: boolean, context: any) {
-    const myMetamodel = context.myMetamodel;
     const myMetis = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    const myModel = context.myModel;
+    const myModelview = context.myModelview;
     const myGoModel = context.myGoModel;
 
-    // Replace myGoModel.nodes with a new array
+    // Replace myGoModel.links with a new array
     const links = new Array();
     for (let i = 0; i < myGoModel?.links.length; i++) {
         let lnk = myGoModel.links[i];
@@ -706,7 +708,7 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
     if (debug) console.log('697 link', link);
     if (link) {
-        const relview = link.relshipview;
+        const relview = myModelview.findRelationshipView(link.key) as akm.cxRelationshipView;
         const relship = relview.relship;
         // Handle deleteViewsOnly
         if (myMetis.deleteViewsOnly) {

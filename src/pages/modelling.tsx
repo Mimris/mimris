@@ -36,13 +36,8 @@ const page = (props: any) => {
   const [expanded, setExpanded] = useState(false);
   const [focusExpanded, setFocusExpanded] = useState(true);
   const [minimized, setMinimized] = useState(true);
-  // const [org, setOrg] = useState("");
-  // const [repo, setRepo] = useState("");
-  // const [branch, setBranch] = useState("");
-  // const [path, setPath] = useState("");
-  // const [file, setFile] = useState("");
-  // const [model, setModel] = useState("");
-  // const [modelview, setModelview] = useState("");
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
+
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -207,6 +202,8 @@ const page = (props: any) => {
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}
+              visibleFocusDetails={visibleFocusDetails}
+              // setVisibleFocusDetails={setVisibleFocusDetails}
             />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea" }}>
@@ -238,7 +235,10 @@ const page = (props: any) => {
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
               </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling />
+                <Modelling 
+                  visibleFocusDetails={visibleFocusDetails}
+                  setVisibleFocusDetails={setVisibleFocusDetails}
+                />
                 {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>
             </div>

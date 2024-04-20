@@ -78,6 +78,7 @@ const Modeller = (props: any) => {
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
+    
     const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
 
     const handleExportSvgReady = (exportSvgFunction, isReady) => {
@@ -105,14 +106,15 @@ const Modeller = (props: any) => {
     }
 
     function toggleObjects() { setVisiblePalette(!visibleObjects); }
-    function togglevisibleFocusDetails() { props.setVisibleFocusDetails(!props.visibleFocusDetails); }
+
+
 
     function toggleRefreshObjects() {
-        if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
-        saveModelsToLocState(props, memoryLocState, setMemoryLocState)
-        if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
-        if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
-        setRefresh(!refresh)
+            if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
+            saveModelsToLocState(props, memoryLocState, setMemoryLocState)
+            if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
+            if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
+            setRefresh(!refresh)
     }
 
 

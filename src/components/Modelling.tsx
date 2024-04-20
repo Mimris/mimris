@@ -68,7 +68,7 @@ const page = (props: any) => {
   const [loaded, setLoaded] = useState(false)
   // const [visibleContext, setVisibleContext] = useState(true)
 
-  const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
+  // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
@@ -423,8 +423,8 @@ const page = (props: any) => {
                       dispatch={dispatch}
                       modelType='model'
                       userSettings={memoryAkmmUser}
-                      visibleFocusDetails={visibleFocusDetails}
-                      setVisibleFocusDetails={setVisibleFocusDetails}
+                      visibleFocusDetails={props.visibleFocusDetails}
+                      setVisibleFocusDetails={props.setVisibleFocusDetails}
                     />
                   </div>
                 </Col>

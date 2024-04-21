@@ -862,10 +862,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const myGoModel = myMetis.gojsModel;
                 myMetis.deleteViewsOnly = false;
                 myDiagram.selection.each(function (sel) {
-                  const inst = sel.data;
-                  if (inst.category === constants.gojs.C_OBJECT) {
-                    if (debug) console.log('744 inst', inst);
-                    const object = inst.object;
+                  const data = sel.data;
+                  if (data.category === constants.gojs.C_OBJECT) {
+                    const objview = myModelview.findObjectView(data.key);
+                    const object = objview.object;
                     const objviews = object.objectviews;
                     if (objviews) {
                       objviews.forEach(ov => {
@@ -876,7 +876,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         }
                       })
                     }
-                    let node = myGoModel.findNode(inst.key);
+                    let node = myGoModel.findNode(data.key);
                     if (debug) console.log('749 node', node);
                     if (node?.isGroup) {
                       const groupMembers = node.getGroupMembers(myGoModel);
@@ -891,8 +891,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         l.isSelected = true;
                       });
                   }
-                  if (inst.category === constants.gojs.C_OBJECTTYPE) {
-                    const node = myDiagram.findNodeForKey(inst.key);
+                  if (data.category === constants.gojs.C_OBJECTTYPE) {
+                    const node = myDiagram.findNodeForKey(data.key);
                     node.findLinksConnected().each(function (l) {
                       l.isSelected = true;
                     });

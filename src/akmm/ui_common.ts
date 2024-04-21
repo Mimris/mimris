@@ -706,9 +706,8 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
-    if (debug) console.log('697 link', link);
     if (link) {
-        const relview = myModelview.findRelationshipView(link.key) as akm.cxRelationshipView;
+        const relview = myModelview.findRelationshipView(data.key) as akm.cxRelationshipView;
         const relship = relview.relship;
         // Handle deleteViewsOnly
         if (myMetis.deleteViewsOnly) {

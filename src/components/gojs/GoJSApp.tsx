@@ -1113,7 +1113,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const sel = it.value;
             const data = sel.data;
             if (data.category === constants.gojs.C_OBJECT) {
-              const key = data.objectview.id;
+              const key = data.key;
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
                 uic.deleteNode(myNode, deletedFlag, context);
@@ -1216,6 +1216,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               part.scale1 = Number(goNode.scale1);
             }
           }
+          if (goNode) {
+            goNode.object = null;
+            goNode.objecttype = null;
+            goNode.objectview = null;
+          }
           const isLabel = (part.typename === 'Label');
 
           if (part.type === 'objecttype') {
@@ -1244,6 +1249,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           node.updateTargetBindings();
         })
+        for (let it = myDiagram.nodes; it?.next();) {
+          const n = it.value;
+          const data = n.data;
+          if (data) {
+            data.object = null;
+            data.objectview = null;
+            data.objecttype = null;
+          }
+        }
         if (debug) console.log('1242 myGoModel', myGoModel);
         break;
       }

@@ -91,8 +91,8 @@ export class goModel {
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                const objview = n.objectview as akm.cxObjectView;
-                if (objview && objview.id === objviewId) {
+                const objviewRef = n.objviewRef;
+                if (objviewRef === objviewId) {
                     return (n);
                 }
                 i++;
@@ -107,7 +107,7 @@ export class goModel {
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                if (n.object && n.object.id === objId) {
+                if (n.objectRef === objId) {
                     return (n);
                 }
                 i++;
@@ -410,9 +410,11 @@ export class goNode extends goMetaObject {
 
 export class goObjectNode extends goNode {
     objectview: akm.cxObjectView | null;
-    //objectview_0: akm.cxObjectView | null;
     object: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
+    objviewRef: string;
+    objRef: string;
+    objtypeRef: string;
     typename: string;
     typedescription: string;
     typeview: akm.cxObjectTypeView | null;
@@ -446,6 +448,9 @@ export class goObjectNode extends goNode {
         this.objectview     = objview as akm.cxObjectView;
         this.object         = null as akm.cxObject;
         this.objecttype     = null as akm.cxObjectType;
+        this.objviewRef     = objview.id;
+        this.objRef         = objview?.object?.id;
+        this.objtypeRef     = objview?.object?.type?.id;
         this.leftPorts      = null as akm.cxPort[];
         this.rightPorts     = null as akm.cxPort[];
         this.topPorts       = null as akm.cxPort[];
@@ -816,6 +821,9 @@ export class goRelshipLink extends goLink {
     relshipview:        akm.cxRelationshipView | null;
     relship:            akm.cxRelationship | null;
     relshiptype:        akm.cxObjectType | akm.cxRelationshipType | null;
+    relviewRef:         string;
+    relshipRef:         string;
+    reltypeRef:         string;
     typename:           string;
     typedescription:    string;
     typeview:           akm.cxRelationshipTypeView | null;
@@ -852,6 +860,9 @@ export class goRelshipLink extends goLink {
         this.relshipview     = relview;
         this.relship         = null;
         this.relshiptype     = null;
+        this.relviewRef      = relview.id;
+        this.relshipRef      = relview?.relship?.id;
+        this.reltypeRef      = relview?.relship?.type?.id;
         this.typename        = "";
         this.typedescription = "";
         this.typeview        = null;

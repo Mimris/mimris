@@ -105,22 +105,20 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     } catch {
       // Do nothing
     }
-
   }
   // Handle relationships
   if (obj.category === constants.gojs.C_RELATIONSHIP) {
       const link = obj;
-      instview = myMetis.findRelationshipView(link?.key);    
-      myInst = myMetis.findRelationship(instview?.relship.id);
-      if (!myInst) myInst = obj;
-      myInstview = instview
-      typeview = myInst?.type?.typeview;
+      let myRelview: akm.cxRelationshipView = myMetis.findRelationshipView(link?.key);    
+      let myRelship: akm.cxRelationship = myRelview?.relship;
+      if (!myRelship) myRelship = obj;
+      let myTypeview: akm.cxRelationshipTypeView = myRelview?.typeview;
       if (context?.what === "editRelshipview") 
-          myItem = instview;
+          myItem = myRelview;
       else if (context?.what === "editTypeview") {
-          myItem = myInst?.type?.typeview?.data;
-      } else
-          myItem = myInst;
+          myItem = myTypeview;
+      } else // editRelship
+          myItem = myRelship;
       if (myItem) 
           myItem[propname] = value;
   }
@@ -605,6 +603,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       // End fix
       let obj = oview.object;
+      if (obj)
+        obj = myMetis.findObject(obj.id);
       // if (selObj.object) {
       //   obj = selObj.object;
       //   obj = myMetis.findObject(obj?.id);
@@ -831,10 +831,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const objtypeview = oview.typeview;
       myDiagram.selection.each(function(sel) {
         // let objview = sel.data.objectview;
-        let objview = sel.key;
+        let objview = myMetis.findObjectView(sel.key);
         if (objview) {
-          // objview = myMetis.findObjectView(objview.id);
-          objview = myMetis.findObjectView(sel.key);
           for (let prop in  objtypeview?.data) {
             if (prop === 'viewkind') {
               if (objview[prop] === 'Object') {

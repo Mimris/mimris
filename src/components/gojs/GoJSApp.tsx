@@ -1133,7 +1133,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const sel = it.value;
             const data = sel.data;
             if (data.category === constants.gojs.C_OBJECT) {
-              const key = data.objectview.id;
+              const key = data.key;
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
                 uic.deleteNode(myNode, deletedFlag, context);

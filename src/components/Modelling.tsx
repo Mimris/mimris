@@ -52,7 +52,7 @@ const page = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (debug) console.log('52 Modelling:', props)//, props);        
+  if (!debug) console.log('55 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);
@@ -68,7 +68,7 @@ const page = (props: any) => {
   const [loaded, setLoaded] = useState(false)
   // const [visibleContext, setVisibleContext] = useState(true)
 
-  const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
+  // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
@@ -95,18 +95,6 @@ const page = (props: any) => {
   const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
   const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
   const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
-
-  // const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  // const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  // const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  // const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
-
-  // let myModel, myModelview, myMetamodel
-  // let myGoModel, myGoMetamodel
-  // let myGoObjectPalette, myGoRelshipPalette, myGoMetamodelModel, myGoMetamodelPalette, myGoTargetMetamodel
-  // let myGoTargetModel, myTargetModelview, myTargetMetamodel, myTargetModel, myTargetMetamodelPalette
-
-  // let gojsmetamodelpalette, gojsmetamodelmodel, gojsmodel, gojsmetamodel, gojsmodelobjects, gojstargetmodel, gojstargetmetamodel
 
   const [gojsmodel, setGojsmodel] = useState(null)
   const [gojsmetamodel, setGojsmetamodel] = useState(null)
@@ -265,8 +253,6 @@ const page = (props: any) => {
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
-        // gojsModel={gojsmetamodelmodel}
-        // gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
@@ -277,17 +263,17 @@ const page = (props: any) => {
 
     const paletteMetamodelDiv =  // this is the metamodel modelling area
       <Modeller
-        // gojsModel={gojsmetamodelmodel}
-        // gojsMetamodel={gojsmetamodelpalette}
         myMetis={myMetis}
         metis={metis}
         phData={phData}
         phFocus={phFocus}
         dispatch={dispatch}
-        modelType='metamodel'
         phUser={phUser}
+        modelType='metamodel'
         phSource={phSource}
         userSettings={memoryAkmmUser}
+        visibleFocusDetails={props.visibleFocusDetails}
+        setVisibleFocusDetails={props.setVisibleFocusDetails}
       />
 
     const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
@@ -411,20 +397,17 @@ const page = (props: any) => {
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
-                      // gojsModelObjects={gojsmodelobjects}
-                      // gojsModel={gojsmodel}
-                      // gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
+                      metis={metis}
                       phData={phData}
                       phFocus={phFocus}
-                      phUser={phUser}
-                      phSource={phSource}
-                      metis={metis}
                       dispatch={dispatch}
+                      phUser={phUser}
                       modelType='model'
+                      phSource={phSource}
                       userSettings={memoryAkmmUser}
-                      visibleFocusDetails={visibleFocusDetails}
-                      setVisibleFocusDetails={setVisibleFocusDetails}
+                      visibleFocusDetails={props.visibleFocusDetails}
+                      setVisibleFocusDetails={props.setVisibleFocusDetails}
                     />
                   </div>
                 </Col>

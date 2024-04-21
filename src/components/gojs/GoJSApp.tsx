@@ -1611,13 +1611,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = filterObject(myDiagram.findNodeForKey(data.from).data);
+        let fromNode = myDiagram.findNodeForKey(data.from).data;
         if (!fromNode) {
-          fromNode = filterObject(myDiagram.findNodeForKey(data.from).data);
+          fromNode = myDiagram.findNodeForKey(data.from).data;
         }
-        let toNode = filterObject(myDiagram.findNodeForKey(data.to).data);
+        let toNode = myDiagram.findNodeForKey(data.to).data;
         if (!toNode) {
-          toNode = filterObject(myDiagram.findNodeForKey(data.to).data);
+          toNode = myDiagram.findNodeForKey(data.to).data;
         }
 
         // Handle relationship types

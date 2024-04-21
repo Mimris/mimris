@@ -36,13 +36,8 @@ const page = (props: any) => {
   const [expanded, setExpanded] = useState(false);
   const [focusExpanded, setFocusExpanded] = useState(true);
   const [minimized, setMinimized] = useState(true);
-  // const [org, setOrg] = useState("");
-  // const [repo, setRepo] = useState("");
-  // const [branch, setBranch] = useState("");
-  // const [path, setPath] = useState("");
-  // const [file, setFile] = useState("");
-  // const [model, setModel] = useState("");
-  // const [modelview, setModelview] = useState("");
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
+
 
   function dispatchLocalStore(locStore) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -53,15 +48,15 @@ const page = (props: any) => {
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
-  if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
+  if (!debug) console.log('32 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
   const [isReloading, setIsReloading] = useState(false);
   // const [visible, setVisible] = useState(false)
   const [refresh, setRefresh] = useState(true);
   const [params, setParams] = useState(null);
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState(null);
   const [refreshContext, setRefreshContext] = useState(true);
-  const [render, setRender] = useState(false);
+  // const [render, setRender] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', []); //props);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
@@ -174,7 +169,9 @@ const page = (props: any) => {
     const timer = setTimeout(() => {
       getQuery()
     }, 1000);
+    if (debug) console.log('172 modelling useEffect 1', query, org, props)
     setMount(true)
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -207,6 +204,8 @@ const page = (props: any) => {
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}
+              visibleFocusDetails={visibleFocusDetails}
+              setVisibleFocusDetails={setVisibleFocusDetails}
             />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea" }}>
@@ -238,7 +237,10 @@ const page = (props: any) => {
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
               </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling />
+                <Modelling 
+                  visibleFocusDetails={visibleFocusDetails}
+                  setVisibleFocusDetails={setVisibleFocusDetails}
+                />
                 {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>
             </div>

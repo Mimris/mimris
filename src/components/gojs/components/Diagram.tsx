@@ -129,8 +129,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.diagramRef = React.createRef();
     this.state = {
       // myMetis: props.myMetis,
-      nodeDataArray: this.props.nodeDataArray.map(n => filterObject(n)),
-      linkDataArray: this.props.linkDataArray.map(l => filterObject(l)),
+      nodeDataArray: this.props.nodeDataArray,
+      linkDataArray: this.props.linkDataArray,
       showModal: false,
       selectedData: null,
       modalContext: null,

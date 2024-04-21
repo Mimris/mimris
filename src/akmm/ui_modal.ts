@@ -12,19 +12,39 @@ import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 const utils = require('./utilities');
 import * as constants from './constants';
+import { filter } from 'cheerio/lib/api/traversing';
 const RegexParser = require("regex-parser");
 
+
+function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
+  let newobj = {};
+  for (let i in obj) {
+    if (!obj.hasOwnProperty(i)) continue;
+    let tmpkey = i;
+    let tmpval = obj[i];
+    if (typeof obj[i] === "object") continue
+    newobj = {
+      ...newobj,
+      [tmpkey]: tmpval,
+    };
+    if (debug) console.log("130", i, obj[i], newobj);
+
+    if (debug) console.log("513 :", obj, newobj);
+  }
+  return newobj;
+}
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
   const propname = props.id;
   const fieldType = props.type;
   const obj = props.obj;
+
   const context = props.context;
   const pattern = props.pattern;
   // const myDiagram = context.myDiagram;
   let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
-    const node = obj;
+    const node = filterObject(obj);
     inst = node.objecttype;
     typeview = node.typeview;
 
@@ -42,7 +62,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   }
     // Handle objects
   if (obj.category === constants.gojs.C_OBJECT) {
-    const node = obj;
+    const node = filterObject(obj);
     instview = myMetis.findObjectView(node?.key);
     myInst = myMetis.findObject(instview.object.id);
     if (!myInst) myInst = obj;

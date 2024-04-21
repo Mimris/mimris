@@ -165,6 +165,7 @@ const page = (props: any) => {
         if (debug) console.log('174 modelling query error ', error);
       }
     }
+    setVisibleFocusDetails(true)
     if (debug) console.log('178 modelling useEffect 1', query, org, props)
     const timer = setTimeout(() => {
       getQuery()
@@ -237,9 +238,9 @@ const page = (props: any) => {
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
               </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling 
-                  visibleFocusDetails={visibleFocusDetails}
-                  setVisibleFocusDetails={setVisibleFocusDetails}
+                <Modelling props
+                  visibleFocusDetails
+                  setVisibleFocusDetails
                 />
                 {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>

@@ -25,7 +25,7 @@ const ReportModule = (props) => {
 
 
   // const dispatch = useDispatch()
-  const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
+  const [visibleTabsDiv, setVisibleTabsDiv] = useState(props.visibleFocusDetails)
   // function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
 

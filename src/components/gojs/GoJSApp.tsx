@@ -235,27 +235,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     //   if (objtype?.markedAsDeleted) continue;
     //   nodes.push(node);
     // }
-    // if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
-
-
-    // filter to get only attributes (objects removed)
-    function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
-      let newobj = {};
-      for (let i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        let tmpkey = i;
-        let tmpval = obj[i];
-        if (typeof obj[i] === "object") continue
-        newobj = {
-          ...newobj,
-          [tmpkey]: tmpval,
-        };
-        if (debug) console.log("130", i, obj[i], newobj);
-
-        if (debug) console.log("513 :", obj, newobj);
-      }
-      return newobj;
-    }
+    // if (nodes?.length > 0) myGoMetamodel.nodes = nodes
 
     // const gojsMetamodel = {
     //   nodeDataArray: myGoMetamodel?.nodes,
@@ -1157,8 +1137,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
                 relview.markedAsDeleted = deletedFlag;
                 const relship = relview.relship;
-                if (myMetis.deleteViewsOnly) 
-                    relship.markedAsDeleted = false;
+                if (myMetis.deleteViewsOnly)
+                  relship.markedAsDeleted = false;
                 const jsnRelship = new jsn.jsnRelationship(relship);
                 modifiedRelships.push(jsnRelship);
                 const jsnRelview = new jsn.jsnRelshipView(relview);

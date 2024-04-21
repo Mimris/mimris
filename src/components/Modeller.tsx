@@ -36,7 +36,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const Modeller = (props: any) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
-    
+
     if (!debug) console.log('39 Modeller: props', props);
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
@@ -78,7 +78,7 @@ const Modeller = (props: any) => {
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
-    
+
     // const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
 
     const handleExportSvgReady = (exportSvgFunction, isReady) => {
@@ -110,11 +110,11 @@ const Modeller = (props: any) => {
 
 
     function toggleRefreshObjects() {
-            if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
-            saveModelsToLocState(props, memoryLocState, setMemoryLocState)
-            if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
-            if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
-            setRefresh(!refresh)
+        if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
+        saveModelsToLocState(props, memoryLocState, setMemoryLocState)
+        if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
+        if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
+        setRefresh(!refresh)
     }
 
 
@@ -175,6 +175,8 @@ const Modeller = (props: any) => {
         if (debug) console.log('186 Modeller: handleProjectChange', event);
         setMvName(event.target.value);
     }
+
+
 
     const handleModelviewBlur = () => { // finish editing project name
         if (debug) console.log('190 Modeller: handleProjectChange', displayValue);

@@ -20,6 +20,25 @@ const constants = require('../akmm/constants');
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
+
+function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
+  let newobj = {};
+  for (let i in obj) {
+    if (!obj.hasOwnProperty(i)) continue;
+    let tmpkey = i;
+    let tmpval = obj[i];
+    if (typeof obj[i] === "object") continue
+    newobj = {
+      ...newobj,
+      [tmpkey]: tmpval,
+    };
+    if (debug) console.log("130", i, obj[i], newobj);
+
+    if (debug) console.log("513 :", obj, newobj);
+  }
+  return newobj;
+}
+
 const GenGojsModel = async (props: any, myMetis: any) => {
   // let myMetis = yourMetis;
   // let goParams = {};
@@ -41,7 +60,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
   if (metis != null) {
     if (!debug) clog('42 GenGojsModel: props', props);
-    if (!debug) clog('43 GenGojsModel: metis', props.phData.metis);
+    if (debug) clog('43 GenGojsModel: metis', props.phData.metis);
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
       ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
@@ -59,16 +78,17 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
     if (debug) console.log('51 GenGojsModel: metis', metis, myMetis);
     myMetis?.importData(metis, true);
-
     adminModel = uib.buildAdminModel(myMetis);
-    if (debug) clog('64 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
+
+    if (!debug) clog('86 GenGojsModel :', myMetis)
+    if (debug)clog('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
       if (debug) console.log('71 myModel :', myModel);
       let myModelview = (curmodview) && myModel?.findModelView(curmodview?.id);
       if (debug) console.log('73 myModelview', myModelview);
-      const myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
+      let myGoModel = uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified);
       if (debug) console.log('75 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       let myMetamodel = myModel?.metamodel;
       if (debug) console.log('77 myMetamodel :', myMetamodel);
@@ -89,16 +109,25 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
       if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
+      myGoModel.nodes = myGoModel.nodes.map(ns =>filterObject(ns)); //remoe all objects from the node
+      myGoModel.links = myGoModel.links.map(ls =>filterObject(ls)); //remoe all objects from the link
+
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelview);
-      if (debug) console.log('121 GenGojsModel  myMetis', myMetis);
+
+      if (debug) console.log('81 GenGojsModel: metis', myMetis.gojsModel);
+      console.log('81 GenGojsModel: filternodes, nodes', filterObject(myMetis?.gojsModel?.nodes), myMetis?.gojsModel?.nodes);
+
+
+      if (!debug) console.log('121 GenGojsModel  myMetis', myMetis);
       if (debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
       if (!myMetis && !myModel && !myModelview && !myMetamodel) {
         console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);
         return null;
       }
+
     }
   }
   if (debug) console.log('172 GenGojsModel myMetis', myMetis);

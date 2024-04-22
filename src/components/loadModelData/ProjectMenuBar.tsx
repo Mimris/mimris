@@ -17,15 +17,15 @@ const debug = false;
 export const ProjectMenuBar = (props: any) => {
     if (!debug) console.log('18 ProjectMenuBar', props);
     const dispatch = useDispatch();
-    if (!props.props.phData) return null;
-    const project = props.props.phData.metis;
-    const source = props.props.phSource;
-    // const refresh = props.props.toggleRefresh;
-    // const toggleRefresh = props.props.setRefresh;
+    if (!props.phData) return null;
+    const project = props.phData.metis;
+    const source = props.phSource;
+    // const refresh = props.toggleRefresh;
+    // const toggleRefresh = props.setRefresh;
     const [minimized, setMinimized] = useState(false);
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
-    const [projectname, setProjectname] = useState(props.props.phFocus.focusProj.name);
+    const [projectname, setProjectname] = useState(props.phFocus.focusProj.name);
 
     const [isLeftDropdownOpen, setIsLeftDropdownOpen] = useState(false);
     const [isRightDropdownOpen, setIsRightDropdownOpen] = useState(false);
@@ -33,6 +33,7 @@ export const ProjectMenuBar = (props: any) => {
     const [activeRightItem, setActiveRightItem] = useState(null);
     const [isLeftHovered, setIsLeftHovered] = useState(false);
     const [isRightHovered, setIsRightHovered] = useState(false);
+    // const [exportTab, setExportTab] = useState(false);
 
     const handleItemClick = (item) => {
         setActiveItem(item);
@@ -51,15 +52,15 @@ export const ProjectMenuBar = (props: any) => {
     // };
 
     const handleReadProjectFile = (e: any) => {
-        ReadModelFromFile(props.props, dispatch, e);
+        ReadModelFromFile(props, dispatch, e);
     }
 
     const handleSaveAllToFile = () => {
-        setProjectname(props.props.phFocus.focusProj.name);
+        setProjectname(props.phFocus.focusProj.name);
         const data = `${projectname}_PR`
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-        if (debug) console.log('57 handleSaveAllToFile', props, projectname, props.props.phFocus)
-        SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
+        if (debug) console.log('57 handleSaveAllToFile', props, projectname, props.phFocus)
+        SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 
     const handleCloseModal = () => {
@@ -96,7 +97,7 @@ export const ProjectMenuBar = (props: any) => {
             className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
             <Modal.Header closeButton>Set GitHub data: </Modal.Header>
             <Modal.Body >
-                <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+                <ProjectDetailsForm props={props} onSubmit={handleSubmit} />
             </Modal.Body>
             <Modal.Footer>
                 <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
@@ -134,12 +135,14 @@ export const ProjectMenuBar = (props: any) => {
         };
     }, []);
 
-    const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props.props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} path='' />;
-    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} toggleRefresh={props.toggleRefresh} />;
-    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
+    const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} path='' />;
+    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setToggleRefresh={props.setToggleRefresh} />;
+
+    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setToggleRefresh={props.setToggleRefresh} />
+
     // const exportjsonfile = 
-    const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props.props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} path='akm-metamodels' />;
-    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.toggleRefresh} />
+    const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} path='akm-metamodels' />;
+    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
 
     const loadFile = (
@@ -257,9 +260,13 @@ export const ProjectMenuBar = (props: any) => {
                                                     <details className=" border rounded text-white ps-1"
                                                         style={{ backgroundColor: "#999" }}
                                                     >
-                                                        <summary className="bg-light my-1 me-1 ps-1 text-black">OSDU Import/Export</summary>
-                                                            <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadjsonfile}</div>
-                                                            <div className="" onClick={props.setVisibleFocusDetails(true)}><i className="fa fa-folder fa-lg mx-1 mt-3"></i>exportjsonfile</div>
+                                                        <summary className="bg-success my-1 me-1 ps-1">OSDU Import/Export</summary>
+                                                            <div className="bg-success ps-3 my-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadjsonfile}</div>
+                                                            <div className="bg-success ps-3 my-1" 
+                                                                onClick={() => {props.setVisibleFocusDetails(true); props.setExportTab(2)}}>
+                                                                <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
+                                                                <span className="ps-2">Export csv to Excel</span>
+                                                            </div>
                                                     </details>
                                                     </>
                                                     : item === 'Export'
@@ -272,13 +279,13 @@ export const ProjectMenuBar = (props: any) => {
             <>
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.props.phFocus.focusProj.org !== '' && props.props.phFocus.focusProj.repo !== '' && props.props.phFocus.focusProj.branch !== '' && props.props.phFocus.focusProj.path !== '') &&                    
+                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&                    
                         <Link
                             className="text-primary ms-1"
-                            href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
+                            href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
                             target="_blank"
                         >
-                            {props.props.phFocus.focusProj.repo}
+                            {props.phFocus.focusProj.repo}
                         </Link>
                     }
                 </div>
@@ -286,10 +293,10 @@ export const ProjectMenuBar = (props: any) => {
                     GitHub Project No. :
                     <Link
                         className="text-primary"
-                        href={`https://github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
+                        href={`https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}`}
                         target="_blank"
                     >
-                        <button className="text-primary border rounded bg-transparent px-5" >{props.props.phFocus.focusProj.projectNumber} </button>
+                        <button className="text-primary border rounded bg-transparent px-5" >{props.phFocus.focusProj.projectNumber} </button>
                     </Link>
                 </div>
             </>
@@ -366,7 +373,7 @@ export const ProjectMenuBar = (props: any) => {
                             title="Project Number in the GitHub Repository"
                         >
                             <span className="px-1">
-                                Project : <span className="px-1">{props.props.phFocus.focusProj.name} </span>
+                                Project : <span className="px-1">{props.phFocus.focusProj.name} </span>
                             </span>
                             <span
                                 className="pe-1"
@@ -374,10 +381,10 @@ export const ProjectMenuBar = (props: any) => {
                             >
                                 <Link
                                     className="text-primary"
-                                    href={`https://github.com/orgs/${props.props.phFocus.focusProj.org}/projects/${props.props.phFocus.focusProj.projectNumber}`}
+                                    href={`https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}`}
                                     target="_blank"
                                 >
-                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }} >no. {props.props.phFocus.focusProj.projectNumber} </button>
+                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }} >no. {props.phFocus.focusProj.projectNumber} </button>
                                 </Link>
                             </span>
                         </span>
@@ -392,13 +399,13 @@ export const ProjectMenuBar = (props: any) => {
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
                             >
-                                {(props.props.phFocus.focusProj.org !== '' && props.props.phFocus.focusProj.repo !== '' && props.props.phFocus.focusProj.branch !== '' && props.props.phFocus.focusProj.path !== '') &&                                  
+                                {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&                                  
                                     <Link
                                     className="text-primary"
-                                    href={`https://github.com/${props.props.phFocus.focusProj.org}/${props.props.phFocus.focusProj.repo}/tree/${props.props.phFocus.focusProj.branch}/${props.props.phFocus.focusProj.path}`}
+                                    href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
                                     target="_blank"
                                     >
-                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.props.phFocus.focusProj.repo} </button>
+                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.phFocus.focusProj.repo} </button>
                                 </Link>
                                 }
                             </span>
@@ -410,7 +417,7 @@ export const ProjectMenuBar = (props: any) => {
                             <span className="px-1 ms-1" style={{ backgroundColor: "#efe" }}
                                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
                                 title="This is the Branch name in the GitHub Repository"
-                            > {props.props.phFocus.focusProj.branch}</span>
+                            > {props.phFocus.focusProj.branch}</span>
                         </span>
                     </div>
                 </div>
@@ -431,7 +438,7 @@ export const ProjectMenuBar = (props: any) => {
                         <span className="px-1 ms-1" style={{ backgroundColor: "#efe", whiteSpace: "nowrap" }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
                             title="This is the Project File name"
-                        > {props.props.phFocus.focusProj.file}</span>
+                        > {props.phFocus.focusProj.file}</span>
                     </div>
                     <div className="d-fle justify-content-end align-items-top rounded-2 my-0 px-1"
                         style={{ whiteSpace: "nowrap" }}
@@ -460,7 +467,7 @@ export const ProjectMenuBar = (props: any) => {
                 <div className="ms-auto me-5 mt-1 rounded-2"
                     style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
                 >
-                    {/* Project file: {props.props.phFocus.focusProj.file} */}
+                    {/* Project file: {props.phFocus.focusProj.file} */}
                 </div>
                 <div className="ms-auto me-5 px-1 rounded-2"
                     style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "120px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
@@ -531,7 +538,7 @@ export const ProjectMenuBar = (props: any) => {
                         </div>
                         <div className="modal-body">
                             <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.props, dispatch, e)} style={{ width: "580px" }} />
+                                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ width: "580px" }} />
                             </div>
                         </div>
                         <div className="modal-footer">

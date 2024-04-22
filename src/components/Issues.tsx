@@ -15,7 +15,7 @@ import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 const debug = false;
 
 const Issues = (props) => {
-  if (debug) console.log('25 Tasks props', props.props.phData, props);
+  if (debug) console.log('25 Tasks props', props.phData, props);
 
   const dispatch = useDispatch();
 
@@ -43,14 +43,14 @@ const Issues = (props) => {
   const [focusIssue, setFocusIssue] = useState(null);
 
 
-  const [org, setOrg] = useState(props.props.phFocus.focusProj?.org)
-  const [repo, setRepo] = useState(props.props.phFocus.focusProj?.repo)
-  const [path, setPath] = useState(props.props.phFocus.focusProj?.path)
-  const [file, setFile] = useState(props.props.phFocus.focusProj?.file)
-  const [branch, setBranch] = useState(props.props.phFocus.focusProj?.branch)
-  const [focus, setFocus] = useState(props.props.phFocus.focusProj?.focus)
-  const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj?.ghtype)
-  const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
+  const [org, setOrg] = useState(props.phFocus.focusProj?.org)
+  const [repo, setRepo] = useState(props.phFocus.focusProj?.repo)
+  const [path, setPath] = useState(props.phFocus.focusProj?.path)
+  const [file, setFile] = useState(props.phFocus.focusProj?.file)
+  const [branch, setBranch] = useState(props.phFocus.focusProj?.branch)
+  const [focus, setFocus] = useState(props.phFocus.focusProj?.focus)
+  const [ghtype, setGhtype] = useState(props.phFocus.focusProj?.ghtype)
+  const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
 
   // useEffect(() => {
   // if (currentRoute === '/modelling') setMinimized(true);
@@ -73,14 +73,14 @@ const Issues = (props) => {
     //     toggleMinimize();
     //   }
     // };
-    setOrg(props.props.phFocus.focusProj?.org);
-    setRepo(props.props.phFocus.focusProj?.repo);
-    setPath(props.props.phFocus.focusProj?.path);
-    setFile(props.props.phFocus.focusProj?.file);
-    setBranch(props.props.phFocus.focusProj?.branch);
-    setFocus(props.props.phFocus.focusProj?.focus);
-    setGhtype(props.props.phFocus.focusProj?.ghtype);
-    setProjectNumber(props.props.phFocus.focusProj?.projectNumber);
+    setOrg(props.phFocus.focusProj?.org);
+    setRepo(props.phFocus.focusProj?.repo);
+    setPath(props.phFocus.focusProj?.path);
+    setFile(props.phFocus.focusProj?.file);
+    setBranch(props.phFocus.focusProj?.branch);
+    setFocus(props.phFocus.focusProj?.focus);
+    setGhtype(props.phFocus.focusProj?.ghtype);
+    setProjectNumber(props.phFocus.focusProj?.projectNumber);
 
     issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
     issueUrlDone = `https://api.github.com/repos/${org}/${repo}/issues?state=closed`
@@ -238,7 +238,7 @@ const Issues = (props) => {
           {/* : <div className='text-muted'>Unable to get issues for this repo!</div> */}
         </div>
 
-        {/* <ReportModule props={props.props} reportType="task" modelInFocusId={mothermodel?.id} /> */}
+        {/* <ReportModule props={props} reportType="task" modelInFocusId={mothermodel?.id} /> */}
       </Modal.Body>˝
       <Modal.Footer>
         <Button variant="secondary" onClick={handleCloseModal}>
@@ -363,7 +363,7 @@ const Issues = (props) => {
                   <i className="fa fa- fa-plus"></i>
                 </button>
               </div>
-              <div className="font-weight-bold p-1 text-success fs-6"> # {props.props.phFocus.focusIssue?.id}: {props.props.phFocus.focusIssue?.name}</div>
+              <div className="font-weight-bold p-1 text-success fs-6"> # {props.phFocus.focusIssue?.id}: {props.phFocus.focusIssue?.name}</div>
             </div>
             <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "64vh" }}>
               <hr className="m-0" />

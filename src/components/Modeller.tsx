@@ -489,8 +489,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         </Col>
                         <Col className="me-1 my-1 p-1 border " xs="auto" >
                             <div className="" style={{ backgroundColor: "#cdd" }}>
-                                {(!props.visibleFocusDetails) ?
-                                    <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} visibleFocusDetails={props.visibleFocusDetails} />
+                                {(props.visibleFocusDetails) ?
+                                    <ReportModule 
+                                        props={props} 
+                                        reportType="object" 
+                                        edit={true} 
+                                        modelInFocusId={props.phFocus.focusModel?.id} 
+                                        exportTab={props.exportTab}
+                                    />
                                     : <></>
                                 }
                             </div>

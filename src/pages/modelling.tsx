@@ -37,6 +37,7 @@ const page = (props: any) => {
   const [focusExpanded, setFocusExpanded] = useState(true);
   const [minimized, setMinimized] = useState(true);
   const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
+  const [exportTab, setExportTab] = useState(0);
 
 
   function dispatchLocalStore(locStore) {
@@ -48,7 +49,7 @@ const page = (props: any) => {
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
-  if (!debug) console.log('32 modelling', props) //(props.phList) && props.phList);
+  if (!debug) console.log('51 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
   const [isReloading, setIsReloading] = useState(false);
   // const [visible, setVisible] = useState(false)
@@ -165,7 +166,7 @@ const page = (props: any) => {
         if (debug) console.log('174 modelling query error ', error);
       }
     }
-    setVisibleFocusDetails(true)
+    // setVisibleFocusDetails(true)
     if (debug) console.log('178 modelling useEffect 1', query, org, props)
     const timer = setTimeout(() => {
       getQuery()
@@ -201,19 +202,20 @@ const page = (props: any) => {
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
-            <ProjectMenuBar props={props}
+            <ProjectMenuBar {...props}
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}
               visibleFocusDetails={visibleFocusDetails}
               setVisibleFocusDetails={setVisibleFocusDetails}
+              exportTab={exportTab} setExportTab={setExportTab}
             />
             <div className="context-bar d-flex justify-content-between align-items-center"
               style={{ backgroundColor: "#ffffea" }}>
               {focusExpanded &&
                 <>
                   <div className="issuesarea">
-                    <Issues props={props}
+                    <Issues {...props}
                       showModal={showModal} setShowModal={setShowModal}
                       showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal}
                       minimized={minimized} setMinimized={setMinimized}
@@ -238,9 +240,10 @@ const page = (props: any) => {
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
               </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling props
-                  visibleFocusDetails
-                  setVisibleFocusDetails
+                <Modelling {...props}
+                  visibleFocusDetails = {visibleFocusDetails}
+                  setVisibleFocusDetails = {setVisibleFocusDetails}
+                  exportTab = {exportTab}
                 />
                 {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>

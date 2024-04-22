@@ -20,7 +20,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const modalRef = useRef(null);
   // const backdropref = useRef(null);
 
-  if ((debug)) console.log('23 LoadNewModel....', props)
+  if (!debug) console.log('23 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -31,10 +31,10 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   // const repository = 'cumulus-akm-pocc'
   // const path = 'Cumulus'
 
-  let phFocus = props.ph.props.phFocus;
-  let phData = props.ph.props.phData
-  let phUser = props.ph.props.phUser
-  let phSource = props.ph.props.phSource
+  let phFocus = props.ph.phFocus;
+  let phData = props.ph.phData
+  let phUser = props.ph.phUser
+  let phSource = props.ph.phSource
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
   
@@ -58,9 +58,9 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
 
   const data = {
-    phData:   props.ph.props.phData,
-    phFocus:  props.ph.props.phFocus,
-    phUser:   props.ph.props.phUser,
+    phData:   props.ph.phData,
+    phFocus:  props.ph.phFocus,
+    phUser:   props.ph.phUser,
     // phSource: props.phSource,
     phSource: (phSource === "") && phData.metis.name  || phSource,
     lastUpdate: new Date().toISOString()
@@ -221,10 +221,10 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   }, [refresh]);
 
   // useEffect(() => {
-  //   setOrgnameText(props.ph.props.phFocus?.focusProj?.org)
-  //   setRepoText(props.ph.props.phFocus?.focusProj?.repo)
-  //   setPathText(props.ph.props.phFocus?.focusProj?.path) // !== '') ? props.ph.props.phFocus?.focusProj?.path : 'models')
-  //   setBranchText(props.ph.props.phFocus?.focusProj?.branch)
+  //   setOrgnameText(props.ph.phFocus?.focusProj?.org)
+  //   setRepoText(props.ph.phFocus?.focusProj?.repo)
+  //   setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
+  //   setBranchText(props.ph.phFocus?.focusProj?.branch)
   //     if ((debug)) console.log('314 LoadGitHub ', orgnameText, repoText, branchText, pathText);
   //     // (repoText) && loadRepos(repoText, pathText);
   //     // (orgnameText) && loadModels(orgnameText, pathText)

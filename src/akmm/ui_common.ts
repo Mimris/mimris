@@ -337,18 +337,13 @@ export function createObjectType(data: any, context: any): any {
     }
 }
 
-export function updateObject(data: any, name: string, value: string, context: any) {
-    if ((data === null) || (name !== "name") || (!data.object)) {
+export function updateObject(nodeData: gjs.goObjectNode, name: string, value: string, context: any) {
+    if ((nodeData === null) || (name !== "name") || (!nodeData.objRef)) {
         return;
     } else {
         const myMetis = context.myMetis;
-        let currentObject = data.object;
-        let currentObjectView = data.objectview;
-        const obj = myMetis.findObject(currentObject.id);
-        if (obj) {
-            currentObject = obj;
-            currentObjectView = myMetis.findObjectView(currentObjectView.id);
-        }
+        let currentObject = myMetis.findObject(nodeData.objRef);
+        let currentObjectView = myMetis.findObjectView(nodeData.objviewRef);
         currentObject.setName(value);
         currentObject.setModified();
         if (currentObjectView) {

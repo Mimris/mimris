@@ -605,18 +605,21 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (group) {
                 const parentgroup = group;
                 node.group = parentgroup.key;
-                node.objectview.group = parentgroup.objectview.id;
+                const objectview = myMetis.findObjectView(node.objviewRef);
+                const objtypeview = myMetis.findObjectTypeView(node.objtypeRef);
+                const object = myMetis.findObject(node.objRef);
+                objectview.group = parentgroup.objviewRef;
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 // Handle hasMember relationships:
                 if (group?.objecttype?.id !== containerType?.id && hasMemberType) {
-                  const parentObj = parentgroup.object;
+                  const parentObj = myMetis.findObject(parentgroup.objRef);
                   let rel = null;
                   let fromObj = null;
                   let toObj = null;
                   // Check if a relationship of type 'hasMember' exists between the parent (group) 
                   // and the (current) node
                   let done = false;
-                  const inputRels = node.object.getInputRelshipsByType(hasMemberType);
+                  const inputRels = object.getInputRelshipsByType(hasMemberType);
                   // There ARE existing hasMember relationships: 
                   for (let i = 0; i < inputRels?.length; i++) {
                     // The result of the move should be one hasMember relationship 
@@ -654,14 +657,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // Handle EXISTING relationships of type hasMember 
                   for (let i = 0; i < outputRels?.length; i++) {
                     const r = outputRels[i];
-                    if (r.toObject.id !== node.object.id) {
+                    if (r.toObject.id !== node.objRef) {
                       // Not the correct relationship
                       continue;
                     }
                     // Found the correct relationship
                     rel = r;
                     // Find the corresponding relationship view if it exists and delete it
-                    const relviews = myModelview.getRelviewsByFromAndToObjviews(parentgroup.objectview, node.objectview);
+                    const parentObjview = myMetis.findObject(parentgroup.objviewRef);
+                    const relviews = myModelview.getRelviewsByFromAndToObjviews(parentObjview, objectview);
                     for (let j = 0; j < relviews?.length; j++) {
                       const relview = relviews[j];
                       relview.markedAsDeleted = true;
@@ -720,7 +724,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 let subNodes;
                 if (node.isGroup) { // The node moved IS a group
-                  node.memberscale = node.objectview.memberscale ? node.objectview.memberscale : node.typeview.memberscale;
+                  node.memberscale = objectview.memberscale ? objectview.memberscale : objtypeview.memberscale;
                   node.group = parentgroup.key;
                   // Scale the group members
                   subNodes = uic.scaleNodesInGroup(node, myGoModel, myObjectviews, myFromNodes, myToNodes, myDiagram);
@@ -905,7 +909,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview.size = node.size;
               if (node.group) {
                 let grp = myGoModel.findNode(node.group);
-                objview.group = grp?.objectview.id;
+                objview.group = grp.objviewRef;
               } else {
                 objview.group = "";
               }
@@ -1208,7 +1212,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (group) {
               const parentgroup = group;
               goNode.group = parentgroup.key;
-              goNode.objectview.group = parentgroup.objectview.id;
+              goNode.objectview.group = parentgroup.objviewRef;
               myDiagram.model.setDataProperty(part, "group", goNode.group);
               goNode.scale1 = new String(goNode.getMyScale(myGoModel));
               part.scale1 = Number(goNode.scale1);

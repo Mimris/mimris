@@ -186,7 +186,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const dropLeftMenuDiv = (isLeftDropdownOpen || isLeftHovered) && (
         <div
-            className="bg-light rounded-2 p-1"
+            className="bg-light rounded-2"
             style={{
                 whiteSpace: "nowrap",
                 position: "absolute",
@@ -198,14 +198,14 @@ export const ProjectMenuBar = (props: any) => {
             }}
         >
             {(isLeftDropdownOpen || isLeftHovered) &&
-                <div className="context-item">
-                    <strong className="text-success ms-2 fs-4" style={{ whiteSpace: "nowrap" }}>
+                <div className="context-item bg-white m-1">
+                    <strong className="bg-light text-success ps-2 fs-4 d-flex" style={{ whiteSpace: "nowrap" }}>
                         AKM Modeller
                     </strong>
                     {/* {(isLeftDropdownOpen) && */}
                     <div
                         className="d-flex justify-content-around p-1 m-0 w-100"
-                        style={{ position: "relative", top: "-8px", left: "0px" }}
+                        style={{ position: "relative", top: "-4px", left: "0px" }}
                     >
                         <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
                             <div className="d-flex ms-1 justify-content-end align-items-baseline">
@@ -228,7 +228,7 @@ export const ProjectMenuBar = (props: any) => {
                     {/* } */}
                 </div>
             }
-            <ul className="bg-light mx-1 rounded w-100">
+            <ul className="bg-light mx- rounded w-100">
                 {["Open", "New", "File", "Save", "Import", "Export", "Metamodel"].map((item, index) => (
                     <li
                         className={`context-item border p-1 rounded-2 ${item === activeItem ? "active" : ""}`}
@@ -249,7 +249,7 @@ export const ProjectMenuBar = (props: any) => {
                                             ? <div className="bg-light border border-4 rounded">{saveFile}</div>
                                             : item === 'Metamodel'
                                                 ? <details className=" border rounded text-white ps-1"
-                                                    style={{ backgroundColor: "#999" }}
+                                                    style={{ backgroundColor: "" }}
                                                 ><summary className="bg-light my-1 me-1 ps-1 text-black">Metamodel ...</summary>
                                                     <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div>
                                                     {/* <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div> */}
@@ -257,12 +257,12 @@ export const ProjectMenuBar = (props: any) => {
                                                 : item === 'Import'
                                                     ? 
                                                     <>
-                                                    <details className=" border rounded text-white ps-1"
-                                                        style={{ backgroundColor: "#999" }}
+                                                    <details className="bg-success border rounded text-white ps-1"
+                                                        // style={{ backgroundColor: "#ccc" }}
                                                     >
                                                         <summary className="bg-success my-1 me-1 ps-1">OSDU Import/Export</summary>
-                                                            <div className="bg-success ps-3 my-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadjsonfile}</div>
-                                                            <div className="bg-success ps-3 my-1" 
+                                                            <div className="bg-success border rounded border-warning ps-3 me-1 mb-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadjsonfile}</div>
+                                                            <div className="bg-success border rounded border-warning ps-3 me-1 mb-1" 
                                                                 onClick={() => {props.setVisibleFocusDetails(true); props.setExportTab(2)}}>
                                                                 <i className="fa fa-folder fa-lg mx-1 mt-3"></i>
                                                                 <span className="ps-2">Export csv to Excel</span>
@@ -496,20 +496,25 @@ export const ProjectMenuBar = (props: any) => {
                         position: "absolute",
                         top: "4px",
                         left: "3px",
-                        zIndex: "999"
+                        zIndex: "99"
                     }}
                     onMouseEnter={() => setIsLeftHovered(true)}
-                    onMouseLeave={() => {
-                        const timer = setTimeout(() => {
-                            setIsLeftHovered(false)
-                        }
-                        , 5000); 
-                    }}
-                    onClick={() => setIsLeftDropdownOpen(!isLeftDropdownOpen)}
+                    // onMouseLeave={() => {
+                    //     const timer = setTimeout(() => {
+                    //         setIsLeftHovered(false)
+                    //     }
+                    //     , 5000); 
+                    // }}
+                    onClick={() => { setIsLeftHovered((isLeftDropdownOpen) && false), setIsLeftDropdownOpen(!isLeftDropdownOpen) }}
                 >
                     <i className={`${isLeftDropdownOpen ? 'fa fa-bars fa-lg' : 'fa fa-bars bg-dark fa-lg'}`}></i>
-                    {dropLeftMenuDiv}
                 </div>
+                <div style={{
+                    position: "absolute",
+                    top: "4px",
+                    left: "3px",
+                    zIndex: "99"
+                }}>{dropLeftMenuDiv}</div>
                 <div className="bar-menu-right px-2 pb-2 bg-transparent"
                     style={{
                         position: "absolute",

@@ -304,7 +304,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   return (
     <>
-      <span><button className="btn bg-success text-light py-1 px-2" onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0"></i>{buttonLabel}</button></span>
+      <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> {/* OSDU Import button */}
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
         <ModalHeader className="handle" toggle={() => { toggle(); props.setToggleRefresh(!props.toggleRefresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>

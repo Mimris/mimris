@@ -474,7 +474,7 @@ const Modelling = (props: any) => {
     const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
     if (debug) console.log('460 Modelling', gojsmodelobjects);
@@ -482,12 +482,27 @@ const Modelling = (props: any) => {
     const modellingDiv =
       <>
         <div className="buttonrow d-flex justify-content-between align-items-center" style={{ maxHeight: "22px", minHeight: "18px", whiteSpace: "nowrap" }}>
-          <div className="me-2 my-0">
+          <div className="d-flex justify-content-between align-items-center">
             {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
               ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
+            <span className="btn bg-success me-1 d-flex justify-content-center align-items-center"            
+              data-bs-toggle="tooltip" 
+              data-bs-placement="top" 
+              title="Load downloaded Schema from OSDU (Jsonfiles)" 
+              // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
+            > 
+              {/* <i className="fa fa-house-tsunami fa-lg"></i> */}
+              {loadjsonfile} 
+            </span>
+            <span 
+              data-bs-toggle="tooltip" 
+              data-bs-placement="top" 
+              title="Save and Load models (import/export) from/to files" 
+              style={{ whiteSpace: "nowrap", marginRight: "6px"}}
+            > 
+              {loadfile} 
+            </span>
           </div>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
 

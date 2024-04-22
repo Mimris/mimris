@@ -2239,8 +2239,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
 
 export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[]): gjs.goObjectNode[] {
     const nodes = new Array();
-    const groupObjview = groupNode.objectview;
-    const groupId = groupObjview.id;
+    const groupId = groupNode.objviewRef;
     for (let i = 0; i < myObjectviews?.length; i++) {
         const oview = myObjectviews[i];
         const loc = oview?.loc;
@@ -2259,7 +2258,7 @@ export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myO
 export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[],
     fromLocs: any, toLocs: any): any[] {
     let fromScale = Number(groupNode.scale1);
-    let toScale = Number(groupNode.scale1) * Number(groupNode.objectview.memberscale);
+    let toScale = Number(groupNode.scale1) * Number(groupNode.memberscale);
     let scaleFactor = toScale / fromScale;
     // First handle the group itself
     const size = groupNode.size.split(" ");
@@ -2359,7 +2358,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                         objview.size = nod.size;
                         objview.modified = true;
                         if (nod.group)
-                            objview.group = grp.objectview.id;
+                            objview.group = grp.objviewRef;
                         else
                             objview.group = "";
                     }

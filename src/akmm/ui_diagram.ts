@@ -470,9 +470,9 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(node?.icon);
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
-    const object = myMetis.findObject(node?.object?.id);
-    const objectview = myMetis.findObjectView(node?.objectview?.id);
-    const objecttype = myMetis.findObjectType(object?.type?.id);
+    const object = myMetis.findObject(node?.objRef);
+    const objectview = myMetis.findObjectView(node?.objviewRef);
+    const objecttype = myMetis.findObjectType(node?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
     const myContext = {
         object:     object,
@@ -583,9 +583,9 @@ export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) 
     const icon = uit.findImage(node.icon);
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
-    const object = myMetis.findObject(node?.object?.id);
-    const objectview = myMetis.findObjectView(node?.objectview?.id);
-    const objecttype = myMetis.findObjectType(object?.type?.id);
+    const object = myMetis.findObject(node?.objRef);
+    const objectview = myMetis.findObjectView(node?.objviewRef);
+    const objecttype = myMetis.findObjectType(node?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
     const myContext = {
         object:     object,

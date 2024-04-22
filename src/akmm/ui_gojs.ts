@@ -121,7 +121,7 @@ export class goModel {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node: goObjectNode = this.nodes[i] as goObjectNode;
-                if (node.getKey() === key) {
+                if (node.key === key) {
                     return (node);
                 }
                 i++;

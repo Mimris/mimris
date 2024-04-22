@@ -3757,13 +3757,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const modalContext = this.state.modalContext;
     let selpropgroup = [{ tabName: 'Default' }];
     if (modalContext?.what === 'editObject') {
-
       let includeInherited = false;
       let includeConnected = false;
-      let obj = this.state.selectedData?.object;
-      let obj1 = this.myMetis.findObject(obj?.id);
-      if (!obj1) obj1 = obj;
-      if (obj1?.type?.name === 'Method')
+      let objRef = this.state.selectedData?.objRef;
+      let obj1 = this.myMetis.findObject(objRef);
+      let objtypeRef = this.state.selectedData?.objtypeRef;
+      let objtype = this.myMetamodel.findObjectType(objtypeRef);
+      // if (!obj1) obj1 = obj;
+      if (objtype?.name === 'Method')
         useTabs = true;
       if (obj1?.hasInheritedProperties(myModel)) {
         includeInherited = true;
@@ -3778,6 +3779,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myMetis: myMetis,
         myModel: myModel,
         myMetamodel: myMetamodel,
+        objtype: objtype,
         includeConnected: includeConnected,
         includeInherited: includeInherited,
       }

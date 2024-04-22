@@ -615,8 +615,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             // Move the object
-            let node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
-            node = goModel?.findNode(data.key);
+            let node: gjs.goObjectNode = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
             if (node) {
               node.scale1 = node.getMyScale(myGoModel).toString();
               const group = uic.getGroupByLocation(myGoModel, node.loc, node.size, node);

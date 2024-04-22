@@ -356,17 +356,18 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = sel.data;
         const textvalue = data.text;
         let field = e.subject.name;
+        if (field === "") field = "name";
         // Object type or Object
         if (sel instanceof go.Node) {
-          const key = data.key;
-          let text = data.name;
-          const category = data.category;
+          const key:string = data.key;
+          const myNode = myGoModel.findNode(key);
+          let text: string = data.name;
+          const category: string = data.category;
           // Object type
           if (category === constants.gojs.C_OBJECTTYPE) {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
-            const myNode = sel;
             if (myNode) {
               data.name = text;
               uic.updateObjectType(data, field, text, context);
@@ -381,13 +382,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               text = prompt('Enter name');
               data.name = text;
             }
-            const myNode = this.getNode(myGoModel, key);
+            const myNode: gjs.goObjectNode = this.getNode(myGoModel, key);
             if (myNode) {
               myNode.text = textvalue;
               myNode.name = text;
               let obj: akm.cxObject = uic.updateObject(myNode, field, text, context);
-              if (!obj)
-                obj = myNode.object;
               if (obj) {
                 obj.name = text;
                 obj.text = textvalue;
@@ -400,8 +399,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   let node = myGoModel.findNodeByViewId(objview?.id);
                   if (node) {
                     const n = myDiagram.findNodeForKey(node.key) as any;
-                    if (n) node = n;
-                    myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
+                    myDiagram.model?.setDataProperty(n.data, "name", myNode.name);
                     const jsnObjview = new jsn.jsnObjectView(objview);
                     jsnObjview.name = text;
                     jsnObjview.text = textvalue;
@@ -597,6 +595,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Move the object
             let node: gjs.goObjectNode = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
             if (node) {
+              node = myGoModel.findNode(node.key);
               node.scale1 = node.getMyScale(myGoModel).toString();
               const group = uic.getGroupByLocation(myGoModel, node.loc, node.size, node);
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);

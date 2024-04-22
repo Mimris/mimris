@@ -30,7 +30,14 @@ const ReportModule = (props) => {
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
 
   const [activeTab, setActiveTab] = useState(props.exportTab || 0);
+
   console.log('33 ReportModule', activeTab, props.exportTab)  
+
+  useEffect(() => {
+    // console.log('36 ReportModule', activeTab, props.exportTab)
+    if (props.exportTab) setActiveTab(2)
+  }, [])
+
 
   const tabsDiv = (
     <>
@@ -51,7 +58,7 @@ const ReportModule = (props) => {
                   <Tab ><FaCompass /></Tab> */}
             </TabList>
             <TabPanel className='p-1 border border-dark' >
-              <FocusDetails props={props} reportType={props.reportType} edit={true}/>
+              <FocusDetails props={props} reportType={props.reportType} edit={true} />
             </TabPanel>
             <TabPanel className='p-1 border border-dark' >
               <MarkdownEditor props={props} />

@@ -246,7 +246,7 @@ export const ProjectMenuBar = (props: any) => {
                                     : item === 'File'
                                         ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
                                         : item === 'Save'
-                                            ? <div className="bg-light border  border-4 rounded">{saveFile}</div>
+                                            ? <div className="bg-light border border-4 rounded">{saveFile}</div>
                                             : item === 'Metamodel'
                                                 ? <details className=" border rounded text-white ps-1"
                                                     style={{ backgroundColor: "#999" }}

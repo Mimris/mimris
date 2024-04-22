@@ -542,12 +542,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         let rloc;
         for (let it = selection.iterator; it?.next();) {
           const sel = it.value;
-          const nod = sel.data;
-          const data = myMetis.findObjectView(nod.key);
-          // const data = sel?.data;
-          if (debug) console.log('546 data', data, nod, selection, it, sel);
-          if (data?.category === 'Relationship' || data?.category === 'Relationship type')
-            continue;
+          const data = sel.data;
+          let objview: akm.cxObjectView = myMetis.findObjectView(data.key);
+          if (debug) console.log('546 objview', objview, data, selection, it, sel);
 
           // Object type
           if (data?.category === 'Object type' || data?.category === 'Object type view') {
@@ -577,13 +574,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myModelview = context.myModelview;
             const myObjectviews = myModelview?.objectviews;
             // The object to move
-            let fromObject = data.object;
+            let fromObject = objview.object;
             if (debug) console.log('581 fromObject', fromObject, data);
-            fromObject = myModel.findObject(fromObject.id);
             let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {
               const fnode = myFromNodes[j];
-              if (fnode.key === data.key) {
+              if (fnode.key === objview.id) {
                 fromNode = fnode;
                 fromloc = fnode.loc.valueOf();
                 break;
@@ -592,7 +588,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             let toloc, toNode;
             for (let j = 0; j < myToNodes.length; j++) {
               const tnode = myToNodes[j];
-              if (tnode.key === data.key) {
+              if (tnode.key === objview.id) {
                 toNode = tnode;
                 toloc = tnode.loc.valueOf();
                 break;
@@ -731,7 +727,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 if (debug) console.log('680 subNodes', subNodes);
               } else { // The node is NOT moved into a group, possibly OUT OF a group
-                const toObject = node.object;
+                const toObject = myModel.findObject(node.objRef);
+                const toObjview = myModelview.findObjectView(node.objviewRef);
                 node.group = "";
                 let fromScale = fromNode.scale;
                 let toScale = node.getMyScale(myGoModel); // 1;
@@ -800,24 +797,25 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
+                  let objview = myModelview.findObjectView(node.objviewRef);
                   if (count < 0) { // The reference node
                     count++;
                     rloc = node.loc;
-                    node.objectview.loc = node.loc;
+                    objview.loc = node.loc;
                   } else {
                     const nodeloc = uic.scaleNodeLocation2(node, rloc, toloc, scaleFactor);
                     if (nodeloc) {
                       const loc = nodeloc.x + " " + nodeloc.y;
                       toloc = new String(loc);
                       node.loc = loc;
-                      node.objectview.loc = toloc.valueOf();
+                      objview.loc = toloc.valueOf();
                       myDiagram.model.setDataProperty(n.data, "loc", loc);
                     }
                   }
 
                   // This is a node that is NOT inside a group
                   // I.e. the hasMember relationship should be visible
-                  node.objectview.group = "";
+                  objview.group = "";
                   node.scale1 = Number(toScale.valueOf());
                   myDiagram.model.setDataProperty(n, "scale", node.scale1);
                   // Handle hasMember relationships     
@@ -901,7 +899,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   break;
                 }
               }
-              const objview = node.objectview;
+              const objview = myMetis.findObjectView(node.objviewRef);
               objview.loc = node.loc;
               objview.scale1 = node.scale1;
               objview.size = node.size;

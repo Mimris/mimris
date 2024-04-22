@@ -264,7 +264,6 @@ const FocusDetails = (props, edit) => {
   // const objectProperties = Object.entries(curobject);
 
   const [activeTab, setActiveTab] = useState(0);
-
   const [activeTab2, setActiveTab2] = useState(0);
 
   const tabsDiv = (
@@ -437,8 +436,6 @@ const FocusDetails = (props, edit) => {
       }
     </Tabs>
   )
-
-
 
   return (
     <div className="context m-0" style={{ maxHeight: '78vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '78vh', overflowY: 'auto' }} >

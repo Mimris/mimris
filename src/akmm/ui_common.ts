@@ -1897,7 +1897,7 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
 
 export function hasMemberRelship(node: any, myMetis: akm.cxMetis): akm.cxRelationship {
     const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-    const toObj = node.object;
+    const toObj = myMetis.findObject(node.objRef);
     const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
     if (hasMemberRels?.length > 0)
         return hasMemberRels[0];

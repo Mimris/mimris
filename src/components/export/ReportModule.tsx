@@ -15,7 +15,7 @@ const debug = false
 
 const ReportModule = (props) => {
 
-  if (debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
+  if (!debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
   
   const ph = props.props.props || props.props 
   if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
@@ -25,11 +25,19 @@ const ReportModule = (props) => {
 
 
   // const dispatch = useDispatch()
-  const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
+  const [visibleTabsDiv, setVisibleTabsDiv] = useState(props.visibleFocusDetails)
   // function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
 
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(props.exportTab || 0);
+
+  console.log('33 ReportModule', activeTab, props.exportTab)  
+
+  useEffect(() => {
+    // console.log('36 ReportModule', activeTab, props.exportTab)
+    if (props.exportTab) setActiveTab(2)
+  }, [])
+
 
   const tabsDiv = (
     <>
@@ -50,7 +58,7 @@ const ReportModule = (props) => {
                   <Tab ><FaCompass /></Tab> */}
             </TabList>
             <TabPanel className='p-1 border border-dark' >
-              <FocusDetails props={props} reportType={props.reportType} edit={true}/>
+              <FocusDetails props={props} reportType={props.reportType} edit={true} />
             </TabPanel>
             <TabPanel className='p-1 border border-dark' >
               <MarkdownEditor props={props} />

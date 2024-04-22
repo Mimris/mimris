@@ -48,7 +48,7 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored console lo
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
-const page = (props: any) => {
+const Modelling = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
@@ -67,9 +67,7 @@ const page = (props: any) => {
   const [mount, setMount] = useState(false)
   const [loaded, setLoaded] = useState(false)
   // const [visibleContext, setVisibleContext] = useState(true)
-
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
-
 
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
   let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
@@ -408,6 +406,7 @@ const page = (props: any) => {
                       userSettings={memoryAkmmUser}
                       visibleFocusDetails={props.visibleFocusDetails}
                       setVisibleFocusDetails={props.setVisibleFocusDetails}
+                      exportTab={props.exportTab}
                     />
                   </div>
                 </Col>
@@ -561,7 +560,8 @@ const page = (props: any) => {
   }
 }
 
-export default Page(connect(state => state)(page));
+export default Modelling;
+// export default Page(connect(state => state)(page));
 
 
           // const toggleTab = tab => {

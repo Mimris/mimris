@@ -30,7 +30,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   const modelNames = props.ph.phData?.metis?.models.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (!debug) console.log('20 LoadLocal', props.ph.phData, props);
 
   if (typeof window === 'undefined') return
 
@@ -304,10 +304,10 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   return (
     <>
-      <span><button className="btn bg-primary text-light py-1 px-2" onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0"></i>{buttonLabel}</button></span>
+      <span><button className="btn bg-success text-light py-1 px-2" onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0"></i>{buttonLabel}</button></span>
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
-        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>
+        <ModalHeader className="handle" toggle={() => { toggle(); props.setToggleRefresh(!props.toggleRefresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>
         {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
         {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
         <ModalBody className="d-flex flex-column bg-primary">
@@ -442,7 +442,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title="Click here when done!" onClick={() => { toggle(); props.setRefresh(!props.refresh) }}>Done
+            title="Click here when done!" onClick={() => { toggle(); props.setToggleRefresh(!props.toggleRefresh) }}>Done
           </Button>
         </ModalFooter>
       </Modal>

@@ -51,7 +51,7 @@ const FocusDetails = (props, edit) => {
   if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
 
 
-  const curobject = (focusObjectview?.id === 'no objects selected') ? curmodelview : objects?.find(o => o.id === focusObject?.id)
+  const curobject = (focusObjectview?.id === 'no objects selected') ? curmodelview : objects?.find(o => o.id === focusObject?.id) // if no object selected then use the modelview
   const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
   const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
   const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
@@ -147,6 +147,7 @@ const FocusDetails = (props, edit) => {
     if (selectedId) {
       setSelectedId(null);
     }
+
   }, []);
 
   // const MDEditor = dynamic(
@@ -263,7 +264,6 @@ const FocusDetails = (props, edit) => {
   // const objectProperties = Object.entries(curobject);
 
   const [activeTab, setActiveTab] = useState(0);
-
   const [activeTab2, setActiveTab2] = useState(0);
 
   const tabsDiv = (
@@ -302,6 +302,7 @@ const FocusDetails = (props, edit) => {
             <TabList>
               <Tab>Children</Tab>
               <Tab>Relationship from and to Objects</Tab>
+              <Tab>Modelviews</Tab>
             </TabList>
             <TabPanel > {/* Children */}
               <ObjDetailTable
@@ -435,8 +436,6 @@ const FocusDetails = (props, edit) => {
       }
     </Tabs>
   )
-
-
 
   return (
     <div className="context m-0" style={{ maxHeight: '78vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '78vh', overflowY: 'auto' }} >

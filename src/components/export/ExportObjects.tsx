@@ -300,7 +300,7 @@ const ExportObjects = (props) => {
         </TabList>
         <TabPanel className="main-properties bg-light p-2 m-0" > {/* Main properties */}
           EntityType:
-          <div className="d-flex adjust-content-between align-items-center"><span className="fs-4">{curobject.name}</span><span className="ms-auto me-4">version:</span>
+          <div className="d-flex adjust-content-between align-items-center"><span className="fs-4">{curobject?.name}</span><span className="ms-auto me-4">version:</span>
           </div>
           <pre className=" text-white p-2 m-1" style={{ maxHeight: "50vh", backgroundColor: "#666" }} >
             <code>

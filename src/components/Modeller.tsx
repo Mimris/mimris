@@ -489,8 +489,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         </Col>
                         <Col className="me-1 my-1 p-1 border " xs="auto" >
                             <div className="" style={{ backgroundColor: "#cdd" }}>
-                                {(!props.visibleFocusDetails) ?
-                                    <ReportModule props={props} reportType="object" edit={true} modelInFocusId={props.phFocus.focusModel?.id} edit={true} setVisibleFocusDetails={props.setVisibleFocusDetails} />
+                                {(props.visibleFocusDetails) ?
+                                    <ReportModule 
+                                        props={props} 
+                                        reportType="object" 
+                                        edit={true} 
+                                        modelInFocusId={props.phFocus.focusModel?.id} 
+                                        exportTab={props.exportTab}
+                                    />
                                     : <></>
                                 }
                             </div>
@@ -525,7 +531,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <div className="modeller--workarea-objects m-1" >
                     {modelviewTabDiv}
                 </div>
-                <Modal show={showModal} onHide={handleCloseModal} style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
+                {/* this modal is not used
+                    <Modal show={showModal} onHide={handleCloseModal} style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
                     <Modal.Header closeButton>
                         <Modal.Title>Report Module</Modal.Title>
                     </Modal.Header>
@@ -537,7 +544,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             Close
                         </Button>
                     </Modal.Footer>
-                </Modal>
+                </Modal> */}
             </div >
             : // metamodelling
             <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}

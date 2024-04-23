@@ -3607,10 +3607,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const myFromNode = {
         "key": n.data.key,
         "name": n.data.name,
-        "objid": n.data.object.id,
-        "objviewid": n.data.objectview.id,
-        "group": n.data.objectview.group,
-        "isGroup": n.data.objectview.isGroup,
+        "objid": n.data.objRef,
+        "objviewid": n.data.objviewRef,
+        "group": n.data.group,  // ????
+        "isGroup": n.data.isGroup, // ????
         "toGroup": "",
         "loc": new String(n.data.loc),
         "scale": new String(n.scale),
@@ -3762,7 +3762,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let objRef = this.state.selectedData?.objRef;
       let obj1 = this.myMetis.findObject(objRef);
       let objtypeRef = this.state.selectedData?.objtypeRef;
-      let objtype = this.myMetamodel.findObjectType(objtypeRef);
+      let objtype = myMetamodel.findObjectType(objtypeRef);
       // if (!obj1) obj1 = obj;
       if (objtype?.name === 'Method')
         useTabs = true;

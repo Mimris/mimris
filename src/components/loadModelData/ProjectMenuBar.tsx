@@ -36,8 +36,36 @@ export const ProjectMenuBar = (props: any) => {
     const [hover, setHover] = useState(false);
     // const [exportTab, setExportTab] = useState(false);
 
+    // const handleItemClick = (item) => {
+    //     setActiveItem(item);
+    // };
     const handleItemClick = (item) => {
         setActiveItem(item);
+        const proceedWithAction = (item2) => {
+            if (item2 === 'Open') {
+                setActiveItem(item2);
+                console.log('Opening...');
+            } else if (item2 === 'New') {
+                setActiveItem(item2);
+                console.log('Creating new...');
+            }
+            // Add other conditions for 'File', 'Save', etc.
+        };
+
+        if (item === 'Open' || item === 'New') {
+            // Ask the user to save before opening or creating new
+            if (window.confirm('Do you want to save your changes before proceeding?')) {
+                console.log('Before Saving... activeItem:', activeItem);
+                setActiveItem('Save');
+                console.log('Saving... activeItem:', activeItem);
+            } else {
+                // Optionally, proceed without saving or do nothing
+                proceedWithAction(item); // Uncomment this line if you want to proceed without saving
+            }
+        } else {
+            // For other items, proceed without confirmation
+            proceedWithAction(item);
+        }
     };
 
     const handleRightItemClick = (item) => {
@@ -321,7 +349,7 @@ export const ProjectMenuBar = (props: any) => {
             }}
         >
             <ul className="bg-light p-1 mx-1 rounded">
-                {['EditProjectDetails', 'Import/Export', 'OSDU Import', 'Reload models'].map((item, index) => (
+                {['EditProjectDetails'].map((item, index) => (
                     <li className={`context-item m-1 p-1 rounded-2 ${item === activeRightItem ? 'active' : ''}`}
                         key={index}
                         style={{ whiteSpace: "nowrap", backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
@@ -341,20 +369,7 @@ export const ProjectMenuBar = (props: any) => {
                                     onClick={handleShowProjectModal} >
                                     <i className="fa fa-edit fa-lg"></i> Project Settings
                                 </div>
-                                : (item === 'Import/Export')
-                                    ? <div className="text-secondary border rounded p-1 "
-                                        style={{ whiteSpace: "nowrap", width: "100%" }}
-                                    > {loadfile}</div>
-                                    : (item === 'OSDU Import')
-                                        ? <div className="bg-light border rounded"
-                                            style={{
-                                                whiteSpace: "nowrap", width: "96%",
-                                                textAlign: "left", padding: "0px 0px 0px 0px", margin: "0px"
-                                            }}
-                                        > {loadjsonfile}</div>
-                                        // : (item === 'Reload models')
-                                        //     ? <div className="bg-light rounded w-100">{reload} </div> //{props.setToggleRefresh(!toggleRefresh)}</div>
-                                        : <> more to come</>
+                                : <></>
                             }
                         </div>
                     </li>

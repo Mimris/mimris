@@ -498,6 +498,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case "SelectionMoved": {
         const goModel = context.myGoModel;
+        const myModelview = context.myModelview;
         // First remember the original locs
         const dragTool = myDiagram.toolManager.draggingTool;
         const myParts = dragTool.draggedParts;
@@ -541,7 +542,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           const sel = it.value;
           const data = sel.data;
-          let objview: akm.cxObjectView = myMetis.findObjectView(data.key);
+          let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
           if (debug) console.log('546 objview', objview, data, selection, it, sel);
 
           // Object type
@@ -569,11 +570,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           {
             // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-            const myModelview = context.myModelview;
             const myObjectviews = myModelview?.objectviews;
             // The object to move
             let fromObject = objview.object;
-            if (debug) console.log('581 fromObject', fromObject, data);
             let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {
               const fnode = myFromNodes[j];
@@ -735,7 +734,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let fromScale = fromNode.scale;
                 let toScale = node.getMyScale(myGoModel); // 1;
                 let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
-                myDiagram.model.setDataProperty(node.data, "group", node.group);
+                myDiagram.model.setDataProperty(node, "group", node.group);
                 let hasMemberRel;
                 if (node.isGroup) { // The node moved is a group 
                   // Scale the group members          
@@ -858,10 +857,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (n) {
                 n.findLinksConnected().each(function (link) {
                   if (link) {
-                    let relview = link.data.relshipview;
-                    relview = myModelview.findRelationshipView(relview?.id);
+                    let relviewRef = link.data.key;
+                    let relview = myModelview.findRelationshipView(relviewRef);
                     if (relview) {
-                      relview.loc = link.data.loc;
                       // Handle relview scaling
                       if (group) {
                         const grpScale = group.scale1;
@@ -1370,7 +1368,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         let objviews = [], nodes = [];
         const it = selection.iterator;
         while (it.next()) {
-          const data = it.value.data;
+          let data: gjs.goObjectNode = it.value.data;
+          data = myGoModel.findNode(data.key);
           if (data.category === constants.gojs.C_OBJECT) {
             context.pasted = true;
             if (cnt == 0) {

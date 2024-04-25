@@ -101,7 +101,7 @@ export class goModel {
         return retval;
     }
     findNodeByObjectId(objId: string): goObjectNode | null {
-        const retval: goObjectNode | null = null;
+        const retval: goObjectNode = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
             while (i < this.nodes?.length) {
@@ -115,8 +115,8 @@ export class goModel {
         }
         return retval;
     }
-    findNode(key: string): goObjectNode | null {
-        const retval: goObjectNode | null = null;
+    findNode(key: string): goObjectNode {
+        const retval: goObjectNode = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
             while (i < this.nodes?.length) {

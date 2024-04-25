@@ -178,7 +178,6 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
     if (includeObject) {
       const node = new gjs.goObjectNode(utils.createGuid(), objview);
       node.isGroup = objtype?.isContainer();
-      node.category = constants.gojs.C_OBJECTTYPE;
       const viewdata: akm.cxObjtypeviewData = typeview?.data;
       const vdata: akm.cxObjtypeviewData = new akm.cxObjtypeviewData();
       for (const prop in viewdata) {

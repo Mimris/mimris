@@ -472,7 +472,7 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myMetis.myDiagram = myDiagram;
     const object = myMetis.findObject(node?.objRef);
     const objectview = myMetis.findObjectView(node?.objviewRef);
-    const objecttype = myMetis.findObjectType(node?.objtypeRef);
+    const objecttype = myMetis.findObjectType(object?.type?.id);
     const objecttypeview = objecttype?.typeview;
     const myContext = {
         object:     object,
@@ -1289,7 +1289,7 @@ export function getNodeByViewId(viewId: string, myDiagram: any): any {
     const it = myDiagram.nodes;
     for (let it = myDiagram.nodes; it?.next();) {
         const n = it.value;
-        if (n.data.objectview?.id === viewId) {
+        if (n.data.objviewRef === viewId) {
             node = n.data;
             break;
         }
@@ -1301,7 +1301,7 @@ export function getLinkByViewId(viewId: string, myDiagram: any): any {
     let link = null;
     for (let it = myDiagram.links; it?.next();) {
         const l = it.value;
-        if (l.data.relshipview?.id === viewId) {
+        if (l.data.relviewRef === viewId) {
             link = l.data;
             break;
         }

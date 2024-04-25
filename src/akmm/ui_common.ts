@@ -18,6 +18,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
     if (data === null) {
         return null;
     } else {
+        const guid = utils.createGuid();
         let objview: akm.cxObjectView;
         const myMetis = context.myMetis as akm.cxMetis;
         const myModel = context.myModel;
@@ -26,24 +27,23 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         const modifiedRelships = [];
-        const otypeId = data.objecttype?.id;
+        const otypeId = data.objtypeRef;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        let obj: akm.cxObject = data.object;
+        let objId = utils.createGuid();
         let name = data.name;
         let description = data.description;
-        let guid = obj.id;
-        if (obj) {
-            const obj1 = myMetis.findObject(obj.id);
-            if (obj1) obj = obj1;
-        }
+        let obj = new akm.cxObject(objId, name, objtype, description);
+        // let objId = data.objRef;
+        // let obj: akm.cxObject = myMetis.findObject(objId);
+        // let obj1: akm.cxObject;
         if (obj) {
             data.object = obj;
             let name = context.pasted ? data.name : "";
             if (!data.parentModel) name = data.name;
             if (myMetis.pasteViewsOnly) {
-                const pastedobj = obj1;
+                const pastedobj = obj;
                 if (objtype.name === constants.types.AKM_CONTAINER) {
                     obj = new akm.cxObject(guid, name, objtype, description);
                 }
@@ -58,7 +58,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         } 
         if (!obj || !(obj instanceof akm.cxObject)) {
             obj = new akm.cxObject(guid, name, objtype, description);
-            copyProperties(obj, data.object);
+            const fromObj = myModel.findObject(data.objRef);
+            copyProperties(obj, fromObj);
             // Check if obj is dropped on a group that is a Model
             // If so, add the obj to the model
             // const group = getGroupByLocation(myGoModel, data.loc, data.size, data);
@@ -154,6 +155,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 // Then update the node with its new properties
                 // First set name and reference to the objectview
                 let n = myDiagram.findNodeForKey(data.key);
+                myDiagram.model.setDataProperty(data, "key", objview.id);
                 myDiagram.model.setDataProperty(data, "type", data.name);
                 myDiagram.model.setDataProperty(data, "name", name);
                 myDiagram.model.setDataProperty(n, "scale", data.scale1);
@@ -612,6 +614,7 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                 node.markedAsDeleted = deletedFlag;
                 node.group = "";
                 const objview = node.objectview;
+                if (!objview) return;
                 objview.markedAsDeleted = deletedFlag;
                 const object = objview.object;
                 if (debug) console.log('477 delete objview', objview);
@@ -1003,6 +1006,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         from: fromObjview.id, 
         to: toObjview.id,
         name: relTypename,
+        typeRef: reltype1.id,
         category: constants.gojs.C_RELATIONSHIP,
     };
     // set the link attributes
@@ -1047,24 +1051,20 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myModelview: akm.cxModelView = myMetis.currentModelview;
     const pasteViewsOnly = myMetis.pasteViewsOnly;
     // Relationship type must exist
-    let reltype: akm.cxRelationshipType = data.relshiptype;
-    reltype = myMetis.findRelationshipType(reltype?.id);
-    // if (reltype) 
-    //     reltype = myMetis.findRelationshipType(reltype.id);
+    const reltype: akm.cxRelationshipType = myMetis.findRelationshipType(data.typeRef);
+    const reltypeview: akm.cxRelationshipTypeView = reltype.typeview;
     if (debug) console.log('1142 pasteRelationship', reltype);
     if (!reltype)
         return;
-    //const reltypeview = reltype.getDefaultTypeView();
     // Find source objects
     const fromNodeRef = data.from;
     const toNodeRef = data.to;
     const fromNode = myDiagram.findNodeForKey(fromNodeRef);
     const toNode = myDiagram.findNodeForKey(toNodeRef);
-    if (debug) console.log('1151 fromNode, toNode, pasteViewsOnly', fromNode, toNode, pasteViewsOnly);
+    const linkRel = data.linkNode;
     const fromObjview: akm.cxObjectView = fromNode?.data.objectview;
     const toObjview: akm.cxObjectView = toNode?.data.objectview;
-    let relship: akm.cxRelationship = data.relshipview.relship;
-    const typeview: akm.cxRelationshipTypeView = data.relshipview.typeview;
+    let relship: akm.cxRelationship;
     if (debug) console.log('1156 pasteRelationship', fromObjview, toObjview);
     if (!pasteViewsOnly) {
         let fromObj = fromObjview?.object;
@@ -1084,7 +1084,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     }
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
     if (relshipview) {
-        relshipview.setTypeView(typeview);        // Uses same typeview as from relview
+        relshipview.setTypeView(reltypeview);        // Uses same typeview as from relview
         relshipview.setFromObjectView(fromObjview);
         relshipview.setToObjectView(toObjview);
         relshipview.setModified();
@@ -2108,7 +2108,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     for (let i = 0; i < nodes?.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         if (debug) console.log('798 node', node);
-        if (node.key === nod.key) continue;
+        if (node.key === nod?.key) continue;
         if (node.isGroup) {
             const myGroup = node;
             if (debug) console.log('801 myNode', myNode);
@@ -4058,8 +4058,7 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
         }
     }
 }
-export function setRelviewAttributes(data: any, myDiagram: any): akm.cxObjectView {
-    const relship = data.relship;
+export function setRelviewAttributes(data: any, myDiagram: any): akm.cxRelationshipView {
     const relview = data.relshipview;
     const typeview = data.typeview;
     for (let prop in typeview?.data) {
@@ -4069,6 +4068,7 @@ export function setRelviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
         }
     }
+    return relview;
 }
 
 export function setObjviewColors(data: any, object: any, objview: any, typeview: any, myDiagram: any): akm.cxObjectView {

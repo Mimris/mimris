@@ -69,6 +69,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     const myMetamodel = myMetis?.currentMetamodel as akm.cxMetamodel;
     const myModel = myMetis?.currentModel as akm.cxModel;
+    const myGoModel = myMetis.gojsModel;
     const allowsMetamodeling = myModel?.includeSystemtypes;
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
@@ -117,16 +118,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         typeview = objtypeview;
         break;
       case constants.gojs.C_RELATIONSHIP:
-        instview1 = myMetis.findRelationshipView(selObj?.key) as akm.cxRelationshipView;
-        inst1 = instview1.relship;
-        // inst1 = myMetis.findRelationship(instview1.relship.id) as akm.cxRelationship;
-        if (instview1) instview = instview1;
-        if (inst1) inst = inst1;
-        type = inst.type as akm.cxRelationshipType;
-        type1 = myMetis.findRelationshipType(type?.id) as akm.cxRelationshipType;
-        if (type1) type = type1;
-        reltypeview = type1?.typeview;
-        reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+        const relLink = myGoModel.findLink(selObj?.key);
+        const relshpRef = relLink?.relshipRef;
+        const relship = myMetis.findRelationship(relshpRef);
+        const relviewRef = relLink?.key;
+        const relview = myMetis.findRelationshipView(relviewRef);
+        const reltypeRef = selObj.typeRef;
+        const reltype = myMetis.findRelationshipType(reltypeRef);
+        instview1 = relview as akm.cxRelationshipView;
+        inst1 = relship as akm.cxRelationship;
+        type = reltype as akm.cxRelationshipType;
+        reltypeview = type.typeview;
         typeview = reltypeview;
         type.typeview = reltypeview;
         inst.type = type;

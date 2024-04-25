@@ -59,7 +59,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   let adminModel;
 
   if (metis != null) {
-    if (!debug) clog('42 GenGojsModel: props', props);
+    if (debug) clog('42 GenGojsModel: props', props);
     if (debug) clog('43 GenGojsModel: metis', props.phData.metis);
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
@@ -80,7 +80,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     myMetis?.importData(metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
-    if (!debug) clog('86 GenGojsModel :', myMetis)
+    if (debug) clog('86 GenGojsModel :', myMetis)
     if (debug)clog('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {
@@ -121,7 +121,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       console.log('81 GenGojsModel: filternodes, nodes', filterObject(myMetis?.gojsModel?.nodes), myMetis?.gojsModel?.nodes);
 
 
-      if (!debug) console.log('121 GenGojsModel  myMetis', myMetis);
+      if (debug) console.log('121 GenGojsModel  myMetis', myMetis);
       if (debug) console.log('211 Modelling ', props, myMetis, myModel, myModelview, myMetamodel);
       if (!myMetis && !myModel && !myModelview && !myMetamodel) {
         console.error('187 One of the required variables is undefined: myMetis: ', myMetis, 'myModel: ', 'myModelview: ', myModelview, 'myMetamodel: ', myMetamodel);

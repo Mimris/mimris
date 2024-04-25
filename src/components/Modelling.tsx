@@ -217,7 +217,7 @@ const Modelling = (props: any) => {
             data-toggle="tooltip"
             data-placement="top"
             data-bs-html="true"
-            title={`Description: ${m?.description}\n\nTo change Modelview name, right click the background below and select 'Edit Modelview'.`}
+            title={`Description: ${m?.description}\n\nTo change Model name, right click the background below and select 'Edit Model'.`}
           >
             <NavLink
               style={{

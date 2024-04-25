@@ -11,6 +11,7 @@ import LoadJsonFile from './LoadJsonFile'
 import LoadNewModelProjectFromGitHub from './LoadNewModelProjectFromGitHub';
 import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 import { is } from 'cheerio/lib/api/traversing';
+import { bottom } from '@popperjs/core';
 
 const debug = false;
 
@@ -465,7 +466,7 @@ export const ProjectMenuBar = (props: any) => {
                 onClick={() => props.setExpanded(true)}
             >
                 <div className="ms-auto me-5 mt-1 rounded-2"
-                    style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
+                    style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
                 >
                     {/* Project file: {props.phFocus.focusProj.file} */}
                 </div>
@@ -479,7 +480,7 @@ export const ProjectMenuBar = (props: any) => {
                 onClick={() => props.setFocusExpanded(!props.focusExpanded)}
             >
                 <div className="ms-auto me-5 px-1 rounded-2"
-                    style={{ whiteSpace: "nowrap", position: "relative", top: "-11px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
+                    style={{ whiteSpace: "nowrap", position: "relative", top: "-16px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
                 >
                     {(props.focusExpanded) ? <i className="fa fa-arrow-up fa-sm"></i> : <i className="fa fa-arrow-down fa-sm"></i>} Focus-bar
                 </div>
@@ -492,13 +493,15 @@ export const ProjectMenuBar = (props: any) => {
                 className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
                 style={{
                     width: "10hw",
+                    marginBottom: "-2px",
                 }}
             >
-                <div className="bar-menu-left bg-transparent p-1 pb-2"
+                <div className="bar-menu-left bg-transparent"
                     style={{
                         position: "absolute",
-                        top: "4px",
-                        left: "3px",
+                        top: "5px",
+                        left: "5px",
+                        padding: "1px",
                         zIndex: "99"
                     }}
                     onMouseEnter={() => setIsLeftHovered(true)}

@@ -235,13 +235,33 @@ const Modeller = (props: any) => {
         }
     };
 
+    function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
+        let newobj = {};
+        for (let i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            let tmpkey = i;
+            let tmpval = obj[i];
+            if (typeof obj[i] === "object") continue
+            newobj = {
+                ...newobj,
+                [tmpkey]: tmpval,
+            };
+            if (debug) console.log("130", i, obj[i], newobj);
+
+            if (debug) console.log("513 :", obj, newobj);
+        }
+        return newobj;
+    }
+    
     // Objects palette
     const myModel = props.myMetis?.findModel(model.id);
-    let ndArr = uib.buildObjectPalette(myModel?.objects, props.myMetis)
+    let ndArr1 = uib.buildObjectPalette(myModel?.objects, props.myMetis)
+    let ndArr = ndArr1?.map((nd: any) => filterObject(nd))      
     let ldArr = []
 
     const ndTypes = ndArr?.map((nd: any) => nd.typename)
     const uniqueTypes = [...new Set(ndTypes)].sort();
+    
     const nodeArray_all = ndArr
 
     // if OSDU import then set fillcolor according to osduType
@@ -458,8 +478,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     onClick={() => typeof props.setVisibleFocusDetails === 'function' && props.setVisibleFocusDetails(!props.visibleFocusDetails)}
                 >
                     {(props.visibleFocusDetails)
-                        ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left  pull-right-container ms-1"></i> </span>
-                        : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right pull-right-container ms-1"></i></span>
+                        ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right  pull-right-container ms-1"></i> </span>
+                        : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left pull-left-container ms-1"></i></span>
                     }
                 </button>
             </Nav>

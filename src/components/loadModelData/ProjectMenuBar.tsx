@@ -36,37 +36,38 @@ export const ProjectMenuBar = (props: any) => {
     const [hover, setHover] = useState(false);
     // const [exportTab, setExportTab] = useState(false);
 
-    // const handleItemClick = (item) => {
-    //     setActiveItem(item);
-    // };
     const handleItemClick = (item) => {
         setActiveItem(item);
-        const proceedWithAction = (item2) => {
-            if (item2 === 'Open') {
-                setActiveItem(item2);
-                console.log('Opening...');
-            } else if (item2 === 'New') {
-                setActiveItem(item2);
-                console.log('Creating new...');
-            }
-            // Add other conditions for 'File', 'Save', etc.
-        };
-
-        if (item === 'Open' || item === 'New') {
-            // Ask the user to save before opening or creating new
-            if (window.confirm('Do you want to save your changes before proceeding?')) {
-                console.log('Before Saving... activeItem:', activeItem);
-                setActiveItem('Save');
-                console.log('Saving... activeItem:', activeItem);
-            } else {
-                // Optionally, proceed without saving or do nothing
-                proceedWithAction(item); // Uncomment this line if you want to proceed without saving
-            }
-        } else {
-            // For other items, proceed without confirmation
-            proceedWithAction(item);
-        }
     };
+    // const handleItemClick = (item) => {
+    //     setActiveItem(item);
+    //     const proceedWithAction = (item2) => {
+    //         if (item2 === 'Open') {
+    //             setActiveItem(item2);
+    //             console.log('Opening...');
+    //         } else if (item2 === 'New') {
+    //             setActiveItem(item2);
+    //             console.log('Creating new...');
+    //         }
+    //         // Add other conditions for 'File', 'Save', etc.
+    //     };
+
+    //     if (item === 'Open' || item === 'New') {
+    //         // Ask the user to save before opening or creating new
+    //         if (window.confirm('Do you want to save your changes before proceeding?')) {
+    //             console.log('Before Saving... activeItem:', activeItem);
+    //             setActiveItem('Save');
+    //             console.log('Saving... activeItem:', activeItem);
+    //         } else {
+    //             // Optionally, proceed without saving or do nothing
+    //             proceedWithAction(item); // Uncomment this line if you want to proceed without saving
+    //         }
+    //     } else {
+    //         // For other items, proceed without confirmation
+    //         proceedWithAction(item);
+    //     }
+    // };
+
 
     const handleRightItemClick = (item) => {
         setActiveRightItem(item);
@@ -174,6 +175,15 @@ export const ProjectMenuBar = (props: any) => {
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
 
+    const openDiv = (
+        // Ask the user to save before opening or creating new
+        (window.confirm('Do you want to save your changes before proceeding?'))
+        ? <div className="bg-light border border-4 rounded">{saveFile}</div>
+        : <div className="bg-secondary border border-2 rounded text-white ps-1 "
+        ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
+    )
+
+
     const loadFile = (
         <>
             <button
@@ -221,42 +231,40 @@ export const ProjectMenuBar = (props: any) => {
                 position: "absolute",
                 top: "36px",
                 left: "-2px",
-                width: "18vw", //!isLeftDropdownOpen ? "5vw" : "16vw",
+                width: "260px", //!isLeftDropdownOpen ? "5vw" : "16vw",
                 height: "30vh",
                 backgroundColor: "#b0cfcf",
             }}
-            >
-            {(isLeftDropdownOpen || isLeftHovered) &&
-                <div className="context-item bg-white m-1">
-                    <strong className="bg-light text-success ps-2 fs-4 d-flex" style={{ whiteSpace: "nowrap" }}>
-                        AKM Modeller
-                    </strong>
-                    {/* {(isLeftDropdownOpen) && */}
-                    <div
-                        className="d-flex justify-content-around p-1 m-0 w-100"
-                        style={{ position: "relative", top: "-4px", left: "0px" }}
-                    >
-                        <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
-                            <div className="d-flex ms-1 justify-content-end align-items-baseline">
-                                <img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
-                                <span className="fw-bold fs-5" style={{ color: "#0083e2" }}>
-                                    avca AS
-                                </span>
-                            </div>
-                        </Link>
-                        <Link className="mb-" href="#">
-                            <img
-                                src="images/equinor-logo.svg"
-                                width="110px"
-                                height="40px"
-                                className="d-inline-block align-top"
-                                alt="Equinor logo"
-                            />
-                        </Link>
-                    </div>
-                    {/* } */}
+        >
+            <div className="context-item bg-white m-1">
+                <strong className="bg-light text-success ps-2 fs-4 d-flex" style={{ whiteSpace: "nowrap" }}>
+                    AKM Modeller
+                </strong>
+                {/* {(isLeftDropdownOpen) && */}
+                <div
+                    className="d-flex justify-content-around p-1 m-0 w-100"
+                    style={{ position: "relative", top: "-4px", left: "0px" }}
+                >
+                    <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
+                        <div className="d-flex ms-1 justify-content-end align-items-baseline">
+                            <img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
+                            <span className="fw-bold fs-5" style={{ color: "#0083e2" }}>
+                                avca AS
+                            </span>
+                        </div>
+                    </Link>
+                    <Link className="mb-" href="#">
+                        <img
+                            src="images/equinor-logo.svg"
+                            width="110px"
+                            height="40px"
+                            className="d-inline-block align-top"
+                            alt="Equinor logo"
+                        />
+                    </Link>
                 </div>
-            }
+                {/* } */}
+            </div>
             <ul className="bg-light mx- rounded w-100">
                 {["Open", "New", "File", "Save", "Import", "Metamodel"].map((item, index) => (
                     <li
@@ -267,8 +275,8 @@ export const ProjectMenuBar = (props: any) => {
                             style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
                         >
                             {item === 'Open'
-                                ? <div className="bg-secondary border border-2 rounded text-white ps-1 "
-                                ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
+                                ? <div className="bg-light border border-4 rounded"
+                                ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{opendiv}</div>
                                 : item === 'New'
                                     ? <div className="bg-secondary border rounded text-white ps-1"
                                     ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
@@ -383,15 +391,14 @@ export const ProjectMenuBar = (props: any) => {
                 style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
             >
                 <div className="d-flex justify-content-between align-items-center">
-                    <details className="mx-0 p-0"> <summary><i className="fa fa-ellipsis-h fa-lg"></i></summary>
+                    {/* <details className="mx-0 p-0"> <summary><i className="fa fa-ellipsis-h fa-lg"></i></summary>
                         <div className="bar-buttons" >
                             <span className="ms-1">{loadGitHub}</span>
                             <span className="ms-1">{loadNewModelProject}</span>
-                            {/* ><i className="fab fa-github fa-lg me-2 ms-0 "></i>GitHub</button> */}
                             <span className="ms-1">{loadFile}</span>
                             <span className="ms-2">{saveFile}</span>
                         </div>
-                    </details>
+                    </details> */}
                     <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center ms-2">
                         <span className="context-item border rounded-2 " style={{ backgroundColor: "#ded" }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -515,6 +522,9 @@ export const ProjectMenuBar = (props: any) => {
         <>
             <div
                 className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
+                style={{
+                    width: "10hw",
+                }}  
             >
                 <div className="bar-menu-left bg-transparent p-1 pb-2"
                     style={{
@@ -538,7 +548,7 @@ export const ProjectMenuBar = (props: any) => {
                     position: "absolute",
                     top: "4px",
                     left: "3px",
-                    zIndex: "99"
+                    zIndex: "99",
                 }}>{dropLeftMenuDiv}</div>
                 <div className="bar-menu-right px-2 pb-2 bg-transparent"
                     style={{

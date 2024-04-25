@@ -36,39 +36,6 @@ export const ProjectMenuBar = (props: any) => {
     const [hover, setHover] = useState(false);
     // const [exportTab, setExportTab] = useState(false);
 
-    const handleItemClick = (item) => {
-        setActiveItem(item);
-    };
-    // const handleItemClick = (item) => {
-    //     setActiveItem(item);
-    //     const proceedWithAction = (item2) => {
-    //         if (item2 === 'Open') {
-    //             setActiveItem(item2);
-    //             console.log('Opening...');
-    //         } else if (item2 === 'New') {
-    //             setActiveItem(item2);
-    //             console.log('Creating new...');
-    //         }
-    //         // Add other conditions for 'File', 'Save', etc.
-    //     };
-
-    //     if (item === 'Open' || item === 'New') {
-    //         // Ask the user to save before opening or creating new
-    //         if (window.confirm('Do you want to save your changes before proceeding?')) {
-    //             console.log('Before Saving... activeItem:', activeItem);
-    //             setActiveItem('Save');
-    //             console.log('Saving... activeItem:', activeItem);
-    //         } else {
-    //             // Optionally, proceed without saving or do nothing
-    //             proceedWithAction(item); // Uncomment this line if you want to proceed without saving
-    //         }
-    //     } else {
-    //         // For other items, proceed without confirmation
-    //         proceedWithAction(item);
-    //     }
-    // };
-
-
     const handleRightItemClick = (item) => {
         setActiveRightItem(item);
     };
@@ -154,7 +121,9 @@ export const ProjectMenuBar = (props: any) => {
             !target.closest('.fa-ellipsis-v')
         ) {
             setIsLeftDropdownOpen(false);
+            setIsLeftHovered(false);
             setIsRightDropdownOpen(false);
+            setIsRightHovered(false);
         }
     };
 
@@ -167,22 +136,23 @@ export const ProjectMenuBar = (props: any) => {
 
     const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} path='' />;
     const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setToggleRefresh={props.setToggleRefresh} />;
-
     const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setToggleRefresh={props.setToggleRefresh} />
-
-    // const exportjsonfile = 
     const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} path='akm-metamodels' />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
 
-    const openDiv = (
-        // Ask the user to save before opening or creating new
-        (window.confirm('Do you want to save your changes before proceeding?'))
-        ? <div className="bg-light border border-4 rounded">{saveFile}</div>
-        : <div className="bg-secondary border border-2 rounded text-white ps-1 "
-        ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>
-    )
-
+    function handleItemClick(item) {
+        // Check if the action is 'Open' or 'New'
+        if (item === 'Open' || item === 'New') {
+            // Ask the user to save before opening or creating new
+            const userWantsToSave = window.confirm('Have you save your current project? Click OK to proceed without saving, or Cancel to save first.');
+            if (userWantsToSave) {
+                setActiveItem(null);
+            } else {    
+                setActiveItem(item);
+            }
+        }
+    }
 
     const loadFile = (
         <>
@@ -222,6 +192,55 @@ export const ProjectMenuBar = (props: any) => {
             </button>
         </>
     )
+
+    function MenuItem({ item, activeItem, activeRightItem, handleItemClick }) {
+        const getItemContent = (item) => {
+            switch (item) {
+                case 'Open':
+                    return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>;
+                case 'New':
+                    return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>;
+                case 'File':
+                    return <div className="bg-light border border-4 rounded ">{loadFile}</div>;
+                case 'Save':
+                    return <div className="bg-light border border-4 rounded">{saveFile}</div>;
+                case 'Metamodel':
+                    return (
+                        <details className="bg-secondary border rounded text-dark px-1">
+                            <summary className="bg-light my-1 ps-1 text-dark ">File Import/Export</summary>
+                            <div className="bg-secondary border border-2 rounded text-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files">{loadfile}</div>
+                            <div className="bg-secondary border border-2 rounded text-light"><i className="fa fa-folder fa-lg mx-1 ms-2 mt-3"></i>{loadGitHubMetamodel}</div>
+                        </details>
+                    );
+                case 'Import':
+                    return (
+                        <>
+                            <details className="bg-success border rounded text-white ps-1 pe-2">
+                                <summary className="bg-success my-1 me-1 ps-1">OSDU Import/Export</summary>
+                                <div className="bg-success border rounded border-warning ps-2 mb-1 me-"><i className="fa fa-house-tsunami me-2 ms-0"></i>{loadjsonfile}</div>
+                                <button className="bg-success text-light text-start border rounded border-warning my-1 py-1 ps-2 mb-1 w-100" onClick={() => { props.setVisibleFocusDetails(true); props.setExportTab(2) }} style={{ background: hover ? 'red' : 'blue' }}>
+                                    <i className="fa fa-house-tsunami me-2"></i>EXPORT CSV TO OSDU
+                                </button>
+                            </details>
+                        </>
+                    );
+                default:
+                    return null;
+            }
+        };
+
+        const style = {
+            backgroundColor: item === activeRightItem ? 'blue' : 'white',
+        };
+
+        return (
+            <li className={`context-item border p-1 rounded-2 ${item === activeItem ? "active" : ""}`} key={item}>
+                <div onClick={() => handleItemClick(item)} style={style}>
+                    {getItemContent(item)}
+                </div>
+            </li>
+        );
+    }
 
     const dropLeftMenuDiv = (isLeftDropdownOpen || isLeftHovered) && (
         <div
@@ -266,66 +285,15 @@ export const ProjectMenuBar = (props: any) => {
                 {/* } */}
             </div>
             <ul className="bg-light mx- rounded w-100">
-                {["Open", "New", "File", "Save", "Import", "Metamodel"].map((item, index) => (
-                    <li
-                        className={`context-item border p-1 rounded-2 ${item === activeItem ? "active" : ""}`}
-                        key={index}
-                    >
-                        <div onClick={() => handleItemClick(item)}
-                            style={{ backgroundColor: item === activeRightItem ? 'blue' : 'white' }}
-                        >
-                            {item === 'Open'
-                                ? <div className="bg-light border border-4 rounded"
-                                ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{opendiv}</div>
-                                : item === 'New'
-                                    ? <div className="bg-secondary border rounded text-white ps-1"
-                                    ><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>
-                                    : item === 'File'
-                                        ? <div className="bg-light border border-4 rounded ">{loadFile}</div>
-                                        : item === 'Save'
-                                            ? <div className="bg-light border border-4 rounded">{saveFile}</div>
-                                            : item === 'Metamodel'
-                                                ? <details className="bg-secondary border rounded text-dark px-1">
-                                                    <summary className="bg-light my-1 ps-1 text-dark ">File Import/Export</summary>
-                                                    <div className="bg-secondary border border-2 rounded text-light"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="top"
-                                                        title="Save and Load models (import/export) from/to files"
-                                                    >
-                                                        {loadfile}
-                                                    </div>
-                                                    <div className="bg-secondary border border-2 rounded text-light"><i className="fa fa-folder fa-lg mx-1 ms-2 mt-3"></i>{loadGitHubMetamodel}</div>
-                                                    {/* <div className=""><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHubMetamodel}</div> */}
-                                                </details>
-                                                : item === 'Import'
-                                                    ? 
-                                                    <>
-                                                    <details className="bg-success border rounded text-white ps-1 pe-2">
-                                                        <summary className="bg-success my-1 me-1 ps-1">OSDU Import/Export</summary>
-                                                            <div className="bg-success border rounded border-warning ps-2 mb-1 me-">
-                                                                <i className="fa fa-house-tsunami me-2 ms-0"></i>
-                                                                {loadjsonfile}
-                                                            </div>
-                                                            <button className=" bg-success text-light text-start border rounded border-warning my-1 py-1 ps-2 mb-1 w-100" 
-                                                                onClick={() => {props.setVisibleFocusDetails(true); props.setExportTab(2)}}
-                                                                style={{ background: hover ? 'red' : 'blue'}}
-                                                            >
-                                                                <i className="fa fa-house-tsunami me-2"></i>
-                                                                EXPORT CSV TO OSDU
-                                                            </button>
-                                                    </details>
-                                                    </>
-                                                    : item === 'Export'
-                            }
-                        </div>
-                    </li>
+                {["Open", "New", "File", "Save", "Import", "Metamodel"].map((item) => (
+                <MenuItem key={item} item={item} activeItem={activeItem} activeRightItem={activeRightItem} handleItemClick={handleItemClick} />
                 ))}
             </ul>
             <div className='bg-light'>
                 <hr className="bg-light py-1 my-0" />
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&                    
+                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&
                         <Link
                             className="text-primary ms-1"
                             href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
@@ -431,14 +399,14 @@ export const ProjectMenuBar = (props: any) => {
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
                             >
-                                {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&                                  
+                                {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&
                                     <Link
-                                    className="text-primary"
-                                    href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
-                                    target="_blank"
+                                        className="text-primary"
+                                        href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
+                                        target="_blank"
                                     >
-                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.phFocus.focusProj.repo} </button>
-                                </Link>
+                                        <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.phFocus.focusProj.repo} </button>
+                                    </Link>
                                 }
                             </span>
                         </span>
@@ -524,7 +492,7 @@ export const ProjectMenuBar = (props: any) => {
                 className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
                 style={{
                     width: "10hw",
-                }}  
+                }}
             >
                 <div className="bar-menu-left bg-transparent p-1 pb-2"
                     style={{

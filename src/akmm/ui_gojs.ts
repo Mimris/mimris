@@ -174,12 +174,12 @@ export class goModel {
     }
     findLinkByViewId(relviewId: string): goRelshipLink | null {
         const retval: goRelshipLink | null = null;
-        if (!utils.isArrayEmpty(this.links)) {
+        if (this.links) {
             let i = 0;
             while (i < this.links.length) {
                 const link = this.links[i];
                 const ll = link as goRelshipLink;
-                if (ll.relshipview && ll.relshipview.id === relviewId) {
+                if (ll.relshipview && ll.relviewRef === relviewId) {
                     return (ll);
                 }
                 i++;

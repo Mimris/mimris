@@ -210,10 +210,10 @@ const page = (props: any) => {
               setVisibleFocusDetails={setVisibleFocusDetails}
               exportTab={exportTab} setExportTab={setExportTab}
             />
-            <div className="context-bar d-flex justify-content-between align-items-center"
-              style={{ backgroundColor: "#ffffea" }}>
+            <div className="context-bar  pt-0"
+              style={{ backgroundColor: "#b0cfcf" }}>
               {focusExpanded &&
-                <>
+                <div className="d-flex justify-content-between align-items-center bg-transparent" >
                   <div className="issuesarea">
                     <Issues {...props}
                       showModal={showModal} setShowModal={setShowModal}
@@ -228,7 +228,7 @@ const page = (props: any) => {
                   <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                     <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
                   </div>
-                </>
+                </div>
               }
             </div>
             <div className="workplace d-flex" style={{ backgroundColor: "#b0cfcf", zIndex: 1 }}>

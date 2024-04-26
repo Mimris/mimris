@@ -252,7 +252,6 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   return  (
     <>
     <button className="btn bg-transparent py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
-  
      <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  >
         <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 d-fle">

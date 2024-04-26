@@ -44,7 +44,7 @@ const ReportModule = (props) => {
       {!visibleTabsDiv ?
         <>
           <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
-            onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}><span>-&gt; </span> 
+            onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}><span><i className="fa fa-arrow-right fa-lg"></i></span> 
           </button>
           <>
           <Tabs onSelect={index => setActiveTab(index)} 
@@ -71,9 +71,9 @@ const ReportModule = (props) => {
         </>
         : <div className="btn-vertical m-0  p-0 bg-transparent"
             onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}
-           style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "8px", paddingLeft: "0px", fontSize: "12px" }}>
+           style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "12px", paddingLeft: "0px", fontSize: "14px" }}>
           <i className="fa fa-arrow-left fa-lg"></i>
-          <span style={{ backgroundColor: "#cdd" }}> O b j e c t - D e t a i l s </span>
+          <span className="fs-5" style={{ backgroundColor: "#cdd" }}> O b j e c t - D e t a i l s </span>
         </div>
       }
       

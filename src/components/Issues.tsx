@@ -279,31 +279,29 @@ const Issues = (props) => {
   if (debug) console.log('266 Issues', props.minimized)
   if (props.minimized) {
     return (
-      <div className=" " >
-        <div
-          className="buttons mt-1 ms-1"
-          style={{ backgroundColor: "#ffffed", minWidth: "106px", whiteSpace: "nowrap" }}
-        // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
+      <div
+        className="btn btn-sm text-success ms-1 p-1 d-flex justify-content-center align-items-center"
+        style={{ backgroundColor: "#ffffed",whiteSpace: "nowrap" }}
+      // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
+      >
+        <button
+          className="btn btn-sm text-success m-0 p-1"
+          style={{ backgroundColor: "#ffffdd", whiteSpace: "nowrap" }}
+          data-toggle="tooltip"
+          data-placement="top"
+          data-bs-html="true"
+          title="Open Issues left side-panel!"
+          onClick={() => props.setMinimized(false)}
         >
-          <button
-            className="btn btn-sm text-success m-0 p-1"
-            style={{ backgroundColor: "#ffffdd", whiteSpace: "nowrap" }}
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Open Issues left side-panel!"
-            onClick={() => props.setMinimized(false)}
-          >
-            <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i> Issues</span>
-          </button>
-          {/* <div className="float-end" >{statusFieldLink('Issue', props.ph?.phFocus?.focusIssue?.name, `http://github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}</div> */}
-        </div>
+          <span className="fs-6"><i className="fa fa-lg fa-angle-right pull-right-container"></i> Issues</span>
+        </button>
+        {/* <div className="float-end" >{statusFieldLink('Issue', props.ph?.phFocus?.focusIssue?.name, `http://github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}</div> */}
       </div>
     );
   } else {
     return (
       <>
-        <div className="buttons mt-1 ms-1"
+        <div className="buttons rounded mt-1 ms-1"
           style={{ backgroundColor: "#ffffed", minWidth: "106px", whiteSpace: "nowrap" }} >
           <button
             className="btn btn-sm border text-success m-0 p-1"
@@ -314,7 +312,7 @@ const Issues = (props) => {
             title="Open Issues in left side-panel!"
             onClick={() => props.setMinimized(true)}
           >
-            <span className="fs-6"><i className="fa fa-lg fa-angle-left pull-left-container"></i> Issues</span>
+            <span className="fs-6 me-0 pe-4"><i className="fa fa-lg fa-angle-left pull-left-container"></i> Issues</span>
           </button>
         </div>
         <div className="issues p-1 mt-1"

@@ -43,7 +43,8 @@ const Palette = (props: any) => {
   const [openDetail, setOpenDetail] = useState<string | null>('top');
 
   const handleToggle = (id: string) => {
-    setOpenDetail(openDetail === id)// ? null : id);
+    setOpenDetail(id);
+    // setOpenDetail(openDetail === id ? null : id);
   };
 
   let focusModel = props.phFocus?.focusModel
@@ -107,21 +108,21 @@ const Palette = (props: any) => {
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
     const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
-    const additionalmetamodel = (coremetamodel?.name !== mmodel?.name) ? coremetamodel : irtvmetamodel
+    const additionalmetamodel = (coremetamodel?.name === mmodel?.name) ? irtvmetamodel : coremetamodel
     const seltypes = additionalmetamodel?.objecttypes.map((t: any) => t?.name);
     setSelMetamodelName(additionalmetamodel?.name)
     if (debug) console.log('115 Palette', additionalmetamodel);
     setAddMetamodelName(additionalmetamodel?.name)
 
     setCoreOtNodeDataArray(buildFilterOtNodeDataArray(coreTypes, coremetamodel));
-    setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, additionalmetamodel));
+    setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, irtvmetamodel));
 
     setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for additional metamodel
-    if (debug) console.log('92 Palette useEffect 2', filteredOtNodeDataArray, buildFilterOtNodeDataArray(seltypes, mmodel));
     // setFilteredOtNodeDataArray(buildFilter(role, task, metamodelList, seltypes, mmodel.submetamodels[0]));  // build the palette for current metamodel
-
+    
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
+      if (!debug) console.log('124 Palette useEffect ', irtvTypes, IRTVOtNodeDataArray);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -145,7 +146,13 @@ const Palette = (props: any) => {
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
       // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
-      const wotArr = ['Container', 'Label', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType'];
+      const wotArr = (mmodel.name === 'AKM-Core_MM') 
+        ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
+        : (mmodel.name === 'AKM-IRTV_MM') 
+          ? ['Container', 'Information', 'Role', 'Task', 'View']
+          : ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item'];
+
+
       const otsArrSorted = otsArr.sort((a, b) => {
         const aIndex = wotArr.indexOf(a?.name);
         const bIndex = wotArr.indexOf(b?.name);
@@ -220,7 +227,7 @@ const Palette = (props: any) => {
       />
     </details>
 
-  const gojsappPaletteIRTVDiv = (mmodel && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
+  const gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'AKM-IRTV_MM') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>IRTV Metamodel</summary>
       <GoJSPaletteApp
@@ -230,7 +237,7 @@ const Palette = (props: any) => {
         metis={props.metis}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
-        diagramStyle={{ height: "30vh" }}
+        diagramStyle={{ height: "37vh" }}
       />
     </details>
 
@@ -244,7 +251,7 @@ const Palette = (props: any) => {
         metis={props.metis}
         phFocus={props.phFocus}
         dispatch={props.dispatch}
-        diagramStyle={{ height: "52vh" }}
+        diagramStyle={{ height: "65vh" }}
       />
     </details>
 

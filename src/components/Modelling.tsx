@@ -132,15 +132,15 @@ const Modelling = (props: any) => {
     setMount(true);
   }, [])
 
-  useEffect(() => {
-    setRefresh(!refresh)
-  }, [mount]) // add mount to the dependency array
+  // useEffect(() => {
+  //   setRefresh(!refresh)
+  // }, [mount]) // add mount to the dependency array
 
   useEffect(() => {
     const timer = setTimeout(() => {
       doRefresh()
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-      setRefresh(!refresh)
+      // setRefresh(!refresh)
     }, 50);
   }, [props.phSource, props.phFocus?.focusRefresh?.id])
 
@@ -156,10 +156,7 @@ const Modelling = (props: any) => {
   function doRefresh() { // 
     setMemorySessionState(props)
     setMemoryLocState(props)
-    // goParams = GenGojsModel(props, myMetis)
     const timer = setTimeout(() => {
-      if (debug) console.log('184 Modelling doRefresh memoryLocState:', memorySessionState, props, myMetis)
-      // loadMyModeldata(myMetis)
       setRefresh(!refresh)
     }, 1000);
     return () => clearTimeout(timer);

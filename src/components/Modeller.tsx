@@ -23,6 +23,7 @@ import Button from "react-bootstrap/Button";
 
 import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
 import { gojs } from "../akmm/constants";
+import { select } from "redux-saga/effects";
 
 const debug = false;
 
@@ -105,19 +106,15 @@ const Modeller = (props: any) => {
         dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
     }
 
-    function toggleObjects() { setVisiblePalette(!visibleObjects); }
-
-
-
-    function toggleRefreshObjects() {
-        if (debug) console.log('75 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
-        saveModelsToLocState(props, memoryLocState, setMemoryLocState)
-        if (debug) console.log('78 Modeller: toggleRefreshObjects', props);
-        if (debug) console.log('79 Modeller: toggleRefreshObjects', memoryLocState.phFocus);
-        setRefresh(!refresh)
+    function toggleObjects() { 
+        // props.setRefresh(!props.refresh)
+        if (selectedOption === 'Sorted by type') {
+            setSelectedOption('In this modelview')
+        } else {
+            setSelectedOption('In this modelview')
+        }
+        setVisiblePalette(!visibleObjects); 
     }
-
-
 
     useEffect(() => {
         setRefresh(!refresh)
@@ -129,6 +126,15 @@ const Modeller = (props: any) => {
         if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false)
         setMounted(true)
     }, [])
+
+    useEffect(() => {
+        if (selectedOption === 'In this modelview') {
+            setSelectedOption('Sorted by type')
+        } else {
+            setSelectedOption('In this modelview')
+        }
+        console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
+    }, [model.objects.length])
 
     useEffect(() => {
         const propps = {
@@ -160,29 +166,25 @@ const Modeller = (props: any) => {
     // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
     // if (debug) console.log('48 Modeller', focusModel?.name, focusModelview?.name);
 
-    const handleProjectChange = (event) => { // Editing project name
-        if (debug) console.log('186 Modeller: handleProjectChange', event);
-        setProjectName(event.target.value);
-    }
-    const handleProjectBlur = () => { // finish editing project name
-        if (debug) console.log('190 Modeller: handleProjectChange', projectName);
-        dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: projectName } }); // update project name
-        // dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
-        dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
-    }
-
-    const handleModelviewChange = (event) => { // Editing project name
-        if (debug) console.log('186 Modeller: handleProjectChange', event);
-        setMvName(event.target.value);
-    }
-
-
-
-    const handleModelviewBlur = () => { // finish editing project name
-        if (debug) console.log('190 Modeller: handleProjectChange', displayValue);
-        dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: displayValue } }); // update project name
-        dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: displayValue, name: displayValue } }); // set focus project
-    }
+    // const handleProjectChange = (event) => { // Editing project name
+    //     if (debug) console.log('186 Modeller: handleProjectChange', event);
+    //     setProjectName(event.target.value);
+    // }
+    // const handleProjectBlur = () => { // finish editing project name
+    //     if (debug) console.log('190 Modeller: handleProjectChange', projectName);
+    //     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: projectName } }); // update project name
+    //     // dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: displayValue } }); // update project name
+    //     dispatch({ type: 'SET_FOCUS_PROJ', data: { id: displayValue, name: displayValue } }); // set focus project
+    // }
+    // const handleModelviewChange = (event) => { // Editing project name
+    //     if (debug) console.log('186 Modeller: handleProjectChange', event);
+    //     setMvName(event.target.value);
+    // }
+    // const handleModelviewBlur = () => { // finish editing project name
+    //     if (debug) console.log('190 Modeller: handleProjectChange', displayValue);
+    //     dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: displayValue } }); // update project name
+    //     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: displayValue, name: displayValue } }); // set focus project
+    // }
 
     const handleSelectModelChange = (event: any) => { // Setting focus model
         if (debug) console.log('196 Selector', JSON.parse(event.value).name);
@@ -323,6 +325,10 @@ const Modeller = (props: any) => {
         // if (debug) console.log('433 Modeller');
     }, [selectedOption])
 
+    // useEffect(() => {
+    //     setRefresh(!refresh)
+    // }, [toggleObjects])
+
 
     const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {  // map over the modelviews and create a tab for each
         if (mv && !mv.markedAsDeleted) {
@@ -390,20 +396,20 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <>
             <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none", }}>
                 {/* <div className="d-flex justify-content-between"> */}
-                {/* <button 
-            className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-            onClick={toggleObjects} 
-            data-toggle="tooltip" 
-            data-placement="top" 
-            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
-            {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
-          </button> */}
-                {/* <button 
-            className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-            onClick={toggleIsExpanded} 
-            data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
-            {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
-          </button> */}
+                    {/* <button 
+                        className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                        onClick={toggleObjects} 
+                        data-toggle="tooltip" 
+                        data-placement="top" 
+                        title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
+                        {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
+                    </button> */}
+                    {/* <button 
+                        className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                        onClick={toggleIsExpanded} 
+                        data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
+                        {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                    </button> */}
                 {/* </div> */}
                 <div className="modellingtask bg-light" >
                     {SelectOTypes}

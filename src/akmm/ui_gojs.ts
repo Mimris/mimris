@@ -50,6 +50,20 @@ export class goModel {
         if (debug) console.log('41 constants', constants, this);
     }
     // Methods
+    fixGoModel() {
+        for (let i=0; i<this.nodes.length; i++) {
+            let node = this.nodes[i];
+            if (!node instanceof goObjectNode) {
+                node = new goObjectNode(node.key, node.objectview);
+                for (let prop in node) {
+                    if (node[prop] !== this.nodes[i][prop]) {
+                        node[prop] = this.nodes[i][prop];
+                    }
+                }
+            }
+            this.node = node;
+        }
+    }
     getModelView() {
         return this.modelView;
     }

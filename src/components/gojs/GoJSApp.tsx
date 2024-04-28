@@ -186,7 +186,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
   }
 
-  private getNode(goModel: any, key: string) {
+  private getNode(goModel: gjs.goModel, key: string): gjs.goObjectNode {
     const nodes = goModel?.nodes;
     if (nodes) {
       for (let i = 0; i < nodes?.length; i++) {
@@ -528,7 +528,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
       case "SelectionMoved": {
-        const myGoModel = context.myGoModel;
+        let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
         // First remember the original locs
         const dragTool = myDiagram.toolManager.draggingTool;
@@ -624,9 +624,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             // Move the object
             let node: gjs.goObjectNode = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
-            if (node) 
+            if (node) {
               node = myGoModel.findNode(node.key);
-            if (node && node instanceof go.Node) {
+              if (!node instanceof gjs.goObjectNode) {
+                myGoModel = myGoModel.fixGoModel();
+              }
+            }
+            if (node && node instanceof gjs.goObjectNode) {
               node.scale1 = node.getMyScale(myGoModel).toString();
               const group = uic.getGroupByLocation(myGoModel, node.loc, node.size, node);
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
@@ -1000,8 +1004,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         let jsnData = JSON.parse(JSON.stringify(jsnModelview));
         context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', jsnData })
-        break;
         }
+        break;
       }
       case "SelectionDeleting": {
         // const newNode = myMetis.currentNode;

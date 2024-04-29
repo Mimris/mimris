@@ -2661,7 +2661,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         if (debug) console.log('2122 currentModelview, modelviewObj', currentModelview, obj);
                         if (obj) {
                           const objview = obj.objectviews[0];
-                          const node = new gjs.goObjectNode(utils.createGuid, objview);
+                          const node = new gjs.goObjectNode(utils.createGuid, myGoModel, objview);
                           uid.editObject(node, myMetis, myDiagram);
                         }
                       }

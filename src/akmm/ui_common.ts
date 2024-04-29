@@ -90,7 +90,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             const oview0 = oviews?.length > 0 ? oviews[0] : null;
             objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
             if (objview) {
-                const node = new gjs.goObjectNode(objview.id, objview);
+                const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
                 if (node) {
                     node.loc = data.loc;
                     node.size = data.size;
@@ -181,7 +181,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                             myDiagram.model.setDataProperty(data, prop, otdata[prop]);
                         }
                     }
-                    const node = new gjs.goObjectNode(objview.id, objview);
+                    const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
                     myGoModel.addNode(node);
                     updateNode(node, objtypeView, myDiagram, myGoModel);
                     return objview;
@@ -194,7 +194,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     objview.setTypeView(objtypeView);
                     const otdata = objtypeView.data;
                     // Create the new node                          
-                    const node = new gjs.goObjectNode(objview.id, objview);
+                    const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
                     updateNode(node, objtypeView, myDiagram, myGoModel);
                     node.isGroup = data.isGroup;
                     node.loc = data.loc;
@@ -344,8 +344,8 @@ export function updateObject(nodeData: gjs.goObjectNode, name: string, value: st
         return;
     } else {
         const myMetis = context.myMetis;
-        let currentObject = myMetis.findObject(nodeData.objRef);
-        let currentObjectView = myMetis.findObjectView(nodeData.objviewRef);
+        let currentObject: akm.cxObject = myMetis.findObject(nodeData.objRef);
+        let currentObjectView: akm.cxObjectView = myMetis.findObjectView(nodeData.objviewRef);
         currentObject.setName(value);
         currentObject.setModified();
         if (currentObjectView) {
@@ -736,7 +736,7 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     }
 }
 
-export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObjectView) {
+export function addNodeToDataArray(parent: any, node: any, myGoModel: gjs.goModel, objview: akm.cxObjectView) {
     const nodeArray = parent.nodeDataArray;
     const newArray = new Array();
     for (let i = 0; i < nodeArray.length; i++) {
@@ -744,7 +744,7 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
         if (n) newArray.push(n);
     }
     //newArray.push(node);
-    const myNode = new gjs.goObjectNode(objview.id, objview);
+    const myNode = new gjs.goObjectNode(objview.id, myGoModel, objview);
     myNode.loc = node.loc;
     myNode.size = node.size;
     myNode.parentModelRef = node.parentModelRef;
@@ -864,17 +864,17 @@ export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
             let choices = choices1.concat(choices2);
             choices = utils.removeArrayDuplicates(choices);
             // Calling routine to select reltype from list
-            const args = {
-                data: context.data,
-                typename: defText,
-                fromType: fromType,
-                toType: toType,
-                nodeFrom: nodeFrom,
-                nodeTo: nodeTo,
-                fromPort: fromPort,
-                toPort: toPort,
-                diagramModel: myDiagram.diagramModel,
-            }
+            // const args = {
+            //     data: context.data,
+            //     typename: defText,
+            //     fromType: fromType,
+            //     toType: toType,
+            //     nodeFrom: nodeFrom,
+            //     nodeTo: nodeTo,
+            //     fromPort: fromPort,
+            //     toPort: toPort,
+            //     diagramModel: myDiagram.diagramModel,
+            // }
             const modalContext = {
                 what: "selectDropdown",
                 title: "Select Relationship Type",

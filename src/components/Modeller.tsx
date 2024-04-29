@@ -133,7 +133,9 @@ const Modeller = (props: any) => {
         } else {
             setSelectedOption('In this modelview')
         }
-        setVisibleObjects(!visibleObjects)
+        // setVisibleObjects(!visibleObjects)
+        setObjectsRefresh(!objectsRefresh)
+
         console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
     }, [model.objects.length])
 
@@ -495,7 +497,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             ? (objectsRefresh) 
                                 ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col></>
                                 : <> <Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
-                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
+                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div></Col> </>
 
                         }
                         <Col className="me-2 my-1 p-1 border" xe="auto" >

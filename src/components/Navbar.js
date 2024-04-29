@@ -109,7 +109,9 @@ const Navbar = (props) => {
 
 	return (
 		<nav className="navbar navbar-expand-sm navbar-toggler ps-0"
-			style={(domainName === "localhost") ? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" } : { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
+			style={(domainName === "localhost") 
+				? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" } 
+				: { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
 			<div className="collapse navbar-collapse mt-2" id="nav-toggler-metis">
 				{/* <div>
 					<Dropdown>
@@ -131,7 +133,9 @@ const Navbar = (props) => {
 							type="button"
 							data-toggle="tooltip" data-placement="top" data-bs-html="true"
 							title={props.projName}
-							style={{ fontSize: "1rem", color: "gray", fontWeight: "normal", fontStretch: "condensed", whiteSpace: "nowrap", maxWidth: "48vh", overflow: "hidden", textOverflow: "ellipsis" }}
+							style={{ fontSize: "1rem", color: "gray", fontWeight: "normal", fontStretch: "condensed", 
+								whiteSpace: "nowrap", maxWidth: "48vh", overflow: "hidden", textOverflow: "ellipsis" 
+							}}
 						>
 							{props.projName.length > 48 ? '...' + props.projName.slice(-48) : props.projName}
 						</span>

@@ -1711,24 +1711,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = myDiagram.findNodeForKey(data.from);
-        fromNode = fromNode?.data;
-        if (!fromNode) {
-          fromNode = myGoModel.findNodeByViewId(link.data.from);
-        }
-        if (fromNode && fromNode instanceof gjs.goObjectNode) {
-          fromNode.loadNodeContent(myGoModel);
-        }
-        let toNode = myDiagram.findNodeForKey(data.to);
-        toNode = toNode?.data;
-        if (!toNode) {
-          toNode = myGoModel.findNodeByViewId(link.data.to);
-          myGoModel.addNode(fromNode);
-        }
-        if (toNode && toNode instanceof gjs.goObjectNode) {
-          toNode.loadNodeContent(myGoModel);
-          myGoModel.addNode(toNode);
-        }
+        let fromNode = myGoModel.findNodeByViewId(link.data.from);
+        let toNode   = myGoModel.findNodeByViewId(link.data.to);
+        // if (toNode && toNode instanceof gjs.goObjectNode) {
+        //   toNode.loadNodeContent(myGoModel);
+        //   myGoModel.addNode(toNode);
+        // }
 
         // Handle relationship types
         if (fromNode?.category === constants.gojs.C_OBJECTTYPE) {

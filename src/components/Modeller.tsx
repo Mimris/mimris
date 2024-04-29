@@ -419,8 +419,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 </div>
                 <GoJSPaletteApp // this is the Objects list
                     divClassName="diagram-component-objects"
-                    nodeDataArray={props.myMetis.gojsModel.nodes}
-                    linkDataArray={props.myMetis.gojsModel.links}
+                    nodeDataArray={gojsobjects.nodeDataArray}
+                    linkDataArray={gojsobjects.linkDataArray}
                     metis={props.metis}
                     myMetis={props.myMetis}
                     phFocus={props.phFocus}

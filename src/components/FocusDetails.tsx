@@ -37,8 +37,9 @@ const FocusDetails = (props, edit) => {
   const models = ph.phData?.metis?.models  // selecting the models array
   const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
   const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
-  const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const curmodelview = modelviews?.find((mv: any) => mv?.id === curmodel.modelviews.find((mv: any) => mv.id === ph.phFocus.focusModelview.id)?.id)
+
+  // const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
+  const curmodelview = curmodel.modelviews.find((mv: any) => mv.id === ph.phFocus.focusModelview.id)
   const objects = curmodel?.objects //.map((o: any) => o)
   const focusModel = (reportType === 'task') ? models.find(m => m.id === modelInFocusId) : ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
   const focusUser = ph.phUser?.focusUser
@@ -51,13 +52,15 @@ const FocusDetails = (props, edit) => {
   if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
 
 
-  const curobject = (focusObjectview?.id === 'no objects selected') ? curmodelview : objects?.find(o => o.id === focusObject?.id) // if no object selected then use the modelview
-  const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
-  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
+  let curobject =  objects?.find(o => o.id === focusObject?.id)  
+  if (!curobject) curobject = curmodelview// if no object selected then use the modelview
+  let curobjectview =  curmodel.modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
+  if (!curobjectview) curobjectview = curmodelview
+  const curobjectviews = curmodel.modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
+  const currelshipviews = curmodel.modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
   const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
   // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-  if (debug) console.log('67 Context:', curmodelview, curobject, objects, focusObject?.id, focusTask?.id, focusTask, modelviews);
+  if (debug) console.log('67 Context:', curmodelview, curobject, objects, focusObject?.id, focusTask?.id, focusTask, curmodel.modelviews);
 
 
   useEffect(() => {
@@ -83,7 +86,11 @@ const FocusDetails = (props, edit) => {
           modifiedFields[key] = formValues[key];
         }
       }
-
+      if (formValues['id'] === curmodelview.id) {
+        const objData = { id: formValues['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
+        // const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
+        dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: objData })
+      } else {
       const objData = { id: formValues['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
       const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
 
@@ -92,6 +99,7 @@ const FocusDetails = (props, edit) => {
       dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
       dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
       if (debug) console.log('105 Context ', formValues, objData, objvData);
+      }
     }
   };
 
@@ -246,8 +254,8 @@ const FocusDetails = (props, edit) => {
   const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
   const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
   const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => !['name', 'description', 'typeName', 'typeDescription', 'objectRef',].includes(key))
-  const includedKeysMain = ['name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source',
-    '----', 'externalID', 'groupType', 'osduId', 'osduType', 'id', 'proposedType',
+  const includedKeysMain = ['id', 'name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source',
+    '----', 'externalID', 'groupType', 'osduId', 'osduType', 'proposedType',
     'fillcolor', 'fillcolor2', 'strokecolor', 'icon', 'image'
   ];
   // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];

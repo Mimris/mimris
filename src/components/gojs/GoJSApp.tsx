@@ -1383,12 +1383,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             };
           }
         }
-        if (data.objectview?.id) {
+        if (data.objviewRef) {
           const payload = data // JSON.parse(JSON.stringify(data));
-          const objvIdName = { id: payload.objectview.id, name: payload.objectview.name };
-          const objIdName = { id: payload.objectview.object.id, name: payload.objectview.object.name };
+          const objvIdName = { id: payload.objviewRef, name: payload.name };
+          const objIdName = { id: payload.objRef, name: payload.name };
 
-          if (debug) console.log('1072 SET_FOCUS_OBJECTVIEW', payload, objvIdName, objIdName)
+          if (!debug) console.log('1072 SET_FOCUS_OBJECTVIEW', payload, objvIdName, objIdName)
           context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
           context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
         }

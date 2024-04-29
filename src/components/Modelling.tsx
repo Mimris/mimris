@@ -232,6 +232,7 @@ const Modelling = (props: any) => {
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
                 doRefresh();
+                setActiveTab(index);  
               }}
             >
               {(m.name.startsWith('_A')) ? <span className="text-secondary" style={{ scale: "0.8", whiteSpace: "nowrap" }} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}

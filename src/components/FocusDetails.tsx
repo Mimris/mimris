@@ -226,7 +226,7 @@ const FocusDetails = (props, edit) => {
   //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
   // }
 
-  let objectviewChildren = (curobjectview) ? findObjectviewsWithCurrentObjectviewAsParent(curobjectviews, curobjectview?.id) : curmodelview?.objectviews;
+  let objectviewChildren = (curobjectview && curobject.id !== curmodelview.id) ? findObjectviewsWithCurrentObjectviewAsParent(curobjectviews, curobjectview?.id) : curmodelview?.objectviews;
   let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
   if (debug) console.log('227 Context', curobjectview, curmodelview?.objectviews);
   if (debug) console.log('228 Context', objectviewChildren);

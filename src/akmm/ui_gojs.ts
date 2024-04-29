@@ -455,8 +455,8 @@ export class goObjectNode extends goNode {
     groupLayout: string;
     group: string;
     parent: string;
-    constructor(key: string, objview: akm.cxObjectView) {
-        super(key, null);
+    constructor(key: string, model: goModel, objview: akm.cxObjectView) {
+        super(key, model);
         this.name           = objview.name;
         this.category       = constants.gojs.C_OBJECT;
         this.objectview     = objview as akm.cxObjectView;

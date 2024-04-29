@@ -907,7 +907,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const myCollection = new go.Set<go.Part | go.Link>();
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
-        const gjsNode = new gjs.goObjectNode(utils.createGuid(), objview);
+        const gjsNode = new gjs.goObjectNode(utils.createGuid(), goModel, objview);
         objview = uic.setObjviewAttributes(gjsNode, myDiagram);
         const jsnObjview = new jsn.jsnObjectView(objview);
         myObjectViews.push(jsnObjview);
@@ -2066,7 +2066,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         if (toObjtype.isContainer())
                             oview.viewkind = constants.viewkinds.CONT;
                         toObjview = oview;
-                        const toNode = new gjs.goObjectNode(toObjview.id, toObjview);
+                        const toNode = new gjs.goObjectNode(toObjview.id, goModel, toObjview);
                         toObjview = uic.setObjviewAttributes(toNode, myDiagram);
                         const jsnObjview = new jsn.jsnObjectView(toObjview);
                         modifiedObjectViews.push(jsnObjview);
@@ -2190,7 +2190,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
         toObj.addObjectView(toObjview);
         modelview.addObjectView(toObjview);
         myMetis.addObjectView(toObjview);
-        const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
+        const goNode = new gjs.goObjectNode(utils.createGuid(), goModel, toObjview);
         for (let prop in toTypeviewData) {
             myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
         }

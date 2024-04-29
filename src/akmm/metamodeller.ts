@@ -9228,7 +9228,7 @@ export class cxObjectView extends cxMetaObject {
         this.category = constants.gojs.C_OBJECTVIEW;
         this.markedAsDeleted = false;
         this.object = object;
-        this.objectRef = "";
+        this.objectRef = object?.id;
         this.inputrelviews = null;
         this.outputrelviews = null;
         this.typeview = object?.type?.typeview as cxObjectTypeView;

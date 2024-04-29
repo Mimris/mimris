@@ -421,7 +421,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (obj) {
                 obj.name = text;
                 obj.text = textvalue;
-                myNode.object = obj;
+                myNode.objRef = obj.id;
                 const objviews = obj.objectviews;
                 for (let i = 0; i < objviews.length; i++) {
                   const objview = objviews[i];
@@ -429,11 +429,19 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objview.text = textvalue;
                   let node = myGoModel.findNodeByViewId(objview?.id);
                   if (node) {
-                    const n = myDiagram.findNodeForKey(node.key) as any;
-                    myDiagram.model?.setDataProperty(n.data, "name", myNode.name);
+                    const nodedata = sel.data;
+                    nodedata.key = node.key;
+                    nodedata.name = text;
+                    {
+                      let nodes = myDiagram.nodes; 
+                      for (let it = nodes.iterator; it?.next();) {
+                        let n = it.value;
+                        console.log('439 node: data, key, name', n.data, n.data.key, n.data.name);
+                      }
+                    }
                     const jsnObjview = new jsn.jsnObjectView(objview);
                     jsnObjview.name = text;
-                    jsnObjview.text = textvalue;
+                    jsnObjview.text = text;
                     modifiedObjectViews.push(jsnObjview);
                     let data = JSON.parse(JSON.stringify(jsnObjview));
                     context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
@@ -1190,16 +1198,43 @@ class GoJSApp extends React.Component<{}, AppState> {
         e.subject.each(function (n) {
           const node = myDiagram.findNodeForKey(n.data.key);
           let type: akm.cxObjectType = n.data.objecttype;
-          type = myMetis.findObjectType(type.id);
           let typeview: akm.cxObjectTypeView = n.data.typeview;
-          typeview = myMetis.findObjectTypeView(typeview.id);
-          const objId = n.data.object.id;
-          const objName = n.data.object.name;
-          const objDescr = n.data.object.description;
-          let object: akm.cxObject = n.data.object;
-          object = myMetis.findObject(objId);
-          let objview: akm.cxObjectView = n.data.objectview;
-          objview.id = n.data.key;
+          let objview: akm.cxObjectView;
+          let objId: string;
+          let object: akm.cxObject;
+          if (!type || !typeview) {
+            // An object has been dropped (but there is no objectview)
+            type = myMetis.findObjectType(n.data.objtypeRef);
+            typeview = myMetis.findObjectTypeView(n.data.objtypeviewRef);
+            objId = n.data.objRef;
+            object = myMetis.findObject(objId);
+            myModel.addObject(object);
+            myMetis.addObject(object);
+            const key = utils.createGuid();
+            objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
+            myModelview.addObjectView(objview);
+            myMetis.addObjectView(objview);
+            n.data.key = key;
+          } else { 
+            // An object type has been dropped - create an object
+            // i.e. new objId, new objviewId, 
+            const objName = n.data.object.name;
+            const objDescr = n.data.object.description;
+            type = myMetis.findObjectType(type.id);
+            typeview = type.typeview;
+            // Create a new object
+            objId = utils.createGuid();
+            object = new akm.cxObject(objId, objName, type, objDescr);
+            myModel.addObject(object);
+            myMetis.addObject(object);
+            console.log('1241 node, data', node, n.data);
+            // Find the objectview
+            objview = myModelview.findObjectView(n.data.key);
+            if (objview) {
+              objview.object = object;
+              objview.objectRef = object.id;
+            }
+          }
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
@@ -1238,10 +1273,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview.setModified();
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
+          } else {
+            objview.loc = part.loc;
+            objview.size = part.size;
           }
           let goNode = myGoModel.findNodeByViewId(objview.id);
           if (!goNode) {
-            goNode = new gjs.goObjectNode(objview.id, objview);
+            goNode = new gjs.goObjectNode(objview.id, myGoModel, objview);
+            goNode.loadNodeContent(myGoModel);
             // uic.updateNode(goNode, typeview, myDiagram, myGoModel);
             myGoModel.addNode(goNode);
             // myDiagram.model.addNodeData(goNode);
@@ -1655,7 +1694,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.link = link;
         context.data = data;
         context.goModel = myGoModel;
-        if (debug) console.log('1498 link', link.data, link.fromNode, link.toNode);
+        if (debug) console.log('1498 link', link.data, link.data.from, link.data.to);
 
         if (false) { // Prepare for linkToLink
           if (linkToLink) {
@@ -1672,13 +1711,23 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = myDiagram.findNodeForKey(data.from).data;
+        let fromNode = myDiagram.findNodeForKey(data.from);
+        fromNode = fromNode?.data;
         if (!fromNode) {
-          fromNode = myDiagram.findNodeForKey(data.from).data;
+          fromNode = myGoModel.findNodeByViewId(link.data.from);
         }
-        let toNode = myDiagram.findNodeForKey(data.to).data;
+        if (fromNode && fromNode instanceof gjs.goObjectNode) {
+          fromNode.loadNodeContent(myGoModel);
+        }
+        let toNode = myDiagram.findNodeForKey(data.to);
+        toNode = toNode?.data;
         if (!toNode) {
-          toNode = myDiagram.findNodeForKey(data.to).data;
+          toNode = myGoModel.findNodeByViewId(link.data.to);
+          myGoModel.addNode(fromNode);
+        }
+        if (toNode && toNode instanceof gjs.goObjectNode) {
+          toNode.loadNodeContent(myGoModel);
+          myGoModel.addNode(toNode);
         }
 
         // Handle relationship types

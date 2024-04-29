@@ -45,9 +45,10 @@ const Modeller = (props: any) => {
 
 
     const [refresh, setRefresh] = useState(false)
+    const [objectsRefresh, setObjectsRefresh] = useState(false)
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
-    const [visibleObjects, setVisiblePalette] = useState(false)
+    const [visibleObjects, setVisibleObjects] = useState(false)
     // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
     const [isExpanded, setIsExpanded] = useState(false)
     const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
@@ -61,7 +62,6 @@ const Modeller = (props: any) => {
     const [ofilteredArr, setOfilteredArr] = useState([]);
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
-    // const [gojsmodel, setGojsmodel] = useState(props.myMetis.gojsModel);
 
     const diagramRef = useRef(null);
 
@@ -113,7 +113,7 @@ const Modeller = (props: any) => {
         } else {
             setSelectedOption('In this modelview')
         }
-        setVisiblePalette(!visibleObjects); 
+        setVisibleObjects(!visibleObjects); 
     }
 
     useEffect(() => {
@@ -123,7 +123,7 @@ const Modeller = (props: any) => {
         } else {
             setSelectedOption('OSDUType')
         }
-        if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(false)
+        if (mmodel?.name === 'AKM-OSDU_MM') setVisibleObjects(false)
         setMounted(true)
     }, [])
 
@@ -133,6 +133,7 @@ const Modeller = (props: any) => {
         } else {
             setSelectedOption('In this modelview')
         }
+        setVisibleObjects(!visibleObjects)
         console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
     }, [model.objects.length])
 
@@ -281,7 +282,7 @@ const Modeller = (props: any) => {
         if (selectedOption === 'In this modelview') {
             const objectviewsInThisModelview = modelview?.objectviews
             const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id))
-            const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name))).filter((node: any) => node)
+            const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name)))//.filter((node: any) => node)
             if (debug) console.log('422 Modeller ofilteredOnTypes', mvfilteredArr);
             setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
         } else if (selectedOption === 'Sorted alfabetical') {
@@ -320,9 +321,7 @@ const Modeller = (props: any) => {
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
             // if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr,);
         }
-        setRefresh(!refresh)
-        // if (gojsobjects?.nodeDataArray?.length > 0) setVisiblePalette(true)
-        // if (debug) console.log('433 Modeller');
+        setObjectsRefresh(!refresh)
     }, [selectedOption])
 
     // useEffect(() => {
@@ -418,8 +417,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 </div>
                 <GoJSPaletteApp // this is the Objects list
                     divClassName="diagram-component-objects"
-                    nodeDataArray={gojsobjects.nodeDataArray}
-                    linkDataArray={gojsobjects.linkDataArray}
+                    nodeDataArray={props.myMetis.gojsModel.nodes}
+                    linkDataArray={props.myMetis.gojsModel.links}
                     metis={props.metis}
                     myMetis={props.myMetis}
                     phFocus={props.phFocus}
@@ -493,8 +492,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <TabPane className="">
                     <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
                         {(visibleObjects)
-                            ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
-                            : <></>
+                            ? (objectsRefresh) 
+                                ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col></>
+                                : <> <Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
+                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
+
                         }
                         <Col className="me-2 my-1 p-1 border" xe="auto" >
                             <div className="workpad bg-white border-light mt-0 pe-0">

@@ -123,7 +123,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         const relship = myMetis.findRelationship(relshpRef);
         const relviewRef = relLink?.key;
         const relview = myMetis.findRelationshipView(relviewRef);
-        const reltypeRef = selObj.typeRef;
+        const reltypeRef = selObj.reltypeRef;
         const reltype = myMetis.findRelationshipType(reltypeRef);
         instview1 = relview as akm.cxRelationshipView;
         inst1 = relship as akm.cxRelationship;
@@ -131,8 +131,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         reltypeview = type.typeview;
         typeview = reltypeview;
         type.typeview = reltypeview;
-        inst.type = type;
-        // selObj = inst1;
+        inst1.type = type;
         break;
       case constants.gojs.C_RELSHIPTYPE:
         type = selObj.reltype;

@@ -77,7 +77,8 @@ const Modelling = (props: any) => {
 
   const ph = props
   const metis = ph.phData?.metis
-  const models = metis?.models || []
+
+  const models = metis?.models
   const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
   const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
     ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)

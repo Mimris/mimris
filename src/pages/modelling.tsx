@@ -28,7 +28,7 @@ const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: wh
 
 const page = (props: any) => {
 
-  if (debug) console.log('38 modelling ', props)
+  if (!debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
   const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);

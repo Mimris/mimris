@@ -49,13 +49,13 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
   const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
-  const models = (metis) && metis.models
+  const models = (metis) && metis.models.filter((m: any) => (m) && m) // filter out null models
   let focusModel = props.phFocus?.focusModel
   if (!focusModel) focusModel = (models) && models[0];
   let focusModelview = props.phFocus?.focusModelview
   if (!focusModelview) focusModelview = (focusModel) && focusModel.modelviews[0];
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
-  const metamodels = (metis) && metis.metamodels
+  const metamodels = (metis) && metis.metamodels.filter((mm) => (mm) && mm) // filter out null metamodels
   let adminModel;
 
   if (metis != null) {

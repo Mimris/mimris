@@ -194,9 +194,11 @@ export class goModel {
                 const link = this.links[i];
                 const ll = link as goRelshipLink;
                 if (ll.relshipview && ll.relviewRef === relviewId) {
-                    return (ll);
+                    if (ll.key === relviewId) {
+                        return (ll);
+                    }
+                    i++;
                 }
-                i++;
             }
         }
         return retval;

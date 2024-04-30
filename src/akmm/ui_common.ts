@@ -957,6 +957,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        myModel.addRelationship(relship);
+        myMetis.addRelationship(relship);
     }
     if (relship) {
         const context = {
@@ -1001,15 +1003,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
     // create a link data between the actual nodes
-    let linkdata = {
-        key: relview.id,
-        from: fromObjview.id, 
-        to: toObjview.id,
-        name: relTypename,
-        typeRef: reltype1.id,
-        category: constants.gojs.C_RELATIONSHIP,
-    };
-    // set the link attributes
+    const linkdata = new gjs.goRelshipLink(relview.id, myGoModel, relview);
     const rtviewdata = reltype1?.typeview?.data;
     for (let prop in rtviewdata) {
         if (prop === 'id') continue;
@@ -1023,6 +1017,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // and add the link data to the model
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
+    myGoModel.addLink(linkdata);
 
     // Prepare for dispatch
     const jsnRelship = new jsn.jsnRelationship(rel);

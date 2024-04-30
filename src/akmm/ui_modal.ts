@@ -44,7 +44,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
-    const node = filterObject(obj);
+    const node = obj; // filterObject(obj);
     inst = node.objecttype;
     typeview = node.typeview;
 
@@ -62,7 +62,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   }
     // Handle objects
   if (obj.category === constants.gojs.C_OBJECT) {
-    const node = filterObject(obj);
+    const node = obj; // filterObject(obj);
     instview = myMetis.findObjectView(node?.key);
     myInst = myMetis.findObject(instview.object.id);
     if (!myInst) myInst = obj;

@@ -249,7 +249,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
-    const myGoModel = this.state.myMetis.gojsModel;
+    const myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
     // const myGoMetamodel = this.state.myGoMetamodel;
     if (debug) console.log('223 handleDiagramEvent - myGoModel', myGoModel, myMetis);
     // const myGoMetamodel = this.state.myGoMetamodel;
@@ -1368,11 +1368,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           const n = it.value;
           const data = n.data;
           if (data.isSelected) {
-            
             console.log('1319 goNode', data);
           }
         }
-
+        {
+            const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
+            console.log('1319 myGoModel, goNode', myGoModel, goNode);
+        }
+        
         if (false) {
           let focusObjview = myModelview.focusObjectview;
           if (focusObjview) {
@@ -1711,12 +1714,24 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = myGoModel.findNodeByViewId(link.data.from);
-        let toNode   = myGoModel.findNodeByViewId(link.data.to);
-        // if (toNode && toNode instanceof gjs.goObjectNode) {
-        //   toNode.loadNodeContent(myGoModel);
-        //   myGoModel.addNode(toNode);
-        // }
+        let fromNode = myDiagram.findNodeForKey(data.from);
+        if (fromNode) {
+          let objview = myModelview.findObjectView(fromNode.key);
+          let gNode = myGoModel.findNode(fromNode.key);
+          if (!gNode || !(gNode instanceof gjs.goObjectNode)) {
+            gNode = new gjs.goObjectNode(fromNode.key, myGoModel, objview);
+            fromNode = gNode;
+          }
+        }
+        let toNode = myDiagram.findNodeForKey(data.to);
+        if (toNode) {
+          let objview = myModelview.findObjectView(fromNode.key);
+          let gNode = myGoModel.findNode(toNode.key);
+          if (!gNode || !(gNode instanceof gjs.goObjectNode)) {
+            gNode = new gjs.goObjectNode(toNode.key, myGoModel, objview);
+            toNode = gNode;
+          }
+        }
 
         // Handle relationship types
         if (fromNode?.category === constants.gojs.C_OBJECTTYPE) {

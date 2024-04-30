@@ -289,6 +289,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           continue;
         if (!includeNoType && !objview.object?.type)
           continue;
+        // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale1;
         if (node.template === "")
@@ -419,6 +420,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relshipviews.push(relview);
         const jsnRelview = new jsn.jsnRelshipView(relview);
         modifiedRelviews.push(jsnRelview);
+        // Update myGoModel
         let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
         const name = link.name;
         if (debug) console.log('382 modelview, link:', modelview, link);

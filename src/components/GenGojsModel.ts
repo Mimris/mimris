@@ -109,9 +109,6 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
       if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
-      myGoModel.nodes = myGoModel.nodes.map(ns =>filterObject(ns)); //remoe all objects from the node
-      myGoModel.links = myGoModel.links.map(ls =>filterObject(ls)); //remoe all objects from the link
-
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);

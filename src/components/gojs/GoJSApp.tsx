@@ -842,7 +842,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
-                  let objview = myModelview.findObjectView(node.objviewRef);
+                  let objview = myModelview.findObjectView(node.key);
                   if (count < 0) { // The reference node
                     count++;
                     rloc = node.loc;
@@ -1720,21 +1720,22 @@ class GoJSApp extends React.Component<{}, AppState> {
           let gNode = myGoModel.findNode(fromNode.key);
           if (!gNode || !(gNode instanceof gjs.goObjectNode)) {
             gNode = new gjs.goObjectNode(fromNode.key, myGoModel, objview);
-            fromNode = gNode;
+            fromNode.data = gNode;
           }
         }
         let toNode = myDiagram.findNodeForKey(data.to);
         if (toNode) {
-          let objview = myModelview.findObjectView(fromNode.key);
+          let objview = myModelview.findObjectView(toNode.key);
           let gNode = myGoModel.findNode(toNode.key);
           if (!gNode || !(gNode instanceof gjs.goObjectNode)) {
             gNode = new gjs.goObjectNode(toNode.key, myGoModel, objview);
-            toNode = gNode;
+            // gNode = utils.copyNonObjectAttributes(gNode);
+            // toNode.data = gNode;
           }
         }
 
         // Handle relationship types
-        if (fromNode?.category === constants.gojs.C_OBJECTTYPE) {
+        if (fromNode?.data.category === constants.gojs.C_OBJECTTYPE) {
           data.category = constants.gojs.C_RELSHIPTYPE;
           if (debug) console.log('1523 link', fromNode, toNode);
           // link.category = constants.gojs.C_RELSHIPTYPE;
@@ -1766,7 +1767,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myDiagram.requestUpdate();
         }
         // Handle relationships
-        if (fromNode?.category === constants.gojs.C_OBJECT) {
+        if (fromNode?.data.category === constants.gojs.C_OBJECT) {
           data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
           uic.createRelationship(fromNode, toNode, context);

@@ -96,16 +96,16 @@ const Project = (props) => {
               <div className="borde fs-6">{props.props.phFocus.focusProj.file}</div>
               {/* <hr /> */}
             <span>Current User:</span>
-              <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser.name} </div>
-              <div className="border fs-6 p-1">E-mail: {props.props.phUser.focusUser.email} </div>
-              <div className="border fs-6 p-1">Role: {props.props.phFocus.focusRole.name} </div>
-              <div className="border fs-6 p-1">Task: {props.props.phFocus.focusTask.name} </div>
+              <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser?.name} </div>
+              <div className="border fs-6 p-1">E-mail: {props.props.phUser.focusUser?.email} </div>
+              <div className="border fs-6 p-1">Role: {props.props.phFocus.focusRole?.name} </div>
+              <div className="border fs-6 p-1">Task: {props.props.phFocus.focusTask?.name} </div>
               <div className="justify-content-between align-items-baseline borde mt-2">In Focus:
-                <div className="border fs-6 p-1">Model: {props.props.phFocus.focusModel.name} </div>
-                <div className="border fs-6 p-1">Modelview: {props.props.phFocus.focusModelview.name} </div>
-                <div className="border fs-6 p-1">Object: {props.props.phFocus.focusObject.name} </div>
-                <div className="border fs-6 p-1">Objecttype: {props.props.phFocus.focusObjecttype.name} </div>
-                <div className="border fs-6 p-1">Target metamodel: {props.props.phFocus.focusTargetMetamodel.name} </div>
+                <div className="border fs-6 p-1">Model: {props.props.phFocus.focusModel?.name} </div>
+                <div className="border fs-6 p-1">Modelview: {props.props.phFocus.focusModelview?.name} </div>
+                <div className="border fs-6 p-1">Object: {props.props.phFocus.focusObject?.name} </div>
+                <div className="border fs-6 p-1">Objecttype: {props.props.phFocus.focusObjecttype?.name} </div>
+                <div className="border fs-6 p-1">Target metamodel: {props.props.phFocus.focusTargetMetamodel?.name} </div>
                 {/* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModel} </div> */}
                 { /* <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusTargetModelview} </div> */}
                 <div className="border fs-6 p-1">Source: {props.props.phFocus.focusSource.name} </div>

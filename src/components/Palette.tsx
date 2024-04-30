@@ -96,15 +96,11 @@ const Palette = (props: any) => {
 
     setRole(focusRole);
     setTask(focusTask);
-    setTypes(objecttypes?.map((t: any) => t?.name));
+    const types = objecttypes?.map((t: any) => t?.name);
+    setTypes(types);
 
+    (types) && setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
 
-    // if (props.modelType === 'metamodel') setFilteredOtNodeDataArray(buildFilterOtNodeDataArray([], mmodel))
-    // else 
-    setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
-    // setFilteredNewtypesNodeDataArray(buildFilter(focusRole, focusTask, metamodelList, types, mmodel));  // build the palette for current metamodel
-
-    // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
     coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
@@ -164,6 +160,7 @@ const Palette = (props: any) => {
 
         return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
       });
+      
       return otsArr
     } else { return ndarr }
   };
@@ -276,14 +273,8 @@ const Palette = (props: any) => {
       <div>
         {visiblePalette
           ? (refreshPalette)
-            ? <>
-              {gojsappPaletteDiv}
-            </> // these two lines needs to be different to refresh the palette
-            : <div>
-              {/* <div className="btn-horizontal bg-light mx-0 px-0 mb-0" style={{ fontSize: "11px", minWidth: "166px", maxWidth: "160px" }}> */}
-              {gojsappPaletteDiv}
-              {/* </div> */}
-            </div>
+            ? <>{gojsappPaletteDiv}</>
+            : <> {gojsappPaletteDiv}  </>
           : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
         }
       </div>

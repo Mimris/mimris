@@ -38,14 +38,14 @@ function ProjectDetailsForm(props) {
 
   if (debug) console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, focusModelview, focusObject, focusObjectview, focusOrg, focusProj, focusRole, focusTask, focusIssue);
 
-  useEffect(() => {
+  // useEffect(() => {
     // setOrg(props.phFocus?.focusOrg.org);
     // setRepo(props.phFocus?.focusProj.name);
     // setPath(props.phFocus?.focusProj.path);
     // setFile(props.phFocus?.focusProj.file);
     // setBranch(props.phFocus?.focusProj.branch);
     // setFocusProj(props.props.phData?.metis.name)
-  }, []);
+  // }, []);
 
   useEffect(() => {
     console.log("53 ProjectDetailsForm", props.props.phFocus);

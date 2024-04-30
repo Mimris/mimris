@@ -79,6 +79,8 @@ const Palette = (props: any) => {
 
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
+  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+  let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-IRTV_MM')
   let taskNodeDataArray: any[] = ndarr
 
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
@@ -104,9 +106,9 @@ const Palette = (props: any) => {
 
     // const seltypes = (mmodel.submetamodels) &&  mmodel.submetamodels[0]?.objecttypes.map((t: any) => t?.name);
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
-    const coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
-    const irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
+    irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
     const additionalmetamodel = (coremetamodel?.name === mmodel?.name) ? irtvmetamodel : coremetamodel
     const seltypes = additionalmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -150,7 +152,7 @@ const Palette = (props: any) => {
         ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
         : (mmodel.name === 'AKM-IRTV_MM') 
           ? ['Container', 'Information', 'Role', 'Task', 'View']
-          : ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item'];
+          : ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
 
 
       const otsArrSorted = otsArr.sort((a, b) => {
@@ -214,7 +216,7 @@ const Palette = (props: any) => {
 
   const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
     <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
-      <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel.name}</summary>
+      <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary>
       {/* Top palette with current metamodelpalette */}
       <GoJSPaletteApp
         nodeDataArray={filteredNewtypesNodeDataArray}
@@ -229,7 +231,7 @@ const Palette = (props: any) => {
 
   const gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'AKM-IRTV_MM') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-      <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>IRTV Metamodel</summary>
+      <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
       <GoJSPaletteApp
         nodeDataArray={IRTVOtNodeDataArray}
         linkDataArray={[]}
@@ -243,7 +245,7 @@ const Palette = (props: any) => {
 
   const gojsappPaletteCoreDiv = (mmodel && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
     <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
-      <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>Core Metamodel</summary>
+      <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
       <GoJSPaletteApp
         nodeDataArray={CoreOtNodeDataArray}
         linkDataArray={[]}

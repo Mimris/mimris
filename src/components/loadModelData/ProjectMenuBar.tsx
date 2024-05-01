@@ -514,6 +514,18 @@ export const ProjectMenuBar = (props: any) => {
                     onClick={() => { setIsLeftHovered((isLeftDropdownOpen) && false), setIsLeftDropdownOpen(!isLeftDropdownOpen) }}
                 >
                     <i className={`${isLeftDropdownOpen ? 'fa fa-bars fa-lg' : 'fa fa-bars bg-dark fa-lg'}`}></i>
+           
+                    <span className="bg-transparent mb-0 rounded p-1 ms-4 pe-2"
+                        // type="button"
+                        data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                        title={props.projName}
+                        style={{
+                            fontSize: "1rem", color: "gray", fontWeight: "normal", fontStretch: "condensed",
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
+                        }}
+                    >
+                        {props.phSource.length > 48 ? '...' + props.phSource.slice(-48) : props.phSource}
+                    </span>
                 </div>
                 <div style={{
                     position: "absolute",

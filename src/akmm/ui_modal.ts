@@ -16,23 +16,6 @@ import { filter } from 'cheerio/lib/api/traversing';
 const RegexParser = require("regex-parser");
 
 
-function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
-  let newobj = {};
-  for (let i in obj) {
-    if (!obj.hasOwnProperty(i)) continue;
-    let tmpkey = i;
-    let tmpval = obj[i];
-    if (typeof obj[i] === "object") continue
-    newobj = {
-      ...newobj,
-      [tmpkey]: tmpval,
-    };
-    if (debug) console.log("130", i, obj[i], newobj);
-
-    if (debug) console.log("513 :", obj, newobj);
-  }
-  return newobj;
-}
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
   const propname = props.id;
   const fieldType = props.type;
@@ -44,7 +27,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
-    const node = obj; // filterObject(obj);
+    const node = obj; 
     inst = node.objecttype;
     typeview = node.typeview;
 
@@ -62,7 +45,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   }
     // Handle objects
   if (obj.category === constants.gojs.C_OBJECT) {
-    const node = obj; // filterObject(obj);
+    const node = obj; 
     instview = myMetis.findObjectView(node?.key);
     myInst = myMetis.findObject(instview.object.id);
     if (!myInst) myInst = obj;

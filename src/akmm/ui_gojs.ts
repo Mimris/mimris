@@ -100,12 +100,12 @@ export class goModel {
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
-        if (!utils.isArrayEmpty(this.nodes)) {
+        if (this.nodes) {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                const objviewRef = n.objviewRef;
+                const objviewRef = n.key;
                 if (objviewRef === objviewId) {
                     return (n);
                 }
@@ -193,12 +193,11 @@ export class goModel {
             while (i < this.links.length) {
                 const link = this.links[i];
                 const ll = link as goRelshipLink;
-                if (ll.relshipview && ll.relviewRef === relviewId) {
-                    if (ll.key === relviewId) {
-                        return (ll);
-                    }
-                    i++;
+                const relviewRef = ll.key;
+                if (relviewRef === relviewId) {
+                    return (ll);
                 }
+                i++;
             }
         }
         return retval;

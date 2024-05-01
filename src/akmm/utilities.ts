@@ -220,3 +220,13 @@ export function findRelshipByFromIdToIdAndType(curRelships: any, fromObjId: stri
     return relship;
 }
 
+export function copyNonObjectAttributes(source: any) {
+    const target: any = {};
+    for (const key in source) {
+        if (source.hasOwnProperty(key) && typeof source[key] !== 'object') {
+            target[key] = source[key];
+        }
+    }
+    return target;
+}
+

@@ -918,6 +918,7 @@ export class goRelshipLink extends goLink {
                 const reltype = relship.getType() as akm.cxRelationshipType;
                 if (reltype && reltype instanceof akm.cxRelationshipType) {
                     this.relshiptype = relship.type;
+                    this.reltypeRef = reltype.id;
                     this.typename = reltype.getName();
                     this.typedescription = this.relshiptype.getDescription();
                     this.name = this.relship.name;

@@ -1017,6 +1017,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // and add the link data to the model
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
+    myDiagram.model.addLinkData(linkdata);
     myGoModel.addLink(linkdata);
 
     // Prepare for dispatch
@@ -4007,11 +4008,16 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
         let found = false;
         for (let j = 0; j < links.length; j++) {
             const link = links[j];
-            const rv = link.relshipview;
-            if (rv.id === rview.id) {
+            const relviewRef = link.relviewRef;
+            if (relviewRef === rview.id) {
                 found = true;
-                break;
             }
+            link.relshipRef = link.relship?.id;
+            link.relship = null;
+            link.relviewRef = link.relshipview?.id;
+            link.relshipview = null;
+            link.reltypeRef = link.relshiptype?.id;
+            link.relshiptype = null;
         }
         if (!found) {
             const link = new gjs.goRelshipLink(relview.id, goModel, rview);
@@ -4027,6 +4033,12 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
         let found = false;
         for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
+            node.objRef = node.object?.id;
+            node.object = null;
+            node.objviewRef = node.objectview?.id;
+            node.objectview = null;
+            node.objtypeRef = node.objecttype?.id;
+            node.objecttype = null;
             node.scale = node.getMyScale(goModel);
             node.scale1 = node.scale;
             if (debug) console.log('3073 node', node);

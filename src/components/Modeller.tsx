@@ -107,12 +107,13 @@ const Modeller = (props: any) => {
     }
 
     function toggleObjects() { 
-        // props.setRefresh(!props.refresh)
-        if (selectedOption === 'Sorted by type') {
-            setSelectedOption('In this modelview')
-        } else {
-            setSelectedOption('In this modelview')
-        }
+        // // props.setRefresh(!props.refresh)
+        // if (selectedOption === 'Sorted by type') {
+        //     setSelectedOption('In this modelview')
+        // // } else {
+        // //     setSelectedOption('In this modelview')
+        // }
+        setObjectsRefresh(!objectsRefresh)
         setVisibleObjects(!visibleObjects); 
     }
 
@@ -120,7 +121,7 @@ const Modeller = (props: any) => {
         setRefresh(!refresh)
         if (model?.objects?.length < 500) {
             setSelectedOption('Sorted by type')
-        } else {
+        } else if (mmodel?.name === 'AKM-OSDU_MM') {
             setSelectedOption('OSDUType')
         }
         if (mmodel?.name === 'AKM-OSDU_MM') setVisibleObjects(false)
@@ -135,9 +136,8 @@ const Modeller = (props: any) => {
         }
         // setVisibleObjects(!visibleObjects)
         setObjectsRefresh(!objectsRefresh)
-
         console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
-    }, [model.objects.length])
+    }, [model.objects.length === 0])
 
     useEffect(() => {
         const propps = {
@@ -323,7 +323,7 @@ const Modeller = (props: any) => {
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
             // if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr,);
         }
-        setObjectsRefresh(!refresh)
+        setObjectsRefresh(!objectsRefresh)
     }, [selectedOption])
 
     // useEffect(() => {
@@ -393,7 +393,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const myMetamodel = myModel.metamodel;
     const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
 
-    const objectsTabDiv =
+    // const objectsTabDiv = (gojsobjects.nodeDataArray.length > 0) && (gojsobjects.nodeDataArray.length < 500) && (visibleObjects) && (selectedOption === 'In this modelview') && (isExpanded) && (visibleObjects) &&
+    const objectsTabDiv = //(gojsobjects.nodeDataArray.length > 0) && (visibleObjects) && (selectedOption === 'In this modelview') && (isExpanded) && (visibleObjects) &&
         <>
             <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none", }}>
                 {/* <div className="d-flex justify-content-between"> */}
@@ -504,8 +505,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             <div className="workpad bg-white border-light mt-0 pe-0">
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
                                 <GoJSApp
-                                    nodeDataArray={props.myMetis.gojsModel.nodes}
-                                    linkDataArray={props.myMetis.gojsModel.links}
+                                    nodeDataArray={props.myMetis.gojsModel?.nodes}
+                                    linkDataArray={props.myMetis.gojsModel?.links}
                                     metis={props.metis}
                                     myMetis={props.myMetis}
                                     phFocus={props.phFocus}

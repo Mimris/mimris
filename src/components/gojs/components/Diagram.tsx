@@ -92,37 +92,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private myGoModel: gjs.goModel;
   private myGoMetamodel: gjs.goModel;
 
-
-
-  // const ndArray = this.props.nodeDataArray.map(n => filterObject(n));
-  // const ldArray = this.props.linkDataArray.map(l => filterObject(l));
-  // if (debug) console.log('4006 ndArray', ndArray, this.props.nodeDataArray);
-
   /** @internal */
   constructor(props: DiagramProps) {
     super(props);
-
-
-    // filter to get only attributes (objects removed)
-    function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
-      let newobj = {};
-      for (let i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        let tmpkey = i;
-        let tmpval = obj[i];
-        if (typeof obj[i] === "object") continue
-        newobj = {
-          ...newobj,
-          [tmpkey]: tmpval,
-        };
-        if (debug) console.log("130", i, obj[i], newobj);
-
-        if (debug) console.log("513 :", obj, newobj);
-      }
-      return newobj;
-    }
-
-
     if (debug) console.log('78 Diagram props:', props);
     this.myMetis = props.myMetis;
     this.myMetis.modelType = props.modelType;

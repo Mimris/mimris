@@ -118,7 +118,7 @@ const Modeller = (props: any) => {
     }
 
     useEffect(() => {
-        setRefresh(!refresh)
+        setObjectsRefresh(!objectsRefresh)
         if (model?.objects?.length < 500) {
             setSelectedOption('Sorted by type')
         } else if (mmodel?.name === 'AKM-OSDU_MM') {

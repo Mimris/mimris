@@ -4002,27 +4002,31 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
     const relviews = modelview.relshipviews;
     for (let i = 0; i < relviews?.length; i++) {
         const rview = relviews[i];
+        let link = null;
         if (rview.markedAsDeleted)
             continue;
+        const relship = rview.relship;
+        const reltype = relship?.type;
         const links = goModel.links as gjs.goRelshipLink[];
         let found = false;
         for (let j = 0; j < links.length; j++) {
-            const link = links[j];
-            const relviewRef = link.relviewRef;
+            link = links[j];
+            const relviewRef = link.key;
             if (relviewRef === rview.id) {
                 found = true;
+                break;
             }
-            link.relshipRef = link.relship?.id;
-            link.relship = null;
-            link.relviewRef = link.relshipview?.id;
-            link.relshipview = null;
-            link.reltypeRef = link.relshiptype?.id;
-            link.relshiptype = null;
         }
         if (!found) {
-            const link = new gjs.goRelshipLink(relview.id, goModel, rview);
+            link = new gjs.goRelshipLink(rview.id, goModel, rview);
             goModel.addLink(link);
         }
+        link.relshipRef  = relship?.id;
+        link.relviewRef  = rview.id;
+        link.reltypeRef  = relship.type?.id;
+        link.relship     = null;
+        link.relshipview = null;
+        link.relshiptype = null;
     }
     const objviews = modelview.objectviews;
     for (let i = 0; i < objviews?.length; i++) {

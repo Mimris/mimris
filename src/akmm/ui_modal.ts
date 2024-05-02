@@ -747,6 +747,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       relship['cardinalityTo'] = relship.getCardinalityTo();
       relship['relshipkind'] = rel.relshipkind;
       if (relship.name === "") relship.name = " ";
+
       for (let k in rel) {
         if (typeof(rel[k]) === 'object')    continue;
         if (typeof(rel[k]) === 'function')  continue;
@@ -1102,70 +1103,43 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "editRelshipview": {
-      // selRel contains the changed values
-      const selRel = selectedData;
-      const link = myDiagram.findLinkForKey(selRel.key);
+      // rel contains the changed values
+      const rel = selectedData;
+      const link = myDiagram.findLinkForKey(rel.key);
       if (!link)
         break;
-      if (link) link.isSelected = true;
+      link.isSelected = true;
       const data = link.data;
       const relview = myModelview.findRelationshipView(data.key);
+      const reltypeview = relview.typeview;
       const relship = relview.relship;
       const type = relship.type;
-      let reltypeview = type.typeview;
-      // const rtypeview = myMetis.findRelationshipTypeView(reltypeview.id);
-      // if (rtypeview) reltypeview = rtypeview;
+      // let reltypeview = type.typeview;
+      if (relship.name === "") relship.name = " ";
       const selection = myDiagram.selection;
-      selection.each(function(sel) {
+      selection.each(function(sel, data) {
           let selData = sel.data;
           if (selData) {
             const relview = myMetis.findRelationshipView(selData.key);
             if (relview) {
-              for (let prop in reltypeview?.data) {
+              const viewdata: akm.cxReltypeviewData = reltypeview?.data;
+              for (const prop in viewdata) {
+                if (prop === 'id') continue;
+                if (prop === 'name') continue;
+                if (prop === 'abstract') continue;
+                if (prop === 'category') continue;
                 if (prop === 'class') continue;
-                try {
-                  relview[prop] = selRel[prop];
-                } catch {}
+                
+                const val1 = viewdata[prop];
+                const val2 = selData[prop];
+                if (val1 && val2 && (val1 !== val2)) {
+                  relview[prop] = val2;
+                  if (val2)
+                    myDiagram.model.setDataProperty(selData, prop, val2);
+                  if (debug) console.log('1130 prop, viewdata[prop], relview[prop]: ', prop, v1, v2);  
+                }
               }
               myMetis.addRelationshipView(relview);
-            }
-          }
-          const link = myDiagram.findLinkForKey(selData.key);
-          if (link && relview) {         
-            const data = link.data;
-            for (let prop in reltypeview?.data) {
-              if (prop === 'template' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'strokecolor' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'strokewidth' && relview[prop] !== "")
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-                if (prop === 'textcolor' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'textscale' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'dash' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'routing' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'curve' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'fromArrow') {
-                let fromArrow = relview[prop];
-                if (relview[prop] === "") fromArrow = reltypeview.data[prop];
-                if (fromArrow === "None") fromArrow = "";
-                myDiagram.model.setDataProperty(data, prop, fromArrow);           
-              }          
-              if (prop === 'fromArrowColor' && relview[prop] !== "") 
-                  myDiagram.model.setDataProperty(data, prop, relview[prop]);
-              if (prop === 'toArrow') {
-                  let toArrow = relview[prop];
-                  if (relview[prop] === "") toArrow = reltypeview.data[prop];
-                  if (toArrow === "None") toArrow = "";
-                  myDiagram.model.setDataProperty(data, prop, toArrow);           
-              }          
-              if (prop === 'toArrowColor' && relview[prop] !== "") 
-                myDiagram.model.setDataProperty(data, prop, relview[prop]);
             }
           }
           const jsnRelview = new jsn.jsnRelshipView(relview);
@@ -1175,7 +1149,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
           })
         });
-      break;
+      return;
     }
     case "editTypeview": {   
       // selObj is a node representing an object or an objecttype

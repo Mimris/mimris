@@ -249,29 +249,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
-    const myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
-    // const myGoMetamodel = this.state.myGoMetamodel;
+    let myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
+    myGoModel = uic.fullFillGoModel(myGoModel, myModelview);
     if (debug) console.log('223 handleDiagramEvent - myGoModel', myGoModel, myMetis);
-    // const myGoMetamodel = this.state.myGoMetamodel;
-    // const gojsModel = {
-    //   nodeDataArray: myGoModel?.nodes,
-    //   linkDataArray: myGoModel?.links
-    // }
     const nodes = new Array();
-    // const nods = myGoMetamodel?.nodes;
-    // for (let i = 0; i < nods?.length; i++) {
-    //   const node = nods[i] as gjs.goObjectTypeNode;
-    //   const objtype = node.objecttype;
-    //   if (objtype?.abstract) continue;
-    //   if (objtype?.markedAsDeleted) continue;
-    //   nodes.push(node);
-    // }
-    // if (nodes?.length > 0) myGoMetamodel.nodes = nodes
-
-    // const gojsMetamodel = {
-    //   nodeDataArray: myGoMetamodel?.nodes,
-    //   linkDataArray: myGoMetamodel?.links
-    // }
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
     let modifiedObjectTypeGeos = new Array();
@@ -833,7 +814,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                     }
                   }
-                  // Handle hasMember relationships    
+                  // Handle hasMember relationships (currently disabled in common.ts)
                   hasMemberRel = uic.hasMemberRelship(node, myMetis);
                   if (!hasMemberRel) {
                     hasMemberRel = uic.addHasMemberRelship(fromObject, toObject, myMetis);
@@ -863,7 +844,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objview.group = "";
                   node.scale1 = Number(toScale.valueOf());
                   myDiagram.model.setDataProperty(n, "scale", node.scale1);
-                  // Handle hasMember relationships     
+                  // Handle hasMember relationships   
                   let hasMemberRel = uic.hasMemberRelship(node, myMetis);
                   if (hasMemberRel) {
                     hasMemberRel = myModel.findRelationship(hasMemberRel.id);

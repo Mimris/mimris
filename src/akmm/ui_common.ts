@@ -4079,6 +4079,7 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
         }
     }
+    return objview;
 }
 
 export function setRelviewAttributes(data: any, myDiagram: any): akm.cxRelationshipView {

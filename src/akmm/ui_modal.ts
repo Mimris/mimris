@@ -1114,31 +1114,32 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const reltypeview = relview.typeview;
       const relship = relview.relship;
       const type = relship.type;
-      // let reltypeview = type.typeview;
       if (relship.name === "") relship.name = " ";
-      const selection = myDiagram.selection;
-      selection.each(function(sel, data) {
+      myDiagram.selection.each(function(sel) {
           let selData = sel.data;
           if (selData) {
             const relview = myMetis.findRelationshipView(selData.key);
             if (relview) {
-              const viewdata: akm.cxReltypeviewData = reltypeview?.data;
-              for (const prop in viewdata) {
+              const typeviewdata: akm.cxReltypeviewData = reltypeview?.data;
+              for (const prop in typeviewdata) {
                 if (prop === 'id') continue;
                 if (prop === 'name') continue;
                 if (prop === 'abstract') continue;
                 if (prop === 'category') continue;
                 if (prop === 'class') continue;
                 
-                const val1 = viewdata[prop];
+                const val1 = typeviewdata[prop];
                 const val2 = selData[prop];
                 if (val1 && val2 && (val1 !== val2)) {
                   relview[prop] = val2;
                   if (val2)
-                    myDiagram.model.setDataProperty(selData, prop, val2);
-                  if (debug) console.log('1130 prop, viewdata[prop], relview[prop]: ', prop, v1, v2);  
+                    myDiagram.model.setDataProperty(sel, prop, val2);
+                  if (debug) console.log('1130 prop, typeviewdata[prop], relview[prop]: ', prop, val1, val2);  
                 }
               }
+              let prop = 'strokecolor';
+              if (prop === 'strokecolor' && relview[prop] !== "")
+                myDiagram.model.setDataProperty(selData, prop, relview[prop]);
               myMetis.addRelationshipView(relview);
             }
           }
@@ -1148,7 +1149,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             let data = mn;
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
           })
-        });
+      });
       return;
     }
     case "editTypeview": {   

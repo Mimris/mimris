@@ -461,7 +461,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
-                return false;
+                return true;
             }),
           makeButton("Paste",
             function (e: any, obj: any) {

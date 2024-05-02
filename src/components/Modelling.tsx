@@ -225,8 +225,6 @@ const Modelling = (props: any) => {
 
     // ===================================================================
     // Divs
-    if (debug) console.log('362 Modelling: ', gojsmetamodelpalette);
-    if (debug) console.log('363 Modelling: ', gojsmetamodelmodel);
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
@@ -455,8 +453,6 @@ const Modelling = (props: any) => {
     const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-
-    if (debug) console.log('460 Modelling', gojsmodelobjects);
 
     const modellingDiv =
       <>

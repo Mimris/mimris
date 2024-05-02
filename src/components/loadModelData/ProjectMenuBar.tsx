@@ -254,6 +254,7 @@ export const ProjectMenuBar = (props: any) => {
                 width: "260px", //!isLeftDropdownOpen ? "5vw" : "16vw",
                 height: "30vh",
                 backgroundColor: "#b0cfcf",
+                zIndex: "99",
             }}
         >
             <div className="context-item bg-white m-1">

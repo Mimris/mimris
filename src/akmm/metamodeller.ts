@@ -2445,12 +2445,17 @@ export class cxMetis {
             return null;
         } else {
             let i = 0;
-            let objview = null;
+            let objview: cxObjectView = null;
             while (i < objectviews.length) {
                 objview = objectviews[i];
                 if (!objview?.markedAsDeleted) {
-                    if (objview.id === id)
+                    if (objview.id === id) {
+                        if (!objview.objectRef) {
+                            const obj = objview.object;
+                            objview.objectRef = obj?.id;
+                        }
                         return objview;
+                    }
                 }
                 i++;
             }
@@ -8986,12 +8991,18 @@ export class cxModelView extends cxMetaObject {
     findObjectView(id: string): cxObjectView | null {
         if (!this.objectviews) return null;
         let i = 0;
-        let obj = null;
+        let objview: cxObjectView = null;
         while (i < this.objectviews.length) {
-            obj = this.objectviews[i];
-            if (!obj?.isDeleted()) {
-                if (obj.id === id)
-                    return obj;
+            objview = this.objectviews[i];
+            if (!objview?.isDeleted()) {
+                if (objview.id === id) {
+                    if (!objview.objectRef) {
+                        const obj = objview.object;
+                        if (obj)
+                            objview.objectRef = obj.id;
+                    }
+                    return objview;
+                }
             }
             i++;
         }

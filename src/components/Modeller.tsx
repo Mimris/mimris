@@ -117,22 +117,37 @@ const Modeller = (props: any) => {
         setVisibleObjects(!visibleObjects); 
     }
 
+    
     useEffect(() => {
-        setObjectsRefresh(!objectsRefresh)
-        if (model?.objects?.length < 500) {
-            setSelectedOption('Sorted by type')
-        } else if (mmodel?.name === 'AKM-OSDU_MM') {
+        // setObjectsRefresh(!objectsRefresh)
+        setSelectedOption('Sorted by type')
+        if (mmodel?.name === 'AKM-OSDU_MM') {
             setSelectedOption('OSDUType')
-        }
-        if (mmodel?.name === 'AKM-OSDU_MM') setVisibleObjects(false)
-        setMounted(true)
-    }, [])
-
-    useEffect(() => {
-        if (selectedOption === 'In this modelview') {
+        } else if (model?.objects?.length > 500) {
             setSelectedOption('Sorted by type')
         } else {
             setSelectedOption('In this modelview')
+        }
+        setMounted(true)
+        
+        setVisibleObjects(true); 
+        const timer = setTimeout(() => {
+            setObjectsRefresh(!objectsRefresh) 
+        }, 250);
+        return () => clearTimeout(timer);
+    }, [])
+
+    useEffect(() => {
+        if (model.objects.length === 0) {
+            if (selectedOption === 'In this modelview') {
+                setSelectedOption('Sorted by type')
+            } else {
+                setSelectedOption('In this modelview')
+            }
+        } else {
+            if (selectedOption === 'Sorted by type') {
+                setSelectedOption('In this modelview')
+            }
         }
         // setVisibleObjects(!visibleObjects)
         setObjectsRefresh(!objectsRefresh)
@@ -316,7 +331,7 @@ const Modeller = (props: any) => {
                 : sortedByType;
             if (debug) console.log('455 Palette ofilteredOnTypes', sortedArr);
             setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-        } else {
+        } else if (selectedOption === 'OSDUType') {
             const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
             if (debug) console.log('417 Modeller ofilteredOnTypes', selOfilteredArr, uniqueTypes, uniqueTypes[selectedOption], selectedOption);
             // setOfilteredArr(selOfilteredArr);

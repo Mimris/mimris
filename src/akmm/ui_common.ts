@@ -1887,6 +1887,8 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
 }
 
 export function hasMemberRelship(node: any, myMetis: akm.cxMetis): akm.cxRelationship {
+    // Currently disabled
+    return null;
     const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
     const toObj = myMetis.findObject(node.objRef);
     const hasMemberRels = toObj.getInputRelshipsByType(hasMemberType);
@@ -2447,10 +2449,12 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'deleted') retVal = false;
     if (k === 'deleteViewsOnly') retVal = false;
     if (k === 'from') retVal = false;
+    if (k === 'fromNode') retVal = false;
     if (k === 'fromObject') retVal = false;
     if (k === 'fromobjectRef') retVal = false;
     if (k === 'fromObjview') retVal = false;
     if (k === 'fromObjviewRef') retVal = false;
+    if (k === 'fromPort') retVal = false;
     if (k === 'fs_collection') retVal = false;
     if (k === 'generatedTypeId') retVal = false;
     if (k === 'group') retVal = false;
@@ -2476,12 +2480,18 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'objecttype') retVal = false;
     if (k === 'parent') retVal = false;
     if (k === 'parentModel') retVal = false;
+    if (k === 'parentModelRef') retVal = false;
     if (k === 'pasteViewsOnly') retVal = false;
     if (k === 'points') retVal = false;
     if (k === 'propertyValues') retVal = false;
     if (k === 'relship') retVal = false;
     if (k === 'relshipRef') retVal = false;
-    // if (k === 'relshipkind') retVal = false;
+    if (k === 'relshiptype') retVal = false;
+    if (k === 'relview') retVal = false;
+    if (k === 'relviewRef') retVal = false;
+    if (k === 'relshipview') retVal = false;
+    if (k === 'reltype') retVal = false;
+    if (k === 'reltypeRef') retVal = false;
     if (k === 'relshipviews') retVal = false;
     if (k === 'size') retVal = false;
     if (k === 'sourceModelRef') retVal = false;
@@ -2489,10 +2499,12 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'targetMetamodelRef') retVal = false;
     if (k === 'targetModelRef') retVal = false;
     if (k === 'to') retVal = false;
+    if (k === 'toNode') retVal = false;
     if (k === 'toObject') retVal = false;
     if (k === 'toobjectRef') retVal = false;
     if (k === 'toObjview') retVal = false;
     if (k === 'toObjviewRef') retVal = false;
+    if (k === 'toPort') retVal = false;
     if (k === 'type') retVal = false;
     if (k === 'typeid') retVal = false;
     if (k === 'typeRef') retVal = false;
@@ -2563,7 +2575,6 @@ export function isOsduAttribute(k: string): boolean {
     }
     return retVal;
 }
-
 
 function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
     const metamodels = metis.metamodels;
@@ -4069,6 +4080,7 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
         }
     }
 }
+
 export function setRelviewAttributes(data: any, myDiagram: any): akm.cxRelationshipView {
     const relview = data.relshipview;
     const typeview = data.typeview;
@@ -4197,3 +4209,25 @@ export function purgeUnusedRelshiptypeViews(myMetis: akm.cxMetis, activeRelation
         }
     }
 }
+
+export function fullFillGoModel(myGoModel: gjs.goModel, myModelView: akm.cxModelView): gjs.goModel {
+    // Fill the goModel with nodes and links
+    const objviews = myModelView.objectviews;
+    for (let i = 0; i < objviews?.length; i++) {
+        const objview = objviews[i];
+        const obj = objview.object;
+        if (obj) {
+            const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
+            myGoModel.addNode(node);
+        }
+    }
+    const relviews = myModelView.relshipviews;
+    for (let i = 0; i < relviews?.length; i++) {
+        const relview = relviews[i];
+        const relship = relview.relship;
+        const link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
+        myGoModel.addLink(link);
+    }
+    return myGoModel;
+}
+

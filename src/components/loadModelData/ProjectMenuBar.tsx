@@ -356,7 +356,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const menubarDiv = (props.expanded)
         ? <>
-            <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-1"
+            <div className="project-menu-bar d-flex justify-content-between align-items-center px-1 pt-1 pb-"
                 style={{ backgroundColor: "#b0cfcf", transition: "height 1s ease-out" }}
             >
                 <div className="d-flex justify-content-between align-items-center">
@@ -383,9 +383,12 @@ export const ProjectMenuBar = (props: any) => {
                                 <Link
                                     className="text-primary"
                                     href={`https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}`}
+                                    
                                     target="_blank"
-                                >
-                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }} >no. {props.phFocus.focusProj.projectNumber} </button>
+                                    >
+                                    <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }} >
+                                         no. {props.phFocus.focusProj.projectNumber} 
+                                    </button>
                                 </Link>
                             </span>
                         </span>
@@ -514,29 +517,18 @@ export const ProjectMenuBar = (props: any) => {
                     onClick={() => { setIsLeftHovered((isLeftDropdownOpen) && false), setIsLeftDropdownOpen(!isLeftDropdownOpen) }}
                 >
                     <i className={`${isLeftDropdownOpen ? 'fa fa-bars fa-lg' : 'fa fa-bars bg-dark fa-lg'}`}></i>
-           
-                    <span className="bg-transparent mb-0 rounded p-1 ms-4 pe-2"
-                        // type="button"
-                        data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                        title={props.projName}
-                        style={{
-                            fontSize: "1rem", color: "gray", fontWeight: "normal", fontStretch: "condensed",
-                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
-                        }}
-                    >
-                        {props.phSource.length > 48 ? '...' + props.phSource.slice(-48) : props.phSource}
-                    </span>
                 </div>
                 <div style={{
                     position: "absolute",
-                    top: "4px",
+                    top: "3px",
                     left: "3px",
-                    zIndex: "99",
+                    // zIndex: "99",
                 }}>{dropLeftMenuDiv}</div>
-                <div className="bar-menu-right px-2 pb-2 bg-transparent"
+
+                <div className="bar-menu-right px-2 pt-1 pb-2 ps-4 bg-transparent"
                     style={{
                         position: "absolute",
-                        top: "6px",
+                        top: "5px",
                         right: "8px",
                         zIndex: "999"
                     }}
@@ -545,6 +537,24 @@ export const ProjectMenuBar = (props: any) => {
                     onClick={() => setIsRightDropdownOpen(!isRightDropdownOpen)}
                 >
                     <i className="fa fa-ellipsis-v fa-lg"></i>
+                    <span className="bg-transparent mb- rounded p-1 ms-4 pe-2"
+                        // type="button"
+                        data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                        title={props.projName}
+                        style={{
+                            fontSize: "1rem", color: "gray", fontWeight: "normal", fontStretch: "condensed",
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                            position: "absolute",
+                            top: "0px",
+                            right: "28px",
+                            padding: "14px",
+                            maxWidth: "24vw",
+                            direction: "rtl",
+                            // zIndex: "99"
+                        }}
+                    >
+                        {props.phSource}
+                    </span>
                     {dropRightMenuDiv}
                 </div>
                 {menubarDiv}

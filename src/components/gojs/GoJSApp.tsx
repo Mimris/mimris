@@ -592,6 +592,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myObjectviews = myModelview?.objectviews;
             // The object to move
+            let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
             let fromObject = objview.object;
             let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {
@@ -926,22 +927,24 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
               }
               const objview = myMetis.findObjectView(node.objviewRef);
-              objview.loc = node.loc;
-              objview.scale1 = node.scale1;
-              objview.size = node.size;
-              if (node.group) {
-                let grp = myGoModel.findNode(node.group);
-                objview.group = grp.objviewRef;
-              } else {
-                objview.group = "";
-              }
-              myModelview.addObjectView(objview);
-              myDiagram.model.setDataProperty(node, "loc", node.loc);
-              myDiagram.model.setDataProperty(node, "scale", node.scale1);
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              if (jsnObjview) {
-                uic.addItemToList(modifiedObjectViews, jsnObjview);
-                if (debug) console.log('753 jsnObjview', jsnObjview);
+              if (objview) {
+                objview.loc = node.loc;
+                objview.scale1 = node.scale1;
+                objview.size = node.size;
+                if (node.group) {
+                  let grp = myGoModel.findNode(node.group);
+                  objview.group = grp.objviewRef;
+                } else {
+                  objview.group = "";
+                }
+                myModelview.addObjectView(objview);
+                myDiagram.model.setDataProperty(node, "loc", node.loc);
+                myDiagram.model.setDataProperty(node, "scale", node.scale1);
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                if (jsnObjview) {
+                  uic.addItemToList(modifiedObjectViews, jsnObjview);
+                  if (debug) console.log('753 jsnObjview', jsnObjview);
+                }
               }
             }
             selcnt++;
@@ -1133,25 +1136,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             return;
           }
         } else {
-          // Handle objects
-          for (let it = selection?.iterator; it?.next();) {
-            const sel = it.value;
-            const data = sel.data;
-            if (data.category === constants.gojs.C_OBJECT) {
-              const key = data.key;
-              const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
-              if (myNode) {
-                uic.deleteNode(myNode, deletedFlag, context);
-                const objRef = myNode.objRef;
-                const object = myMetis.findObject(objRef);
-                const jsnObject = new jsn.jsnObject(object);
-                modifiedObjects.push(jsnObject);
-                const objview = myMetis.findObjectView(myNode.objviewRef);
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                modifiedObjectViews.push(jsnObjview);
-              }
-            }
-          }
           // Handle relationships
           for (let it = selection?.iterator; it?.next();) {
             const sel = it.value;
@@ -1172,6 +1156,31 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+          // Handle objects
+          for (let it = selection?.iterator; it?.next();) {
+            const sel = it.value;
+            const data = sel.data;
+            if (data.category === constants.gojs.C_OBJECT) {
+              const key = data.key;
+              const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
+              if (myNode) {
+                uic.deleteNode(myNode, deletedFlag, context);
+                const objRef = myNode.objRef;
+                const object = myMetis.findObject(objRef, true);
+                if (object) {
+                  // object.markedAsDeleted = myMetis.deleteViewsOnly;
+                  const jsnObject = new jsn.jsnObject(object);
+                  modifiedObjects.push(jsnObject);
+                  const objview = myMetis.findObjectView(myNode.objviewRef, true);
+                  if (objview) {
+                    // objview.markedAsDeleted = myMetis.deleteViewsOnly;
+                    const jsnObjview = new jsn.jsnObjectView(objview);
+                    modifiedObjectViews.push(jsnObjview);
+                  }
+                }
+              }
+            }
+          }
         }
         break;
       }
@@ -1186,16 +1195,16 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!type || !typeview) {
             // An object has been dropped (but there is no objectview)
             type = myMetis.findObjectType(n.data.objtypeRef);
-            typeview = myMetis.findObjectTypeView(n.data.objtypeviewRef);
+            typeview = myMetis.findObjectTypeView(n.data.typeviewRef);
             objId = n.data.objRef;
             object = myMetis.findObject(objId);
             myModel.addObject(object);
             myMetis.addObject(object);
-            const key = utils.createGuid();
+            const key = n.data.key;
+            const goNode = myGoModel.findNode(key);
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
-            n.data.key = key;
           } else { 
             // An object type has been dropped - create an object
             // i.e. new objId, new objviewId, 

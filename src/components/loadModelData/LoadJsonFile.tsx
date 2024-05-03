@@ -30,7 +30,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   const modelNames = props.ph.phData?.metis?.models.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
-  if (!debug) console.log('20 LoadLocal', props.ph.phData, props);
+  if (debug) console.log('20 LoadLocal', props.ph.phData, props);
 
   if (typeof window === 'undefined') return
 

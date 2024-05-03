@@ -907,30 +907,31 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const myCollection = new go.Set<go.Part | go.Link>();
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
-        const gjsNode = new gjs.goObjectNode(utils.createGuid(), goModel, objview);
+        const gjsNode = new gjs.goObjectNode(objview.id, goModel, objview);
         objview = uic.setObjviewAttributes(gjsNode, myDiagram);
         const jsnObjview = new jsn.jsnObjectView(objview);
         myObjectViews.push(jsnObjview);
         myDiagram.model.addNodeData(gjsNode);
-        const node = myDiagram.findNodeForData(gjsNode)
-        myCollection.add(node);
+        // const node = myDiagram.findNodeForData(gjsNode)
+        // myCollection.add(node);
     }
     for (let i=0; i<relshipviews.length; i++) {
         let relview = relshipviews[i];
         const fromObjview = relview.fromObjview;
         const toObjview = relview.toObjview;
         // Add link
-        let gjsLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+        let gjsLink = new gjs.goRelshipLink(relview.id, goModel, relview);
         gjsLink.loadLinkContent(goModel);
         gjsLink.fromNode = getNodeByViewId(fromObjview.id, myDiagram);
         gjsLink.from = gjsLink.fromNode?.key;
         gjsLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
         gjsLink.to = gjsLink.toNode?.key;
-        goModel.addLink(gjsLink);
+        // goModel.addLink(gjsLink);
         relview = uic.setRelviewAttributes(gjsLink, myDiagram);
+        resetToTypeview(gjsLink, myMetis, myDiagram);
+
         const jsnRelview = new jsn.jsnRelshipView(relview);
         myRelshipViews.push(jsnRelview);
-        myDiagram.model.addLinkData(gjsLink);
         const link = myDiagram.findLinkForData(gjsLink)
         myCollection.add(link);
     }
@@ -2052,7 +2053,6 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     continue;
                 const toObjtype = toObj.type;
                 const toObjtypeview = toObjtype.typeview;
-                const toTypeviewData = toObjtypeview.data;
                 let toObjviews: akm.cxObjectView[] = [];
                 // Find toObj in modelview
                 const objviews = modelview.findObjectViewsByObject(toObj);
@@ -2087,7 +2087,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         const relview = relviews[j];
                         const jsnRelView = new jsn.jsnRelshipView(relview);
                         modifiedRelshipViews.push(jsnRelView);
-                        relshipviews.push(relview);
+                        // relshipviews.push(relview);
                     }
                 } else {
                     cnt++;
@@ -2111,13 +2111,15 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     const jsnObjview = new jsn.jsnObjectView(toObjview);
                     modifiedObjectViews.push(jsnObjview);
                     // Create the node
-                    const goNode = new gjs.goObjectNode(toObjview.id, toObjview);
+                    const goNode = new gjs.goObjectNode(toObjview.id, goModel, toObjview);
                     goModel.addNode(goNode);
                     // Now create a relship view from object to toObj
                     const oviewFrom = useinp ? toObjview : objview;
                     const oviewTo = useinp ? objview : toObjview;
+                    // First check if the relship view already exists
                     const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
                     if (!relviews2 || relviews2?.length == 0) {
+                        myDiagram.startTransaction('AddLink');
                         const id2 = utils.createGuid();
                         const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
                         relview.fromObjview = oviewFrom;
@@ -2132,6 +2134,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         const goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
                         goModel.addLink(goLink);
                         myDiagram.model.addLinkData(goLink);
+                        myDiagram.commitTransaction('AddLink');
                         myDiagram.requestUpdate();
                     }                   
                 }
@@ -2190,7 +2193,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
         toObj.addObjectView(toObjview);
         modelview.addObjectView(toObjview);
         myMetis.addObjectView(toObjview);
-        const goNode = new gjs.goObjectNode(utils.createGuid(), goModel, toObjview);
+        const goNode = new gjs.goObjectNode(toObjview.id, goModel, toObjview);
         for (let prop in toTypeviewData) {
             myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
         }
@@ -2218,7 +2221,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
             myMetis.addRelationshipView(relview);
             const jsnRelView = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelView);
-            const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+            const goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
             goLink.loadLinkContent(goModel);
             goLink.fromNode = getNodeByViewId(oviewFrom.id, myDiagram);
             goLink.from = goLink.fromNode?.key;

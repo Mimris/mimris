@@ -117,7 +117,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
       // End hack
       objview.setTypeView(typeview);
-      const node = new gjs.goObjectNode(utils.createGuid(), myGoPaletteModel, objview);
+      const node = new gjs.goObjectNode(objview.id, myGoPaletteModel, objview);
       node.loadNodeContent(myGoPaletteModel);
       if (debug) console.log('121 node', objtype, objview, node);
       node.isGroup = objtype.isContainer();
@@ -176,7 +176,7 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
       includeObject = true;
     }
     if (includeObject) {
-      const node = new gjs.goObjectNode(utils.createGuid(), myGoObjectPalette, objview);
+      const node = new gjs.goObjectNode(objview.id, myGoObjectPalette, objview);
       node.isGroup = objtype?.isContainer();
       const viewdata: akm.cxObjtypeviewData = typeview?.data;
       const vdata: akm.cxObjtypeviewData = new akm.cxObjtypeviewData();

@@ -120,7 +120,7 @@ const Palette = (props: any) => {
     
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
-      if (!debug) console.log('124 Palette useEffect ', irtvTypes, IRTVOtNodeDataArray);
+      if (debug) console.log('124 Palette useEffect ', irtvTypes, IRTVOtNodeDataArray);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);

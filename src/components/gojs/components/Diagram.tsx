@@ -870,11 +870,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
+              return false;
               const node = o.part.data;
               if (node.isSelected) {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else
                 return true;
+            }),
+          makeButton("Delete Selection",
+            function (e: any, obj: any) {
+              if (confirm('Do you really want to delete the current selection?')) {
+                const myModel = myMetis.currentModel;
+                myMetis.deleteViewsOnly = false;
+                myMetis.currentNode = obj.part.data;
+              }
+              myDiagram.commandHandler.deleteSelection();
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.isSelected) {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } else
+                return false;
             }),
           makeButton("Delete Selected Views",
             function (e: any, obj: any) {
@@ -2633,7 +2650,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         if (debug) console.log('2122 currentModelview, modelviewObj', currentModelview, obj);
                         if (obj) {
                           const objview = obj.objectviews[0];
-                          const node = new gjs.goObjectNode(utils.createGuid, myGoModel, objview);
+                          const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
                           uid.editObject(node, myMetis, myDiagram);
                         }
                       }

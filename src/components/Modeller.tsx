@@ -58,7 +58,7 @@ const Modeller = (props: any) => {
     const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
     const [exportSvg, setExportSvg] = useState(null);
     const [diagramReady, setDiagramReady] = useState(false);
-    const [selectedOption, setSelectedOption] = useState('Sorted by type');
+    const [selectedOption, setSelectedOption] = useState('In this modelview');
     const [ofilteredArr, setOfilteredArr] = useState([]);
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });

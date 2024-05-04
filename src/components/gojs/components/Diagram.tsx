@@ -1314,12 +1314,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               let layout = ""
               let node = obj.part.data;
-              const goModel = myMetis.gojsModel;
-              const objview = node?.objectview;
+              const key = node.key;
+              const objview = myMetis.findObjectView(key);
               if (objview) {
                 if (!objview.isGroup) {
                   const mySelection = myDiagram.selection;
-                  const lay = uid.doTreeLayout(mySelection, myDiagram, true);
+                  const lay = uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
                   myDiagram.selection.each(function (sel) {
                     const link = sel.data;
                     if (link.category === constants.gojs.C_RELATIONSHIP) {
@@ -1351,7 +1351,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (obj: any) {
               let node = obj.part.data;
-              const objview = node?.objectview;
+              const key = node.key;
+              const objview = myMetis.findObjectView(key);
               if (!objview?.isGroup)
                 return true;
               else

@@ -805,13 +805,11 @@ export function setTreeLayoutParameters(): go.TreeLayout {
     return layout;
 }
 
-export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints: boolean = false) { 
-    myDiagram.startTransaction("doTreeLayout");
+export function doTreeLayout(mySelection: any, myModelview: akm.cxModelView, myDiagram: any, clearBreakpoints: boolean = false) { 
     const myObjectViews = [];
     const myRelshipViews = [];
     const lay = setTreeLayoutParameters(); 
     lay.doLayout(mySelection);
-    myDiagram.commitTransaction("doTreeLayout");
     // First handle the objects
     let it = mySelection.iterator;
     while (it?.next()) {
@@ -819,7 +817,8 @@ export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints:
         if (selected.category === 'Object') {
             let node = selected;
             const loc = node.loc;
-            const objview = node.objectview;
+            const objviewRef = node.key;
+            const objview = myModelview.findObjectView(objviewRef);
             objview.loc = loc;
             const jsnObjview = new jsn.jsnObjectView(objview);
             myObjectViews.push(jsnObjview);
@@ -833,10 +832,10 @@ export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints:
             let link = selected;
             let points = clearBreakpoints ? [] : link.points;
             myDiagram.model.setDataProperty(link, "points", points);
-            const reltype = link.relshiptype;
-            const relshipview = link.relshipview;
+            const relshipview = myModelview.findRelationshipView(link.key);
             relshipview.points = link.points;
-            if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+            const reltype = relshipview.relship.type;
+            if (reltype?.name === constants.types.AKM_RELATIONSHIP_TYPE) {
                 const lnk = getLinkByViewId(relshipview.id, myDiagram)
                 // lnk.isLayoutPositioned = false;
             }
@@ -959,10 +958,8 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     let modelview = myMetis.currentModelview;
     modelview = myMetis.findModelView(modelview.id);
     const goModel = myMetis.gojsModel;
-    let objview: akm.cxObjectView = node?.objectview;
-    objview = myMetis.findObjectView(objview?.id);
     const myKey = node?.key;
-    const myId = objview.id;
+    let objview: akm.cxObjectView = myMetis.findObjectView(myKey);
     let objviews = new Array();
     let relviews = new Array();
     const viewCollection = new akm.cxCollectionOfViews(modelview, objviews, relviews);
@@ -997,7 +994,7 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     for (let i=0; i<objviews.length; i++) {
         const objview = objviews[i];
         const gjsNode = goModel.findNodeByViewId(objview.id);
-        if (objview.id !== myId) { // For all nodes except the selected one
+        if (objview.id !== myKey) { // For all nodes except the selected one
             const node = myDiagram.findNodeForKey(gjsNode?.key);
             mySelection.add(node);
         }

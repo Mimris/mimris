@@ -985,8 +985,6 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     } else {
         selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir, viewCollection);
     }
-
-
     
     const mySelection = new go.Set<go.Part | go.Link>();
     objviews = viewCollection.objectviews;

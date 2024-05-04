@@ -1480,7 +1480,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return true;
+                return false;
               }
               return false;
             }),
@@ -1586,7 +1586,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
               const data = obj.part.data;
-              const node = myGoModel.findNodeByViewId(data.objectview.id);
+              const node = myGoModel.findNodeByViewId(data.objviewRef);
               let msg = "";
               if (node) {
                 const myScale = node?.getMyScale(myGoModel);
@@ -3134,8 +3134,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const node = it.value;
                 const data = node.data;
                 let objview = data.objectview;
-                if (objview)
-                  objview = myModelview.findObjectView(data.key);
+                if (!objview)
+                  objview = myModelview.findObjectView(data.objviewRef);
                 if (objview) {
                   objview.loc = data.loc;
                 }
@@ -3174,7 +3174,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const node = it.value;
                   const data = node.data;
                   let objview = data.objectview;
-                  objview = myModelview.findObjectView(data.key);
+                  if (!objview)
+                    objview = myModelview.findObjectView(data.objviewRef);
                   if (objview) {
                     objview.loc = data.loc;
                   }

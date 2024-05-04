@@ -9161,8 +9161,8 @@ export class cxCollectionOfViews {
     relshipviews: cxRelationshipView[] | null;
     constructor(modelview: cxModelView) {
         this.modelview = modelview;
-        this.objectviews = modelview.objectviews;
-        this.relshipviews = modelview.relshipviews;
+        this.objectviews = new Array(); // modelview.objectviews;
+        this.relshipviews = new Array(); // modelview.relshipviews;
     }
     addObjectView(objview: cxObjectView) {
         if (!this.objectviews)

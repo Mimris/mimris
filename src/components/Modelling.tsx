@@ -49,7 +49,7 @@ const Modelling = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
-  if (!debug) console.log('55 Modelling:', props)//, props);        
+  if (debug) console.log('55 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
   const [refresh, setRefresh] = useState(true);

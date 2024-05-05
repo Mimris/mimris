@@ -16,7 +16,7 @@ import { bottom } from '@popperjs/core';
 const debug = false;
 
 export const ProjectMenuBar = (props: any) => {
-    if (!debug) console.log('18 ProjectMenuBar', props);
+    if (debug) console.log('18 ProjectMenuBar', props);
     const dispatch = useDispatch();
     if (!props.phData) return null;
     const project = props.phData.metis;

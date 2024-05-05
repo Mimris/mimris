@@ -805,13 +805,11 @@ export function setTreeLayoutParameters(): go.TreeLayout {
     return layout;
 }
 
-export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints: boolean = false) { 
-    myDiagram.startTransaction("doTreeLayout");
+export function doTreeLayout(mySelection: any, myModelview: akm.cxModelView, myDiagram: any, clearBreakpoints: boolean = false) { 
     const myObjectViews = [];
     const myRelshipViews = [];
     const lay = setTreeLayoutParameters(); 
     lay.doLayout(mySelection);
-    myDiagram.commitTransaction("doTreeLayout");
     // First handle the objects
     let it = mySelection.iterator;
     while (it?.next()) {
@@ -819,7 +817,8 @@ export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints:
         if (selected.category === 'Object') {
             let node = selected;
             const loc = node.loc;
-            const objview = node.objectview;
+            const objviewRef = node.key;
+            const objview = myModelview.findObjectView(objviewRef);
             objview.loc = loc;
             const jsnObjview = new jsn.jsnObjectView(objview);
             myObjectViews.push(jsnObjview);
@@ -833,10 +832,10 @@ export function doTreeLayout(mySelection: any, myDiagram: any, clearBreakpoints:
             let link = selected;
             let points = clearBreakpoints ? [] : link.points;
             myDiagram.model.setDataProperty(link, "points", points);
-            const reltype = link.relshiptype;
-            const relshipview = link.relshipview;
+            const relshipview = myModelview.findRelationshipView(link.key);
             relshipview.points = link.points;
-            if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+            const reltype = relshipview.relship.type;
+            if (reltype?.name === constants.types.AKM_RELATIONSHIP_TYPE) {
                 const lnk = getLinkByViewId(relshipview.id, myDiagram)
                 // lnk.isLayoutPositioned = false;
             }
@@ -907,30 +906,31 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const myCollection = new go.Set<go.Part | go.Link>();
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
-        const gjsNode = new gjs.goObjectNode(utils.createGuid(), goModel, objview);
+        const gjsNode = new gjs.goObjectNode(objview.id, goModel, objview);
         objview = uic.setObjviewAttributes(gjsNode, myDiagram);
         const jsnObjview = new jsn.jsnObjectView(objview);
         myObjectViews.push(jsnObjview);
         myDiagram.model.addNodeData(gjsNode);
-        const node = myDiagram.findNodeForData(gjsNode)
-        myCollection.add(node);
+        // const node = myDiagram.findNodeForData(gjsNode)
+        // myCollection.add(node);
     }
     for (let i=0; i<relshipviews.length; i++) {
         let relview = relshipviews[i];
         const fromObjview = relview.fromObjview;
         const toObjview = relview.toObjview;
         // Add link
-        let gjsLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+        let gjsLink = new gjs.goRelshipLink(relview.id, goModel, relview);
         gjsLink.loadLinkContent(goModel);
         gjsLink.fromNode = getNodeByViewId(fromObjview.id, myDiagram);
         gjsLink.from = gjsLink.fromNode?.key;
         gjsLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
         gjsLink.to = gjsLink.toNode?.key;
-        goModel.addLink(gjsLink);
+        // goModel.addLink(gjsLink);
         relview = uic.setRelviewAttributes(gjsLink, myDiagram);
+        resetToTypeview(gjsLink, myMetis, myDiagram);
+
         const jsnRelview = new jsn.jsnRelshipView(relview);
         myRelshipViews.push(jsnRelview);
-        myDiagram.model.addLinkData(gjsLink);
         const link = myDiagram.findLinkForData(gjsLink)
         myCollection.add(link);
     }
@@ -958,10 +958,8 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     let modelview = myMetis.currentModelview;
     modelview = myMetis.findModelView(modelview.id);
     const goModel = myMetis.gojsModel;
-    let objview: akm.cxObjectView = node?.objectview;
-    objview = myMetis.findObjectView(objview?.id);
     const myKey = node?.key;
-    const myId = objview.id;
+    let objview: akm.cxObjectView = myMetis.findObjectView(myKey);
     let objviews = new Array();
     let relviews = new Array();
     const viewCollection = new akm.cxCollectionOfViews(modelview, objviews, relviews);
@@ -988,15 +986,13 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
         selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir, viewCollection);
     }
 
-
-    
     const mySelection = new go.Set<go.Part | go.Link>();
     objviews = viewCollection.objectviews;
     relviews = viewCollection.relshipviews;
     for (let i=0; i<objviews.length; i++) {
         const objview = objviews[i];
         const gjsNode = goModel.findNodeByViewId(objview.id);
-        if (objview.id !== myId) { // For all nodes except the selected one
+        if (objview.id !== myKey) { // For all nodes except the selected one
             const node = myDiagram.findNodeForKey(gjsNode?.key);
             mySelection.add(node);
         }
@@ -1235,25 +1231,30 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
 export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
     let reltypeNames = [constants.types.AKM_REFERS_TO];
     const myMetamodel = myMetis.currentMetamodel;
+    const myModelview = myMetis.currentModelview;
+    const myGoModel = myMetis.gojsModel;
+    const goNode = myGoModel.findNodeByViewId(node.key);
+    const fromType = goNode.objecttype;
+
     let objtypenames = [];
     let objtypes = [];
-    let fromType = node.objecttype;
-    fromType = myMetamodel.findObjectType(fromType.id);
+
     // Get a list of selected object types to connect to
     for (let it = selection.iterator; it?.next();) {
         let n = it.value;
         if (n.data.key === node.key) 
             continue;
-        if (n.data.objecttype) {
-            objtypes.push(n.data.objecttype);
-            objtypenames.push(n.data.objecttype.name);
+        const gNode = myGoModel.findNode(n.data.key);
+        if (gNode) {
+            const objtype = gNode.objecttype;
+            objtypes.push(objtype);
+            objtypenames.push(objtype.name);
         }
     }
     let uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;
     uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
-    const myModelview = myMetis.currentModelview;
     const includeInheritedReltypes = myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
@@ -2052,7 +2053,6 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     continue;
                 const toObjtype = toObj.type;
                 const toObjtypeview = toObjtype.typeview;
-                const toTypeviewData = toObjtypeview.data;
                 let toObjviews: akm.cxObjectView[] = [];
                 // Find toObj in modelview
                 const objviews = modelview.findObjectViewsByObject(toObj);
@@ -2087,7 +2087,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         const relview = relviews[j];
                         const jsnRelView = new jsn.jsnRelshipView(relview);
                         modifiedRelshipViews.push(jsnRelView);
-                        relshipviews.push(relview);
+                        // relshipviews.push(relview);
                     }
                 } else {
                     cnt++;
@@ -2111,13 +2111,15 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                     const jsnObjview = new jsn.jsnObjectView(toObjview);
                     modifiedObjectViews.push(jsnObjview);
                     // Create the node
-                    const goNode = new gjs.goObjectNode(toObjview.id, toObjview);
+                    const goNode = new gjs.goObjectNode(toObjview.id, goModel, toObjview);
                     goModel.addNode(goNode);
                     // Now create a relship view from object to toObj
                     const oviewFrom = useinp ? toObjview : objview;
                     const oviewTo = useinp ? objview : toObjview;
+                    // First check if the relship view already exists
                     const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
                     if (!relviews2 || relviews2?.length == 0) {
+                        myDiagram.startTransaction('AddLink');
                         const id2 = utils.createGuid();
                         const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
                         relview.fromObjview = oviewFrom;
@@ -2132,6 +2134,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         const goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
                         goModel.addLink(goLink);
                         myDiagram.model.addLinkData(goLink);
+                        myDiagram.commitTransaction('AddLink');
                         myDiagram.requestUpdate();
                     }                   
                 }
@@ -2190,7 +2193,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
         toObj.addObjectView(toObjview);
         modelview.addObjectView(toObjview);
         myMetis.addObjectView(toObjview);
-        const goNode = new gjs.goObjectNode(utils.createGuid(), goModel, toObjview);
+        const goNode = new gjs.goObjectNode(toObjview.id, goModel, toObjview);
         for (let prop in toTypeviewData) {
             myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
         }
@@ -2218,7 +2221,7 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
             myMetis.addRelationshipView(relview);
             const jsnRelView = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelView);
-            const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+            const goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
             goLink.loadLinkContent(goModel);
             goLink.fromNode = getNodeByViewId(oviewFrom.id, myDiagram);
             goLink.from = goLink.fromNode?.key;

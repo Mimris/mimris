@@ -1,5 +1,7 @@
 // 'use client';
 
+const debug = false;
+
 import Head from 'next/head';
 import TopMenu from './Navbar';
 
@@ -7,7 +9,7 @@ import TopMenu from './Navbar';
 // import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
-  console.log("11 Layout props", props);
+  if (debug) console.log("11 Layout props", props);
   const projName = "AKMM APP" //props?.children?.props?.children?.props?.children[0]?.props?.props?.phData?.metis?.name || "AKMM APP";
   // const projSource = "AKMM Source file not found"//props.children.props.children.props.children[0].props.props.phSource || "AKMM Source file not found";
   // get projSource from props.children

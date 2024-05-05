@@ -605,88 +605,75 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                 // }
             }
         }
-    } else
-        if (data.category === constants.gojs.C_OBJECT) {
-            const myGoModel = context.myGoModel;
-            const node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-            if (debug) console.log('469 delete node', node);
-            if (node) {
-                node.markedAsDeleted = deletedFlag;
-                node.group = "";
-                const objview = node.objectview;
-                if (!objview) return;
-                objview.markedAsDeleted = deletedFlag;
-                const object = objview.object;
-                if (debug) console.log('477 delete objview', objview);
-                // If group, delete members of group
-                if (node.isGroup) {
-                    if (debug) console.log('479 delete container', objview);
-                    const groupMembers = node.getGroupMembers(myGoModel);
-                    for (let i = 0; i < groupMembers?.length; i++) {
-                        const member = groupMembers[i];
-                        deleteNode(member, deletedFlag, context);
-                        myDiagram.requestUpdate();
+    } else if (data.category === constants.gojs.C_OBJECT) {
+        const myGoModel = context.myGoModel;
+        const node: gjs.goObjectNode = myGoModel?.findNode(data.key);
+        if (node) {
+            node.markedAsDeleted = deletedFlag;
+            node.group = "";
+            const objview = node.objectview;
+            if (!objview) return;
+            objview.markedAsDeleted = deletedFlag;
+            const object = objview.object;
+            // If group, delete members of group
+            if (node.isGroup) {
+                if (debug) console.log('479 delete container', objview);
+                const groupMembers = node.getGroupMembers(myGoModel);
+                for (let i = 0; i < groupMembers?.length; i++) {
+                    const member = groupMembers[i];
+                    deleteNode(member, deletedFlag, context);
+                    myDiagram.requestUpdate();
+                }
+            }
+            // Remove the object view from the object
+            object.removeObjectView(objview);
+            // If deleteViewsOnly we're done
+            if (myMetis.deleteViewsOnly) {
+                return;
+            }
+            // Else handle delete object
+            if (object) {
+                object.markedAsDeleted = deletedFlag;
+            }
+            myDiagram.requestUpdate();
+            // Handle connected relationships
+            let connectedRels = object?.inputrels;
+            for (let i = 0; i < connectedRels?.length; i++) {
+                const rel = connectedRels[i];
+                if (rel.markedAsDeleted !== deletedFlag) {
+                    rel.markedAsDeleted = deletedFlag;
+                    const relviews = rel.relshipviews;
+                    for (let i = 0; i < relviews?.length; i++) {
+                        const relview = relviews[0];
+                        if (relview) {
+                            const link = myGoModel.findLinkByViewId(relview.id);
+                            if (link) {
+                                link.markedAsDeleted = deletedFlag;
+                                myDiagram.model.removeLinkData(link);
+                            }
+                            relview.markedAsDeleted = deletedFlag;
+                        }
                     }
                 }
-                // Handle deleteViewsOnly
-                if (myMetis.deleteViewsOnly) {
-                    object.removeObjectView(objview);
-                    return;
-                }
-                // Else handle delete object AND object views
-                // First delete object
-                if (object) {
-                    object.markedAsDeleted = deletedFlag;
-                    if (debug) console.log('499 delete object', object);
-                }
-                if (debug) console.log('518 nodes to delete', myDiagram.selection);
-                myDiagram.requestUpdate();
-                let connectedRels = object?.inputrels;
-                if (debug) console.log('521 inputrels', connectedRels);
-                for (let i = 0; i < connectedRels?.length; i++) {
-                    const rel = connectedRels[i];
-                    if (rel.markedAsDeleted !== deletedFlag) {
-                        rel.markedAsDeleted = deletedFlag;
-                        if (debug) console.log('526 delete relship', rel);
-                        const relviews = rel.relshipviews;
-                        if (debug) console.log('528 input relviews', relviews);
-                        for (let i = 0; i < relviews?.length; i++) {
-                            const relview = relviews[0];
-                            if (relview) {
-                                const link = myGoModel.findLinkByViewId(relview.id);
-                                if (link) {
-                                    link.markedAsDeleted = deletedFlag;
-                                    myDiagram.model.removeLinkData(link);
-                                }
-                                relview.markedAsDeleted = deletedFlag;
-                                if (debug) console.log('540 delete relview', relview);
-                            }
+            }
+            connectedRels = object?.outputrels;
+            for (let i = 0; i < connectedRels?.length; i++) {
+                const rel = connectedRels[i];
+                if (rel.markedAsDeleted !== deletedFlag) {
+                    rel.markedAsDeleted = deletedFlag;
+                    const relviews = rel.relshipviews;
+                    for (let i = 0; i < relviews?.length; i++) {
+                        const relview = relviews[0];
+                        if (relview) {
+                            const link = myGoModel.findLinkByViewId(relview.id);
+                            if (link) link.markedAsDeleted = deletedFlag;
+                            relview.markedAsDeleted = deletedFlag;
                         }
-                        if (debug) console.log('545 delete rel', rel);
-                    }
-                }
-                connectedRels = object?.outputrels;
-                if (debug) console.log('549 outputrels', connectedRels);
-                for (let i = 0; i < connectedRels?.length; i++) {
-                    const rel = connectedRels[i];
-                    if (rel.markedAsDeleted !== deletedFlag) {
-                        rel.markedAsDeleted = deletedFlag;
-                        const relviews = rel.relshipviews;
-                        if (debug) console.log('555 outputrelviews', relviews);
-                        for (let i = 0; i < relviews?.length; i++) {
-                            const relview = relviews[0];
-                            if (relview) {
-                                const link = myGoModel.findLinkByViewId(relview.id);
-                                if (link) link.markedAsDeleted = deletedFlag;
-                                relview.markedAsDeleted = deletedFlag;
-                                if (debug) console.log('564 delete relview', relview);
-                            }
-                        }
-                        if (debug) console.log('569 delete rel', rel);
                     }
                 }
             }
         }
+    }
 }
 
 export function deleteLink(data: any, deletedFlag: boolean, context: any) {
@@ -984,7 +971,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     let modifiedRelshipViews = new Array();
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
-    const myGoModel: gjs.goModel = context.myGoModel;
+    const myGoModel: gjs.goModel = myMetis.gojsModel;
     const myModelview = context.myModelview;
     const fromObjview = context.fromObjview;
     const toObjview = context.toObjview;
@@ -4079,6 +4066,7 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
         }
     }
+    return objview;
 }
 
 export function setRelviewAttributes(data: any, myDiagram: any): akm.cxRelationshipView {

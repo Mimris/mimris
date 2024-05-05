@@ -28,7 +28,7 @@ const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: wh
 
 const page = (props: any) => {
 
-  if (!debug) console.log('38 modelling ', props)
+  if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
   const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
@@ -49,7 +49,7 @@ const page = (props: any) => {
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
-  if (!debug) console.log('51 modelling', props) //(props.phList) && props.phList);
+  if (debug) console.log('51 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
   const [isReloading, setIsReloading] = useState(false);
   // const [visible, setVisible] = useState(false)

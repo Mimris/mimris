@@ -578,8 +578,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               node.isSelected = false;
-              let fromType = node.objecttype;
-              fromType = myMetis.findObjectType(fromType.id);
+              const fromTypeRef = node.objtypeRef;
+              const fromType = myMetis.findObjectType(fromTypeRef);
               const nodes = [];
               const selection = myDiagram.selection;
               for (let it = selection.iterator; it?.next();) {
@@ -870,11 +870,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
+              return false;
               const node = o.part.data;
               if (node.isSelected) {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else
                 return true;
+            }),
+          makeButton("Delete Selection",
+            function (e: any, obj: any) {
+              if (confirm('Do you really want to delete the current selection?')) {
+                const myModel = myMetis.currentModel;
+                myMetis.deleteViewsOnly = false;
+                myMetis.currentNode = obj.part.data;
+              }
+              myDiagram.commandHandler.deleteSelection();
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.isSelected) {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } else
+                return false;
             }),
           makeButton("Delete Selected Views",
             function (e: any, obj: any) {
@@ -1297,12 +1314,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               let layout = ""
               let node = obj.part.data;
-              const goModel = myMetis.gojsModel;
-              const objview = node?.objectview;
+              const key = node.key;
+              const objview = myMetis.findObjectView(key);
               if (objview) {
                 if (!objview.isGroup) {
                   const mySelection = myDiagram.selection;
-                  const lay = uid.doTreeLayout(mySelection, myDiagram, true);
+                  const lay = uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
                   myDiagram.selection.each(function (sel) {
                     const link = sel.data;
                     if (link.category === constants.gojs.C_RELATIONSHIP) {
@@ -1334,7 +1351,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (obj: any) {
               let node = obj.part.data;
-              const objview = node?.objectview;
+              const key = node.key;
+              const objview = myMetis.findObjectView(key);
               if (!objview?.isGroup)
                 return true;
               else
@@ -1462,7 +1480,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return true;
+                return false;
               }
               return false;
             }),
@@ -1568,7 +1586,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
               const data = obj.part.data;
-              const node = myGoModel.findNodeByViewId(data.objectview.id);
+              const node = myGoModel.findNodeByViewId(data.objviewRef);
               let msg = "";
               if (node) {
                 const myScale = node?.getMyScale(myGoModel);
@@ -2633,7 +2651,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         if (debug) console.log('2122 currentModelview, modelviewObj', currentModelview, obj);
                         if (obj) {
                           const objview = obj.objectviews[0];
-                          const node = new gjs.goObjectNode(utils.createGuid, myGoModel, objview);
+                          const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
                           uid.editObject(node, myMetis, myDiagram);
                         }
                       }
@@ -3116,8 +3134,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const node = it.value;
                 const data = node.data;
                 let objview = data.objectview;
-                if (objview)
-                  objview = myModelview.findObjectView(data.key);
+                if (!objview)
+                  objview = myModelview.findObjectView(data.objviewRef);
                 if (objview) {
                   objview.loc = data.loc;
                 }
@@ -3156,7 +3174,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const node = it.value;
                   const data = node.data;
                   let objview = data.objectview;
-                  objview = myModelview.findObjectView(data.key);
+                  if (!objview)
+                    objview = myModelview.findObjectView(data.objviewRef);
                   if (objview) {
                     objview.loc = data.loc;
                   }

@@ -38,7 +38,7 @@ const Modeller = (props: any) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
 
-    if (!debug) console.log('39 Modeller: props', props);
+    if (debug) console.log('39 Modeller: props', props);
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -151,7 +151,7 @@ const Modeller = (props: any) => {
         }
         // setVisibleObjects(!visibleObjects)
         setObjectsRefresh(!objectsRefresh)
-        console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
+        if (debug) console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
     }, [model.objects.length === 0])
 
     useEffect(() => {

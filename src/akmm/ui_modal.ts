@@ -1307,19 +1307,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "connectToSelected": {     
-      const nodeFrom = modalContext.args.nodeFrom;
-      let fromType: akm.cxObjectType = nodeFrom.objecttype;
-      fromType = myMetis.findObjectType(fromType.id);
+      let nodeFrom: gjs.goObjectNode = modalContext.args.nodeFrom;
+      nodeFrom = myGoModel.findNode(nodeFrom.key);
+      const fromTypeRef = nodeFrom.objtypeRef;
+      const fromType = myMetis.findObjectType(fromTypeRef);
       let fromObj: akm.cxObject = nodeFrom.object;
       fromObj = myMetis.findObject(fromObj.id);
       let fromObjview: akm.cxObjectView = nodeFrom.objectview;
       fromObjview = myMetis.findObjectView(fromObjview.id);
-      const nodesTo  = modalContext.args.nodesTo;
+      const nodesTo: gjs.goObjectNode[]  = modalContext.args.nodesTo;
       const selectedOption = modalContext.selected.value;
       const links = [];
       for (let i=0; i<nodesTo.length; i++) {  // Walk through the nodesTo array
-        let nodeTo = nodesTo[i];
+        let nodeTo: gjs.goObjectNode = nodesTo[i];
         if (nodeTo) {
+          nodeTo = myGoModel.findNode(nodeTo.key);
           let toType: akm.cxObjectType   = nodeTo.objecttype;
           if (!toType)
             continue;

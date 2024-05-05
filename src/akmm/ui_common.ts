@@ -971,7 +971,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     let modifiedRelshipViews = new Array();
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
-    const myGoModel: gjs.goModel = context.myGoModel;
+    const myGoModel: gjs.goModel = myMetis.gojsModel;
     const myModelview = context.myModelview;
     const fromObjview = context.fromObjview;
     const toObjview = context.toObjview;

@@ -985,7 +985,7 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     } else {
         selectConnectedObjects1(modelview, objview, goModel, myMetis, noLevels, reltypes, reldir, viewCollection);
     }
-    
+
     const mySelection = new go.Set<go.Part | go.Link>();
     objviews = viewCollection.objectviews;
     relviews = viewCollection.relshipviews;
@@ -1231,25 +1231,30 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
 export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
     let reltypeNames = [constants.types.AKM_REFERS_TO];
     const myMetamodel = myMetis.currentMetamodel;
+    const myModelview = myMetis.currentModelview;
+    const myGoModel = myMetis.gojsModel;
+    const goNode = myGoModel.findNodeByViewId(node.key);
+    const fromType = goNode.objecttype;
+
     let objtypenames = [];
     let objtypes = [];
-    let fromType = node.objecttype;
-    fromType = myMetamodel.findObjectType(fromType.id);
+
     // Get a list of selected object types to connect to
     for (let it = selection.iterator; it?.next();) {
         let n = it.value;
         if (n.data.key === node.key) 
             continue;
-        if (n.data.objecttype) {
-            objtypes.push(n.data.objecttype);
-            objtypenames.push(n.data.objecttype.name);
+        const gNode = myGoModel.findNode(n.data.key);
+        if (gNode) {
+            const objtype = gNode.objecttype;
+            objtypes.push(objtype);
+            objtypenames.push(objtype.name);
         }
     }
     let uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;
     uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
-    const myModelview = myMetis.currentModelview;
     const includeInheritedReltypes = myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)

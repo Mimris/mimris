@@ -578,8 +578,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               node.isSelected = false;
-              let fromType = node.objecttype;
-              fromType = myMetis.findObjectType(fromType.id);
+              const fromTypeRef = node.objtypeRef;
+              const fromType = myMetis.findObjectType(fromTypeRef);
               const nodes = [];
               const selection = myDiagram.selection;
               for (let it = selection.iterator; it?.next();) {

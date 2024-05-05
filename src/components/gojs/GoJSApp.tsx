@@ -1187,6 +1187,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
           const node = myDiagram.findNodeForKey(n.data.key);
+          node.data.key = utils.createGuid();
           let type: akm.cxObjectType = n.data.objecttype;
           let typeview: akm.cxObjectTypeView = n.data.typeview;
           let objview: akm.cxObjectView;
@@ -1207,9 +1208,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             myMetis.addObjectView(objview);
           } else { 
             // An object type has been dropped - create an object
-            // i.e. new objId, new objviewId, 
-            const objName = n.data.object.name;
-            const objDescr = n.data.object.description;
+            // i.e. new object, new objectview, 
+            const objName = node.data.object.name;
+            const objDescr = node.data.object.description;
             type = myMetis.findObjectType(type.id);
             typeview = type.typeview;
             // Create a new object
@@ -1219,7 +1220,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myMetis.addObject(object);
             console.log('1241 node, data', node, n.data);
             // Find the objectview
-            objview = myModelview.findObjectView(n.data.key);
+            objview = myModelview.findObjectView(node.data.key);
             if (objview) {
               objview.object = object;
               objview.objectRef = object.id;

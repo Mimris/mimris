@@ -1706,28 +1706,39 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        let fromNode = myDiagram.findNodeForKey(data.from);
-        let objview = myModelview.findObjectView(data.from);
-        let gNode = myGoModel.findNode(data.from);
-        if (!fromNode) {
-            if (!gNode || !(gNode instanceof gjs.goObjectNode))
-              gNode = new gjs.goObjectNode(data.from, myGoModel, objview);
-            uic.updateNode(gNode, objview.typeview, myDiagram, myGoModel);
-            gNode.updateNode(gNode, myDiagram);
-            myDiagram.model.addNodeData(gNode);
-            fromNode = myDiagram.findNodeForKey(data.from);
-          // }
+
+        let fromNode, toNode;
+        for (let it = myDiagram.nodes; it?.next();) {
+          const n = it.value;
+          if (n.data?.key === data.from) {
+            fromNode = n.data;
+          }
+          if (n.data?.key === data.to) {
+            toNode = n.data;
+          }
         }
-        let toNode = myDiagram.findNodeForKey(data.to);
-        objview = myModelview.findObjectView(data.to);
-        gNode = myGoModel.findNode(data.to);
-        if (!toNode) {
-            if (!gNode || !(gNode instanceof gjs.goObjectNode)) 
-              gNode = new gjs.goObjectNode(data.to, myGoModel, objview);
-            uic.updateNode(gNode, objview.typeview, myDiagram, myGoModel);
-            myDiagram.model.addNodeData(gNode);
-            toNode = myDiagram.findNodeForKey(data.to);
-          // }
+
+        if (fromNode) {
+          let objview = myModelview.findObjectView(data.from);
+          let gNode = myGoModel.findNode(data.from);
+
+          uic.updateNode(gNode, objview.typeview, myDiagram, myGoModel);
+          gNode.updateNode(gNode, myDiagram);
+          myDiagram.model.removeNodeData(fromNode);
+          gNode.updateNode(gNode, myDiagram);
+          myDiagram.model.addNodeData(gNode);
+          fromNode = myDiagram.findNodeForKey(data.from);
+        }
+
+        if (toNode) {
+          let objview = myModelview.findObjectView(data.to);
+          let gNode = myGoModel.findNode(data.to);
+          
+          uic.updateNode(gNode, objview.typeview, myDiagram, myGoModel);
+          gNode.updateNode(gNode, myDiagram);
+          myDiagram.model.removeNodeData(toNode);
+          myDiagram.model.addNodeData(gNode);
+          toNode = myDiagram.findNodeForKey(data.to);
         }
 
         // Handle relationship types

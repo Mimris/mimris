@@ -575,28 +575,41 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObject": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const node = myDiagram.findNodeForKey(selObj.key);
-      if (node) node.isSelected = true;
+      const nodes = myDiagram.nodes;
+      for (let i=0; i<nodes.length; i++) {
+        const n = nodes[i];
+        if (n.key === selObj.key) {
+          n.isSelected = true;
+          break;
+        }
+      }
+
       // Do a fix
-      // const oview = myMetis.findObjectView(selObj.objectview.id);
-      const oview = myMetis.findObjectView(node.key);
+      const oview = myMetis.findObjectView(selObj.key);
       if (oview) {
         oview.group = selObj.objectview?.group;
         myMetis.addObjectView(oview);
       }
       // End fix
-      let obj = oview.object;
+
+      let node = myDiagram.findNodeForKey(selObj.key);
+      if (!node) {
+        node = new gjs.goObjectNode(selObj.key, myGoModel, oview);
+        break;
+      } 
+      let obj = oview?.object;
       if (obj)
         obj = myMetis.findObject(obj.id);
-      // if (selObj.object) {
-      //   obj = selObj.object;
-      //   obj = myMetis.findObject(obj?.id);
-      // } else {
-      //   obj = selObj;
-      //   obj = myMetis.findObject(obj?.id);
-      // }
       if (!obj)
         break;
+
+      // Special handling of the draft property
+      if (node[constants.props.DRAFT]) {
+        myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
+        obj[constants.props.DRAFT] = node[constants.props.DRAFT];
+      }
+
+      if (node) node.isSelected = true;
       let type = obj?.type;
       let properties;
       if (type?.name === 'Method') {
@@ -677,22 +690,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         obj[prop.name] = expr;
         // jsnObject[prop.name] = expr;
       }
-      const n = myDiagram.findNodeForKey(node.key)
-      const data = n ? n.data : node.data;
-      // Special handling of the draft property
-      if (node[constants.props.DRAFT]) {
-        myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
-      }
       const fillcolor1 = obj?.fillcolor;
       const strokecolor1 = obj?.strokecolor;
       const textcolor1 = obj?.textcolor;
-      for (let k in data) {
+      for (let k in type) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))   continue;
         if (k === 'abstract') obj[k] = selObj[k];
         // if (k === 'viewkind') obj[k] = selObj[k];
-        myDiagram.model.setDataProperty(data, k, obj[k]);
+        myDiagram.model.setDataProperty(node.data, k, obj[k]);
         let val = obj[k];
         switch(k) {
           case 'strokecolor':
@@ -709,11 +716,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             break;
         }
         if (val !== "") {
-          myDiagram.model.setDataProperty(data, k, val);
+          myDiagram.model.setDataProperty(node.data, k, val);
         }                         
       }
-        // Do dispatch
-        const jsnObjview = new jsn.jsnObjectView(oview);
+      // Do dispatch
+      const jsnObjview = new jsn.jsnObjectView(oview);
       modifiedObjviews.push(jsnObjview);
       modifiedObjviews.map(mn => {
         let data = mn;
@@ -726,7 +733,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         let data = JSON.parse(JSON.stringify(jsnObject));
         myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       }
-      if (n) n.isSelected = false;
       break;
     }
     case "addPort": {

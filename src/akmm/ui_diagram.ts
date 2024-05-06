@@ -465,7 +465,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 }
 
-export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function editObject(node: gjs.goObjectNode, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const icon = uit.findImage(node?.icon);
     myMetis.currentNode = node;

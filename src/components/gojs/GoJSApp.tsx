@@ -1326,6 +1326,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             data.object = null;
             data.objectview = null;
             data.objecttype = null;
+            data.typeview 
           }
         }
         if (debug) console.log('1242 myGoModel', myGoModel);
@@ -1706,23 +1707,27 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         let fromNode = myDiagram.findNodeForKey(data.from);
-        if (fromNode) {
-          let objview = myModelview.findObjectView(fromNode.key);
-          let gNode = myGoModel.findNode(fromNode.key);
-          if (!gNode || !(gNode instanceof gjs.goObjectNode)) {
-            gNode = new gjs.goObjectNode(fromNode.key, myGoModel, objview);
-            fromNode.data = gNode;
-          }
+        let objview = myModelview.findObjectView(data.from);
+        let gNode = myGoModel.findNode(data.from);
+        if (!fromNode) {
+            if (!gNode || !(gNode instanceof gjs.goObjectNode))
+              gNode = new gjs.goObjectNode(data.from, myGoModel, objview);
+            uic.updateNode(gNode, objview.typeview, myDiagram, myGoModel);
+            gNode.updateNode(gNode, myDiagram);
+            myDiagram.model.addNodeData(gNode);
+            fromNode = myDiagram.findNodeForKey(data.from);
+          // }
         }
         let toNode = myDiagram.findNodeForKey(data.to);
-        if (toNode) {
-          let objview = myModelview.findObjectView(toNode.key);
-          let gNode = myGoModel.findNode(toNode.key);
-          if (!gNode || !(gNode instanceof gjs.goObjectNode)) {
-            gNode = new gjs.goObjectNode(toNode.key, myGoModel, objview);
-            // gNode = utils.copyNonObjectAttributes(gNode);
-            // toNode.data = gNode;
-          }
+        objview = myModelview.findObjectView(data.to);
+        gNode = myGoModel.findNode(data.to);
+        if (!toNode) {
+            if (!gNode || !(gNode instanceof gjs.goObjectNode)) 
+              gNode = new gjs.goObjectNode(data.to, myGoModel, objview);
+            uic.updateNode(gNode, objview.typeview, myDiagram, myGoModel);
+            myDiagram.model.addNodeData(gNode);
+            toNode = myDiagram.findNodeForKey(data.to);
+          // }
         }
 
         // Handle relationship types

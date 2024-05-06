@@ -34,7 +34,7 @@ const page = (props: any) => {
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [focusExpanded, setFocusExpanded] = useState(true);
+  const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(true);
   const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
   const [exportTab, setExportTab] = useState(0);

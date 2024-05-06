@@ -108,7 +108,7 @@ const Navbar = (props) => {
 	];
 
 	return (
-		<nav className="navbar navbar-expand-sm navbar-toggler ps-0"
+		<nav className="navbar navbar-expand-sm navbar-toggler ps-0 pb-0"
 			style={(domainName === "localhost") 
 				? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" } 
 				: { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
@@ -123,7 +123,7 @@ const Navbar = (props) => {
 					</div>
 				</div>
 				<ul className="navbar-nav ">
-					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
+					<li className={`nav-item ${currentRoute === "/" ? "active" : "" }`}>
 						<Link href="/">Home</Link>
 					</li>
 					<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
@@ -187,7 +187,7 @@ const Navbar = (props) => {
 			</div>
 			<div className='buttons' aria-expanded="false">
 				<button
-					className="navbar-toggler navbar-light bg-light"
+					className="navbar-toggler navbar-light bg-light "
 					type="button"
 					data-toggle="collapse"
 					data-target="#nav-toggler-metis"
@@ -256,7 +256,7 @@ const Navbar = (props) => {
 				border-top: 0px solid #fff;
 				border-right: 3px solid #ccc;
 				border-left: 3px solid #fff;
-				border-bottom: 4px solid #bacfcf;
+				border-bottom: 7px solid #bacfcf;
 				border-radius: 10px 10px 0 0;
 			}
 				/* Specific styles for the navbar brand */

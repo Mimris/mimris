@@ -497,7 +497,7 @@ export const ProjectMenuBar = (props: any) => {
                 className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
                 style={{
                     width: "10hw",
-                    marginBottom: "-2px",
+                    marginBottom: "-3px",
                 }}
             >
                 <div className="bar-menu-left bg-transparent"

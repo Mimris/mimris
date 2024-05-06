@@ -442,7 +442,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title="Click here when done!" onClick={() => { toggle(); props.setToggleRefresh(!props.toggleRefresh) }}>Done
+            title="Click here when done!" onClick={() => { toggle(); props?.setToggleRefresh(!props?.toggleRefresh) }}>Done
           </Button>
         </ModalFooter>
       </Modal>

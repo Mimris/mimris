@@ -134,6 +134,7 @@ const Modelling = (props: any) => {
     // }
     setShowProjectModal(true);
   };
+
   const handleCloseProjectModal = () => setShowProjectModal(false);
 
   const handleSubmit = (details) => {
@@ -155,8 +156,8 @@ const Modelling = (props: any) => {
 
   useEffect(() => {
     if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
-    handleShowProjectModal()
-  }, [props.phSource.includes('Template_PR.json')]) // add mount to the dependency array
+    if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
+  }, [props.phSource]) // add mount to the dependency array
 
   useEffect(() => {
     const timer = setTimeout(() => {

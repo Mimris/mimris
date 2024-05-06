@@ -104,7 +104,7 @@ function ProjectDetailsForm(props) {
   const saveFile = (
     <>
       <button
-        className="btn btn-sm rounded bg-primary text-light w-100 px-2 d-flex justify-content-start align-items-center"
+        className="btn btn-sm rounded bg-primary text-light w-100 d-flex justify-content-center align-items-center"
         data-toggle="tooltip"
         data-placement="top"
         data-bs-html="true"
@@ -125,7 +125,7 @@ function ProjectDetailsForm(props) {
       </div>
       {/* <hr /> */}
       <form onSubmit={handleSubmit}>
-        <div className='d-flex flex-column justify-content-end border ms-auto mx-2'>
+        <div className='d-flex flex-column justify-content-end border ms-auto  p-1 mx-2'>
           {/* <div>GitHub Repository:</div> */}
           <div className='d-flex justify-content-between mb-2'>
             <label>Project:</label>
@@ -195,17 +195,18 @@ function ProjectDetailsForm(props) {
               onChange={(e) => setProjectNumber(e.target.value)}
             />
           </div>
-        </div>
-        <div className="d-flex justify-content-end">
-          <button className="button btn bg-success btn-sm mt-4 px-3"
-           type="submit"
+          <div className="d-flex justify-content-end">
+            <button className="button btn bg-success btn-sm mt-4 px-3"
+            type="submit"
             data-toggle="tooltip"
             data-placement="top"
             data-bs-html="true"
             title="Click here to save the above GitHub settings"
-           >Save GitHub settings</button>
+            >Save GitHub settings</button>
+          </div>
         </div>
         <hr className="mt-5 pt-5" />
+        <p>Change the name of the Project from "...-Template to your Project-name and save the file.</p>
         {saveFile}
       </form>
     </>

@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
+import { Modal, Button } from 'react-bootstrap';
+
 import useLocalStorage from '../../hooks/use-local-storage'
 import useSessionStorage from "../../hooks/use-session-storage";
+import { SaveAllToFile } from '../utils/SaveModelToFile';
+
 
 // import { SaveModelToLocState } from "../utils/SaveModelToLocState";
 
@@ -11,6 +15,8 @@ const debug = false;
 function ProjectDetailsForm(props) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
+
+  const [projectname, setProjectname] = useState(props.props.phFocus.focusProj.name);
 
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj.projectNumber);
   const [id, setId] = useState(props.props.phFocus?.focusProj.id);
@@ -89,6 +95,27 @@ function ProjectDetailsForm(props) {
     return () => clearTimeout(timer);
   };
 
+  const handleSaveAllToFile = () => {
+    setProjectname(props.props.phFocus.focusProj.name);
+    const data = `${projectname}_PR`
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+    SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
+  }
+  const saveFile = (
+    <>
+      <button
+        className="btn btn-sm rounded bg-primary text-light w-100 d-flex justify-content-center align-items-center"
+        data-toggle="tooltip"
+        data-placement="top"
+        data-bs-html="true"
+        title="Click here to Save the Project file to the local file system"
+        onClick={handleSaveAllToFile}
+      >
+        <i className="fa fa-save fa-lg pe-2"></i> Save to local file
+      </button>
+    </>
+  )
+
   return (
     <>
       <div className="h5 w-100">Project name : <span className="bg-light ms-2 px-2 w-100"> {namenew}</span></div>
@@ -96,9 +123,9 @@ function ProjectDetailsForm(props) {
       <div className='d-flex justify-content-around '>
         GitHub repository parameters necessary to access the repository and the project file.
       </div>
-      <hr />
+      {/* <hr /> */}
       <form onSubmit={handleSubmit}>
-        <div className='d-flex flex-column justify-content-between border mx-2'>
+        <div className='d-flex flex-column justify-content-end border ms-auto  p-1 mx-2'>
           {/* <div>GitHub Repository:</div> */}
           <div className='d-flex justify-content-between mb-2'>
             <label>Project:</label>
@@ -168,8 +195,19 @@ function ProjectDetailsForm(props) {
               onChange={(e) => setProjectNumber(e.target.value)}
             />
           </div>
+          <div className="d-flex justify-content-end">
+            <button className="button btn bg-success btn-sm mt-4 px-3"
+            type="submit"
+            data-toggle="tooltip"
+            data-placement="top"
+            data-bs-html="true"
+            title="Click here to save the above GitHub settings"
+            >Save GitHub settings</button>
+          </div>
         </div>
-        <button className="button btn bg-success btn-sm  w-100 ms-auto mt-4" type="submit">Save</button>
+        <hr className="mt-5 pt-5" />
+        <p>Change the name of the Project from "...-Template to your Project-name and save the file.</p>
+        {saveFile}
       </form>
     </>
   );

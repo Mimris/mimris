@@ -7,6 +7,7 @@ const debug = false;
 import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useRef, use } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
+import { Modal, Button } from 'react-bootstrap';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import Page from './page';
@@ -25,6 +26,7 @@ import LoadMetamodelFromGithub from './loadModelData/LoadMetamodelFromGitHub'
 import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile } from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
+import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 // import { SaveModelToLocState } from "./utils/SaveModelToLocState";
 // import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 // import ReportModule from "./ReportModule";
@@ -52,6 +54,8 @@ const Modelling = (props: any) => {
   if (debug) console.log('55 Modelling:', props)//, props);        
   const dispatch = useDispatch();
 
+  const projectModalRef = useRef(null);
+
   const [refresh, setRefresh] = useState(true);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', null); //props);
@@ -63,6 +67,8 @@ const Modelling = (props: any) => {
   const [mmToggle, setMmToggle] = useState(true)
   const [mount, setMount] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
   // const [visibleContext, setVisibleContext] = useState(true)
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
@@ -121,9 +127,37 @@ const Modelling = (props: any) => {
     setMount(true);
   }, [])
 
-  // useEffect(() => {
-  //   setRefresh(!refresh)
-  // }, [mount]) // add mount to the dependency array
+
+  const handleShowProjectModal = () => {
+    // if (minimized) {
+    //   setMinimized(true);
+    // }
+    setShowProjectModal(true);
+  };
+
+  const handleCloseProjectModal = () => setShowProjectModal(false);
+
+  const handleSubmit = (details) => {
+    props.onSubmit(details);
+  };
+
+  const projectModalDiv = (
+    <Modal show={showProjectModal} onHide={handleCloseProjectModal}
+      className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
+      <Modal.Header closeButton>GitHub Settings: </Modal.Header>
+      <Modal.Body >
+        <ProjectDetailsForm props={props} onSubmit={handleSubmit} />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+
+  useEffect(() => {
+    if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
+    if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
+  }, [props.phSource]) // add mount to the dependency array
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -525,6 +559,7 @@ const Modelling = (props: any) => {
         </div>
       </>
 
+
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
     return ((mmToggle)
@@ -538,6 +573,7 @@ const Modelling = (props: any) => {
             {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
           </div>
         </div>
+        {projectModalDiv}
       </>
       : <>
         <div className="diagramtabs pb-0 " >

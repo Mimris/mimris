@@ -93,7 +93,7 @@ export const ProjectMenuBar = (props: any) => {
     const projectModalDiv = (
         <Modal show={showProjectModal} onHide={handleCloseProjectModal}
             className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
-            <Modal.Header closeButton>Set GitHub data: </Modal.Header>
+            <Modal.Header closeButton>GitHub Settings: </Modal.Header>
             <Modal.Body >
                 <ProjectDetailsForm props={props} onSubmit={handleSubmit} />
             </Modal.Body>
@@ -288,14 +288,14 @@ export const ProjectMenuBar = (props: any) => {
             </div>
             <ul className="bg-light mx- rounded w-100">
                 {["Open", "New", "File", "Save", "Import", "Metamodel"].map((item) => (
-                <MenuItem key={item} item={item} activeItem={activeItem} activeRightItem={activeRightItem} handleItemClick={handleItemClick} />
+                    <MenuItem key={item} item={item} activeItem={activeItem} activeRightItem={activeRightItem} handleItemClick={handleItemClick} />
                 ))}
             </ul>
             <div className='bg-light'>
                 <hr className="bg-light py-1 my-0" />
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&
+                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' ) &&
                         <Link
                             className="text-primary ms-1"
                             href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}

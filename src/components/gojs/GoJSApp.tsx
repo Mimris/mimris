@@ -1196,7 +1196,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!type || !typeview) {
             // An object has been dropped (but there is no objectview)
             type = myMetis.findObjectType(n.data.objtypeRef);
-            typeview = myMetis.findObjectTypeView(n.data.typeviewRef);
+            typeview = type.typeview;
             objId = n.data.objRef;
             object = myMetis.findObject(objId);
             myModel.addObject(object);
@@ -1204,6 +1204,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = n.data.key;
             const goNode = myGoModel.findNode(key);
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
+            objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
           } else { 

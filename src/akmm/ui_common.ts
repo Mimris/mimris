@@ -1476,7 +1476,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 let link;
                 const myLink = uid.getLinkByViewId(rv.id, myDiagram);
                 if (myLink) {
-                    link = myDiagram.findLinkForKey(myLink?.key);
+                    link = myDiagram.findLinkForKey(rv.id);
                     if (link)
                         continue;  // Link exists - do nothing
                 }

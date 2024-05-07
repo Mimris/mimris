@@ -307,7 +307,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
       <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> {/* OSDU Import button */}
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
-        <ModalHeader className="handle" toggle={() => { toggle(); props.setToggleRefresh(!props.toggleRefresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>
+        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>
         {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
         {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
         <ModalBody className="d-flex flex-column bg-primary">
@@ -442,7 +442,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title="Click here when done!" onClick={() => { toggle(); props?.setToggleRefresh(!props?.toggleRefresh) }}>Done
+            title="Click here when done!" onClick={() => { toggle(); props?.setRefresh(!props?.refresh) }}>Done
           </Button>
         </ModalFooter>
       </Modal>

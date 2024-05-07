@@ -30,7 +30,7 @@ const page = (props: any) => {
 
   if (debug) console.log('38 modelling ', props)
   const dispatch = useDispatch()
-  const [toggleRefresh, setToggleRefresh] = useState(false)
+  // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -205,7 +205,7 @@ const page = (props: any) => {
             <ProjectMenuBar {...props}
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
-              toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}
+              refresh={refresh} setRefresh={setRefresh}
               visibleFocusDetails={visibleFocusDetails}
               setVisibleFocusDetails={setVisibleFocusDetails}
               exportTab={exportTab} setExportTab={setExportTab}

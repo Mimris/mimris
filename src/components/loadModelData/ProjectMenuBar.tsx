@@ -135,12 +135,12 @@ export const ProjectMenuBar = (props: any) => {
         };
     }, []);
 
-    const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} path='' />;
-    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setToggleRefresh={props.setToggleRefresh} />;
-    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setToggleRefresh={props.setToggleRefresh} />
-    const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} path='akm-metamodels' />;
-    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} toggleRefresh={props.toggleRefresh} setRefresh={props.setToggleRefresh} />
-    const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setToggleRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.toggleRefresh ? 'Reload models' : 'Reload models'} </span>
+    const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props} toggleRefresh={props.refresh} setRefresh={props.setRefresh} path='' />;
+    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.setRefresh} />;
+    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
+    const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} path='akm-metamodels' />;
+    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
+    const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.refresh ? 'Reload models' : 'Reload models'} </span>
 
     function handleItemClick(item) {
         // Check if the action is 'Open' or 'New'

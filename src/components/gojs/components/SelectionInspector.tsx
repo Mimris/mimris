@@ -97,10 +97,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     switch (category) {
       case constants.gojs.C_OBJECT:
         instview1 = myMetis.findObjectView(selObj?.key);
-        inst1 = myMetis.findObject(instview1.object.id);
+        inst1 = myMetis.findObject(instview1?.object.id);
         if (instview1) instview = instview1;
         if (inst1) inst = inst1;
-        type = inst.type as akm.cxObjectType; 
+        type = inst?.type as akm.cxObjectType; 
         type1 = myMetis.findObjectType(type?.id) as akm.cxObjectType;
         if (type1) type = type1;
         objtypeview = type1?.typeview as akm.cxObjectTypeView;

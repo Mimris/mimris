@@ -3069,6 +3069,25 @@ export class cxMetis {
         }
         return null;
     }
+    removeClassInstances(sel: any) {
+        if (sel.objectview) sel.objectview = null;
+        if (sel.object) sel.object = null;
+        if (sel.objecttype) sel.objecttype = null; 
+        if (sel.typeview) sel.typeview = null; 
+        if (sel.leftPorts) sel.leftPorts = null;
+        if (sel.rightPorts) sel.rightPorts = null;
+        if (sel.topPorts) sel.topPorts = null;
+        if (sel.bottomPorts) sel.bottomPorts = null;
+        if (sel.relshipview) sel.relshipview = null;
+        if (sel.relship) sel.relship = null;
+        if (sel.relshiptype) sel.relshiptype = null;
+        if (sel.typeview) sel.typeview = null;
+        if (sel.fromNode) sel.fromNode = null;
+        if (sel.toNode) sel.toNode = null;
+        if (sel.fromObjview) sel.fromObjview = null;
+        if (sel.toObjview) sel.toObjview = null;
+        return sel;
+      }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -3153,6 +3172,12 @@ export class cxMetaObject {
     }
     isModified(): boolean {
         return this.modified;
+    }
+    updateContent(inst: any) {
+        for (let prop in inst) {
+            // console.log('3166 prop, inst[prop]', prop, inst[prop]);
+            this[prop] = inst[prop];
+        }
     }
 }
 

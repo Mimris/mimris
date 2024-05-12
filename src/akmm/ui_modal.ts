@@ -47,7 +47,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   if (obj.category === constants.gojs.C_OBJECT) {
     const node = obj; 
     instview = myMetis.findObjectView(node?.key);
-    myInst = myMetis.findObject(instview.object.id);
+    myInst = myMetis.findObject(instview.objectRef);
     if (!myInst) myInst = obj;
     myInstview = instview //myMetis.findObjectView(instview?.id);
     typeview = myInst?.type?.typeview;
@@ -436,9 +436,11 @@ export function handleSelectDropdownChange(selected, context) {
       // const data = modalContext.data;
       const typename = selected.value;
       modalContext.typename = typename;
-      const fromNode = myGoModel.findNode(modalContext.nodeFrom);
+      let fromNode = myGoModel.findNode(modalContext.nodeFrom);
+      if (!fromNode) fromNode = myGoModel.findNode(modalContext.nodeFrom.key);
       const fromPortId = modalContext.portFrom;
-      const toNode = myGoModel.findNode(modalContext.nodeTo);
+      let toNode = myGoModel.findNode(modalContext.nodeTo);
+      if (!toNode) toNode = myGoModel.findNode(modalContext.nodeTo.key);
       const toPortId = modalContext.portTo;
       let fromType = modalContext.fromType; 
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
@@ -474,6 +476,23 @@ export function handleSelectDropdownChange(selected, context) {
   }
 }
 
+function removeClassInstances(selected: any) {
+  selected.objectview = null;
+  selected.object = null;
+  selected.objecttype = null;
+  selected.typeview = null;
+  selected.leftPorts = null;
+  selected.rightPorts = null;
+  selected.topPorts = null;
+  selected.bottomPorts = null;
+  selected.relshipview = null;
+  selected.relship = null;
+  selected.relshiptype = null;
+  selected.typeview = null;
+  selected.fromNode = null;
+  selected.toNode = null;
+}
+
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
   const what = modalContext.what;
   let myDiagram = modalContext.myDiagram;
@@ -497,6 +516,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const modifiedModelviews   = new Array();    
   switch(what) {
     case "editObjectType": {
+      // To be done !!!
+
       // selObj is a node representing an objecttype
       const selObj = selectedData;
       const node = myDiagram.findNodeForKey(selObj.key);
@@ -524,15 +545,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "editRelationshipType": {
+      // To be done !!!
+      
       // selObj is a link representing a relationship type
-      const selObj = selectedData;
-      let link = myDiagram.findLinkForKey(selObj.key);
+      const rel = selectedData;
+      let link = myDiagram.findLinkForKey(rel.key);
       if (!link)
           break;
-      if (link) link.isSelected = true;
+      let type = rel.type;
       const data = link.data;
-      let type = link.reltype;
-      if (!type) type = data.reltype;
+      type = link.relshiptype;
+      if (!type) type = data.relshiptype;
       type = myMetis.findRelationshipType(type?.id);
       const reltypeview = type?.typeview;
       if (type) {
@@ -575,159 +598,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObject": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      // Do a fix
-      const oview = myMetis.findObjectView(selObj.key);
-      if (!oview)
-        break;
-      oview.group = selObj.objectview?.group;
-      myMetis.addObjectView(oview);
-      const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(oview.id);
-      let node = myDiagram.findNodeForKey(selObj.key);
-      if (node) node.isSelected = true;
-      if (!node) {
-        node = goNode;
-        myDiagram.model.addNodeData(node);
-        // break;
-      } 
-      let obj = oview?.object;
-      if (obj)
-        obj = myMetis.findObject(obj.id);
-      if (!obj)
-        break;
-
-      // Special handling of the draft property
-      if (node[constants.props.DRAFT]) {
-        myDiagram.model.setDataProperty(data, 'typename', node[constants.props.DRAFT]);
-        obj[constants.props.DRAFT] = node[constants.props.DRAFT];
-      }
-
-      if (node) node.isSelected = true;
-      let type = obj?.type;
-      let properties;
-      if (type?.name === 'Method') {
-        properties = obj.setAndGetAllProperties(myMetis);
-      } else if (type?.name === 'Modelview') {
-        // This should be moved to case: "editModelview"
-        const mv = myMetis.findModelView(obj.modelviewId);
-        if (mv) {
-          properties = type?.getProperties(false);
-          for (let i=0; i<properties?.length; i++) {
-            const prop = properties[i];
-            if (!prop)
-              continue;
-            switch(prop.name) {
-              case 'layout':
-              case 'link curve':
-              case 'link routing':
-              case 'askForRelshipName':
-              case 'includeInheritedReltypes':
-              case 'UseUMLrelshipkinds':
-                mv[prop.name] = obj[prop.name];
-            }
-          }
-          const jsnModelview = new jsn.jsnModelView(mv);
-          modifiedModelviews.push(jsnModelview);
-          modifiedModelviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-          })
-        }
-      } else if (type?.name === 'Model') {
-        // This should be moved to case: "editModel"
-        const mdl = myMetis.findModel(obj.modelId);
-        if (mdl) {
-          properties = type?.getProperties(false);
-          for (let i=0; i<properties?.length; i++) {
-            const prop = properties[i];
-            if (!prop)
-              continue;
-            switch(prop.name) {
-              default:
-                mdl[prop.name] = obj[prop.name];
-            }
-          }
-          const jsnModel = new jsn.jsnModel(m);
-          modifiedModels.push(jsnModel);
-          modifiedModels.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-          })
-        }      
-      } else {
-        type = myMetis.findObjectType(type?.id);
-        properties = type?.getProperties(false);
-      }
-      const jsnObject = new jsn.jsnObject(obj);
-      for (let i=0; i<properties?.length; i++) {
-        const prop = properties[i];
-        if (!prop)
-          continue;
-        const dtypeRef = prop.datatypeRef;
-        const dtype = myMetis.findDatatype(dtypeRef);
-        if (dtype && dtype.name !== 'boolean') {
-          const pattern = dtype.inputPattern;
-          const value = obj[prop.name];
-          // Doing value check:
-          if (pattern && value) {
-              const regex = new RegexParser(pattern);
-            if (!regex.test(value)) {
-              const errormsg = "Value: '" + value + "' of '" + prop.name + "' IS NOT valid"
-              alert(errormsg);
-              return;
-            }
-          }
-        }
-        const expr = obj.getPropertyValue(prop, myMetis);
-        obj[prop.name] = expr;
-        jsnObject[prop.name] = expr;
-      }
-      const fillcolor1 = obj?.fillcolor;
-      const strokecolor1 = obj?.strokecolor;
-      const textcolor1 = obj?.textcolor;
-      for (let k in obj) {
-        if (typeof(obj[k]) === 'object')    continue;
-        if (typeof(obj[k]) === 'function')  continue;
-        if (!uic.isPropIncluded(k, type))   continue;
-        if (k === 'abstract') obj[k] = selObj[k];
-        // if (k === 'viewkind') obj[k] = selObj[k];
-        myDiagram.model.setDataProperty(node.data, k, obj[k]);
-        let val = obj[k];
-        if (val === undefined) val = "";
-        switch(k) {
-          case 'strokecolor':
-            val = strokecolor1;
-            oview[k] = val;
-            break;
-          case 'fillcolor':
-            val = fillcolor1;
-            oview[k] = val;
-            break;
-          case 'textcolor':
-            val = textcolor1;
-            oview[k] = val;
-            break;
-          default:
-            oview[k] = val;
-        }
-        if (val !== "") {
-          myDiagram.model.setDataProperty(node.data, k, val);
-        }                         
-      }
-      // Do dispatch
-      const jsnObjview = new jsn.jsnObjectView(oview);
-      modifiedObjviews.push(jsnObjview);
-      modifiedObjviews.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      })
-      jsnObject["text"] = obj.text;
-      if (jsnObject) {
-        let data = JSON.parse(JSON.stringify(jsnObject));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-      }
+      const goNode = myGoModel.findNodeByViewId(selObj.key);
+      const objview = myModelview.findObjectView(selObj.key);
+      uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       break;
     }
     case "addPort": {
@@ -735,6 +608,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "editRelationship": {
+      // selObj is a link representing a relationship or a relationship view
+      const selObj = selectedData;
+      const goLink = myGoModel.findLinkByViewId(selObj.key);
+      const relview = myModelview.findRelationshipView(selObj.key);
+      uid.updateLinkAndView(selObj, goLink, relview, myDiagram);
+      break;
+    }
+    case "editRelationship1": {
       const rel = selectedData;
       const link = myDiagram.findLinkForKey(rel.key);
       if (!link)
@@ -798,75 +679,22 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       });              
       return;
     }
+
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const oview = myModelview.findObjectView(selObj.key);
-      if (!oview)
-        break;
-      const obj = oview.object;
-      oview.group = selObj.objectview?.group;
-      myMetis.addObjectView(oview);
-      const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(oview.id);
+      const goNode = myGoModel.findNodeByViewId(selObj.key);
+      const objview = myModelview.findObjectView(selObj.key);
+      uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      if (debug) console.log("editObjectview: ", selObj);
 
-      const objtypeview = oview.typeview;
-      myDiagram.selection.each(function(sel) {
-        let objview = myMetis.findObjectView(sel.key);
-        if (objview) {
-          for (let prop in  objtypeview?.data) {
-            if (prop === 'viewkind') {
-              if (objview[prop] === 'Object') {
-                objview['group'] = "";
-                objview['isGroup'] = false;
-              } else if (objview[prop] === 'Container') {
-                objview['isGroup'] = true;
-              }
-            }
-            if (prop === 'group') continue;
-            if (prop === 'isGroup') {
-              if (objview['size'] == "0 0")
-                objview['size'] = "200 100";
-              continue;
-            }
-            try {
-              objview[prop] = selObj[prop];
-              goNode[prop] = selObj[prop];
-            } catch {}
-            myModelview.addObjectView(objview);
-            myMetis.addObjectView(objview);
-          }
-          const obj = objview.object;
-          if (obj) obj.viewkind = objview.viewkind;
-        }
-        let node = myDiagram.findNodeForKey(objview.id);
-        if (!node) {
-          let gNode = myGoModel.findNodeByViewId(objview.id);
-          gNode.updateNode(gNode, myDiagram);
-          myDiagram.model.removeNodeData(selObj);
-          gNode.updateNode(gNode, myDiagram);
-          myDiagram.model.addNodeData(gNode);
-          }
-        if (node) {
-          const data = node;
-          myDiagram.model.setDataProperty(node, "groupable", objview.isGroup);
-          for (let prop in objtypeview?.data) {
-              myDiagram.model.setDataProperty(data, prop, objview[prop]);
-          }
-          if (obj['image'] !== "") {
-            myDiagram.model.setDataProperty(data, 'image', obj['image']);
-          }
-        }
-        // Do dispatch
-        const jsnObjview = new jsn.jsnObjectView(objview);
-        let data = JSON.parse(JSON.stringify(jsnObjview));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-        const jsnModelview = new jsn.jsnModelView(myModelview);
-        data = JSON.parse(JSON.stringify(jsnModelview));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-        return;
-      })
-      break;
+      // Do dispatch
+      const jsnObjview = new jsn.jsnObjectView(objview);
+      let data = JSON.parse(JSON.stringify(jsnObjview));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      return;
     }
+
     case "selectDropdown": {
       if (modalContext.title === 'Select Icon') {
         if (selectedData.category === constants.gojs.C_OBJECT) {
@@ -1075,60 +903,32 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       break;
     }
+
     case "editRelshipview": {
-      // rel contains the changed values
-      const rel = selectedData;
-      const link = myDiagram.findLinkForKey(rel.key);
-      if (!link)
-        break;
-      link.isSelected = true;
-      const data = link.data;
-      const relview = myModelview.findRelationshipView(data.key);
-      const reltypeview = relview.typeview;
-      const relship = relview.relship;
-      const type = relship.type;
-      if (relship.name === "") relship.name = " ";
-      myDiagram.selection.each(function(sel) {
-          let selData = sel.data;
-          if (selData) {
-            const relview = myMetis.findRelationshipView(selData.key);
-            if (relview) {
-              const typeviewdata: akm.cxReltypeviewData = reltypeview?.data;
-              for (const prop in typeviewdata) {
-                if (prop === 'id') continue;
-                if (prop === 'name') continue;
-                if (prop === 'abstract') continue;
-                if (prop === 'category') continue;
-                if (prop === 'class') continue;
-                
-                const val1 = typeviewdata[prop];
-                const val2 = selData[prop];
-                if (val1 && val2 && (val1 !== val2)) {
-                  relview[prop] = val2;
-                  if (val2)
-                    myDiagram.model.setDataProperty(sel, prop, val2);
-                  if (debug) console.log('1130 prop, typeviewdata[prop], relview[prop]: ', prop, val1, val2);  
-                }
-              }
-              let prop = 'strokecolor';
-              if (prop === 'strokecolor' && relview[prop] !== "")
-                myDiagram.model.setDataProperty(selData, prop, relview[prop]);
-              myMetis.addRelationshipView(relview);
-            }
-          }
-          const jsnRelview = new jsn.jsnRelshipView(relview);
-          modifiedRelviews.push(jsnRelview);
-          modifiedRelviews.map(mn => {
-            let data = mn;
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-          })
-      });
+      // selObj is a link representing a relationship or a relationship view
+      const selRel = selectedData;
+      const goLink = myGoModel.findLinkByViewId(selRel.key);
+      const relview = myModelview.findRelationshipView(selRel.key);
+    //// For some reason the following code does not work
+      uid.updateLinkAndView(selRel, goLink, relview, myDiagram);
+      if (debug) console.log("editRelshipview: ", selRel);
+    ////
+
+      // // Do dispatch
+      const jsnRelview = new jsn.jsnRelshipView(relview);
+      let data = JSON.parse(JSON.stringify(jsnRelview));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       return;
     }
+
     case "editTypeview": {   
+      // To be done !!!
+
       // selObj is a node representing an object or an objecttype
       const selObj = selectedData;
       const node = myDiagram.findNodeForKey(selObj.key);
+      if (!node)
+        break;
       if (node) node.isSelected = true;
       // Do a fix
       if (selObj.typeview) {

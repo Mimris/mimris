@@ -97,7 +97,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     switch (category) {
       case constants.gojs.C_OBJECT:
         instview1 = myMetis.findObjectView(selObj?.key);
-        inst1 = myMetis.findObject(instview1?.object.id);
+        inst1 = myMetis.findObject(instview1?.objectRef);
         if (instview1) instview = instview1;
         if (inst1) inst = inst1;
         type = inst?.type as akm.cxObjectType; 
@@ -106,8 +106,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         objtypeview = type1?.typeview as akm.cxObjectTypeView;
         objtypeview = myMetis.findObjectTypeView(objtypeview?.id) as akm.cxObjectTypeView;
         typeview = objtypeview;
-        type.typeview = objtypeview;
-        inst.type = type;
+        if (inst && type) {
+          type.typeview = objtypeview;
+          inst.type = type;
+        }
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = selObj.objecttype;
@@ -162,17 +164,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (type?.name === 'Method') {
           chosenType = null;
         } else {
-          currentType = inst.type as akm.cxObjectType;
+          currentType = inst?.type as akm.cxObjectType;
           chosenType = currentType;
           chosenInst = inst;
-          typename = currentType.name;
-          typedescription = currentType.description;
+          typename = currentType?.name;
+          typedescription = currentType?.description;
           if (useTabs && modalContext?.what === 'editObject') {
             let inheritedTypes = inst?.getInheritedTypes();
-            inheritedTypes.push(currentType);
-            inheritedTypes = [...new Set(inheritedTypes)];
-            if (inst?.hasInheritedProperties(myModel))
-              includeInherited = true;
+            if (inheritedTypes?.length > 0) {
+              inheritedTypes.push(currentType);
+              inheritedTypes = [...new Set(inheritedTypes)];
+              if (inst?.hasInheritedProperties(myModel))
+                includeInherited = true;
+            }
             const connectedObjects: akm.cxObject[] = inst?.getConnectedObjects2(myMetis);
             if (connectedObjects?.length > 0)
               includeConnected = true;

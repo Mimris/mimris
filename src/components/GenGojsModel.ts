@@ -61,7 +61,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     myMetis?.importData(metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
-    if (debug) clog('83 GenGojsModel :', myMetis)
+    if (!debug) clog('83 GenGojsModel :', myMetis)
     if (debug)clog('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {

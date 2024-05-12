@@ -376,7 +376,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.click = function (e) {
       e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
     };
-
+    console.log('myDiagram.model', myDiagram.model);
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.dispatch = this.myMetis?.dispatch;
@@ -3699,6 +3699,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myDiagram.layoutDiagram();
     }
 
+    function clearInstance(inst: any) {
+
+    }
+
     // this DiagramEvent handler is called during the linking or relinking transactions
     function maybeChangeLinkCategory(e: any) {
       let link = e.subject;
@@ -3718,6 +3722,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       );
     }
     return myDiagram;
+
   }
 
   exportSvg = () => {
@@ -3744,7 +3749,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const myMetamodel = myModel.metamodel;
     let modalContent, header, category, typename;
     const modalContext = this.state.modalContext;
+    if (selObj)
+      selObj = myMetis.removeClassInstances(selObj);
     let selpropgroup = [{ tabName: 'Default' }];
+
     if (modalContext?.what === 'editObject') {
       let includeInherited = false;
       let includeConnected = false;
@@ -3793,7 +3801,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (modalContext?.what === 'editRelationship') {
       let includeInherited = false;
       let includeConnected = false;
-      let key = this.state.selectedData?.relship?.id;
+      let key = this.state.selectedData?.relshipRef;
       if (!key) key = this.state.selectedData?.key;
       let rel = this.myMetis.findRelationship(key);
       if (rel?.hasInheritedProperties(myModel)) {

@@ -588,8 +588,8 @@ export class goObjectNode extends goNode {
         return false;
     }
     updateNode(data: any, diagram: any) {
-        if (this.typeview) {
-            const viewdata = this.typeview.getData();
+        if (data.typeview) {
+            const viewdata = data.typeview?.data;
             let data = (viewdata as any);
             let prop: string;
             for (prop in data) {
@@ -751,6 +751,16 @@ export class goObjectNode extends goNode {
             this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
         }
     }
+    removeClassInstances() {
+        this.objectview = null;
+        this.object = null;
+        this.objecttype = null;
+        this.typeview = null;
+        this.leftPorts = null;
+        this.rightPorts = null;
+        this.topPorts = null;
+        this.bottomPorts = null;
+    }
 }
 
 export class goObjectTypeNode extends goNode {
@@ -854,6 +864,7 @@ export class goRelshipLink extends goLink {
     strokewidth:        string;
     textcolor:          string;
     textscale:          string;
+    dash:               string;
     fromArrow:          string;
     toArrow:            string;
     fromArrowColor:     string;
@@ -894,6 +905,7 @@ export class goRelshipLink extends goLink {
         this.strokewidth     = relview?.strokewidth;
         this.textcolor       = relview?.textcolor;
         this.textscale       = relview?.textscale;
+        this.dash            = relview?.dash;
         this.fromArrow       = relview?.fromArrow;
         this.fromArrowColor  = relview?.fromArrowColor;
         this.toArrow         = relview?.toArrow;
@@ -1075,6 +1087,14 @@ export class goRelshipLink extends goLink {
                     diagram.model.setDataProperty(data, prop, data[prop])
             }
         }
+    }
+    removeClassInstances() {
+        this.relshipview = null;
+        this.relship = null;
+        this.relshiptype = null;
+        this.typeview = null;
+        this.fromNode = null;
+        this.toNode = null;
     }
 }
 

@@ -465,15 +465,19 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 }
 
-export function editObject(node: gjs.goObjectNode, myMetis: akm.cxMetis, myDiagram: any) {
+export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
-    const icon = uit.findImage(node?.icon);
-    myMetis.currentNode = node;
+    const myGoModel = myMetis.gojsModel;
+    const goNode = myGoModel.findNode(gjsNode.key);
+    const icon = uit.findImage(goNode?.icon);
+    myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    const object = myMetis.findObject(node?.objRef);
-    const objectview = myMetis.findObjectView(node?.objviewRef);
-    const objecttype = myMetis.findObjectType(object?.type?.id);
-    const objecttypeview = objecttype?.typeview;
+    const object = goNode?.object;
+    myMetis.addObject(object);
+    const objectview = goNode?.objectview;
+    myMetis.addObjectView(objectview);
+    const objecttype = goNode?.objecttype;
+    const objecttypeview = goNode?.typeview;
     const myContext = {
         object:     object,
         objectview: objectview,
@@ -495,8 +499,8 @@ export function editObject(node: gjs.goObjectNode, myMetis: akm.cxMetis, myDiagr
         myDiagram:  myDiagram,
         myContext:  myContext
       }
-      if (debug) console.log('498 ui_diagram: node, modalContext', node, modalContext);
-      myDiagram.handleOpenModal(node, modalContext);
+      if (debug) console.log('498 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
+      myDiagram.handleOpenModal(gjsNode, modalContext);
 }
 
 export function editRelationship(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -2605,3 +2609,62 @@ function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
         traverseDFS(neighbor, visited);
     }
 }
+
+export function updateNodeAndView(data: any, node: gjs.goObjectNode, objview: akm.cxObjectView, myDiagram: any) {
+    myDiagram.startTransaction('updateNode');
+    for (let it = myDiagram.nodes; it?.next();) {
+        const n = it.value;
+        const ndata = n.data;
+        if (ndata.key === node.key) {
+            for (let prop in node) {
+                if (prop !== 'key') {
+                    if (!(typeof prop === 'object')) {
+                        objview[prop] = data[prop];
+                        node[prop]    = data[prop];
+                        myDiagram.model.setDataProperty(ndata, prop, data[prop]);
+                    }
+                    if (prop === 'viewkind') {
+                        if (objview[prop] === 'Object') {
+                          objview['group'] = "";
+                          objview['isGroup'] = false;
+                        } else if (objview[prop] === 'Container') {
+                          objview['isGroup'] = true;
+                        }
+                    }
+                    if (prop === 'isGroup') {
+                        if (objview['size'] == "0 0")
+                            objview['size'] = "200 100";
+                    }
+                }
+            }
+            node.removeClassInstances();
+        }
+    }
+    myDiagram.commitTransaction('updateNode');
+}
+
+export function updateLinkAndView(link: any, goLink: gjs.goRelshipLink, relview: akm.cxRelationshipView, myDiagram: any) {
+    myDiagram.startTransaction('updateLink');
+    for (let it = myDiagram.links; it?.next();) {
+        const l = it.value;
+        const ldata = l.data;
+        if (ldata.key === goLink.key) {
+            for (let prop in goLink) {
+                if (prop !== 'key') {
+                    if (!(typeof prop === 'object')) {
+                        if (link[prop] !== undefined && link[prop] !== null && link[prop] !== "") {
+                            relview[prop] = link[prop];
+                            ldata[prop]    = link[prop];
+                            goLink[prop]   = link[prop];
+                            myDiagram.model.setDataProperty(ldata, prop, link[prop]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // myDiagram.model.addLinkData(data);
+
+    myDiagram.commitTransaction('updateLink');
+}
+

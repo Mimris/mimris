@@ -163,6 +163,8 @@ export let types = {
           AKM_UNIT              : "Unit",
           AKM_LABEL             : "Label",
           AKM_GENERIC           : "Generic",
+
+          AKM_OSDUTYPE          : "OSDUType",
           
           AKM_CONTAINS          : "contains",
           AKM_ANNOTATES         : "annotates",

@@ -365,25 +365,25 @@ class GoJSApp extends React.Component<{}, AppState> {
       }      
       case 'TextEdited': {
         const sel = e.subject.part;
-        const data = sel.data;
-        const textvalue = data.text;
+        const gjsData = sel.data;
+        const textvalue = gjsData.text;
         let field = e.subject.name;
         if (field === "") field = "name";
         // Object type or Object
         if (sel instanceof go.Node) {
-          const key:string = data.key;
-          const myNode = myGoModel.findNode(key);
-          let text: string = data.name;
-          const category: string = data.category;
+          const key:string = gjsData.key;
+          const myGoNode = myGoModel.findNode(key);
+          let text: string = gjsData.name;
+          const category: string = gjsData.category;
           // Object type
           if (category === constants.gojs.C_OBJECTTYPE) {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
             if (myNode) {
-              data.name = text;
-              uic.updateObjectType(data, field, text, context);
-              const objtype = myMetis.findObjectType(data.objecttype?.id);
+              gjsData.name = text;
+              uic.updateObjectType(gjsData, field, text, context);
+              const objtype = myMetis.findObjectType(gjsData.objecttype?.id);
               if (objtype) {
                 let data = { id: objtype.id, name: text };
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data });
@@ -392,7 +392,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else { // Object           
             if (text === 'Edit name') {
               text = prompt('Enter name');
-              data.name = text;
+              gjsData.name = text;
             }
             const goNode: gjs.goObjectNode = this.getNode(myGoModel, key);
             if (goNode) {
@@ -410,9 +410,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objview.text = textvalue;
                   let node = myGoModel.findNodeByViewId(objview?.id);
                   if (node) {
-                    const nodedata = sel.data;
-                    nodedata.key = node.key;
-                    nodedata.name = text;
+                    const gjsNodeData = sel.data;
+                    gjsNodeData.key = node.key;
+                    gjsNodeData.name = text;
                     {
                       let nodes = myDiagram.nodes; 
                       for (let it = nodes.iterator; it?.next();) {
@@ -436,19 +436,19 @@ class GoJSApp extends React.Component<{}, AppState> {
               context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
             }
           }
-          const nodes = myGoModel?.nodes;
-          for (let i = 0; i < nodes?.length; i++) {
-            const node = nodes[i];
-            if (node.key === data.key) {
-              node.name = data.name;
+          const goNodes = myGoModel?.nodes;
+          for (let i = 0; i < goNodes?.length; i++) {
+            const goNode = goNodes[i];
+            if (goNode.key === gjsData.key) {
+              goNode.name = gjsData.name;
               break;
             }
           }
         }
         // Relationship or Relationship type
         if (sel instanceof go.Link) {
-          const key = data.key;
-          let text = data.nameFrom ? data.nameFrom : data.name;
+          const key = gjsData.key;
+          let text = gjsData.nameFrom ? gjsData.nameFrom : gjsData.name;
           let typename = data.type;
           // Relationship type
           if (typename === constants.gojs.C_RELSHIPTYPE) {
@@ -460,7 +460,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data.name = text;
               }
               uic.updateRelationshipType(myLink, "name", text, context);
-              data.name = myLink.name;
+              gjsData.name = myLink.name;
               if (myLink.reltype) {
                 const jsnReltype = new jsn.jsnRelationshipType(myLink.reltype, true);
                 modifiedRelshipTypes.push(jsnReltype);
@@ -469,11 +469,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
           else { // Relationship
-            let relview = data.relshipview;
+            let relview = gjsData.relshipview;
             if (relview) {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
-                data.name = text;
+                gjsData.name = text;
               }
               let rel = relview.relship as akm.cxRelationship;
               if (rel) {
@@ -489,10 +489,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (text === 'Is') {
                     rel.relshipkind = 'Generalization';
                     relview.toArrow = 'Triangle';
-                    data.toArrow = 'Triangle';
+                    gjsData.toArrow = 'Triangle';
                     // This doesn't work:
-                    let link = myDiagram.findLinkForKey(data.key);
-                    myDiagram.model.setDataProperty(link.data, 'toArrow', data.toArrow);
+                    let link = myDiagram.findLinkForKey(gjsData.key);
+                    myDiagram.model.setDataProperty(link.data, 'toArrow', gjsData.toArrow);
                   }
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   modifiedRelshipViews.push(jsnRelview);

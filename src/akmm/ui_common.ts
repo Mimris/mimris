@@ -833,6 +833,12 @@ export function createRelationship(nodeFrom: any, nodeTo: any, context: any) {
             if (refersToRelType) {
                 reltypes.push(refersToRelType);
             }
+            if (fromType.name === constants.types.AKM_OSDUTYPE) {
+                if (toType.name === constants.types.AKM_PROPERTY) {
+                    const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
+                    reltypes.push(rtype);
+                }
+            }            
         } else {
             const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             for (let i = 0; i < rtypes.length; i++) {

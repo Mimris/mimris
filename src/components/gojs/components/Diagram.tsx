@@ -538,9 +538,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Object",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              if (debug) console.log('529 node', node);
-              uid.editObject(node, myMetis, myDiagram);
+              const myGoModel = myMetis.gojsModel;
+              const gjsNode = obj.part.data;
+              if (debug) console.log('529 node', gjsNode);
+              const objview = myModelview.findObjectView(gjsNode.objviewRef);
+              gjsNode.objviewRef = objview.id;        
+              const goNode = new gjs.goObjectNode(gjsNode.key, myGoModel, objview);
+              myGoModel.addNode(goNode);
+              uid.editObject(gjsNode, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;

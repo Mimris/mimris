@@ -472,7 +472,10 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    const object = goNode?.object;
+    let objview = goNode?.objectview;
+    if (!objview) objview = myMetis.findObjectView(objview?.objviewRef);
+    let object = objview?.object;
+    if (!object) object = myMetis.findObject(objview?.objRef);
     myMetis.addObject(object);
     const objectview = goNode?.objectview;
     myMetis.addObjectView(objectview);
@@ -2610,18 +2613,18 @@ function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
     }
 }
 
-export function updateNodeAndView(data: any, node: gjs.goObjectNode, objview: akm.cxObjectView, myDiagram: any) {
+export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objview: akm.cxObjectView, myDiagram: any) {
     myDiagram.startTransaction('updateNode');
     for (let it = myDiagram.nodes; it?.next();) {
         const n = it.value;
         const ndata = n.data;
-        if (ndata.key === node.key) {
-            for (let prop in node) {
+        if (ndata.key === goNode.key) {
+            for (let prop in goNode) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
-                        objview[prop] = data[prop];
-                        node[prop]    = data[prop];
-                        myDiagram.model.setDataProperty(ndata, prop, data[prop]);
+                        objview[prop] = gjsNode[prop];
+                        goNode[prop]    = gjsNode[prop];
+                        myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
                     }
                     if (prop === 'viewkind') {
                         if (objview[prop] === 'Object') {
@@ -2637,7 +2640,7 @@ export function updateNodeAndView(data: any, node: gjs.goObjectNode, objview: ak
                     }
                 }
             }
-            node.removeClassInstances();
+            goNode.removeClassInstances();
         }
     }
     myDiagram.commitTransaction('updateNode');

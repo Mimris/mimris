@@ -538,9 +538,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Object",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              if (debug) console.log('529 node', node);
-              uid.editObject(node, myMetis, myDiagram);
+              const gjsNode = obj.part.data;
+              if (debug) console.log('529 gjsNode', gjsNode);
+              uid.editObject(gjsNode, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;
@@ -557,9 +557,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Objectview",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              if (debug) console.log('542 node', node);
-              uid.editObjectview(node, myMetis, myDiagram);
+              const gjsNode = obj.part.data;
+              if (debug) console.log('542 gjsNode', gjsNode);
+              uid.editObjectview(gjsNode, myMetis, myDiagram);
             },
             function (o: any) {
               const node = o.part.data;

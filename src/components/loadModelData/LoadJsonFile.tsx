@@ -20,7 +20,7 @@ import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
-  if (!props.ph.phData?.metis.models) return null
+  if (!props.ph.phData?.metis.models) return <></>
 
   const debug = false
   const dispatch = useDispatch()
@@ -32,7 +32,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
   if (debug) console.log('20 LoadLocal', props.ph.phData, props);
 
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return <></>
 
   const data = {
     phData: props.ph.phData,

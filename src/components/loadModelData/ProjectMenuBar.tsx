@@ -37,7 +37,7 @@ export const ProjectMenuBar = (props: any) => {
     const [hover, setHover] = useState(false);
     // const [exportTab, setExportTab] = useState(false);
 
-    const handleRightItemClick = (item) => {
+    const handleRightItemClick = (item: any) => {
         setActiveRightItem(item);
     };
 
@@ -85,7 +85,7 @@ export const ProjectMenuBar = (props: any) => {
     };
     const handleCloseProjectModal = () => setShowProjectModal(false);
 
-    const handleSubmit = (details) => {
+    const handleSubmit = (details: any) => {
         props.onSubmit(details);
         // handleCloseProjectModal();
     };
@@ -142,7 +142,7 @@ export const ProjectMenuBar = (props: any) => {
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.refresh ? 'Reload models' : 'Reload models'} </span>
 
-    function handleItemClick(item) {
+    function handleItemClick(item: any) {
         // Check if the action is 'Open' or 'New'
         if (item === 'Open' || item === 'New') {
             // Ask the user to save before opening or creating new
@@ -163,7 +163,7 @@ export const ProjectMenuBar = (props: any) => {
                 data-placement="top"
                 data-bs-html="true"
                 title="Click here to Open a Project file from local file system"
-                onClick={() => fileInputRef.current.click()}
+                onClick={() => fileInputRef.current?.click()}
             >
                 <i className="fa fa-folder fa-lg pe-1"></i>Open local file
             </button>
@@ -369,7 +369,7 @@ export const ProjectMenuBar = (props: any) => {
                             <span className="ms-2">{saveFile}</span>
                         </div>
                     </details> */}
-                    <div className="menu-buttons d-flex flex-wrap justify-content-between align-items-center ms-2">
+                    <div className="menu-buttons d-flex flex-wrap justify-content-end align-items-center ms-2">
                         <span className="context-item border rounded-2 " style={{ backgroundColor: "#ded" }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
                             title="Project Number in the GitHub Repository"
@@ -404,7 +404,7 @@ export const ProjectMenuBar = (props: any) => {
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
                             >
-                                {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' && props.phFocus.focusProj.path !== '') &&
+                                {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '') &&
                                     <Link
                                         className="text-primary"
                                         href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
@@ -429,23 +429,17 @@ export const ProjectMenuBar = (props: any) => {
                 <div className="ms-auto d-flex justify-content-between align-items-top"
                     style={{
                         position: "relative",
-                        top: "-10px",
+                        top: "-12px",
                         // left: "0px",
-                        right: "-20px",
+                        right: "-58px",
                         height: "30px",
                         // width: "0%", // reduce width to 60%
                         transform: "scale(0.8)",
                         transition: "height 1s ease-in-out"
                     }}
                 >
-                    <div className="context-item border d-flex justify-content-end align-items-center rounded-2 mx-2 mt-4">
-                        <label className="ps-1" style={{ backgroundColor: "#ded", padding: "2px 4px" }}>File:</label>
-                        <span className="px-1 ms-1" style={{ backgroundColor: "#efe", whiteSpace: "nowrap" }}
-                            data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                            title="This is the Project File name"
-                        > {props.phFocus.focusProj.file}</span>
-                    </div>
-                    <div className="d-fle justify-content-end align-items-top rounded-2 my-0 px-1"
+  
+                    <div className="rounded-2 my-0 px-1"
                         style={{ whiteSpace: "nowrap" }}
                         onClick={() => props.setExpanded(!props.expanded)}
                     >
@@ -454,11 +448,18 @@ export const ProjectMenuBar = (props: any) => {
                     <div
                         onClick={() => props.setFocusExpanded(!props.focusExpanded)}
                     >
-                        <div className="ms-auto me-5 px-1 rounded-2"
+                        <div className="ms-auto me-5 pe-5 rounded-2"
                             style={{ whiteSpace: "nowrap", position: "relative", top: "0px", right: "-4px", width: "22px", height: "2px", transition: "height 1s ease-in-out" }}
                         >
-                            <i className="fa fa-arrow-down fa-sm"></i> Focus-bar
+                            {(props.focusExpanded) ? <i className="fa fa-arrow-up fa-sm"></i> : <i className="fa fa-arrow-down fa-sm"></i>} Focus-bar
                         </div>
+                    </div>
+                    <div className="context-item border d-flex justify-content-end align-items-center rounded-2 mx-2 mt-3">
+                        <label className="ps-1" style={{ backgroundColor: "#ded", padding: "2px 4px" }}>File:</label>
+                        <span className="px-1 ms-1" style={{ backgroundColor: "#efe", whiteSpace: "nowrap" }}
+                            data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                            title="This is the Project File name"
+                        > {props.phFocus.focusProj.file}</span>
                     </div>
                 </div>
             </div>
@@ -470,23 +471,23 @@ export const ProjectMenuBar = (props: any) => {
                 onClick={() => props.setExpanded(true)}
             >
                 <div className="ms-auto me-5 mt-1 rounded-2"
-                    style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "0px", width: "22px", height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
+                    style={{ whiteSpace: "nowrap", position: "relative", top: "-8px", right: "-58px", width: "22px", height: "7px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
                 >
                     {/* Project file: {props.phFocus.focusProj.file} */}
                 </div>
                 <div className="ms-auto me-5 px-1 rounded-2"
-                    style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "120px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
+                    style={{ whiteSpace: "nowrap", position: "relative", top: "-5px", right: "345px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
                 >
                     <i className="fa fa-arrow-down fa-sm"></i> Project-bar
                 </div>
-            </div>
-            <div
-                onClick={() => props.setFocusExpanded(!props.focusExpanded)}
-            >
-                <div className="ms-auto me-5 px-1 rounded-2"
-                    style={{ whiteSpace: "nowrap", position: "relative", top: "-16px", right: "20px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
+                <div
+                    onClick={() => props.setFocusExpanded(!props.focusExpanded)}
                 >
-                    {(props.focusExpanded) ? <i className="fa fa-arrow-up fa-sm"></i> : <i className="fa fa-arrow-down fa-sm"></i>} Focus-bar
+                    <div className="ms-auto me-5 px-1 rounded-2"
+                        style={{ whiteSpace: "nowrap", position: "relative", top: "-6px", right: "320px", width: "22px", height: "2px", transform: "scale(0.8)", transition: "height 1s ease-in-out" }}
+                    >
+                        {(props.focusExpanded) ? <i className="fa fa-arrow-up fa-sm"></i> : <i className="fa fa-arrow-down fa-sm"></i>} Focus-bar
+                    </div>
                 </div>
             </div>
         </>

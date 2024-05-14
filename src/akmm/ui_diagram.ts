@@ -469,41 +469,49 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const myGoModel = myMetis.gojsModel;
     const goNode = myGoModel.findNode(gjsNode.key);
+    const objecttype = goNode?.objecttype;
+    const objecttypeview = goNode?.typeview;
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    let objview = goNode?.objectview;
-    if (!objview) objview = myMetis.findObjectView(objview?.objviewRef);
-    let object = objview?.object;
-    if (!object) object = myMetis.findObject(objview?.objRef);
-    myMetis.addObject(object);
-    const objectview = goNode?.objectview;
-    myMetis.addObjectView(objectview);
-    const objecttype = goNode?.objecttype;
-    const objecttypeview = goNode?.typeview;
-    const myContext = {
-        object:     object,
-        objectview: objectview,
-        objecttype: objecttype,
-        objecttypeview: objecttypeview,
-        relship:     null,
-        relshipview: null,
-        relshiptype: null,
-        relshiptypeview: null,
-        model:      myMetis.currentModel,
-        modelview:  myMetis.currentModelview,
-        metamodel:  myMetis.currentMetamodel,
+    let object: akm.cxObject = null;
+    let objectview: akm.cxObjectView = null;
+    objectview = goNode?.objectview;
+    if (!objectview) 
+        objectview = myMetis.findObjectView(objview?.objviewRef);
+    if (objectview) {
+        object = objectview?.object;
+        if (!object) object = myMetis.findObject(objectview?.objRef);
+        if (object) {
+            myMetis.addObject(object);
+            myMetis.addObjectView(objectview);
+            const myContext = {
+                object:     object,
+                objectview: objectview,
+                objecttype: objecttype,
+                objecttypeview: objecttypeview,
+                relship:     null,
+                relshipview: null,
+                relshiptype: null,
+                relshiptypeview: null,
+                model:      myMetis.currentModel,
+                modelview:  myMetis.currentModelview,
+                metamodel:  myMetis.currentMetamodel,
+            }
+            if (debug) console.log('490 myMetis', myMetis);
+            const modalContext = {
+                what:       "editObject",
+                title:      "Edit Object",
+                icon:       icon,
+                myDiagram:  myDiagram,
+                myContext:  myContext
+            }
+            if (debug) console.log('498 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
+            myDiagram.handleOpenModal(gjsNode, modalContext);
+        }
+    } else {
+        alert("Object view not found");
     }
-    if (debug) console.log('490 myMetis', myMetis);
-    const modalContext = {
-        what:       "editObject",
-        title:      "Edit Object",
-        icon:       icon,
-        myDiagram:  myDiagram,
-        myContext:  myContext
-      }
-      if (debug) console.log('498 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
-      myDiagram.handleOpenModal(gjsNode, modalContext);
 }
 
 export function editRelationship(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -2646,7 +2654,7 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
     myDiagram.commitTransaction('updateNode');
 }
 
-export function updateLinkAndView(link: any, goLink: gjs.goRelshipLink, relview: akm.cxRelationshipView, myDiagram: any) {
+export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relview: akm.cxRelationshipView, myDiagram: any) {
     myDiagram.startTransaction('updateLink');
     for (let it = myDiagram.links; it?.next();) {
         const l = it.value;
@@ -2656,10 +2664,10 @@ export function updateLinkAndView(link: any, goLink: gjs.goRelshipLink, relview:
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
                         if (link[prop] !== undefined && link[prop] !== null && link[prop] !== "") {
-                            relview[prop] = link[prop];
-                            ldata[prop]    = link[prop];
-                            goLink[prop]   = link[prop];
-                            myDiagram.model.setDataProperty(ldata, prop, link[prop]);
+                            relview[prop] = gjsLink[prop];
+                            ldata[prop]    = gjsLink[prop];
+                            goLink[prop]   = gjsLink[prop];
+                            myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
                         }
                     }
                 }

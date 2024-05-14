@@ -213,8 +213,8 @@ const page = (props: any) => {
             <div className="context-bar  pt-0"
               style={{ backgroundColor: "#b0cfcf" }}>
               {focusExpanded &&
-                <div className="d-flex justify-content-between align-items-center bg-transparent" >
-                  <div className="issuesarea">
+                <div className="d-flex justify-content-between align-items-center" style={{ backgroundColor: "#fffffd" }}>
+                  <div className="issuesarea" >
                     <Issues {...props}
                       showModal={showModal} setShowModal={setShowModal}
                       showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal}

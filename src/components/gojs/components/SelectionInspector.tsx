@@ -30,19 +30,18 @@ const arrowheads = ['None',
   'LineFork', 'BackwardLineFork',
   'Circle', 'Block'];
 
-const colornames = [
-  'lightsalmon', 'lightsteelblue', 'turquoise','#FFD701',
-  'black', 'white',
-  'red', 'darkred', 'pink',
-  'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
-  'blue', 'lightblue', 'darkblue', 'skyblue',
-  'grey', 'lightgrey', 'darkgrey',
-  'yellow', 'lightyellow', 'yellowgreen', 'orange',
-  'brown', 'purple',
-  'violet', 
-  'transparent'
-];
-
+  const colornames = [
+    'lightsalmon', '#87CEFE', 'turquoise','#FFD701',
+    'black', 'white',
+    'red', 'darkred', 'pink',
+    'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
+    'blue', 'lightblue', 'darkblue', 'skyblue',
+    'grey', 'lightgrey', 'darkgrey',
+    'yellow', 'lightyellow', 'yellowgreen', 'orange',
+    'brown', 'purple',
+    'violet', 
+    'transparent'
+  ];
 const strokewidths = ['1', '2', '3', '4', '5'];
 
 const routings = ['Normal', 'Orthogonal', 'AvoidsNodes', 'OrthogonalAvoidsNodes'];

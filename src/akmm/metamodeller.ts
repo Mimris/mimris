@@ -7532,7 +7532,7 @@ export class cxModel extends cxMetaObject {
                         let relToObj = rel.getToObject();
                         if (relFromObj && relToObj) {
                             if (rtype.id === reltype?.id) {
-                                if (relFromObj.id === fromObj.id) {
+                                if (relFromObj.id === fromObj?.id) {
                                     if (relToObj.id === toObj.id) {
                                         if (!fromPort && !toPort)
                                             return rel;

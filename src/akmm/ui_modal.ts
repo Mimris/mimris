@@ -436,11 +436,11 @@ export function handleSelectDropdownChange(selected, context) {
       // const data = modalContext.data;
       const typename = selected.value;
       modalContext.typename = typename;
-      let fromNode = myGoModel.findNode(modalContext.nodeFrom);
-      if (!fromNode) fromNode = myGoModel.findNode(modalContext.nodeFrom.key);
+      let fromNode = myGoModel.findNode(modalContext.gjsFromNode);
+      if (!fromNode) fromNode = myGoModel.findNode(modalContext.gjsFromNode.key);
       const fromPortId = modalContext.portFrom;
-      let toNode = myGoModel.findNode(modalContext.nodeTo);
-      if (!toNode) toNode = myGoModel.findNode(modalContext.nodeTo.key);
+      let toNode = myGoModel.findNode(modalContext.gjsToNode);
+      if (!toNode) toNode = myGoModel.findNode(modalContext.gjsToNode.key);
       const toPortId = modalContext.portTo;
       let fromType = modalContext.fromType; 
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
@@ -601,6 +601,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      // Dispatch
+      const jsnObjview = new jsn.jsnObjectView(objview);
+      let data = JSON.parse(JSON.stringify(jsnObjview));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       break;
     }
     case "addPort": {
@@ -613,73 +617,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const goLink = myGoModel.findLinkByViewId(selObj.key);
       const relview = myModelview.findRelationshipView(selObj.key);
       uid.updateLinkAndView(selObj, goLink, relview, myDiagram);
+      // Dispatch
+      const jsnRelview = new jsn.jsnRelshipView(relview);
+      let data = JSON.parse(JSON.stringify(jsnRelview));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       break;
     }
-    case "editRelationship1": {
-      const rel = selectedData;
-      const link = myDiagram.findLinkForKey(rel.key);
-      if (!link)
-        break;
-      if (link) link.isSelected = true;
-      const type = rel.type;
-      const data = link.data;
-      let relview = myModelview.findRelationshipView(data.key);
-      let relship = relview.relship;
-      relship['cardinalityFrom'] = relship.getCardinalityFrom();
-      relship['cardinalityTo'] = relship.getCardinalityTo();
-      relship['relshipkind'] = rel.relshipkind;
-      if (relship.name === "") relship.name = " ";
-
-      for (let k in rel) {
-        if (typeof(rel[k]) === 'object')    continue;
-        if (typeof(rel[k]) === 'function')  continue;
-        if (!uic.isPropIncluded(k, type))  continue;
-        if (k === constants.props.DRAFT) {
-          myDiagram.model.setDataProperty(data, 'name', rel[k]);
-        }
-        myDiagram.model.setDataProperty(data, k, relship[k]);
-      }
-      if (relship.name === 'Is') {
-        relship.relshipkind = 'Generalization';
-      }
-      if (relship.relshipkind !== constants.relkinds.REL) {
-        relview.setFromArrow2(relship.relshipkind);
-        relview.setToArrow2(relship.relshipkind);
-        let fromArrow = relview.fromArrow;
-        if (fromArrow === "None") fromArrow = "";
-        let toArrow = relview.toArrow;
-        if (toArrow === "None") toArrow = "";
-        myDiagram.model.setDataProperty(data, 'fromArrow', fromArrow);
-        myDiagram.model.setDataProperty(data, 'toArrow', toArrow);
-        myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
-        myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
-      }
-      if (myModelview.showCardinality) {
-        myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship.getCardinalityFrom());
-        myDiagram.model.setDataProperty(data, 'cardinalityTo', relship.getCardinalityTo());
-      } else {
-        myDiagram.model.setDataProperty(data, 'cardinalityFrom', '');
-        myDiagram.model.setDataProperty(data, 'cardinalityTo', '');
-      }
-      const modifiedRelships = new Array();
-      const jsnRelship = new jsn.jsnRelationship(relship);
-      modifiedRelships.push(jsnRelship);
-      modifiedRelships?.map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-      });
-      const modifiedRelviews = new Array();
-      const jsnRelview = new jsn.jsnRelshipView(relview);
-      modifiedRelviews.push(jsnRelview);
-      modifiedRelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      });              
-      return;
-    }
-
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
@@ -912,6 +855,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     //// For some reason the following code does not work
       uid.updateLinkAndView(selRel, goLink, relview, myDiagram);
       if (debug) console.log("editRelshipview: ", selRel);
+      // myMetis.removeClassInstances(relview);
     ////
 
       // // Do dispatch

@@ -53,7 +53,7 @@ const CreateNewModel = (props: any) => {
       : (metamodelGenerated?.name === 'AKM-IRTV_MM')
         ? 'Concept Model, modeling based on AKM-IRTV_MM Metamodel'
         : (metamodelGenerated?.name === 'AKM-OSDU_MM')
-          ? 'OSDU Entity Type Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel'
+          ? 'OSDU EntityType Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel and OSDU Schema Model'
           : 'Model based on' + metamodelGenerated?.name + ' Metamodel'
 
     const newmodel = (metamodelGenerated) && {
@@ -93,12 +93,43 @@ const CreateNewModel = (props: any) => {
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
 
+    const irtvmodel = (metamodelGenerated) && {
+      id: uuidv4(),
+      name: 'OSDU-Concept-Model_CM',
+      description: 'Concept model based on AKM-IRTV_MM Metamodel. It includes the Information, Roles, Tasks, and Views. The intention of this model is to define the concepts and relationships between them, as well as the Roles and Tasks operating on Views of this Information.', 
+      metamodelRef: irtvmetamodel?.id,
+      sourceMetamodelRef: "",
+      targetMetamodelRef: "",
+      // sourceModelRef: curmodel.id,
+      targetModelRef: "",
+      includeSystemtypes: false,
+      isTemplate: false,
+      templates: [],
+      objects: [],
+      relships: [],
+      modelviews: [
+        {
+          id: uuidv4(),
+          name: '0-Main',
+          description: 'Main OSDU Concepts View,  with Information defining the concepts and relationships between them. It may also include Views, Tasks, and Roles.', 
+          objectviews: [],
+          relshipviews: []
+        }
+      ],
+      markedAsDeleted: false,
+      modified: false,
+    }
+
     const data = {
       phData: {
         metis: {
           ...ph.phData.metis,
           models:
-            [newmodel, adminmodel], // add admin to the new model
+            [
+              (irtvmetamodel !== metamodelGenerated) && irtvmodel, 
+              newmodel, 
+              adminmodel
+            ], // add admin to the new model
           metamodels: [
             {
               ...metamodelGenerated,

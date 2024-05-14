@@ -30,15 +30,16 @@ const arrowheads = ['None',
   'LineFork', 'BackwardLineFork',
   'Circle', 'Block'];
 
-const colornames = ['black', 'white',
-  'lightsalmon', 'lightsteelblue',
+const colornames = [
+  'lightsalmon', 'lightsteelblue', 'turquoise','#FFD701',
+  'black', 'white',
   'red', 'darkred', 'pink',
   'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
   'blue', 'lightblue', 'darkblue', 'skyblue',
   'grey', 'lightgrey', 'darkgrey',
   'yellow', 'lightyellow', 'yellowgreen', 'orange',
   'brown', 'purple',
-  'violet', 'turquoise',
+  'violet', 
   'transparent'
 ];
 

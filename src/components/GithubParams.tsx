@@ -7,7 +7,7 @@ import GenGojsModel from "../components/GenGojsModel";
 
 const debug = false
 
-export default function GithubParams(props) {  // props = props.phFocus
+export default function GithubParams(props: { phFocus: any }) {  // props = props.phFocus
 
   if (debug) console.log('5 GithubParams',  props)
 

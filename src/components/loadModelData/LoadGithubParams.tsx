@@ -5,7 +5,7 @@
 
 // const debug = false
 
-export default function LoadGithubParams(props) {
+export default function LoadGithubParams(props: any) {
 
 //     const dispatch = useDispatch()
 //     const query = props.query

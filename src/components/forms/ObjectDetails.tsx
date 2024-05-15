@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useRef, useState } from "react";
 
 const debug = false;

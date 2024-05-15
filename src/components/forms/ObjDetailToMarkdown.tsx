@@ -38,7 +38,7 @@ const ObjDetailToMarkdown = ({
         .filter((pv) => includedKeys.includes(pv))
         .map((pv) => `${pv}: ${objrel[pv]}`)
         .join('\n\n');
-      const objectType = curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name;
+      const objectType = curmetamodel.objecttypes.find((ot: any) => ot.id === objrel.typeRef)?.name;
       return `## Object: ${objrel.name} (${objectType} )\n\n${properties}\n\n --- \n\n`;
       // return `1. ${objrel.name} \n\n${properties} \n\n2. Object: ${objrel.name} (${objectType} )\n\n --- \n\n`;
     })
@@ -50,7 +50,7 @@ const ObjDetailToMarkdown = ({
         .filter((pv) => includedKeys.includes(pv))
         .map((pv) => `${pv}: ${objrel[pv]}`)
         .join('\n\n');
-      const objectType = curmetamodel.objecttypes.find((ot) => ot.id === objrel.typeRef)?.name;
+      const objectType = curmetamodel.objecttypes.find((ot: any) => ot.id === objrel.typeRef)?.name;
       return `## Object: ${objrel.name} (${objectType} )\n\n${properties}\n\n --- \n\n`;
       // return `1. ${objrel.name} \n\n${properties} \n\n2. Object: ${objrel.name} (${objectType} )\n\n --- \n\n`;
     })

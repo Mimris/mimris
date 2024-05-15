@@ -12,7 +12,7 @@ import FocusParametersForm from "./EditFocusParameter";
 
 const debug = false
 
-function MarkdownEditor({ props }) {
+function MarkdownEditor( props: any ) {
   // const [markdownString, setMarkdownString] = useState('# My Markdown Document\n\nThis is a paragraph of text.');
   console.log('18 MarkdownEditor.tsx', props);
 
@@ -41,24 +41,24 @@ function MarkdownEditor({ props }) {
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
   const curmodelview = modelviews?.find((mv: any) => mv?.id === curmodel.modelviews.find((mv: any) => mv.id === focusModelview.id)?.id)
-  const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
+  const curmetamodel = metamodels?.find((mm: any) => (mm) && mm.id === (curmodel?.metamodelRef))
   const objects = curmodel?.objects //.map((o: any) => o)
   const curobjectviews = modelviews?.objectviews
   const currelshipviews = modelviews?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+  const currelationships = curmodel?.relships.filter((r: any) => r && currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
+  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find((mv: any) => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
 
 
-  let curobject = (focusObject?.id === 'no objects selected') ? curmodelview : objects?.find(o => o.id === focusObject?.id) || curmodelview
-  const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
-  console.log('51 Context', curobject, curobjectview, focusObjectview?.id, focusObject?.id, focusModelview?.id, curobjectviews, objects, curobjectviews?.filter(ov => ov.group === curobjectview?.id));
+  let curobject = (focusObject?.id === 'no objects selected') ? curmodelview : objects?.find((o: any) => o.id === focusObject?.id) || curmodelview
+  const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov:any) => ov.id === focusObjectview?.id)
+    // console.log('51 Context', curobject, curobjectview, focusObjectview?.id, focusObject?.id, focusModelview?.id, curobjectviews, objects, curobjectviews?.filter(ov: any => ov.group === curobjectview?.id));
 
   let objectviewChildren = []
   let objectChildren = []
   console.log('45 Context', curobjectviews, focusModelview?.id,);
 
   if (debug) console.log('47 Context', curobjectviews, curobjectview?.id, focusModelview);
-  console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id))
+  console.log('48 Context', curobjectviews?.filter((ov: any) => ov.group === curobjectview?.id))
 
   function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
     return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
@@ -177,7 +177,7 @@ function MarkdownEditor({ props }) {
     )
   };
 
-  const CodeBlock = ({ language, value }) => {
+  const CodeBlock = ({ language, value }: { language: string, value: string }) => {
     return (
       <pre>
         <code className={`language-${language}`}>{value}</code>
@@ -185,7 +185,7 @@ function MarkdownEditor({ props }) {
     );
   };
 
-  const LinkRenderer = ({ href, children }) => {
+  const LinkRenderer = ({ href, children }: { href: string, children: React.ReactNode }) => {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer">
         {children}
@@ -193,7 +193,7 @@ function MarkdownEditor({ props }) {
     );
   };
 
-  const ImageRenderer = ({ src, alt }) => {
+  const ImageRenderer = ({ src, alt }: { src: string, alt: string }) => {
     return <img src={src} alt={alt} />;
   };
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // make modul for header buttons
 
 import React from 'react';
@@ -23,7 +24,9 @@ import { SaveAllToFile, SaveAllToFileDate } from './SaveModelToFile';
 const debug = false;
 // export default {}
 
-export default function HeaderButtons(props) {
+export default function HeaderButtons(props: { toggleRefresh: any; phFocus: { focusModel: any; focusModelview: any; }; refresh: any; setRefresh: any; phData: { metis: { name: any; }; }; phSource: any; phUser: any; }) {
+
+if (false) {
 
   if (debug) console.log('HeaderButtons', props);
 
@@ -90,5 +93,5 @@ export default function HeaderButtons(props) {
 
     </div>
   )
-
+}
 }

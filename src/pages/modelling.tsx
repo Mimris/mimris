@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-nocheck
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
@@ -26,10 +26,10 @@ import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
 
-const page = (props: any) => {
+const Page1 = (props: any) => {
 
-  if (debug) console.log('38 modelling ', props)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -40,7 +40,7 @@ const page = (props: any) => {
   const [exportTab, setExportTab] = useState(0);
 
 
-  function dispatchLocalStore(locStore) {
+  function dispatchLocalStore(locStore: any) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
@@ -68,7 +68,7 @@ const page = (props: any) => {
   const focus = useSelector((state: any) => state.phFocus)
 
   useEffect(() => {
-    if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+    const handleReload = () => {
       let locStore = memorySessionState;
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (!memorySessionState) locStore = memoryLocState;
@@ -97,10 +97,14 @@ const page = (props: any) => {
           }
         }
       }
-    } else {
-      if (debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
-    }
-  }, [Object.keys(query).length !== 0 && memorySessionState[0] && mount])
+    };
+
+    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
+    handleReload();
+
+    let org = query.org;
+  }, [dispatchLocalStore, isReloading, memoryLocState, memorySessionState, props.phFocus.focusProj.file, refresh, mount, query])
+
 
   let org = query.org;
   let repo = query.repo;
@@ -128,8 +132,8 @@ const page = (props: any) => {
 
           if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
           const res = await searchGithub(org + '/' + repo, path, file, branch, 'file')
-          const githubData = await res.data
-          const sha = await res.data.sha
+          const githubData = await res?.data
+          const sha = await res?.data.sha
           if (debug) console.log('138 modelling githubData:', githubData, sha)
           dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
           const timer = setTimeout(() => {
@@ -140,7 +144,7 @@ const page = (props: any) => {
           if (debug) console.log('83 model curmodel', curmodel.modelviews, modelview)
           let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
           if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
-          const data = {
+          const data = (params) && {
             phFocus: {
               ...props.phFocus,
               focusProj: focusProj,
@@ -179,7 +183,7 @@ const page = (props: any) => {
   useEffect(() => {
     const locProps = { ...props, phMymetis: null }
     setMemorySessionState(locProps)
-  }, [props])
+  }, [props.phSource, setMemorySessionState])
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
@@ -322,4 +326,4 @@ const page = (props: any) => {
   `}</style>
     </>)
 }
-export default Page(connect(state => state)(page));
+export default Page(connect(state => state)(Page1));

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
-import base64 from 'base-64';
+// import base64 from 'base-64';
 
 // import  Search  from './Search';
 import TextInput from '../utils/TextInput';
@@ -100,7 +100,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //   }
   // };
 
-  const onModelChange = (text) => {
+  const onModelChange = (text: string) => {
     if (debug) console.log('71 onModelChange', text)
     const rep = `${orgnameText}/${repoText}`;
     const filename = `${text}`; // add slash
@@ -135,7 +135,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   // };
 
   // todo: loadModel should be loadProject or loadModelProject
-  const loadModel = async (rep, filename) => {
+  const loadModel = async (rep: string, filename: string) => {
     setLoading(true);
     const searchtexttmp = `${rep}`;
     console.log('126 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
@@ -143,10 +143,10 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
     if ((!searchtext) || searchtext.includes('undefined')) return null;
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
-    const sha = await res.data.sha;
-    if ((debug)) console.log('131 res', res, res.data, sha)
+    const sha = await res?.data.sha;
+    if ((debug)) console.log('131 res', res, res?.data, sha)
 
-    const content = res.data // this is the project file from github
+    const content = res?.data // this is the project file from github
     if (debug) console.log('138 ', searchtext, res, content)
 
        const model = content // the content from github
@@ -185,22 +185,22 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     }
   }
 
-  const loadModels = async (orgText, pathText) => {
+  const loadModels = async (orgText: string, pathText: string) => {
     setLoading(true);
     if ((debug)) console.log('191  ', orgText, pathText)
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${orgText}/${repoText}/contents/${pathText}` : `repos/${orgText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if ((debug)) console.log('194  ', orgText, repoText, pathText, 'repos', repos)
     const res = await searchModels(repos, pathText);
-    if (debug) console.log('196 ', await res.data)
+    if (debug) console.log('196 ', await res?.data)
     setLoading(false);
-    const filteredDirs = await res?.data?.filter(model => 
+    const filteredDirs = await res?.data?.filter((model: any) => 
       model.type === 'dir' 
       && model.name !== 'img' 
       && model.name !== 'imgdocs' 
       && model.name !== '.github' 
       && model.name !== '.gitignore');
-    const filteredModels = await res?.data?.filter(model => model.name.endsWith('.json'));
+    const filteredModels = await res?.data?.filter((model: any) => model.name.endsWith('.json'));
     setModels(filteredModels);
     setDirs(filteredDirs);
     if (debug) console.log('207 ', filteredModels, filteredDirs)
@@ -230,7 +230,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   //     // (orgnameText) && loadModels(orgnameText, pathText)
   // }, []);
 
-  let modeloptionss = models?.map((mod) => {
+  let modeloptionss = (models as any[])?.map((mod) => {
     return {
       value: mod.name,
       label: mod.name
@@ -284,13 +284,13 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
                 onClick = {() => loadModels(orgnameText, pathText)}
               ><i className="fab fa-github fa-lg me-2"></i>List Model Templates
               </Button>
-              {(models?.length > 0) 
-                ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
+              {(models as any[]).length > 0 
+                ? <div className="" >Models found:<span className="text-success m-1 ">{(models as any[]).map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
                 : <div className='text-warning'> 'No models found!'</div>
               } 
               <hr className="bg-primary px-10 my-1 mx-4" />
               <label className=" d-inline-flex justify-content-left"> 
-                <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
+                <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value: any) => onModelChange(value)} />
               </label>
               <span className="p-5">
                 <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 

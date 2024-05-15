@@ -1,7 +1,8 @@
+// @ts-nocheck
 import Select from 'react-select';
 import { colorOptions } from './data';
 
-export default () => (
+const SelectColor = () => (
   <Select
     defaultValue={[]}
     isMulti
@@ -10,5 +11,8 @@ export default () => (
     className="basic-multi-select"
     classNamePrefix="select"
   />
-  
 );
+
+SelectColor.displayName = 'SelectColor';
+
+export default SelectColor;

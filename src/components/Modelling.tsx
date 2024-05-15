@@ -57,9 +57,9 @@ const Modelling = (props: any) => {
   const projectModalRef = useRef(null);
 
   const [refresh, setRefresh] = useState(true);
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
-  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', null); //props);
-  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
+  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', {}); 
+  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', '');
 
   const [activeTab, setActiveTab] = useState();
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -137,7 +137,7 @@ const Modelling = (props: any) => {
 
   const handleCloseProjectModal = () => setShowProjectModal(false);
 
-  const handleSubmit = (details) => {
+  const handleSubmit = (details: any) => {
     props.onSubmit(details);
   };
 

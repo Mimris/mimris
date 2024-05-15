@@ -40,7 +40,7 @@ const Issues = (props) => {
   const [selectedProject, setSelectedProject] = useState('');
   const [refresh, setRefresh] = useState(false);
   // const [toggleRefresh, setToggleRefresh] = useState(false);
-  const [focusIssue, setFocusIssue] = useState(null);
+  const [focusIssue, setFocusIssue] = useState(props.phFocus.focusIssue);
 
 
   const [org, setOrg] = useState(props.phFocus.focusProj?.org)
@@ -105,7 +105,7 @@ const Issues = (props) => {
   // };
 
   // list issues form github
-  const fetchIssues = async (url) => {
+  const fetchIssues = async (url: string | URL | Request) => {
     try {
       if ((debug)) console.log('132 issues fetch', url)
       const res = await fetch(url);
@@ -174,12 +174,12 @@ const Issues = (props) => {
   //   return comments;
   // }
 
-  const handleSetFocusIssue = (e) => {
+  const handleSetFocusIssue = (e: any) => {
     if (debug) console.log('190 setFocusIssue', e)
     setFocusIssue(e);
   };
 
-  const handleSubmit = (details) => {
+  const handleSubmit = (details: any) => {
     props.onSubmit(details);
     handleCloseModal();
   };
@@ -218,7 +218,7 @@ const Issues = (props) => {
                 Created: {focusIssue.created_at.slice(0, 10)} <br />
                 Updated: {focusIssue.updated_at.slice(0, 10)} <br />
                 Closed: {focusIssue.closed_at?.slice(0, 10)} <br />
-                Labels: {focusIssue.labels.map((label) => (label.name + ', '))} <br />
+                Labels: {focusIssue.labels.map((label: { name: string; }) => (label.name + ', '))} <br />
                 <div className="bg-white border border-secondary p-2">
                   Details:
                   <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{focusIssue.body}</ReactMarkdown>
@@ -248,33 +248,33 @@ const Issues = (props) => {
     </Modal>
   )
 
-  const modellingButtonsDiv =
-    <>
-      <ModellingHeaderButtons props={props} />
-    </>
+  // const modellingButtonsDiv =
+  //   <>
+  //     <ModellingHeaderButtons props={props} />
+  //   </>
 
   //refresh={refresh} setRefresh={setRefresh}
-  const statusFieldLink = (name, field, link) => {
-    return (
-      <span className="context-item border rounded-2 mx-1">
-        <span className="px-2">
-          {name}:
-        </span>
-        <span
-          className="px-2"
-          style={{ backgroundColor: "#fff", whiteSpace: "nowrap" }}
-        >
-          <Link
-            className="text-primary"
-            href={link}
-            target="_blank"
-          >
-            <span >{field}</span>
-          </Link>
-        </span>
-      </span>
-    );
-  }
+  // const statusFieldLink = (name, field, link) => {
+  //   return (
+  //     <span className="context-item border rounded-2 mx-1">
+  //       <span className="px-2">
+  //         {name}:
+  //       </span>
+  //       <span
+  //         className="px-2"
+  //         style={{ backgroundColor: "#fff", whiteSpace: "nowrap" }}
+  //       >
+  //         <Link
+  //           className="text-primary"
+  //           href={link}
+  //           target="_blank"
+  //         >
+  //           <span >{field}</span>
+  //         </Link>
+  //       </span>
+  //     </span>
+  //   );
+  // }
 
   if (debug) console.log('266 Issues', props.minimized)
   if (props.minimized) {
@@ -366,7 +366,7 @@ const Issues = (props) => {
             <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "64vh" }}>
               <hr className="m-0" />
               <div>GitHub Open Issues:</div>
-              {(issues.length > 0) && issues.map((issue) => (
+              {(issues.length > 0) && issues.map((issue: any) => (
                 <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
                   <div className='d-flex justify-content-between'>
                     <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>

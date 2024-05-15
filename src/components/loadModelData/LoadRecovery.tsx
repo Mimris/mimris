@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'

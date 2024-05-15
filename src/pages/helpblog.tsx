@@ -9,7 +9,7 @@ import Post from '../components/helps/Post'
 import { sortByTitle } from '../components/utils/sortbytitle'
 
 
-export default function Home( { posts }) {
+export default function Home( { posts }: { posts: any[] }) {
   // console.log('12 ', posts);
   
   return (

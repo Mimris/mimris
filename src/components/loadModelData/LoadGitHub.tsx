@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
 // import base64 from 'base-64';
 
 // import  Search  from './Search';
@@ -45,8 +46,11 @@ const LoadGitHub = (props: any) => {
   const [branchText, setBranchText] = useState(props.ph.phFocus?.focusProj?.branch);
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
-  const [models, setModels] = useState([]);
-  const [dirs, setDirs] = useState([]);
+  const [models, setModels] = useState< { phData: any, phFocus: any , phUser: any, phSource: any }[]>([]);
+  const [dirs, setDirs] = useState<{ length: number; name: string }[]>([])[0];
+
+
+                // Rest of the code remains unchanged
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [modal, setModal] = useState(false);
@@ -66,7 +70,7 @@ const LoadGitHub = (props: any) => {
     lastUpdate: new Date().toISOString()
   }
 
-  const onOrgChange = (orgText) => {
+  const onOrgChange = (orgText: string) => {
     if (orgText?.length > 0) {
       if (debug) console.log('50 onOrgChange', orgText)
       setOrgText(orgText);
@@ -75,19 +79,19 @@ const LoadGitHub = (props: any) => {
     }
   };
 
-  const onRepoChange = (text) => {
+  const onRepoChange = (text: string) => {
     (text) ? setRepoText(text): setRepoText('');
   };
   
-  const onPathChange = (text) => {
+  const onPathChange = (text: string) => {
     (text) ? setPathText(text) : setPathText('models');  
   };
 
-  const onBranchChange = (text) => {
+  const onBranchChange = (text: string) => {
     (text) ? setBranchText(text) : setBranchText('');  
   }
 
-  const onModelChange = (text) => {
+  const onModelChange = (text: string) => {
     if (debug) console.log('71 onModelChange', text)
     const rep = `${orgText}/${repoText}`;
     const filename = `${text}`; // add slash
@@ -116,21 +120,23 @@ const LoadGitHub = (props: any) => {
   // };
 
   // todo: loadModel should be loadProject or loadModelProject
-  const loadModel = async (rep, filename) => {
+  const loadModel = async (rep: string, filename: string) => {
     setLoading(true);
     const searchtexttmp = `${rep}`;
     console.log('135 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
     if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
-    if (searchtext.includes('undefined')) return null;
-    const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
-    const sha = await res.data.sha;
-    if (debug) console.log('140 res', res, res.data, sha)
+    const url = `https://api.github.com/repos/${searchtext}/contents/${pathText}/${filename}`;
+    const res = await axios.get(url); // Declare the variable 'res'
+    if (res) {
+      const sha = res?.data?.sha; // Add null check
+      if (debug) console.log('140 res', res, res.data, sha)
 
-    const content = res.data // this is the project file from github
-    if (debug) console.log('143 ', searchtext, res, content)
+      const content = res.data // this is the project file from github
+      if (debug) console.log('143 ', searchtext, res, content)
 
-    const model = content // the content from github
+      const model1 = content // the content from github
+    }
 
     // const model = { // take model from content and split repository into organisation and repository ad insert into phData
     //   ...content,
@@ -142,15 +148,14 @@ const LoadGitHub = (props: any) => {
     //   }
     // }
 
-    if (debug) console.log('157 ', content, model)
     setModel(model);
     setLoading(false);
     if (debug) console.log('160 onModelChange', model, props) 
 
-    if (model) {
+    if (model != null) {
       if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
-        const mmodel = model; // model is a metamodel
-        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === mmodel?.id) // current mmodel index
+        const mmodel = model as { id: string }; // Add type assertion to specify that mmodel is of type { id: string }
+        let mmindex = props.ph.phData?.metis?.metamodels?.findIndex((mm: { id: string }) => (mmodel != null) &&  mm.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id
         // let oldmodel;
         // if ( mmindex !== -1) { //  found
@@ -181,10 +186,10 @@ const LoadGitHub = (props: any) => {
         if (debug) console.log('166 ', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
       } else if (filename.includes('_MO.json')) { // Todo: check if it is only model  
-        const newmodel = model; // model is a metamodel
-        let  newmindex = props.ph.phData?.metis?.models?.findIndex(m => m.id === newmodel?.id) // current mmodel index
+        const newmodel = model as { id: string };; // model is a metamodel
+        let newmindex = props.ph.phData?.metis?.models?.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
         const newmlength = props.ph.phData?.metis?.models.length
-        if ( newmindex < 0) { newmindex = newmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
+        if (newmindex < 0) { newmindex = newmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
           phData: {
               ...props.ph.phData,
@@ -205,17 +210,17 @@ const LoadGitHub = (props: any) => {
       } else {// it is a Project file
         const data = {
           phData: {
-              ...model.phData,
+              ...props.ph.phData,
               metis: {
-                  ...model.phData.metis,
-                  name: model.phData.metis.name,
-                  description: model.phData.metis.description,
+                  ...props.ph.phData.metis,
+                  name: props.ph.phData.metis.name,
+                  description: props.ph.phData.metis.description,
               },
           },
           phFocus:  {
-            ...model.phFocus,
+            ...props.ph.phFocus,
             focusProj: {
-              ...model.phFocus.focusProj,
+              ...props.ph.phFocus.focusProj,
               org: orgText,
               repo: repoText,
               path: pathText,
@@ -225,7 +230,7 @@ const LoadGitHub = (props: any) => {
               // sha: sha,
             }
           },
-          phUser:   model.phUser,
+          phUser:   props.ph.phUser,
           // phSource: model.phData.metis.name || model.phSource 
           phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
@@ -238,33 +243,25 @@ const LoadGitHub = (props: any) => {
     }
   }
 
-  const loadModels = async (usernameText, pathText) => {
+  const loadModels = async (usernameText: string, pathText: string) => {
     setLoading(true);
     const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     if (repos.includes('undefined')) return null;
     const res = await searchModels(repos, pathText);
-    if (debug) console.log('133 ', await res.data)
-    setLoading(false);
-    const filteredDirs = await res.data?.filter(model => 
-      model.type === 'dir' 
-      && model.name !== 'img' 
-      && model.name !== 'imgdocs' 
-      && model.name !== '.github' 
-      && model.name !== '.gitignore');
-    const filteredModels = await res.data?.filter(model => model.name.endsWith('.json'));
-    setModels(filteredModels);
-    setDirs(filteredDirs);
-    if (debug) console.log('218 ', filteredModels, filteredDirs)
-
+    const filteredModels = await res?.data?.filter((model: any) => model.name.endsWith('.json'));
+    let filteredDirs: any[] = []; // Declare filteredDirs variable
+    if (res?.data) {
+      filteredDirs = res.data.filter((model: any) => model.type === 'dir');
+    }
 
     if (pathText === undefined || pathText === '') {
       setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
     } else {
       setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/${pathText}`)
     }
-    if (debug) console.log('224 ', filteredModels, filteredDirs, githubLink)
+    // if (debug) console.log('224 ', filteredModels, filteredDirs, githubLink)
     setRefresh(!refresh)
   };
 
@@ -322,7 +319,7 @@ const LoadGitHub = (props: any) => {
   }, []);
 
 
-  let modeloptionss = models?.map((mod) => {
+  let modeloptionss = (models as any[])?.map((mod: any) => {
     return {
       value: mod.name,
       label: mod.name
@@ -351,7 +348,7 @@ const LoadGitHub = (props: any) => {
             <div className="bg-light square border py-2 border-2 border-success p-2 " ><strong>Download from a list of Models:</strong>
               <div className="d-flex w-100">
                 {/* ----Repository user name input------------------------------- */}
-                  <TextInput label="Repo owner :" value={orgText} onChange={(value) => onOrgChange(value)} placeholder="Repo Owners Name " />         
+                  <TextInput label="Repo owner :" value={orgText} onChange={(value: string) => onOrgChange(value)} placeholder="Repo Owners Name " />
                 {/* {loading ? 'Loading...' : 
                   <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
                 } */}
@@ -361,22 +358,17 @@ const LoadGitHub = (props: any) => {
                 {/* ----- Repository name input ------------------------------ */}
                 <span >
                   {(props.path !== '')
-                    ? <TextInput  label="Repository :" value={'kavca-akm-models'} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> 
-                    : <TextInput  label="Repository :" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name " /> 
+                    ? <TextInput  label="Repository :" value={'kavca-akm-models'} onChange={(value: string) => onRepoChange(value)} placeholder="Repo name " /> 
+                    : <TextInput  label="Repository :" value={repoText} onChange={(value: string) => onRepoChange(value)} placeholder="Repo name " /> 
                   }
                 </span>
                 <hr className="bg-primary my-2 mx-4" />
                 {/* ----- Model Path input ---------------------------------- */}
                 {/* <hr className="bg-secondary my-1 mx-4" /> */}
-                <span style={{maxWidth: "180px"}}>
-                  {(props.path !== '') ?  
-                    <TextInput label="Path :" value={props.path} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
-                    : <TextInput label="Path :" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models " /> 
-                  }
-                </span>
-                {(dirs?.length !== 0) 
-                  ? <div>Model paths (folders) found:<span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
-                  : (!pathText) && <div className='text-warning min-vh-500'> 'No model paths (folders) found!'</div>
+                <TextInput label="Path :" value={props.path} onChange={(value: string) => onPathChange(value)} placeholder="Path to models " />
+                {(Array.isArray(dirs) && dirs.length !== 0) 
+                  ? <div>Model paths (folders) found: <span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
+                  : (!pathText) && <div className='text-warning min-vh-500'> &apos;No model paths (folders) found!&apos;</div>
                 } 
               </div>
                 {/* {loading ? 'Loading...' :  <div className="text-success my-2 " > {repos.map((repo) => ( <span className="text-nowrap" key={repo.id} > {repo.full_name}/{pathText} </span> ))}  </div>  } */}
@@ -386,12 +378,12 @@ const LoadGitHub = (props: any) => {
               ><i className="fab fa-github fa-lg me-2"></i>List Models
               </Button>
               {(models?.length > 0) 
-                ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
-                : <div className='text-warning'> 'No models found!'</div>
+                ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod: any) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
+                : <div className='text-warning'> &apos;No models found!&apos; </div>
               } 
               <hr className="bg-primary px-10 my-1 mx-4" />
               <label className=" d-inline-flex justify-content-left"> 
-                <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
+                <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value: any) => onModelChange(value)} />
               </label>
                 <span className="p-5">
                   <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
@@ -423,7 +415,7 @@ const LoadGitHub = (props: any) => {
                 </button >
                 <hr className="bg-secondary py-0 my-1 mx-0" />
                  <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong className='text-primary'> Click here to open GitHub to upload the saved file to GitHub </strong></a> <br />
-                 In GitHub: <strong>Click "Add file" in upper right corner and then "Upload files" and select the file to upload.</strong>  
+                 In GitHub: <strong>Click &quot;Add file&quot; in upper right corner and then &quot;Upload files&quot; and select the file to upload.</strong>  
                  <br /> NB! Existing files must be uploaded with the same name. If necessary: Rename the file before uploading.
  
               </div>

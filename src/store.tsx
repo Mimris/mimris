@@ -1,6 +1,6 @@
 
 import {createStore, applyMiddleware, Store} from 'redux';
-import logger from 'redux-logger';
+// import logger from 'redux-logger';
 import createSagaMiddleware, {Task} from 'redux-saga';
 import {Context, createWrapper} from 'next-redux-wrapper';
 import reducer from './reducers/reducer'
@@ -15,7 +15,7 @@ export const makeStore = (context: Context) => {
     const sagaMiddleware = createSagaMiddleware();
 
     // 2: Add an extra parameter for applying middleware:
-    const bindMiddleware = (middleware) => {
+    const bindMiddleware = (middleware: any) => {
         if (process.env.NODE_ENV !== 'production') {
             const { composeWithDevTools } = require('redux-devtools-extension')
             return composeWithDevTools(applyMiddleware(...middleware))

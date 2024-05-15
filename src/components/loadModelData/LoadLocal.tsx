@@ -14,8 +14,8 @@ const LoadLocal = (props: any) => {
   const dispatch = useDispatch()  
   const toggleRefresh = props.ph.toggleRefresh
 
-  const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models.map((mn: { id: string, name: string }) => <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn: { id: string, name: string }) => (mn) && <span key={mn.id}>{mn.name} | </span>)
   if (debug) console.log('24 LoadLocal', props.ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
@@ -44,7 +44,7 @@ const LoadLocal = (props: any) => {
             title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
           <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
             Local Storage is controlled by the Internet Browser, and may at some point be deleted, if not enough memory.
-            <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage.
+            <br />NB! Loading models from LocalStorage will overwrite current memory store.  To keep current work, click &quot;Save all to LocalStorage.
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
         </ModalFooter>

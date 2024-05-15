@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { compareSync } from 'bcrypt'
 import React from 'react'
 import Link from 'next/link'

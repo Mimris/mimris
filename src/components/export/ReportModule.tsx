@@ -13,15 +13,14 @@ import ExportObjects from './ExportObjects';
 
 const debug = false
 
-const ReportModule = (props) => {
+const ReportModule = (props: any) => {
 
   if (!debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
   
   const ph = props.props.props || props.props 
   if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
 
-  if (!ph?.phData?.metis?.models) return <>No models</>
-  if (!props.modelInFocusId) return <>No objects</> 
+
 
 
   // const dispatch = useDispatch()
@@ -38,6 +37,8 @@ const ReportModule = (props) => {
     if (props.exportTab) setActiveTab(2)
   }, [])
 
+  if (!ph?.phData?.metis?.models) return <>No models</>
+  if (!props.modelInFocusId) return <>No objects</> 
 
   const tabsDiv = (
     <>

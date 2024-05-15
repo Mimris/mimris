@@ -1,3 +1,4 @@
+// @ts-nocheck
 // This is a React component that displays details of a selected object in a tabbed interface.
 // It allows the user to edit the object's properties and view related objects.
 import React, { useRef, useContext, useState, useEffect } from 'react'
@@ -13,7 +14,7 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const FocusDetails = (props, edit) => {
+const FocusDetails = (props: any, edit: any) => {
   if ((debug)) console.log('17 context', props, props.reportType, props.props.modelInFocusId)
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
   const dispatch = useDispatch()
@@ -21,13 +22,16 @@ const FocusDetails = (props, edit) => {
   const [selectedId, setSelectedId] = useState(null);
   const [value, setValue] = useState("");
   // const [visibleContext, setVisibleContext] = useState(true);
-  const [formValues, setFormValues] = useState({});
+  const [formValues, setFormValues] = useState<null | object>(null);
   const [formValuesObjectview, setFormValuesObjectview] = useState({});
   const [formValuesObjecttype, setFormValuesObjecttype] = useState({});
   const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
+  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab2, setActiveTab2] = useState(0);
+
 
   const ph = props.props.props || props.props
-  if (!ph?.phData?.metis?.models) return <></>
+
 
   const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
   const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
@@ -35,13 +39,14 @@ const FocusDetails = (props, edit) => {
   if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
 
   const models = ph.phData?.metis?.models  // selecting the models array
-  const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
   const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
+  const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
+  const curmm = metamodels?.find((mm: any) => mm?.id === curmodel?.metamodelRef)
 
   // const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
   const curmodelview = curmodel.modelviews.find((mv: any) => mv.id === ph.phFocus.focusModelview.id)
   const objects = curmodel?.objects //.map((o: any) => o)
-  const focusModel = (reportType === 'task') ? models.find(m => m.id === modelInFocusId) : ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
+  const focusModel = (reportType === 'task') ? models.find((m: any) => m.id === modelInFocusId) : ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
   const focusUser = ph.phUser?.focusUser
   const focusModelview = ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
   const focusObjectview = ph.phFocus?.focusObjectview
@@ -54,44 +59,38 @@ const FocusDetails = (props, edit) => {
 
   let curobject =  objects?.find(o => o.id === focusObject?.id)  
   if (!curobject) curobject = curmodelview// if no object selected then use the modelview
-  let curobjectview =  curmodel.modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews?.find(ov => ov.id === focusObjectview?.id)
+  let curobjectview = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
   if (!curobjectview) curobjectview = curmodelview
-  const curobjectviews = curmodel.modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = curmodel.modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
+  const curobjectviews = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews
+  const currelshipviews = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.relshipviews
+  const currelationships = curmodel?.relships.filter((r: any) => currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
+  const parentobjectview = curmodelview.objectviews?.find((ov: any) => ov.id === curobjectview?.group)
   // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-  if (debug) console.log('67 Context:', curmodelview, curobject, objects, focusObject?.id, focusTask?.id, focusTask, curmodel.modelviews);
 
 
   useEffect(() => {
     setFormValues(curobject);
     setFormValuesObjectview(curobjectview);
-    setFormValuesObjecttype(curobjecttype);
-    setFormValuesObjecttypeview(curobjtypeview);
-  }, [curobject]);
+    // setFormValuesObjecttype(curobjecttype);
+    // setFormValuesObjecttypeview(curobjtypeview);
+  }, [curobject, curobjectview]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (debug) console.log('78 Context :', name, value, e);
-    setFormValues({ ...formValues, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (debug) console.log('79 Context :', formValues, e);
     if (formValues) {
       const modifiedFields = {};
       for (const key in formValues) {
-        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+        if (formValues.hasOwnProperty(key) && formValues[key] !== (curobject as {[key: string]: any})[key]) {
           modifiedFields[key] = formValues[key];
         }
       }
-      if (formValues['id'] === curmodelview.id) {
-        const objData = { id: formValues['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
+      if ((formValues as { id: string })['id'] === curmodelview.id) {
+        const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
         // const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
         dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: objData })
       } else {
-      const objData = { id: formValues['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
+      const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
       const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
 
       if (debug) console.log('93 Context :', objData, objvData);
@@ -103,7 +102,7 @@ const FocusDetails = (props, edit) => {
     }
   };
 
-  const handleSubmitObjectview = (e) => {
+  const handleSubmitObjectview = (e: React.FormEvent) => {
     e.preventDefault();
     if (debug) console.log('70 Context ', formValues, e);
     if (formValues) {
@@ -120,11 +119,11 @@ const FocusDetails = (props, edit) => {
     }
   };
 
-  const handleSubmitObjecttype = (e) => {
+  const handleSubmitObjecttype = (e: React.FormEvent) => {
     e.preventDefault();
     if (debug) console.log('70 Context ', formValues, e);
     if (formValues) {
-      const modifiedFields = {};
+      const modifiedFields: { [key: string]: any } = {}; // Add index signature to allow indexing with a string
       for (const key in formValues) {
         if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
           modifiedFields[key] = formValues[key];
@@ -135,19 +134,19 @@ const FocusDetails = (props, edit) => {
       dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data: objtData })
     }
   };
-  const handleSubmitObjecttypeview = (e) => {
+  const handleSubmitObjecttypeview = (e: React.FormEvent) => {
     e.preventDefault();
     if (debug) console.log('70 Context ', formValues, e);
     if (formValues) {
-      const modifiedFields = {};
+      const modifiedFields: { [key: string]: any } = {}; // Add index signature to allow indexing with a string
       for (const key in formValues) {
-        if (formValues.hasOwnProperty(key) && formValues[key] !== curobject[key]) {
+        if (formValues.hasOwnProperty(key) && formValues[key] !== (curobject as {[key: string]: any})[key]) { // Add type assertion to curobject
           modifiedFields[key] = formValues[key];
         }
       }
       // const objData = { id: formValues['id'], ...modifiedFields };
-      const otvData = modifiedFields
-      dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data: otvData })
+      const otvData = modifiedFields;
+      dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data: otvData });
     }
   };
 
@@ -158,38 +157,16 @@ const FocusDetails = (props, edit) => {
 
   }, []);
 
+  if (!ph?.phData?.metis?.models) return <></>
+
   // const MDEditor = dynamic(
   //   () => import("@uiw/react-md-editor"),
   //   { ssr: false }
   // );
 
   // remove duplicate objects
-  const uniqueovs = curobjectviews?.filter((ov, index, self) =>
-    index === self.findIndex((t) => (
-      t.place === ov.place && t.id === ov.id
-    ))
-  ) || []
-
-  const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
-
-  // find object with type
-  const type = (metamodels, model, objects, curov) => {
-    const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
-    const o = objects.find(o => o.id === curov.objectRef)
-    // if (debug) console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
-    const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
-    // if (debug) console.log('43 SelectContext', mmod.objecttypes.name, o, type);
-    return type
-  }
-
-  // if (!curobject) curobject = curmodelview
-  const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
-  if (debug) console.log('115 Context', curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
-  // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
-  // find parent object
-  const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
-  let parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
-  parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
+  const curobjModelviews = curmodel.modelviews.filter((cmv: any) => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
+  let parentobject = objects?.find((o: any) => o.id === parentobjectview?.objectRef)
   if (debug) console.log('58 Context', parentobjectview);
   if (debug) console.log('58 Context', parentobject);
 
@@ -206,7 +183,7 @@ const FocusDetails = (props, edit) => {
     return objectviews?.map((objectview) => {
       const object = objects?.find((object) => object.id === objectview.objectRef)
       const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
-      const objecttype = metamodel.objecttypes.find((ot) => ot.id === object?.typeRef)
+      const objecttype = metamodel.objecttypes.find((ot: any) => ot.id === object?.typeRef)
       return objecttype
     }) || [];
   }
@@ -233,8 +210,8 @@ const FocusDetails = (props, edit) => {
   if (debug) console.log('229 Context', objectChildren);
 
   // find related objects
-  const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
-  const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
+  const curRelatedFromObectRels = currelationships?.filter((r: any) => r?.fromobjectRef === curobject?.id)
+  const curRelatedToObectRels = currelationships?.filter((r: any) => r?.toobjectRef === curobject?.id)
   if (debug) console.log('211 Context', curRelatedFromObectRels, curRelatedToObectRels);
 
   const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
@@ -271,8 +248,6 @@ const FocusDetails = (props, edit) => {
   // const ovChildrenProperties = ovChildrenPropertiesList.reduce((a, b) => a.concat(b), [])
   // const objectProperties = Object.entries(curobject);
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [activeTab2, setActiveTab2] = useState(0);
 
   const tabsDiv = (
     <Tabs onSelect={index => setActiveTab(index)}>

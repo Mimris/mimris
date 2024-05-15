@@ -12,6 +12,7 @@ const ContextView = (props: any) => {
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=SELL-A-CAR_PR.json
   const [minimized, setMinimized] = useState(true);
   const toggleMinimized = () => setMinimized(!minimized);
+  const [modal, setModal] = useState(false);
 
   const phFocus = props.ph?.phFocus;
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
@@ -63,7 +64,7 @@ const ContextView = (props: any) => {
     // return focus    
   }
 
-  const statusField = (name, field) => {
+  const statusField = (name: string, field: any) => {
     return (
       <span className="context-item border rounded-2 mx-1">
         <span className="px-1 ">
@@ -75,7 +76,7 @@ const ContextView = (props: any) => {
       </span>
     );
   }
-  const statusFieldLink = (name, field, link) => {
+  const statusFieldLink = (name: string, field: any, link: string) => {
     return (
       <span className="context-item  m-0 p-1">
         <span className="px-2">
@@ -119,7 +120,7 @@ const ContextView = (props: any) => {
         </div> */}
     </div>
 
-  const [modal, setModal] = useState(false);
+
   const toggle = () => setModal(!modal);
 
   return (

@@ -19,7 +19,7 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const ExportObjects = (props) => {
+const ExportObjects = (props: any) => {
   if (debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
   const dispatch = useDispatch()
@@ -28,6 +28,7 @@ const ExportObjects = (props) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const handleClose = () => setShowModal(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   const handleCopy = () => {
     setIsCopied(true);
@@ -40,53 +41,35 @@ const ExportObjects = (props) => {
   const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
   if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
 
-  if (!ph?.phData?.metis?.models) return <></>
+
 
   const [value, setValue] = useState("");
   // const [visibleContext, setVisibleContext] = useState(true);
-  const [formValues, setFormValues] = useState({});
+  const metamodels = ph?.phData?.metis?.metamodels
+  const models = ph?.phData?.metis?.models
+  const objects = ph?.phData?.metis?.objects
+  const modelviews = ph?.phData?.metis?.modelviews
+  const relationships = ph?.phData?.metis?.relationships
+  const model = models?.find((m: any) => m.id === modelInFocusId)
+  const curmodel = models?.find((m: any) => m.id === modelInFocusId)
+  const curmetamodel = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
+  const curobjectviews = modelviews?.filter((mv: any) => mv.modelRef === modelInFocusId)
 
 
-  const models = ph.phData?.metis?.models  // selecting the models array
+  const focusObjectview = useSelector((state: any) => state.focusObjectview)
+  const focusObject = useSelector((state: any) => state.focusObject)
+  const focusTask = useSelector((state: any) => state.focusTask)
+  const focusModelview = useSelector((state: any) => state.focusModelview)
+  const currelationships = relationships?.filter((r: any) => r.modelRef === modelInFocusId)
+  const curmm = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
+  const curmodelview = modelviews?.find((mv: any) => mv.id === focusModelview?.id)
+  const curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id)
 
-  const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
-  const curmetamodel = metamodels?.find(mm => mm.id === models?.find(m => m.id === modelInFocusId)?.metamodelRef)
 
-  // const curmodel = modelInFocus
-  const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
 
-  if (debug) console.log('53 Context:', curmodel, curmodel.objects)
 
-  const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const objects = curmodel?.objects //.map((o: any) => o)
+  const refersTo = curmetamodel?.relshiptypes?.find((ot: any) => ot.name === 'refersTo');
 
-  const focusModel = (reportType === 'task') ? models.find(m => m.id === modelInFocusId) : ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
-  const focusUser = ph.phUser?.focusUser
-  const focusModelview = ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
-  const focusObjectview = ph.phFocus?.focusObjectview
-  const focusTask = ph.phFocus?.focusTask
-  const focusObject = (reportType === 'task') ? ph.phFocus.focusTask : ph.phFocus?.focusObject
-
-  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (debug) console.log('62 Context:', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
-  const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
-  if (debug) console.log('64 Context:', curmodel, modelviews, objects, curobjectviews, currelshipviews, currelationships, curmodelview, focusModelview?.id, focusModelview, focusObjectview?.id, focusObjectview, focusObject?.id, focusObject, focusTask?.id, focusTask);
-
-  const curobject = objects?.find(o => o.id === focusObject?.id)
-  // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-  if (debug) console.log('67 Context:', curobject, objects, focusObject?.id, focusObject, focusTask?.id, focusTask);
-
-  // add refersTo relationship as a propLink
-  // find refersTo relationship type
-  const refersTo = curmetamodel?.relshiptypes?.find(ot => ot.name === 'refersTo')
-  const refersTorelships = currelationships.filter(r => r.typeRef === refersTo?.id) // find all relships with type refersTo
-  // filter out the fromTo as current object
-  const fromRefersToObectRels = refersTorelships.filter(r => r.fromobjectRef === curobject.id)
-  const refersToObjects = fromRefersToObectRels.map(r => objects.find(o => o.id === r.toobjectRef)) // find objects in the other end of the relationship
-  const propLinkTemp = refersToObjects.map(o => ({ ...o, refGroupType: o.name, type: 'PropLink' }))
-  if (debug) console.log('73 Context:', currelationships, refersTo, refersTorelships, fromRefersToObectRels, refersToObjects, propLinkTemp);
 
 
   // useEffect(() => {
@@ -104,35 +87,25 @@ const ExportObjects = (props) => {
   // );
 
   // remove duplicate objects
-  const uniqueovs = curobjectviews?.filter((ov, index, self) =>
-    index === self.findIndex((t) => (
-      t.place === ov.place && t.id === ov.id
-    ))
-  ) || []
+  // const uniqueovs = curobjectviews?.filter((ov, index, self) =>
+  //   index === self.findIndex((t) => (
+  //     t.place === ov.place && t.id === ov.id
+  //   ))
+  // ) || []
 
-  const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
-
-  // find object with type
-  const type = (metamodels, model, objects, curov) => {
-    const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
-    const o = objects.find(o => o.id === curov.objectRef)
-    // if (debug) console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
-    const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
-    // if (debug) console.log('43 SelectContext', mmod.objecttypes.name, o, type);
+  const type = (metamodels: any[], model: any, objects: any[], curov: any) => {
+    const mmod = metamodels?.find((mm: any) => (mm) && mm.id === model.metamodelRef)
+    const o = objects.find((o: any) => o.id === curov.objectRef)
+    const type = mmod?.objecttypes?.find((ot: any) => ot.name && o?.typeRef === ot.id)?.name
     return type
   }
-
-  // if (!curobject) curobject = curmodelview
-  const curobjModelviews = curmodel.modelviews.filter(cmv => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
-  if (debug) console.log('115 Context', curobjModelviews, curmodel.modelviews, curobjectviews, curobject);
   // const curobjviewModelviews = curmodel.modelviews.filter(cmv => cmv.objectRef === curobject.id).map(vmv => ({id: vmv.id, name: vmv.name}))
   // find parent object
 
-  const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+  const curobjectview = curobjectviews?.find((ov: any) => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
   if (debug) console.log('123 Context', curobjectview, curobjectviews, focusObjectview, focusModelview);
-  const parentobjectview = curobjectviews?.find(ov => ov.id === curobjectview?.group) || null
-  let parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
-  parentobject = objects?.find(o => o.id === parentobjectview?.objectRef)
+  const parentobjectview = curobjectviews?.find((ov: any) => ov.id === curobjectview?.group) || null
+  const parentobject = objects?.find((o: any) => o.id === parentobjectview?.objectRef)
   if (debug) console.log('58 Context', parentobjectview);
   if (debug) console.log('58 Context', parentobject);
 
@@ -149,7 +122,7 @@ const ExportObjects = (props) => {
     return objectviews?.map((objectview) => {
       const object = objects?.find((object) => object.id === objectview.objectRef)
       const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
-      const objecttype = metamodel.objecttypes.find((ot) => ot.id === object?.typeRef)
+      const objecttype = metamodel.objecttypes.find((ot: any) => ot.id === object?.typeRef)
       return objecttype
     }) || [];
   }
@@ -169,41 +142,21 @@ const ExportObjects = (props) => {
   if (debug) console.log('229 Context', objectChildren);
 
   // find related objects
-  const curRelatedFromObectRels = currelationships?.filter(r => r?.fromobjectRef === curobject?.id)
-  const curRelatedToObectRels = currelationships?.filter(r => r?.toobjectRef === curobject?.id)
-  if (debug) console.log('211 Context', currelationships, curRelatedFromObectRels, curRelatedToObectRels);
+  const curRelatedFromObjectRels = currelationships?.filter((r: any) => r?.fromobjectRef === curobject?.id)
+  const curRelatedToObjectRels = currelationships?.filter((r: any) => r?.toobjectRef === curobject?.id)
+  if (debug) console.log('211 Context', currelationships, curRelatedFromObjectRels, curRelatedToObjectRels);
 
-  const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
+  const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find((ot: any) => ot?.id === curobject?.typeRef)
+  const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curobjectviews)
   if (debug) console.log('216 Context', curobjecttype);
-  const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews)
-  if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
-
-  const [activeTab, setActiveTab] = useState(0);
-  const [activeTab2, setActiveTab2] = useState(0);
-
-  const setObjview = (o) => {
-    let ovdata = (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : { id: '', name: 'no objectview selected' }
-    let odata = (o) ? { id: o.id, name: o.name } : { id: '', name: 'no object selected' }
-    if (debug) console.log('246 setObjview', ovdata, odata)
-    dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })
-    dispatch({ type: 'SET_FOCUS_OBJECT', data: odata })
-  }
-
-  const includedKeysAllTypeview = (curobjtypeview) && Object.keys(curobjtypeview).reduce((a, b) => a.concat(b), [])
-  const includedKeysAllObjType = (curobjecttype) && Object.keys(curobjecttype).reduce((a, b) => a.concat(b), [])
-  const includedKeysAllObjview = (curobjectview) && Object.keys(curobjectview).reduce((a, b) => a.concat(b), [])
-  const includedKeysAllExept = (curobjectview) && Object.keys(curobjectview).filter(key => !['name', 'description', 'typeName', 'typeDescription', 'objectRef',].includes(key))
-  const includedKeysMain = ['name', 'description', '$id', '$schema', '$ref', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source',
-    '----', 'externalID', 'groupType', 'osduId', 'osduType', 'id', 'proposedType', 'typeName', 'typeDescription',
-    'fillcolor', 'fillcolor2', 'strokecolor', 'icon', 'image'
-  ];
-  const includedKeyskOSDU = ['version', 'name', 'title', 'description', 'groupType', 'governanceModel', 'governaceAuthorities', 'fileFormats'];
+  const includedKeysAllTypeview = (curobjtypeview) && Object.keys(curobjtypeview).reduce((a, b) => a.concat([b]), [] as string[])
   const includedKeysMore = ['category', 'generatedTypeId', 'nameId', 'copedFromId', 'abstract', 'ports', 'propertyValues', 'valueset',
     'markedAsDeleted', 'modified', 'sourceUri', 'relshipkind', 'Associationvalueset', 'copiedFromId', 'typeRef', 'typeName', 'typeDescription']
-  // const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
+  const includedKeysMain = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription'];
   // , $id, $schema, $ref, externalID, groupType, osduId, osduType, x-osdu-license, x-osdu-review-status, x-osdu-schema-source
+  const includedKeyskOSDU = ['id', 'name', 'description', 'proposedType', 'typeName', 'typeDescription', '$id', '$schema', '$ref', 'externalID', 'groupType', 'osduId', 'osduType', 'x-osdu-license', 'x-osdu-review-status', 'x-osdu-schema-source'];
 
-  const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key)).sort((a, b) => includedKeysMain.indexOf(a) - includedKeysMain.indexOf(b));
+  // const objectPropertiesMain = (curobject) && Object.keys(curobject).filter(key => includedKeysMain.includes(key)).sort((a, b) => includedKeysMain.indexOf(a) - includedKeysMain.indexOf(b));
   const objectPropertiesOsdu = (curobject) && Object.keys(curobject).filter(key => includedKeyskOSDU.includes(key)).sort((a, b) => includedKeyskOSDU.indexOf(a) - includedKeyskOSDU.indexOf(b));
 
   const objectPropertiesMore = (curobject) && Object.keys(curobject).filter(key => includedKeysMore.includes(key));
@@ -213,7 +166,7 @@ const ExportObjects = (props) => {
   const csvheader4 = 'No	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Authority	Publication	Revision	Referenced Object	RO Version	RO Group Type	Existing Standard	Is Required?	Is Derived?	Is Indexed?	Action	Priority	Proposal	Operators	Additional Comments	State	Name	Title	Description	Type	Format	Frame of Reference	Constant	Example	Referenced Object	RO Version	RO Group Type	Is Required?	Is Derived?	Is Indexed?'.split('\t');
 
   const titles = (objectPropertiesOsdu) && Object.values(objectPropertiesOsdu);
-  const values = titles?.map(v =>  (v === 'name') ? (curobject.groupType === 'abstract') ? 'Abstract'+curobject[v]: curobject[v] : curobject[v]);
+  const values = titles?.map((v: string) =>  (v === 'name') ? (curobject.groupType === 'abstract') ? 'Abstract'+curobject[v]: curobject[v] : curobject[v]);
   if (debug) console.log('214 keys1', values);
 
   const valueList = ObjectToCsv({ obj: csvheader3 }).valueList
@@ -221,14 +174,14 @@ const ExportObjects = (props) => {
   if (debug) console.log('194 objecstodiv', valueList);
   const lineNo = 5;
 
-  const relatedToObjects = curRelatedFromObectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+  const relatedToObjects = curRelatedFromObjectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
 
   // escape semicolon in values of relatedToObjects
 
 
-  if (debug) console.log('229 relatedToObjects', curRelatedFromObectRels, curRelatedToObectRels, relatedToObjects, currelationships);
+  if (debug) console.log('229 relatedToObjects', curRelatedFromObjectRels, curRelatedToObjectRels, relatedToObjects, currelationships);
 
-  const relatedObjList = relatedToObjects.map((toObj: any, index) => (
+  const relatedObjList = relatedToObjects.map((toObj: any, index: number) => (
     `\n ${index + 1
     };${(toObj.groupType === 'abstract') ? 'Abstract' + toObj.name.split('.')[0] : toObj.name.split('.')[0]
     };${(toObj.title) ? toObj.title : ""
@@ -289,7 +242,7 @@ const ExportObjects = (props) => {
   // Add a Byte Order Mark (BOM) to the beginning of the CSV string
   // csvString = "\uFEFF" + csvString;
 
-
+  if (!ph?.phData?.metis?.models) return <></>
 
   // console.log('214 keys1', setMdString, contentDiv);
   const tabsDiv = (

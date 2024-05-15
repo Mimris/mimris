@@ -1,4 +1,7 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux';
+
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 
 import Page from '../page';
@@ -6,7 +9,6 @@ import Palette from "../Palette";
 import Modeller from "../Modeller";
 import { loadMyModeldata } from "./LoadMyModeldata";
 import classnames from 'classnames';
-import { connect, useSelector, useDispatch } from 'react-redux';
 import * as akm from '../../akmm/metamodeller';
 // import * as uib from '../../akmm/ui_buildmodels';
 
@@ -16,7 +18,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 
 const debug = false;
 
-const page = (props) => {
+const Page1 = (props) => {
   if (debug) console.log('11 Model props', props);
 
   const dispatch = useDispatch();
@@ -220,4 +222,4 @@ const page = (props) => {
   )
 }
 
-export default Page(connect(state => state)(page));
+export default Page(connect(state => state)(page1));

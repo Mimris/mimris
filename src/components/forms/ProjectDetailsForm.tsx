@@ -6,13 +6,14 @@ import { Modal, Button } from 'react-bootstrap';
 import useLocalStorage from '../../hooks/use-local-storage'
 import useSessionStorage from "../../hooks/use-session-storage";
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { setFocusIssue } from "@/actions/actions";
 
 
 // import { SaveModelToLocState } from "../utils/SaveModelToLocState";
 
 const debug = false;
 
-function ProjectDetailsForm(props) {
+function ProjectDetailsForm(props: any) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
 
@@ -37,12 +38,7 @@ function ProjectDetailsForm(props) {
   const [focusRole, setFocusRole] = useState(props.props.phFocus?.focusRole);
   const [focusTask, setFocusTask] = useState(props.props.phFocus?.focusTask);
   const [focusIssue, setFocusIssue] = useState(props.props.phFocus?.focusIssue);
-
-
-  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', null); //props);
-
-
-  if (debug) console.log("14 ProjectDetailsForm", org, repo, path, file, branch, focusModel, focusModelview, focusObject, focusObjectview, focusOrg, focusProj, focusRole, focusTask, focusIssue);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', [] as any[]);
 
   // useEffect(() => {
     // setOrg(props.phFocus?.focusOrg.org);
@@ -64,7 +60,8 @@ function ProjectDetailsForm(props) {
     setFile(file);
     setSource(`${org}/${repo}${(path === '') ? '/' : `/${path.toString()}/`}${file}`);
     setProjectNumber(projectNumber);
-  }, [file, name, org, repo, path, branch, projectNumber]);
+    setFocusIssue(props.props.phFocus?.focusIssue);
+  }, [file, name, org, repo, path, branch, projectNumber, focusIssue, props.props.phFocus, id]);
 
   useEffect(() => {
     console.log("57 ProjectDetailsForm", props.props.phFocus);
@@ -75,7 +72,7 @@ function ProjectDetailsForm(props) {
   const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org + repo + path + file + branch;
   const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // props.onSubmit({ org, repo, path, file, branch });
     const data = { id: name, name, org, repo, path, file, branch, projectNumber };
@@ -206,7 +203,7 @@ function ProjectDetailsForm(props) {
           </div>
         </div>
         <hr className="mt-5 pt-5" />
-        <p>Change the name of the Project from "...-Template to your Project-name and save the file.</p>
+        <p>Change the name of the Project from &quot;...-Template to your Project-name and save the file.</p>
         {saveFile}
       </form>
     </>

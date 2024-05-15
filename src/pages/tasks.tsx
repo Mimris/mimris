@@ -14,12 +14,14 @@ import Tasks from '../components/Tasks';
 
 const debug = false;
 
-const page = (props: any) => {
+const Page1 = (props: any) => {
+
     const { query } = useRouter();
     const dispatch = useDispatch();
-    const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
+ 
+    const [memoryLocState, setMemoryLocState] = useLocalStorage('locState', {}); //props);
 
-    function dispatchLocalStore(locStore) {
+    function dispatchLocalStore(locStore: { phData: any; phFocus: any; phSource: any; phUser: any; }) {
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
         dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
@@ -28,7 +30,7 @@ const page = (props: any) => {
 
     useEffect(() => {
         if (debug) console.log('16 page tasks props', props);
-        if ((memoryLocState) && (memoryLocState.phData)) {
+        if ((setMemoryLocState && memoryLocState.phData)) {
             // if (Array.isArray(memoryLocState) && memoryLocState[0]) { // check if memoryLocState is an array and has at least one element
               const locStore = memoryLocState
               if (locStore) {
@@ -36,7 +38,7 @@ const page = (props: any) => {
               }
             // }
           }
-    }, []);
+    });
     
 
     const taskDiv =   <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
@@ -70,5 +72,5 @@ const page = (props: any) => {
     );
 }
 
-export default Page(connect((state: any) => state)(page));
+export default Page(connect((state: any) => state)(Page1));
 

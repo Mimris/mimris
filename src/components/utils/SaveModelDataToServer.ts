@@ -4,7 +4,7 @@ import 'isomorphic-unfetch'
 es6promise.polyfill()
 
 
-const saveModelDataToServer =  async (modeldata) => {
+const saveModelDataToServer =  async (modeldata: any) => {
   console.log('7 modeldata', modeldata);
   const modelData = JSON.stringify(modeldata)
   // const sendData = 'phData:"'+modelData+'"'

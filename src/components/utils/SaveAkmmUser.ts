@@ -1,23 +1,23 @@
 const debug = false;
 
-export const SaveAkmmUser = (props, key) => {
+export const SaveAkmmUser = (props: any, key: string) => {
 
     if (debug) console.log("5 SaveAkmmUser akmmUser exists in localStorage, use it", key,  props.phUser);
 
     // Function to save data to localStorage
-    function saveToLocalStorage(key, data) {
+    function saveToLocalStorage(key: string, data: any) {
       localStorage.setItem(key, JSON.stringify(data));
     }
-  
+
     // Function to get data from localStorage
-    function getFromLocalStorage(key) {
-        try {
-            const item = localStorage?.getItem(key);
-            return item ? JSON.parse(item) : null;
-        } catch (error) {
-            console.log("Error in getFromLocalStorage", error);
-            return null;
-        }
+    function getFromLocalStorage(key: string) {
+      try {
+        const item = localStorage?.getItem(key);
+        return item ? JSON.parse(item) : null;
+      } catch (error) {
+        console.log("Error in getFromLocalStorage", error);
+        return null;
+      }
     }
     
     // Check if akmmUser exists in localStorage

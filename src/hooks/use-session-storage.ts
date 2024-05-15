@@ -1,6 +1,8 @@
+'use client'
 import { useState} from 'react'
 
 function useSessionStorage(key: string, initialValue: string | never[] | null) {
+  if (typeof window === 'undefined') return initialValue
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState(() => {
@@ -17,7 +19,7 @@ function useSessionStorage(key: string, initialValue: string | never[] | null) {
     }
   });
   
-  if (typeof window === 'undefined') return initialValue
+
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to session storage.
   const setValue = (value: (arg0: any) => any) => {

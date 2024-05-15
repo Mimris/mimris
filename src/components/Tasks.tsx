@@ -56,6 +56,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   // } , []);
 
   useEffect(() => {
+    if (!debug) useEfflog('59 Tasks useEffect 1 [props.visible]');
     setMinimized(true);
   }, [props.visible]);
 

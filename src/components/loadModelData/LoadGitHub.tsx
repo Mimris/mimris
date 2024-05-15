@@ -288,6 +288,7 @@ const LoadGitHub = (props: any) => {
   // }, []);
 
   useEffect(() => {
+    if (!debug) console.log('291 Modeller useEffect 1 [] ');
     setOrgText(props.ph.phFocus?.focusProj?.org)
     setRepoText(props.ph.phFocus?.focusProj?.repo)
     if (pathText === undefined || pathText === '') {

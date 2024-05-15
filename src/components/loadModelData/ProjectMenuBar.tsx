@@ -149,7 +149,7 @@ export const ProjectMenuBar = (props: any) => {
             const userWantsToSave = window.confirm('Have you save your current project? Click OK to proceed without saving, or Cancel to save first.');
             if (userWantsToSave) {
                 setActiveItem(null);
-            } else {    
+            } else {
                 setActiveItem(item);
             }
         }
@@ -194,8 +194,9 @@ export const ProjectMenuBar = (props: any) => {
         </>
     )
 
-    function MenuItem({ item, activeItem, activeRightItem, handleItemClick }) {
-        const getItemContent = (item) => {
+    function MenuItem({ item, activeItem, activeRightItem, handleItemClick }: { item: any, activeItem: any, activeRightItem: any, handleItemClick: (event: any) => void }) {
+
+        const getItemContent = (item: any) => {
             switch (item) {
                 case 'Open':
                     return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>;
@@ -295,7 +296,7 @@ export const ProjectMenuBar = (props: any) => {
                 <hr className="bg-light py-1 my-0" />
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '' ) &&
+                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '') &&
                         <Link
                             className="text-primary ms-1"
                             href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
@@ -384,11 +385,11 @@ export const ProjectMenuBar = (props: any) => {
                                 <Link
                                     className="text-primary"
                                     href={`https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}`}
-                                    
+
                                     target="_blank"
-                                    >
+                                >
                                     <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }} >
-                                         no. {props.phFocus.focusProj.projectNumber} 
+                                        no. {props.phFocus.focusProj.projectNumber}
                                     </button>
                                 </Link>
                             </span>
@@ -438,7 +439,7 @@ export const ProjectMenuBar = (props: any) => {
                         transition: "height 1s ease-in-out"
                     }}
                 >
-  
+
                     <div className="rounded-2 my-0 px-1"
                         style={{ whiteSpace: "nowrap" }}
                         onClick={() => props.setExpanded(!props.expanded)}

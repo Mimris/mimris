@@ -86,7 +86,7 @@ const Palette = (props: any) => {
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
-
+    if (!debug) useEfflog('89 Palette useEffect 1 [] ');
     if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(true);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes = mmodel?.objecttypes;

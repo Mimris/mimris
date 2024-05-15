@@ -68,6 +68,7 @@ const Page1 = (props: any) => {
   const focus = useSelector((state: any) => state.phFocus)
 
   useEffect(() => {
+    if (!debug) useEfflog('71 modelling useEffect 0 [] ');
     const handleReload = () => {
       let locStore = memorySessionState;
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
@@ -78,9 +79,9 @@ const Page1 = (props: any) => {
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
         // window.location.reload();
-        const timer = setTimeout(() => {
-          setRefresh(!refresh);
-        }, 100);
+        // const timer = setTimeout(() => {
+        //   setRefresh(!refresh);
+        // }, 100);
         return () => clearTimeout(timer);
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
@@ -98,12 +99,10 @@ const Page1 = (props: any) => {
         }
       }
     };
-
     const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
     handleReload();
-
     let org = query.org;
-  }, [dispatchLocalStore, isReloading, memoryLocState, memorySessionState, props.phFocus.focusProj.file, refresh, mount, query])
+  }, [])
 
 
   let org = query.org;
@@ -183,7 +182,7 @@ const Page1 = (props: any) => {
   useEffect(() => {
     const locProps = { ...props, phMymetis: null }
     setMemorySessionState(locProps)
-  }, [props.phSource, setMemorySessionState])
+  }, [props.phSource])
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)

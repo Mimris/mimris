@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
@@ -38,7 +39,7 @@ function ProjectDetailsForm(props: any) {
   const [focusRole, setFocusRole] = useState(props.props.phFocus?.focusRole);
   const [focusTask, setFocusTask] = useState(props.props.phFocus?.focusTask);
   const [focusIssue, setFocusIssue] = useState(props.props.phFocus?.focusIssue);
-  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', [] as any[]);
+  const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []);
 
   // useEffect(() => {
     // setOrg(props.phFocus?.focusOrg.org);
@@ -50,7 +51,7 @@ function ProjectDetailsForm(props: any) {
   // }, []);
 
   useEffect(() => {
-    console.log("53 ProjectDetailsForm", props.props.phFocus);
+    console.log("53 ProjectDetailsForm useEffect 1", props.props.phFocus);
     setId(id);
     setName(name);
     setOrg(org);
@@ -64,7 +65,7 @@ function ProjectDetailsForm(props: any) {
   }, [file, name, org, repo, path, branch, projectNumber, focusIssue, props.props.phFocus, id]);
 
   useEffect(() => {
-    console.log("57 ProjectDetailsForm", props.props.phFocus);
+    console.log("57 ProjectDetailsForm useEffect 2", props.props.phFocus);
     setFile(props.props.phFocus?.focusProj.file);
     setName(props.props.phFocus?.focusProj.name);
   }, []);

@@ -3595,7 +3595,7 @@ export function findImage(image: string) {
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (debug) console.log('3269', img);
         return img
-    } else if (!image.includes('images/') && image.includes('.png')) { // its an image in public/images 
+    } else if (!image?.includes('images/') && image?.includes('.png')) { // its an image in public/images 
         const img = "./../images/types/" + image
         if (debug) console.log('3273 Diagram', image, img)
         return img

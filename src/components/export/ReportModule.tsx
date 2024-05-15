@@ -33,7 +33,7 @@ const ReportModule = (props: any) => {
   console.log('33 ReportModule', activeTab, props.exportTab)  
 
   useEffect(() => {
-    // console.log('36 ReportModule', activeTab, props.exportTab)
+    if (!debug) console.log('36 ReportModule useEffect 1 [] ');
     if (props.exportTab) setActiveTab(2)
   }, [])
 

@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // modelling
 
 const debug = false;
@@ -119,7 +119,7 @@ const Modelling = (props: any) => {
   GenGojsModel(props, myMetis)
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
+    if (!debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
     if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)
@@ -155,20 +155,21 @@ const Modelling = (props: any) => {
   );
 
   useEffect(() => {
-    if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
-    if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
-  }, [props.phSource]) // add mount to the dependency array
-
+    if (!debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
+      if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
+      }, [props.phSource]) // add mount to the dependency array
+    
   useEffect(() => {
+    if (!debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
     const timer = setTimeout(() => {
       doRefresh()
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
       // setRefresh(!refresh)
     }, 50);
-  }, [props.phSource, props.phFocus?.focusRefresh?.id])
+  }, [props.phFocus?.focusRefresh?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+    if (!debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
     const timer = setTimeout(() => {
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
       setRefresh(!refresh)
@@ -570,6 +571,7 @@ const Modelling = (props: any) => {
             {modellingDiv}
           </div>
           <div className="modellingContent mt-1 ">
+            {/* {modellingtabs} */}
             {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
           </div>
         </div>

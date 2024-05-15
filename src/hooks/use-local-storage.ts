@@ -2,6 +2,7 @@
 import { useState } from 'react'
 
 function useLocalStorage(key: string, initialValue: any) {
+  if (typeof window == 'undefined') return initialValue
   // if (typeof window === 'undefined') return initialValue
   // State to store our value
   // Pass initial state function to useState so logic is only executed once

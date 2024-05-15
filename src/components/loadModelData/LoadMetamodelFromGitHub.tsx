@@ -263,7 +263,7 @@ const LoadMetamodelFromGithub = (props: any) => {
   };
 
   useEffect(() => {
-    if (debug) console.log('230 ', usernameText, repoText, branchText, pathText,  githubLink)
+    if (!debug) console.log('230 ', usernameText, repoText, branchText, pathText,  githubLink)
   }, [refresh]);
 
   // useEffect(() => {

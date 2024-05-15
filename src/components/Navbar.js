@@ -69,6 +69,7 @@ const Navbar = (props) => {
 	// };
 
 	useEffect(() => {
+		if (!debug) console.log('72 Navbar useEffect 1 [domainName]');
 		setDomainName(window.location.hostname);
 		if ((debug)) console.log('33', domainName);
 		if (domainName === "localhost") {

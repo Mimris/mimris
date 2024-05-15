@@ -88,7 +88,7 @@ const Modeller = (props: any) => {
     };
 
     useEffect(() => { // set activTab when focusModelview.id changes
-        if (debug) useEfflog('55 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
+        if (!debug) useEfflog('91 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
         setActiveTab(activetabindex)
     }, [props.phFocus?.focusModelview?.id])
 
@@ -119,6 +119,7 @@ const Modeller = (props: any) => {
 
     
     useEffect(() => {
+        if (!debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
         setSelectedOption('Sorted by type')
         if (mmodel?.name === 'AKM-OSDU_MM') {
@@ -138,6 +139,7 @@ const Modeller = (props: any) => {
     }, [])
 
     useEffect(() => {
+        if (!debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
         if (model.objects.length === 0) {
             if (selectedOption === 'In this modelview') {
                 setSelectedOption('Sorted by type')
@@ -155,6 +157,7 @@ const Modeller = (props: any) => {
     }, [model.objects.length === 0])
 
     useEffect(() => {
+        if (!debug) useEfflog('122 Modeller useEffect 4 [props.phFocus?.focusObjectview?.id] ');
         const propps = {
             phData: props.phData,
             phFocus: props.phFocus,
@@ -294,6 +297,7 @@ const Modeller = (props: any) => {
     if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
     useEffect(() => {
+        if (!debug) useEfflog('300 Modeller useEffect 5 [selectedOption] ');
         const initialArr = objectsNotDeleted;
         if (debug) console.log('409 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
         if (selectedOption === 'In this modelview') {
@@ -577,20 +581,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <div className="modeller--workarea-objects m-1" >
                     {modelviewTabDiv}
                 </div>
-                {/* this modal is not used
-                    <Modal show={showModal} onHide={handleCloseModal} style={{ marginLeft: "200px", marginTop: "50px", backgroundColor: "#acc" }} >
-                    <Modal.Header closeButton>
-                        <Modal.Title>Report Module</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className="bg-transparent">
-                        <ReportModule props={props} reportType="object" modelInFocusId={props.phFocus.focusModel?.id} edit={true} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseModal}>
-                            Close
-                        </Button>
-                    </Modal.Footer>
-                </Modal> */}
             </div >
             : // metamodelling
             <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
@@ -609,6 +599,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     return (
         <div className="" style={{ display: 'flex', flexDirection: 'row' }} >
+            {/* {modellerDiv} */}
             {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
         </div>
     )

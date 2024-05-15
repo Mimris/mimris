@@ -14,7 +14,7 @@ import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 
 const debug = false;
 
-const Issues = (props) => {
+const Issues = (props: any) => {
   if (debug) console.log('25 Tasks props', props.phData, props);
 
   const dispatch = useDispatch();

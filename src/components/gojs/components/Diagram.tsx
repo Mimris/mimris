@@ -433,24 +433,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
                 selection = myDiagram.selection
               }
-              const myFromNodes = [];
-              const myFromLinks = [];
+              const gjsSourceNodes = []; // source nodes
+              const gjsSourceLinks = []; // source links
               for (let it = selection.iterator; it?.next();) {
                 let n = it.value;
                 if (n instanceof go.Node) {
-                  addFromNode(myFromNodes, n);
+                  addSourceNode(gjsSourceNodes, n);
                 } else if (n instanceof go.Link) {
-                  addFromLink(myFromLinks, n);
+                  addSourceLink(gjsSourceLinks, n);
                 }
               }
               const myModel = myMetis.currentModel;
-              myModel.args1 = myFromNodes;
-              myModel.args2 = myFromLinks;
+              myModel.args1 = gjsSourceNodes;
+              myModel.args2 = gjsSourceLinks;
               selection = [];
               e.diagram.selection.each(function (sel) {
                 const key = sel.data.key;
-                sel.data.fromNode = getFromNode(myFromNodes, key);
-                sel.data.linkNode = getFromLink(myFromLinks, key);
+                sel.data.fromNode = getSourceNode(gjsSourceNodes, key);
+                sel.data.linkNode = getSourceLink(gjsSourceLinks, key);
                 if (debug) console.log('457 sel.data', sel.data);
                 selection.push(sel.data);
               });
@@ -461,6 +461,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
+                return true;
+              if (node.category === constants.gojs.C_RELATIONSHIP)
                 return true;
             }),
           makeButton("Paste",
@@ -3590,8 +3592,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         );
     }
 
-    function addFromNode(myFromNodes: any, n: any) {
-      const myFromNode = {
+    function addSourceNode(mySourceNodes: any, n: any) {
+      const mySourceNode = {
         "key": n.data.key,
         "name": n.data.name,
         "objid": n.data.objRef,
@@ -3613,28 +3615,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         "textscale": n.data.textscale,
         "icon": n.data.icon,
       }
-      myFromNodes.push(myFromNode);
+      mySourceNodes.push(mySourceNode);
       if (n.data.isGroup) {
         for (let it2 = n.memberParts.iterator; it2?.next();) {
           let n2 = it2.value;
           if (!(n2 instanceof go.Node)) continue;
           if (n2) {
-            addFromNode(myFromNodes, n2);
+            addSourceNode(mySourceNodes, n2);
           }
         }
       }
     }
-    function getFromNode(myFromNodes: any, key: string) {
-      for (let i = 0; i < myFromNodes.length; i++) {
-        if (myFromNodes[i].key === key) {
-          return myFromNodes[i];
+    function getSourceNode(mySourceNodes: any, key: string) {
+      for (let i = 0; i < mySourceNodes.length; i++) {
+        if (mySourceNodes[i].key === key) {
+          return mySourceNodes[i];
         }
       }
       return null;
     }
 
-    function addFromLink(myFromLinks: any, l: any) {
-      const myFromLink = {
+    function addSourceLink(mySourceLinks: any, l: any) {
+      const mySourceLink = {
         "key": l.data.key,
         "from": l.data.from,
         "to": l.data.to,
@@ -3663,12 +3665,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         "curve": l.data.curve,
         "points": l.data.points,
       }
-      myFromLinks.push(myFromLink);
+      mySourceLinks.push(mySourceLink);
     }
-    function getFromLink(myFromLinks: any, key: string) {
-      for (let i = 0; i < myFromLinks.length; i++) {
-        if (myFromLinks[i].key === key) {
-          return myFromLinks[i];
+    function getSourceLink(mySourceLinks: any, key: string) {
+      for (let i = 0; i < mySourceLinks.length; i++) {
+        if (mySourceLinks[i].key === key) {
+          return mySourceLinks[i];
         }
       }
       return null;

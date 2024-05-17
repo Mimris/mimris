@@ -886,7 +886,7 @@ export class goRelshipLink extends goLink {
         this.relshipview     = relview;
         this.relship         = null;
         this.relshiptype     = null;
-        this.relviewRef      = relview.id;
+        this.relviewRef      = relview?.id;
         this.relshipRef      = relview?.relship?.id;
         this.reltypeRef      = relview?.relship?.type?.id;
         this.typename        = "";

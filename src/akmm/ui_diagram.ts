@@ -2656,6 +2656,10 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
 
 export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relview: akm.cxRelationshipView, myDiagram: any) {
     myDiagram.startTransaction('updateLink');
+    const myModelview = myDiagram.myModelView;
+    if (!relview) {
+        relview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, gjsLink, "");
+    }
     for (let it = myDiagram.links; it?.next();) {
         const l = it.value;
         const ldata = l.data;
@@ -2663,7 +2667,7 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
             for (let prop in goLink) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
-                        if (link[prop] !== undefined && link[prop] !== null && link[prop] !== "") {
+                        if (gjsLink[prop] !== undefined && gjsLink[prop] !== null && gjsLink[prop] !== "") {
                             relview[prop] = gjsLink[prop];
                             ldata[prop]    = gjsLink[prop];
                             goLink[prop]   = gjsLink[prop];
@@ -2675,7 +2679,7 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
         }
     }
     // myDiagram.model.addLinkData(data);
-
     myDiagram.commitTransaction('updateLink');
+    return relview;
 }
 

@@ -614,9 +614,58 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editRelationship": {
       // selObj is a link representing a relationship or a relationship view
       const selObj = selectedData;
+      const gjsLink = myDiagram.findLinkForKey(selObj.key);
+      if (!gjsLink)
+        break;
+      if (gjsLink) gjsLink.isSelected = true;
+      const gjsData = gjsLink.data;
       const goLink = myGoModel.findLinkByViewId(selObj.key);
       const relview = myModelview.findRelationshipView(selObj.key);
-      uid.updateLinkAndView(selObj, goLink, relview, myDiagram);
+      let relship = relview.relship;
+      const reltype = relship.type;
+      relship['cardinalityFrom'] = relship.getCardinalityFrom();
+      relship['cardinalityTo'] = relship.getCardinalityTo();
+      if (relship.name === "") relship.name = " ";
+      const rel = selObj;
+      for (let k in rel) {
+        if (typeof(rel[k]) === 'object')    continue;
+        if (typeof(rel[k]) === 'function')  continue;
+        if (!uic.isPropIncluded(k, reltype))  continue;
+        if (k === constants.props.DRAFT) {
+          myDiagram.model.setDataProperty(gjsData, 'name', rel[k]);
+        }
+        myDiagram.model.setDataProperty(gjsData, k, relship[k]);
+      }
+      if (relship.name === 'Is') {
+        // relview['fromArrow'] = 'None';
+        // relview['toArrow'] = 'Triangle';
+        relship.relshipkind = 'Generalization';
+      }
+      if (relship.relshipkind !== constants.relkinds.REL) {
+        relview.setFromArrow2(relship.relshipkind);
+        relview.setToArrow2(relship.relshipkind);
+        let fromArrow = relview.fromArrow;
+        if (fromArrow === "None") fromArrow = "";
+        let toArrow = relview.toArrow;
+        if (toArrow === "None") toArrow = "";
+        myDiagram.model.setDataProperty(gjsData, 'fromArrow', fromArrow);
+        myDiagram.model.setDataProperty(gjsData, 'toArrow', toArrow);
+        myDiagram.model.setDataProperty(gjsData, 'fromArrowColor', relview.fromArrowColor);
+        myDiagram.model.setDataProperty(gjsData, 'toArrowColor', relview.toArrowColor);
+      }
+      if (myModelview.showCardinality) {
+        myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', relship.getCardinalityFrom());
+        myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', relship.getCardinalityTo());
+      } else {
+        myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', '');
+        myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
+      }
+
+
+
+
+
+
       // Dispatch
       const jsnRelview = new jsn.jsnRelshipView(relview);
       let data = JSON.parse(JSON.stringify(jsnRelview));
@@ -852,11 +901,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selRel = selectedData;
       const goLink = myGoModel.findLinkByViewId(selRel.key);
       const relview = myModelview.findRelationshipView(selRel.key);
-    //// For some reason the following code does not work
-      uid.updateLinkAndView(selRel, goLink, relview, myDiagram);
-      if (debug) console.log("editRelshipview: ", selRel);
-      // myMetis.removeClassInstances(relview);
-    ////
 
       // // Do dispatch
       const jsnRelview = new jsn.jsnRelshipView(relview);

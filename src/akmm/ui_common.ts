@@ -1096,7 +1096,7 @@ export function pasteRelationship(gjsSourceFromNode, gjsSourceToNode,
         myMetis.addRelationshipView(pastedRelview);
         let goToLink = new gjs.goRelshipLink(key, myGoModel, pastedRelview);
         for (let prop in goToLink) {
-            goToLink[prop] = goToLink[prop];
+            goToLink[prop] = pastedRelview[prop];
         }
         myGoModel.addLink(goToLink);
         // const gjsLink = context.gjsLink;

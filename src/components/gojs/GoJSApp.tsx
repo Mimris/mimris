@@ -1535,7 +1535,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (this.isSourceNode(gjsSourceNodes, gjsNode.key))
             continue;
           let gjsTargetNode = gjsNode;
-          // The target node is given a new key
+          // The target node uses the key given by GoJS when pasted
           let key = gjsTargetNode.key; // utils.createGuid();
           gjsTargetNode.data.key = key;
           gjsTargetNodes.push(gjsTargetNode);
@@ -1557,7 +1557,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (!targetObjview) {
                 break;
               }
-              targetObjview.key = key;
               targetObjview.group = "";
               targetObject = targetObjview.object;
               objtypeview = objtype.typeview;
@@ -1628,8 +1627,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const group = uic.getGroupByLocation(myGoModel, targetObjview.loc, targetObjview.size, goTargetNode);
-            const gjsNode = myDiagram.findNodeForKey(goTargetNode.key);
-            const memberObjview = myMetis.findObjectView(goTargetNode.key);
+            let key = goTargetNode.key;
+            key = key[0,35];
+            const gjsNode = myDiagram.findNodeForKey(key);
             if (group && gjsNode) {
               const groupType = myMetis.findObjectTypeByName(group.objecttype?.name);
               if (groupType?.name !== containerType?.name) {
@@ -1712,9 +1712,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (gjsSourceLink.category === constants.gojs.C_RELATIONSHIP) {
             context.gjsSourceLink = gjsSourceLink;
             const goSourceLink = myGoModel.findLink(gjsSourceLinkKey);
+            const sourceRelview= myMetis.findRelationshipView(gjsSourceLinkKey);
             context.pasted = true;
             context.relname = gjsSourceLink.name;
             context.reltype = goSourceLink.relshiptype;
+            context.template = sourceRelview.template;
             const it1 = selection.iterator;
             while (it1.next()) {
               const gjsLink = it1.value.data;

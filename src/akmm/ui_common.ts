@@ -48,7 +48,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 if (objtype.name === constants.types.AKM_CONTAINER) {
                     obj = new akm.cxObject(guid, name, objtype, description);
                 }
-                else if (!pastedobj) {
+                if (!pastedobj) {
                     // This is not a pasted object, create a new one
                     obj = new akm.cxObject(guid, name, objtype, description);
                     myMetis.pasteViewsOnly = false;

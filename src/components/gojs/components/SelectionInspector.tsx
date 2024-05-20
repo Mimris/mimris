@@ -689,7 +689,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
 
             fieldType = 'color';
-            if (val?.substr(0, 4) === 'rgb(') {
+            if (val?.substring(0, 3) === 'rgb(') {
               let color = '#' + val.match(/\d+/g).map(function (x) {
                 x = parseInt(x).toString(16);
                 return (x.length == 1) ? "0" + x : x;

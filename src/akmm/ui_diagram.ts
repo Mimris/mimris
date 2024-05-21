@@ -478,10 +478,10 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     let objectview: akm.cxObjectView = null;
     objectview = goNode?.objectview;
     if (!objectview) 
-        objectview = myMetis.findObjectView(objview?.objviewRef);
+        objectview = myMetis.findObjectView(goNode?.key);
     if (objectview) {
         object = objectview?.object;
-        if (!object) object = myMetis.findObject(objectview?.objRef);
+        if (!object) object = myMetis.findObject(objectview.objectRef);
         if (object) {
             myMetis.addObject(object);
             myMetis.addObjectView(objectview);

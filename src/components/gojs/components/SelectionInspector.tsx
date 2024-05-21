@@ -121,12 +121,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case constants.gojs.C_RELATIONSHIP:
         const relLink = myGoModel.findLink(selObj?.key);
-        const relshipRef = relLink?.relshipRef;
-        const relship = myMetis.findRelationship(relshipRef);
-        const relviewRef = relLink?.key;
-        const relview = myMetis.findRelationshipView(relviewRef);
-        const reltypeRef = relLink?.reltypeRef;
-        const reltype = myMetis.findRelationshipType(reltypeRef);
+        const relship = relLink.relship; 
+        const relview = relLink.relshipview; 
+        const reltype = relLink.relshiptype;
         instview1 = relview as akm.cxRelationshipView;
         if (instview1) instview = instview1;
         inst1 = relship as akm.cxRelationship;
@@ -135,15 +132,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         reltypeview = type.typeview;
         typeview = reltypeview;
         inst1.type = type;
-
-        // type1 = reltype as akm.cxRelationshipType;
-        // reltypeview = type1.typeview;
-        // typeview = reltypeview;
-        // type1.typeview = typeview;
-        // instview1 = relview;
-        // inst1 = relship;
-        // if (instview1) instview = instview1;
-        // inst1.type = reltype;
         inst = inst1;
         break;
       case constants.gojs.C_RELSHIPTYPE:

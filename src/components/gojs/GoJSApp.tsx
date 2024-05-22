@@ -239,7 +239,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     for (let j = 0; j < mySourceNodes.length; j++) {
       const node = mySourceNodes[j];
       let myKey = key;
-      if (myKey.lenght == 37) { myKey = myKey.substring(0, 35);}
       if (node.key === myKey) {
         retval = true;
         break;
@@ -730,7 +729,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let scaleFactor = scale0 < scale1 ? scale0 / scale1 : scale1 / scale0;
                 node.scale1 = scale1;
                 let key = data.key;
-                key = key.substring(0, 35);
                 if (selcnt == 0) {
                   refloc = node.loc;
                   if (debug) console.log('545 node, refloc', node, refloc);
@@ -1377,7 +1375,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModel.addObject(object);
             myMetis.addObject(object);
             let key = n.data.objectview.id;
-            key = key.substring(0, 35);
             let objview = new akm.cxObjectView(key);
             objview.updateContent(gjsPart.objectview);
             objview.object = object;
@@ -1540,7 +1537,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           let gjsTargetNode = gjsNode;
           // The target node uses the key given by GoJS when pasted
           let key = gjsTargetNode.key; // utils.createGuid();
-          key = key.substring(0, 35);
           gjsTargetNode.data.key = key;
           gjsTargetNodes.push(gjsTargetNode);
           const gjsTargetNodeData = gjsTargetNode.data;
@@ -1556,7 +1552,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             
             if (!myMetis.pasteViewsOnly) {
               objtype = myMetis.findObjectType(gjsTargetNodeData.objtypeRef);
-              objtypeview = objtype.typeview;
+              objtypeview = objtype?.typeview;
               // Create a new target object and objectview based on the target node
               targetObjview = uic.createObject(gjsTargetNodeData, context);
               if (!targetObjview) {
@@ -1628,7 +1624,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const group = uic.getGroupByLocation(myGoModel, targetObjview.loc, targetObjview.size, goTargetNode);
             let key = goTargetNode.key;
-            key = key.substring(0, 35);
             const gjsNode = myDiagram.findNodeForKey(key);
             if (group && gjsNode) {
               const groupType = myMetis.findObjectTypeByName(group.objecttype?.name);
@@ -1723,6 +1718,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 continue;
               }
               const gjsTargetLink = gjsLink;
+              const gjsTargetLinkKey = gjsLink.linkNode?.key;
               const gjsTargetFromNode = n.fromNode.data;
               const gjsTargetToNode = n.toNode.data;
               if (gjsTargetLink.category === constants.gojs.C_RELATIONSHIP) {

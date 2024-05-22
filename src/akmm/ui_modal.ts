@@ -911,10 +911,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const reltypeview = reltype.typeview;
       const selection = myDiagram.selection;
       selection.each(function(sel) {
-        const selRel = sel.data;
-        let relview = sel.data.relshipview;
+        const selRel = selectedData;
+        let relview = selRel.relshipview;
         if (!relview) 
-          relview = myModelview.findRelationshipView(selRel.relviewRef);
+          relview = myModelview.findRelationshipView(selRel.key);
         if (relview) {
           for (let prop in reltypeview?.data) {
             if (prop === 'class') continue;

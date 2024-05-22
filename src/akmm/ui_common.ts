@@ -48,7 +48,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 if (objtype.name === constants.types.AKM_CONTAINER) {
                     obj = new akm.cxObject(guid, name, objtype, description);
                 }
-                else if (!pastedobj) {
+                if (!pastedobj) {
                     // This is not a pasted object, create a new one
                     obj = new akm.cxObject(guid, name, objtype, description);
                     myMetis.pasteViewsOnly = false;
@@ -1096,7 +1096,7 @@ export function pasteRelationship(gjsSourceFromNode, gjsSourceToNode,
         myMetis.addRelationshipView(pastedRelview);
         let goToLink = new gjs.goRelshipLink(key, myGoModel, pastedRelview);
         for (let prop in goToLink) {
-            goToLink[prop] = goToLink[prop];
+            goToLink[prop] = pastedRelview[prop];
         }
         myGoModel.addLink(goToLink);
         // const gjsLink = context.gjsLink;

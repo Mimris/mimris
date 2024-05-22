@@ -238,7 +238,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     let retval = false;
     for (let j = 0; j < mySourceNodes.length; j++) {
       const node = mySourceNodes[j];
-      if (node.key === key) {
+      let myKey = key;
+      if (myKey.lenght == 37) { myKey = myKey.substring(0, 35);}
+      if (node.key === myKey) {
         retval = true;
         break;
       }
@@ -728,7 +730,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let scaleFactor = scale0 < scale1 ? scale0 / scale1 : scale1 / scale0;
                 node.scale1 = scale1;
                 let key = data.key;
-                key = key.substr(0, 36);  // Hack - should not be neccessary
+                key = key.substring(0, 35);
                 if (selcnt == 0) {
                   refloc = node.loc;
                   if (debug) console.log('545 node, refloc', node, refloc);
@@ -1375,6 +1377,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModel.addObject(object);
             myMetis.addObject(object);
             let key = n.data.objectview.id;
+            key = key.substring(0, 35);
             let objview = new akm.cxObjectView(key);
             objview.updateContent(gjsPart.objectview);
             objview.object = object;
@@ -1427,7 +1430,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         let data = sel.data;
         console.log('1313 selected', data, sel);
-        const object = myModel.findObject(data?.objRef);
+        const object = myModel.findObject(data?.objectRef);
         const objectview = myModelview.findObjectView(data?.key);
         console.log('1316 object, objectview', object, objectview);
         for (let it = myDiagram.nodes; it?.next();) {
@@ -1535,8 +1538,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (this.isSourceNode(gjsSourceNodes, gjsNode.key))
             continue;
           let gjsTargetNode = gjsNode;
-          // The target node is given a new key
+          // The target node uses the key given by GoJS when pasted
           let key = gjsTargetNode.key; // utils.createGuid();
+          key = key.substring(0, 35);
           gjsTargetNode.data.key = key;
           gjsTargetNodes.push(gjsTargetNode);
           const gjsTargetNodeData = gjsTargetNode.data;
@@ -1552,16 +1556,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             
             if (!myMetis.pasteViewsOnly) {
               objtype = myMetis.findObjectType(gjsTargetNodeData.objtypeRef);
+              objtypeview = objtype.typeview;
               // Create a new target object and objectview based on the target node
               targetObjview = uic.createObject(gjsTargetNodeData, context);
               if (!targetObjview) {
                 break;
               }
-              targetObjview.key = key;
               targetObjview.group = "";
+              targetObjview.modelview = myModelview;
               targetObject = targetObjview.object;
-              objtypeview = objtype.typeview;
-              //object = new akm.cxObject(utils.createGuid(), gjsNodeData.name, objtype, gjsNodeData.description);
               myModel.addObject(targetObject);
               myMetis.addObject(targetObject);
               const jsnObject = new jsn.jsnObject(targetObject);
@@ -1571,7 +1574,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!goTargetNode) {
               goTargetNode = new gjs.goObjectNode(key, myGoModel, targetObjview);   // GoModel node
             }
-            goTargetNode.group = "";
+            goTargetNode.group = ""; // Instead find group by location
             // Now remember the TO node - the new pasted node
             const scale = goTargetNode.getMyScale(myGoModel);
             const myTargetNode = {
@@ -1596,7 +1599,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             myTargetNodes.push(myTargetNode);
             targetObjview.loc = myTargetNode.loc.valueOf();
             targetObjview.size = myTargetNode.size.valueOf();
-            targetObjview.group = "";              
             targetObjectviews.push(targetObjview);
             goTargetNode.loc = targetObjview.loc;
             goTargetNode.size = targetObjview.size;
@@ -1604,9 +1606,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             myGoModel.addNode(goTargetNode);
             myModelview.addObjectView(targetObjview);
             myMetis.addObjectView(targetObjview);
-            // Prepare dispatch
-            const jsnObjview = new jsn.jsnObjectView(targetObjview);
-            uic.addItemToList(modifiedObjectViews, jsnObjview);
           }
         }
         // Nodes and objectviews are now filled with values
@@ -1628,8 +1627,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const group = uic.getGroupByLocation(myGoModel, targetObjview.loc, targetObjview.size, goTargetNode);
-            const gjsNode = myDiagram.findNodeForKey(goTargetNode.key);
-            const memberObjview = myMetis.findObjectView(goTargetNode.key);
+            let key = goTargetNode.key;
+            key = key.substring(0, 35);
+            const gjsNode = myDiagram.findNodeForKey(key);
             if (group && gjsNode) {
               const groupType = myMetis.findObjectTypeByName(group.objecttype?.name);
               if (groupType?.name !== containerType?.name) {
@@ -1640,11 +1640,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const jsnRelship = new jsn.jsnRelationship(rel);
                 modifiedRelships.push(jsnRelship);
               }
-              targetObjview.group = group.objectview?.id;
+              targetObjview.group = group.key;
               goTargetNode.group = group.key;
-              myDiagram.model?.setDataProperty(goTargetNode, "group", group.key);
+              myDiagram.model?.setDataProperty(gjsTargetNode, "group", group.key);
             }
-            // gjsNode.loc = myTargetNode.loc.valueOf();
             const scale0 = goSourceNode ? goSourceNode.scale.valueOf() : 1;
             const scale1 = goTargetNode.getMyScale(myGoModel).toString(); // myTargetNode.scale.valueOf(); 
             let scaleFactor = scale1 / scale0;
@@ -1658,7 +1657,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             {
               goTargetNode.loc = myTargetNode.loc.valueOf();
               targetObjview.loc = myTargetNode.loc.valueOf();
-              // gjsNode.scale1 = goTargetNode.getMyScale(myGoModel);
               targetObjview.scale1 = goTargetNode.scale1;
               targetObjview.template = myTargetNode.template;
               targetObjview.figure = myTargetNode.figure;
@@ -1691,14 +1689,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+          // Prepare dispatch
+          const jsnObjview = new jsn.jsnObjectView(targetObjview);
+          uic.addItemToList(modifiedObjectViews, jsnObjview);
         }
 
         // Now handle the relationships
         // First identify the source relship type
         const mySourceLinks = myMetis.currentModel.args2;
-
-
-
         context.sourceNodes = gjsSourceNodes;
         context.sourceLinks = mySourceLinks;
         it = selection.iterator;
@@ -1712,9 +1710,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (gjsSourceLink.category === constants.gojs.C_RELATIONSHIP) {
             context.gjsSourceLink = gjsSourceLink;
             const goSourceLink = myGoModel.findLink(gjsSourceLinkKey);
+            const sourceRelview= myMetis.findRelationshipView(gjsSourceLinkKey);
             context.pasted = true;
             context.relname = gjsSourceLink.name;
             context.reltype = goSourceLink.relshiptype;
+            context.template = sourceRelview.template;
             const it1 = selection.iterator;
             while (it1.next()) {
               const gjsLink = it1.value.data;

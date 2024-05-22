@@ -121,9 +121,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case constants.gojs.C_RELATIONSHIP:
         const relLink = myGoModel.findLink(selObj?.key);
-        const relship = relLink.relship; 
-        const relview = relLink.relshipview; 
-        const reltype = relLink.relshiptype;
+        let relship = relLink.relship; 
+        if (!relship) relship = myMetis.findRelationship(relLink.relshipRef);
+        let relview = relLink.relshipview;
+        if (!relview) relview = myMetis.findRelationshipView(relLink.relviewRef); 
+        let reltype = relLink.relshiptype;
+        if (!reltype) reltype = myMetis.findRelationshipType(relLink.reltypeRef);
         instview1 = relview as akm.cxRelationshipView;
         if (instview1) instview = instview1;
         inst1 = relship as akm.cxRelationship;
@@ -686,7 +689,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
 
             fieldType = 'color';
-            if (val?.substr(0, 4) === 'rgb(') {
+            if (val?.substring(0, 3) === 'rgb(') {
               let color = '#' + val.match(/\d+/g).map(function (x) {
                 x = parseInt(x).toString(16);
                 return (x.length == 1) ? "0" + x : x;

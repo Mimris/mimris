@@ -602,6 +602,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const objview = myModelview.findObjectView(selObj.key);
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       // Dispatch
+      let object = objview.object;
+      if (!object) object = myMetis.findObject(objview.objectRef);
+      if (object) {
+        const jsnObj = new jsn.jsnObject(object);
+        let data = JSON.parse(JSON.stringify(jsnObj));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+      }
       const jsnObjview = new jsn.jsnObjectView(objview);
       let data = JSON.parse(JSON.stringify(jsnObjview));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })

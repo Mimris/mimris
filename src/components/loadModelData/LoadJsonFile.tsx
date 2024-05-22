@@ -105,15 +105,16 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
-  const [inclProps, setInclProps] = useState(true)
-  const [inclPropLinks, setInclPropLinks] = useState(true)
-  const [inclArrayProperties, setInclArrayProperties] = useState(true)
-  const [inclAbstractPropLinks, setInclAbstractPropLinks] = useState(true)
-  const [inclReference, setInclReference] = useState(true)
   const [inclMasterdata, setInclMasterdata] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent] = useState(true)
-  const [inclAbstract, setInclAbstract] = useState(false)
-  const [inclXOsduProperties, setInclXOsduProperties] = useState(true)
+  const [inclReference, setInclReference] = useState(true)
+  const [inclAbstract, setInclAbstract] = useState(true)
+
+  const [inclProps, setInclProps] = useState(false)
+  const [inclPropLinks, setInclPropLinks] = useState(false)
+  const [inclArrayProperties, setInclArrayProperties] = useState(false)
+  const [inclAbstractPropLinks, setInclAbstractPropLinks] = useState(false)
+  const [inclXOsduProperties, setInclXOsduProperties] = useState(false)
   const [inclDeprecated, setInclDeprecated] = useState(false)
   const [inclGeneric, setInclGeneric] = useState(false)
 

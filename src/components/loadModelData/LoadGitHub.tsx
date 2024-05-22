@@ -47,7 +47,7 @@ const LoadGitHub = (props: any) => {
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
   const [models, setModels] = useState< { phData: any, phFocus: any , phUser: any, phSource: any }[]>([]);
-  const [dirs, setDirs] = useState<{ length: number; name: string }[]>([])[0];
+  const [dirs, setDirs] = useState<{ length: number; name: string }[]>([]);
 
 
                 // Rest of the code remains unchanged
@@ -249,13 +249,19 @@ const LoadGitHub = (props: any) => {
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     if (repos.includes('undefined')) return null;
-    const res = await searchModels(repos, pathText);
+    const reposclean = repos.replace(/\/\//g, '/');
+
+    const res = await searchModels(reposclean, pathText);
     const filteredModels = await res?.data?.filter((model: any) => model.name.endsWith('.json'));
+    if (!debug) console.log('256 ', reposclean, res, filteredModels)
     let filteredDirs: any[] = []; // Declare filteredDirs variable
     if (res?.data) {
       filteredDirs = res.data.filter((model: any) => model.type === 'dir');
     }
-
+    if (!debug) console.log('261 ', filteredModels, filteredDirs)
+    setDirs(filteredDirs);
+    setModels(filteredModels);
+      
     if (pathText === undefined || pathText === '') {
       setGithubLink(`https://github.com/${orgText}/${repoText}/tree/${branchText}/`)
     } else {

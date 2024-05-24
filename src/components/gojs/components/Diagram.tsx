@@ -460,8 +460,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT)
+              if (node.category === constants.gojs.C_OBJECT) {
+                if (node.isGroup) 
+                  return false;
                 return true;
+              }
               if (node.category === constants.gojs.C_RELATIONSHIP)
                 return true;
             }),

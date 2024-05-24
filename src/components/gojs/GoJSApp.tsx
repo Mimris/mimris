@@ -486,7 +486,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           else { // Relationship
             let relview = gjsData.relshipview;
             if (!relview) {
-              relview = myModelview.findRelationshipView(gjsData.relviewRef);
+              relview = myModelview.findRelationshipView(key);
             }
             if (relview) {
               if (text === 'Edit name') {
@@ -1928,7 +1928,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = link?.data;
         if (debug) console.log('1596 link, data', link, data);
         let relview = data?.relshipview;
-        relview = myModelview.findRelationshipView(relview?.id);
+        relview = myModelview.findRelationshipView(data?.key);
         if (relview) {
           const points = [];
           for (let it = link.data.points.iterator; it?.next();) {

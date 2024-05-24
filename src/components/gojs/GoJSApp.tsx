@@ -442,11 +442,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
-              const jsnObj = new jsn.jsnObject(obj);
-              jsnObj.text = textvalue;
-              modifiedObjects.push(jsnObj);
-              let data = JSON.parse(JSON.stringify(jsnObj));
-              context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+              if (obj) {
+                const jsnObj = new jsn.jsnObject(obj);
+                jsnObj.text = textvalue;
+                modifiedObjects.push(jsnObj);
+                let data = JSON.parse(JSON.stringify(jsnObj));
+                context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+              }
             }
           }
           const goNodes = myGoModel?.nodes;
@@ -483,6 +485,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else { // Relationship
             let relview = gjsData.relshipview;
+            if (!relview) {
+              relview = myModelview.findRelationshipView(gjsData.relviewRef);
+            }
             if (relview) {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
@@ -575,8 +580,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           const sel = it.value;
           const data = sel.data;
-          let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
-          if (debug) console.log('546 objview', objview, data, selection, it, sel);
 
           // Object type
           if (data?.category === 'Object type' || data?.category === 'Object type view') {
@@ -601,11 +604,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else if (data?.category === 'Object' || data?.category === 'Object view') // Object
           {
-            // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
+              // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myObjectviews = myModelview?.objectviews;
-            // The object to move
             let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
+            if (debug) console.log('546 objview', objview, data, selection, it, sel);
+            // The object to move
             let fromObject = objview.object;
             let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {

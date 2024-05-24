@@ -1048,36 +1048,22 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     return relview;
 }
 // gjsFromNode, gjsToNode, goFromLink, pastedNodes, context
-export function pasteRelationship(gjsSourceFromNode, gjsSourceToNode, 
-                                  gjsSourceLink, 
-                                  gjsTargetFromNode, gjsTargetToNode,
-                                  gjsTargetLink, context) {
+export function pasteRelationship(gjsTargetLink, context) {
     const myDiagram = context.myDiagram;
     const myGoModel: gjs.goGoModel = context.myGoModel;
     const myMetis: akm.cxMetis = context.myMetis;
-    const myModel: akm.cxModel = context.myModel;
     const myModelview: akm.cxModelView = myMetis.currentModelview;
-    const pasteViewsOnly = myMetis.pasteViewsOnly;
-    const sourceLinks = context.sourceLinks;
-    const sourceNodes = context.sourceNodes;
-    // const reltype = goFromLink.relshiptype;
 
     // Find source objects
-    let goSourceFromNode = myGoModel.findNode(gjsSourceFromNode.key);
-    let goSourceToNode   = myGoModel.findNode(gjsSourceToNode.key);
-    let sourceFromObjview = myModelview.findObjectView(gjsSourceFromNode.key);
-    let sourceToObjview = myModelview.findObjectView(gjsSourceToNode.key);
-    let sourceFromObj = sourceFromObjview?.object;
-    let sourceToObj = sourceToObjview?.object;
+    let gjsTargetFromKey = gjsTargetLink.from;
+    let gjsTargetToKey = gjsTargetLink.to;
+    let gjsTargetKey = gjsTargetLink.key;
 
     // Find pasted objects
-    let goTargetFromNode = myGoModel.findNode(gjsTargetFromNode.key);
-    let goTargetToNode   = myGoModel.findNode(gjsTargetToNode.key);
-    let targetFromObjview = myModelview.findObjectView(gjsTargetFromNode.key);
-    let targetToObjview = myModelview.findObjectView(gjsTargetToNode.key);
+    let targetFromObjview = myModelview.findObjectView(gjsTargetFromKey);
+    let targetToObjview = myModelview.findObjectView(gjsTargetToKey);
     let targetFromObj = targetFromObjview?.object;
     let targetToObj = targetToObjview?.object;
-
 
     // Create new relship
     let reltype: akm.cxRelationshipType = context.reltype;
@@ -1088,22 +1074,25 @@ export function pasteRelationship(gjsSourceFromNode, gjsSourceToNode,
         let pastedRelship = new akm.cxRelationship(utils.createGuid(), reltype, 
                                                     targetFromObj, targetToObj, 
                                                     relname, description);
-        const key = gjsTargetLink.key;
+        const key = gjsTargetKey;
         pastedRelview = new akm.cxRelationshipView(key, relname, pastedRelship, description);
         pastedRelview.fromObjview = targetFromObjview;
         pastedRelview.toObjview = targetToObjview;
-        myModelview.addRelationshipView(pastedRelview);
-        myMetis.addRelationshipView(pastedRelview);
+        // Handle points
+        const points = [];
+        for (let it = gjsTargetLink.points.iterator; it?.next();) {
+            const point = it.value;
+            points.push(point.x)
+            points.push(point.y)
+        }
+        pastedRelview.points = points;
         let goToLink = new gjs.goRelshipLink(key, myGoModel, pastedRelview);
         for (let prop in goToLink) {
             goToLink[prop] = pastedRelview[prop];
         }
+        myModelview.addRelationshipView(pastedRelview);
+        myMetis.addRelationshipView(pastedRelview);
         myGoModel.addLink(goToLink);
-        // const gjsLink = context.gjsLink;
-        // myDiagram.model.removeLinkData(gjsLink);
-        // gjsLink.key = key;
-        // pastedRelview = uid.updateLinkAndView(gjsLink, goToLink, pastedRelview, myDiagram);
-        // myDiagram.model.addLinkData(gjsLink);
     }
     return pastedRelview;
 }

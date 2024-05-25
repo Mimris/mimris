@@ -645,7 +645,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 node.group = parentgroup.key;
                 const objectview = myMetis.findObjectView(node.objviewRef);
                 const objtypeview = myMetis.findObjectTypeView(node.objtypeRef);
-                const object = myMetis.findObject(node.objRef);
+                let object = node.object;
+                if (!object) object = myMetis.findObject(node.objRef);
                 objectview.group = parentgroup.objviewRef;
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 // Handle hasMember relationships:
@@ -830,11 +831,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                   }
                   // Handle hasMember relationships (currently disabled in common.ts)
-                  hasMemberRel = uic.hasMemberRelship(node, myMetis);
-                  if (!hasMemberRel) {
-                    hasMemberRel = uic.addHasMemberRelship(fromObject, toObject, myMetis);
-                    if (hasMemberRel)
-                      myModel.addRelationship(hasMemberRel);
+                  if (false) {
+                    hasMemberRel = uic.hasMemberRelship(node, myMetis);
+                    if (!hasMemberRel) {
+                      hasMemberRel = uic.addHasMemberRelship(fromObject, toObject, myMetis);
+                      if (hasMemberRel)
+                        myModel.addRelationship(hasMemberRel);
+                    }
                   }
                 } else { // The node moved is NOT a group                
                   let n = myDiagram.findNodeForKey(node.key);
@@ -1382,17 +1385,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
             console.log('1319 myGoModel, goNode', myGoModel, goNode);
         }
-        
-        if (false) {
-          let focusObjview = myModelview.focusObjectview;
-          if (focusObjview) {
-            focusObjview.isSelected = sel.isSelected;
-            const fov = {
-              id: focusObjview.id,
-              isSelected: sel.isSelected,
-            };
-          }
-        }
         if (data.objviewRef) {
           const payload = data // JSON.parse(JSON.stringify(data));
           const objvIdName = { id: payload.objviewRef, name: payload.name };
@@ -1472,9 +1464,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         let it = selection.iterator;
         while (it.next()) { 
           let gjsNode = it.value;  
-          // Filter out source nodes
-          if (this.isSourceNode(gjsSourceNodes, gjsNode.key))
-            continue;
+          // // Filter out source nodes
+          // if (this.isSourceNode(gjsSourceNodes, gjsNode.key))
+          //   continue;
           let gjsTargetNode = gjsNode;
           // The target node uses the key given by GoJS when pasted
           let key = gjsTargetNode.key; // utils.createGuid();
@@ -1676,7 +1668,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     pastedRelview.textscale = textscale;
                     // gjsTargetLink.key = pastedRelview.key;
                   }
-                  // Handle points
                  // Handle view attributes
                   pastedRelview.template = gjsTargetLink.template;
                   pastedRelview.arrowscale = gjsTargetLink.arrowscale;
@@ -1692,6 +1683,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   myModelview.addRelationshipView(pastedRelview);
                   if (!debug) console.log('1752 myModelview', myModelview);
                   myMetis.addRelationshipView(pastedRelview);
+                  const key = pastedRelview.id;
+                  let goToLink = new gjs.goRelshipLink(key, myGoModel, pastedRelview);
+                  for (let prop in goToLink) {
+                      goToLink[prop] = pastedRelview[prop];
+                  }
+                  myGoModel.addLink(goToLink);
                   // Prepare dispatch
                   const jsnRelview = new jsn.jsnRelshipView(pastedRelview);
                   modifiedRelshipViews.push(jsnRelview);

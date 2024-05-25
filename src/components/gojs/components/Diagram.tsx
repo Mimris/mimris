@@ -2166,8 +2166,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (link.category === constants.gojs.C_RELATIONSHIP) {
                   const fromLink = link.from;
                   const toLink = link.to;
-                  let relview: akm.cxRelationshipView = link.relshipview;
-                  relview = myModelview.findRelationshipView(relview?.id);
+                  let relview: akm.cxRelationshipView;
+                  relview = myModelview.findRelationshipView(link.key);
                   if (relview) {
                     const fromObjview = relview.fromObjview;
                     const toObjview = relview.toObjview;

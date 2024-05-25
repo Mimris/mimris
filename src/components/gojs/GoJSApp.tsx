@@ -442,11 +442,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
-              const jsnObj = new jsn.jsnObject(obj);
-              jsnObj.text = textvalue;
-              modifiedObjects.push(jsnObj);
-              let data = JSON.parse(JSON.stringify(jsnObj));
-              context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+              if (obj) {
+                const jsnObj = new jsn.jsnObject(obj);
+                jsnObj.text = textvalue;
+                modifiedObjects.push(jsnObj);
+                let data = JSON.parse(JSON.stringify(jsnObj));
+                context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+              }
             }
           }
           const goNodes = myGoModel?.nodes;
@@ -483,6 +485,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else { // Relationship
             let relview = gjsData.relshipview;
+            if (!relview) {
+              relview = myModelview.findRelationshipView(key);
+            }
             if (relview) {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
@@ -575,9 +580,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           const sel = it.value;
           const data = sel.data;
-          let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
-          if (debug) console.log('546 objview', objview, data, selection, it, sel);
-
           // Object type
           if (data?.category === 'Object type' || data?.category === 'Object type view') {
             const objtypegeos = context.myMetamodel.purgeObjtypeGeos();
@@ -601,12 +603,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else if (data?.category === 'Object' || data?.category === 'Object view') // Object
           {
-            // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
+              // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myObjectviews = myModelview?.objectviews;
-            // The object to move
             let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
-            let fromObject = objview.object;
+            // The object to move
+            // let fromObject = objview.object;
             let fromloc, fromNode, fromGroup;
             for (let j = 0; j < myFromNodes.length; j++) {
               const fnode = myFromNodes[j];
@@ -1345,67 +1347,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('1242 myGoModel', myGoModel);
         break;
       }
-      case 'ExternalObjectsDropped_1': {
-        e.subject.each(function (n) {
-          let gjsPart = n.data;
-          let type = myMetis.findObjectType(gjsPart.objtypeRef);
-          let typeview = type.typeview;
-          if (!type || !typeview) {
-              // An object has been dropped (but there is no objectview)
-              objId = gjsPart.objRef;
-              object = myMetis.findObject(objId);
-              myModel.addObject(object);
-              myMetis.addObject(object);
-              const key = n.data.key;
-              const goNode = myGoModel.findNode(key);
-              objview = new akm.cxObjectView(key, gjsPart.name, object, object.description, myModelview);
-              objview = uic.setObjviewColors(gjsPart, object, objview, typeview, myDiagram);
-              myModelview.addObjectView(objview);
-              myMetis.addObjectView(objview);
-          } else { 
-            if (gjsPart.size === "") {
-              if (gjsPart.isGroup) {
-                gjsPart.size = "200 100";
-              } else {
-                gjsPart.size = "160 70";
-              }
-            }
-            let object = new akm.cxObject(gjsPart.object.id);
-            object.updateContent(gjsPart.object);
-            myModel.addObject(object);
-            myMetis.addObject(object);
-            let key = n.data.objectview.id;
-            let objview = new akm.cxObjectView(key);
-            objview.updateContent(gjsPart.objectview);
-            objview.object = object;
-            objview.loc = gjsPart.loc;
-            objview.size = gjsPart.size;
-            objview.scale = gjsPart.scale;
-            objview.scale1 = gjsPart.scale;
-            myModelview.addObjectView(objview);
-            myMetis.addObjectView(objview);
-            if (!debug) console.log('1195 myMetis', myMetis);
-            const node = myDiagram.findNodeForKey(gjsPart.key);
-            const goNode = new gjs.goObjectNode(key, myGoModel, objview);
-            goNode.removeClassInstances();
-            if (!debug) console.log('1200 node, goNode', node, goNode);
-
-            let fillcolor = "";
-            let strokecolor = "";
-            let textcolor = "";
-
-            let type: akm.cxObjectType = gjsPart.objecttype;
-            let typeview: akm.cxObjectTypeView = gjsPart.typeview;
-            const jsnObjview = new jsn.jsnObjectView(objview);
-            modifiedObjectViews.push(jsnObjview);
-            uic.addItemToList(modifiedObjectViews, jsnObjview);
-            const jsnObj = new jsn.jsnObject(object);
-            modifiedObjects.push(jsnObj);
-
-          }
-        });
-        break;
-      }
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
         const node = sel.data;
@@ -1697,15 +1638,18 @@ class GoJSApp extends React.Component<{}, AppState> {
         it = selection.iterator;
         while (it.next()) {
           let n = it.value;
-          const gjsSourceLink = n.data;
-          const gjsSourceLinkKey = gjsSourceLink.linkNode?.key;
+          const gjsSourceLink = n.data.linkNode;
+          const gjsSourceLinkKey = gjsSourceLink?.key;
           if (!gjsSourceLinkKey) continue;
-          const gjsSourceFromNode = n.fromNode.data;
-          const gjsSourceToNode = n.toNode.data;
-          if (gjsSourceLink.category === constants.gojs.C_RELATIONSHIP) {
-            context.gjsSourceLink = gjsSourceLink;
+          const gjsSourceFromKey = gjsSourceLink.from;
+          const gjsSourceToKey = gjsSourceLink.to;
+          let gjsSourceFromNode = myDiagram.findNodeForKey(gjsSourceFromKey);
+          gjsSourceFromNode = gjsSourceFromNode.data;
+          let gjsSourceToNode = myDiagram.findNodeForKey(gjsSourceToKey);
+          gjsSourceToNode = gjsSourceToNode.data;
+          if (n.data.category === constants.gojs.C_RELATIONSHIP) {
             const goSourceLink = myGoModel.findLink(gjsSourceLinkKey);
-            const sourceRelview= myMetis.findRelationshipView(gjsSourceLinkKey);
+            const sourceRelview= myModelview.findRelationshipView(gjsSourceLinkKey);
             context.pasted = true;
             context.relname = gjsSourceLink.name;
             context.reltype = goSourceLink.relshiptype;
@@ -1718,14 +1662,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 continue;
               }
               const gjsTargetLink = gjsLink;
-              const gjsTargetLinkKey = gjsLink.linkNode?.key;
-              const gjsTargetFromNode = n.fromNode.data;
-              const gjsTargetToNode = n.toNode.data;
               if (gjsTargetLink.category === constants.gojs.C_RELATIONSHIP) {
-                let pastedRelview = uic.pasteRelationship(gjsSourceFromNode, gjsSourceToNode, 
-                                                          gjsSourceLink, 
-                                                          gjsTargetFromNode, gjsTargetToNode,
-                                                          gjsTargetLink, context);
+                let pastedRelview = uic.pasteRelationship(gjsTargetLink, context);
                 let pastedRelship = pastedRelview?.relship;
                 if (pastedRelview && pastedRelship) {
                   // Handle relview scaling
@@ -1739,15 +1677,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // gjsTargetLink.key = pastedRelview.key;
                   }
                   // Handle points
-                  const points = [];
-                  for (let it = gjsTargetLink.points.iterator; it?.next();) {
-                    const point = it.value;
-                    if (debug) console.log('1603 point', point.x, point.y);
-                    points.push(point.x)
-                    points.push(point.y)
-                  }
-                  // Handle view attributes
-                  pastedRelview.points = points;
+                 // Handle view attributes
                   pastedRelview.template = gjsTargetLink.template;
                   pastedRelview.arrowscale = gjsTargetLink.arrowscale;
                   pastedRelview.strokecolor = gjsTargetLink.strokecolor;
@@ -1924,7 +1854,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = link?.data;
         if (debug) console.log('1596 link, data', link, data);
         let relview = data?.relshipview;
-        relview = myModelview.findRelationshipView(relview?.id);
+        relview = myModelview.findRelationshipView(data?.key);
         if (relview) {
           const points = [];
           for (let it = link.data.points.iterator; it?.next();) {

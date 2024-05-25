@@ -204,7 +204,7 @@ const LoadFile = (props: any) => {
 
   return (
     <>
-      <span><button className="btn bg-secondary text-white py-1 px-1" onClick={toggle}><i className="fa fa-file-export fa-lg me-1 ms-0 "></i><i className="fa fa-file-import fa-lg  me-2 "></i>{buttonLabel}</button></span>
+      <span><button className="btn bg-secondary text-white py-1 pe-1" onClick={toggle}>File <i className="fa fa-file-export fa-lg me-1 ms-1 "></i><i className="fa fa-file-import fa-lg  me-1 "></i></button></span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">

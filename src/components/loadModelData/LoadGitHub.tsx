@@ -31,12 +31,17 @@ const LoadGitHub = (props: any) => {
   // const repository = 'cumulus-akm-pocc'
   // const path = 'Cumulus'
 
+
+
   let phFocus = props.ph.phFocus;
   let phData = props.ph.phData
   let phUser = props.ph.phUser
   let phSource = props.ph.phSource
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
+
+  const [projFile, setProjFile] = useState({});
+  const [projFiles, setProjFiles] = useState([]);
   
   // const [searchText, setSearchText] = useState('');
   // const [usernameText, setUsernameText] = useState('Kavca');
@@ -59,13 +64,13 @@ const LoadGitHub = (props: any) => {
   const toggle = () => setModal(!modal);
   function toggleRefresh() { setRefresh(!refresh); }
 
-  // if (props.path !== '') setPathText(props.path);
+  // if (props.ph.path !== '') setPathText(props.ph.path);
 
   const data = {
     phData:   props.ph.phData,
     phFocus:  props.ph.phFocus,
     phUser:   props.ph.phUser,
-    // phSource: props.phSource,
+    // phSource: propsSource,
     phSource: (phSource === "") && phData.metis.name  || phSource,
     lastUpdate: new Date().toISOString()
   }
@@ -120,23 +125,36 @@ const LoadGitHub = (props: any) => {
   // };
 
   // todo: loadModel should be loadProject or loadModelProject
-  const loadModel = async (rep: string, filename: string) => {
-    setLoading(true);
+const loadModel = async (rep: string, filename: string) => {
+  let impProjFile = null;
+  setLoading(true);
+  try {
     const searchtexttmp = `${rep}`;
-    console.log('135 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename, filename)
+    console.log('135 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename);
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-    if (debug) console.log('128 ', searchtext, pathText, filename, branchText, 'file')
-    const url = `https://api.github.com/repos/${searchtext}/contents/${pathText}/${filename}`;
-    const res = await axios.get(url); // Declare the variable 'res'
+    if (debug) console.log('128', searchtext, pathText, filename, branchText, 'file');
+    
+    const url = `https://api.github.com/repos/${searchtext}/contents/${pathText}/${filename}`; // this is the project file
+    const res = await axios.get(url);
+    
     if (res) {
-      const sha = res?.data?.sha; // Add null check
-      if (debug) console.log('140 res', res, res.data, sha)
+      // const sha = res?.data?.sha;
+      if (!debug) console.log('140 res', res, res.data);
 
-      const content = res.data // this is the project file from github
-      if (debug) console.log('143 ', searchtext, res, content)
+      const content = res.data.content; // this is the project file from github
+      if (debug) console.log('143', searchtext, res, content);
 
-      const model1 = content // the content from github
+      const decodedContent = atob(content); // decode Base64 to string
+      impProjFile = JSON.parse(decodedContent); // parse the decoded content as JSON
+      if (!debug) console.log('146', impProjFile, content, decodedContent);
+
     }
+  } catch (error) {
+    console.error('Error loading impProjFile:', error);
+  } finally {
+    setLoading(false);
+  }
+
 
     // const model = { // take model from content and split repository into organisation and repository ad insert into phData
     //   ...content,
@@ -148,13 +166,13 @@ const LoadGitHub = (props: any) => {
     //   }
     // }
 
-    setModel(model);
+    setModel(impProjFile);
     setLoading(false);
-    if (debug) console.log('160 onModelChange', model, props) 
+    if (debug) console.log('160 onModelChange', impProjFile, props) 
 
-    if (model != null) {
+    if (impProjFile != null) {
       if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
-        const mmodel = model as { id: string }; // Add type assertion to specify that mmodel is of type { id: string }
+        const mmodel = projFile as { id: string }; // Add type assertion to specify that mprojFile is of type { id: string }
         let mmindex = props.ph.phData?.metis?.metamodels?.findIndex((mm: { id: string }) => (mmodel != null) &&  mm.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id
         // let oldmodel;
@@ -186,7 +204,7 @@ const LoadGitHub = (props: any) => {
         if (debug) console.log('166 ', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
       } else if (filename.includes('_MO.json')) { // Todo: check if it is only model  
-        const newmodel = model as { id: string };; // model is a metamodel
+        const newmodel = projFile as { id: string };; // model is a metamodel
         let newmindex = props.ph.phData?.metis?.models?.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
         const newmlength = props.ph.phData?.metis?.models.length
         if (newmindex < 0) { newmindex = newmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
@@ -210,17 +228,17 @@ const LoadGitHub = (props: any) => {
       } else {// it is a Project file
         const data = {
           phData: {
-              ...props.ph.phData,
+            ...impProjFile.phData,
               metis: {
-                  ...props.ph.phData.metis,
-                  name: props.ph.phData.metis.name,
-                  description: props.ph.phData.metis.description,
+                ...impProjFile.phData.metis,
+                name: impProjFile.phData.metis.name,
+                description: impProjFile.phData.metis.description,
               },
           },
           phFocus:  {
-            ...props.ph.phFocus,
+            ...impProjFile.phFocus,
             focusProj: {
-              ...props.ph.phFocus.focusProj,
+              ...impProjFile.phFocus.focusProj,
               org: orgText,
               repo: repoText,
               path: pathText,
@@ -230,9 +248,9 @@ const LoadGitHub = (props: any) => {
               // sha: sha,
             }
           },
-          phUser:   props.ph.phUser,
-          // phSource: model.phData.metis.name || model.phSource 
-          phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
+          phUser: impProjFile.phUser,
+          phSource: impProjFile.phData.metis.name || impProjFile.phSource 
+          // phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
         if (debug) console.log('154', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
@@ -364,7 +382,7 @@ const LoadGitHub = (props: any) => {
                 {/* <hr className="bg-primary my-1 mx-4" /> */}
                 {/* ----- Repository name input ------------------------------ */}
                 <span >
-                  {(props.path !== '')
+                  {(props.ph.path !== '')
                     ? <TextInput  label="Repository :" value={'kavca-akm-models'} onChange={(value: string) => onRepoChange(value)} placeholder="Repo name " /> 
                     : <TextInput  label="Repository :" value={repoText} onChange={(value: string) => onRepoChange(value)} placeholder="Repo name " /> 
                   }
@@ -372,7 +390,7 @@ const LoadGitHub = (props: any) => {
                 <hr className="bg-primary my-2 mx-4" />
                 {/* ----- Model Path input ---------------------------------- */}
                 {/* <hr className="bg-secondary my-1 mx-4" /> */}
-                <TextInput label="Path :" value={props.path} onChange={(value: string) => onPathChange(value)} placeholder="Path to models " />
+                <TextInput label="Path :" value={props.ph.path} onChange={(value: string) => onPathChange(value)} placeholder="Path to models " />
                 {(Array.isArray(dirs) && dirs.length !== 0) 
                   ? <div>Model paths (folders) found: <span className="text-success m-1"> {dirs?.map((dir) => ( <li className="px-1" key={dir.name} >{dir.name}, </li> ))}</span> </div> 
                   : (!pathText) && <div className='text-warning min-vh-500'> &apos;No model paths (folders) found!&apos;</div>

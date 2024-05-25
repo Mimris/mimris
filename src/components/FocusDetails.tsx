@@ -75,6 +75,12 @@ const FocusDetails = (props: any, edit: any) => {
     // setFormValuesObjecttypeview(curobjtypeview);
   }, [curobject, curobjectview]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (debug) console.log('78 Context :', name, value, e);
+    setFormValues({ ...formValues, [name]: value });
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (debug) console.log('79 Context :', formValues, e);

@@ -115,9 +115,10 @@
 .modal-content {
   /* position: none; */
   width: fit-content;
+  height: fit-content;
   background: rgba(255, 255, 255, 0.6);
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
-  min-height: 70vh;
+  /* min-height: 70vh; */
   /* max-height: 90vh; */
   scroll-behavior: ease-in-out;
 }

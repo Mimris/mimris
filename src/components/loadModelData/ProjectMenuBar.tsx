@@ -195,7 +195,6 @@ export const ProjectMenuBar = (props: any) => {
     )
 
     function MenuItem({ item, activeItem, activeRightItem, handleItemClick }: { item: any, activeItem: any, activeRightItem: any, handleItemClick: (event: any) => void }) {
-
         const getItemContent = (item: any) => {
             switch (item) {
                 case 'Open':

@@ -305,18 +305,20 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   return (
     <>
-      <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> {/* OSDU Import button */}
+      {/* <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> OSDU Import button */}
+      <span><button className="btn bg-success text-white py-1 ps-0 px-0" onClick={toggle}>OSDU Imp <i className="fa fa-file-import fa-lg "></i></button></span>
+
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
         <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>
         {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
         {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
-        <ModalBody className="d-flex flex-column bg-primary">
+        <ModalBody className="d-flex flex-column bg-success">
           {/* <span className="text-light">Current Source: <strong> {props.ph.phSource}</strong></span> */}
           {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
           <div className="source bg-light p-2 ">
-            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
+            {/* <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} /> */}
 
             <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
               {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
@@ -433,7 +435,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
                 {/* {buttonSaveJSONToFileDiv} */}
               </div>
             </div>
-            <div className="selectbox2 mb-2 border bg-light">
+            <div className="selectbox2 mb-1 border bg-light">
               <h6>Link to the OSDU Open Subsurface Data Universe - Data Definitions</h6>
               <h6>(This will open a new tab in your browser)</h6>
               <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>

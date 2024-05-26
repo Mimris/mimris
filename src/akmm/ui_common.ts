@@ -989,15 +989,14 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     const myModelview = context.myModelview;
-    const myGoModel: gjs.goModel = context.myGoModel;
     const fromObjview = context.fromObjview;
     const toObjview = context.toObjview;
-    const gjsFromKey = context.gjsFromKey;
-    const gjsToKey = context.gjsToKey;
+    const nodeFrom = context.nodeFrom;
+    const nodeTo = context.nodeTo;
     const reltype = context.reltype;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
-    const relview = new akm.cxRelationshipView(data.key, rel.name, rel, "");
+    const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
     rel.addRelationshipView(relview);
@@ -1005,11 +1004,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myMetis.addRelationshipView(relview);
     // create a link data between the actual nodes
     let linkdata = {
-        key: data.key,
-        from: gjsFromKey,  // or just: fromData.id
-        to: gjsToKey,
+        key: utils.createGuid(),
+        from: myDiagram.model.getKeyForNodeData(nodeFrom),  // or just: fromData.id
+        to: myDiagram.model.getKeyForNodeData(nodeTo),
         name: relTypename,
-        category: constants.gojs.C_RELATIONSHIP,
     };
     // set the link attributes
     const rtviewdata = reltype?.typeview?.data;
@@ -1018,13 +1016,9 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         if (prop === 'name') continue;
         if (prop === 'abstract') continue;
         if (prop === 'class') continue;
-        if (prop === 'category') continue;
-        if (prop === 'relshipkind') continue;
+        // if (prop === 'relshipkind') continue;
         linkdata[prop] = rtviewdata[prop];
     }
-    // Create the goLink
-    const gjsLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
-    myGoModel.addLink(gjsLink);
     // and add the link data to the model
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);

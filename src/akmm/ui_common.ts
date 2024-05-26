@@ -991,8 +991,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myModelview = context.myModelview;
     const fromObjview = context.fromObjview;
     const toObjview = context.toObjview;
-    const nodeFrom = context.nodeFrom;
-    const nodeTo = context.nodeTo;
+    //const nodeFrom = context.nodeFrom;
+    // const nodeTo = context.nodeTo;
+    const gjsFromKey = context.gjsFromKey;
+    const gjsToKey = context.gjsToKey;
     const reltype = context.reltype;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
@@ -1004,10 +1006,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myMetis.addRelationshipView(relview);
     // create a link data between the actual nodes
     let linkdata = {
-        key: utils.createGuid(),
-        from: myDiagram.model.getKeyForNodeData(nodeFrom),  // or just: fromData.id
-        to: myDiagram.model.getKeyForNodeData(nodeTo),
-        name: relTypename,
+        key:    utils.createGuid(),
+        from:   gjsFromKey, 
+        to:     gjsToKey,
+        name:   relTypename,
     };
     // set the link attributes
     const rtviewdata = reltype?.typeview?.data;

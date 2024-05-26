@@ -775,6 +775,7 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
                     case 'name':
                     case 'nameId':
                     case 'description':
+                    case 'category':
                     case 'fs_collection':
                     case 'markedAsDeleted':
                     case 'modified':
@@ -934,19 +935,19 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         const fromObjview = relview.fromObjview;
         const toObjview = relview.toObjview;
         // Add link
-        let gjsLink = new gjs.goRelshipLink(relview.id, goModel, relview);
-        gjsLink.loadLinkContent(goModel);
-        gjsLink.fromNode = getNodeByViewId(fromObjview.id, myDiagram);
-        gjsLink.from = gjsLink.fromNode?.key;
-        gjsLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
-        gjsLink.to = gjsLink.toNode?.key;
-        // goModel.addLink(gjsLink);
-        relview = uic.setRelviewAttributes(gjsLink, myDiagram);
-        resetToTypeview(gjsLink, myMetis, myDiagram);
+        let goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
+        goLink.loadLinkContent(goModel);
+        goLink.fromNode = getNodeByViewId(fromObjview.id, myDiagram);
+        goLink.from = goLink.fromNode?.key;
+        goLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
+        goLink.to = goLink.toNode?.key;
+        // goModel.addLink(goLink);
+        relview = uic.setRelviewAttributes(goLink, myDiagram);
+        resetToTypeview(goLink, myMetis, myDiagram);
 
         const jsnRelview = new jsn.jsnRelshipView(relview);
         myRelshipViews.push(jsnRelview);
-        const link = myDiagram.findLinkForData(gjsLink)
+        const link = myDiagram.findLinkForData(goLink)
         myCollection.add(link);
     }
     myDiagram.commitTransaction('selectNodesAndLinks');
@@ -1014,8 +1015,8 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     }
     for (let i=0; i<relviews.length; i++) {
         const relview = relviews[i];
-        const gjsLink = goModel.findLinkByViewId(relview.id);
-        const link = myDiagram.findLinkForKey(gjsLink?.key);
+        const goLink = goModel.findLinkByViewId(relview.id);
+        const link = myDiagram.findLinkForKey(goLink?.key);
         mySelection.add(link);
     } 
     myDiagram.selectCollection(mySelection);

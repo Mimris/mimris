@@ -14,9 +14,9 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const FocusDetails = (props: any, edit: any) => {
-  if ((debug)) console.log('17 context', props, props.reportType, props.props.modelInFocusId)
-  // let props.= useSelector((props.any) => props. // Selecting the whole redux store
+const FocusDetails = ({ props }) => {
+  if (!debug) console.log('17 FocusDetails', props)
+
   const dispatch = useDispatch()
 
   const [selectedId, setSelectedId] = useState(null);
@@ -29,36 +29,35 @@ const FocusDetails = (props: any, edit: any) => {
   const [activeTab, setActiveTab] = useState(0);
   const [activeTab2, setActiveTab2] = useState(0);
 
-
-  const ph = props.props.props || props.props
-
+  // const ph = props//.props //.props || props.props
 
   const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
-  const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
-  const modelviewInFocusId = props.props.modelviewInFocusId
-  if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
+  const modelInFocusId = props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
+  // const modelviewInFocusId = props.modelviewInFocusId
+  if (!debug) console.log('25 Context:', reportType, modelInFocusId, props.props?.phData);
 
-  const models = ph.phData?.metis?.models  // selecting the models array
+  const models = props.props.phData?.metis?.models  // selecting the models array
   const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
-  const metamodels = ph.phData?.metis?.metamodels  // selecting the models array
+  console.log('41 Context:', curmodel, models, modelInFocusId, props.props.phFocus.focusModelview.id)
+  const metamodels = props.props.phData?.metis?.metamodels  // selecting the models array
   const curmm = metamodels?.find((mm: any) => mm?.id === curmodel?.metamodelRef)
 
   // const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const curmodelview = curmodel.modelviews.find((mv: any) => mv.id === ph.phFocus.focusModelview.id)
+  const curmodelview = curmodel.modelviews.find((mv: any) => mv.id === props.props.phFocus.focusModelview.id)
   const objects = curmodel?.objects //.map((o: any) => o)
-  const focusModel = (reportType === 'task') ? models.find((m: any) => m.id === modelInFocusId) : ph?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
-  const focusUser = ph.phUser?.focusUser
-  const focusModelview = ph.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
-  const focusObjectview = ph.phFocus?.focusObjectview
-  const focusTask = ph.phFocus?.focusTask
-  const focusObject = (reportType === 'task') ? ph.phFocus.focusTask : ph.phFocus?.focusObject
+  const focusModel = (reportType === 'task') ? models.find((m: any) => m.id === modelInFocusId) : props.props?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
+  const focusUser = props.props.phUser?.focusUser
+  const focusModelview = props.props.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
+  const focusObjectview = props.props.phFocus?.focusObjectview
+  const focusTask = props.props.phFocus?.focusTask
+  const focusObject = (reportType === 'task') ? props.props.phFocus.focusTask : props.props.phFocus?.focusObject
   if (debug) console.log('47 Context:', focusObjectview, focusObject)
   // const [model, setModel] = useState(focusModel)
   if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
 
 
   let curobject =  objects?.find(o => o.id === focusObject?.id)  
-  if (!curobject) curobject = curmodelview// if no object selected then use the modelview
+  // if (!curobject) curobject = curmodelview// if no object selected then use the modelview
   let curobjectview = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
   if (!curobjectview) curobjectview = curmodelview
   const curobjectviews = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews
@@ -163,7 +162,7 @@ const FocusDetails = (props: any, edit: any) => {
 
   }, []);
 
-  if (!ph?.phData?.metis?.models) return <></>
+  if (!props.props?.phData?.metis?.models) return <></>
 
   // const MDEditor = dynamic(
   //   () => import("@uiw/react-md-editor"),

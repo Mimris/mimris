@@ -59,7 +59,7 @@ const ReportModule = (props: any) => {
                   <Tab ><FaCompass /></Tab> */}
             </TabList>
             <TabPanel className='p-1 border border-dark' >
-              <FocusDetails props={props} reportType={props.reportType} edit={true} />
+              <FocusDetails props={props} />
             </TabPanel>
             <TabPanel className='p-1 border border-dark' >
               <MarkdownEditor props={props} />

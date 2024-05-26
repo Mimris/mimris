@@ -35,12 +35,12 @@ const ExportObjects = (props: any) => {
     setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
   };
 
-
-  const ph = props.props.props || props.props
-  const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
-  const modelInFocusId = props.props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
+  console.log('33 context', props, props.exportTab);
+  let ph = props.props?.props || props.props;
+  console.log('20 context', props, ph);
+  const reportType = ph?.reportType; // if reportType = 'task' then focusObject is a task focusTask
+  const modelInFocusId = ph?.props?.modelInFocusId; // if reportType = 'task' then focusObject.id is a focusTask.id
   if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
-
 
 
   const [value, setValue] = useState("");
@@ -174,7 +174,7 @@ const ExportObjects = (props: any) => {
   if (debug) console.log('194 objecstodiv', valueList);
   const lineNo = 5;
 
-  const relatedToObjects = curRelatedFromObjectRels.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+  const relatedToObjects = curRelatedFromObjectRels?.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
 
   // escape semicolon in values of relatedToObjects
 

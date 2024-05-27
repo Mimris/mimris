@@ -19,8 +19,8 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const ExportObjects = (props: any) => {
-  if (debug) console.log('17 context', props, props.props.reportType, props.props.modelInFocusId)
+const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, reportType: any, modelInFocusId: any, edit: any }) => {
+  if (debug) console.log('17 context', ph, reportType, modelInFocusId)
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
   const dispatch = useDispatch()
 
@@ -35,11 +35,8 @@ const ExportObjects = (props: any) => {
     setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
   };
 
-  console.log('33 context', props, props.exportTab);
-  let ph = props.props?.props || props.props;
-  console.log('20 context', props, ph);
-  const reportType = ph?.reportType; // if reportType = 'task' then focusObject is a task focusTask
-  const modelInFocusId = ph?.props?.modelInFocusId; // if reportType = 'task' then focusObject.id is a focusTask.id
+  console.log('20 context', ph);
+
   if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
 
 
@@ -47,11 +44,11 @@ const ExportObjects = (props: any) => {
   // const [visibleContext, setVisibleContext] = useState(true);
   const metamodels = ph?.phData?.metis?.metamodels
   const models = ph?.phData?.metis?.models
-  const objects = ph?.phData?.metis?.objects
   const modelviews = ph?.phData?.metis?.modelviews
-  const relationships = ph?.phData?.metis?.relationships
-  const model = models?.find((m: any) => m.id === modelInFocusId)
+  const model = (reportType === 'task') ? models?.find((m: any) => m.id === modelInFocusId) : models?.find((m: any) => m.id === ph.phFocus.focusModel.id)
   const curmodel = models?.find((m: any) => m.id === modelInFocusId)
+  const objects = curmodel?.objects
+  const relationships = curmodel?.relships
   const curmetamodel = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
   const curobjectviews = modelviews?.filter((mv: any) => mv.modelRef === modelInFocusId)
 

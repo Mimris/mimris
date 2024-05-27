@@ -464,7 +464,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (sel instanceof go.Link) {
           const key = gjsData.key;
           let text = gjsData.nameFrom ? gjsData.nameFrom : gjsData.name;
-          let typename = gjsData.type;
+          let typename = gjsData.typename;
           // Relationship type
           if (typename === constants.gojs.C_RELSHIPTYPE) {
             const myLink = this.getLink(context.myGoMetamodel, key);

@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // This is a React component that displays details of a selected object in a tabbed interface.
 // It allows the user to edit the object's properties and view related objects.
 import React, { useRef, useContext, useState, useEffect } from 'react'
@@ -14,10 +14,47 @@ import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
-const FocusDetails = ({ props }) => {
-  if (!debug) console.log('17 FocusDetails', props)
+const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, reportType: any, modelInFocusId: any, edit: any }) => {
+  if (!debug) console.log('17 FocusDetails', ph, reportType, modelInFocusId)
 
   const dispatch = useDispatch()
+
+  // const ph = props.props.props
+  // console.log('24 FocusDetails', ph, ph?.phData?.metis?.models)
+  // const reportType = props.props?.reportType
+  // const modelInFocusId = props.props?.modelInFocusId
+  // const modelviewInFocusId = props.modelviewInFocusId
+  if (!debug) console.log('27 Context:', reportType, modelInFocusId, ph?.phData);
+  if (!debug) console.log('28 Context:', ph?.phFocus?.focusModel.id);
+
+  const models = ph?.phData?.metis?.models  // selecting the models array
+  let curmod: any
+  (reportType === 'task') ? curmod =  models?.find((m: any) => m?.id === modelInFocusId) : curmod = models?.find((m: any) => m?.id === ph?.phFocus.focusModel.id)   // selecting the models array current model or task model (generated from model)
+  console.log('32 FocusDetail:', curmod, models, modelInFocusId, ph?.phFocus?.focusModelview.id)
+  const metamodels = ph?.phData?.metis?.metamodels  // selecting the models array
+  const curmm = metamodels?.find((mm: any) => mm?.id === curmod?.metamodelRef)
+
+  // const modelviews = curmod?.modelviews //.map((mv: any) => mv)
+  const curmodview = curmod.modelviews.find((mv: any) => mv.id === ph?.phFocus.focusModelview.id)
+  const objects = curmod?.objects //.map((o: any) => o)
+  const focusModel = (reportType === 'task') ? models.find((m: any) => m.id === modelInFocusId) : models.find((m: any) => m.id === ph?.phFocus.focusModel)    // selecting the models array current model or task model (generated from model)
+  const focusUser = ph?.phUser?.focusUser
+  const focusModelview = ph?.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
+  const focusObjectview = ph?.phFocus?.focusObjectview
+  const focusTask = ph?.phFocus?.focusTask
+  const focusObject = (reportType === 'task') ? ph?.phFocus.focusTask : ph?.phFocus?.focusObject
+  if (!debug) console.log('45 FocusDetail:', focusObjectview, focusObject)
+  // const [model, setModel] = useState(focusModel)
+  if (debug) console.log('47 FocusDetail:', focusModel, focusTask, models, ph?.reportType);
+
+  let curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id) 
+  if (!curobject) curobject = curmodview// if no object selected then use the modelview
+  let curobjectview = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
+  if (!curobjectview) curobjectview = curmodview
+  const curobjectviews = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews
+  const currelshipviews = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.relshipviews
+  const currelationships = curmod?.relships.filter((r: any) => currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
+  const parentobjectview = curmodview.objectviews?.find((ov: any) => ov.id === curobjectview?.group) || curmodview
 
   const [selectedId, setSelectedId] = useState(null);
   const [value, setValue] = useState("");
@@ -28,44 +65,6 @@ const FocusDetails = ({ props }) => {
   const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
   const [activeTab, setActiveTab] = useState(0);
   const [activeTab2, setActiveTab2] = useState(0);
-
-  // const ph = props//.props //.props || props.props
-
-  const reportType = props.props.reportType  // if reportType = 'task' then focusObject is a task focusTask
-  const modelInFocusId = props.modelInFocusId // if reportType = 'task' then focusObject.id is a focusTask.id
-  // const modelviewInFocusId = props.modelviewInFocusId
-  if (!debug) console.log('25 Context:', reportType, modelInFocusId, props.props?.phData);
-
-  const models = props.props.phData?.metis?.models  // selecting the models array
-  const curmodel = models?.find((m: any) => m?.id === modelInFocusId)
-  console.log('41 Context:', curmodel, models, modelInFocusId, props.props.phFocus.focusModelview.id)
-  const metamodels = props.props.phData?.metis?.metamodels  // selecting the models array
-  const curmm = metamodels?.find((mm: any) => mm?.id === curmodel?.metamodelRef)
-
-  // const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const curmodelview = curmodel.modelviews.find((mv: any) => mv.id === props.props.phFocus.focusModelview.id)
-  const objects = curmodel?.objects //.map((o: any) => o)
-  const focusModel = (reportType === 'task') ? models.find((m: any) => m.id === modelInFocusId) : props.props?.phFocus.focusModel    // selecting the models array current model or task model (generated from model)
-  const focusUser = props.props.phUser?.focusUser
-  const focusModelview = props.props.phFocus?.focusModelview // if task we use the first modelview (it should be generated with the generatedFrom)
-  const focusObjectview = props.props.phFocus?.focusObjectview
-  const focusTask = props.props.phFocus?.focusTask
-  const focusObject = (reportType === 'task') ? props.props.phFocus.focusTask : props.props.phFocus?.focusObject
-  if (debug) console.log('47 Context:', focusObjectview, focusObject)
-  // const [model, setModel] = useState(focusModel)
-  if (debug) console.log('47 Context:', focusModel, focusTask, models, props.reportType, props);
-
-
-  let curobject =  objects?.find(o => o.id === focusObject?.id)  
-  // if (!curobject) curobject = curmodelview// if no object selected then use the modelview
-  let curobjectview = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
-  if (!curobjectview) curobjectview = curmodelview
-  const curobjectviews = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = curmodel.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmodel?.relships.filter((r: any) => currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
-  const parentobjectview = curmodelview.objectviews?.find((ov: any) => ov.id === curobjectview?.group)
-  // const curobject = (props.reportType === 'task') ? objects?.find(o => o.id === focusTask?.id) : objects?.find(o => o.id === focusObject?.id) 
-
 
   useEffect(() => {
     setFormValues(curobject);
@@ -90,7 +89,7 @@ const FocusDetails = ({ props }) => {
           modifiedFields[key] = formValues[key];
         }
       }
-      if ((formValues as { id: string })['id'] === curmodelview.id) {
+      if ((formValues as { id: string })['id'] === curmodview.id) {
         const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
         // const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
         dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: objData })
@@ -162,7 +161,7 @@ const FocusDetails = ({ props }) => {
 
   }, []);
 
-  if (!props.props?.phData?.metis?.models) return <></>
+  if (!ph?.phData?.metis?.models) return <></>
 
   // const MDEditor = dynamic(
   //   () => import("@uiw/react-md-editor"),
@@ -170,10 +169,10 @@ const FocusDetails = ({ props }) => {
   // );
 
   // remove duplicate objects
-  const curobjModelviews = curmodel.modelviews.filter((cmv: any) => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
-  let parentobject = objects?.find((o: any) => o.id === parentobjectview?.objectRef)
-  if (debug) console.log('58 Context', parentobjectview);
-  if (debug) console.log('58 Context', parentobject);
+  const curobjModelviews = curmod.modelviews.filter((cmv: any) => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
+  let parentobject = objects?.find((o: any) => o.id === parentobjectview?.objectRef) || null
+  if (!debug) console.log('173 Context', parentobjectview);
+  if (!debug) console.log('174 Context', parentobject);
 
   // functions to find objects and objectviews etc ----------------------------------------------------------------------
   function findObjectviewsWithCurrentObjectviewAsParent(objectviews: any[], currentObjectviewId: string): any[] {
@@ -184,10 +183,10 @@ const FocusDetails = ({ props }) => {
     return objectviews?.map((objectview) => objects?.find((object) => object.id === objectview.objectRef)) || [];
   }
 
-  function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmodel: any): any[] {
+  function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmod: any): any[] {
     return objectviews?.map((objectview) => {
       const object = objects?.find((object) => object.id === objectview.objectRef)
-      const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
+      const metamodel = metamodels.find((mm) => mm.id === curmod.metamodelRef)
       const objecttype = metamodel.objecttypes.find((ot: any) => ot.id === object?.typeRef)
       return objecttype
     }) || [];
@@ -208,9 +207,9 @@ const FocusDetails = ({ props }) => {
   //   return currelationships?.map((relship) => relship.fromobjectRef === curobject.id ? relship.toobjectRef : null) || [];
   // }
 
-  let objectviewChildren = (curobjectview && curobject.id !== curmodelview.id) ? findObjectviewsWithCurrentObjectviewAsParent(curobjectviews, curobjectview?.id) : curmodelview?.objectviews;
+  let objectviewChildren = (curobjectview && curobject.id !== curmodview.id) ? findObjectviewsWithCurrentObjectviewAsParent(curobjectviews, curobjectview?.id) : curmodview?.objectviews;
   let objectChildren = findObjectsForObjectviews(objectviewChildren, objects);
-  if (debug) console.log('227 Context', curobjectview, curmodelview?.objectviews);
+  if (debug) console.log('227 Context', curobjectview, curmodview?.objectviews);
   if (debug) console.log('228 Context', objectviewChildren);
   if (debug) console.log('229 Context', objectChildren);
 
@@ -219,7 +218,7 @@ const FocusDetails = ({ props }) => {
   const curRelatedToObectRels = currelationships?.filter((r: any) => r?.toobjectRef === curobject?.id)
   if (debug) console.log('211 Context', curRelatedFromObectRels, curRelatedToObectRels);
 
-  const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmodel).find(ot => ot?.id === curobject?.typeRef)
+  const curobjecttype = findObjectTypesForObjectviews(curobjectviews, objects, metamodels, curmod).find(ot => ot?.id === curobject?.typeRef)
   if (debug) console.log('216 Context', curobjecttype);
   const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews)
   if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
@@ -272,8 +271,8 @@ const FocusDetails = ({ props }) => {
             </span>
           </h4> */}
         <ObjectDetails
-          curmodel={curmodel}
-          curmodelview={curmodelview}
+          curmod={curmod}
+          curmodview={curmodview}
           curmm={curmm}
           curobject={curobject}
           objectPropertiesMain={objectPropertiesMain}
@@ -283,7 +282,7 @@ const FocusDetails = ({ props }) => {
           curobjModelviews={curobjModelviews}
           setObjview={setObjview}
           parentobject={parentobject}
-          edit={props.edit}
+          edit={edit}
         />
         {(reportType === 'object') &&
           <Tabs onSelect={index => setActiveTab2(index)} style={{ overflow: '' }}>
@@ -296,7 +295,7 @@ const FocusDetails = ({ props }) => {
               <ObjDetailTable
                 title="Children"
                 curRelatedObjsRels={objectChildren}
-                curmodelview={curmodelview}
+                curmodview={curmodview}
                 curmetamodel={curmm}
                 selectedId={selectedId}
                 setSelectedId={setSelectedId}
@@ -310,7 +309,7 @@ const FocusDetails = ({ props }) => {
               <ObjDetailTable
                 title="Related From"
                 curRelatedObjsRels={curRelatedFromObectRels}
-                curmodelview={curmodelview}
+                curmodview={curmodview}
                 curmetamodel={curmm}
                 selectedId={selectedId}
                 setSelectedId={setSelectedId}
@@ -322,7 +321,7 @@ const FocusDetails = ({ props }) => {
               <ObjDetailTable
                 title="Related To"
                 curRelatedObjsRels={curRelatedToObectRels}
-                curmodelview={curmodelview}
+                curmodview={curmodview}
                 curmetamodel={curmm}
                 selectedId={selectedId}
                 setSelectedId={setSelectedId}
@@ -344,7 +343,7 @@ const FocusDetails = ({ props }) => {
                   {curobjModelviews.map(comv => (
                     <tr className="tr" key={comv.id}>
                       <td className="td">Modelview</td>
-                      {(comv.id === curmodelview?.id)
+                      {(comv.id === curmodview?.id)
                         ? <td className="td">{comv.name} <span style={{ float: "right" }}>🟢</span></td>
                         : <td className="td">{comv.name}</td>}
                     </tr>
@@ -358,8 +357,8 @@ const FocusDetails = ({ props }) => {
         <>
           <TabPanel className='additional-properties' style={{ overflow: 'auto' }}>
             <ObjectDetails
-              curmodel={curmodel}
-              curmodelview={curmodelview}
+              curmod={curmod}
+              curmodview={curmodview}
               curmm={curmm}
               curobject={curobject}
               objectPropertiesMain={objectPropertiesMore}
@@ -369,13 +368,13 @@ const FocusDetails = ({ props }) => {
               curobjModelviews={curobjModelviews}
               setObjview={setObjview}
               parentobject={parentobject}
-              edit={props.edit}
+              edit={edit}
             />
           </TabPanel>
           <TabPanel className='objectview' style={{ overflow: 'auto' }}>
             <ObjectDetails
-              curmodel={curmodel}
-              curmodelview={curmodelview}
+              curmod={curmod}
+              curmodview={curmodview}
               curmm={curmm}
               curobject={curobjectview}
               objectPropertiesMain={includedKeysAllExept}
@@ -385,13 +384,13 @@ const FocusDetails = ({ props }) => {
               curobjModelviews={curobjModelviews}
               setObjview={setObjview}
               parentobject={parentobject}
-              edit={props.edit}
+              edit={edit}
             />
           </TabPanel>
           <TabPanel className='objectype' style={{ overflow: 'auto' }}>
             <ObjectDetails
-              curmodel={curmodel}
-              curmodelview={curmodelview}
+              curmod={curmod}
+              curmodview={curmodview}
               curmm={curmm}
               curobject={curobjecttype}
               objectPropertiesMain={includedKeysAllObjType}
@@ -406,8 +405,8 @@ const FocusDetails = ({ props }) => {
           </TabPanel>
           <TabPanel className='typeview' style={{ overflowY: 'scroll' }}>
             <ObjectDetails
-              curmodel={curmodel}
-              curmodelview={curmodelview}
+              curmod={curmod}
+              curmodview={curmodview}
               curmm={curmm}
               curobject={curobjtypeview}
               objectPropertiesMain={includedKeysAllTypeview}

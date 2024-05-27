@@ -12,9 +12,10 @@ import FocusParametersForm from "./EditFocusParameter";
 
 const debug = false
 
-function MarkdownEditor( props: any ) {
+// function MarkdownEditor( props: any ) {
+const MarkdownEditor = ({ ph, reportType, modelInFocusId, edit }: { ph: any, reportType: any, modelInFocusId: any, edit: any }) => {
   // const [markdownString, setMarkdownString] = useState('# My Markdown Document\n\nThis is a paragraph of text.');
-  console.log('18 MarkdownEditor.tsx', props);
+  console.log('18 MarkdownEditor.tsx', ph);
 
   const [mdHeaderString, setMdHeaderString] = useState('');
   const [mdString, setMdString] = useState(``);
@@ -27,16 +28,16 @@ function MarkdownEditor( props: any ) {
   const [selectedId, setSelectedId] = useState('');
   const [objview, setObjview] = useState(null);
 
-  const metamodels = useSelector(state => props.props.phData?.metis?.metamodels)  // selecting the models array
-  const focusModel = useSelector(state => props.props.phFocus?.focusModel)
-  const focusUser = useSelector(state => props.props.phUser?.focusUser)
-  const focusModelview = useSelector(state => props.props.phFocus?.focusModelview)
-  const focusObjectview = useSelector(state => props.props.phFocus?.focusObjectview)
-  const focusObject = useSelector(state => props.props.phFocus?.focusObject)
+  const metamodels = useSelector(state => ph.phData?.metis?.metamodels)  // selecting the models array
+  const focusModel = useSelector(state => ph.phFocus?.focusModel)
+  const focusUser = useSelector(state => ph.phUser?.focusUser)
+  const focusModelview = useSelector(state => ph.phFocus?.focusModelview)
+  const focusObjectview = useSelector(state => ph.phFocus?.focusObjectview)
+  const focusObject = useSelector(state => ph.phFocus?.focusObject)
 
-  if (debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, props);
+  if (debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, ph);
 
-  const models = useSelector(state => props.props.phData?.metis?.models)  // selecting the models array
+  const models = useSelector(state => ph.phData?.metis?.models)  // selecting the models array
 
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
@@ -78,21 +79,21 @@ function MarkdownEditor( props: any ) {
 
   const title = 'children'
 
-  let orgLength = props.props.phFocus.focusProj?.org?.length || 0;
-  let repoLength = props.props.phFocus.focusProj?.repo?.length || 0;
-  let pathLength = props.props.phFocus.focusProj?.path?.length || 0;
-  let fileLength = props.props.phFocus.focusProj?.file?.length || 0;
-  let branchLength = props.props.phFocus.focusProj?.branch?.length || 0;
+  let orgLength = ph.phFocus.focusProj?.org?.length || 0;
+  let repoLength = ph.phFocus.focusProj?.repo?.length || 0;
+  let pathLength = ph.phFocus.focusProj?.path?.length || 0;
+  let fileLength = ph.phFocus.focusProj?.file?.length || 0;
+  let branchLength = ph.phFocus.focusProj?.branch?.length || 0;
 
-  let userLength = props.props.phFocus.focusUser?.name.length || 0;
+  let userLength = ph.phFocus.focusUser?.name.length || 0;
   let dateLength = new Date().toLocaleDateString().length;
   let timeLength = new Date().toLocaleTimeString().length;
 
   const handleAddObjectHeader = () => {
-    setMdHeaderString(` ${props.props.phFocus.focusProj?.name} \n\n --- \n\n`);
+    setMdHeaderString(` ${ph.phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
-  const fileName = `${props.props.phFocus.focusProj?.name}_${props.props.phFocus.focusModel?.name}_${props.props.phFocus.focusModelview?.name}`.replace(/ /g, '-');
+  const fileName = `${ph.phFocus.focusProj?.name}_${ph.phFocus.focusModel?.name}_${ph.phFocus.focusModelview?.name}`.replace(/ /g, '-');
   const svgFileName = `${fileName}.svg`
   const pngFileName = `${fileName}.png`
   const mdFileName = `${fileName}.md`
@@ -102,19 +103,19 @@ function MarkdownEditor( props: any ) {
 
 
   let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
-  Project file: ${props.props.phFocus.focusProj?.file}
+  Project file: ${ph.phFocus.focusProj?.file}
 
   <details>
   <summary>More about the project ... </summary>
   <nobr>
     | ***Organisation:*** | ***Repository:*** | ***Path:*** | ***Project file:*** | ***Branch:*** |
     |  ${"-".repeat(orgLength + 4)} | ${"-".repeat(repoLength + 4)} | ${"-".repeat(pathLength + 4)} | ${"-".repeat(fileLength + 4)} | ${"-".repeat(branchLength + 4)} |
-    |  "${props.props.phFocus.focusProj?.org?.padEnd(2)}"  |  "${props.props.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${props.props.phFocus.focusProj?.path}"  |  "${props.props.phFocus.focusProj?.file}"  |  "${props.props.phFocus.focusProj?.branch}"  |
+    |  "${ph.phFocus.focusProj?.org?.padEnd(2)}"  |  "${ph.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${ph.phFocus.focusProj?.path}"  |  "${ph.phFocus.focusProj?.file}"  |  "${ph.phFocus.focusProj?.branch}"  |
     </nobr>
     <nobr> --- \n\n
     | user | date${" ".repeat(dateLength - 4)} | time${" ".repeat(timeLength - 4)} |
     | ${"-".repeat(userLength + 2)} | ${"-".repeat(dateLength + 2)} | ${"-".repeat(timeLength + 2)} |
-    | "${props.props.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
+    | "${ph.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
     </nobr>
   </details>
   `

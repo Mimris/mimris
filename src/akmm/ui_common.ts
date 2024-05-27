@@ -991,10 +991,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myModelview = context.myModelview;
     const fromObjview = context.fromObjview;
     const toObjview = context.toObjview;
-    const nodeFrom = context.nodeFrom;
-    const nodeTo = context.nodeTo;
-    const gjsFromKey = nodeFrom.key;
-    const gjsToKey = nodeTo.key;
+    let gjsFromKey = context.gjsFromKey;
+    let gjsToKey = context.gjsToKey;
+    if (!gjsFromKey) gjsFromKey = context.nodeFrom.key;
+    if (!gjsToKey)  gjsToKey = context.nodeTo.key;
     const reltype = context.reltype;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;

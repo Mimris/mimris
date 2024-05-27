@@ -312,8 +312,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
         object.generatedTypeId = objtype.getId();
-        const jsnObject = new jsn.jsnObject(object);
-        modifiedObjects.push(jsnObject);
         { // Handle objecttypeview
             let objtypeview = objtype.typeview;
             if (!objtypeview) {
@@ -349,11 +347,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 parentRelType.setRelshipKind('Generalization');
                 myTargetMetamodel.addRelationshipType(parentRelType);
                 myMetis.addRelationshipType(parentRelType);
-            }
-            // Prepare for dispatch
-            if (parentRelType) {
-                const jsnRelshipType = new jsn.jsnRelationshipType(parentRelType, true);
-                modifiedRelshipTypes.push(jsnRelshipType);
             }
         }
     }
@@ -411,56 +404,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
         if (ports) objtype.ports = ports;
-    }
-    { // Prepare object type for dispatch
-        const jsnObjectType = new jsn.jsnObjectType(objtype, true);
-        modifiedObjectTypes.push(jsnObjectType);
-    }
-    { // Handle typeviews
-        const typeview = objtype.typeview as akm.cxObjectTypeView;
-        if (typeview) {
-            const jsnObjTypeview = new jsn.jsnObjectTypeView(typeview);
-            modifiedObjectTypeViews.push(jsnObjTypeview);
-        }
-    }
-    { // Handle type geos
-        const geo = myTargetMetamodel.findObjtypeGeoByType(objtype);
-        if (geo) {
-            const jsnObjTypegeo = new jsn.jsnObjectTypegeo(geo);
-            modifiedTypeGeos.push(jsnObjTypegeo);
-        }
-    }
-    { // Do the dispatches
-        modifiedObjectTypes.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
-        });
-        modifiedTypeGeos?.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-        })
-        modifiedObjectTypeViews?.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
-        });
-        modifiedRelshipTypes.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-        });
-        modifiedObjects?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-        });
-        modifiedRelships?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-        });
     }
     return objtype;
 }
@@ -573,9 +516,6 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         myTargetMetamodel?.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
         currentRel.generatedTypeId = reltype.id;
-        const jsnRelship = new jsn.jsnRelationship(currentRel);
-        const data = JSON.parse(JSON.stringify(jsnRelship));
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
 
         // Create/Modify the relationship typeview
         reltypeview = reltype.typeview;
@@ -624,8 +564,6 @@ export function generateRelshipType2(object: akm.cxObject, fromType: akm.cxObjec
         const typeprops: akm.cxProperty[] = new Array();
         getAllPropertytypes(object, typeprops, myModel);
         addProperties(reltype, typeprops, context);
-        const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
-        modifiedRelshipTypes.push(jsnRelshipType);
     }
     { // Handle the relationship typeview
         let reltypeview = reltype.typeview;
@@ -639,13 +577,6 @@ export function generateRelshipType2(object: akm.cxObject, fromType: akm.cxObjec
         myMetis.addRelationshipTypeView(reltypeview);
         reltype.setModified();
     }
-
-    modifiedRelshipTypes?.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-    });
-
     return reltype;
 }
 
@@ -840,22 +771,6 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
             method[propname] = object[propname];
         }
     }
-    // Update phData
-    const jsnMethod = new jsn.jsnMethod(method);
-    if (methodType) {
-        const props = methodType.properties;
-        for (let i = 0; i < props?.length; i++) {
-            const propname = props[i].name;
-            jsnMethod[propname] = method[propname];
-        }
-    }
-    const modifiedMethods = new Array();
-    modifiedMethods.push(jsnMethod);
-    modifiedMethods.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_TARGETMETHOD_PROPERTIES', data })
-    });
     return method;
 }
 
@@ -913,19 +828,11 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
         if (!targetMetamodel) {
             targetMetamodel = new akm.cxMetaModel(utils.createGuid(), mmname, object.description);
             myMetis.addMetamodel(targetMetamodel);
-            const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel);
-            modifiedMetamodels.push(jsnMetamodel);
         }
         mmObjectView = myMetis.currentModelview.findObjectViewByName(mmObject.name);
         let obj = mmObjectView.object
         obj = myMetis.findObject(obj.id);
         mmObjectView.object = obj;
-
-        modifiedMetamodels.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-        });
         break;
     }
     if (mmname === constants.core.AKM_CORE_MM) {
@@ -1096,9 +1003,6 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                                 model = new akm.cxModel(utils.createGuid(), submodelObject.name, submodelObject.description);
                                 myMetis.addModel(model);
                             }
-                            if (model) {
-                                targetMetamodel.addSubModel(model);
-                            }
                         }
                     }
                 }
@@ -1134,14 +1038,7 @@ function fulfillRelshipviews(relshipviews: akm.cxRelationshipView[], sourcemodel
         toObjview = sourcemodelview.findObjectView(toObjview.id);
         relshipview.fromObjview = fromObjview;
         relshipview.toObjview = toObjview;
-        const jsnRelshipview = new jsn.jsnRelshipView(relshipview);
-        modifiedRelshipViews.push(jsnRelshipview);
     }
-    modifiedRelshipViews.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-    });
 }
 
 export function verifyPortsModel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[]): boolean {
@@ -1192,40 +1089,18 @@ function addSubAndContainTypes(myMetis: akm.cxMetis, myMetamodel: akm.cxMetaMode
     let containsType = myMetis.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
     if (containsType) {
         const reltypeview = containsType.typeview;
-        const jsnRelTypeview = new jsn.jsnRelshipTypeView(reltypeview);
-        modifiedRelTypeViews.push(jsnRelTypeview);
         myMetamodel.addRelationshipTypeView(reltypeview);
-        let jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
-        modifiedMetamodels.push(jsnMetamodel);
     }
     let hasSubType = myMetis.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, mmType);
     if (hasSubType) {
         const reltypeview = hasSubType.typeview;
-        const jsnRelTypeview = new jsn.jsnRelshipTypeView(reltypeview);
-        modifiedRelTypeViews.push(jsnRelTypeview);
         myMetamodel.addRelationshipTypeView(reltypeview);
-        let jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
-        modifiedMetamodels.push(jsnMetamodel);
     }
     hasSubType = myMetis.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, mType);
     if (hasSubType) {
         const reltypeview = hasSubType.typeview;
-        const jsnRelTypeview = new jsn.jsnRelshipTypeView(reltypeview);
-        modifiedRelTypeViews.push(jsnRelTypeview);
         myMetamodel.addRelationshipTypeView(reltypeview);
-        let jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
-        modifiedMetamodels.push(jsnMetamodel);
     }
-    modifiedRelTypeViews?.map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-    });
-    modifiedMetamodels.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-    });
 }
 
 function addSubAndContainRelviews(myMetis: akm.cxMetis, myModel: akm.cxModel, modelview: akm.cxModelView) {
@@ -1260,11 +1135,6 @@ function addSubAndContainRelviews(myMetis: akm.cxMetis, myModel: akm.cxModel, mo
             addSubAndContainRelview(rel, modelview, modifiedRelshipViews);
         }
     }
-    modifiedRelshipViews?.map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-    });
 }
 
 function addSubAndContainRelview(relship: akm.cxRelationship, modelview: akm.cxModelView, modifiedRelshipViews: any[]) {
@@ -1284,8 +1154,6 @@ function addSubAndContainRelview(relship: akm.cxRelationship, modelview: akm.cxM
         relview.setToObjectView(toObjviews[0]);
         relship.addRelationshipView(relview);
         modelview.addRelationshipView(relview);
-        let jsnRelview = new jsn.jsnRelshipView(relview);
-        modifiedRelshipViews.push(jsnRelview);
     }
 
 }
@@ -1369,14 +1237,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const myObjectview = context.myCurrentObjectview;
     const mmType = myMetamodel.findObjectTypeByName(constants.types.AKM_METAMODEL);
     const entType = myMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-    const modifiedDataTypes = new Array();
-    const modifiedMethods = new Array();
-    const modifiedMethodTypes = new Array();
-    const modifiedObjectTypes = new Array();
-    const modifiedObjTypeViews = new Array();
-    const modifiedTypeGeos = new Array();
-    const modifiedRelshipTypes = new Array();
-    const modifiedRelTypeViews = new Array();
     const modifiedMetamodels = new Array();
     const includeSystemtypes = myModel.includeSystemtypes
     let includeMetamodelling = false;
@@ -1411,10 +1271,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let obj = objects[i];
             if (obj && !obj.markedAsDeleted) {
                 const datatype = generateDatatype(obj, context);
-                if (datatype) {
-                    const jsnDatatype = new jsn.jsnDatatype(datatype);
-                    modifiedDataTypes.push(jsnDatatype);
-                }
             }
         }
     }
@@ -1438,8 +1294,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     if (mtdType) {
                         targetMetamodel.addMethodType(mtdType);
                         myMetis.addMethodType(mtdType);
-                        const jsnMtdType = new jsn.jsnMethodType(mtdType);
-                        modifiedMethodTypes.push(jsnMtdType);
                     }
                 }
             }
@@ -1452,8 +1306,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let obj = objects[i];
             if (obj && !obj.markedAsDeleted) {
                 const method = generateMethod(obj, context);
-                const jsnMethod = new jsn.jsnMethod(method);
-                if (debug) console.log('1322 method, jsnMethod', method, jsnMethod);
                 const mtdtypename = method.methodtype;
                 const methodType = myMetamodel.findMethodTypeByName(mtdtypename);
                 if (debug) console.log('1325 methodType', methodType);
@@ -1466,8 +1318,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     }
                     if (debug) console.log('1334 method', method);
                 }
-                modifiedMethods.push(jsnMethod);
-                if (debug) console.log('1337 method, jsnMethod', method, jsnMethod);
             }
         }
     }
@@ -1639,8 +1489,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                                     const reltype = new akm.cxRelationshipType(uid, constants.types.AKM_IS, objtype, toObjtype);
                                     myMetis.addRelationshipType(reltype);
                                     targetMetamodel.addRelationshipType(reltype);
-                                    const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
-                                    modifiedRelshipTypes.push(jsnRelshipType);
                                 }
                             }
                             // Handle typeviews
@@ -1650,13 +1498,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             // Remove them all
                             if (typeview) {
                                 typeviews.push(typeview);
-                                const jsnObjTypeview = new jsn.jsnObjectTypeView(typeview);
-                                modifiedObjTypeViews.push(jsnObjTypeview);
                             }
                             targetMetamodel.objecttypeviews = typeviews;
                             if (debug) console.log('1327 targetMetamodel ', targetMetamodel);
-                            const jsnObjectType = new jsn.jsnObjectType(objtype);
-                            modifiedObjectTypes.push(jsnObjectType);
                         }
                     }
                 }
@@ -1740,8 +1584,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     const relTypeview = reltype.typeview as akm.cxRelationshipTypeView;
                     if (relTypeview) {
                         targetMetamodel.addRelationshipTypeView(relTypeview);
-                        const jsnRelTypeview = new jsn.jsnRelshipTypeView(relTypeview);
-                        modifiedRelTypeViews.push(jsnRelTypeview);
                     }
                     // Handle properties
                     const typeprops: akm.cxProperty[] = new Array();
@@ -1750,8 +1592,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     addProperties(reltype, typeprops, context);
                     targetMetamodel.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);
-                    const jsnRelshipType = new jsn.jsnRelationshipType(reltype, false);
-                    modifiedRelshipTypes.push(jsnRelshipType);
                 }
             }
         }
@@ -1814,8 +1654,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             // Remove them all
                             if (typeview) {
                                 typeviews.push(typeview);
-                                const jsnRelTypeview = new jsn.jsnRelshipTypeView(typeview);
-                                modifiedRelTypeViews.push(jsnRelTypeview);
                             }
                             targetMetamodel.relshiptypeviews = typeviews;
                             // Then handle relationship typeview
@@ -1825,11 +1663,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                                 targetMetamodel.addRelationshipTypeView(relTypeview);
                                 myMetis.addRelationshipTypeView(relTypeview);
                                 reltype.setDefaultTypeView(relTypeview);
-                                const jsnRelTypeview = new jsn.jsnRelshipTypeView(relTypeview);
-                                modifiedRelTypeViews.push(jsnRelTypeview);
                             }
-                            const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
-                            modifiedRelshipTypes.push(jsnRelshipType);
                         }
                     }
                 }
@@ -1908,23 +1742,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             const reltype = reltypes[j];
             targetMetamodel.addRelationshipType(reltype);
             myMetis.addRelationshipType(reltype);
-            const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
-            modifiedRelshipTypes.push(jsnRelshipType);
-        }
+         }
     }
-    let jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
-    modifiedMetamodels.push(jsnMetamodel);
     myMetis.addMetamodel(targetMetamodel);
     myMetis.metamodels = [...new Set(myMetis.metamodels)];
-
-    if (containsTypeView) {
-        let jsnRelTypeview = new jsn.jsnRelshipTypeView(containsTypeView);
-        modifiedRelTypeViews.push(jsnRelTypeview);
-    }
-    if (hasSubMetamodelView) {
-        let jsnRelTypeview = new jsn.jsnRelshipTypeView(hasSubMetamodelView);
-        modifiedRelTypeViews.push(jsnRelTypeview);
-    }
 
     // Check if the metamodel is used as a sub-metamodel in another metamodel
     const metamodels = myMetis.metamodels;
@@ -1939,53 +1760,15 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
         metamodel.submetamodels = subMetamodels;
-        jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-        modifiedMetamodels.push(jsnMetamodel);
-        if (debug) console.log('1920 generateMetamodel 2');
+        if (subMetamodels?.length > 0) {
+            const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+            modifiedMetamodels.push(jsnMetamodel);
+            if (debug) console.log('1920 generateMetamodel 2');
+        }
     }
 
     // Do the dispatches
     {
-        modifiedDataTypes.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data))
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
-        });
-        modifiedMethods.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_METHOD_PROPERTIES', data })
-        });
-        modifiedMethodTypes.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_METHODTYPE_PROPERTIES', data })
-        });
-        modifiedObjectTypes.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
-        });
-        modifiedObjTypeViews?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        });
-        modifiedTypeGeos?.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-        });
-        modifiedRelshipTypes?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-        });
-        modifiedRelTypeViews?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-        });
         modifiedMetamodels.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
@@ -2522,20 +2305,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxPro
                 }
             }
         }
-    }
-    // Do the dispatches
-    const props = type?.properties;
-    const modifiedProps = new Array();
-    for (let i = 0; i < props?.length; i++) {
-        const jsnProperty = new jsn.jsnProperty(props[i]);
-        modifiedProps.push(jsnProperty);
-    }
-    if (modifiedProps?.length > 0) {
-        modifiedProps.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
-        });
     }
 }
 

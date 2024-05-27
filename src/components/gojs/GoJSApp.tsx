@@ -1371,8 +1371,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         let data = sel.data;
         console.log('1313 selected', data, sel);
-        const object = myModel.findObject(data?.objectRef);
         const objectview = myModelview.findObjectView(data?.key);
+        const object = objectview?.object;
         console.log('1316 object, objectview', object, objectview);
         for (let it = myDiagram.nodes; it?.next();) {
           const n = it.value;
@@ -1385,12 +1385,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
             console.log('1319 myGoModel, goNode', myGoModel, goNode);
         }
-        if (data.objviewRef) {
-          const payload = data // JSON.parse(JSON.stringify(data));
-          const objvIdName = { id: payload.objviewRef, name: payload.name };
-          const objIdName = { id: payload.objRef, name: payload.name };
+        if (objectview && object) {
+          const objvIdName = { id: objectview.id, name: objectview.name };
+          const objIdName = { id: object.id, name: object.name };
 
-          if (!debug) console.log('1072 SET_FOCUS_OBJECTVIEW', payload, objvIdName, objIdName)
+          if (!debug) console.log('1072 SET_FOCUS_OBJECTVIEW', objvIdName, objIdName)
           context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
           context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
         }
@@ -2036,8 +2035,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     if (debug) console.log('1542 dispatch', this.state.myMetis.dispatch);
-    if (debug) console.log('1837 dataarray:', this.state);
-    if (debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
+    if (!debug) console.log('1837 dataarray:', this.state);
+    if (!debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
     return ((this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

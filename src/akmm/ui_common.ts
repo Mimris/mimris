@@ -991,10 +991,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myModelview = context.myModelview;
     const fromObjview = context.fromObjview;
     const toObjview = context.toObjview;
-    //const nodeFrom = context.nodeFrom;
-    // const nodeTo = context.nodeTo;
-    const gjsFromKey = context.gjsFromKey;
-    const gjsToKey = context.gjsToKey;
+    const nodeFrom = context.nodeFrom;
+    const nodeTo = context.nodeTo;
+    const gjsFromKey = nodeFrom.key;
+    const gjsToKey = nodeTo.key;
     const reltype = context.reltype;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
@@ -1004,9 +1004,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     rel.addRelationshipView(relview);
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
+    myDiagram.startTransaction('CreateLink');
     // create a link data between the actual nodes
     let linkdata = {
-        key:    utils.createGuid(),
+        key:    relview.id,
         from:   gjsFromKey, 
         to:     gjsToKey,
         name:   relTypename,
@@ -1016,14 +1017,21 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     for (let prop in rtviewdata) {
         if (prop === 'id') continue;
         if (prop === 'name') continue;
+        if (prop === 'nameId') continue;
+        if (prop === 'category') continue;
         if (prop === 'abstract') continue;
         if (prop === 'class') continue;
-        // if (prop === 'relshipkind') continue;
+        if (prop === 'sourceUri') continue;
+        if (prop === 'markedAsDeleted') continue;
+        if (prop === 'modified') continue;
+        if (prop === 'typeRef') continue;
+        if (prop === 'data') continue;
         linkdata[prop] = rtviewdata[prop];
     }
     // and add the link data to the model
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
+    myDiagram.commitTransaction('CreateLink');
 
     // Prepare for dispatch
     const jsnRelship = new jsn.jsnRelationship(rel);

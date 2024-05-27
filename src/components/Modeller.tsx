@@ -88,7 +88,7 @@ const Modeller = (props: any) => {
     };
 
     useEffect(() => { // set activTab when focusModelview.id changes
-        if (!debug) useEfflog('91 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
+        if (debug) useEfflog('91 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
         setActiveTab(activetabindex)
     }, [props.phFocus?.focusModelview?.id])
 
@@ -106,7 +106,7 @@ const Modeller = (props: any) => {
         dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
     }
 
-    function toggleObjects() { 
+    function toggleObjects() {
         // // props.setRefresh(!props.refresh)
         // if (selectedOption === 'Sorted by type') {
         //     setSelectedOption('In this modelview')
@@ -114,12 +114,12 @@ const Modeller = (props: any) => {
         // //     setSelectedOption('In this modelview')
         // }
         setObjectsRefresh(!objectsRefresh)
-        setVisibleObjects(!visibleObjects); 
+        setVisibleObjects(!visibleObjects);
     }
 
-    
+
     useEffect(() => {
-        if (!debug) useEfflog('122 Modeller useEffect 2 [] ');
+        if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
         setSelectedOption('Sorted by type')
         if (mmodel?.name === 'AKM-OSDU_MM') {
@@ -130,16 +130,16 @@ const Modeller = (props: any) => {
             setSelectedOption('In this modelview')
         }
         setMounted(true)
-        
-        setVisibleObjects(true); 
+
+        setVisibleObjects(true);
         const timer = setTimeout(() => {
-            setObjectsRefresh(!objectsRefresh) 
+            setObjectsRefresh(!objectsRefresh)
         }, 250);
         return () => clearTimeout(timer);
     }, [])
 
     useEffect(() => {
-        if (!debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
+        if (debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
         if (model.objects.length === 0) {
             if (selectedOption === 'In this modelview') {
                 setSelectedOption('Sorted by type')
@@ -157,7 +157,7 @@ const Modeller = (props: any) => {
     }, [model.objects.length === 0])
 
     useEffect(() => {
-        if (!debug) useEfflog('122 Modeller useEffect 4 [props.phFocus?.focusObjectview?.id] ');
+        if (debug) useEfflog('122 Modeller useEffect 4 [props.phFocus?.focusObjectview?.id] ');
         const propps = {
             phData: props.phData,
             phFocus: props.phFocus,
@@ -275,16 +275,16 @@ const Modeller = (props: any) => {
         }
         return newobj;
     }
-    
+
     // Objects palette
     const myModel = props.myMetis?.findModel(model.id);
     let ndArr1 = uib.buildObjectPalette(myModel?.objects, props.myMetis)
-    let ndArr = ndArr1?.map((nd: any) => filterObject(nd))      
+    let ndArr = ndArr1?.map((nd: any) => filterObject(nd))
     let ldArr = []
 
     const ndTypes = ndArr?.map((nd: any) => nd.typename)
     const uniqueTypes = [...new Set(ndTypes)].sort();
-    
+
     const nodeArray_all = ndArr
 
     // if OSDU import then set fillcolor according to osduType
@@ -297,7 +297,7 @@ const Modeller = (props: any) => {
     if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
     useEffect(() => {
-        if (!debug) useEfflog('300 Modeller useEffect 5 [selectedOption] ');
+        if (debug) useEfflog('300 Modeller useEffect 5 [selectedOption] ');
         const initialArr = objectsNotDeleted;
         if (debug) console.log('409 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
         if (selectedOption === 'In this modelview') {
@@ -417,7 +417,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         <>
             <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none", }}>
                 {/* <div className="d-flex justify-content-between"> */}
-                    {/* <button 
+                {/* <button 
                         className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
                         onClick={toggleObjects} 
                         data-toggle="tooltip" 
@@ -425,7 +425,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
                         {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
                     </button> */}
-                    {/* <button 
+                {/* <button 
                         className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
                         onClick={toggleIsExpanded} 
                         data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
@@ -514,7 +514,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <TabPane className="">
                     <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
                         {(visibleObjects)
-                            ? (objectsRefresh) 
+                            ? (objectsRefresh)
                                 ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col></>
                                 : <> <Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
                             : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div></Col> </>
@@ -540,11 +540,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         <Col className="me-1 my-1 p-1 border " xs="auto" >
                             <div className="" style={{ backgroundColor: "#cdd" }}>
                                 {(props.visibleFocusDetails) ?
-                                    <ReportModule 
-                                        props={props} 
-                                        reportType="object" 
-                                        edit={true} 
-                                        modelInFocusId={props.phFocus.focusModel?.id} 
+                                    <ReportModule
+                                        props={props}
+                                        reportType="object"
+                                        edit={true}
+                                        modelInFocusId={props.phFocus.focusModel?.id}
                                         exportTab={props.exportTab}
                                     />
                                     : <></>

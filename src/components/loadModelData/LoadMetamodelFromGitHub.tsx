@@ -34,7 +34,7 @@ const LoadMetamodelFromGithub = (props: any) => {
   let phSource = props.phSource
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
-  
+
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
   const [orgText, setOrgText] = useState('Kavca');
@@ -54,11 +54,11 @@ const LoadMetamodelFromGithub = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   const data = {
-    phData:   props.ph.phData,
-    phFocus:  props.ph.phFocus,
-    phUser:   props.ph.phUser,
+    phData: props.ph.phData,
+    phFocus: props.ph.phFocus,
+    phUser: props.ph.phUser,
     // phSource: props.phSource,
-    phSource: (phSource === "") && phData.metis.name  || phSource,
+    phSource: (phSource === "") && phData.metis.name || phSource,
     lastUpdate: new Date().toISOString()
   }
 
@@ -77,9 +77,9 @@ const LoadMetamodelFromGithub = (props: any) => {
   };
 
   const onRepoChange = (text: string) => {
-    (text) ? setRepoText(text): setRepoText('');
+    (text) ? setRepoText(text) : setRepoText('');
   };
-  
+
 
   const onPathChange = (text: string) => {
     if (text?.length < 2) {
@@ -97,15 +97,15 @@ const LoadMetamodelFromGithub = (props: any) => {
 
     loadModel(rep, filename);
 
-    if (debug) console.log('52', rep, filename, )
-    const  refres = () => {
+    if (debug) console.log('52', rep, filename,)
+    const refres = () => {
       setRefresh(!refresh)
     }
     setTimeout(refres, 3000);
   }
 
   const loadRepos = async (repoText: string, pathText: string) => {
-    if (usernameText?.length > 0)  { 
+    if (usernameText?.length > 0) {
       setLoading(true);
       if (debug) console.log('76 loadRepos', repoText, pathText, model)
       if ((!repoText) || repoText.includes('undefined')) return null;
@@ -148,12 +148,12 @@ const LoadMetamodelFromGithub = (props: any) => {
     if (debug) console.log('142 ', content, model)
     setModel(model);
     setLoading(false);
-    if (debug) console.log('90 onModelChange', model, props) 
+    if (debug) console.log('90 onModelChange', model, props)
 
     if (model) {
       if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
         const mmodel = model; // model is a metamodel
-        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex((m: any) => m.id === mmodel?.id) // current mmodel index
+        let mmindex = props.ph.phData?.metis?.metamodels?.findIndex((m: any) => m.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id
         // let oldmodel;
         // if ( mmindex !== -1) { //  found
@@ -165,87 +165,87 @@ const LoadMetamodelFromGithub = (props: any) => {
         //   }    
         // }
         let datatmp = props.ph
-        if (debug) console.log('166 ',  mmodel.name, props.ph.phData?.metis?.metamodels.find((mm: any) => mm.name ), props.ph.phData?.metis?.metamodels)
+        if (debug) console.log('166 ', mmodel.name, props.ph.phData?.metis?.metamodels.find((mm: any) => mm.name), props.ph.phData?.metis?.metamodels)
         if (mmodel?.name === props.ph.phData?.metis?.metamodels.find((mm: any) => mm.name === mmodel?.name)?.name && mmodel?.id !== props.ph.phData?.metis?.metamodels.find((mm: any) => mm.name === mmodel?.name)?.id) {
 
           const tmpmmodel = props.ph.phData?.metis?.metamodels.find((mm: any) => mm.name === mmodel.name)
           const oldmmodel = {
             ...tmpmmodel,
             // id: tmpmmodel.id,//+'_old',
-            name: tmpmmodel.name+'_old',
-          }    
+            name: tmpmmodel.name + '_old',
+          }
           let oldmmindex = props.ph.phData?.metis?.metamodels?.findIndex((m: any) => m.id === oldmmodel?.id) // current mmodel index
           if (debug) console.log('174 ', oldmmindex, oldmmodel, props.ph.phData?.metis?.metamodels)
           // find the model refering to the metamodel and change the metamodelRef to the new metamodel
           let oldmodel;
           let oldmindex = props.ph.phData?.metis?.models?.findIndex((m: any) => m.metamodelRef === oldmmodel?.id) // current mmodel index
 
-          if ( oldmindex !== -1) { //  found
+          if (oldmindex !== -1) { //  found
             const tmpmodel = props.ph.phData?.metis?.models[oldmindex]
             oldmodel = {
               ...tmpmodel,
               metamodelRef: mmodel.id,
-            }    
+            }
           }
           if (debug) console.log('185 ', oldmindex, oldmodel, props.ph.phData?.metis?.models)
 
           datatmp = {
             phData: {
-                ...props.ph.phData,
-                metis: {
-                    ...props.ph.phData.metis,
-                    metamodels: [
-                        ...props.ph.phData.metis.metamodels.slice(0, oldmmindex),  
-                        oldmmodel,
-                        ...props.ph.phData.metis.metamodels.slice(oldmmindex + 1, props.ph.phData.metis.metamodels.length),
-                    ],
-                    models: [
-                      ...props.ph.phData.metis.models.slice(0, oldmindex),  
-                      oldmodel,
-                      ...props.ph.phData.metis.models.slice(oldmindex + 1, props.ph.phData.metis.models.length),
-                    ],   
-                },
-            }, 
+              ...props.ph.phData,
+              metis: {
+                ...props.ph.phData.metis,
+                metamodels: [
+                  ...props.ph.phData.metis.metamodels.slice(0, oldmmindex),
+                  oldmmodel,
+                  ...props.ph.phData.metis.metamodels.slice(oldmmindex + 1, props.ph.phData.metis.metamodels.length),
+                ],
+                models: [
+                  ...props.ph.phData.metis.models.slice(0, oldmindex),
+                  oldmodel,
+                  ...props.ph.phData.metis.models.slice(oldmindex + 1, props.ph.phData.metis.models.length),
+                ],
+              },
+            },
           };
         }
         const mmlength = props.ph.phData?.metis?.metamodels.length
-        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
+        if (mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         if (debug) console.log('192 ', mmindex, mmlength, mmodel, datatmp)
         const data = {
           phData: {
-              ...datatmp?.phData,
-              metis: {
-                  ...datatmp?.phData.metis,
-                  metamodels: [
-                      ...datatmp?.phData.metis.metamodels.slice(0, mmindex),  
-                      mmodel,
-                      ...datatmp?.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
-                  ],
-                  models: datatmp?.phData.metis.models,   
-              },
-          }, 
+            ...datatmp?.phData,
+            metis: {
+              ...datatmp?.phData.metis,
+              metamodels: [
+                ...datatmp?.phData.metis.metamodels.slice(0, mmindex),
+                mmodel,
+                ...datatmp?.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
+              ],
+              models: datatmp?.phData.metis.models,
+            },
+          },
         };
         if (debug) console.log('166 ', data)
-        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      } 
-      
+        if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      }
+
       // GenGojsModel(data.phData, dispatch)
     }
   }
 
   const loadModels = async (usernameText: string, pathText: string) => {
     setLoading(true);
-    const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
+    const repos = (pathText !== '' && pathText !== undefined) ? `repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if (debug) console.log('206  ', usernameText, repoText, pathText, 'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug && res?.data !== null) console.log('133 ', await res?.data)
     setLoading(false);
-    const filteredDirs = await res?.data?.filter((model: any) => 
-      model.type === 'dir' 
-      && model.name !== 'img' 
-      && model.name !== 'imgdocs' 
-      && model.name !== '.github' 
+    const filteredDirs = await res?.data?.filter((model: any) =>
+      model.type === 'dir'
+      && model.name !== 'img'
+      && model.name !== 'imgdocs'
+      && model.name !== '.github'
       && model.name !== '.gitignore');
     const filteredModels = await res?.data?.filter((model: any) => model.name.endsWith('.json'));
     setModels(filteredModels);
@@ -263,7 +263,7 @@ const LoadMetamodelFromGithub = (props: any) => {
   };
 
   useEffect(() => {
-    if (!debug) console.log('230 ', usernameText, repoText, branchText, pathText,  githubLink)
+    if (debug) console.log('230 ', usernameText, repoText, branchText, pathText, githubLink)
   }, [refresh]);
 
   // useEffect(() => {
@@ -286,12 +286,12 @@ const LoadMetamodelFromGithub = (props: any) => {
       return {
         value: mod.name,
         label: mod.name
-      } 
+      }
     });
   }
 
-  const label = (models.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODELS" above! - - - ' ;
-  const  modeloptions = [{value: '', label: label}, ...modeloptionss] ;
+  const label = (models.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODELS" above! - - - ';
+  const modeloptions = [{ value: '', label: label }, ...modeloptionss];
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
   if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
 
@@ -303,14 +303,14 @@ const LoadMetamodelFromGithub = (props: any) => {
   }
 
 
-  return  (
+  return (
     <>
       <span><button className="btn bg-secondary py-1 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg me-2 ms-0 "></i>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
+        <ModalHeader toggle={() => { toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 d-fle">
           <div className="bg-secondary" >
-              
+
             <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Start Models:</strong>
               {/* ----Repository user name input------------------------------- */}
               {/* <TextInput label="RepoOwner:" value={orgText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />          */}
@@ -335,23 +335,23 @@ const LoadMetamodelFromGithub = (props: any) => {
               <hr className="bg-light my-1 mx-4" />
 
               {/* -------- Select model ----------------------------------- */}
-              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" onClick = {() => loadModels(usernameText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List aaaa Models</Button>
-              {(models?.length > 0) 
-                ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod: { name: string }) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
+              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" onClick={() => loadModels(usernameText, pathText)}><i className="fab fa-github fa-lg me-2"></i>List aaaa Models</Button>
+              {(models?.length > 0)
+                ? <div className="" >Models found:<span className="text-success m-1 ">{models?.map((mod: { name: string }) => (<li className="px-2" key={mod.name} >{mod.name},   </li>))} </span></div>
                 : <div className='text-warning'> 'No models found!'</div>
-              } 
+              }
               <hr className="bg-primary px-10 my-1 mx-4" />
-              <label className=" d-inline-flex justify-content-left"> 
+              <label className=" d-inline-flex justify-content-left">
                 <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value: string) => onModelChange(value)} />
               </label>
-                <span className="p-5">
-                  <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+              <span className="p-5">
+                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Click here when done!" onClick={() => { toggle(); toggleRefresh() }}>Done
                 </Button>
               </span>
 
-            <hr className="bg-secondary py-0 my-1 mx-4" />
-          </div>
+              <hr className="bg-secondary py-0 my-1 mx-4" />
+            </div>
           </div>
         </ModalBody>
       </Modal>

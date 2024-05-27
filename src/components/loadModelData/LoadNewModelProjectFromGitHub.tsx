@@ -20,7 +20,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const modalRef = useRef(null);
   // const backdropref = useRef(null);
 
-  if (!debug) console.log('23 LoadNewModel....', props)
+  if (debug) console.log('23 LoadNewModel....', props)
 
   // const username = 'kavca'
   // const url = `https://api.github.com/users/${username}/repos/`
@@ -37,7 +37,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   let phSource = props.ph.phSource
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
-  
+
   // const [searchText, setSearchText] = useState('');
   const [orgnameText, setOrgnameText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
@@ -58,11 +58,11 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
 
   const data = {
-    phData:   props.ph.phData,
-    phFocus:  props.ph.phFocus,
-    phUser:   props.ph.phUser,
+    phData: props.ph.phData,
+    phFocus: props.ph.phFocus,
+    phUser: props.ph.phUser,
     // phSource: props.phSource,
-    phSource: (phSource === "") && phData.metis.name  || phSource,
+    phSource: (phSource === "") && phData.metis.name || phSource,
     lastUpdate: new Date().toISOString()
   }
 
@@ -105,8 +105,8 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     const rep = `${orgnameText}/${repoText}`;
     const filename = `${text}`; // add slash
     loadModel(rep, filename);
-    if (debug) console.log('52', rep, filename, )
-    const  refres = () => {
+    if (debug) console.log('52', rep, filename,)
+    const refres = () => {
       setRefresh(!refresh)
     }
     setTimeout(refres, 3000);
@@ -149,7 +149,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     const content = res?.data // this is the project file from github
     if (debug) console.log('138 ', searchtext, res, content)
 
-       const model = content // the content from github
+    const model = content // the content from github
 
     // const model = { // take model from content and split repository into organisation and repository ad insert into phData
     //   ...content,
@@ -165,21 +165,21 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     if (debug) console.log('142 ', content, model)
     setModel(model);
     setLoading(false);
-    if (debug) console.log('90 onModelChange', model, props) 
+    if (debug) console.log('90 onModelChange', model, props)
 
     if (model) {
-        const data = {
-          phData:   model.phData,
-          phFocus:  model.phFocus,
-          phUser:   model.phUser,
-          // phSource: model.phData.metis.name || model.phSource 
-          phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
-        }
-        if ((debug)) console.log('154', data)
-        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-        if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-        if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-        if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+      const data = {
+        phData: model.phData,
+        phFocus: model.phFocus,
+        phUser: model.phUser,
+        // phSource: model.phData.metis.name || model.phSource 
+        phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
+      }
+      if ((debug)) console.log('154', data)
+      if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      if (data.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+      if (data.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+      if (data.phSource) dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
       // }
       // GenGojsModel(data.phData, dispatch)
     }
@@ -188,17 +188,17 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   const loadModels = async (orgText: string, pathText: string) => {
     setLoading(true);
     if ((debug)) console.log('191  ', orgText, pathText)
-    const repos = (pathText !== '' && pathText !== undefined ) ?`repos/${orgText}/${repoText}/contents/${pathText}` : `repos/${orgText}/${repoText}/contents`;
+    const repos = (pathText !== '' && pathText !== undefined) ? `repos/${orgText}/${repoText}/contents/${pathText}` : `repos/${orgText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     if ((debug)) console.log('194  ', orgText, repoText, pathText, 'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug) console.log('196 ', await res?.data)
     setLoading(false);
-    const filteredDirs = await res?.data?.filter((model: any) => 
-      model.type === 'dir' 
-      && model.name !== 'img' 
-      && model.name !== 'imgdocs' 
-      && model.name !== '.github' 
+    const filteredDirs = await res?.data?.filter((model: any) =>
+      model.type === 'dir'
+      && model.name !== 'img'
+      && model.name !== 'imgdocs'
+      && model.name !== '.github'
       && model.name !== '.gitignore');
     const filteredModels = await res?.data?.filter((model: any) => model.name.endsWith('.json'));
     setModels(filteredModels);
@@ -216,7 +216,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   };
 
   useEffect(() => {
-    if (debug) console.log('230 ', orgnameText, repoText, branchText, pathText,  githubLink);
+    if (debug) console.log('230 ', orgnameText, repoText, branchText, pathText, githubLink);
     // (orgnameText) && loadModels(orgnameText, pathText)
   }, [refresh]);
 
@@ -234,11 +234,11 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     return {
       value: mod.name,
       label: mod.name
-    } 
+    }
   }) || [];
 
-  const label = (models?.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODEL TEMPLATES" above! - - - ' ;
-  const modeloptions = [{value: '', label: label}, ...modeloptionss] ;
+  const label = (models?.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODEL TEMPLATES" above! - - - ';
+  const modeloptions = [{ value: '', label: label }, ...modeloptionss];
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
   if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
 
@@ -249,17 +249,17 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
     SaveAllToFile(data, projectname, 'Project')
   }
 
-  return  (
+  return (
     <>
-    <button className="btn bg-transparent py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
-     <Modal isOpen={modal}  toggle={toggle} className={className}  innerRef={modalRef}  >
-        <ModalHeader toggle={() => {toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
+      <button className="btn bg-transparent py-0 my-0 pe-2 ps-1" onClick={toggle}><i className="fab fa-github fa-lg my-0 py-0 me-1 "></i>{buttonLabel}</button>
+      <Modal isOpen={modal} toggle={toggle} className={className} innerRef={modalRef}  >
+        <ModalHeader toggle={() => { toggle(); }}><i className="fab fa-github fa-lg mx-2"></i>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 d-fle">
           <div className="bg-secondary" >
             <div className="bg-light square border py-2 border-2 border-success p-1 " ><strong>Download from a list of Model templates:</strong>
               {/* ----Repository user name input------------------------------- */}
               {/* <TextInput label="Repo owner :" value={orgnameText} onChange={(value) => onOrgnameChange(value)} placeholder="Repo Owners Name " />          */}
-             {/* {loading ? 'Loading...' : 
+              {/* {loading ? 'Loading...' : 
                 <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
               } */}
               {/* ----- Searching repos -------------------------------- */}
@@ -280,26 +280,26 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
               <hr className="bg-light my-1 mx-4" /> */}
 
               {/* -------- Select model ----------------------------------- */}
-              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100" 
-                onClick = {() => loadModels(orgnameText, pathText)}
+              <Button className="btn-secondary bg-secondary text-white border-dark  mt-2 mb-2 pb- w-100"
+                onClick={() => loadModels(orgnameText, pathText)}
               ><i className="fab fa-github fa-lg me-2"></i>List Model Templates
               </Button>
-              {(models as any[]).length > 0 
-                ? <div className="" >Models found:<span className="text-success m-1 ">{(models as any[]).map((mod) => ( <li className="px-2" key={mod.name} >{ mod.name },   </li>))} </span></div> 
+              {(models as any[]).length > 0
+                ? <div className="" >Models found:<span className="text-success m-1 ">{(models as any[]).map((mod) => (<li className="px-2" key={mod.name} >{mod.name},   </li>))} </span></div>
                 : <div className='text-warning'> 'No models found!'</div>
-              } 
+              }
               <hr className="bg-primary px-10 my-1 mx-4" />
-              <label className=" d-inline-flex justify-content-left"> 
+              <label className=" d-inline-flex justify-content-left">
                 <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value: any) => onModelChange(value)} />
               </label>
               <span className="p-5">
-                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here when done!" onClick={() => {toggle(); }}>Done
+                <Button className="btn-primary modal--footer mr-4 py-0 ml-5 pl-5 float-end " color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Click here when done!" onClick={() => { toggle(); }}>Done
                 </Button>
               </span>
 
-            <hr className="bg-secondary py-0 my-1 mx-4" />
-          </div>
+              <hr className="bg-secondary py-0 my-1 mx-4" />
+            </div>
           </div>
         </ModalBody>
       </Modal>

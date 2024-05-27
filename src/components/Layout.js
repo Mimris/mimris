@@ -14,7 +14,7 @@ const Layout = (props) => {
   // const projSource = "AKMM Source file not found"//props.children.props.children.props.children[0].props.props.phSource || "AKMM Source file not found";
   // get projSource from props.children
   const projSource = props?.children?.props?.children?.props?.children[0]?.props?.props?.phSource || "AKMM Source file not found";
-  console.log("17 projName", projSource);
+  // console.log("17 projName", projSource);
   // const projName = props.phSource;
   // const [darkMode, setDarkMode] = useDarkMode();
   return (

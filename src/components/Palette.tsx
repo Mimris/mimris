@@ -75,7 +75,7 @@ const Palette = (props: any) => {
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
   // let ndarr = props.gojsMetamodel?.nodeDataArray
-  let ndarr =  uib.buildGoPalette(props.myMetis.currentMetamodel, props.myMetis).nodes;
+  let ndarr = uib.buildGoPalette(props.myMetis.currentMetamodel, props.myMetis).nodes;
 
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
@@ -86,7 +86,7 @@ const Palette = (props: any) => {
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
-    if (!debug) useEfflog('89 Palette useEffect 1 [] ');
+    if (debug) useEfflog('89 Palette useEffect 1 [] ');
     if (mmodel?.name === 'AKM-OSDU_MM') setVisiblePalette(true);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes = mmodel?.objecttypes;
@@ -117,7 +117,7 @@ const Palette = (props: any) => {
 
     setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for additional metamodel
     // setFilteredOtNodeDataArray(buildFilter(role, task, metamodelList, seltypes, mmodel.submetamodels[0]));  // build the palette for current metamodel
-    
+
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
       if (debug) console.log('124 Palette useEffect ', irtvTypes, IRTVOtNodeDataArray);
@@ -144,9 +144,9 @@ const Palette = (props: any) => {
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
       // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
-      const wotArr = (mmodel.name === 'AKM-Core_MM') 
+      const wotArr = (mmodel.name === 'AKM-Core_MM')
         ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
-        : (mmodel.name === 'AKM-IRTV_MM') 
+        : (mmodel.name === 'AKM-IRTV_MM')
           ? ['Container', 'Information', 'Role', 'Task', 'View']
           : ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
 
@@ -160,7 +160,7 @@ const Palette = (props: any) => {
 
         return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
       });
-      
+
       return otsArr
     } else { return ndarr }
   };

@@ -58,7 +58,7 @@ const Modelling = (props: any) => {
 
   const [refresh, setRefresh] = useState(true);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
-  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', {}); 
+  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', {});
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', '');
 
   const [activeTab, setActiveTab] = useState();
@@ -119,7 +119,7 @@ const Modelling = (props: any) => {
   GenGojsModel(props, myMetis)
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (!debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
+    if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
     if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)
@@ -155,12 +155,12 @@ const Modelling = (props: any) => {
   );
 
   useEffect(() => {
-    if (!debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
-      if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
-      }, [props.phSource]) // add mount to the dependency array
-    
+    if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
+    if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
+  }, [props.phSource]) // add mount to the dependency array
+
   useEffect(() => {
-    if (!debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
+    if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
     const timer = setTimeout(() => {
       doRefresh()
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
@@ -169,7 +169,7 @@ const Modelling = (props: any) => {
   }, [props.phFocus?.focusRefresh?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (!debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+    if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
     const timer = setTimeout(() => {
       if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
       setRefresh(!refresh)
@@ -248,7 +248,7 @@ const Modelling = (props: any) => {
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
                 doRefresh();
-                setActiveTab(index);  
+                setActiveTab(index);
               }}
             >
               {(m.name.startsWith('_A')) ? <span className="text-secondary" style={{ scale: "0.8", whiteSpace: "nowrap" }} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
@@ -496,22 +496,22 @@ const Modelling = (props: any) => {
             {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
               ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button> */}
-            <span className="btn bg-success me-1 d-flex justify-content-center align-items-center"            
-              data-bs-toggle="tooltip" 
-              data-bs-placement="top" 
-              title="Load downloaded Schema from OSDU (Jsonfiles)" 
-              // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
-            > 
+            <span className="btn bg-success me-1 d-flex justify-content-center align-items-center"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Load downloaded Schema from OSDU (Jsonfiles)"
+            // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
+            >
               {/* <i className="fa fa-house-tsunami fa-lg"></i> */}
-              {loadjsonfile} 
+              {loadjsonfile}
             </span>
-            <span 
-              data-bs-toggle="tooltip" 
-              data-bs-placement="top" 
-              title="Save and Load models (import/export) from/to files" 
-              style={{ whiteSpace: "nowrap", marginRight: "6px"}}
-            > 
-              {loadfile} 
+            <span
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Save and Load models (import/export) from/to files"
+              style={{ whiteSpace: "nowrap", marginRight: "6px" }}
+            >
+              {loadfile}
             </span>
           </div>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>

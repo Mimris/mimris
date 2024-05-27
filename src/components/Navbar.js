@@ -69,7 +69,7 @@ const Navbar = (props) => {
 	// };
 
 	useEffect(() => {
-		if (!debug) console.log('72 Navbar useEffect 1 [domainName]');
+		if (debug) console.log('72 Navbar useEffect 1 [domainName]');
 		setDomainName(window.location.hostname);
 		if ((debug)) console.log('33', domainName);
 		if (domainName === "localhost") {
@@ -110,13 +110,13 @@ const Navbar = (props) => {
 
 	return (
 		<nav className="navbar navbar-expand-sm navbar-toggler ps-0 pb-0"
-			style={(domainName === "localhost") 
-				? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" } 
+			style={(domainName === "localhost")
+				? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" }
 				: { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
 			<div className="collapse navbar-collapse" id="nav-toggler-metis">
 				<div className="navbar-nav d-flex justify-content-between align-items-top"
-					style={{marginLeft: "1vw"}}
-					>
+					style={{ marginLeft: "1vw" }}
+				>
 					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>AKMM</strong>
 					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">
 						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >version: {version}</span>
@@ -124,7 +124,7 @@ const Navbar = (props) => {
 					</div>
 				</div>
 				<ul className="navbar-nav ">
-					<li className={`nav-item ${currentRoute === "/" ? "active" : "" }`}>
+					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
 						<Link href="/">Home</Link>
 					</li>
 					<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>

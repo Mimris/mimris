@@ -375,7 +375,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         break;
-      }      
+      }
       case 'TextEdited': {
         const sel = e.subject.part;
         const gjsData = sel.data;
@@ -384,7 +384,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (field === "") field = "name";
         // Object type or Object
         if (sel instanceof go.Node) {
-          const key:string = gjsData.key;
+          const key: string = gjsData.key;
           const myGoNode = myGoModel.findNode(key);
           let text: string = gjsData.name;
           const category: string = gjsData.category;
@@ -427,7 +427,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     gjsNodeData.key = node.key;
                     gjsNodeData.name = text;
                     {
-                      let nodes = myDiagram.nodes; 
+                      let nodes = myDiagram.nodes;
                       for (let it = nodes.iterator; it?.next();) {
                         let n = it.value;
                         console.log('439 node: data, key, name', n.data, n.data.key, n.data.name);
@@ -603,7 +603,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else if (data?.category === 'Object' || data?.category === 'Object view') // Object
           {
-              // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
+            // First do the move and scale the nodes. Do not worry about the correct location of the nodes.
             const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
             const myObjectviews = myModelview?.objectviews;
             let objview: akm.cxObjectView = myModelview.findObjectView(data.key);
@@ -941,79 +941,79 @@ class GoJSApp extends React.Component<{}, AppState> {
                   node.loc = tnode.loc.valueOf();
                   if (node instanceof go.Node) {
                     node.scale1 = node.getMyScale(myGoModel);
-                  break;
+                    break;
+                  }
+                }
+                const objview = myMetis.findObjectView(node.objviewRef);
+                if (objview) {
+                  objview.loc = node.loc;
+                  objview.scale1 = node.scale1;
+                  objview.size = node.size;
+                  if (node.group) {
+                    let grp = myGoModel.findNode(node.group);
+                    objview.group = grp.objviewRef;
+                  } else {
+                    objview.group = "";
+                  }
+                  myModelview.addObjectView(objview);
+                  myDiagram.model.setDataProperty(node, "loc", node.loc);
+                  myDiagram.model.setDataProperty(node, "scale", node.scale1);
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  if (jsnObjview) {
+                    uic.addItemToList(modifiedObjectViews, jsnObjview);
+                    if (debug) console.log('753 jsnObjview', jsnObjview);
+                  }
                 }
               }
-              const objview = myMetis.findObjectView(node.objviewRef);
-              if (objview) {
-                objview.loc = node.loc;
-                objview.scale1 = node.scale1;
-                objview.size = node.size;
-                if (node.group) {
-                  let grp = myGoModel.findNode(node.group);
-                  objview.group = grp.objviewRef;
-                } else {
-                  objview.group = "";
-                }
-                myModelview.addObjectView(objview);
-                myDiagram.model.setDataProperty(node, "loc", node.loc);
-                myDiagram.model.setDataProperty(node, "scale", node.scale1);
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                if (jsnObjview) {
-                  uic.addItemToList(modifiedObjectViews, jsnObjview);
-                  if (debug) console.log('753 jsnObjview', jsnObjview);
+              selcnt++;
+            }
+            myDiagram.requestUpdate();
+          }
+          if (false) {
+            const nodes = myDiagram.nodes;
+            for (let it = nodes.iterator; it?.next();) {
+              const node = it.value;
+              const objview = node.data.objectview;
+              const objviews = myModelview.objectviews;
+              for (let i = 0; i < objviews?.length; i++) {
+                const objectview = objviews[i];
+                if (objectview?.id == objview?.id) {
+                  objectview.loc = node.data.loc;
+                  objectview.scale1 = node.data.scale1;
+                  myModelview.addObjectView(objectview);
                 }
               }
             }
-            selcnt++;
           }
-          myDiagram.requestUpdate();
-        }
-        if (false) {
-          const nodes = myDiagram.nodes;
-          for (let it = nodes.iterator; it?.next();) {
-            const node = it.value;
-            const objview = node.data.objectview;
-            const objviews = myModelview.objectviews;
-            for (let i = 0; i < objviews?.length; i++) {
-              const objectview = objviews[i];
-              if (objectview?.id == objview?.id) {
-                objectview.loc = node.data.loc;
-                objectview.scale1 = node.data.scale1;
-                myModelview.addObjectView(objectview);
+          // Handle relview points
+          const links = myDiagram.links;
+          for (let it = links.iterator; it?.next();) {
+            const link = it.value;
+            const rview = myModelview.findRelationshipView(link.data.key);
+            if (!rview) continue;
+            const relviews = myModelview.relshipviews;
+            for (let i = 0; i < relviews?.length; i++) {
+              const relview = relviews[i];
+              if (relview.id === rview.id) {
+                const points = [];
+                for (let it = link.points.iterator; it?.next();) {
+                  const point = it.value;
+                  if (debug) console.log('1603 point', point.x, point.y);
+                  points.push(point.x)
+                  points.push(point.y)
+                }
+                relview.points = points;
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
+                modifiedRelshipViews.push(jsnRelview);
+                myModelview.addRelationshipView(relview);
               }
             }
           }
-        }
-        // Handle relview points
-        const links = myDiagram.links;
-        for (let it = links.iterator; it?.next();) {
-          const link = it.value;
-          const rview = myModelview.findRelationshipView(link.data.key);
-          if (!rview) continue;
-          const relviews = myModelview.relshipviews;
-          for (let i = 0; i < relviews?.length; i++) {
-            const relview = relviews[i];
-            if (relview.id === rview.id) {
-              const points = [];
-              for (let it = link.points.iterator; it?.next();) {
-                const point = it.value;
-                if (debug) console.log('1603 point', point.x, point.y);
-                points.push(point.x)
-                points.push(point.y)
-              }
-              relview.points = points;
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
-              modifiedRelshipViews.push(jsnRelview);
-              myModelview.addRelationshipView(relview);
-            }
-          }
-        }
-        uic.purgeDuplicatedRelshipViews(myModelview, myMetis, myDiagram);
-        const jsnModelview = new jsn.jsnModelView(myModelview);
-        let jsnData = JSON.parse(JSON.stringify(jsnModelview));
-        context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', jsnData })
+          uic.purgeDuplicatedRelshipViews(myModelview, myMetis, myDiagram);
+          const jsnModelview = new jsn.jsnModelView(myModelview);
+          let jsnData = JSON.parse(JSON.stringify(jsnModelview));
+          context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', jsnData })
         }
         break;
       }
@@ -1224,7 +1224,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
-          } else { 
+          } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
             const objName = node.data.object.name;
@@ -1344,7 +1344,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             data.object = null;
             data.objectview = null;
             data.objecttype = null;
-            data.typeview 
+            data.typeview
           }
         }
         if (debug) console.log('1242 myGoModel', myGoModel);
@@ -1382,14 +1382,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         {
-            const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
-            console.log('1319 myGoModel, goNode', myGoModel, goNode);
+          const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
+          console.log('1319 myGoModel, goNode', myGoModel, goNode);
         }
         if (objectview && object) {
           const objvIdName = { id: objectview.id, name: objectview.name };
           const objIdName = { id: object.id, name: object.name };
 
-          if (!debug) console.log('1072 SET_FOCUS_OBJECTVIEW', objvIdName, objIdName)
+          if (debug) console.log('1072 SET_FOCUS_OBJECTVIEW', objvIdName, objIdName)
           context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
           context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
         }
@@ -1458,11 +1458,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         let deltaX = 0, deltaY = 0;
         const targetObjectviews: akm.cxObjectView[] = [];
         const gjsTargetNodes = [];
-        const goTargetNodes: gjs.goObjectNode[]  = [];
+        const goTargetNodes: gjs.goObjectNode[] = [];
         let objtypeview: akm.cxObjectTypeView = null;
         let it = selection.iterator;
-        while (it.next()) { 
-          let gjsNode = it.value;  
+        while (it.next()) {
+          let gjsNode = it.value;
           // // Filter out source nodes
           // if (this.isSourceNode(gjsSourceNodes, gjsNode.key))
           //   continue;
@@ -1481,7 +1481,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             let objtype: akm.cxObjectType = null;
             let targetObject: akm.cxObject = null;
             let targetObjview: akm.cxObjectView = null;
-            
+
             if (!myMetis.pasteViewsOnly) {
               objtype = myMetis.findObjectType(gjsTargetNodeData.objtypeRef);
               objtypeview = objtype?.typeview;
@@ -1640,7 +1640,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           gjsSourceToNode = gjsSourceToNode.data;
           if (n.data.category === constants.gojs.C_RELATIONSHIP) {
             const goSourceLink = myGoModel.findLink(gjsSourceLinkKey);
-            const sourceRelview= myModelview.findRelationshipView(gjsSourceLinkKey);
+            const sourceRelview = myModelview.findRelationshipView(gjsSourceLinkKey);
             context.pasted = true;
             context.relname = gjsSourceLink.name;
             context.reltype = goSourceLink.relshiptype;
@@ -1667,7 +1667,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     pastedRelview.textscale = textscale;
                     // gjsTargetLink.key = pastedRelview.key;
                   }
-                 // Handle view attributes
+                  // Handle view attributes
                   pastedRelview.template = gjsTargetLink.template;
                   pastedRelview.arrowscale = gjsTargetLink.arrowscale;
                   pastedRelview.strokecolor = gjsTargetLink.strokecolor;
@@ -1680,12 +1680,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   pastedRelview.fromArrowColor = gjsTargetLink.fromArrowColor;
                   pastedRelview.toArrowColor = gjsTargetLink.toArrowColor;
                   myModelview.addRelationshipView(pastedRelview);
-                  if (!debug) console.log('1752 myModelview', myModelview);
+                  if (debug) console.log('1752 myModelview', myModelview);
                   myMetis.addRelationshipView(pastedRelview);
                   const key = pastedRelview.id;
                   let goToLink = new gjs.goRelshipLink(key, myGoModel, pastedRelview);
                   for (let prop in goToLink) {
-                      goToLink[prop] = pastedRelview[prop];
+                    goToLink[prop] = pastedRelview[prop];
                   }
                   myGoModel.addLink(goToLink);
                   // Prepare dispatch
@@ -1702,8 +1702,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             let jsnData = JSON.parse(JSON.stringify(jsnModelview));
             context.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', jsnData })
             myDiagram.requestUpdate();
-          }   
-        }   
+          }
+        }
         break;
       }
       case 'LayoutCompleted': {
@@ -1767,7 +1767,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
         if (gjsToNode) {
           let objview = myModelview.findObjectView(gjsToNode.key);
-          let goNode = myGoModel.findNode(gjsToNode.key);          
+          let goNode = myGoModel.findNode(gjsToNode.key);
           uic.updateNode(goNode, objview.typeview, myDiagram, myGoModel);
           // toNode = myDiagram.findNodeForKey(data.to);
         }
@@ -2035,8 +2035,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     if (debug) console.log('1542 dispatch', this.state.myMetis.dispatch);
-    if (!debug) console.log('1837 dataarray:', this.state);
-    if (!debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
+    if (debug) console.log('1837 dataarray:', this.state);
+    if (debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
     return ((this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // This is a React component that displays details of a selected object in a tabbed interface.
 // It allows the user to edit the object's properties and view related objects.
 import React, { useRef, useContext, useState, useEffect } from 'react'
@@ -15,7 +15,7 @@ import 'react-tabs/style/react-tabs.css';
 const debug = false
 
 const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, reportType: any, modelInFocusId: any, edit: any }) => {
-  if (!debug) console.log('17 FocusDetails', ph, reportType, modelInFocusId)
+  if (debug) console.log('17 FocusDetails', ph, reportType, modelInFocusId)
 
   const dispatch = useDispatch()
 
@@ -24,13 +24,13 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   // const reportType = props.props?.reportType
   // const modelInFocusId = props.props?.modelInFocusId
   // const modelviewInFocusId = props.modelviewInFocusId
-  if (!debug) console.log('27 Context:', reportType, modelInFocusId, ph?.phData);
-  if (!debug) console.log('28 Context:', ph?.phFocus?.focusModel.id);
+  // Remove empty if statements Context:', reportType, modelInFocusId, ph?.phData);
+  if (debug) console.log('28 Context:', ph?.phFocus?.focusModel.id);
 
   const models = ph?.phData?.metis?.models  // selecting the models array
   let curmod: any
-  (reportType === 'task') ? curmod =  models?.find((m: any) => m?.id === modelInFocusId) : curmod = models?.find((m: any) => m?.id === ph?.phFocus.focusModel.id)   // selecting the models array current model or task model (generated from model)
-  console.log('32 FocusDetail:', curmod, models, modelInFocusId, ph?.phFocus?.focusModelview.id)
+  (reportType === 'task') ? curmod = models?.find((m: any) => m?.id === modelInFocusId) : curmod = models?.find((m: any) => m?.id === ph?.phFocus.focusModel.id)   // selecting the models array current model or task model (generated from model)
+  // console.log('32 FocusDetail:', curmod, models, modelInFocusId, ph?.phFocus?.focusModelview.id)
   const metamodels = ph?.phData?.metis?.metamodels  // selecting the models array
   const curmm = metamodels?.find((mm: any) => mm?.id === curmod?.metamodelRef)
 
@@ -43,11 +43,11 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   const focusObjectview = ph?.phFocus?.focusObjectview
   const focusTask = ph?.phFocus?.focusTask
   const focusObject = (reportType === 'task') ? ph?.phFocus.focusTask : ph?.phFocus?.focusObject
-  if (!debug) console.log('45 FocusDetail:', focusObjectview, focusObject)
+  if (debug) console.log('45 FocusDetail:', focusObjectview, focusObject)
   // const [model, setModel] = useState(focusModel)
   if (debug) console.log('47 FocusDetail:', focusModel, focusTask, models, ph?.reportType);
 
-  let curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id) 
+  let curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id)
   if (!curobject) curobject = curmodview// if no object selected then use the modelview
   let curobjectview = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
   if (!curobjectview) curobjectview = curmodview
@@ -60,9 +60,9 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   const [value, setValue] = useState("");
   // const [visibleContext, setVisibleContext] = useState(true);
   const [formValues, setFormValues] = useState<null | object>(null);
-  const [formValuesObjectview, setFormValuesObjectview] = useState({});
-  const [formValuesObjecttype, setFormValuesObjecttype] = useState({});
-  const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState({});
+  const [formValuesObjectview, setFormValuesObjectview] = useState<{ [key: string]: any }>({});
+  const [formValuesObjecttype, setFormValuesObjecttype] = useState<{ [key: string]: any }>({});
+  const [formValuesObjecttypeview, setFormValuesObjecttypeview] = useState<{ [key: string]: any }>({});
   const [activeTab, setActiveTab] = useState(0);
   const [activeTab2, setActiveTab2] = useState(0);
 
@@ -73,7 +73,7 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
     // setFormValuesObjecttypeview(curobjtypeview);
   }, [curobject, curobjectview]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (debug) console.log('78 Context :', name, value, e);
     setFormValues({ ...formValues, [name]: value });
@@ -83,9 +83,9 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
     e.preventDefault();
     if (debug) console.log('79 Context :', formValues, e);
     if (formValues) {
-      const modifiedFields = {};
+      const modifiedFields: { [key: string]: any } = {};
       for (const key in formValues) {
-        if (formValues.hasOwnProperty(key) && formValues[key] !== (curobject as {[key: string]: any})[key]) {
+        if (formValues.hasOwnProperty(key) && formValues[key] !== (curobject as { [key: string]: any })[key]) {
           modifiedFields[key] = formValues[key];
         }
       }
@@ -94,14 +94,14 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
         // const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
         dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: objData })
       } else {
-      const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
-      const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
+        const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
+        const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
 
-      if (debug) console.log('93 Context :', objData, objvData);
-      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
-      dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
-      dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
-      if (debug) console.log('105 Context ', formValues, objData, objvData);
+        if (debug) console.log('93 Context :', objData, objvData);
+        dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
+        dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData })
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
+        if (debug) console.log('105 Context ', formValues, objData, objvData);
       }
     }
   };
@@ -144,7 +144,7 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
     if (formValues) {
       const modifiedFields: { [key: string]: any } = {}; // Add index signature to allow indexing with a string
       for (const key in formValues) {
-        if (formValues.hasOwnProperty(key) && formValues[key] !== (curobject as {[key: string]: any})[key]) { // Add type assertion to curobject
+        if (formValues.hasOwnProperty(key) && formValues[key] !== (curobject as { [key: string]: any })[key]) { // Add type assertion to curobject
           modifiedFields[key] = formValues[key];
         }
       }
@@ -171,8 +171,8 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   // remove duplicate objects
   const curobjModelviews = curmod.modelviews.filter((cmv: any) => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
   let parentobject = objects?.find((o: any) => o.id === parentobjectview?.objectRef) || null
-  if (!debug) console.log('173 Context', parentobjectview);
-  if (!debug) console.log('174 Context', parentobject);
+  if (debug) console.log('173 Context', parentobjectview);
+  if (debug) console.log('174 Context', parentobject);
 
   // functions to find objects and objectviews etc ----------------------------------------------------------------------
   function findObjectviewsWithCurrentObjectviewAsParent(objectviews: any[], currentObjectviewId: string): any[] {
@@ -223,8 +223,8 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   const curobjtypeview = findTypeviewForcurrentObjecttype(curobjecttype, curmm.objecttypeviews)
   if (debug) console.log('237 Context', curobjtypeview, curobjecttype, curmm);
 
-  const setObjview = (o) => {
-    let ovdata = (o) ? curobjectviews.find(ov => ov?.objectRef === o?.id) : { id: '', name: 'no objectview selected' }
+  const setObjview = (o: any) => {
+    let ovdata = (o) ? curobjectviews.find((ov: any) => ov?.objectRef === o?.id) : { id: '', name: 'no objectview selected' }
     let odata = (o) ? { id: o.id, name: o.name } : { id: '', name: 'no object selected' }
     if (debug) console.log('246 setObjview', ovdata, odata)
     dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: ovdata })

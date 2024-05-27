@@ -40,7 +40,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   let adminModel;
 
   if (metis != null) {
-    if (!debug) clog('43 GenGojsModel: props', props);
+    if (debug) clog('43 GenGojsModel: props', props);
     if (debug) clog('44 GenGojsModel: metis', props.phData.metis);
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
@@ -57,12 +57,12 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     // const myMetis = new akm.cxMetis();
     // myMetis = props.myMetis;
 
-    if (!debug) console.log('51 GenGojsModel: metis', metis, myMetis);
+    if (debug) console.log('51 GenGojsModel: metis', metis, myMetis);
     myMetis?.importData(metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
-    if (!debug) clog('83 GenGojsModel :', myMetis)
-    if (debug)clog('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
+    if (debug) clog('83 GenGojsModel :', myMetis)
+    if (debug) clog('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);

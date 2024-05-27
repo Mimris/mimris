@@ -68,7 +68,7 @@ const Page1 = (props: any) => {
   const focus = useSelector((state: any) => state.phFocus)
 
   useEffect(() => {
-    if (!debug) useEfflog('71 modelling useEffect 0 [] ');
+    if (debug) useEfflog('71 modelling useEffect 0 [] ');
     const handleReload = () => {
       let locStore = memorySessionState;
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
@@ -235,7 +235,7 @@ const Page1 = (props: any) => {
               }
             </div>
             <div className="workplace d-flex" style={{ backgroundColor: "#b0cfcf", zIndex: 1 }}>
-              <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path 
+              <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
                 }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`}
                 target="_blank"
                 style={{ position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "lightgray" }}
@@ -244,9 +244,9 @@ const Page1 = (props: any) => {
               </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling {...props}
-                  visibleFocusDetails = {visibleFocusDetails}
-                  setVisibleFocusDetails = {setVisibleFocusDetails}
-                  exportTab = {exportTab}
+                  visibleFocusDetails={visibleFocusDetails}
+                  setVisibleFocusDetails={setVisibleFocusDetails}
+                  exportTab={exportTab}
                 />
                 {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>

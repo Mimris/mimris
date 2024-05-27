@@ -44,30 +44,33 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   // const [visibleContext, setVisibleContext] = useState(true);
   const metamodels = ph?.phData?.metis?.metamodels
   const models = ph?.phData?.metis?.models
-  const modelviews = ph?.phData?.metis?.modelviews
   const model = (reportType === 'task') ? models?.find((m: any) => m.id === modelInFocusId) : models?.find((m: any) => m.id === ph.phFocus.focusModel.id)
   const curmodel = models?.find((m: any) => m.id === modelInFocusId)
   const objects = curmodel?.objects
+  const modelviews = curmodel?.modelviews
+
   const relationships = curmodel?.relships
   const curmetamodel = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
   const curobjectviews = modelviews?.filter((mv: any) => mv.modelRef === modelInFocusId)
 
+  const focusObjectview = ph.phFocus.focusObjectview
+  const focusObject = ph.phFocus.focusObject
+  const focusTask = ph.phFocus.focusTask
+  const focusModelview = ph.phFocus.focusModelview
 
-  const focusObjectview = useSelector((state: any) => state.focusObjectview)
-  const focusObject = useSelector((state: any) => state.focusObject)
-  const focusTask = useSelector((state: any) => state.focusTask)
-  const focusModelview = useSelector((state: any) => state.focusModelview)
-  const currelationships = relationships?.filter((r: any) => r.modelRef === modelInFocusId)
-  const curmm = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
+  // const focusObjectview = useSelector((state: any) => state.focusObjectview)
+  // const focusObject = useSelector((state: any) => state.focusObject)
+  // const focusTask = useSelector((state: any) => state.focusTask)
+  // const focusModelview = useSelector((state: any) => state.focusModelview)
+
+
   const curmodelview = modelviews?.find((mv: any) => mv.id === focusModelview?.id)
+  
+  const currelationships = curmodelview?.relshipviews.map((rv: any) => relationships?.find((r: any) => r.id === rv.relshipRef) )
+  const curmm = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
   const curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id)
 
-
-
-
   const refersTo = curmetamodel?.relshiptypes?.find((ot: any) => ot.name === 'refersTo');
-
-
 
   // useEffect(() => {
   // }, []);

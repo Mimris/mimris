@@ -1458,13 +1458,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         let deltaX = 0, deltaY = 0;
         const targetObjectviews: akm.cxObjectView[] = [];
         const gjsTargetNodes = [];
-<<<<<<< HEAD
-        const goTargetNodes: gjs.goObjectNode[] = [];
-        let objtypeview: akm.cxObjectTypeView = null;
-        let it = selection.iterator;
-        while (it.next()) {
-          let gjsNode = it.value;
-=======
         const goTargetNodes: gjs.goObjectNode[]  = [];
         let objtype: akm.cxObjectType = null;
         let objtypeview: akm.cxObjectTypeView = null;
@@ -1473,7 +1466,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           let gjsNode = it.value;  
           if (it.value instanceof go.Link) 
             continue;
->>>>>>> f2f8f94735c86753d47ca7d6d590eec1d4242d9a
           // // Filter out source nodes
           let gjsTargetNode = gjsNode;
           // The target node uses the key given by GoJS when pasted

@@ -1459,17 +1459,31 @@ class GoJSApp extends React.Component<{}, AppState> {
         const targetObjectviews: akm.cxObjectView[] = [];
         const gjsTargetNodes = [];
         const goTargetNodes: gjs.goObjectNode[]  = [];
+        let objtype: akm.cxObjectType = null;
         let objtypeview: akm.cxObjectTypeView = null;
         let it = selection.iterator;
         while (it.next()) { 
           let gjsNode = it.value;  
+          if (it.value instanceof go.Link) 
+            continue;
           // // Filter out source nodes
-          // if (this.isSourceNode(gjsSourceNodes, gjsNode.key))
-          //   continue;
           let gjsTargetNode = gjsNode;
           // The target node uses the key given by GoJS when pasted
-          let key = gjsTargetNode.key; // utils.createGuid();
-          gjsTargetNode.data.key = key;
+          let targetNodeKey = gjsTargetNode.key; 
+          const length = targetNodeKey.length;
+          let sourceNodeKey = targetNodeKey.substring(0, length-1);
+          const gjsSourceNode = myDiagram.findNodeForKey(sourceNodeKey);
+          const sourceObjectView = myModelview.findObjectView(sourceNodeKey);
+          const sourceObject = sourceObjectView?.object;
+          context.sourceObject = sourceObject;
+          context.sourceObjectView = sourceObjectView;
+          let goSourceNode = myGoModel.findNode(sourceNodeKey);
+          if (!goSourceNode) {
+            goSourceNode = new gjs.goObjectNode(sourceNodeKey, myGoModel, sourceObjectView);
+          }
+          objtype = goSourceNode.objecttype;
+          // objtype = myMetis.findObjectType(objtype.id);
+          objtypeview = objtype?.typeview;
           gjsTargetNodes.push(gjsTargetNode);
           const gjsTargetNodeData = gjsTargetNode.data;
           if (gjsTargetNodeData.category === constants.gojs.C_OBJECT) {
@@ -1478,13 +1492,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               refloc = gjsTargetNodeData.loc;
               cnt++;
             }
-            let objtype: akm.cxObjectType = null;
+            gjsTargetNodeData.object = null;
+            gjsTargetNodeData.objectview = null;
+            gjsTargetNodeData.objecttype = objtype;
+            gjsTargetNodeData.typeview = objtypeview;
             let targetObject: akm.cxObject = null;
             let targetObjview: akm.cxObjectView = null;
             
             if (!myMetis.pasteViewsOnly) {
-              objtype = myMetis.findObjectType(gjsTargetNodeData.objtypeRef);
-              objtypeview = objtype?.typeview;
               // Create a new target object and objectview based on the target node
               targetObjview = uic.createObject(gjsTargetNodeData, context);
               if (!targetObjview) {
@@ -1498,15 +1513,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnObject = new jsn.jsnObject(targetObject);
               uic.addItemToList(modifiedObjects, jsnObject);
             }
-            let goTargetNode = myGoModel.findNode(key);
+            let goTargetNode = myGoModel.findNode(targetNodeKey);
             if (!goTargetNode) {
-              goTargetNode = new gjs.goObjectNode(key, myGoModel, targetObjview);   // GoModel node
+              goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);   // GoModel node
             }
             goTargetNode.group = ""; // Instead find group by location
             // Now remember the TO node - the new pasted node
             const scale = goTargetNode.getMyScale(myGoModel);
             const myTargetNode = {
-              "key": key,
+              "key": targetNodeKey,
               "name": gjsTargetNodeData.name,
               "typeRef": objtype.id,
               "loc": new String(gjsTargetNodeData.loc),
@@ -1584,7 +1599,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             {
               goTargetNode.loc = myTargetNode.loc.valueOf();
               targetObjview.loc = myTargetNode.loc.valueOf();
-              targetObjview.scale1 = goTargetNode.scale1;
+              targetObjview.scale1 = myTargetNode.scale1;
               targetObjview.template = myTargetNode.template;
               targetObjview.figure = myTargetNode.figure;
               targetObjview.geometry = myTargetNode.geometry;
@@ -1602,8 +1617,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               targetObjview.typeview = typeview;
               // const goNode = myDiagram.findNodeForKey(goNode.key);
               myDiagram.model.setDataProperty(gjsNode, "loc", myTargetNode.loc);
-              myDiagram.model.setDataProperty(gjsNode, "scale", myTargetNode.scale1);
-              myDiagram.model.setDataProperty(gjsNode, "group", myTargetNode.group);
+              myDiagram.model.setDataProperty(gjsNode, "scale", myTargetNode.scale);
+              myDiagram.model.setDataProperty(gjsNode.data, "group", myTargetNode.group);
               // pastedNodes.push(goNode);
               const objid = targetObjview.object?.id;
               const object = myMetis.findObject(objid);
@@ -1629,15 +1644,18 @@ class GoJSApp extends React.Component<{}, AppState> {
         it = selection.iterator;
         while (it.next()) {
           let n = it.value;
+          if (n instanceof go.Node) 
+            continue;
           const gjsSourceLink = n.data.linkNode;
           const gjsSourceLinkKey = gjsSourceLink?.key;
-          if (!gjsSourceLinkKey) continue;
+          if (!gjsSourceLinkKey) 
+            continue;
           const gjsSourceFromKey = gjsSourceLink.from;
           const gjsSourceToKey = gjsSourceLink.to;
           let gjsSourceFromNode = myDiagram.findNodeForKey(gjsSourceFromKey);
-          gjsSourceFromNode = gjsSourceFromNode.data;
+          const gjsSourceFromData = gjsSourceFromNode.data;
           let gjsSourceToNode = myDiagram.findNodeForKey(gjsSourceToKey);
-          gjsSourceToNode = gjsSourceToNode.data;
+          const gjsSourceToData = gjsSourceToNode.data;
           if (n.data.category === constants.gojs.C_RELATIONSHIP) {
             const goSourceLink = myGoModel.findLink(gjsSourceLinkKey);
             const sourceRelview= myModelview.findRelationshipView(gjsSourceLinkKey);
@@ -1647,6 +1665,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             context.template = sourceRelview.template;
             const it1 = selection.iterator;
             while (it1.next()) {
+              const n = it1.value;
+              if (n instanceof go.Node) 
+                continue;
               const gjsLink = it1.value.data;
               if (gjsLink.key === gjsSourceLinkKey) {
                 // This is the source link - skip it

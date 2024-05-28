@@ -427,9 +427,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
             function (e: any, obj: any) {
+              const currentNode = obj.part.data;
               let selection = myDiagram.selection;
               if (selection.count == 0) {
-                const currentNode = obj.part.data;
                 if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
                 selection = myDiagram.selection
               }

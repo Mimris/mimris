@@ -28,8 +28,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         const modifiedRelships = [];
-        const otypeId = gjsData.objtypeRef;
-        const objtype = myMetis.findObjectType(otypeId);
+        const objtype = gjsData.objecttype;
         if (!objtype)
             return null;
         let objId = utils.createGuid();
@@ -74,7 +73,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
         }
         if (obj) {
             if (!myMetis.pasteViewsOnly) {
-                const fromObj = myModel.findObject(gjsData.objRef);
+                const fromObj = context.sourceObject;
                 copyProperties(obj, fromObj);
                 obj.objectviews = null;
                 obj.inputrels = null;
@@ -89,7 +88,8 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
             // Create the corresponding object view
             const oviews = obj.objectviews;
             const oview0 = oviews?.length > 0 ? oviews[0] : null;
-            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+            const key = gjsData.key;
+            objview = new akm.cxObjectView(key, obj.name, obj, "");
             if (objview) {
                 const goNode = new gjs.goObjectNode(objview.id, myGoModel, objview);
                 if (goNode) {

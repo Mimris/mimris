@@ -128,8 +128,9 @@
   width: fit-content;
   min-width: 40vh;
   max-width: auto;
-  /* max-height: fit-content; */
   height: fit-content;
+  min-height: 30vh;
+  max-height: 90vh;
   background: rgba(225, 225, 225, 0.5);
   padding: 8px;
   position: calc(40% - 30px);

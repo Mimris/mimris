@@ -118,8 +118,8 @@
   height: fit-content;
   background: rgba(255, 255, 255, 0.6);
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
-  /* min-height: 70vh; */
-  /* max-height: 90vh; */
+  min-height: 40vh; 
+  /* max-height: 90vh;  */
   scroll-behavior: ease-in-out;
 }
 
@@ -129,8 +129,8 @@
   min-width: 40vh;
   max-width: auto;
   height: fit-content;
-  min-height: 30vh;
-  max-height: 90vh;
+  /* min-height: 30vh;
+  max-height: 90vh; */
   background: rgba(225, 225, 225, 0.5);
   padding: 8px;
   position: calc(40% - 30px);

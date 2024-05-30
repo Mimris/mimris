@@ -7533,7 +7533,7 @@ export class cxModel extends cxMetaObject {
                         if (relFromObj && relToObj) {
                             if (rtype.id === reltype?.id) {
                                 if (relFromObj.id === fromObj?.id) {
-                                    if (relToObj.id === toObj.id) {
+                                    if (relToObj.id === toObj?.id) {
                                         if (!fromPort && !toPort)
                                             return rel;
                                         else if (rel.fromPortid === fromPort.id && rel.toPortid === toPort.id)

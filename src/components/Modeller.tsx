@@ -561,7 +561,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <div className="workpad">
                 <GoJSApp
                     nodeDataArray={gojsMetamodel?.nodes}
-                    linkDataArray={gojsMetamodel.links}
+                    linkDataArray={gojsMetamodel?.links}
                     metis={props.metis}
                     myMetis={props.myMetis}
                     phFocus={props.phFocus}

@@ -1,8 +1,10 @@
 // @ts-nocheck
 const debug = false;
 
-const clog = console.log.bind(console, '%c %s', // green colored cosole log
+const clogGreen = console.log.bind(console, '%c %s', // green colored cosole log
   'background: green; color: white');
+const clogBlue = console.log.bind(console, '%c %s', // green colored cosole log
+  'background: blue; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
   'background: green; color: white');
 
@@ -40,8 +42,8 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   let adminModel;
 
   if (metis != null) {
-    if (debug) clog('43 GenGojsModel: props', props);
-    if (debug) clog('44 GenGojsModel: metis', props.phData.metis);
+    clogGreen('43 GenGojsModel: props', props);
+    if (debug) clogGreen('44 GenGojsModel: metis', props.phData.metis);
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
       ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
@@ -61,8 +63,8 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     myMetis?.importData(metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
-    if (debug) clog('83 GenGojsModel :', myMetis)
-    if (debug) clog('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
+    clogBlue('83 GenGojsModel :', myMetis)
+    if (debug) clogBlue('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);

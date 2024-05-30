@@ -22,5 +22,15 @@ The models in AKMM are organized in Projects, as shown in the figure below.
 ![alt text](/images/posts/overview/AKMM-ui-overview.png)
 
 
+![Modellingpage](/images/posts/overview/image01.png)
+
+An initial project will be opened. 
+- 1 The left pane you find the Metamodel-palette with AKM-IRTV_MM metamodel.
+- 2 The Objects-palette (empty) 
+- 3 The Modelling area.
+- 4 Model tabs ( click on the tabs to change model)
+- 5 Modelview tabs ( click on the tabs to change modelview)
+
+
 ---
  - [-back to the top-](#introduction)

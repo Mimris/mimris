@@ -1,36 +1,33 @@
 ---
-title: 'User Interface Overview'
-date: 'Jan 19, 2023'
-excerpt: 'AKM Modeller user interface.'
-cover_image: 'images/posts/overview/AKMM-ui-overview.png'
+title: ' Overview Modelling User Interface'
+date: 'May 29, 2023'
+excerpt: 'An overview of the AKM Modeller modelling user interface.
+with Metamodel palette, Object Palette and Modelling Area'
+cover_image: '/images/posts/overview/image01.png'
 ---
 
-# Introduction
+### Overview of the Graphical user interface
 
-The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. 
-It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types. Both entities and relationships may be described by relevant properties and associated methods.
-
-The user interface is implemented as a graphic modelling environment where each concept is visualized graphically to ease communication between users. The visualization of objects and relationships is customizable.
-
-
-# Concepts
-
-The models in AKMM are organized in Projects, as shown in the figure below.
-
-## The Project menubar
-
-![alt text](/images/posts/overview/AKMM-ui-overview.png)
 
 
 ![Modellingpage](/images/posts/overview/image01.png)
+
 
 An initial project will be opened. 
 - 1 The left pane you find the Metamodel-palette with AKM-IRTV_MM metamodel.
 - 2 The Objects-palette (empty) 
 - 3 The Modelling area.
-- 4 Model tabs ( click on the tabs to change model)
-- 5 Modelview tabs ( click on the tabs to change modelview)
+- 4 Main Project menu (Hamburger menu) File, Import, Export.
+- 5 Open/Close Objects palette
+- 6 Model tabs ( click on the tabs to change model)
+- 7 Modelview tabs ( click on the tabs to change modelview)
+- 8 OSDU Import/Export Shortcut-menu
+- 9 File Import/Export Shortcut-menu
+- 10 Reload - Sometime necessary to reload after import of data
+- 11 Task Guides Guide for Modelling tasks for current Metamodel.
+- 12 Open/Close Project and Focus bar
 
+---
 
 ---
  - [-back to the top-](#introduction)

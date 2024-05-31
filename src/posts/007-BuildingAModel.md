@@ -1,7 +1,7 @@
 ---
-title: 'Building Models'
+title: 'Building Models Basics'
 date: 'November 3, 2021'
-excerpt: 'How to build a Model.'
+excerpt: 'How to build a Model. Basic modelling using a simple Metamodel.'
 cover_image: 'images/posts/modelling/image_model006.png'
 ---
 

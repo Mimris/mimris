@@ -1322,7 +1322,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     const props = methodType.properties;
                     for (let i = 0; i < props?.length; i++) {
                         const propname = props[i].name;
-                        jsnMethod[propname] = obj[propname];
                     }
                     if (debug) console.log('1334 method', method);
                 }

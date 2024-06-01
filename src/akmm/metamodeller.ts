@@ -1090,8 +1090,19 @@ export class cxMetis {
         if (mtype) {
             for (const prop in item) {
                 if (item[prop]) {
-                    let mtd = (mtype as any);
-                    mtd[prop] = item[prop];
+                    let mtd = (mtype as cxMethodType);
+                    if (prop === 'properties') {
+                        let properties: cxProperty[];
+                        for (let i = 0; i < item.properties.length; i++) {
+                            const prop = item.properties[i];
+                            const property = this.findProperty(prop.id);
+                            if (property) {
+                                properties.push(property);
+                            }
+                            mtd[prop] = properties;
+                        }
+                    } else
+                        mtd[prop] = item[prop];
                 }
             }
             metamodel.addMethodType(mtype);
@@ -5354,7 +5365,7 @@ export class cxType extends cxMetaObject {
     getSupertypes(): cxObjectType[] | null {
         return this.supertypes;
     }
-    getProperties(includeInherited: boolean): cxProperty[] | null {
+    getProperties(includeInherited: boolean): cxProperty[] {
         if (!includeInherited)
             return this.properties;
         const props = this.properties;

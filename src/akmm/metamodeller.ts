@@ -1092,7 +1092,7 @@ export class cxMetis {
                 if (item[prop]) {
                     let mtd = (mtype as cxMethodType);
                     if (prop === 'properties') {
-                        let properties: cxProperty[];
+                        let properties: cxProperty[] = [];
                         for (let i = 0; i < item.properties.length; i++) {
                             const prop = item.properties[i];
                             const property = this.findProperty(prop.id);

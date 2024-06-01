@@ -595,9 +595,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // Get property values
         if (properties?.length > 0) {
           for (let i = 0; i < properties.length; i++) {
-            let prop = properties[i] as akm.cxProperty;
+            let prop: akm.cxProperty = properties[i];
             if (prop) {
-              prop = myMetamodel.findProperty(prop.id);
+              let myProp = myMetamodel.findProperty(prop.id);
+              if (!myProp) {
+                myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
+                myProp.methodRef = prop.methodRef;
+                myProp.datatypeRef = prop.datatypeRef;
+                prop = myProp;
+              }
               if (prop.name !== k)
                 continue;
               if (prop.readOnly) {
@@ -607,9 +613,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 required = true;
               }
               // prop = myMetamodel.findProperty(prop.id);
-              let dtype = prop?.getDatatype() as akm.cxDatatype;
+              let dtype = prop.datatype as akm.cxDatatype;
               if (!dtype) {
-                const dtypeRef = prop?.getDatatypeRef();
+                const dtypeRef = prop.datatypeRef;
                 if (dtypeRef) {
                   dtype = myMetamodel.findDatatype(dtypeRef);
                 }

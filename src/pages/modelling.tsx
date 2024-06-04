@@ -252,7 +252,7 @@ const Page1 = (props: any) => {
               </div>
             </div>
             <div className="footer">
-              <Footer />
+              <Footer {...props} />
             </div>
           </div>
         </div>

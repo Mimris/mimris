@@ -555,7 +555,6 @@ export const ProjectMenuBar = (props: any) => {
                             // zIndex: "99"
                         }}
                     >
-                        {props.phSource}
                     </span>
                     {dropRightMenuDiv}
                 </div>

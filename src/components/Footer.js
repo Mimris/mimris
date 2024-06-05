@@ -4,9 +4,14 @@ import { FaCrosshairs, FaGlobe, FaDharmachakra, FaBeer, FaClipboardList, FaEmpir
 
 const Footer = props => {
   return (
-    <div className="title d-flex justify-content-between">
-      <div className="mx-4">Copyright: Kavca AS</div>
-      <div>Current project file: {props.phSource}</div>
+    <div className="footer d-flex ">
+      <div className="ms-4"> Copyright: Kavca AS</div>
+      <div className="ms-auto me-4" >
+        {(props.phFocus?.focusProj?.filename) 
+          ? <div>Current project file:  {props.phFocus?.focusProj.filename} </div>
+          : <div>Current source:  {props.phSource}</div>
+        }
+        </div>
     </div>
   )
 }

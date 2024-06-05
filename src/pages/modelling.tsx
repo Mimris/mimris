@@ -251,7 +251,7 @@ const Page1 = (props: any) => {
                 {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>
             </div>
-            <div className="footer">
+            <div className="footer me-4 w-100">
               <Footer {...props} />
             </div>
           </div>

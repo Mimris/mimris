@@ -1727,6 +1727,124 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         break;
       }
+      case 'ClipboardPasted_1': {
+        const sourceObjects = [];
+        const sourceObjectviews = [];
+        const gjsSourceNodes = [];
+        const gjsSourceGroupNodes = [];
+        const targetObjects = [];
+        const gjsTargetNodes = [];
+        const gjsTargetGroupNodes = [];
+        const goSourceNodes = [];
+        const goSourceGroupNodes = [];
+        const goTargetNodes = [];
+        const goTargetGroupNodes = [];
+        const targetObjectviews = [];
+        const gjsSourceLinks = [];
+        const gjsTargetLinks = [];
+        const goSourceLinks = [];
+        const goTargetLinks = [];
+        const sourceRelships = [];
+        const targetRelships = [];
+        const sourceRelshipviews = [];
+        const targetRelshipviews = [];
+        const selection = e.subject;
+
+        let it1 = selection.iterator;
+        while (it1.next()) { 
+          if (it1.value instanceof go.Node) {
+            let targetObject: akm.cxObject; 
+            let targetObjview: akm.cxObjectView;
+            let goTargetNode: gjs.goObjectNode;
+
+            let gjsNode = it1.value.data;  
+            const gjsSourceNode = gjsNode.fromNode;
+            const goSourceNode = myGoModel.findNode(gjsSourceNode.key);
+            const srcObjview = myModelview.findObjectView(gjsSourceNode.key);
+            sourceObjectviews.push(srcObjview);
+            const srcObject = srcObjview.object;
+            sourceObjects.push(srcObject);
+            const gjsTargetNode = gjsNode;
+            gjsTargetNodes.push(gjsTargetNode);
+            goTargetNode = myGoModel.findNode(gjsNode.key);
+            if (!goTargetNode) {
+              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, gjsNode.objecttype, gjsNode.description);
+              targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
+              goTargetNode = new gjs.goObjectNode(gjsNode.key, myGoModel, targetObjview);
+              myGoModel.addNode(goTargetNode);
+              targetObjectviews.push(targetObjview);
+              targetObjects.push(targetObject);
+              myModel.addObject(targetObject);
+              myMetis.addObject(targetObject);
+              myModelview.addObjectView(targetObjview);
+              myMetis.addObjectView(targetObjview);
+            }
+            if (gjsNode.isGroup) {
+              gjsSourceGroupNodes.push(gjsNode.fromNode);
+              gjsTargetGroupNodes.push(gjsNode);
+              goSourceGroupNodes.push(goSourceNode);
+              goTargetNode = myGoModel.findNode(gjsNode.key);
+              goTargetGroupNodes.push(goTargetNode);
+            }
+            gjsSourceNodes.push(gjsSourceNode);
+            goSourceNodes.push(goSourceNode);
+            goTargetNodes.push(goTargetNode);
+          }
+        }
+
+        let it2 = selection.iterator;
+        while (it2.next()) { 
+          let gjsLink = it2.value.data;
+          let reltype: akm.cxRelationshipType;
+          if (it2.value instanceof go.Link) {
+            const gjsSourceLink = gjsLink.linkNode;
+            gjsSourceLinks.push(gjsSourceLink);
+            const goSourceLink = myGoModel.findLink(gjsSourceLink.key);
+            goSourceLinks.push(goSourceLink);
+            const sourceRelview = myModelview.findRelationshipView(gjsLink.linkNode.key);
+            sourceRelshipviews.push(sourceRelview);
+            const sourceRelship = sourceRelview.relship;
+            reltype = sourceRelship.type;
+            const sourceFromObj: akm.cxObject = sourceRelship.fromObject;
+            const sourceToObj: akm.cxObject = sourceRelship.toObject;
+            const sourceFromObjview: akm.cxObjectView = sourceRelview.fromObjview;
+            const sourceToObjview: akm.cxObjectView = sourceRelview.toObjview;
+            sourceRelships.push(sourceRelship);
+            const gjsTargetLink = gjsLink;
+            gjsTargetLinks.push(gjsTargetLink);
+
+            const fromObj = new akm.cxObject(utils.createGuid(), sourceFromObj.name, sourceFromObj.type, sourceFromObj.description);
+            uic.copyProperties(fromObj, sourceFromObj);
+            const toObj = new akm.cxObject(utils.createGuid(), sourceToObj.name, sourceToObj.type, sourceToObj.description);
+            uic.copyProperties(toObj, sourceToObj);
+            const targetFromKey = uic.getKey(goTargetNodes, sourceFromObj.name);
+            const targetToKey = uic.getKey(goTargetNodes, sourceToObj.name);
+            const targetFromObjview = new akm.cxObjectView(targetFromKey, fromObj.name, fromObj, fromObj.description, myModelview);
+            const targetToObjview = new akm.cxObjectView(targetToKey, toObj.name, toObj, toObj.description, myModelview);
+    
+            const targetRelship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, gjsLink.name, gjsLink.description);
+            targetRelships.push(targetRelship);
+            const targetRelview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, targetRelship, gjsLink.description, myModelview);
+            targetRelview.fromObjview = fromObjview;
+            targetRelview.toObjview = toObjview;
+            targetRelshipviews.push(targetRelview);
+            const goTargetLink = new gjs.goRelshipLink(gjsLink.key, myGoModel, targetRelview);
+            goTargetLinks.push(goTargetLink);
+    
+          }
+        }
+
+        if (!debug) console.log('1477 gjsSourceNodes, gjsTargetNodes', gjsSourceNodes, gjsTargetNodes);
+        if (!debug) console.log('1478 gjsSourceGroupNodes, gjsTargetGroupNodes', gjsSourceGroupNodes, gjsTargetGroupNodes);
+        if (!debug) console.log('1479 sourceObjectviews, targetObjectviews', sourceObjectviews, targetObjectviews);
+        if (!debug) console.log('1479 sourceObjects, targetObjects', sourceObjects, targetObjects);
+
+        if (!debug) console.log('1481 gjsSourceLinks, gjsTargetLinks', gjsSourceLinks, gjsTargetLinks);
+        if (!debug) console.log('1482 goSourceLinks, goTargetLinks', goSourceLinks, goTargetLinks);
+        if (!debug) console.log('1483 sourceRelshipviews, targetRelshipviews', sourceRelshipviews, targetRelshipviews);
+        if (!debug) console.log('1483 sourceRelships, targetRelships', sourceRelships, targetRelships);
+        break;
+      }
       case 'LayoutCompleted': {
         if (false) {
           const nodes = myDiagram.nodes;

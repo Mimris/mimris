@@ -135,8 +135,8 @@ export const ProjectMenuBar = (props: any) => {
         };
     }, []);
 
-    const loadGitHub = <LoadGitHub buttonLabel=' Open Project' className='ContextModal' ph={props} toggleRefresh={props.refresh} setRefresh={props.setRefresh} path='' />;
-    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel='New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.setRefresh} />;
+    const loadGitHub = <LoadGitHub buttonLabel=' Open Project File' className='ContextModal' ph={props} toggleRefresh={props.refresh} setRefresh={props.setRefresh} path='' />;
+    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel=' New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.setRefresh} />;
     const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
     const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} path='akm-metamodels' />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
@@ -165,7 +165,7 @@ export const ProjectMenuBar = (props: any) => {
                 title="Click here to Open a Project file from local file system"
                 onClick={() => fileInputRef.current?.click()}
             >
-                <i className="fa fa-folder fa-lg pe-1"></i>Open local file
+                <i className="fa fa-folder fa-lg pe-2 me-4"></i>Open local file
             </button>
             <input
                 type="file"
@@ -197,10 +197,10 @@ export const ProjectMenuBar = (props: any) => {
     function MenuItem({ item, activeItem, activeRightItem, handleItemClick }: { item: any, activeItem: any, activeRightItem: any, handleItemClick: (event: any) => void }) {
         const getItemContent = (item: any) => {
             switch (item) {
-                case 'Open':
-                    return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>;
                 case 'New':
                     return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>;
+                case 'Open':
+                    return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>;
                 case 'File':
                     return <div className="bg-light border border-4 rounded ">{loadFile}</div>;
                 case 'Save':

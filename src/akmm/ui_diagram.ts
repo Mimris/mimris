@@ -593,15 +593,19 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
     myDiagram.handleOpenModal(node, modalContext);
 }
 
-export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (debug) console.log('583 node, myMetis', node, myMetis);
-    const icon = uit.findImage(node.icon);
-    myMetis.currentNode = node;
+export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('583 gjsNode, myMetis', gjsNode, myMetis);
+    const myGoModel = myMetis.gojsModel; 
+    const goNode = myGoModel.findNode(gjsNode.key);
+    myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    const object = myMetis.findObject(node?.objRef);
-    const objectview = myMetis.findObjectView(node?.objviewRef);
-    const objecttype = myMetis.findObjectType(node?.objtypeRef);
+    const icon = uit.findImage(goNode.icon);
+    const object = myMetis.findObject(goNode?.objRef);
+    const objectview = myMetis.findObjectView(goNode?.objviewRef);
+    const objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
+    // if (objectview)
+    // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
     const myContext = {
         object:     object,
         objectview: objectview,
@@ -622,8 +626,8 @@ export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) 
       myDiagram:  myDiagram,
       myContext:  myContext,
     }
-    if (debug) console.log('566 ui_diagram: node, modalContext', node, modalContext);
-    myDiagram.handleOpenModal(node, modalContext);
+    if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
+    myDiagram.handleOpenModal(gjsNode, modalContext);
 }    
 
 export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -648,6 +652,7 @@ export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram:
         model:      myMetis.currentModel,
         modelview:  myMetis.currentModelview,
         metamodel:  myMetis.currentMetamodel,
+        goModel:    myMetis.gojsModel
     }
     const modalContext = {
         what:       "editRelshipview",
@@ -2631,9 +2636,12 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
             for (let prop in goNode) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
-                        objview[prop] = gjsNode[prop];
-                        goNode[prop]    = gjsNode[prop];
-                        myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
+                        try {
+                            objview[prop] = gjsNode[prop];
+                            goNode[prop]  = gjsNode[prop];
+                            myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
+                        } catch {
+                        }
                     }
                     if (prop === 'viewkind') {
                         if (objview[prop] === 'Object') {

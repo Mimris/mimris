@@ -1026,8 +1026,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-  
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) 
     return true;
 }
 

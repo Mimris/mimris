@@ -1621,11 +1621,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              if (debug) console.log('1267 link', link);
+              const relship = myMetis.findRelationship(link?.relshipRef);
+              const relshipview = myMetis.findRelationshipView(link?.relviewRef);
+              const relshiptype = myMetis.findRelationshipType(link?.reltypeRef);
+              const relshiptypeview = relshiptype?.typeview;
+              const myContext = {
+                object:     null,
+                objectview: null,
+                objecttype: null,
+                objecttypeview: null,
+                relship:    relship,
+                relshipview: relshipview,
+                relshiptype: relshiptype,
+                relshiptypeview: relshiptypeview,
+                model:      myMetis.currentModel,
+                modelview:  myMetis.currentModelview,
+                metamodel:  myMetis.currentMetamodel,
+            }
               const modalContext = {
                 what: "editRelationship",
                 title: "Edit Relationship",
-                myDiagram: myDiagram
+                myDiagram: myDiagram,
+                myContext:  myContext,
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -1633,9 +1650,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // 
             },
             function (o: any) {
-              const node = o.part.data;
-              if (debug) console.log('1265 node', node);
-              if (node.category === constants.gojs.C_RELATIONSHIP) {
+              const link = o.part.data;
+              if (debug) console.log('1265 link', link);
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 return true;
               }
               return false;
@@ -1643,10 +1660,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship View",
             function (e: any, obj: any) {
               const link = obj.part.data;
+              const relship = myMetis.findRelationship(link?.relshipRef);
+              const relshipview = myMetis.findRelationshipView(link?.relviewRef);
+              const relshiptype = myMetis.findRelationshipType(link?.reltypeRef);
+              const relshiptypeview = relshiptype?.typeview;
+              const myContext = {
+                object:     null,
+                objectview: null,
+                objecttype: null,
+                objecttypeview: null,
+                relship:    relship,
+                relshipview: relshipview,
+                relshiptype: relshiptype,
+                relshiptypeview: relshiptypeview,
+                model:      myMetis.currentModel,
+                modelview:  myMetis.currentModelview,
+                metamodel:  myMetis.currentMetamodel,
+            }
               const modalContext = {
                 what: "editRelshipview",
                 title: "Edit Relationship View",
-                myDiagram: myDiagram
+                myDiagram: myDiagram,
+                myContext:  myContext,
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;

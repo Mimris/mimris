@@ -7282,7 +7282,7 @@ export class cxModel extends cxMetaObject {
             this.modelviews.push(modelview);
     }
     addObject(obj: cxObject) {
-        if (obj.category === constants.gojs.C_OBJECT) {
+        if (obj?.category === constants.gojs.C_OBJECT) {
             if (this.objects == null)
                 this.objects = new Array();
             if (!this.findObject(obj.id))
@@ -7853,7 +7853,7 @@ export class cxInstance extends cxMetaObject {
         }
         // Then handle the type itself
         let type = this.type;
-        type = metamodel?.findObjectType(type.id);
+        type = metamodel?.findObjectType(type?.id);
         try {
             const supertypes = type?.getSupertypes();
             for (let i = 0; i < supertypes?.length; i++) {

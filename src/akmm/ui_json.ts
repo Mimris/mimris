@@ -1254,8 +1254,8 @@ export class jsnExportModel {
     }
     addModel(model: akm.cxModel, includeViews: boolean) {
         if (model) {
-            const gModel = new jsnModel(model, includeViews);
-            this.models.push(gModel);
+            const model = new jsnModel(model, includeViews);
+            this.models.push(model);
         }
     }
 }

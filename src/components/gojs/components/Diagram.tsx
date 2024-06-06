@@ -2190,7 +2190,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Clear Breakpoints",
+          makeButton("Clear Path",
             function (e: any, obj: any) {
               let selection = myDiagram.selection;
               if (selection.count == 0) {

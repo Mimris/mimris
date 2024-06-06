@@ -110,10 +110,10 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 export function handleSelectDropdownChange(selected, context) {
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis as akm.cxMetis;
-  const myMetamodel = context.myMetamodel;
-  const myGoModel = context.myGoModel;
-  const myModel = context.myModel;
-  const myModelview = context.myModelview;
+  const myMetamodel: akm.cxMetaModel = context.myMetamodel;
+  const myGoModel: gjs.goModel = context.myGoModel;
+  const myModel: akm.cxModel = context.myModel;
+  const myModelview: akm.cxModelView = context.myModelview;
   const modalContext = context.modalContext;
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
@@ -124,17 +124,14 @@ export function handleSelectDropdownChange(selected, context) {
       const typename = (selectedOption) && selectedOption;
       const objtype = myMetis.findObjectTypeByName(typename);
       myDiagram.selection.each(function(sel) {
-        const inst = sel.data;
-        if (inst.category === constants.gojs.C_OBJECT) {
-          const obj = inst.object;
-          obj.type = objtype;
-          let objview = inst.objectview;
-          objview = (objtype) && uic.setObjectType(inst, objtype, context);
-          const node = myGoModel.findNodeByViewId(objview.id);
-          const n = myDiagram.findNodeForKey(inst.key);
-          // const data = n.data;
+        const gjsInst = sel.data;
+        if (gjsInst.category === constants.gojs.C_OBJECT) {
+          const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(gjsInst.key);
+          let object: akm.cxObject = goNode?.object;
+          uic.setObjectType(gjsInst, objtype, context);
+          const n = myDiagram.findNodeForKey(gjsInst.key);
           myDiagram.model.setDataProperty(n.data, "typename", typename);
-          uid.resetToTypeview(inst, myMetis, myDiagram);
+          uid.resetToTypeview(gjsInst, myMetis, myDiagram);
           if (n) n.isSelected = false;
           myMetis.myDiagram.requestUpdate();
         }

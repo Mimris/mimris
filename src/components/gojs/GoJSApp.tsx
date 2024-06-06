@@ -1205,6 +1205,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
           const node = myDiagram.findNodeForKey(n.data.key);
+          const gjsNode = node.data;
           let type: akm.cxObjectType = n.data.objecttype;
           let typeview: akm.cxObjectTypeView = n.data.typeview;
           let objview: akm.cxObjectView;
@@ -1219,11 +1220,16 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModel.addObject(object);
             myMetis.addObject(object);
             const key = n.data.key;
-            const goNode = myGoModel.findNode(key);
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
+            let goNode = myGoModel.findNode(key);
+            if (!goNode) {
+              goNode = new gjs.goObjectNode(key, myGoModel, objview);
+              goNode.loadNodeContent(myGoModel);
+              myGoModel.addNode(goNode);
+            }
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
@@ -1444,7 +1450,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('nodes', nodes);
         break;
       }
-      case 'ClipboardPasted': {
+      case 'ClipboardPasted_0': {
         // Initial cleanup
         myGoModel.links = utils.removeArrayDuplicatesById(myGoModel.links, "key");
         // First remember the FROM locs
@@ -1727,7 +1733,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         break;
       }
-      case 'ClipboardPasted_1': {
+      case 'ClipboardPasted': {
         const sourceObjects = [];
         const sourceObjectviews = [];
         const gjsSourceNodes = [];
@@ -1750,6 +1756,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const targetRelshipviews = [];
         const selection = e.subject;
 
+        // Handle objects
         let it1 = selection.iterator;
         while (it1.next()) { 
           if (it1.value instanceof go.Node) {
@@ -1765,33 +1772,49 @@ class GoJSApp extends React.Component<{}, AppState> {
             const srcObject = srcObjview.object;
             sourceObjects.push(srcObject);
             const gjsTargetNode = gjsNode;
+            let gjsNodeType = gjsTargetNode.objecttype;
+            if (!gjsNodeType) { gjsNodeType = myMetis.findObjectType(gjsTargetNode.objtypeRef); }
             gjsTargetNodes.push(gjsTargetNode);
             goTargetNode = myGoModel.findNode(gjsNode.key);
             if (!goTargetNode) {
-              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, gjsNode.objecttype, gjsNode.description);
+              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, gjsNodeType, gjsNode.description);
               targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
               goTargetNode = new gjs.goObjectNode(gjsNode.key, myGoModel, targetObjview);
-              myGoModel.addNode(goTargetNode);
-              targetObjectviews.push(targetObjview);
-              targetObjects.push(targetObject);
-              myModel.addObject(targetObject);
-              myMetis.addObject(targetObject);
-              myModelview.addObjectView(targetObjview);
-              myMetis.addObjectView(targetObjview);
             }
+            targetObjview.loc = gjsNode.loc;
+            targetObjview.size = gjsNode.size;
+            targetObjview.group = gjsNode.group;
+            targetObjview.isGroup = gjsNode.isGroup;
+            targetObjview.template = gjsNode.template;
+            goTargetNode.loc = gjsNode.loc;
+            goTargetNode.size = gjsNode.size;
+            goTargetNode.group = gjsNode.group;
+            goTargetNode.isGroup = gjsNode.isGroup;
+            goTargetNode.template = gjsNode.template;
+            myGoModel.addNode(goTargetNode);
+            
             if (gjsNode.isGroup) {
               gjsSourceGroupNodes.push(gjsNode.fromNode);
               gjsTargetGroupNodes.push(gjsNode);
               goSourceGroupNodes.push(goSourceNode);
-              goTargetNode = myGoModel.findNode(gjsNode.key);
+              // goTargetNode = myGoModel.findNode(gjsNode.key);
               goTargetGroupNodes.push(goTargetNode);
             }
             gjsSourceNodes.push(gjsSourceNode);
             goSourceNodes.push(goSourceNode);
             goTargetNodes.push(goTargetNode);
+
+            myModel.addObject(targetObject);
+            myMetis.addObject(targetObject);
+
+            myModelview.addObjectView(targetObjview);
+            myMetis.addObjectView(targetObjview);
+
+            targetObjectviews.push(targetObjview);
+            targetObjects.push(targetObject);
           }
         }
-
+        // Handle relationships
         let it2 = selection.iterator;
         while (it2.next()) { 
           let gjsLink = it2.value.data;
@@ -1815,36 +1838,67 @@ class GoJSApp extends React.Component<{}, AppState> {
 
             const fromObj = new akm.cxObject(utils.createGuid(), sourceFromObj.name, sourceFromObj.type, sourceFromObj.description);
             uic.copyProperties(fromObj, sourceFromObj);
+            myModel.addObject(fromObj);
+            myMetis.addObject(fromObj);
             const toObj = new akm.cxObject(utils.createGuid(), sourceToObj.name, sourceToObj.type, sourceToObj.description);
             uic.copyProperties(toObj, sourceToObj);
+            myModel.addObject(toObj);
+            myMetis.addObject(toObj);
             const targetFromKey = uic.getKey(goTargetNodes, sourceFromObj.name);
             const targetToKey = uic.getKey(goTargetNodes, sourceToObj.name);
             const targetFromObjview = new akm.cxObjectView(targetFromKey, fromObj.name, fromObj, fromObj.description, myModelview);
+            // uic.copyViewAttributes(targetFromObjview, sourceFromObjview);
             const targetToObjview = new akm.cxObjectView(targetToKey, toObj.name, toObj, toObj.description, myModelview);
-    
+            //uic.copyViewAttributes(targetToObjview, sourceToObjview);
+            myModelview.addObjectView(targetFromObjview);
+            myModelview.addObjectView(targetToObjview);
+            myMetis.addObjectView(targetFromObjview);
+            myMetis.addObjectView(targetToObjview);
+
             const targetRelship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, gjsLink.name, gjsLink.description);
             targetRelships.push(targetRelship);
+            myModel.addRelationship(targetRelship);
+            myMetis.addRelationship(targetRelship);
             const targetRelview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, targetRelship, gjsLink.description, myModelview);
-            targetRelview.fromObjview = fromObjview;
-            targetRelview.toObjview = toObjview;
+            targetRelview.fromObjview = targetFromObjview;
+            targetRelview.toObjview = targetToObjview;
             targetRelshipviews.push(targetRelview);
             const goTargetLink = new gjs.goRelshipLink(gjsLink.key, myGoModel, targetRelview);
             goTargetLinks.push(goTargetLink);
-    
+            myModelview.addRelationshipView(targetRelview);
+            myMetis.addRelationshipView(targetRelview);
           }
+        }
+
+        // A spanish move:
+        for (let i=0; i<goTargetNodes.length; i++) {
+          const goNode = goTargetNodes[i];
+          const objview = targetObjectviews[i];
+          objview.group = goNode.group;
+          objview.isGroup = goNode.isGroup;
+          objview.loc = goNode.loc;
+          objview.size = goNode.size;
         }
 
         if (!debug) console.log('1477 gjsSourceNodes, gjsTargetNodes', gjsSourceNodes, gjsTargetNodes);
         if (!debug) console.log('1478 gjsSourceGroupNodes, gjsTargetGroupNodes', gjsSourceGroupNodes, gjsTargetGroupNodes);
-        if (!debug) console.log('1479 sourceObjectviews, targetObjectviews', sourceObjectviews, targetObjectviews);
-        if (!debug) console.log('1479 sourceObjects, targetObjects', sourceObjects, targetObjects);
+        if (!debug) console.log('1479 goSourceNodes, goTargetNodes', goSourceNodes, goTargetNodes);
+        if (!debug) console.log('1480 sourceObjectviews, targetObjectviews', sourceObjectviews, targetObjectviews);
+        if (!debug) console.log('1481 sourceObjects, targetObjects', sourceObjects, targetObjects);
 
-        if (!debug) console.log('1481 gjsSourceLinks, gjsTargetLinks', gjsSourceLinks, gjsTargetLinks);
-        if (!debug) console.log('1482 goSourceLinks, goTargetLinks', goSourceLinks, goTargetLinks);
-        if (!debug) console.log('1483 sourceRelshipviews, targetRelshipviews', sourceRelshipviews, targetRelshipviews);
-        if (!debug) console.log('1483 sourceRelships, targetRelships', sourceRelships, targetRelships);
-        break;
+        if (!debug) console.log('1482 gjsSourceLinks, gjsTargetLinks', gjsSourceLinks, gjsTargetLinks);
+        if (!debug) console.log('1483 goSourceLinks, goTargetLinks', goSourceLinks, goTargetLinks);
+        if (!debug) console.log('1484 sourceRelshipviews, targetRelshipviews', sourceRelshipviews, targetRelshipviews);
+        if (!debug) console.log('1485 sourceRelships, targetRelships', sourceRelships, targetRelships);
+
+        // Do the dispatch
+       // const jsnModels = new jsn.jsnExportModel(true);
+        let jsnModel = new jsn.jsnModel(myModel, true);
+        const data = JSON.parse(JSON.stringify(jsnModel));
+        myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+        return;
       }
+      
       case 'LayoutCompleted': {
         if (false) {
           const nodes = myDiagram.nodes;
@@ -1898,17 +1952,23 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
+        let goFromNode: gjs.goObjectNode;
+        let goToNode: gjs.goObjectNode;
+        let fromObjView: akm.cxObjectView;
+        let toObjView: akm.cxObjectView;
         if (gjsFromNode) {
-          let objview = myModelview.findObjectView(gjsFromNode.key);
-          uic.updateNode(gjsData, objview.typeview, myDiagram, myGoModel);
-          // fromNode = myDiagram.findNodeForKey(data.from);
+          fromObjView = myModelview.findObjectView(gjsFromNode.key);
+          goFromNode = myGoModel.findNode(gjsFromNode.key);
+          context.goFromNode = goFromNode;
+          context.fromObjView = fromObjView;
+          uic.updateNode(goFromNode, fromObjView.typeview, myDiagram, myGoModel);
         }
-
         if (gjsToNode) {
-          let objview = myModelview.findObjectView(gjsToNode.key);
-          let goNode = myGoModel.findNode(gjsToNode.key);
-          uic.updateNode(goNode, objview.typeview, myDiagram, myGoModel);
-          // toNode = myDiagram.findNodeForKey(data.to);
+          toObjView = myModelview.findObjectView(gjsToNode.key);
+          goToNode = myGoModel.findNode(gjsToNode.key);
+          context.goToNode = goToNode;
+          context.toObjView = toObjView;
+          uic.updateNode(goToNode, toObjView.typeview, myDiagram, myGoModel);
         }
 
         // Handle relationship types
@@ -1945,7 +2005,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         // Handle relationships
         if (gjsFromNode?.category === constants.gojs.C_OBJECT) {
-          gjsData.category = constants.gojs.C_RELATIONSHIP;
+          // gjsData.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
           uic.createRelationship(gjsFromNode, gjsToNode, context);
         }

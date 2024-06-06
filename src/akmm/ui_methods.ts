@@ -465,10 +465,10 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         return retval;
     const pi = 3.14159265
     let mtd = prop.method;
+    if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let dtype = prop.datatype;
     if (!dtype)
         dtype = myMetis.findDatatype(prop.datatypeRef);
-    if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let expression = mtd?.expression;
     if (expression) { 
         const type = object.type;

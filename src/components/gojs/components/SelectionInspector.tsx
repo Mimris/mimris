@@ -67,15 +67,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const myMetamodel: akm.cxMetaModel = modalContext.metamodel;
     const myModel: akm.cxModel = modalContext.model;
     const myModelview: akm.cxModelView = modalContext.modelview;
-    const myObject: akm.cxObject = modalContext.object;
-    const myObjectView: akm.cxObjectView = modalContext.objectview;
-    const myObjectType: akm.cxObjectType = modalContext.objecttype;
-    const myObjectTypeView: akm.cxObjectTypeView = modalContext.objecttypeview;
-    const myRelationship: akm.cxRelationship = modalContext.relship;
-    const myRelationshipView: akm.cxRelationshipView = modalContext.relshipview;
-    const myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
-    const myRelationshipTypeView: akm.cxRelationshipTypeView = modalContext.relshiptypeview;
     const myGoModel = myMetis.gojsModel;
+    let myObject: akm.cxObject = modalContext.object;
+    let myObjectView: akm.cxObjectView = modalContext.objectview;
+    let myObjectType: akm.cxObjectType = modalContext.objecttype;
+    let myObjectTypeView: akm.cxObjectTypeView = modalContext.objecttypeview;
+    let myRelationship: akm.cxRelationship = modalContext.relship;
+    let myRelationshipView: akm.cxRelationshipView = modalContext.relshipview;
+    let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
+    let myRelationshipTypeView: akm.cxRelationshipTypeView = modalContext.relshiptypeview;
+    
     const allowsMetamodeling = myModel?.includeSystemtypes;
 
     myMetis.submodels = [];
@@ -86,6 +87,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let category = selObj?.category;
     if (selObj?.type === 'GraphLinksModel') {
       return;
+    }
+    if (!myObjectType) {
+      myObjectType = myMetis.findObjectType(selObj?.objtypeRef) as akm.cxObjectType;
+      myObjectTypeView = myObjectType?.typeview;
+    }
+    if (!myRelationshipType) {
+      myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
+      myRelationshipTypeView = myRelationshipType?.typeview;
     }
     // let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst: akm.cxObject | akm.cxRelationship;
@@ -107,11 +116,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     switch (category) {
       case constants.gojs.C_OBJECT:
         instview1 = myObjectView;
+        if (!myObject) myObject = myObjectView?.object;
         inst1 = myObject;
-        if (instview1) instview = instview1;
-        if (inst1) inst = inst1;
+        if (instview1) 
+          instview = instview1;
+        if (inst1) 
+          inst = inst1;
         type = myObjectType;
         objtypeview = myObjectTypeView;
+        typeview = objtypeview;
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = myObjectType;
@@ -124,6 +137,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let reltype = myRelationshipType;
         instview = relview as akm.cxRelationshipView;
         inst = relship;
+        inst1 = inst;
         type = reltype;
         type1 = type;
         typeview = myRelationshipTypeView;
@@ -142,7 +156,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (type?.name === 'Method') {
           chosenType = null;
         } else {
-          currentType = inst?.type as akm.cxObjectType;
+          currentType = myObjectType as akm.cxObjectType;
           chosenType = currentType;
           chosenInst = inst;
           typename = currentType?.name;
@@ -168,7 +182,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             let namelist = uic.getNameList(inst, context, true);
             if (context.includeInherited) {
               typename = namelist[activeTab];
-              const objs = inst.getInheritanceObjects(myModel) as akm.cxObject[];
+              const objs = inst?.getInheritanceObjects(myModel) as akm.cxObject[];
               for (let i = 0; i < objs.length; i++) {
                 if (objs[i].type.name === typename) {
                   chosenType = objs[i].type;
@@ -207,12 +221,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
       } else if (category === constants.gojs.C_RELATIONSHIP) {
-        currentType = inst1.type as akm.cxRelationshipType;
+        currentType = type as akm.cxRelationshipType;
         chosenType = null;
         chosenInst = inst1;
         typename = currentType.name;
         typedescription = currentType.description;
-        if (useTabs && modalContext?.what === 'editRelationship') {
+        if (useTabs && context1.what === 'editRelationship') {
           let inheritedTypes = inst1?.getInheritedTypes();
           inheritedTypes.push(currentType);
           inheritedTypes = [...new Set(inheritedTypes)];
@@ -270,8 +284,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // Do nothing
           }
           if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
-        }
-        else if (type?.name === 'Method') {
+        } else if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
           if (inst1) inst = inst1;
           properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
@@ -279,8 +292,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         } else {
           let includeInherited = true;
           let includeConnected = false;
-          inst = myMetis.findObject(inst.id);
-          type = myMetis.findObjectType(type.id);
+          inst = myMetis.findObject(inst?.id);
+          type = myMetis.findObjectType(type?.id);
           try {
             const typeProps = type?.getProperties(includeInherited);
             const inheritedProps = inst?.getInheritedProperties(myModel);
@@ -337,7 +350,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
       }
     }
-
     const dets = [];
     let hideNameAndDescr = false;
     let useFillColor = false;
@@ -390,7 +402,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (!item) item = inst;
         hideNameAndDescr = true;
         if (what === "editObjectview") {
-          if (type.name !== constants.types.AKM_PORT)
+          if (type?.name !== constants.types.AKM_PORT)
             useFillColor = false;
         } else if (what === "editRelshipview" || what === "editTypeview")
           useStrokeColor = false;
@@ -423,6 +435,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     for (let k in test) {
       // Filter some system attributes
       {
+        if (k === 'category') continue;
+        if (k === 'sourceUri') continue;
+        if (k === 'modified') continue;
+        if (k === 'nameId') continue;
+        if (k === 'fromPortid') continue;
+        if (k === 'toPortid') continue;
+        if (k === 'propvalues') continue;
         if (k === 'abstract') {
           if (what === "editObject") {
             if (type && type.name !== constants.types.AKM_ENTITY_TYPE)
@@ -475,33 +494,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // }
         // End hack
       }
-      if (chosenType) {
-        // Filter attributes to show in a given tab
-        {
-          let found = false;
-          for (let n = 0; n < properties.length; n++) {
-            const p = properties[n];
-            if (p.name === k) {
-              found = true;
-              break;
-            }
-          }
-          switch (chosenType.name) {
-            case 'EntityType':
-              if ((k === 'id') || (k === 'name') || (k === 'description')
-                || (k === 'typeName') || (k === 'typeDescription')
-                || (k === 'abstract') || (k === 'viewkind')
-              )
-                found = true;
-              break;
-            default:
-              if ((k === 'id') || (k === 'name') || (k === 'description'))
-                found = true;
-              break;
-          }
-          // if (!found) continue;
-        }
-      }
 
       let row;
       description = "";
@@ -511,11 +503,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let readonly = false;
         let disabled = false;
         let checked = false;
-        let pattern = "";
+        let pattern = ".";
         let required = false;
         let defValue = "";
         let values = [];
-        let val = item[k];
+        let val = selObj[k];
         // Handle attributes not to be included in modal
         {
           if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editRelshipview') {
@@ -561,14 +553,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           switch (what) {
             case 'editTypeview':
               if (objtypeview) {
-                val = objtypeview.data[k];
+                // val = objtypeview.data[k];
               } else if (reltypeview) {
-                val = reltypeview.data[k];
+                // val = reltypeview.data[k];
               }
               break;
             case 'editObjectview':
             case 'editRelshipview':
-              val = instview[k];
+              // val = selObj[k]; // instview[k];
               break;
             default:
               if (includeConnected) {
@@ -638,10 +630,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               const mtdRef = prop?.methodRef;
               if (mtdRef) {
                 disabled = true;
-                if (inst.category === constants.gojs.C_OBJECT) {
+                if (inst?.category === constants.gojs.C_OBJECT) {
                   const obj = myMetis.findObject(inst.id);
                   if (obj) inst = obj;
-                } else if (inst.category === constants.gojs.C_RELATIONSHIP) {
+                } else if (inst?.category === constants.gojs.C_RELATIONSHIP) {
                   const rel = myMetis.findRelationship(inst.id);
                   if (rel) inst = rel;
                 }
@@ -652,7 +644,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
               // Handle connected objects
-              if (inst.category === constants.gojs.C_OBJECT) {
+              if (inst?.category === constants.gojs.C_OBJECT) {
                 const objs = chosenInst.getConnectedObjects1(prop, myMetis);
                 if (objs?.length > 1)
                   val = '';
@@ -930,6 +922,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               disabled = true;
           }
         }
+        if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
         row = <InspectorRow
           key={k}
           id={k}

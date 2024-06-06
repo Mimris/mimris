@@ -339,10 +339,8 @@ export function handleSelectDropdownChange(selected, context) {
         const link = sel.data;
         if (link.category === constants.gojs.C_RELATIONSHIP) {
           if (!link) return;
-          let relship = link.relship;
-          relship = myModel.findRelationship(relship.id);
-          let relshipview = link.relshipview;
-          relshipview = myModelview.findRelationshipView(relshipview.id);
+          const relshipRef = link.relshipRef;
+          let relship = myModel.findRelationship(relshipRef);
           let fromNode = link.fromNode;
           let toNode   = link.toNode;
           let fromType = fromNode?.objecttype;
@@ -896,9 +894,25 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const reltype = myMetamodel.findRelationshipTypeByName(selectedValue);
         let link = myMetis.currentLink;
         link = myDiagram.findLinkForKey(link.key);
-        link.relshiptype = reltype;
+        link.data.relshiptype = reltype;
         link.name = reltype.name;
-        myDiagram.model.setDataProperty(link.data, 'name', link.name);
+        const relshipRef = link.data.relshipRef;
+        let relship = myModel.findRelationship(relshipRef);
+        const fromReltype = relship.type;
+        if ( relship.name === fromReltype.name) {
+          relship.name = reltype.name;
+          myDiagram.model.setDataProperty(link.data, 'name', relship.name);
+        }
+        relship.type = reltype;
+        // Do the dispatches
+        const modifiedRelships = new Array();
+        const jsnRel = new jsn.jsnRelationship(relship);
+        modifiedRelships.push(jsnRel);
+        modifiedRelships?.map(mn => {
+          let data = (mn) && mn
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        });
       }
       break;
     }

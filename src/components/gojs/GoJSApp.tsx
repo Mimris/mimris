@@ -2021,10 +2021,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         const goLink = myGoModel.findLink(key);        
         let goFromNode = myGoModel.findNode(gjsLinkData.from);
         let goToNode = myGoModel.findNode(gjsLinkData.to);
-        const relship = goLink.relship;
+        const relshipRef = goLink.relshipRef;
+        const relship = myModel.findRelationship(relshipRef);
         relship.fromObject = goFromNode.object;
         relship.toObject = goToNode.object;
-        const relview = goLink.relshipview; 
+        const relviewRef = goLink.relviewRef;
+        const relview = myModelview.findRelationshipView(relviewRef);
         relview.fromObjview = goFromNode.objectview;
         relview.toObjview = goToNode.objectview;
         // Prepare for dispatch

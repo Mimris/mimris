@@ -3903,7 +3903,7 @@ export class cxMetaModel extends cxMetaObject {
         if (!typeviews) {
             return [];
         }
-        // Remove all typeviews in allTypeviews
+        // Remove duplicated typeviews in allTypeviews
         for (let i = 0; i < typeviews.length; i++) {
             const typeview = typeviews[i];
             if (typeview) {
@@ -7874,7 +7874,7 @@ export class cxInstance extends cxMetaObject {
         if (types?.length > 0) {
             for (let i = 0; i < types.length; i++) {
                 let type = types[i];
-                type = metamodel?.findObjectType(type.id);
+                type = metamodel?.findObjectType(type?.id);
                 if (type?.hasProperties())
                     return true;
             }

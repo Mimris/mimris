@@ -263,8 +263,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
     let myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
-    myGoModel = uic.fullFillGoModel(myGoModel, myModelview);
-    if (debug) console.log('223 handleDiagramEvent - myGoModel', myGoModel, myMetis);
     const nodes = new Array();
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
@@ -315,7 +313,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const objviews = myModelview.objectviews;
         for (let i = 0; i < objviews?.length; i++) {
           const objview = objviews[i];
-          const goNode = myGoModel.findNodeByViewId(objview.id);
+          const goNode = myGoModel?.findNodeByViewId(objview.id);
           if (goNode) {
             for (let it = myDiagram.nodes; it?.next();) {
               const n = it.value;
@@ -643,11 +641,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (group) {
                 const parentgroup = group;
                 node.group = parentgroup.key;
-                const objectview = myMetis.findObjectView(node.objviewRef);
-                const objtypeview = myMetis.findObjectTypeView(node.objtypeRef);
-                let object = node.object;
-                if (!object) object = myMetis.findObject(node.objRef);
-                objectview.group = parentgroup.objviewRef;
+                const objectview = myMetis.findObjectView(node.key);
+                let object = objectview.object;
+                const objtype = object.type;
+                const objtypeview = objtype.typeview;
+                objectview.group = parentgroup?.objviewRef;
                 myDiagram.model.setDataProperty(data, "group", node.group);
                 // Handle hasMember relationships:
                 if (group?.objecttype?.id !== containerType?.id && hasMemberType) {

@@ -7858,7 +7858,7 @@ export class cxInstance extends cxMetaObject {
             const supertypes = type?.getSupertypes();
             for (let i = 0; i < supertypes?.length; i++) {
                 let stype = supertypes[i];
-                stype = metamodel?.findObjectType(stype.id);
+                stype = metamodel?.findObjectType(stype?.id);
                 if (stype) typelist.push(stype);
             }
         } catch (error) {
@@ -7894,7 +7894,7 @@ export class cxInstance extends cxMetaObject {
             for (let i = 0; i < objects?.length; i++) {
                 const obj = objects[i];
                 let type = obj?.type;
-                type = metamodel?.findObjectType(type.id);
+                type = metamodel?.findObjectType(type?.id);
                 if (type?.hasProperties())
                     return true;
             }
@@ -7909,7 +7909,7 @@ export class cxInstance extends cxMetaObject {
         for (let i = 0; i < objects?.length; i++) {
             const obj = objects[i];
             let type = obj?.type;
-            type = metamodel?.findObjectType(type.id);
+            type = metamodel?.findObjectType(type?.id);
             if (type?.hasProperties()) {
                 const props = type.properties;
                 for (let j = 0; j < props.length; j++) {

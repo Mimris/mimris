@@ -110,10 +110,10 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 export function handleSelectDropdownChange(selected, context) {
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis as akm.cxMetis;
-  const myMetamodel = context.myMetamodel;
-  const myGoModel = context.myGoModel;
-  const myModel = context.myModel;
-  const myModelview = context.myModelview;
+  const myMetamodel: akm.cxMetaModel = context.myMetamodel;
+  const myGoModel: gjs.goModel = context.myGoModel;
+  const myModel: akm.cxModel = context.myModel;
+  const myModelview: akm.cxModelView = context.myModelview;
   const modalContext = context.modalContext;
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
@@ -124,17 +124,14 @@ export function handleSelectDropdownChange(selected, context) {
       const typename = (selectedOption) && selectedOption;
       const objtype = myMetis.findObjectTypeByName(typename);
       myDiagram.selection.each(function(sel) {
-        const inst = sel.data;
-        if (inst.category === constants.gojs.C_OBJECT) {
-          const obj = inst.object;
-          obj.type = objtype;
-          let objview = inst.objectview;
-          objview = (objtype) && uic.setObjectType(inst, objtype, context);
-          const node = myGoModel.findNodeByViewId(objview.id);
-          const n = myDiagram.findNodeForKey(inst.key);
-          // const data = n.data;
+        const gjsInst = sel.data;
+        if (gjsInst.category === constants.gojs.C_OBJECT) {
+          const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(gjsInst.key);
+          let object: akm.cxObject = goNode?.object;
+          uic.setObjectType(gjsInst, objtype, context);
+          const n = myDiagram.findNodeForKey(gjsInst.key);
           myDiagram.model.setDataProperty(n.data, "typename", typename);
-          uid.resetToTypeview(inst, myMetis, myDiagram);
+          uid.resetToTypeview(gjsInst, myMetis, myDiagram);
           if (n) n.isSelected = false;
           myMetis.myDiagram.requestUpdate();
         }
@@ -339,10 +336,8 @@ export function handleSelectDropdownChange(selected, context) {
         const link = sel.data;
         if (link.category === constants.gojs.C_RELATIONSHIP) {
           if (!link) return;
-          let relship = link.relship;
-          relship = myModel.findRelationship(relship.id);
-          let relshipview = link.relshipview;
-          relshipview = myModelview.findRelationshipView(relshipview.id);
+          const relshipRef = link.relshipRef;
+          let relship = myModel.findRelationship(relshipRef);
           let fromNode = link.fromNode;
           let toNode   = link.toNode;
           let fromType = fromNode?.objecttype;
@@ -896,9 +891,25 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const reltype = myMetamodel.findRelationshipTypeByName(selectedValue);
         let link = myMetis.currentLink;
         link = myDiagram.findLinkForKey(link.key);
-        link.relshiptype = reltype;
+        link.data.relshiptype = reltype;
         link.name = reltype.name;
-        myDiagram.model.setDataProperty(link.data, 'name', link.name);
+        const relshipRef = link.data.relshipRef;
+        let relship = myModel.findRelationship(relshipRef);
+        const fromReltype = relship.type;
+        if ( relship.name === fromReltype.name) {
+          relship.name = reltype.name;
+          myDiagram.model.setDataProperty(link.data, 'name', relship.name);
+        }
+        relship.type = reltype;
+        // Do the dispatches
+        const modifiedRelships = new Array();
+        const jsnRel = new jsn.jsnRelationship(relship);
+        modifiedRelships.push(jsnRel);
+        modifiedRelships?.map(mn => {
+          let data = (mn) && mn
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        });
       }
       break;
     }

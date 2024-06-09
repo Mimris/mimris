@@ -84,11 +84,14 @@ const Modelling = (props: any) => {
   const ph = props
   const metis = ph.phData?.metis
 
-  const models = metis?.models
-  const curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) || models[0] // find the current model
-  const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
-    ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
-    : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
+  const models = metis?.models?.filter((m: any) => m); // Filter out empty models
+  let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) 
+  if (!curmod) curmod = models[0]
+
+  const modelviews = curmod?.modelviews?.filter((mv: any) => mv)
+  let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
+  if (!curmodview) curmodview = modelviews[0]
+  
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 

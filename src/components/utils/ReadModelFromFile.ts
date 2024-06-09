@@ -248,17 +248,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         // ------------------------------------  import based on diff importfiles ------------------------------------    
         if (!data.phData) { // if file is a project file, just skip the rest of this function
-
-
             // objettypes
             let otindex, otlength
-
-
-
             if (debug) console.log('75 ReadModelFromFile', editedmodelffobjects, editedmodelffobjects2)
-
-
-
             // modelviews
             let mvindex, mvlength
             mvindex = (impModelview?.id) && props.phData?.metis?.models[mindex]?.modelviews.findIndex(mv => mv.id === impModelview?.id) // current modelview index
@@ -274,15 +266,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             } else { // if modelview does not exist, then add it to props.phData.metis.models[mindex].modelviews
                 // tmpmv.push(modelff.modelview)
             }
-
-
-
-
-
             let oindex = (impObjects) && tmpo.findIndex(o => o.id === impObjects[0]?.id)
             const olength = tmpo.length
             if (oindex && (oindex < 0)) { oindex = olength } // oindex = -1, i.e.  not fond, which means adding a new object
-
             // ---------------------  replace existing with the imported (overwrite) ---------------------
             let rindex = impRelships ? props.phData.metis.models[mindex].relships.findIndex(r => (r) && r.id === impRelships[0]?.id) : null;
             const rlength = props.phData.metis.models[mindex].relships.length
@@ -291,12 +277,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             // const tmprels = props.phData.metis.models[mindex].relships
             // if (rindex >= 0) { tmprels.splice(rindex, 1) } // if relationship exist, then remove it from props.phData.metis.models[mindex].relships, i.e. the relationship will be replaced by the new relationship
             //  if metamodel already exist in props.phData.metis.metamodels, then replace it with the new metamodel
-
             const mmlength = props.phData.metis.metamodels.length;
             if (!mmindex || mmindex < 0) mmindex = mmlength// if metamodel exist, then replace it with the new metamodel
             if (debug) console.log('233 ReadModelFromFile', mindex, mvindex, mmindex)
         }
-
         // ---------------------  add metamodel if imorted  --------------------
         if (debug) console.log('237 ReadModelFromFile', filename, props,)
 
@@ -471,6 +455,30 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 }
             }
+        }
+
+        // remove model if it is empty or undefined
+        const metis2 = data.phData.metis
+        const models2 = metis2.models.filter(m => (m) && m) // filter out null models 
+        // const modelviews = curmod.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
+        const metamodels2 = metis2.metamodels.filter(mm => (mm) && mm) // filter out null metamodels
+        // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
+        // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
+        if (debug) console.log('335 ReadModelFromFile', data)
+        data.phData = {
+            ...data.phData,
+            metis: {
+                ...data.phData.metis2,
+                models: models2,
+                metamodels: metamodels2,
+            },
+        }
+        const focusModel = models2.find(m => m.id === focus.focusModel?.id) || models2[0]
+        const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+        data.phFocus = {
+            ...data.phFocus,
+            focusModel: focusModel,
+            focusModelview: focusModelview,
         }
 
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)

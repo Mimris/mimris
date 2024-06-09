@@ -41,8 +41,21 @@ const Page1 = (props: any) => {
 
 
   function dispatchLocalStore(locStore: any) {
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
+    // filter out null models and metamodels
+    let metis = locStore.phData.metis
+    const metamodels = locStore.phData.metis.metamodels.filter((mm: any) => mm)
+    const models = locStore.phData.metis.models.filter((m: any) => m)
+    metis = { ...metis, models, metamodels }
+    const phData = { ...locStore.phData, metis }
+    const focusModel = models.find(m => m.id === focus.focusModel?.id) || models[0]
+    const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+    const phFocus = {
+      ...locStore.phFocus,
+      focusModel: focusModel,
+      focusModelview: focusModelview,
+    }
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
+    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
   }

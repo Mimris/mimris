@@ -1891,12 +1891,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e, obj) {
               const myGoModel = myMetis.gojsModel;
               const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
               let includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
-              const myMetamodel = myMetis.currentMetamodel;
-              let fromType: akm.cxObjectType = link.relship.fromObject.type;
+              const relshipRef = link.relshipRef;
+              const relship = myMetis.findRelationship(relshipRef);
+              let fromType: akm.cxObjectType = relship.fromObject.type;
               fromType = myMetamodel.findObjectType(fromType.id);
-              let toType: akm.cxObjectType = link.relship.toObject.type;
+              let toType: akm.cxObjectType = relship.toObject.type;
               toType = myMetamodel.findObjectType(toType.id);
               let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
@@ -2188,7 +2190,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Clear Breakpoints",
+          makeButton("Clear Path",
             function (e: any, obj: any) {
               let selection = myDiagram.selection;
               if (selection.count == 0) {

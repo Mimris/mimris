@@ -428,12 +428,12 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
     // data, i.e. node
     if (objtype) {
         const objtypeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
-        const currentObject = myMetis.findObject(data.object?.id);
+        const currentObjectView = myMetis.findObjectView(data.key) as akm.cxObjectView;
+        const currentObject = currentObjectView?.object;
         if (currentObject) {
             const nameIsChanged = (currentObject.name !== currentObject.type?.name);
             currentObject.setType(objtype);
             currentObject.setModified();
-            const currentObjectView = myMetis.findObjectView(data.objectview.id);
             if (currentObjectView) {
                 currentObjectView.setTypeView(objtypeview);
                 currentObjectView.setModified();
@@ -441,6 +441,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 if (!nameIsChanged) {
                     myDiagram.model.setDataProperty(data, "name", objtype.name);
                 }
+                myDiagram.model.setDataProperty(data, "typename", objtype.name);
                 // Apply local overrides
                 currentObjectView['template'] = data.template;
                 currentObjectView['figure'] = data.figure;
@@ -449,8 +450,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 currentObjectView['strokewidth'] = data.strokewidth;
                 currentObjectView['icon'] = data.icon;
                 // Update data (node)
-                data.object.type = objtype;
-                data.objecttype = objtype;
+                data.objtypeRef = objtype.id;
                 data.typename = objtype.name;
                 data.typeview = objtypeview;
                 updateNode(data, objtypeview, myDiagram, myMetis.gojsModel);

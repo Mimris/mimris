@@ -58,18 +58,43 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const impMetamodel = (impMetamodels) && impMetamodels[0] // max one model in modelview file for now
 
         // ---------------------  Set up current model for merging of imported data ---------------------
-        const metis = props.phData.metis
-        const focus = props.phFocus
+        const metis = (props) ? props.phData.metis : importedfile.phData.metis
+        const focus = (props) ? props.phFocus : importedfile.phFocus
         const curmod = metis.models.find(m => m.id === focus.focusModel?.id)
         if (!curmod) return null
         const curmmod = metis.metamodels.find(m => m.id === curmod.metamodelRef)
-        const modelviews = curmod.modelviews
+        const modelviews = curmod.modelviews.filter(mv => (mv && mv.id != undefined) && mv) // filter out null or empthy modelviews
+    
         const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
 
         let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
 
         // ---------------------  Set up imported model for merging of imported data ---------------------
         let data = importedfile
+
+        // remove model if it is empty or undefined
+        const metis2 = data.phData.metis
+        const models2 = metis2.models.filter(m => (m) && m) // filter out null models 
+        // const modelviews = curmod.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
+        const metamodels2 = metis2.metamodels.filter(mm => (mm) && mm) // filter out null metamodels
+        // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
+        // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
+        if (debug) console.log('335 ReadModelFromFile', data)
+        data.phData = {
+            ...data.phData,
+            metis: {
+                ...data.phData.metis2,
+                models: models2,
+                metamodels: metamodels2,
+            },
+        }
+        const focusModel = models2.find(m => m.id === focus.focusModel?.id) || models2[0]
+        const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+        data.phFocus = {
+            ...data.phFocus,
+            focusModel: focusModel,
+            focusModelview: focusModelview,
+        }
         // let data = (importedfile.phData)
         //     ?  importedfile // if phData exists, then use importedfile
         //     :  (importedfile.models) 
@@ -457,31 +482,8 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             }
         }
 
-        // remove model if it is empty or undefined
-        const metis2 = data.phData.metis
-        const models2 = metis2.models.filter(m => (m) && m) // filter out null models 
-        // const modelviews = curmod.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
-        const metamodels2 = metis2.metamodels.filter(mm => (mm) && mm) // filter out null metamodels
-        // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
-        // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
-        if (debug) console.log('335 ReadModelFromFile', data)
-        data.phData = {
-            ...data.phData,
-            metis: {
-                ...data.phData.metis2,
-                models: models2,
-                metamodels: metamodels2,
-            },
-        }
-        const focusModel = models2.find(m => m.id === focus.focusModel?.id) || models2[0]
-        const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
-        data.phFocus = {
-            ...data.phFocus,
-            focusModel: focusModel,
-            focusModelview: focusModelview,
-        }
 
-        if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+        if (!debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)

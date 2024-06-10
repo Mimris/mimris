@@ -75,7 +75,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         // remove model if it is empty or undefined
         const metis2 = data.phData.metis
         const models2 = metis2.models.filter(m => (m) && m) // filter out null models 
-        // const modelviews = curmod.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
+        // const curmod2 = models2.find(m => m.id === focus.focusModel?.id) // current model
+        // const modelviews = curmod2.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
+        // const curmodview2 = modelviews.find(mv => mv.id === focus.focusModelview?.id) || modelviews[0] // current modelview
         const metamodels2 = metis2.metamodels.filter(mm => (mm) && mm) // filter out null metamodels
         // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
         // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
@@ -95,6 +97,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             focusModel: focusModel,
             focusModelview: focusModelview,
         }
+        if (!debug) console.log('98 ReadModelFromFile', data)
         // let data = (importedfile.phData)
         //     ?  importedfile // if phData exists, then use importedfile
         //     :  (importedfile.models) 

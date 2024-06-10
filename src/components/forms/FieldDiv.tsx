@@ -1,6 +1,6 @@
 
 
-const FieldDiv = (props) => {
+const FieldDiv = (props: any) => {
 
   // console.log('5 FieldDiv', props);
   

@@ -1,7 +1,7 @@
 // this component is not used in the app, but it could be used to display a message to the user
 import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import { Modal, Button } from 'react-bootstrap';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const PopupAMsg = (props: any) => {
 

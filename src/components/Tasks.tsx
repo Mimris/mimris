@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { useEffect, useState, useRef, use} from 'react';
-import { useSelector, useDispatch} from 'react-redux';
+import { useEffect, useState, useRef, use } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Selector from './utils/Selector';
 import ReactMarkdown from 'react-markdown';
@@ -56,6 +56,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   // } , []);
 
   useEffect(() => {
+    if (debug) useEfflog('59 Tasks useEffect 1 [props.visible]');
     setMinimized(true);
   }, [props.visible]);
 
@@ -93,7 +94,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const focusRole = useSelector(state => state.phFocus.focusRole);
   const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
-  if  (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);
+  if (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);
   const curmetamodel = metamodels?.find((m: { id: any; }) => m?.id === curmodel?.metamodelRef);
 
 
@@ -101,7 +102,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const subModels = curmetamodel?.subModels;
   if (!subModels) return null;
   // const subModel = subModels[0];
-  if (debug) console.log('100 Tasks', models,  curmodel, curmetamodel, subModels);
+  if (debug) console.log('100 Tasks', models, curmodel, curmetamodel, subModels);
   // const subModelviews = subModel?.modelviews;
   const modelviews = curmodel?.modelviews;
   // const subModelObjects = subModel?.objects;
@@ -181,7 +182,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         type: "SET_FOCUS_TASK",
         data: { id: task.id, name: task.name },
       });
-    } 
+    }
     if (role) {
       dispatch({
         type: "SET_FOCUS_ROLE",
@@ -195,7 +196,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
   let curParentObj: any = null;
-      // find to.objectviews that has no parent objectview and not of type Label i.e. top containers(groups)
+  // find to.objectviews that has no parent objectview and not of type Label i.e. top containers(groups)
   // Define a type for the item
   type ItemType = {
     id: string;
@@ -205,12 +206,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     children: ItemType[];
   };
 
-  const taskItem = (task: ItemType, role: ItemType) => 
+  const taskItem = (task: ItemType, role: ItemType) =>
     <li
       key={task?.id}
       className="p-0 me-0"
       onClick={() => setSelectedTask(task)}
-      style={{backgroundColor: "lightyellow" }}
+      style={{ backgroundColor: "lightyellow" }}
     >
       <hr className="py-1 bg-success" />
       <details className="m-y p-0 pe-1">
@@ -220,9 +221,9 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           <i className="fa fa-tasks mt-1 ms-2" aria-hidden="true"></i>
           <span className="ms-2">{task?.name}</span>
           <span className="d-flex my-0 ms-auto me-0 align-items-center justify-items-center"
-            style={{ minWidth: "100px", whiteSpace: "nowrap"}}
+            style={{ minWidth: "100px", whiteSpace: "nowrap" }}
           >
-            <button 
+            <button
               className="btn bg-light text-success mx-0 p-1 pt-0 fs-5 ms-auto"
               data-toggle="tooltip"
               data-placement="top"
@@ -260,8 +261,8 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     return oDiv;
   };
 
-  const genTasksDiv = (): JSX.Element | null => { 
-    return subModels?.map((sm: any, index: number) => { 
+  const genTasksDiv = (): JSX.Element | null => {
+    return subModels?.map((sm: any, index: number) => {
       if (debug) console.log('276 Tasks', sm);
       const sourceMetamodel = metamodels?.find((mm: { id: any; }) => mm.id === sm.metamodelRef);
 
@@ -273,7 +274,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
       const tasksDiv = subTasks.map((subtask: ItemType) => {
         return renderItem(subtask, subRoles[0]);
       });
-      
+
       return (
         <details key={index}>
           <summary className="text-success d-flex align-items-center m-0 bg-light" >
@@ -281,7 +282,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               <div key={index} className="" >
                 <i className="fa fa-folder mt-1" aria-hidden="true"></i>
                 <span className="ms-2 me-2"><span style={{ fontWeight: "bold" }}>{sm.name}</span> ()
-                {/* ({sourceMetamodel?.name}) */}
+                  {/* ({sourceMetamodel?.name}) */}
                 </span>
               </div>
             </span>
@@ -296,113 +297,113 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
 
 
-  const genTasksHeaderDiv  =  
+  const genTasksHeaderDiv =
     <>
-        <div className="tasklist p-1 mt-2 me-2"
-          style={{  backgroundColor: "lightyellow", position: "fixed",   top: "170px",right: "0%",  width: "400px",  height: "78vh",  zIndex: "999"}}
-          // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
-            ref={containerRef}
-          >
-            <button
-            className="btn btn-sm bg-light text-dark float-end"
-            onClick={setMinimized}
-            >
-            X
-            </button>
-          <div className="fle-d">
-            <div className="ps-2 text-success font-weight-bold fs-5 " >Tasks Modelling Guides</div>
-            <div>
-              Role:{" "}
-              <span className="font-weight-bold text-success bg-white p-1">
-                {focusRole?.name}
-              </span>
-            </div>
-            <div>
-              Task:{" "}
-              <span className="font-weight-bold text-success bg-white p-1">
-                {focusTask?.name}
-              </span>
-            </div>
-            <div className="mb-3">
-              {(!collapsed) // collapsed task container
-                ? 
-                  <button 
-                    className="btn text-success mt-0 pe-2 py-0 btn-sm float-end"
-                    data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                    title="Close all!"
-                    onClick={closeAllDetails}
-                    style={{ backgroundColor: "transparent"}}
-                  >
-                    <i className="fa fa-lg fa-folder-open"></i>
-                  </button>
-                :
-                  <button 
-                    className="btn text-success mt-0 pe-2 py-0 btn-sm float-end"
-                    data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                    title="Open all!"
-                    onClick={openAllDetails}
-                    style={{ backgroundColor: "transparent"}}
-                  >
-                    <i className="fa fa-lg fa-folder-closed"></i>
-                  </button>
-              }
-            </div>
-            <hr className="m-0 p-2" />          
+      <div className="tasklist p-1 mt-2 me-2"
+        style={{ backgroundColor: "lightyellow", position: "fixed", top: "170px", right: "0%", width: "400px", height: "78vh", zIndex: "999" }}
+        // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
+        ref={containerRef}
+      >
+        <button
+          className="btn btn-sm bg-light text-dark float-end"
+          onClick={setMinimized}
+        >
+          X
+        </button>
+        <div className="fle-d">
+          <div className="ps-2 text-success font-weight-bold fs-5 " >Tasks Modelling Guides</div>
+          <div>
+            Role:{" "}
+            <span className="font-weight-bold text-success bg-white p-1">
+              {focusRole?.name}
+            </span>
           </div>
-          <div className="tasks" style={{maxHeight: "80vh" ,overflow: "scroll"}}>
-             <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span> 
-              {genTasksDiv()}
-            </div>
+          <div>
+            Task:{" "}
+            <span className="font-weight-bold text-success bg-white p-1">
+              {focusTask?.name}
+            </span>
+          </div>
+          <div className="mb-3">
+            {(!collapsed) // collapsed task container
+              ?
+              <button
+                className="btn text-success mt-0 pe-2 py-0 btn-sm float-end"
+                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                title="Close all!"
+                onClick={closeAllDetails}
+                style={{ backgroundColor: "transparent" }}
+              >
+                <i className="fa fa-lg fa-folder-open"></i>
+              </button>
+              :
+              <button
+                className="btn text-success mt-0 pe-2 py-0 btn-sm float-end"
+                data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                title="Open all!"
+                onClick={openAllDetails}
+                style={{ backgroundColor: "transparent" }}
+              >
+                <i className="fa fa-lg fa-folder-closed"></i>
+              </button>
+            }
+          </div>
+          <hr className="m-0 p-2" />
+        </div>
+        <div className="tasks" style={{ maxHeight: "80vh", overflow: "scroll" }}>
+          <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
+            {genTasksDiv()}
           </div>
         </div>
-    </> 
-  ;
-  
+      </div>
+    </>
+    ;
+
   const modalDiv =
-        <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}  
-          style={{ marginLeft: "0%", marginTop: "240px", backgroundColor: "lightyellow" }} >
-          <Modal.Header className="mx-2 bg-transparent" closeButton>
-            <Modal.Title>Focus task </Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="bg-transparent">
-            <ReportModule props={props.props} reportType="task" edit={false} />
-          {/* modelInFocusId={subModels[0].id} /> */}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>   
+    <Modal className="ps-auto" show={showModal} onHide={handleCloseModal}
+      style={{ marginLeft: "0%", marginTop: "240px", backgroundColor: "lightyellow" }} >
+      <Modal.Header className="mx-2 bg-transparent" closeButton>
+        <Modal.Title>Focus task </Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="bg-transparent">
+        <ReportModule props={props.props} reportType="task" edit={false} />
+        {/* modelInFocusId={subModels[0].id} /> */}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCloseModal}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
 
 
   if (minimized) {
     return (
       <button
         className="btn btn-sm border text-success ms-0 py-0 me-2 float-end"
-        style={{backgroundColor: "#ffffdd"}}
+        style={{ backgroundColor: "#ffffdd" }}
         onClick={() => setMinimized(false)}
       >
-        <span className="fs-6" style={{ whiteSpace: "nowrap"}}>Tasks Guides <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
+        <span className="fs-6" style={{ whiteSpace: "nowrap" }}>Tasks Guides <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
       </button>
     );
   } else {
     return (
       <>
-        <button 
-          className="btn btn-sm border text-success px-1 py-0 float-end me-3" 
+        <button
+          className="btn btn-sm border text-success px-1 py-0 float-end me-3"
           style={{ backgroundColor: "#ffffdd", whiteSpace: "nowrap" }}
           data-toggle="tooltip" data-placement="top" data-bs-html="true"
           title="Close Task pane!"
-          onClick={() => setMinimized(true) }
-          // style={{ backgroundColor: "lightyellow"}}
-          >
-            <span className="fs-8" style={{ whiteSpace: "nowrap"}}>Tasks <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
+          onClick={() => setMinimized(true)}
+        // style={{ backgroundColor: "lightyellow"}}
+        >
+          <span className="fs-8" style={{ whiteSpace: "nowrap" }}>Tasks <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
         </button>
-        <div className="tasklist  pe-2" 
-              // ref={containerRef}
-              // style={{ position: "fixed", top: "72px", right: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
-            > 
+        <div className="tasklist  pe-2"
+        // ref={containerRef}
+        // style={{ position: "fixed", top: "72px", right: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
+        >
           {genTasksHeaderDiv}
           {/* {modalDiv} */}
         </div>

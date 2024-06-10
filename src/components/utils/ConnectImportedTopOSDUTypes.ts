@@ -42,7 +42,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     let title: string, description: string
     let relId: any, relshipkind: string
 
-    const createRel = (relId: any, relName: any, description: string, title: string, relshipkind: string, reltypeRef: any, fromobjectId: any, fromobjectName: any, toobjectId: any, toobjectName: any, linkObj) => {
+    const createRel = (relId: string, relName: string, description: string, title: string, relshipkind: string, reltypeRef: string, fromobjectId: string, fromobjectName: string, toobjectId: string, toobjectName: string, linkObj: any) => {
         if (debug) console.log('45 ', relId, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
         if (!inclDeprecated && linkObj.description && linkObj.description.includes('DEPRECATED:')) return;
         // check if relship already exists
@@ -55,7 +55,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             strokeColor = 'red';
         }
 
-        const rel = (fromobjectId && toobjectId)
+        const rel: any = (fromobjectId && toobjectId)
             && {
             id: relId,
             name: relName || '',
@@ -104,18 +104,18 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
 
     let topLevelObject: { id: any; name: any; }
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
-    const genrelProxys = proxies.forEach(o => {
+    const genrelProxys = proxies.forEach((o: { [x: string]: string | string[]; name: string; title: string; id: any; refGroupType: any; referenceObject: any; refVersion: any | undefined; description: string; }) => {
         // use the referenceObject to find the top object
-        if (!debug) console.log('110 Proxy: ', o.name, o.title, o.id, o);
+        if (debug) console.log('110 Proxy: ', o.name, o.title, o.id, o);
         if (debug) console.log('111 ', o.refGroupType, o.referenceObject, o.refVersion);
-        const targetObjectVersion =  (o.refVersion === '' || o.refVersion === undefined)
-            ?   utils.findObjectByNameOnly(curModel.objects, o.referenceObject)
-            :   utils.findObjectByNameVersion(curModel.objects, o.referenceObject + o.refVersion)
-        console.log('114 ', targetObjectVersion);
+        const targetObjectVersion = (o.refVersion === '' || o.refVersion === undefined)
+            ? utils.findObjectByNameOnly(curModel.objects, o.referenceObject)
+            : utils.findObjectByNameVersion(curModel.objects, o.referenceObject + o.refVersion)
+        if (debug) console.log('114 ', targetObjectVersion);
         const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByName(curModel.objects, o.referenceObject)
         // const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
         // const targetObject = (targetObjectVersion) ? targetObjectVersion : utils.findObjectByTitle(curModel.objects, {}, o.referenceObject)
-        if (!debug) console.log('118 ', targetObject?.name, targetObjectVersion?.name, targetObject, targetObjectVersion);
+        if (debug) console.log('118 ', targetObject?.name, targetObjectVersion?.name, targetObject, targetObjectVersion);
         if (!targetObject) return; // if no targetObject, skip this relationship
 
         // find top level object
@@ -178,9 +178,9 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
         if (debug) console.log('177 ', o['$ref'])//, curObjects, curRelships);
         //remove the the ../abstract and .1.0.0.json and find another object with the rest name
 
-        const lastElement = o['$ref'].split('/').pop()  // find last element in $ref path
-        const firstElement = lastElement.split('.')[0]   // find what is before the first "."    
-        const removedAbstract = (firstElement === 'AbstractWorkProductComponent' || 'AbstractCommonResources') ? firstElement : firstElement.replace('Abstract', '')
+        const lastElement = o['$ref']?.split('/').pop()  // find last element in $ref path
+        const firstElement = lastElement?.split('.')[0]   // find what is before the first "."
+        const removedAbstract = (firstElement === 'AbstractWorkProductComponent' || 'AbstractCommonResources') ? firstElement : firstElement?.replace('Abstract', '')
         const targetObject = utils.findObjectByName(curModel.objects, removedAbstract)
 
         if (debug) console.log('185 ', o, firstElement, targetObject);
@@ -225,7 +225,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
 
             if (curRelships.find((r: { fromobjectRef: any; toobjectRef: any; reltypeRef: any; }) => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype?.id)) {
                 // relship exists do nothing
-                console.log('227 Relship exisit ', fromobjectName, toobjectName, reltype.name);
+                if (debug) console.log('227 Relship exisit ', fromobjectName, toobjectName, reltype.name);
             } else {
                 if (debug) console.log('229 ', fromType?.id, reltype);
                 reltypeRef = reltype?.id

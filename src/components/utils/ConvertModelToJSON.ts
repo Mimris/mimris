@@ -8,10 +8,10 @@ export const WriteConvertModelToJSONFile = async (model, curmodelview, mname, ty
 
     // console.log('WriteConvertModelToJSONFile', model, mname, type);
     
-    console.log('11',  model, curmodelview);
+    if (debug) console.log('11',  model, curmodelview);
     // get all objects  with objectviews in current modelview 
     const filteredObjects = model.objects.filter(obj => obj && (curmodelview?.objectviews.find(ov => obj.id === ov.objectRef))) 
-    console.log('14',  filteredObjects);
+    if (debug) console.log('14',  filteredObjects);
     
 
     const objectsToConvert = filteredObjects  // ToDo:  this must be only objects from  current modelview

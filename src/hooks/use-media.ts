@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 // Code from https://usehooks.com/useMedia
 
 // Alternate hook that accepts a single query
-export default function useMedia(queries, values, defaultValue) {
+export default function useMedia(queries: any[], values: boolean[], defaultValue: boolean) {
   // State and setter for matched value
   const [value, setValue] = useState(defaultValue);
 
@@ -29,10 +29,10 @@ export default function useMedia(queries, values, defaultValue) {
       const handler = () => setValue(getValue);
 
       // Set a listener for each media query with above handler as callback.
-      mediaQueryLists.forEach(mql => mql.addListener(handler));
+      mediaQueryLists.forEach(mql => mql.addEventListener('change', handler));
 
       // Remove listeners on cleanup
-      return () => mediaQueryLists.forEach(mql => mql.removeListener(handler));
+      return () => mediaQueryLists.forEach(mql => mql.removeEventListener('change', handler));
     },
     [] // Empty array ensures effect is only run on mount and unmount
   );

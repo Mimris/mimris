@@ -27,7 +27,7 @@ router
     return res.json(req.photo)
   })
   .put('/:id', (req, res) => {
-    console.log('7', 'ccc');
+    if (debug) console.log('7', 'ccc');
     res.send('dettet er det')
     // Object.keys(req.body).map(key => {
       // req.photo[key] = req.body[key]

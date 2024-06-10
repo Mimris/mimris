@@ -1,3 +1,4 @@
+// @ts-nocheck
 // make modul for header buttons
 
 import React from 'react';
@@ -23,7 +24,9 @@ import { SaveAllToFile, SaveAllToFileDate } from './SaveModelToFile';
 const debug = false;
 // export default {}
 
-export default function HeaderButtons(props) {
+export default function HeaderButtons(props: { toggleRefresh: any; phFocus: { focusModel: any; focusModelview: any; }; refresh: any; setRefresh: any; phData: { metis: { name: any; }; }; phSource: any; phUser: any; }) {
+
+if (false) {
 
   if (debug) console.log('HeaderButtons', props);
 
@@ -58,7 +61,7 @@ export default function HeaderButtons(props) {
   const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='Imp/Exp' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
-  if (typeof window !== 'undefined') <> not found </>
+  if (typeof window !== 'undefined') <> window undef. </>
 
   return (
     <div className="buttonrow d-flex justify-content-between align-items-center " style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
@@ -90,5 +93,5 @@ export default function HeaderButtons(props) {
 
     </div>
   )
-
+}
 }

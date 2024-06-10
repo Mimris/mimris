@@ -117,12 +117,12 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
       // End hack
       objview.setTypeView(typeview);
-      const node = new gjs.goObjectNode(utils.createGuid(), objview);
+      const node = new gjs.goObjectNode(objview.id, myGoPaletteModel, objview);
       node.loadNodeContent(myGoPaletteModel);
       if (debug) console.log('121 node', objtype, objview, node);
       node.isGroup = objtype.isContainer();
       if (node.isGroup)
-        node.category = constants.gojs.C_PALETTEGROUP_OBJ;
+        node.category = constants.gojs.C_OBJECT;
       myGoPaletteModel.addNode(node);
     }
   }
@@ -176,9 +176,8 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
       includeObject = true;
     }
     if (includeObject) {
-      const node = new gjs.goObjectNode(utils.createGuid(), objview);
+      const node = new gjs.goObjectNode(objview.id, myGoObjectPalette, objview);
       node.isGroup = objtype?.isContainer();
-      node.category = constants.gojs.C_OBJECT;
       const viewdata: akm.cxObjtypeviewData = typeview?.data;
       const vdata: akm.cxObjtypeviewData = new akm.cxObjtypeviewData();
       for (const prop in viewdata) {
@@ -290,7 +289,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           continue;
         if (!includeNoType && !objview.object?.type)
           continue;
-        const node = new gjs.goObjectNode(utils.createGuid(), objview);
+        // Update myGoModel
+        const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale1;
         if (node.template === "")
           node.template = 'textAndIcon';
@@ -339,13 +339,11 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           node.typename = node.object['proposedType'];
         myGoModel.addNode(node);
       } else {
-        if (debug) console.log('336 objview, typeview', objview, typeview);
         if (!typeview) {
           typeview = objview.object?.type?.getDefaultTypeView();
           if (typeview) {
             typeview = metis.findObjectTypeView(typeview.id);
             objview.setTypeView(typeview);
-            if (debug) console.log('338 typeview', typeview);
           }
         }
       }
@@ -422,7 +420,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relshipviews.push(relview);
         const jsnRelview = new jsn.jsnRelshipView(relview);
         modifiedRelviews.push(jsnRelview);
-        let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+        // Update myGoModel
+        let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
         const name = link.name;
         if (debug) console.log('382 modelview, link:', modelview, link);
         link.loadLinkContent(myGoModel);
@@ -443,7 +442,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   modelview.relshipviews = relshipviews;
   // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
   uic.repairGoModel(myGoModel, modelview);
-  if (debug) console.log('443 myGoModel', myGoModel);
+  console.log('445 myGoModel', myGoModel);
   return myGoModel;
 }
 

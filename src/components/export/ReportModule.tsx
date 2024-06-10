@@ -13,60 +13,71 @@ import ExportObjects from './ExportObjects';
 
 const debug = false
 
-const ReportModule = (props) => {
+const ReportModule = (props: any) => {
 
   if (debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
-  
-  const ph = props.props.props || props.props 
+
+  const ph = props.props.props || props.props
   if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
 
-  if (!ph?.phData?.metis?.models) return <>No models</>
-  if (!props.modelInFocusId) return <>No objects</> 
+
 
 
   // const dispatch = useDispatch()
-  const [visibleTabsDiv, setVisibleTabsDiv] = useState(true)
+  const [visibleTabsDiv, setVisibleTabsDiv] = useState(props.visibleFocusDetails)
   // function toggleTabsDiv() { setVisibleTabsDiv(!visibleTabsDiv); }
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
 
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(props.exportTab || 0);
+
+  // console.log('33 ReportModule', activeTab, props.exportTab)  
+
+  useEffect(() => {
+    if (debug) console.log('36 ReportModule useEffect 1 [] ');
+    if (props.exportTab) setActiveTab(2)
+  }, [])
+
+  if (!ph?.phData?.metis?.models) return <>No models</>
+  if (!props.modelInFocusId) return <>No objects</>
 
   const tabsDiv = (
     <>
-      {visibleTabsDiv ?
+      {!visibleTabsDiv ?
         <>
-          {/* <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }} 
-            onClick={props.handleVisibleContext}><span>-&gt; </span> 
-          </button> */}
+          <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
+            onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}><span><i className="fa fa-arrow-right fa-lg"></i></span>
+          </button>
           <>
-          <Tabs onSelect={index => setActiveTab(index)} 
-            style={{  maxHeight: '78vh', overflow: 'hidden', borderTop: 'none'}}
-          >
-            <TabList style={{ margin: '0px' }}>
-              <Tab>Focus Object</Tab>
-              <Tab >MarkDown</Tab>
-              <Tab>Export</Tab>
-              {/* <Tab><FaPlaneArrival />Main</Tab>
+            <Tabs onSelect={index => setActiveTab(index)}
+              style={{ maxHeight: '78vh', overflow: 'hidden', borderTop: 'none' }}
+            >
+              <TabList style={{ margin: '0px' }}>
+                <Tab>Focus Object</Tab>
+                <Tab >MarkDown</Tab>
+                <Tab>Export</Tab>
+                {/* <Tab><FaPlaneArrival />Main</Tab>
                   <Tab ><FaCompass /></Tab> */}
-            </TabList>
-            <TabPanel className='p-1 border border-dark' >
-              <FocusDetails props={props} reportType={props.reportType} edit={true}/>
-            </TabPanel>
-            <TabPanel className='p-1 border border-dark' >
-              <MarkdownEditor props={props} />
-            </TabPanel>
-            <TabPanel>
-              <ExportObjects props={props} />
-            </TabPanel>
-          </Tabs>
+              </TabList>
+              <TabPanel className='p-1 border border-dark' >
+                <FocusDetails ph={ph} reportType={props.reportType} modelInFocusId={props.modelInFocusId} edit={props.edit} />
+              </TabPanel>
+              <TabPanel className='p-1 border border-dark' >
+                <MarkdownEditor ph={ph} reportType={props.reportType} modelInFocusId={props.modelInFocusId} edit={props.edit} />
+              </TabPanel>
+              <TabPanel>
+                <ExportObjects ph={ph} reportType={props.reportType} modelInFocusId={props.modelInFocusId} edit={props.edit} />
+              </TabPanel>
+            </Tabs>
           </>
         </>
-        : <div className="btn-vertical m-0  pl-2 bg-transparent "
-          style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "4px", paddingLeft: "6px", fontSize: "12px" }}>
-          <span style={{ backgroundColor: "#cdd" }}> C o n t e x t & F o c u s </span>
+        : <div className="btn-vertical m-0  p-0 bg-transparent"
+          onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}
+          style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "12px", paddingLeft: "0px", fontSize: "14px" }}>
+          <i className="fa fa-arrow-left fa-lg"></i>
+          <span className="fs-5" style={{ backgroundColor: "#cdd" }}> O b j e c t - D e t a i l s </span>
         </div>
       }
-      
+
     </>
   )
 
@@ -75,23 +86,23 @@ const ReportModule = (props) => {
   //   bgr = '#cdd'
   // } 
 
-  const reportDiv = 
+  const reportDiv =
     <>
-      {visibleTabsDiv 
-      ?
-          <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-            style={{  height: '78vh', overflow: 'hidden', borderTop: 'none' }}>
-            {tabsDiv}
-            {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
-          </div>
+      {visibleTabsDiv
+        ?
+        <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
+          style={{ height: '78vh', overflow: 'hidden', borderTop: 'none' }}>
+          {tabsDiv}
+          {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
+        </div>
         : <div className="border border-dark bg-transparent" style={{ height: '100%', width: 'auto', overflowX: 'hidden' }}>{tabsDiv}</div>
       }
     </>
 
   return (
-      <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", minWidth: '800px', maxWidth: '800px', width: 'auto', overflowX: 'hidden' }} >
-        {reportDiv}
-      </div>
+    <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", overflowX: 'hidden', maxWidth: '49vw', minWidth: (visibleTabsDiv) ? '10px' : '10vw'.toString() }}>
+      {reportDiv}
+    </div>
   )
 }
 export default ReportModule  

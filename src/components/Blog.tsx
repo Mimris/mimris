@@ -1,44 +1,27 @@
 // const router = useRouter();
 import imageUrlBuilder from '@sanity/image-url';
 import { useState, useEffect } from 'react';
+import Image from 'next/image'
 
 const debug = false;
 
-export default function Blog({ posts }) {
+export default function Blog({ posts }: { posts: any[] }) {
   // if (debug) console.log('6 Blog posts', posts);
     
-  const [mappedPosts, setMappedPosts] = useState([]);
-  useEffect(() => {
-    if (posts?.length) {
-      const imgBuilder = imageUrlBuilder({
-        projectId: 'x7wbre1b',
-        dataset: 'production',
-      });
-      setMappedPosts(
-        posts.map(p => {
-          return {
-            ...p,
-            mainImage: imgBuilder.image(p.mainImage).width(500).height(250),
-          }
-        })
-      );
-    } else {
-      setMappedPosts([]);
-    }
-  }, [posts]);
+  const [mappedPosts, setMappedPosts] = useState<any[]>([]);
 
 
   return (
     <div >
       <div >
         {/* {mappedPosts.length ? mappedPosts.map((p, index) => ( */}
-        {mappedPosts.length ? mappedPosts.map((p, index) => ( p.categories[0]._ref === '22b82a07-c7fc-4987-8167-1b1bd845a585' ) && (
+        {mappedPosts.length ? mappedPosts.map((p: any, index) => ( p.categories[0]._ref === '22b82a07-c7fc-4987-8167-1b1bd845a585' ) && (
         // {mappedPosts.length ? mappedPosts.map((p, index) => ( p.categories[0]._key === '94cd5e248bf3' ) && (
           // <div onClick={() => router.push(`/post/${p.slug.current}`)} key={index} className={styles.post}>
-          <div>
+          <div key={index}>
             <h3>{p.title}</h3>
             {/* <h3>{p.categories[0].category.title}</h3> */}
-            <img src={p.mainImage} />
+            <Image src={p.mainImage} alt="" />
           </div>
         )) : <>No Posts Yet</>}
       </div>
@@ -46,7 +29,7 @@ export default function Blog({ posts }) {
   )
 }
 
-export const getServerSideProps = async pageContext => {
+export const getServerSideProps = async (pageContext: any) => {
   const query = encodeURIComponent('*[ _type == "post" ]');
   const url = `https://x7wbre1b.api.sanity.io/v1/data/query/production?query=${query}`;
   const result = await fetch(url).then(res => res.json());

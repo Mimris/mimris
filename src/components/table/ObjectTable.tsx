@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTable, useSortBy, useRowSelect, useFilters, useGlobalFilter } from 'react-table';

@@ -36,7 +36,7 @@ const Selector = ( props: any ) => {
   (props.selName === 'Model') ? focusItem = props.focusModel?.name : focusItem = props.focusModelview?.name
   if (debug) console.log('37 selector', props, focusItem);
   [options = selArray && ( //sf TODO:  modelview is mapped 2 times 
-    selArray.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
+    selArray.map((m: any, index: number) => (m) && (m.name !== 'Select '+props.selName+'...') &&
     <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
   )]
 

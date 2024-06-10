@@ -20,7 +20,7 @@ import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
-  if (!props.ph.phData?.metis.models) return null
+  if (!props.ph.phData?.metis.models) return <></>
 
   const debug = false
   const dispatch = useDispatch()
@@ -30,9 +30,9 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   const modelNames = props.ph.phData?.metis?.models.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal', props.ph.phData, props);
 
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return <></>
 
   const data = {
     phData: props.ph.phData,
@@ -45,7 +45,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
-    console.log('37 LoadFile', data);
+    if (debug) console.log('37 LoadFile', data);
 
     SaveAllToFile(data, projectname, 'Project')
     // SaveAllToFile(data, projectname, 'AKMM-Project')
@@ -65,7 +65,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id)
     const modelview = model.modelviews[focusModelviewIndex]
-    console.log('43', focusModelviewIndex, modelview);
+    if (debug) console.log('43', focusModelviewIndex, modelview);
     SaveModelToFile({ modelview: modelview }, modelview.name, 'Modelview')
     // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
@@ -105,15 +105,16 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
-  const [inclProps, setInclProps] = useState(true)
-  const [inclPropLinks, setInclPropLinks] = useState(true)
-  const [inclArrayProperties, setInclArrayProperties] = useState(true)
-  const [inclAbstractPropLinks, setInclAbstractPropLinks] = useState(true)
-  const [inclReference, setInclReference] = useState(true)
   const [inclMasterdata, setInclMasterdata] = useState(true)
   const [inclWorkProductComponent, setInclWorkProductComponent] = useState(true)
-  const [inclAbstract, setInclAbstract] = useState(false)
-  const [inclXOsduProperties, setInclXOsduProperties] = useState(true)
+  const [inclReference, setInclReference] = useState(true)
+  const [inclAbstract, setInclAbstract] = useState(true)
+
+  const [inclProps, setInclProps] = useState(false)
+  const [inclPropLinks, setInclPropLinks] = useState(false)
+  const [inclArrayProperties, setInclArrayProperties] = useState(false)
+  const [inclAbstractPropLinks, setInclAbstractPropLinks] = useState(false)
+  const [inclXOsduProperties, setInclXOsduProperties] = useState(false)
   const [inclDeprecated, setInclDeprecated] = useState(false)
   const [inclGeneric, setInclGeneric] = useState(false)
 
@@ -304,24 +305,25 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
 
   return (
     <>
-      <span><button className="btn bg-primary text-light py-1 px-2" onClick={toggle}><i className="fa fa-house-tsunami me-2 ms-0"></i>{buttonLabel}</button></span>
+      {/* <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> OSDU Import button */}
+      <span><button className="btn bg-success text-white py-1 ps-0 px-0" onClick={toggle}>OSDU Imp <i className="fa fa-file-import fa-lg "></i></button></span>
+
       {/* <Draggable handle=".handle"> */}
       <Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
-        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Export/Import OSDU Schema (JSON-files): </ModalHeader>
+        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Import OSDU Schema: </ModalHeader>
         {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
         {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
-        <ModalBody className="d-flex flex-column bg-primary">
+        <ModalBody className="d-flex flex-column bg-success">
           {/* <span className="text-light">Current Source: <strong> {props.ph.phSource}</strong></span> */}
           {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
           <div className="source bg-light p-2 ">
-            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
+            {/* <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} /> */}
 
             <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
               {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-              <h5>Import JSON-Schema files :</h5>
-              <p>
-                (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
+              <h5>Import JSON-Schema files:</h5>
+              <p> (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
               <div className="selectbox3 mb-1 border">
                 {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
                 <div className='mt-2'> Include EntityTypes:</div>
@@ -433,7 +435,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
                 {/* {buttonSaveJSONToFileDiv} */}
               </div>
             </div>
-            <div className="selectbox2 mb-2 border bg-light">
+            <div className="selectbox2 mb-1 border bg-light">
               <h6>Link to the OSDU Open Subsurface Data Universe - Data Definitions</h6>
               <h6>(This will open a new tab in your browser)</h6>
               <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
@@ -443,7 +445,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
         {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title="Click here when done!" onClick={() => { toggle(); props.setRefresh(!props.refresh) }}>Done
+            title="Click here when done!" onClick={() => { toggle(); props?.setRefresh(!props?.refresh) }}>Done
           </Button>
         </ModalFooter>
       </Modal>

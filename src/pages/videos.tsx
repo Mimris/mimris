@@ -64,12 +64,32 @@ const page = (props: any) => {
                   <div className="card-body card-video-body p-2" style={{ minHeight: "250px", maxWidth: "55rem" }}>
                     <h3 className="card-title">Learn OSDU Schema import and visualization</h3>
                     <div className="card-text bg-light p-4 mt-2">Instruction videos:
+                    <div className="card-text m-2">
+                      <a href="https://app.guidde.com/share/playbooks/5kfvMyqNcETCnu44cx5u9h?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83"
+                        className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                        {/* <i className="fas fas-plus fa-sm"></i> */}
+                        Building a Concept model for a OSDU Domain</a>
+                    </div>
                       <div className="card-text m-2">
                         <a href="https://app.guidde.com/share/playbooks/vPvzrv5199xdPFmRoUptNb?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
                           className="button btn-link bg-light text-primary rounded p-2" target="_blank">
                           <i className="fa fa-arrow-left fa-sm"></i>
                           How to import OSDU Schematypes into AKM Modeller
                         </a>
+                      </div>
+                      <div className="card-text m-2">
+                        {/* <a href="https://app.guidde.com/share/playbooks/vPvzrv5199xdPFmRoUptNb?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                          <i className="fa fa-arrow-left fa-sm"></i> */}
+                          How to Expand OSDU Schematypes with new types and properties
+                        {/* </a> */}
+                      </div>
+                      <div className="card-text m-2">
+                        {/* <a href="https://app.guidde.com/share/playbooks/vPvzrv5199xdPFmRoUptNb?origin=6lqYHLd8QJXDE2ZJA8TtSnurix83" 
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                          <i className="fa fa-arrow-left fa-sm"></i> */}
+                          How to Export OSDU Schematypes as CSV to paste into Excel spreadsheet
+                        {/* </a> */}
                       </div>
                       <h5 className="card-text">Demos</h5>
                       <div className="card-text m-2">
@@ -96,8 +116,8 @@ const page = (props: any) => {
                       <h5 className="card-title">Github Project</h5>
                       <div className="card-text m-2">
                         <a href="
-https://docs.github.com/en/issues/planning-and-tracking-with-projects/managing-items-in-your-project/adding-items-to-your-project"
-className="button btn-link bg-light text-primary rounded p-2" target="_blank">
+                          https://docs.github.com/en/issues/planning-and-tracking-with-projects/managing-items-in-your-project/adding-items-to-your-project"
+                          className="button btn-link bg-light text-primary rounded p-2" target="_blank">
                           <i className="fa fa-arrow-left fa-sm"></i>
                           Quickstart for GitHub Projects
                         </a>

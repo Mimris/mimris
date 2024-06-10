@@ -1,7 +1,9 @@
-const debug = false;
+// @ts-nocheck
 
 import { useDispatch } from "react-redux";
 import { Dispatch } from "redux";
+
+const debug = false;
 
 const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch

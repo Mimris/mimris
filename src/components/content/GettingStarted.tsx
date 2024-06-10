@@ -59,7 +59,7 @@ const GettingStarted = () => {
                 <CardTitle className="card-title-bold" >IRTV</CardTitle>
                 <CardText className="card-text" > 
                     <strong> IRTV (Information, Role, Task, View)</strong>
-                    <br />AKM modelling start with a generic IRTV-Metamodel, wich contain the basic building blocks for AKM Models. <br />(shown in the left Palette in the modelling page). 
+                    <br />AKM modelling start with a generic IRTV-Metamodel, which contain the basic building blocks for AKM Models. <br />(shown in the left Palette in the modelling page). 
                     <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
 
                 </CardText>

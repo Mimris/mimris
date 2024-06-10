@@ -182,7 +182,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             ...oValProps, // additional attributes
         }
 
-        if (!debug) console.log("188 Create object: ", importedObject);
+        if (debug) console.log("188 Create object: ", importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
         return importedObject;
     };
@@ -600,7 +600,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 // console.log("468 object with parent properties not imported : ", oName, oVal, oVal['$ref'], oValProps, inclAbstractPropLinks);
             }
         } else if (oVal["$ref"] && inclAbstractPropLinks) {
-            if (!debug) console.log("603 $ref ", oName, oValProps);
+            if (debug) console.log("603 $ref ", oName, oValProps);
             const objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Proxy")?.id;
             const typeRest = oVal["$ref"].split("/").slice(-1)[0];
             const title = typeRest?.split(".")[0];

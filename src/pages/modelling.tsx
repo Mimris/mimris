@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-nocheck
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
@@ -26,25 +26,21 @@ import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
 
-const page = (props: any) => {
+const Page1 = (props: any) => {
 
-  if (debug) console.log('38 modelling ', props)
-  const dispatch = useDispatch()
-  const [toggleRefresh, setToggleRefresh] = useState(false)
+  const dispatch = useDispatch();
+
+  // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [focusExpanded, setFocusExpanded] = useState(true);
+  const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(true);
-  // const [org, setOrg] = useState("");
-  // const [repo, setRepo] = useState("");
-  // const [branch, setBranch] = useState("");
-  // const [path, setPath] = useState("");
-  // const [file, setFile] = useState("");
-  // const [model, setModel] = useState("");
-  // const [modelview, setModelview] = useState("");
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
+  const [exportTab, setExportTab] = useState(0);
 
-  function dispatchLocalStore(locStore) {
+
+  function dispatchLocalStore(locStore: any) {
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
@@ -53,15 +49,15 @@ const page = (props: any) => {
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
-  if (debug) console.log('32 modelling', props) //(props.phList) && props.phList);
+  if (debug) console.log('51 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
   const [isReloading, setIsReloading] = useState(false);
   // const [visible, setVisible] = useState(false)
   const [refresh, setRefresh] = useState(true);
   const [params, setParams] = useState(null);
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState(null);
   const [refreshContext, setRefreshContext] = useState(true);
-  const [render, setRender] = useState(false);
+  // const [render, setRender] = useState(false);
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', []); //props);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []); //props);
@@ -70,9 +66,10 @@ const page = (props: any) => {
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const focus = useSelector((state: any) => state.phFocus)
-  
+
   useEffect(() => {
-    if ((window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming).type === 'reload') {
+    if (debug) useEfflog('71 modelling useEffect 0 [] ');
+    const handleReload = () => {
       let locStore = memorySessionState;
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (!memorySessionState) locStore = memoryLocState;
@@ -82,10 +79,10 @@ const page = (props: any) => {
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
         // window.location.reload();
-          const timer = setTimeout(() => {
-            setRefresh(!refresh);
-          }, 100);
-          return () => clearTimeout(timer);
+        // const timer = setTimeout(() => {
+        //   setRefresh(!refresh);
+        // }, 100);
+        return () => clearTimeout(timer);
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
@@ -101,10 +98,12 @@ const page = (props: any) => {
           }
         }
       }
-    } else {
-      if (debug) console.log('104 modelling page not reloaded', memorySessionState[0]);
-    }
-  }, [!query && memorySessionState[0] && mount])
+    };
+    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
+    handleReload();
+    let org = query.org;
+  }, [])
+
 
   let org = query.org;
   let repo = query.repo;
@@ -113,42 +112,38 @@ const page = (props: any) => {
   let file = query.file;
   let model = query.model;
   let modelview = query.modelview;
-    
+
   useEffect(() => {
-    if (debug) console.log('89 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('118 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
       try {
-        if (query) {
+        if (Object.keys(query).length !== 0) {
           if (debug) console.log('120 modelling query', query, query)
-            org = props.phFocus.focusProj.org;
-            repo = props.phFocus.focusProj.repo;
-            path = props.phFocus.focusProj.path;
-            branch = props.phFocus.focusProj.branch;
-            file = props.phFocus.focusProj.file;
-            model = props.phFocus.focusProj.model;
-            modelview = props.phFocus.focusProj.modelview;
-        
-          if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
-          const res = await searchGithub(org+'/'+repo, path, file, branch, 'file')
-          const githubData = await res.data
-          const sha = await res.data.sha
+          org = props.phFocus.focusProj.org;
+          repo = props.phFocus.focusProj.repo;
+          path = props.phFocus.focusProj.path;
+          branch = props.phFocus.focusProj.branch;
+          file = props.phFocus.focusProj.file;
+          model = props.phFocus.focusProj.model;
+          modelview = props.phFocus.focusProj.modelview;
 
-          console.log('138 modelling githubData:', githubData, sha)
+          if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
+          const res = await searchGithub(org + '/' + repo, path, file, branch, 'file')
+          const githubData = await res?.data
+          const sha = await res?.data.sha
+          if (debug) console.log('138 modelling githubData:', githubData, sha)
           dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
           const timer = setTimeout(() => {
             setRefresh(!refresh);
-          } , 200);
-
-
+          }, 200);
           let curmodel = githubData.phData.metis.models.find(m => m.id === model)
           if (!curmodel) curmodel = githubData.phData.metis.models.find(m => m.name === model)
-          console.log('83 model curmodel', curmodel.modelviews, modelview)
+          if (debug) console.log('83 model curmodel', curmodel.modelviews, modelview)
           let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
           if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
-
-          const data = {
+          const data = (params) && {
             phFocus: {
               ...props.phFocus,
               focusProj: focusProj,
@@ -162,39 +157,41 @@ const page = (props: any) => {
           };
           dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
         } else {
-            org = props.phFocus.focusProj.org;
-            repo = props.phFocus.focusProj.repo;
-            path = props.phFocus.focusProj.path;
-            branch = props.phFocus.focusProj.branch;
-            file = props.phFocus.focusProj.file;
-            model = props.phFocus.focusProj.model;
-            modelview = props.phFocus.focusProj.modelview;
+          org = props.phFocus.focusProj.org;
+          repo = props.phFocus.focusProj.repo;
+          path = props.phFocus.focusProj.path;
+          branch = props.phFocus.focusProj.branch;
+          file = props.phFocus.focusProj.file;
+          model = props.phFocus.focusProj.model;
+          modelview = props.phFocus.focusProj.modelview;
         }
       } catch (error) {
-        console.log('174 modelling No URL query detected! \n', error);
+        if (debug) console.log('174 modelling query error ', error);
       }
-
     }
-    if (debug) console.log('168 modelling useEffect 1', query, org)
+    // setVisibleFocusDetails(true)
+    if (debug) console.log('178 modelling useEffect 1', query, org, props)
     const timer = setTimeout(() => {
       getQuery()
-    }
-      , 1000);
+    }, 1000);
+    if (debug) console.log('172 modelling useEffect 1', query, org, props)
     setMount(true)
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    const locProps = { ...props, phMymetis: null } 
+    const locProps = { ...props, phMymetis: null }
     setMemorySessionState(locProps)
-  }, [props])
+  }, [props.phSource])
+
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
     <div className="" style={{ backgroundColor: "#bdd" }}>
       {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
-      <ContextView ph={props} 
-        showModal={showModal} 
-        setShowModal={setShowModal}  
-        showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
+      <ContextView ph={props}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal}
       />
     </div>
   )
@@ -208,44 +205,50 @@ const page = (props: any) => {
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
-            <ProjectMenuBar props={props} 
-               expanded={expanded} setExpanded={setExpanded}  
-                focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded} 
-                toggleRefresh={toggleRefresh} setToggleRefresh={setToggleRefresh}         
+            <ProjectMenuBar {...props}
+              expanded={expanded} setExpanded={setExpanded}
+              focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
+              refresh={refresh} setRefresh={setRefresh}
+              visibleFocusDetails={visibleFocusDetails}
+              setVisibleFocusDetails={setVisibleFocusDetails}
+              exportTab={exportTab} setExportTab={setExportTab}
             />
-            <div className="context-bar d-flex justify-content-between align-items-center"
-              style={{ backgroundColor: "#ffffea"}}>
-              {focusExpanded && 
-                <>
-                  <div className="issuesarea">
-                    <Issues props={props} 
-                      showModal={showModal} setShowModal={setShowModal} 
-                      showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal} 
-                      minimized={minimized} setMinimized={setMinimized} 
+            <div className="context-bar  pt-0"
+              style={{ backgroundColor: "#b0cfcf" }}>
+              {focusExpanded &&
+                <div className="d-flex justify-content-between align-items-center" style={{ backgroundColor: "#fffffd" }}>
+                  <div className="issuesarea" >
+                    <Issues {...props}
+                      showModal={showModal} setShowModal={setShowModal}
+                      showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal}
+                      minimized={minimized} setMinimized={setMinimized}
                       expanded={expanded}
                     />
                   </div>
                   <div className="contextarea">
                     {contextDiv}
                   </div>
-                  <div className="tasksarea mr-1 bg-transparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                  <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                     <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
                   </div>
-                </>
+                </div>
               }
             </div>
-            <div className="workplace d-flex" style={{backgroundColor: "#b0cfcf", zIndex: 1 }}>
-              
-                <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
+            <div className="workplace d-flex" style={{ backgroundColor: "#b0cfcf", zIndex: 1 }}>
+              <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
                 }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`}
-                  target="_blank"
-                  style={{position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "gray"}}
-                  >
-                  <i className="fas fa-external-link-alt" aria-hidden="true"></i>
-                </Link>
-              
+                target="_blank"
+                style={{ position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "lightgray" }}
+              >
+                <i className="fas fa-external-link-alt" aria-hidden="true"></i>
+              </Link>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-                <Modelling toggleRefresh={toggleRefresh} />
+                <Modelling {...props}
+                  visibleFocusDetails={visibleFocusDetails}
+                  setVisibleFocusDetails={setVisibleFocusDetails}
+                  exportTab={exportTab}
+                />
+                {/* <Modelling toggleRefresh={toggleRefresh} /> */}
               </div>
             </div>
             <div className="footer">
@@ -322,4 +325,4 @@ const page = (props: any) => {
   `}</style>
     </>)
 }
-export default Page(connect(state => state)(page));
+export default Page(connect(state => state)(Page1));

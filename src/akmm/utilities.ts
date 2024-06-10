@@ -145,10 +145,10 @@ export let readKeyValueArrays = (myArray: any[]) => {
         return;
     items.forEach(function (item) {
         Object.keys(item).forEach(function (key) {
-            console.log("key: " + key + " value " + item[key]);
+             if (debug) console.log("key: " + key + " value " + item[key]);
             const propkey = key;
             const propval = item[key];
-            console.log(propkey + ": " + propval);
+            if (debug) console.log(propkey + ": " + propval);
         });
     });
 }
@@ -218,5 +218,15 @@ export function findRelshipByFromIdToIdAndType(curRelships: any, fromObjId: stri
     if (debug) console.log('151 ', curRelships, toObjId, relType);
     const relship = (toObjId && fromObjId) ? curRelships?.find(r => r.fromobjectRef === fromObjId && r.toobjectRef === toObjId && r.typeRef === relType) : null;
     return relship;
+}
+
+export function copyNonObjectAttributes(source: any) {
+    const target: any = {};
+    for (const key in source) {
+        if (source.hasOwnProperty(key) && typeof source[key] !== 'object') {
+            target[key] = source[key];
+        }
+    }
+    return target;
 }
 

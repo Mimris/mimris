@@ -11,7 +11,7 @@ export const loadState = () => {
   }
 }; 
 
-export const saveState = (state) => {
+export const saveState = (state: any) => {
   try {
     // const state2 = {...state, sourceFlag:'localStore'}
     const serializedState = JSON.stringify(state);

@@ -1220,6 +1220,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = n.data.key;
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
+            object.addObjectView(objview);
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
             let goNode = myGoModel.findNode(key);
@@ -1243,10 +1244,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             console.log('1241 node, data', node, n.data);
             // Find the objectview
             objview = myModelview.findObjectView(node.data.key);
-            if (objview) {
-              objview.object = object;
+            if (!objview) {
+              objview = new akm.cxObjectView(node.data.key, node.data.name, object, node.data.description, myModelview);
               objview.objectRef = object.id;
-            }
+              object.addObjectView(objview);
+              myModelview.addObjectView(objview);
+              myMetis.addObjectView(objview);
+              }
           }
           let fillcolor = "";
           let strokecolor = "";
@@ -1759,26 +1763,35 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it1.next()) { 
           if (it1.value instanceof go.Node) {
             let targetObject: akm.cxObject; 
+            let targetObjectType: akm.cxObjectType; 
             let targetObjview: akm.cxObjectView;
             let goTargetNode: gjs.goObjectNode;
 
             let gjsNode = it1.value.data;  
             const gjsSourceNode = gjsNode.fromNode;
             const goSourceNode = myGoModel.findNode(gjsSourceNode.key);
-            const srcObjview = myModelview.findObjectView(gjsSourceNode.key);
+            const srcObjview = myMetis.findObjectView(gjsSourceNode.key);
             sourceObjectviews.push(srcObjview);
-            const srcObject = srcObjview.object;
-            sourceObjects.push(srcObject);
+            let srcObject = srcObjview.object;
+            if (!srcObject) {
+              srcObject = myMetis.findObject(gjsSourceNode.objid);
+            }
+            if (srcObject) {
+              sourceObjects.push(srcObject);
+            }
+            if (srcObject && srcObject.type)
+              targetObjectType = srcObject.type;
             const gjsTargetNode = gjsNode;
             let gjsNodeType = gjsTargetNode.objecttype;
             if (!gjsNodeType) { gjsNodeType = myMetis.findObjectType(gjsTargetNode.objtypeRef); }
             gjsTargetNodes.push(gjsTargetNode);
             goTargetNode = myGoModel.findNode(gjsNode.key);
             if (!goTargetNode) {
-              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, gjsNodeType, gjsNode.description);
+              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
               targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
               goTargetNode = new gjs.goObjectNode(gjsNode.key, myGoModel, targetObjview);
             }
+            targetObjectType = targetObjectType;
             targetObjview.loc = gjsNode.loc;
             targetObjview.size = gjsNode.size;
             targetObjview.group = gjsNode.group;
@@ -1794,8 +1807,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (gjsNode.isGroup) {
               gjsSourceGroupNodes.push(gjsNode.fromNode);
               gjsTargetGroupNodes.push(gjsNode);
-              goSourceGroupNodes.push(goSourceNode);
-              // goTargetNode = myGoModel.findNode(gjsNode.key);
               goTargetGroupNodes.push(goTargetNode);
             }
             gjsSourceNodes.push(gjsSourceNode);
@@ -1829,7 +1840,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             const sourceFromObj: akm.cxObject = sourceRelship.fromObject;
             const sourceToObj: akm.cxObject = sourceRelship.toObject;
             const sourceFromObjview: akm.cxObjectView = sourceRelview.fromObjview;
-            const sourceToObjview: akm.cxObjectView = sourceRelview.toObjview;
+            let sourceToObjview: akm.cxObjectView = sourceRelview.toObjview;
+            // sourceToObj;
             sourceRelships.push(sourceRelship);
             const gjsTargetLink = gjsLink;
             gjsTargetLinks.push(gjsTargetLink);
@@ -1847,7 +1859,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const targetFromObjview = new akm.cxObjectView(targetFromKey, fromObj.name, fromObj, fromObj.description, myModelview);
             // uic.copyViewAttributes(targetFromObjview, sourceFromObjview);
             const targetToObjview = new akm.cxObjectView(targetToKey, toObj.name, toObj, toObj.description, myModelview);
-            //uic.copyViewAttributes(targetToObjview, sourceToObjview);
+            uic.copyViewAttributes(targetToObjview, sourceToObjview);
             myModelview.addObjectView(targetFromObjview);
             myModelview.addObjectView(targetToObjview);
             myMetis.addObjectView(targetFromObjview);

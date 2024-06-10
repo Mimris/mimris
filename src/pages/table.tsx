@@ -10,7 +10,7 @@ import Footer from "../components/Footer"
 import Table from '../components/Table';
 import SetContext from '../defs/ContextView'
 import TasksHelp from '../components/TasksHelp'
-import ContextView from "../defs/ContextView"; fff
+import ContextView from "../defs/ContextView";
 
 const debug = false;
 const page = (props: any) => {

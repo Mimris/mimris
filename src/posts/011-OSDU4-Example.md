@@ -1,13 +1,9 @@
 ---
-title: ' OSDU Modelling 4: Concept Modelling'
+title: ' OSDU Modelling 4: Schema Modelling'
 date: 'May 31, 2024'
-excerpt: 'First we need to define the scope and main Concepts. We use IRTV Metamodel (Information, Role, Task, View) for this.'
+excerpt: 'Define the Schema types to be used. OSDU Entitytypes with Properties and Relationships (Proxies).'
 cover_image: 'images/posts/osdu/image11-1.png'
 ---
-
-## Example: Concept Model:
-
-Example: Concept Model with Information objects and added Properties, Views, Tasks and Roles
 
 ### Define the WellAcquisition OSDU Types
 

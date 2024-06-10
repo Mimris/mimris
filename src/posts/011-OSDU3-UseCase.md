@@ -9,9 +9,9 @@ cover_image: 'images/posts/osdu/image11-1.png'
 
 ### Open AKM Modeller
 
-<https://akmmclient-alfa.vercel.app/modelling>
+Goto: <https://akmmclient-alfa.vercel.app/modelling>
 
- ![image001](/images/posts/osdu/010-OSDU2-1.png)
+ ![AKM Modeller](/images/posts/osdu/010-OSDU2-1.png)
 
 
 ### Start a new Project
@@ -26,60 +26,27 @@ For details see:  [Getting started with AKM Modelling](000-GettingStarted)
 
 
 1. -Click-on the left top Hamburger menu.  
+   
+ ![AKM Modeller](/images/posts/osdu/010-OSDU2-2.png)
+
+1. -Then select "New Project".  
 2. -Click “LIST MODEL TEMPLATES” to get a list of templates from GitHub.  
-3. -Select “AKM-OSDU-Schemamodelling-Template_PR.json”.   
+![AKM Modeller](/images/posts/osdu/010-OSDU2-3.png)
+1. -Select “AKM-OSDU-Schemamodelling-Template_PR.json” and click "DONE".   
 (A dialog to edit the Project name and GitHub settings will appear).  
-4. -Give your project a new name and add you GitHub data.  
-5. -Click “Save GitHub settings” to save your changes.  
-6. -Then Click “Save to local file” you save your project-file to your local filesystem.  
+![AKM Modeller](/images/posts/osdu/010-OSDU2-4.png)
+1. -Give your project a new name and add your GitHub repository data.  
+2. -Click “Save GitHub settings” to save your changes.  
+3. -Then Click “Save to local file” to save your project-file to your local filesystem.  
 It will be saved with the name shown in the dialog Filename.
+![AKM Modeller](/images/posts/osdu/010-OSDU2-5.png)
 
 PS! Check the name in “Save As: field”. Sometimes it suggests wrong name (not the one you just typed in).  
 This is a known bug; we are working to fix it.  
-You can Exit this dialog and Click” Save to local file” again, and it should be ok.
-
- 
+You can Exit the dialog and Click” Save to local file” again, and now it should suggest the correct name.
 
 - -Then Click “Exit” to close the dialog-window
 
 ---
-
-#### Explore and Define Main Concepts for WellAcquisition
-
-For modelling the Concepts, we use the IRTV-metamodel.
-
-
-#### Open the OSDU Concept_CM Model tab
-
-- -Select the 0-Main tab
-
-We start with creating Information objects for existing affected EntityTypes: WellLog and Wellbore.
-
-Then we create Information-objects for the new types WellAcqusition with LogRun and LogPass objects.
-
-
-1. -Drag in two Information-objects and name them WellLog and Wellbore
-2. -Drag in three more “Information objects” and name them WellAcquisition, LogRun and LogPass
-3. -Create relationships of type “refersTo” between them.
-  
----
-#### Colors
-
-If you want colors on the Objects, you can Right-Click an object and select “Edit Objectview”
-
-Click on the “fillcolor” field and select the color:
-
- 
-(If you want to add OSDU grouptype colors to the information objects, use the following colors:
-
-Master-data "lightsalmon"  
-work-product-component: "#FFD701"  
-reference-data: "turquoise"  
-abstract: "#87CEFE"
-
-)
-
-
----
- - [-next-](011-OSDU4-Example)
+ - [-next-](011-OSDU3-Concept)
 ---

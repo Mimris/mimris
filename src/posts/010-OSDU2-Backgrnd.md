@@ -98,7 +98,7 @@ Click on Videos in the Top Main menu to access instruction videos for building O
 
 ## Initial Project requirements 
 
-Goal: We need to extend WellLog to offer an optional acquisition ### context.
+Goal: We need to extend WellLog to offer an optional acquisition context.
 
 ### Prerequisites
 

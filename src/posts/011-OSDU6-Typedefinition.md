@@ -1,5 +1,5 @@
 ---
-title: ' OSDU Modelling 5: Schema Model (Type Definition)'
+title: ' OSDU Modelling 6: Schema Model (Type Definition)'
 date: 'May 31, 2024'
 excerpt: 'First we need to define the scope and main Concepts'
 cover_image: 'images/posts/osdu/image11-1.png'

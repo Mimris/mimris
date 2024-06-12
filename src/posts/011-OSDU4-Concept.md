@@ -9,6 +9,10 @@ cover_image: 'images/posts/osdu/image11-1.png'
 
 For modelling the Concepts, we use the IRTV-metamodel.
 
+For more detailed instructions see video:  https://app.guidde.com/playbooks/5kfvMyqNcETCnu44cx5u9h
+
+---
+
 #### Example: Concept Model:
 
 Example: Concept Model with Information objects and added Properties, Views, Tasks and Roles
@@ -54,3 +58,7 @@ reference-data: "turquoise"
 abstract: "#87CEFE"
 
 )
+
+---
+ - [-next-](011-OSDU5-Import)
+---

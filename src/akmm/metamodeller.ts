@@ -1144,7 +1144,9 @@ export class cxMetis {
                 if (modelviews && (modelviews.length > 0)) {
                     modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
-                        if (model) this.importModelView(mv, model);
+                        if (mv.id) {
+                            if (model) this.importModelView(mv, model);
+                        }
                     });
                 }
                 model.includeRelshipkind = item.includeRelshipkind;
@@ -1380,19 +1382,22 @@ export class cxMetis {
         if (metamodel.category === constants.gojs.C_METAMODEL) {
             if (this.metamodels == null)
                 this.metamodels = new Array();
-            if (!this.findMetamodel(metamodel.id))
+            let mm = this.findMetamodel(metamodel.id);
+            if (!mm)
                 this.metamodels.push(metamodel);
-            else {
-                const mms = this.metamodels;
-                const len = mms?.length;
-                for (let i = len; i > 0; i--) {
-                    const mm = mms[i - 1];
-                    if (mm.id === metamodel.id) {
-                        mms[i] = metamodel;
-                        break;
-                    }
-                }
-            }
+            else 
+                mm = metamodel;
+            // else {
+            //     const mms = this.metamodels;
+            //     const len = mms?.length;
+            //     for (let i = len; i > 0; i--) {
+            //         const mm = mms[i-1];
+            //         if (mm.id === metamodel.id) {
+            //             mms[i-1] = metamodel;
+            //             break;
+            //         }
+            //     }
+            // }
         }
     }
     addModel(model: cxModel) {

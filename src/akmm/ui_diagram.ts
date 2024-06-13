@@ -595,14 +595,21 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 
 export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('583 gjsNode, myMetis', gjsNode, myMetis);
+    const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel; 
+    let objectview = myModelview.findObjectView(gjsNode.key);
+    let object = objectview?.object;
+    let objecttype = object?.type;
     const goNode = myGoModel.findNode(gjsNode.key);
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode.icon);
-    const object = myMetis.findObject(goNode?.objRef);
-    const objectview = myMetis.findObjectView(goNode?.objviewRef);
-    const objecttype = myMetis.findObjectType(goNode?.objtypeRef);
+    if (!object)
+        object = myMetis.findObject(goNode?.objRef);
+    if (!objectview)
+        objectview = myMetis.findObjectView(goNode?.objviewRef);
+    if (!objecttype)
+        objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
     // if (objectview)
     // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
@@ -1267,9 +1274,13 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             continue;
         const gNode = myGoModel.findNode(n.data.key);
         if (gNode) {
-            const objtype = gNode.objecttype;
-            objtypes.push(objtype);
-            objtypenames.push(objtype.name);
+            let objtype = gNode.objecttype;
+            if (!objtype)
+                objtype = myMetamodel.findObjectType(gNode.objtypeRef);
+            if (objtype) {
+                objtypes.push(objtype);
+                objtypenames.push(objtype.name);
+            }
         }
     }
     let uniqueSet = utils.removeArrayDuplicates(objtypenames);

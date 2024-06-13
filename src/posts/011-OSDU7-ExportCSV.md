@@ -1,5 +1,5 @@
 ---
-title: ' OSDU Modelling 7: Export CSV.'
+title: 'OSDU Modelling 7: Export CSV.'
 date: 'May 31, 2024'
 excerpt: 'Finally we will Export the model to a CSV-file for pasting into a Excel Spreadsheet. This spreadsheet can then be imported into OSDU'
 cover_image: 'images/posts/osdu/image11-1.png'

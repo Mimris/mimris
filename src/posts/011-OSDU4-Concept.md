@@ -1,5 +1,5 @@
 ---
-title: ' OSDU Modelling 4: Concept Modelling'
+title: 'OSDU Modelling 4: Concept Modelling'
 date: 'May 31, 2024'
 excerpt: 'First we need to define the scope and main Concepts. We use IRTV Metamodel (Information, Role, Task, View) for this.'
 cover_image: 'images/posts/osdu/image11-1.png'

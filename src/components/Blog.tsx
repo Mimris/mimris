@@ -15,15 +15,23 @@ export default function Blog({ posts }: { posts: any[] }) {
     <div >
       <div >
         {/* {mappedPosts.length ? mappedPosts.map((p, index) => ( */}
-        {mappedPosts.length ? mappedPosts.map((p: any, index) => ( p.categories[0]._ref === '22b82a07-c7fc-4987-8167-1b1bd845a585' ) && (
-        // {mappedPosts.length ? mappedPosts.map((p, index) => ( p.categories[0]._key === '94cd5e248bf3' ) && (
-          // <div onClick={() => router.push(`/post/${p.slug.current}`)} key={index} className={styles.post}>
-          <div key={index}>
-            <h3>{p.title}</h3>
-            {/* <h3>{p.categories[0].category.title}</h3> */}
-            <Image src={p.mainImage} alt="" />
-          </div>
-        )) : <>No Posts Yet</>}
+        {
+          mappedPosts.length 
+            ? mappedPosts.map((p: any, index) => 
+              (
+              //  p.categories[0]._ref === '22b82a07-c7fc-4987-8167-1b1bd845a585' ) &&
+              //  (
+              // {mappedPosts.length ? mappedPosts.map((p, index) => ( p.categories[0]._key === '94cd5e248bf3' ) && (
+              // <div onClick={() => router.push(`/post/${p.slug.current}`)} key={index} className={styles.post}>
+              <div key={index}>
+                <h3>{p.title}</h3>
+                {/* <h3>{p.categories[0].category.title}</h3> */}
+                <Image src={p.mainImage} alt="" />
+              </div>
+              )
+            ) 
+          : <>No Posts Yet</>
+        }
       </div>
     </div>
   )

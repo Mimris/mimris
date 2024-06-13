@@ -631,6 +631,36 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+
+        const links = myDiagram.links;
+        for (let it = links.iterator; it?.next();) {
+          const link = it.value;
+          const rview = myModelview.findRelationshipView(link.data.key);
+          if (!rview) continue;
+          const relviews = myModelview.relshipviews;
+          for (let i = 0; i < relviews?.length; i++) {
+            const relview = relviews[i];
+            if (relview.id === rview.id) {
+              const points = [];
+              for (let it = link.points.iterator; it?.next();) {
+                const point = it.value;
+                if (debug) console.log('1603 point', point.x, point.y);
+                points.push(point.x)
+                points.push(point.y)
+              }
+              relview.points = points;
+
+              const jsnRelview = new jsn.jsnRelshipView(relview);
+              if (jsnRelview) {
+                uic.addItemToList(modifiedRelshipViews, jsnRelview);
+              }
+              if (debug) console.log('1033 relview, jsnRelview', relview, jsnRelview);
+              modifiedRelshipViews.push(jsnRelview);
+              myModelview.addRelationshipView(relview);
+            }
+          }
+        }
+
         break;
       }
 

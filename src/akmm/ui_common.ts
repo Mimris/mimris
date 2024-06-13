@@ -346,8 +346,14 @@ export function updateObject(nodeData: gjs.goObjectNode, name: string, value: st
     } else {
         const myMetis = context.myMetis;
         let currentObject: akm.cxObject = nodeData.object;
+        if (!currentObject) {
+            currentObject = myMetis.findObject(nodeData.objRef);
+        }
         myMetis.addObject(currentObject);
         let currentObjectView: akm.cxObjectView = nodeData.objectview;
+        if (!currentObjectView) {
+            currentObjectView = myMetis.findObjectView(nodeData.key);
+        }
         myMetis.addObjectView(currentObjectView);
         currentObject.setName(value);
         currentObject.setModified();
@@ -538,6 +544,7 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
     }
 }
 export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
+    try {
     toObjview["isGroup"]      = fromObjview["isGroup"];
     toObjview["groupLayout"]  = fromObjview["groupLayout"];
     toObjview["size"]         = fromObjview["size"];
@@ -559,6 +566,8 @@ export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm
     toObjview["textcolor"]    = fromObjview["textcolor"];
     toObjview["textcolor2"]   = fromObjview["textcolor2"];
     toObjview["textscale"]    = fromObjview["textscale"];
+    } catch (error) {
+    }
 }
 
 export function getKey(collection, name) {
@@ -646,7 +655,8 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
         if (node) {
             node.markedAsDeleted = deletedFlag;
             node.group = "";
-            const objview = node.objectview;
+            let objview = node.objectview;
+            if (!objview) objview = myMetis.findObjectView(data.key) as akm.cxObjectView;
             if (!objview) return;
             objview.markedAsDeleted = deletedFlag;
             const object = objview.object;

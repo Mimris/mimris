@@ -554,16 +554,19 @@ class GoJSApp extends React.Component<{}, AppState> {
           let objectview = myModelview.findObjectView(it.key.data.key);
           let object = objectview.object;
           object = myModel.findObject(object?.id);
-          let scale = it.key.data.scale1;
+          let scale = objectview.scale1;
           if (!scale) scale = "1";
+          let groupKey = "";
+          if (it.key.data.group)
+            groupKey = it.key.data.group;
           const myFromNode = {
             "key": it.key.data.key,
             "name": it.key.data.name,
-            "group": it.key.data.group,
+            "group": groupKey,
             "isGroup": it.key.data.isGroup,
-            "loc": new String(loc),
-            "size": new String(it.key.data.size),
-            "scale": new String(scale),
+            "loc": objectview.loc,
+            "size": objectview.size,
+            "scale": objectview.scale,
             "object": object,
             "objectview": objectview,
           }
@@ -575,14 +578,23 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
           if (!(n instanceof go.Node)) continue;
+          const loc = n.data.loc;
+          const goNode = myGoModel.findNode(n.data.key);
+          goNode.loc = loc;
+          const size = n.actualBounds.width + " " + n.actualBounds.height;
+          console.log('581 actualBounds', n.actualBounds);
+          let groupKey = "";
+          const group = uic.getGroupByLocation(myGoModel, loc, size, n.data);
+          if (group)
+            groupKey = group.key;
           const myToNode = {
             "gjsData": n.data,
             "key": n.data.key,
             "name": n.data.name,
-            "group": n.data.group,
+            "group": groupKey,
             "isGroup": n.data.isGroup,
             "loc": new String(n.data.loc),
-            "size": new String(n.data.size),
+            "size": size,
             "scale": new String(n.data.scale1),
             "object": n.data.object,
             "objectview": n.data.objectview,
@@ -590,6 +602,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": n.data.typeview,
           }
           myToNodes.push(myToNode);
+          myDiagram.model.setDataProperty(n.data, 'group', groupKey);
         }
         // Walk through the from nodes and find the corresponding to nodes
         for (let i = 0; i < myFromNodes.length; i++) {
@@ -601,9 +614,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               const myObject = myFromNode.object;
               const myObjectview = myFromNode.objectview;
               myObjectview.loc = myToNode.loc;
+              myObjectview.group = myToNode.group;
 
               const goParentGroup = uic.getGroupByLocation(myGoModel, myToNode.loc, myToNode.size, myToNode);
-              // const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+              const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
               // The node IS moved INTO a group or moved INSIDE a group:
               if (goParentGroup) {
                 const parentKey = goParentGroup.key;

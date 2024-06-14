@@ -618,6 +618,16 @@ class GoJSApp extends React.Component<{}, AppState> {
 
               const goParentGroup = uic.getGroupByLocation(myGoModel, myToNode.loc, myToNode.size, myToNode);
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+
+              // Move the object
+              let goToNode: gjs.goObjectNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
+              if (goToNode) {
+                goToNode = myGoModel.findNode(goToNode.key);
+                if (!goToNode instanceof gjs.goObjectNode) {
+                  myGoModel = myGoModel.fixGoModel();
+                }
+              }
+
               // The node IS moved INTO a group or moved INSIDE a group:
               if (goParentGroup) {
                 const parentKey = goParentGroup.key;

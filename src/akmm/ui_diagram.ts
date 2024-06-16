@@ -469,7 +469,9 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const myGoModel = myMetis.gojsModel;
     const goNode = myGoModel.findNode(gjsNode.key);
-    const objecttype = goNode?.objecttype;
+    let objecttype = goNode?.objecttype;
+    if (!objecttype) 
+        objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     const objecttypeview = goNode?.typeview;
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;

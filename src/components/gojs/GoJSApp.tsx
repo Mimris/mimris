@@ -377,7 +377,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'TextEdited': {
         const sel = e.subject.part;
         const gjsData = sel.data;
-        const textvalue = gjsData.text;
+        const textvalue = gjsData.name;
         let field = e.subject.name;
         if (field === "") field = "name";
         // Object type or Object
@@ -652,6 +652,42 @@ class GoJSApp extends React.Component<{}, AppState> {
                 part.scale1 = 1;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
                 myObjectview.group = "";
+              }
+              // Update objectview scaling and location
+              for (let i = 0; i < myGoModel.nodes.length; i++) {
+                let tnode;
+                const goNode = myGoModel.nodes[i] as gjs.goObjectNode;
+                for (let j = 0; j < myToNodes.length; j++) {
+                  tnode = myToNodes[j];
+                  if (goNode.key === tnode.key) {
+                    goNode.loc = tnode.loc.valueOf();
+                    if (goNode instanceof go.Node) {
+                      goNode.scale1 = goNode.getMyScale(myGoModel);
+                      break;
+                    }
+                  }
+                  const objview = tnode.objectview;
+                  if (objview) {
+                    objview.loc = myToNode.gjsData.loc;
+                    objview.scale1 = goNode.scale1;
+                    objview.size = goNode.size;
+                    if (goNode.group) {
+                      let grp = myGoModel.findNode(goNode.group);
+                      objview.group = grp.objviewRef;
+                    } else {
+                      objview.group = "";
+                    }
+                    myModelview.addObjectView(objview);
+                    myDiagram.model.setDataProperty(goNode, "loc", objview.loc);
+                    myDiagram.model.setDataProperty(goNode, "scale", objview.scale1);
+                    const jsnObjview = new jsn.jsnObjectView(objview);
+                    if (jsnObjview) {
+                      uic.addItemToList(modifiedObjectViews, jsnObjview);
+                      if (debug) console.log('753 jsnObjview', jsnObjview);
+                    }
+                    modifiedObjectViews.push(jsnObjview);
+                  }
+                }
               }
               // Prepare dispatch
               const jsnObjview = new jsn.jsnObjectView(myObjectview);

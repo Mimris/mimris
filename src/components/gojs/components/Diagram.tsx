@@ -1038,8 +1038,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const node = o.part.data;
                 const myGoModel = myMetis.gojsModel;
                 const myNode = myGoModel.findNode(node.key);
-                let object = myNode.object;
-                const objtype = myNode.objecttype;
+                const objview = myMetis.findObjectView(node.key);
+                let object = objview.object;
+                const objtype = object.type;
                 if (objtype?.name === constants.types.AKM_METAMODEL) {
                   const myModel: akm.cxModel = myMetis.currentModel;
                   let metamodelObject: akm.cxObject = myModel.findObject(object.id);

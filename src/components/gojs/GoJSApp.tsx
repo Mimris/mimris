@@ -1413,18 +1413,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
                 uic.deleteNode(myNode, deletedFlag, context);
-                const objRef = myNode.objRef;
-                const object = myMetis.findObject(objRef, true);
+                const objview = myModelview.findObjectView(myNode.key);
+                const object = objview?.object;
                 if (object) {
-                  // object.markedAsDeleted = myMetis.deleteViewsOnly;
+                  object.markedAsDeleted = !myMetis.deleteViewsOnly;
                   const jsnObject = new jsn.jsnObject(object);
                   modifiedObjects.push(jsnObject);
-                  const objview = myMetis.findObjectView(myNode.objviewRef, true);
-                  if (objview) {
-                    // objview.markedAsDeleted = myMetis.deleteViewsOnly;
-                    const jsnObjview = new jsn.jsnObjectView(objview);
-                    modifiedObjectViews.push(jsnObjview);
-                  }
+                  objview.markedAsDeleted = myMetis.deleteViewsOnly;
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  modifiedObjectViews.push(jsnObjview);
                 }
               }
             }
@@ -1746,13 +1743,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             goTargetNode = myGoModel.findNode(gjsNode.key);
             if (!goTargetNode) {
               if (myMetis.pasteViewsOnly) {
-                targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, sourceObject, gjsNode.description, myModelview);
+                targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, sourceObject, gjsNode.description, myModelview);
               } else {
                 targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
-                targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
+                targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, targetObject, gjsNode.description, myModelview);
               }
               targetObjview.isGroup = gjsNode.isGroup;
-              goTargetNode = new gjs.goObjectNode(gjsNode.key, myGoModel, targetObjview);
+              goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
             }
             targetObjectType = targetObjectType;
             targetObjview.loc = gjsNode.loc;

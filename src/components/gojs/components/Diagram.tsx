@@ -1027,9 +1027,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              const myGoModel = myMetis.gojsModel;
-              const myNode = myGoModel.findNode(node.key);
-              let object = myNode.object;
+              const objectview = myMetis.findObjectView(node.key);
+              let object = objectview.object;
               uid.addSubModels(object, myMetis, myDiagram);
               myDiagram.requestUpdate();
             },

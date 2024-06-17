@@ -12,7 +12,7 @@ import { core } from './constants';
 import context from '../pages/context';
 const constants = require('./constants');
 const printf = require('printf');
-const grabIsAllowed = true;
+const grabIsAllowed = false;
 
 // functions to handle nodes
 export function createObject(gjsData: any, context: any): akm.cxObjectView | null {
@@ -2177,16 +2177,14 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
-            if (debug) console.log('822 myNode, myNode.scale', myNode, myNode.scale1);
-            if (debug) console.log('823 nx, ny, nw, nh, gx, gy, gw, gh', nx, ny, nw, nh, gx, gy, gw, gh);
             if (
                 (nx > gx) // Check upper left corner of node
                 &&
-                (nx <= gx + gw * scale) // Check upper right corner of node
+                (nx + nw * scale <= gx + gw * scale) // Check upper right corner of node
                 &&
                 (ny > gy) // Check lower left corner of node
                 &&
-                (ny <= gy + gh * scale) // Check lower right corner of node
+                (ny + nh * scale <= gy + gh * scale) // Check lower right corner of node
             ) {
                 let grp = {
                     "name": node.name,

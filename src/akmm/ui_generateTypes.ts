@@ -1023,10 +1023,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     // uid.addSubModels(myObject, myMetis, context.myDiagram);
 
     // Dispatch
-    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    let data = { metis: jsnMetis }
+    const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
+    let data = { metamodel: jsnMetamodel }
     data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) 
+    myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data }) 
     return true;
 }
 

@@ -1745,8 +1745,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             gjsTargetNodes.push(gjsTargetNode);
             goTargetNode = myGoModel.findNode(gjsNode.key);
             if (!goTargetNode) {
-              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
-              targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
+              if (myMetis.pasteViewsOnly) {
+                targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, sourceObject, gjsNode.description, myModelview);
+              } else {
+                targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
+                targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
+              }
               targetObjview.isGroup = gjsNode.isGroup;
               goTargetNode = new gjs.goObjectNode(gjsNode.key, myGoModel, targetObjview);
             }
@@ -1772,14 +1776,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             goSourceNodes.push(goSourceNode);
             goTargetNodes.push(goTargetNode);
 
-            myModel.addObject(targetObject);
-            myMetis.addObject(targetObject);
-
+            if (!myMetis.pasteViewsOnly) {
+              myModel.addObject(targetObject);
+              myMetis.addObject(targetObject);
+              targetObjects.push(targetObject);
+            }
             myModelview.addObjectView(targetObjview);
             myMetis.addObjectView(targetObjview);
-
             targetObjectviews.push(targetObjview);
-            targetObjects.push(targetObject);
           }
         }
         // Handle relationships

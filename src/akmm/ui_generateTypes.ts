@@ -951,7 +951,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 const objectview = objectviews[i];
                 const object = objectview.object;
                 if (!object) continue
-                if (object.type.name === constants.types.AKM_METAMODEL) {
+                if (!object.type) continue
+                if (object.type?.name === constants.types.AKM_METAMODEL) {
                     // Follow 'contains' relationships
                     let relviews = objectview.getOutputRelviews();
                     for (let j = 0; j < relviews?.length; j++) {
@@ -1023,10 +1024,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     // uid.addSubModels(myObject, myMetis, context.myDiagram);
 
     // Dispatch
-    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    let data = { metis: jsnMetis }
+    const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
+    let data = { metamodel: jsnMetamodel }
     data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) 
+    myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data }) 
     return true;
 }
 

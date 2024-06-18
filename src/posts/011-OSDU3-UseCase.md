@@ -1,5 +1,5 @@
 ---
-title: 'OSDU Modelling 3: Start Modelling'
+title: 'OSDU 3: Start Modelling'
 date: 'May 31, 2024'
 excerpt: 'The task of acquiring data from a wellbore is known as well logging. The work is highly specialized and need to be properly planned and managed. Independent of access method, the well logging task is bound by the concepts of Run and Passes.'
 cover_image: 'images/posts/osdu/image11-1.png'
@@ -50,8 +50,3 @@ You can Exit the dialog and Click” Save to local file” again, and now it sho
 ---
  - [-next-](011-OSDU4-Concept)
 ---
-
-
-              .green-border {
-          border: 2px solid green;
-        }

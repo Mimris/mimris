@@ -119,6 +119,13 @@ const Modelling = (props: any) => {
 
   let myMetis = new akm.cxMetis();
 
+
+  useEffect(() => {
+    console.log('Modelling 126', mmToggle)
+    dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
+  }, [mmToggle])
+
+
   GenGojsModel(props, myMetis)
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes

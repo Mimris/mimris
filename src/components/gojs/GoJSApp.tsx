@@ -377,13 +377,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'TextEdited': {
         const sel = e.subject.part;
         const gjsData = sel.data;
-        const textvalue = gjsData.text;
+        const textvalue = gjsData.name;
         let field = e.subject.name;
         if (field === "") field = "name";
         // Object type or Object
         if (sel instanceof go.Node) {
           const key: string = gjsData.key;
-          const myGoNode = myGoModel.findNode(key);
+          const goNode = myGoModel.findNode(key);
           let text: string = gjsData.name;
           const category: string = gjsData.category;
           // Object type
@@ -405,49 +405,41 @@ class GoJSApp extends React.Component<{}, AppState> {
               text = prompt('Enter name');
               gjsData.name = text;
             }
-            const goNode: gjs.goObjectNode = this.getNode(myGoModel, key);
-            if (goNode) {
-              goNode.text = textvalue;
-              goNode.name = text;
-              let obj: akm.cxObject = uic.updateObject(goNode, field, text, context);
-              if (obj) {
-                obj.name = text;
-                obj.text = textvalue;
-                goNode.objRef = obj.id;
-                const objviews = obj.objectviews;
-                for (let i = 0; i < objviews.length; i++) {
-                  const objview = objviews[i];
-                  objview.name = text;
-                  objview.text = textvalue;
-                  let node = myGoModel.findNodeByViewId(objview?.id);
-                  if (node) {
-                    const gjsNodeData = sel.data;
-                    gjsNodeData.key = node.key;
-                    gjsNodeData.name = text;
-                    {
-                      let nodes = myDiagram.nodes;
-                      for (let it = nodes.iterator; it?.next();) {
-                        let n = it.value;
-                        console.log('439 node: data, key, name', n.data, n.data.key, n.data.name);
-                      }
-                    }
-                    const jsnObjview = new jsn.jsnObjectView(objview);
-                    jsnObjview.name = text;
-                    jsnObjview.text = text;
-                    modifiedObjectViews.push(jsnObjview);
-                    let data = JSON.parse(JSON.stringify(jsnObjview));
-                    context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                  }
+            const objview = myModelview.findObjectView(key);
+            let obj = objview.object;
+            goNode.objRef = obj.id;
+            goNode.text = textvalue;
+            goNode.name = text;
+            obj = uic.updateObject(goNode, field, text, context);
+            if (obj) {
+              obj.name = text;
+              obj.text = textvalue;
+              const objviews = obj.objectviews;
+              for (let i = 0; i < objviews.length; i++) {
+                const objview = objviews[i];
+                objview.name = text;
+                objview.text = textvalue;
+                let node = myGoModel.findNodeByViewId(objview?.id);
+                if (node) {
+                  const gjsNodeData = myDiagram.findNodeForKey(node.key);
+                  gjsNodeData.name = text;
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  jsnObjview.name = text;
+                  jsnObjview.text = text;
+                  modifiedObjectViews.push(jsnObjview);
+                  let data = JSON.parse(JSON.stringify(jsnObjview));
+                  context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
                 }
               }
-              if (obj) {
-                const jsnObj = new jsn.jsnObject(obj);
-                jsnObj.text = textvalue;
-                modifiedObjects.push(jsnObj);
-                let data = JSON.parse(JSON.stringify(jsnObj));
-                context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-              }
             }
+            if (obj) {
+              const jsnObj = new jsn.jsnObject(obj);
+              jsnObj.text = textvalue;
+              modifiedObjects.push(jsnObj);
+              let data = JSON.parse(JSON.stringify(jsnObj));
+              context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            }
+            
           }
           const goNodes = myGoModel?.nodes;
           for (let i = 0; i < goNodes?.length; i++) {
@@ -552,18 +544,23 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!(it.key.data.category === 'Object'))
             continue;
           let objectview = myModelview.findObjectView(it.key.data.key);
+          if (!objectview)
+            continue;
           let object = objectview.object;
           object = myModel.findObject(object?.id);
-          let scale = it.key.data.scale1;
+          let scale = objectview.scale1;
           if (!scale) scale = "1";
+          let groupKey = "";
+          if (it.key.data.group)
+            groupKey = it.key.data.group;
           const myFromNode = {
             "key": it.key.data.key,
             "name": it.key.data.name,
-            "group": it.key.data.group,
+            "group": groupKey,
             "isGroup": it.key.data.isGroup,
-            "loc": new String(loc),
-            "size": new String(it.key.data.size),
-            "scale": new String(scale),
+            "loc": objectview.loc,
+            "size": objectview.size,
+            "scale": objectview.scale,
             "object": object,
             "objectview": objectview,
           }
@@ -575,14 +572,25 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
           if (!(n instanceof go.Node)) continue;
+          const loc = n.data.loc;
+          const goNode = myGoModel.findNode(n.data.key);
+          if (!goNode) continue;
+          goNode.loc = loc;
+          const size = n.actualBounds.width + " " + n.actualBounds.height;
+          console.log('581 actualBounds', n.actualBounds);
+          let groupKey = "";
+          const group = uic.getGroupByLocation(myGoModel, loc, size, n.data);
+          if (group)
+            groupKey = group.key;
           const myToNode = {
+            "n": n,
             "gjsData": n.data,
             "key": n.data.key,
             "name": n.data.name,
-            "group": n.data.group,
+            "group": groupKey,
             "isGroup": n.data.isGroup,
             "loc": new String(n.data.loc),
-            "size": new String(n.data.size),
+            "size": size,
             "scale": new String(n.data.scale1),
             "object": n.data.object,
             "objectview": n.data.objectview,
@@ -590,6 +598,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": n.data.typeview,
           }
           myToNodes.push(myToNode);
+          myDiagram.model.setDataProperty(n.data, 'group', groupKey);
         }
         // Walk through the from nodes and find the corresponding to nodes
         for (let i = 0; i < myFromNodes.length; i++) {
@@ -601,25 +610,78 @@ class GoJSApp extends React.Component<{}, AppState> {
               const myObject = myFromNode.object;
               const myObjectview = myFromNode.objectview;
               myObjectview.loc = myToNode.loc;
+              myObjectview.group = myToNode.group;
 
-              const goParentGroup = uic.getGroupByLocation(myGoModel, myToNode.loc, myToNode.size, myToNode);
-              // const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
-              // The node IS moved INTO a group or moved INSIDE a group:
+              const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+
+              // Move the object
+              let goToNode: gjs.goObjectNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
+              if (goToNode) {
+                goToNode = myGoModel.findNode(goToNode.key);
+                if (!goToNode instanceof gjs.goObjectNode) {
+                  myGoModel = myGoModel.fixGoModel();
+                }
+              }
+
+              // Check if the node (goToNode) is member of a group
+              const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
               if (goParentGroup) {
-                const parentKey = goParentGroup.key;
-                const groupObjview = myMetis.findObjectView(parentKey, false);
-                const groupObj = groupObjview?.object;
-                const parentgroup = goParentGroup;
-                myToNode.group = parentKey;
-                myDiagram.model.setDataProperty(myToNode.gjsData, "group", myToNode.group);
-                myObjectview.group = parentKey;
+                const part = myToNode.gjsData;
+                goToNode.group = goParentGroup.key;
+                myObjectview.group = goParentGroup.objviewRef;
+                myDiagram.model.setDataProperty(part, "group", goToNode.group);
+                goToNode.scale1 = new String(goToNode.getMyScale(myGoModel));
+                part.scale1 = Number(goToNode.scale1);
+                myObjectview.scale = part.scale1;
+                myObjectview.scale1 = part.scale1;
+                myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
               } else {
+                const part = myToNode.gjsData;
+                // let fromScale = myFromNode.scale;
+                // let toScale = myGoNode.getMyScale(myGoModel); // 1;
+                // let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
                 myToNode.group = "";
-                let fromScale = myFromNode.scale;
-                let toScale = myGoNode.getMyScale(myGoModel); // 1;
-                let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
                 myDiagram.model.setDataProperty(myToNode.gjsData, "group", myToNode.group);
+                goToNode.scale1 = "1";
+                part.scale1 = 1;
+                myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
                 myObjectview.group = "";
+              }
+              // Update objectview scaling and location
+              for (let i = 0; i < myGoModel.nodes.length; i++) {
+                let tnode;
+                const goNode = myGoModel.nodes[i] as gjs.goObjectNode;
+                for (let j = 0; j < myToNodes.length; j++) {
+                  tnode = myToNodes[j];
+                  if (goNode.key === tnode.key) {
+                    goNode.loc = tnode.loc.valueOf();
+                    if (goNode instanceof go.Node) {
+                      goNode.scale1 = goNode.getMyScale(myGoModel);
+                      break;
+                    }
+                  }
+                  const objview = tnode.objectview;
+                  if (objview) {
+                    objview.loc = myToNode.gjsData.loc;
+                    objview.scale1 = goNode.scale1;
+                    objview.size = goNode.size;
+                    if (goNode.group) {
+                      let grp = myGoModel.findNode(goNode.group);
+                      objview.group = grp.objviewRef;
+                    } else {
+                      objview.group = "";
+                    }
+                    myModelview.addObjectView(objview);
+                    myDiagram.model.setDataProperty(goNode, "loc", objview.loc);
+                    myDiagram.model.setDataProperty(goNode, "scale", objview.scale1);
+                    const jsnObjview = new jsn.jsnObjectView(objview);
+                    if (jsnObjview) {
+                      uic.addItemToList(modifiedObjectViews, jsnObjview);
+                      if (debug) console.log('753 jsnObjview', jsnObjview);
+                    }
+                    modifiedObjectViews.push(jsnObjview);
+                  }
+                }
               }
               // Prepare dispatch
               const jsnObjview = new jsn.jsnObjectView(myObjectview);
@@ -1345,18 +1407,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
                 uic.deleteNode(myNode, deletedFlag, context);
-                const objRef = myNode.objRef;
-                const object = myMetis.findObject(objRef, true);
+                const objview = myModelview.findObjectView(myNode.key);
+                const object = objview?.object;
                 if (object) {
-                  // object.markedAsDeleted = myMetis.deleteViewsOnly;
+                  object.markedAsDeleted = !myMetis.deleteViewsOnly;
                   const jsnObject = new jsn.jsnObject(object);
                   modifiedObjects.push(jsnObject);
-                  const objview = myMetis.findObjectView(myNode.objviewRef, true);
-                  if (objview) {
-                    // objview.markedAsDeleted = myMetis.deleteViewsOnly;
-                    const jsnObjview = new jsn.jsnObjectView(objview);
-                    modifiedObjectViews.push(jsnObjview);
-                  }
+                  objview.markedAsDeleted = myMetis.deleteViewsOnly;
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  modifiedObjectViews.push(jsnObjview);
                 }
               }
             }
@@ -1512,17 +1571,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           node.updateTargetBindings();
         })
-        // for (let it = myDiagram.nodes; it?.next();) {
-        //   const n = it.value;
-        //   const data = n.data;
-        //   if (data) {
-        //     data.object = null;
-        //     data.objectview = null;
-        //     data.objecttype = null;
-        //     data.typeview
-        //   }
-        // }
-        // if (debug) console.log('1242 myGoModel', myGoModel);
         break;
       }
       case "ObjectDoubleClicked": {
@@ -1688,10 +1736,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             gjsTargetNodes.push(gjsTargetNode);
             goTargetNode = myGoModel.findNode(gjsNode.key);
             if (!goTargetNode) {
-              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
-              targetObjview = new akm.cxObjectView(gjsNode.key, gjsNode.name, targetObject, gjsNode.description, myModelview);
+              if (myMetis.pasteViewsOnly) {
+                targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, sourceObject, gjsNode.description, myModelview);
+              } else {
+                targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
+                targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, targetObject, gjsNode.description, myModelview);
+              }
               targetObjview.isGroup = gjsNode.isGroup;
-              goTargetNode = new gjs.goObjectNode(gjsNode.key, myGoModel, targetObjview);
+              goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
             }
             targetObjectType = targetObjectType;
             targetObjview.loc = gjsNode.loc;
@@ -1715,14 +1767,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             goSourceNodes.push(goSourceNode);
             goTargetNodes.push(goTargetNode);
 
-            myModel.addObject(targetObject);
-            myMetis.addObject(targetObject);
-
+            if (!myMetis.pasteViewsOnly) {
+              myModel.addObject(targetObject);
+              myMetis.addObject(targetObject);
+              targetObjects.push(targetObject);
+            }
+            uic.copyViewAttributes( targetObjview, gjsTargetNode);
             myModelview.addObjectView(targetObjview);
             myMetis.addObjectView(targetObjview);
-
             targetObjectviews.push(targetObjview);
-            targetObjects.push(targetObject);
           }
         }
         // Handle relationships
@@ -1733,8 +1786,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             continue;
           if (it2.value instanceof go.Link) {
             let gjsLink = it2.value.data;
-
-            if (gjsLink.key === gjsLink.linkNode.key) {
+            if (!gjsLink.linkNode) 
+              continue;
+            if (gjsLink.key === gjsLink.linkNode?.key) {
               // Paste to another modelview ( diagram)
               myDiagram.model.removeLinkData(gjsLink);
               gjsLink.key = utils.createGuid();
@@ -1742,7 +1796,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
 
             let reltype: akm.cxRelationshipType = myMetis.findRelationshipType(gjsLink.reltypeRef);
-            const gjsSourceLink = gjsLink.linkNode;
+            const gjsSourceLink = gjsLink?.linkNode;
             gjsSourceLinks.push(gjsSourceLink);
             const gjsTargetLink = gjsLink;
             gjsTargetLinks.push(gjsTargetLink);
@@ -1904,14 +1958,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           goFromNode = myGoModel.findNode(gjsFromNode.key);
           context.goFromNode = goFromNode;
           context.fromObjView = fromObjView;
-          uic.updateNode(goFromNode, fromObjView.typeview, myDiagram, myGoModel);
+          uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
         }
         if (gjsToNode) {
           toObjView = myModelview.findObjectView(gjsToNode.key);
           goToNode = myGoModel.findNode(gjsToNode.key);
           context.goToNode = goToNode;
           context.toObjView = toObjView;
-          uic.updateNode(goToNode, toObjView.typeview, myDiagram, myGoModel);
+          uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
         }
 
         // Handle relationship types
@@ -2053,7 +2107,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // Dispatches
     if (true) { // Dispatches to store individual objects/types
-      if (!debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
+      if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
       modifiedObjectViews.map(mn => {
         let data = (mn) && mn
         if (mn.id) {
@@ -2080,7 +2134,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
       })
 
-      if (!debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
+      if (debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
       modifiedRelshipViews.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));

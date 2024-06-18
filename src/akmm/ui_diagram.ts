@@ -469,7 +469,9 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const myGoModel = myMetis.gojsModel;
     const goNode = myGoModel.findNode(gjsNode.key);
-    const objecttype = goNode?.objecttype;
+    let objecttype = goNode?.objecttype;
+    if (!objecttype) 
+        objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     const objecttypeview = goNode?.typeview;
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;
@@ -934,12 +936,12 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const myCollection = new go.Set<go.Part | go.Link>();
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
-        const gjsNode = new gjs.goObjectNode(objview.id, goModel, objview);
-        objview = uic.setObjviewAttributes(gjsNode, myDiagram);
+        const goNode = new gjs.goObjectNode(objview.id, goModel, objview);
+        objview = uic.setObjviewAttributes(goNode, myDiagram);
         const jsnObjview = new jsn.jsnObjectView(objview);
         myObjectViews.push(jsnObjview);
-        myDiagram.model.addNodeData(gjsNode);
-        // const node = myDiagram.findNodeForData(gjsNode)
+        myDiagram.model.addNodeData(goNode);
+        // const node = myDiagram.findNodeForData(goNode)
         // myCollection.add(node);
     }
     for (let i=0; i<relshipviews.length; i++) {

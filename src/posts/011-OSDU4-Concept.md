@@ -1,5 +1,5 @@
 ---
-title: 'OSDU Modelling 4: Concept Modelling'
+title: 'OSDU 4: Concept Modelling'
 date: 'May 31, 2024'
 excerpt: 'First we need to define the scope and main Concepts. We use IRTV Metamodel (Information, Role, Task, View) for this.'
 cover_image: 'images/posts/osdu/image11-1.png'
@@ -8,6 +8,7 @@ cover_image: 'images/posts/osdu/image11-1.png'
 ## Explore and Define Main Concepts for WellAcquisition
 
 For modelling the Concepts, we use the IRTV-metamodel.
+We use Concept Models to agree on a common overview of the Scope of which Roles, Tasks, Views and Information we want to cover in current use-case of project.
 
 For more detailed instructions see video:  https://app.guidde.com/playbooks/5kfvMyqNcETCnu44cx5u9h
 

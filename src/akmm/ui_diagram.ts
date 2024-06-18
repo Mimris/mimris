@@ -469,7 +469,9 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const myGoModel = myMetis.gojsModel;
     const goNode = myGoModel.findNode(gjsNode.key);
-    const objecttype = goNode?.objecttype;
+    let objecttype = goNode?.objecttype;
+    if (!objecttype) 
+        objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     const objecttypeview = goNode?.typeview;
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;
@@ -593,15 +595,26 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
     myDiagram.handleOpenModal(node, modalContext);
 }
 
-export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (debug) console.log('583 node, myMetis', node, myMetis);
-    const icon = uit.findImage(node.icon);
-    myMetis.currentNode = node;
+export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('583 gjsNode, myMetis', gjsNode, myMetis);
+    const myModelview = myMetis.currentModelview;
+    const myGoModel = myMetis.gojsModel; 
+    let objectview = myModelview.findObjectView(gjsNode.key);
+    let object = objectview?.object;
+    let objecttype = object?.type;
+    const goNode = myGoModel.findNode(gjsNode.key);
+    myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    const object = myMetis.findObject(node?.objRef);
-    const objectview = myMetis.findObjectView(node?.objviewRef);
-    const objecttype = myMetis.findObjectType(node?.objtypeRef);
+    const icon = uit.findImage(goNode.icon);
+    if (!object)
+        object = myMetis.findObject(goNode?.objRef);
+    if (!objectview)
+        objectview = myMetis.findObjectView(goNode?.objviewRef);
+    if (!objecttype)
+        objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
+    // if (objectview)
+    // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
     const myContext = {
         object:     object,
         objectview: objectview,
@@ -622,8 +635,8 @@ export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) 
       myDiagram:  myDiagram,
       myContext:  myContext,
     }
-    if (debug) console.log('566 ui_diagram: node, modalContext', node, modalContext);
-    myDiagram.handleOpenModal(node, modalContext);
+    if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
+    myDiagram.handleOpenModal(gjsNode, modalContext);
 }    
 
 export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -648,6 +661,7 @@ export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram:
         model:      myMetis.currentModel,
         modelview:  myMetis.currentModelview,
         metamodel:  myMetis.currentMetamodel,
+        goModel:    myMetis.gojsModel
     }
     const modalContext = {
         what:       "editRelshipview",
@@ -922,12 +936,12 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const myCollection = new go.Set<go.Part | go.Link>();
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
-        const gjsNode = new gjs.goObjectNode(objview.id, goModel, objview);
-        objview = uic.setObjviewAttributes(gjsNode, myDiagram);
+        const goNode = new gjs.goObjectNode(objview.id, goModel, objview);
+        objview = uic.setObjviewAttributes(goNode, myDiagram);
         const jsnObjview = new jsn.jsnObjectView(objview);
         myObjectViews.push(jsnObjview);
-        myDiagram.model.addNodeData(gjsNode);
-        // const node = myDiagram.findNodeForData(gjsNode)
+        myDiagram.model.addNodeData(goNode);
+        // const node = myDiagram.findNodeForData(goNode)
         // myCollection.add(node);
     }
     for (let i=0; i<relshipviews.length; i++) {
@@ -1262,9 +1276,13 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             continue;
         const gNode = myGoModel.findNode(n.data.key);
         if (gNode) {
-            const objtype = gNode.objecttype;
-            objtypes.push(objtype);
-            objtypenames.push(objtype.name);
+            let objtype = gNode.objecttype;
+            if (!objtype)
+                objtype = myMetamodel.findObjectType(gNode.objtypeRef);
+            if (objtype) {
+                objtypes.push(objtype);
+                objtypenames.push(objtype.name);
+            }
         }
     }
     let uniqueSet = utils.removeArrayDuplicates(objtypenames);
@@ -2631,9 +2649,12 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
             for (let prop in goNode) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
-                        objview[prop] = gjsNode[prop];
-                        goNode[prop]    = gjsNode[prop];
-                        myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
+                        try {
+                            objview[prop] = gjsNode[prop];
+                            goNode[prop]  = gjsNode[prop];
+                            myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
+                        } catch {
+                        }
                     }
                     if (prop === 'viewkind') {
                         if (objview[prop] === 'Object') {

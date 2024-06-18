@@ -17,11 +17,9 @@ const page = (props: any) => {
 
   if (debug) console.log('17', props)
   //   // const dispatch = useDispatch()
-
   // if (!props.phData) {
   //   dispatch(loadData())
   // }
-
   // const state = useSelector(state => state)
   // const metis = (state.phData) && state.phData.metis
   // const [visibleTasks, setVisibleTasks] = useState(true)
@@ -29,7 +27,6 @@ const page = (props: any) => {
   //   setVisibleTasks(!visibleTasks);
   // }
   // /**
-
   // * Set up the Context items and link to select Context modal,
   // */
   const ContextDiv = (props.phFocus) && <ContextView ph={props.phFocus} />
@@ -39,7 +36,6 @@ const page = (props: any) => {
   //       <ContextView ph={props} />
   //     };
   //   }, [props.phFocus.focusModel.id])
-
 
   return (
     <div>

@@ -128,26 +128,26 @@ const LoadGitHub = (props: any) => {
   const loadModel = async (rep: string, filename: string) => {
     let impProjFile = null;
     setLoading(true);
-    try {
-      const searchtexttmp = `${rep}`;
-      console.log('135 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename);
-      const searchtext = searchtexttmp.replace(/\/\//g, '/');
-      if (debug) console.log('128', searchtext, pathText, filename, branchText, 'file');
 
-      const url = `https://api.github.com/repos/${searchtext}/contents/${pathText}/${filename}`; // this is the project file
+    try { 
+      if (debug) console.log('133 LoadGitHub', rep, repoText, pathText, filename);
+      if (debug) console.log('128', pathText, filename, branchText, 'file');
+      let url = `https://raw.githubusercontent.com/${rep}/${branchText}/${pathText}/${filename}`;
+      if (pathText ===  '/') {
+        url = `https://raw.githubusercontent.com/${rep}/${branchText}/${filename}`; // this is the project file
+      } 
       const res = await axios.get(url);
-
-      if (res) {
+      if (res?.data?.content) {
         // const sha = res?.data?.sha;
         if (debug) console.log('140 res', res, res.data);
-
         const content = res.data.content; // this is the project file from github
-        if (debug) console.log('143', searchtext, res, content);
-
+        if (debug) console.log('143', res, content);
         const decodedContent = atob(content); // decode Base64 to string
         impProjFile = JSON.parse(decodedContent); // parse the decoded content as JSON
         if (debug) console.log('146', impProjFile, content, decodedContent);
-
+      } else {
+        if (debug) console.log('149', res);
+        impProjFile = res?.data;
       }
     } catch (error) {
       console.error('Error loading impProjFile:', error);
@@ -223,7 +223,7 @@ const LoadGitHub = (props: any) => {
             },
           },
         };
-        if (debug) console.log('166 ', data)
+        if (debug) console.log('226 ', data)
         if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
       } else {// it is a Project file
         const data = {
@@ -252,7 +252,7 @@ const LoadGitHub = (props: any) => {
           phSource: impProjFile.phData.metis.name || impProjFile.phSource
           // phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
-        if (debug) console.log('154', data)
+        if (!debug) console.log('255', data)
         if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -265,7 +265,7 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '' && pathText !== undefined) ? `repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (debug) console.log('131  u', usernameText, 'r', repoText, 'p', pathText, 'repos', repos)
+    if (debug) console.log('268  u', usernameText, 'r', repoText, 'p', pathText, 'repos', repos)
     if (repos.includes('undefined')) return null;
     const reposclean = repos.replace(/\/\//g, '/');
 

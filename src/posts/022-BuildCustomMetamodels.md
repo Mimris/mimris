@@ -1,7 +1,7 @@
 ---
 title: 'Build custom metamodels in AKMM'
 date: 'Sept 18, 2023'
-excerpt: 'A '
+excerpt: 'Build or extend a Metamodel by making a Concept model and then generate the metamodel'
 cover_image: '/images/posts/CustomMeta/Picture1.png'
 ---
 

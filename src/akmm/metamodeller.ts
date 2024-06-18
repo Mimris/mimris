@@ -1090,8 +1090,19 @@ export class cxMetis {
         if (mtype) {
             for (const prop in item) {
                 if (item[prop]) {
-                    let mtd = (mtype as any);
-                    mtd[prop] = item[prop];
+                    let mtd = (mtype as cxMethodType);
+                    if (prop === 'properties') {
+                        let properties: cxProperty[] = [];
+                        for (let i = 0; i < item.properties.length; i++) {
+                            const prop = item.properties[i];
+                            const property = this.findProperty(prop.id);
+                            if (property) {
+                                properties.push(property);
+                            }
+                            mtd[prop] = properties;
+                        }
+                    } else
+                        mtd[prop] = item[prop];
                 }
             }
             metamodel.addMethodType(mtype);
@@ -1133,7 +1144,9 @@ export class cxMetis {
                 if (modelviews && (modelviews.length > 0)) {
                     modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
-                        if (model) this.importModelView(mv, model);
+                        if (mv.id) {
+                            if (model) this.importModelView(mv, model);
+                        }
                     });
                 }
                 model.includeRelshipkind = item.includeRelshipkind;
@@ -1369,19 +1382,22 @@ export class cxMetis {
         if (metamodel.category === constants.gojs.C_METAMODEL) {
             if (this.metamodels == null)
                 this.metamodels = new Array();
-            if (!this.findMetamodel(metamodel.id))
+            let mm = this.findMetamodel(metamodel.id);
+            if (!mm)
                 this.metamodels.push(metamodel);
-            else {
-                const mms = this.metamodels;
-                const len = mms?.length;
-                for (let i = len; i > 0; i--) {
-                    const mm = mms[i - 1];
-                    if (mm.id === metamodel.id) {
-                        mms[i] = metamodel;
-                        break;
-                    }
-                }
-            }
+            else 
+                mm = metamodel;
+            // else {
+            //     const mms = this.metamodels;
+            //     const len = mms?.length;
+            //     for (let i = len; i > 0; i--) {
+            //         const mm = mms[i-1];
+            //         if (mm.id === metamodel.id) {
+            //             mms[i-1] = metamodel;
+            //             break;
+            //         }
+            //     }
+            // }
         }
     }
     addModel(model: cxModel) {
@@ -3892,7 +3908,7 @@ export class cxMetaModel extends cxMetaObject {
         if (!typeviews) {
             return [];
         }
-        // Remove all typeviews in allTypeviews
+        // Remove duplicated typeviews in allTypeviews
         for (let i = 0; i < typeviews.length; i++) {
             const typeview = typeviews[i];
             if (typeview) {
@@ -5354,7 +5370,7 @@ export class cxType extends cxMetaObject {
     getSupertypes(): cxObjectType[] | null {
         return this.supertypes;
     }
-    getProperties(includeInherited: boolean): cxProperty[] | null {
+    getProperties(includeInherited: boolean): cxProperty[] {
         if (!includeInherited)
             return this.properties;
         const props = this.properties;
@@ -7271,7 +7287,7 @@ export class cxModel extends cxMetaObject {
             this.modelviews.push(modelview);
     }
     addObject(obj: cxObject) {
-        if (obj.category === constants.gojs.C_OBJECT) {
+        if (obj?.category === constants.gojs.C_OBJECT) {
             if (this.objects == null)
                 this.objects = new Array();
             if (!this.findObject(obj.id))
@@ -7533,7 +7549,7 @@ export class cxModel extends cxMetaObject {
                         if (relFromObj && relToObj) {
                             if (rtype.id === reltype?.id) {
                                 if (relFromObj.id === fromObj?.id) {
-                                    if (relToObj.id === toObj.id) {
+                                    if (relToObj.id === toObj?.id) {
                                         if (!fromPort && !toPort)
                                             return rel;
                                         else if (rel.fromPortid === fromPort.id && rel.toPortid === toPort.id)
@@ -7842,12 +7858,12 @@ export class cxInstance extends cxMetaObject {
         }
         // Then handle the type itself
         let type = this.type;
-        type = metamodel?.findObjectType(type.id);
+        type = metamodel?.findObjectType(type?.id);
         try {
             const supertypes = type?.getSupertypes();
             for (let i = 0; i < supertypes?.length; i++) {
                 let stype = supertypes[i];
-                stype = metamodel?.findObjectType(stype.id);
+                stype = metamodel?.findObjectType(stype?.id);
                 if (stype) typelist.push(stype);
             }
         } catch (error) {
@@ -7863,7 +7879,7 @@ export class cxInstance extends cxMetaObject {
         if (types?.length > 0) {
             for (let i = 0; i < types.length; i++) {
                 let type = types[i];
-                type = metamodel?.findObjectType(type.id);
+                type = metamodel?.findObjectType(type?.id);
                 if (type?.hasProperties())
                     return true;
             }
@@ -7883,7 +7899,7 @@ export class cxInstance extends cxMetaObject {
             for (let i = 0; i < objects?.length; i++) {
                 const obj = objects[i];
                 let type = obj?.type;
-                type = metamodel?.findObjectType(type.id);
+                type = metamodel?.findObjectType(type?.id);
                 if (type?.hasProperties())
                     return true;
             }
@@ -7898,7 +7914,7 @@ export class cxInstance extends cxMetaObject {
         for (let i = 0; i < objects?.length; i++) {
             const obj = objects[i];
             let type = obj?.type;
-            type = metamodel?.findObjectType(type.id);
+            type = metamodel?.findObjectType(type?.id);
             if (type?.hasProperties()) {
                 const props = type.properties;
                 for (let j = 0; j < props.length; j++) {

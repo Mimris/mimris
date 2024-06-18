@@ -923,6 +923,7 @@ export function askForTargetMetamodel(context: any) {
 
 export function generateTargetMetamodel2(context: any) { // postoperation
     let modelviewList = constants.core.AKM_MODELVIEWS;
+    const myDiagram = context.myDiagram;
     const myMetis: akm.cxMetis = context.myMetis;
     let sourcemodelview = buildTemporaryModelView(context);
     sourcemodelview = context.myCurrentModelview;
@@ -950,7 +951,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 const objectview = objectviews[i];
                 const object = objectview.object;
                 if (!object) continue
-                if (object.type.name === constants.types.AKM_METAMODEL) {
+                if (!object.type) continue
+                if (object.type?.name === constants.types.AKM_METAMODEL) {
                     // Follow 'contains' relationships
                     let relviews = objectview.getOutputRelviews();
                     for (let j = 0; j < relviews?.length; j++) {
@@ -1020,6 +1022,12 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     alert("The metamodel " + targetMetamodel.name + " has been successfully generated!");
     // const myObject = context.myCurrentObjectview.object;
     // uid.addSubModels(myObject, myMetis, context.myDiagram);
+
+    // Dispatch
+    const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
+    let data = { metamodel: jsnMetamodel }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data }) 
     return true;
 }
 
@@ -1314,7 +1322,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     const props = methodType.properties;
                     for (let i = 0; i < props?.length; i++) {
                         const propname = props[i].name;
-                        jsnMethod[propname] = obj[propname];
                     }
                     if (debug) console.log('1334 method', method);
                 }
@@ -1746,6 +1753,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     myMetis.addMetamodel(targetMetamodel);
     myMetis.metamodels = [...new Set(myMetis.metamodels)];
+    // modifiedMetamodels.push(targetMetamodel);
 
     // Check if the metamodel is used as a sub-metamodel in another metamodel
     const metamodels = myMetis.metamodels;
@@ -1760,21 +1768,20 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
         metamodel.submetamodels = subMetamodels;
-        if (subMetamodels?.length > 0) {
-            const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-            modifiedMetamodels.push(jsnMetamodel);
-            if (debug) console.log('1920 generateMetamodel 2');
-        }
+        // if (subMetamodels?.length > 0) {
+        //     const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+        //     if (debug) console.log('1920 generateMetamodel 2');
+        // }
     }
 
     // Do the dispatches
-    {
-        modifiedMetamodels.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-        });
-    }
+    // {
+    //     modifiedMetamodels.map(mn => {
+    //         let data = mn;
+    //         data = JSON.parse(JSON.stringify(data));
+    //         myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
+    //     });
+    // }
     return targetMetamodel;
 }
 

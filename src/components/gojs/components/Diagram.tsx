@@ -461,8 +461,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                if (node.isGroup) 
-                  return false;
                 return true;
               }
               if (node.category === constants.gojs.C_RELATIONSHIP)
@@ -1029,16 +1027,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              let object = node.object;
-              object = myMetis.findObject(object.id);
+              const objectview = myMetis.findObjectView(node.key);
+              let object = objectview.object;
               uid.addSubModels(object, myMetis, myDiagram);
               myDiagram.requestUpdate();
             },
             function (o: any) {
               if (myMetis.modelType == 'Modelling') {
                 const node = o.part.data;
-                let object = node.object;
-                const objtype = object?.type;
+                const myGoModel = myMetis.gojsModel;
+                const myNode = myGoModel.findNode(node.key);
+                const objview = myMetis.findObjectView(node.key);
+                let object = objview.object;
+                const objtype = object.type;
                 if (objtype?.name === constants.types.AKM_METAMODEL) {
                   const myModel: akm.cxModel = myMetis.currentModel;
                   let metamodelObject: akm.cxObject = myModel.findObject(object.id);
@@ -1618,11 +1619,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              if (debug) console.log('1267 link', link);
+              const relship = myMetis.findRelationship(link?.relshipRef);
+              const relshipview = myMetis.findRelationshipView(link?.relviewRef);
+              const relshiptype = myMetis.findRelationshipType(link?.reltypeRef);
+              const relshiptypeview = relshiptype?.typeview;
+              const myContext = {
+                object:     null,
+                objectview: null,
+                objecttype: null,
+                objecttypeview: null,
+                relship:    relship,
+                relshipview: relshipview,
+                relshiptype: relshiptype,
+                relshiptypeview: relshiptypeview,
+                model:      myMetis.currentModel,
+                modelview:  myMetis.currentModelview,
+                metamodel:  myMetis.currentMetamodel,
+            }
               const modalContext = {
                 what: "editRelationship",
                 title: "Edit Relationship",
-                myDiagram: myDiagram
+                myDiagram: myDiagram,
+                myContext:  myContext,
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -1630,9 +1648,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // 
             },
             function (o: any) {
-              const node = o.part.data;
-              if (debug) console.log('1265 node', node);
-              if (node.category === constants.gojs.C_RELATIONSHIP) {
+              const link = o.part.data;
+              if (debug) console.log('1265 link', link);
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 return true;
               }
               return false;
@@ -1640,10 +1658,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship View",
             function (e: any, obj: any) {
               const link = obj.part.data;
+              const relship = myMetis.findRelationship(link?.relshipRef);
+              const relshipview = myMetis.findRelationshipView(link?.relviewRef);
+              const relshiptype = myMetis.findRelationshipType(link?.reltypeRef);
+              const relshiptypeview = relshiptype?.typeview;
+              const myContext = {
+                object:     null,
+                objectview: null,
+                objecttype: null,
+                objecttypeview: null,
+                relship:    relship,
+                relshipview: relshipview,
+                relshiptype: relshiptype,
+                relshiptypeview: relshiptypeview,
+                model:      myMetis.currentModel,
+                modelview:  myMetis.currentModelview,
+                metamodel:  myMetis.currentMetamodel,
+            }
               const modalContext = {
                 what: "editRelshipview",
                 title: "Edit Relationship View",
-                myDiagram: myDiagram
+                myDiagram: myDiagram,
+                myContext:  myContext,
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -1855,12 +1891,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e, obj) {
               const myGoModel = myMetis.gojsModel;
               const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
               let includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
-              const myMetamodel = myMetis.currentMetamodel;
-              let fromType: akm.cxObjectType = link.relship.fromObject.type;
+              const relshipRef = link.relshipRef;
+              const relship = myMetis.findRelationship(relshipRef);
+              let fromType: akm.cxObjectType = relship.fromObject.type;
               fromType = myMetamodel.findObjectType(fromType.id);
-              let toType: akm.cxObjectType = link.relship.toObject.type;
+              let toType: akm.cxObjectType = relship.toObject.type;
               toType = myMetamodel.findObjectType(toType.id);
               let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
@@ -2152,7 +2190,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Clear Breakpoints",
+          makeButton("Clear Path",
             function (e: any, obj: any) {
               let selection = myDiagram.selection;
               if (selection.count == 0) {

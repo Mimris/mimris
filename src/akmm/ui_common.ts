@@ -346,8 +346,14 @@ export function updateObject(nodeData: gjs.goObjectNode, name: string, value: st
     } else {
         const myMetis = context.myMetis;
         let currentObject: akm.cxObject = nodeData.object;
+        if (!currentObject) {
+            currentObject = myMetis.findObject(nodeData.objRef);
+        }
         myMetis.addObject(currentObject);
         let currentObjectView: akm.cxObjectView = nodeData.objectview;
+        if (!currentObjectView) {
+            currentObjectView = myMetis.findObjectView(nodeData.key);
+        }
         myMetis.addObjectView(currentObjectView);
         currentObject.setName(value);
         currentObject.setModified();
@@ -428,12 +434,12 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
     // data, i.e. node
     if (objtype) {
         const objtypeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
-        const currentObject = myMetis.findObject(data.object?.id);
+        const currentObjectView = myMetis.findObjectView(data.key) as akm.cxObjectView;
+        const currentObject = currentObjectView?.object;
         if (currentObject) {
             const nameIsChanged = (currentObject.name !== currentObject.type?.name);
             currentObject.setType(objtype);
             currentObject.setModified();
-            const currentObjectView = myMetis.findObjectView(data.objectview.id);
             if (currentObjectView) {
                 currentObjectView.setTypeView(objtypeview);
                 currentObjectView.setModified();
@@ -441,6 +447,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 if (!nameIsChanged) {
                     myDiagram.model.setDataProperty(data, "name", objtype.name);
                 }
+                myDiagram.model.setDataProperty(data, "typename", objtype.name);
                 // Apply local overrides
                 currentObjectView['template'] = data.template;
                 currentObjectView['figure'] = data.figure;
@@ -449,8 +456,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 currentObjectView['strokewidth'] = data.strokewidth;
                 currentObjectView['icon'] = data.icon;
                 // Update data (node)
-                data.object.type = objtype;
-                data.objecttype = objtype;
+                data.objtypeRef = objtype.id;
                 data.typename = objtype.name;
                 data.typeview = objtypeview;
                 updateNode(data, objtypeview, myDiagram, myMetis.gojsModel);
@@ -537,6 +543,41 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
             toObj[prop] = fromObj[prop];
     }
 }
+export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
+    try {
+    toObjview["isGroup"]      = fromObjview["isGroup"];
+    toObjview["groupLayout"]  = fromObjview["groupLayout"];
+    toObjview["size"]         = fromObjview["size"];
+    toObjview["scale"]        = fromObjview["scale"];
+    toObjview["scale1"]       = fromObjview["scale1"];
+    toObjview["memberscale"]  = fromObjview["memberscale"];
+    toObjview["arrowscale"]   = fromObjview["arrowscale"];
+    toObjview["icon"]         = fromObjview["icon"];
+    toObjview["routing"]      = fromObjview["routing"];
+    toObjview["image"]        = fromObjview["image"];
+    toObjview["linkcurve"]    = fromObjview["linkcurve"];
+    toObjview["fillcolor"]    = fromObjview["fillcolor"];
+    toObjview["fillcolor1"]   = fromObjview["fillcolor1"];
+    toObjview["fillcolor2"]   = fromObjview["fillcolor2"];
+    toObjview["strokecolor"]  = fromObjview["strokecolor"];
+    toObjview["strokecolor1"] = fromObjview["strokecolor1"];
+    toObjview["strokecolor2"] = fromObjview["strokecolor2"];
+    toObjview["strokewidth"]  = fromObjview["strokewidth"];
+    toObjview["textcolor"]    = fromObjview["textcolor"];
+    toObjview["textcolor2"]   = fromObjview["textcolor2"];
+    toObjview["textscale"]    = fromObjview["textscale"];
+    } catch (error) {
+    }
+}
+
+export function getKey(collection, name) {
+    for (let i = 0; i < collection.length; i++) {
+        if (collection[i].name === name) {
+            return collection[i].key;
+        }
+    }
+    return null;
+}
 
 export function deleteObjectType(data: any, context: any) {
 }
@@ -614,7 +655,8 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
         if (node) {
             node.markedAsDeleted = deletedFlag;
             node.group = "";
-            const objview = node.objectview;
+            let objview = node.objectview;
+            if (!objview) objview = myMetis.findObjectView(data.key) as akm.cxObjectView;
             if (!objview) return;
             objview.markedAsDeleted = deletedFlag;
             const object = objview.object;
@@ -764,11 +806,11 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     let myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
     const myModelview: akm.cxModelView = context.myModelview;
 
-    const fromObjview = myMetis.findObjectView(gjsFromNode.key);
+    const fromObjview = context.fromObjView;
     let fromObject = fromObjview.object;
     if (!fromObject)
         fromObject = myMetis.findObject(fromObjview.objectRef);
-    const toObjview = myMetis.findObjectView(gjsToNode.key);
+    const toObjview = context.toObjView;;
     let toObject = toObjview.object;
     if (!toObject)
         toObject = myMetis.findObject(toObjview.objectRef);
@@ -884,6 +926,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 title: "Select Relationship Type",
                 case: "Create Relationship",
                 myDiagram: myDiagram,
+                myGoModel: myGoModel,
                 myMetamodel: metamodel,
                 context: context,
                 data: context.data,
@@ -989,12 +1032,15 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     const myModelview = context.myModelview;
-    const fromObjview = context.fromObjview;
-    const toObjview = context.toObjview;
+    const myGoModel = myMetis.gojsModel;
     let gjsFromKey = context.gjsFromKey;
     let gjsToKey = context.gjsToKey;
     if (!gjsFromKey) gjsFromKey = context.nodeFrom.key;
     if (!gjsToKey)  gjsToKey = context.nodeTo.key;
+    const goFromNode = context.goFromNode;
+    const fromObjview = context.fromObjview;
+    const goToNode = context.goToNode;
+    const toObjview = context.toObjview;
     const reltype = context.reltype;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
@@ -1002,15 +1048,22 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
     rel.addRelationshipView(relview);
+    const goRelshipLink = new gjs.goRelshipLink(relview.id, myGoModel, relview);
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
+    myGoModel.addLink(goRelshipLink);
     myDiagram.startTransaction('CreateLink');
     // create a link data between the actual nodes
     let linkdata = {
-        key:    relview.id,
+        key:    relview?.id,
+        name:   relTypename,
+        category: constants.gojs.C_RELATIONSHIP,
         from:   gjsFromKey, 
         to:     gjsToKey,
-        name:   relTypename,
+        relshipRef: rel?.id,
+        relviewRef: relview?.id,
+        reltypeRef: reltype?.id,
+        reltypeview: reltype?.typeview?.id,
     };
     // set the link attributes
     const rtviewdata = reltype?.typeview?.data;
@@ -1031,6 +1084,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // and add the link data to the model
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
+    uid.updateLinkAndView(linkdata, goRelshipLink, relview, myDiagram);
     myDiagram.commitTransaction('CreateLink');
 
     // Prepare for dispatch
@@ -2043,7 +2097,9 @@ export function onClipboardPasted(selection: any, context: any) {
         if (debug) console.log('805 onClipboardPasted', selected);
         if (selected.category === 'Relationship') {
             let link = selected;
-            createRelationship(link, context);
+            /*
+            createRelationship1(link, context);
+            */
         }
     }
 
@@ -2121,16 +2177,14 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
-            if (debug) console.log('822 myNode, myNode.scale', myNode, myNode.scale1);
-            if (debug) console.log('823 nx, ny, nw, nh, gx, gy, gw, gh', nx, ny, nw, nh, gx, gy, gw, gh);
             if (
                 (nx > gx) // Check upper left corner of node
                 &&
-                (nx <= gx + gw * scale) // Check upper right corner of node
+                (nx + nw * scale <= gx + gw * scale) // Check upper right corner of node
                 &&
                 (ny > gy) // Check lower left corner of node
                 &&
-                (ny <= gy + gh * scale) // Check lower right corner of node
+                (ny + nh * scale <= gy + gh * scale) // Check lower right corner of node
             ) {
                 let grp = {
                     "name": node.name,
@@ -2812,7 +2866,6 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     const jsnMetis = new jsn.jsnExportMetis(metis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2622 jsnMetis', jsnMetis, metis);
     diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
@@ -4059,6 +4112,7 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
             node.scale = node.getMyScale(goModel);
             node.scale1 = node.scale;
             if (debug) console.log('3073 node', node);
+            goModel.addNode(node);
         }
     }
 }

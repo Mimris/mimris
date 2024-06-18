@@ -383,7 +383,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Object type or Object
         if (sel instanceof go.Node) {
           const key: string = gjsData.key;
-          const myGoNode = myGoModel.findNode(key);
+          const goNode = myGoModel.findNode(key);
           let text: string = gjsData.name;
           const category: string = gjsData.category;
           // Object type
@@ -405,49 +405,41 @@ class GoJSApp extends React.Component<{}, AppState> {
               text = prompt('Enter name');
               gjsData.name = text;
             }
-            const goNode: gjs.goObjectNode = this.getNode(myGoModel, key);
-            if (goNode) {
-              goNode.text = textvalue;
-              goNode.name = text;
-              let obj: akm.cxObject = uic.updateObject(goNode, field, text, context);
-              if (obj) {
-                obj.name = text;
-                obj.text = textvalue;
-                goNode.objRef = obj.id;
-                const objviews = obj.objectviews;
-                for (let i = 0; i < objviews.length; i++) {
-                  const objview = objviews[i];
-                  objview.name = text;
-                  objview.text = textvalue;
-                  let node = myGoModel.findNodeByViewId(objview?.id);
-                  if (node) {
-                    const gjsNodeData = sel.data;
-                    gjsNodeData.key = node.key;
-                    gjsNodeData.name = text;
-                    {
-                      let nodes = myDiagram.nodes;
-                      for (let it = nodes.iterator; it?.next();) {
-                        let n = it.value;
-                        console.log('439 node: data, key, name', n.data, n.data.key, n.data.name);
-                      }
-                    }
-                    const jsnObjview = new jsn.jsnObjectView(objview);
-                    jsnObjview.name = text;
-                    jsnObjview.text = text;
-                    modifiedObjectViews.push(jsnObjview);
-                    let data = JSON.parse(JSON.stringify(jsnObjview));
-                    context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                  }
+            const objview = myModelview.findObjectView(key);
+            let obj = objview.object;
+            goNode.objRef = obj.id;
+            goNode.text = textvalue;
+            goNode.name = text;
+            obj = uic.updateObject(goNode, field, text, context);
+            if (obj) {
+              obj.name = text;
+              obj.text = textvalue;
+              const objviews = obj.objectviews;
+              for (let i = 0; i < objviews.length; i++) {
+                const objview = objviews[i];
+                objview.name = text;
+                objview.text = textvalue;
+                let node = myGoModel.findNodeByViewId(objview?.id);
+                if (node) {
+                  const gjsNodeData = myDiagram.findNodeForKey(node.key);
+                  gjsNodeData.name = text;
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  jsnObjview.name = text;
+                  jsnObjview.text = text;
+                  modifiedObjectViews.push(jsnObjview);
+                  let data = JSON.parse(JSON.stringify(jsnObjview));
+                  context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
                 }
               }
-              if (obj) {
-                const jsnObj = new jsn.jsnObject(obj);
-                jsnObj.text = textvalue;
-                modifiedObjects.push(jsnObj);
-                let data = JSON.parse(JSON.stringify(jsnObj));
-                context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-              }
             }
+            if (obj) {
+              const jsnObj = new jsn.jsnObject(obj);
+              jsnObj.text = textvalue;
+              modifiedObjects.push(jsnObj);
+              let data = JSON.parse(JSON.stringify(jsnObj));
+              context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            }
+            
           }
           const goNodes = myGoModel?.nodes;
           for (let i = 0; i < goNodes?.length; i++) {

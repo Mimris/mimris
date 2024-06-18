@@ -1178,8 +1178,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (debug) console.log('753 jsnObjview', jsnObjview);
                   }
                   modifiedObjectViews.push(jsnObjview);
-
-
                 }
               }
               selcnt++;

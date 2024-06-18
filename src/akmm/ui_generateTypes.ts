@@ -1027,6 +1027,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     let data = { metamodel: jsnMetamodel }
     data = JSON.parse(JSON.stringify(data));
     myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data }) 
+    console.log('1030 Target metamodel has been dispatched (UPDATE_TARGETMETAMODEL_PROPERTIES)!', data);
     return true;
 }
 

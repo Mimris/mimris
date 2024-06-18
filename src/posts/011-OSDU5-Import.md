@@ -1,5 +1,5 @@
 ---
-title: 'OSDU 5: Schema Modelling'
+title: 'OSDU 5: Import OSDU Schema'
 date: 'May 31, 2024'
 excerpt: 'Import and define the Schema types to be used. OSDU Entitytypes with Properties and Relationships (Proxies).'
 cover_image: 'images/posts/osdu/image11-1.png'

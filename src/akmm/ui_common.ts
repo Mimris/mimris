@@ -12,7 +12,7 @@ import { core } from './constants';
 import context from '../pages/context';
 const constants = require('./constants');
 const printf = require('printf');
-const grabIsAllowed = false;
+const grabIsAllowed = true;
 
 // functions to handle nodes
 export function createObject(gjsData: any, context: any): akm.cxObjectView | null {

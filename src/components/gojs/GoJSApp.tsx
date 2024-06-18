@@ -544,6 +544,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!(it.key.data.category === 'Object'))
             continue;
           let objectview = myModelview.findObjectView(it.key.data.key);
+          if (!objectview)
+            continue;
           let object = objectview.object;
           object = myModel.findObject(object?.id);
           let scale = objectview.scale1;

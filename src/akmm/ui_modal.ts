@@ -1149,27 +1149,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "connectToSelected": {     
       let nodeFrom: gjs.goObjectNode = modalContext.args.nodeFrom;
       nodeFrom = myGoModel.findNode(nodeFrom.key);
-      const fromTypeRef = nodeFrom.objtypeRef;
-      const fromType = myMetis.findObjectType(fromTypeRef);
-      let fromObj: akm.cxObject = nodeFrom.object;
-      fromObj = myMetis.findObject(fromObj.id);
-      let fromObjview: akm.cxObjectView = nodeFrom.objectview;
-      fromObjview = myMetis.findObjectView(fromObjview.id);
+      const fromKey = nodeFrom.key;
+      const fromObjview = myModelview.findObjectView(fromKey);
+      const fromObj = fromObjview.object;
+      const fromType = fromObj.type;
       const nodesTo: gjs.goObjectNode[]  = modalContext.args.nodesTo;
       const selectedOption = modalContext.selected.value;
       const links = [];
       for (let i=0; i<nodesTo.length; i++) {  // Walk through the nodesTo array
         let nodeTo: gjs.goObjectNode = nodesTo[i];
         if (nodeTo) {
-          nodeTo = myGoModel.findNode(nodeTo.key);
-          let toType: akm.cxObjectType   = nodeTo.objecttype;
-          if (!toType)
-            continue;
-          toType = myMetis.findObjectType(toType.id);
-          let toObj: akm.cxObject = nodeTo.object;
-          toObj = myMetis.findObject(toObj.id);
-          let toObjview: akm.cxObjectView = nodeTo.objectview;
-          toObjview = myMetis.findObjectView(toObjview.id);
+          const toKey = nodeTo.key;
+          nodeTo = myGoModel.findNode(toKey);
+          const toObjview = myModelview.findObjectView(toKey);
+          const toObj = toObjview.object;
+          const toType = toObj.type;
           // Get the selected relship type
           const relTypename = (selectedOption) && selectedOption; // Get the selected relship typename
           let reltype: akm.cxRelationshipType;

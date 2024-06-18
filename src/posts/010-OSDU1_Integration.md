@@ -1,5 +1,5 @@
 ---
-title: 'OSDU Modelling 1: Integration with the OSDU Data Platform'
+title: 'OSDU 1: Integration with the OSDU Data Platform'
 date: 'Oct 19, 2021 sf'
 excerpt: 'The Open Subsurface Data Universe Data platform contains a set of standardized data definitions and Object types that is used to when ingesting data into the platform. The core functionality of this module consists of the ability to import and export OSDU Json files to AKM models.'
 cover_image: 'images/posts/osdu/osdu.png'
@@ -29,7 +29,7 @@ Table of contents:
 
 ## OSDU Extensions of the AKM Core Metamodel
 
-We have made an extension of the AKM-Core Metamodel and made a OSDU specific metamodel called AKM-OSDU-Schemamodelling-Template.
+We have made an extension of the AKM-Core Metamodel and made a OSDU specific metamodel called: "AKM-OSDU-Schemamodelling-Template".
 
 To start OSDU Schema import and modelling, Click on the top-left Hamburger menu and select "NEW PROJECT"
 

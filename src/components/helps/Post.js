@@ -6,7 +6,7 @@ export default function Post({ post }) {
   // console.log('5 Post', post)
   return (
     <>
-      <div className="py-0 mx-auto">{(post.frontmatter.title.startsWith('OSDU ')) ? 'OSDU' : 'AKMM'} </div>
+      <div className="py-0 mx-auto">{(post.frontmatter.title.startsWith('OSDU ')) ? 'OSDU Usecase' : 'AKMM'} </div>
       <div className={`card d-flex justify-content-between ${post.frontmatter.title.startsWith('OSDU ') ? 'green-border' : ''}`} style={{ height: '100%' }}>
         <div>
           <Link className="img" href={`/helpblog/${post.slug}`} target="AKMM Help"><img src={post.frontmatter.cover_image } alt='' />...</Link>

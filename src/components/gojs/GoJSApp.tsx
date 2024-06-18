@@ -319,6 +319,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const n = it.value;
               const data = n.data;
               if (data.key === goNode.key) {
+                data.scale = goNode.scale;
                 if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
               }
             }

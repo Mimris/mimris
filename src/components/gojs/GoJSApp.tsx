@@ -319,6 +319,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const n = it.value;
               const data = n.data;
               if (data.key === goNode.key) {
+                data.scale = goNode.scale;
                 if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
               }
             }
@@ -613,15 +614,17 @@ class GoJSApp extends React.Component<{}, AppState> {
               myObjectview.group = myToNode.group;
 
               const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
-
+              let goToNode = myGoModel.findNode(myToNode.key);
+              goToNode.loc = myToNode.loc.valueOf();
+              goToNode.size = myToNode.size;
               // Move the object
-              let goToNode: gjs.goObjectNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
-              if (goToNode) {
-                goToNode = myGoModel.findNode(goToNode.key);
-                if (!goToNode instanceof gjs.goObjectNode) {
-                  myGoModel = myGoModel.fixGoModel();
-                }
-              }
+              // let goToNode: gjs.goObjectNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
+              // if (goToNode) {
+              //   goToNode = myGoModel.findNode(goToNode.key);
+              //   if (!goToNode instanceof gjs.goObjectNode) {
+              //     myGoModel = myGoModel.fixGoModel();
+              //   }
+              // }
 
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
@@ -648,48 +651,49 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myObjectview.group = "";
               }
               // Update objectview scaling and location
-              for (let i = 0; i < myGoModel.nodes.length; i++) {
-                let tnode;
-                const goNode = myGoModel.nodes[i] as gjs.goObjectNode;
-                for (let j = 0; j < myToNodes.length; j++) {
-                  tnode = myToNodes[j];
-                  if (goNode.key === tnode.key) {
-                    goNode.loc = tnode.loc.valueOf();
-                    if (goNode instanceof go.Node) {
-                      goNode.scale1 = goNode.getMyScale(myGoModel);
-                      break;
+                if (false) {
+                  for (let i = 0; i < myGoModel.nodes.length; i++) {
+                    let tnode;
+                    const goNode = myGoModel.nodes[i] as gjs.goObjectNode;
+                    for (let j = 0; j < myToNodes.length; j++) {
+                      tnode = myToNodes[j];
+                      if (goNode.key === tnode.key) {
+                        goNode.loc = tnode.loc.valueOf();
+                        if (goNode instanceof go.Node) {
+                          goNode.scale1 = goNode.getMyScale(myGoModel);
+                          break;
+                        }
+                      }
+                      const objview = myModelview.findObjectView(goNode.key);
+                      if (objview) {
+                        objview.loc = myToNode.gjsData.loc;
+                        objview.scale1 = goNode.scale1;
+                        objview.size = goNode.size;
+                        if (goNode.group) {
+                          let grp = myGoModel.findNode(goNode.group);
+                          objview.group = grp.objviewRef;
+                        } else {
+                          objview.group = "";
+                        }
+                        myModelview.addObjectView(objview);
+                        myDiagram.model.setDataProperty(goNode, "loc", objview.loc);
+                        myDiagram.model.setDataProperty(goNode, "scale", objview.scale1);
+                        const jsnObjview = new jsn.jsnObjectView(objview);
+                        if (jsnObjview) {
+                          uic.addItemToList(modifiedObjectViews, jsnObjview);
+                          if (debug) console.log('753 jsnObjview', jsnObjview);
+                        }
+                        modifiedObjectViews.push(jsnObjview);
+                      }
                     }
-                  }
-                  const objview = tnode.objectview;
-                  if (objview) {
-                    objview.loc = myToNode.gjsData.loc;
-                    objview.scale1 = goNode.scale1;
-                    objview.size = goNode.size;
-                    if (goNode.group) {
-                      let grp = myGoModel.findNode(goNode.group);
-                      objview.group = grp.objviewRef;
-                    } else {
-                      objview.group = "";
-                    }
-                    myModelview.addObjectView(objview);
-                    myDiagram.model.setDataProperty(goNode, "loc", objview.loc);
-                    myDiagram.model.setDataProperty(goNode, "scale", objview.scale1);
-                    const jsnObjview = new jsn.jsnObjectView(objview);
-                    if (jsnObjview) {
-                      uic.addItemToList(modifiedObjectViews, jsnObjview);
-                      if (debug) console.log('753 jsnObjview', jsnObjview);
-                    }
-                    modifiedObjectViews.push(jsnObjview);
                   }
                 }
-              }
               // Prepare dispatch
               const jsnObjview = new jsn.jsnObjectView(myObjectview);
               if (jsnObjview) {
                 uic.addItemToList(modifiedObjectViews, jsnObjview);
                 if (debug) console.log('605 jsnObjview', jsnObjview);
               }
-              modifiedObjectViews.push(jsnObjview);
             }
           }
         }
@@ -1178,8 +1182,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (debug) console.log('753 jsnObjview', jsnObjview);
                   }
                   modifiedObjectViews.push(jsnObjview);
-
-
                 }
               }
               selcnt++;

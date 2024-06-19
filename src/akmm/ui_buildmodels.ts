@@ -397,8 +397,6 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           includeRelview = true;
         }
       }
-      if (relview.visible === false)
-        includeRelview = false;
       if (includeNoType) {
         if (!relview.relship?.type) {
           relcolor = "green";
@@ -412,6 +410,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         if (relview.strokecolor === "")
           relcolor = relview?.typeview?.strokecolor;
       if (!relcolor) relcolor = 'black';
+      if (relview.visible == false)
+        includeRelview = false;
       if (includeRelview) {
         if (relview.strokewidth === "NaN") relview.strokewidth = "1";
         relview.setFromArrow2(rel?.relshipkind);
@@ -441,7 +441,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   }
   modelview.relshipviews = relshipviews;
   // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
-  uic.repairGoModel(myGoModel, modelview);
+  // uic.repairGoModel(myGoModel, modelview);
   console.log('445 myGoModel', myGoModel);
   return myGoModel;
 }

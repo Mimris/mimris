@@ -1408,14 +1408,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               const key = data.key;
               const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
               if (myNode) {
-                uic.deleteNode(myNode, deletedFlag, context);
                 const objview = myModelview.findObjectView(myNode.key);
                 const object = objview?.object;
+                uic.deleteNode(myNode, deletedFlag, context);
                 if (object) {
                   object.markedAsDeleted = !myMetis.deleteViewsOnly;
                   const jsnObject = new jsn.jsnObject(object);
                   modifiedObjects.push(jsnObject);
-                  objview.markedAsDeleted = myMetis.deleteViewsOnly;
+                  // objview.markedAsDeleted = myMetis.deleteViewsOnly;
                   const jsnObjview = new jsn.jsnObjectView(objview);
                   modifiedObjectViews.push(jsnObjview);
                 }
@@ -1700,15 +1700,20 @@ class GoJSApp extends React.Component<{}, AppState> {
             let gjsNode = it1.value.data;  
             let gjsTargetNode = gjsNode;
             // The target node uses the key given by GoJS when pasted
-            let sourceNodeKey;
-            let targetNodeKey = gjsTargetNode.key; 
+            let sourceNodeKey, sourceGroupKey, targetNodeKey, targetGroupKey;
+            targetNodeKey = gjsTargetNode.key; 
+            targetGroupKey = gjsTargetNode.group;
             const length = targetNodeKey.length;
             if (length>36) {
               sourceNodeKey = targetNodeKey.substring(0, length-1);
+              sourceGroupKey = targetGroupKey?.substring(0, length-1);
             } else { // When pasting to another modelview
               sourceNodeKey = targetNodeKey;
-              targetNodeKey = utils.createGuid();
+              sourceGroupKey = targetGroupKey; // utils.createGuid();
             }
+            // const gjsParentNodeKey = sourceNodeKey;
+            // const targetParentNodeKey = targetGroupKey;
+            // let gjsParentGroup = myDiagram.findNodeForKey(gjsParentNodeKey);
             const gjsSourceNode = myDiagram.findNodeForKey(sourceNodeKey);
             const sourceObjectView = myMetis.findObjectView(sourceNodeKey);
             const sourceObject = sourceObjectView?.object;
@@ -1752,17 +1757,27 @@ class GoJSApp extends React.Component<{}, AppState> {
             targetObjview.size = gjsNode.size;
             targetObjview.scale = gjsNode.scale;
             targetObjview.scale1 = gjsNode.scale1;
-            targetObjview.group = gjsNode.group;
+            targetObjview.memberscale = gjsNode.memberscale;
+            targetObjview.group = gjsNode.group; 
             targetObjview.isGroup = gjsNode.isGroup;
             targetObjview.template = gjsNode.template;
             goTargetNode.loc = gjsNode.loc;
             goTargetNode.size = gjsNode.size;
             goTargetNode.scale = gjsNode.scale;
             goTargetNode.scale1 = gjsNode.scale1;
+            goTargetNode.memberscale = gjsNode.memberscale;
             goTargetNode.group = gjsNode.group;
             goTargetNode.isGroup = gjsNode.isGroup;
             goTargetNode.template = gjsNode.template;
             myGoModel.addNode(goTargetNode);
+
+            if (goTargetNode.group) {
+              let goParentGroup = uic.getGroupByLocation(myGoModel, goTargetNode.loc, goTargetNode.size, goTargetNode);
+              if (goParentGroup) {
+                goTargetNode.group = goParentGroup.key;
+                targetObjview.group = goParentGroup.objviewRef;
+              }
+            }
             
             if (gjsNode.isGroup) {
               gjsSourceGroupNodes.push(gjsNode.fromNode);

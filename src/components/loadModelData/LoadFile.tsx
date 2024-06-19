@@ -38,7 +38,14 @@ const LoadFile = (props: any) => {
   if (debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
-    phData: props.ph.phData,
+    phData: {
+      ...props.ph.phData,
+      metis: {
+        ...props.ph.phData.metis,
+        models: props.ph.phData.metis.models.filter(m => m),
+        metamodels: props.ph.phData.metis.metamodels.filter(mm => mm),
+      },
+    },
     phFocus: props.ph.phFocus,
     phUser: props.ph.phUser,
     phSource: props.phSource,

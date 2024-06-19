@@ -951,7 +951,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 const objectview = objectviews[i];
                 const object = objectview.object;
                 if (!object) continue
-                if (object.type.name === constants.types.AKM_METAMODEL) {
+                if (!object.type) continue
+                if (object.type?.name === constants.types.AKM_METAMODEL) {
                     // Follow 'contains' relationships
                     let relviews = objectview.getOutputRelviews();
                     for (let j = 0; j < relviews?.length; j++) {

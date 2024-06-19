@@ -622,6 +622,7 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
 export function deleteNode(data: any, deletedFlag: boolean, context: any) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
+    const myModelview = context.myModelview;
     const myDiagram = context.myDiagram;
     const selection = myDiagram.selection;
     if (data.category === constants.gojs.C_OBJECTTYPE) {

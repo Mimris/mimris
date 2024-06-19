@@ -24,7 +24,10 @@ export default function Home( { posts }: { posts: any[] }) {
             {/* <Header /> */}
             <div className='posts'>
               {posts.map((post, index) => (
-                (post) && <Post key={index} post={post} />
+                (post) && 
+                <div key={index} className='card'>
+                  <Post key={index} post={post} />
+                </div>
               ))}
             </div>
           </main>

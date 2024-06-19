@@ -132,7 +132,7 @@ const LoadGitHub = (props: any) => {
     try { 
       if (debug) console.log('133 LoadGitHub', rep, repoText, pathText, filename);
       if (debug) console.log('128', pathText, filename, branchText, 'file');
-      let url = `https://api.github.com/${rep}/contents/${pathText}/${filename}`;
+      let url = `https://raw.githubusercontent.com/${rep}/${branchText}/${pathText}/${filename}`;
       if (pathText ===  '/') {
         url = `https://raw.githubusercontent.com/${rep}/${branchText}/${filename}`; // this is the project file
       } 

@@ -613,6 +613,7 @@ export class cxMetis {
                                                 const item = views[i];
                                                 if (includeDeleted || !item.markedAsDeleted) {
                                                     const objview = new cxObjectView(item.id, item.name, null, item.description);
+                                                    objview.markedAsDeleted = item.markedAsDeleted;
                                                     if (!objview) continue;
                                                     mv.addObjectView(objview);
                                                     this.addObjectView(objview);

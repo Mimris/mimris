@@ -1750,11 +1750,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             targetObjectType = targetObjectType;
             targetObjview.loc = gjsNode.loc;
             targetObjview.size = gjsNode.size;
+            targetObjview.scale = gjsNode.scale;
+            targetObjview.scale1 = gjsNode.scale1;
             targetObjview.group = gjsNode.group;
             targetObjview.isGroup = gjsNode.isGroup;
             targetObjview.template = gjsNode.template;
             goTargetNode.loc = gjsNode.loc;
             goTargetNode.size = gjsNode.size;
+            goTargetNode.scale = gjsNode.scale;
+            goTargetNode.scale1 = gjsNode.scale1;
             goTargetNode.group = gjsNode.group;
             goTargetNode.isGroup = gjsNode.isGroup;
             goTargetNode.template = gjsNode.template;
@@ -1877,6 +1881,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           objview.isGroup = goNode.isGroup;
           objview.loc = goNode.loc;
           objview.size = goNode.size;
+          objview.scale = goNode.scale;
+          objview.scale1 = goNode.scale1;
           myModelview.addObjectView(objview);
         }
 

@@ -30,18 +30,18 @@ const arrowheads = ['None',
   'LineFork', 'BackwardLineFork',
   'Circle', 'Block'];
 
-  const colornames = [
-    'lightsalmon', '#87CEFE', 'turquoise','#FFD701',
-    'black', 'white',
-    'red', 'darkred', 'pink',
-    'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
-    'blue', 'lightblue', 'darkblue', 'skyblue',
-    'grey', 'lightgrey', 'darkgrey',
-    'yellow', 'lightyellow', 'yellowgreen', 'orange',
-    'brown', 'purple',
-    'violet', 
-    'transparent'
-  ];
+const colornames = [
+  'lightsalmon', '#87CEFE', 'turquoise', '#FFD701',
+  'black', 'white',
+  'red', 'darkred', 'pink',
+  'green', 'palegreen', 'lightgreen', 'darkgreen', 'seagreen',
+  'blue', 'lightblue', 'darkblue', 'skyblue',
+  'grey', 'lightgrey', 'darkgrey',
+  'yellow', 'lightyellow', 'yellowgreen', 'orange',
+  'brown', 'purple',
+  'violet',
+  'transparent'
+];
 const strokewidths = ['1', '2', '3', '4', '5'];
 
 const routings = ['Normal', 'Orthogonal', 'AvoidsNodes', 'OrthogonalAvoidsNodes'];
@@ -76,7 +76,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let myRelationshipView: akm.cxRelationshipView = modalContext.relshipview;
     let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
     let myRelationshipTypeView: akm.cxRelationshipTypeView = modalContext.relshiptypeview;
-    
+
     const allowsMetamodeling = myModel?.includeSystemtypes;
 
     myMetis.submodels = [];
@@ -96,12 +96,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
       myRelationshipTypeView = myRelationshipType?.typeview;
     }
-    // let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let inst: akm.cxObject | akm.cxRelationship;
-    let inst1: akm.cxObject | akm.cxRelationship;
-    let instview: akm.cxObjectView | akm.cxRelationshipView;
-    let instview1: akm.cxObjectView | akm.cxRelationshipView;
-    let type: akm.cxObjectType | akm.cxRelationshipType;
     let type1: akm.cxObjectType | akm.cxRelationshipType;
     let typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView;
     let objtypeview: akm.cxObjectTypeView;
@@ -118,13 +112,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         instview1 = myObjectView;
         if (!myObject) myObject = myObjectView?.object;
         inst1 = myObject;
-        if (instview1) 
+        if (instview1)
           instview = instview1;
-        if (inst1) 
+        if (inst1)
           inst = inst1;
         type = myObjectType;
         objtypeview = myObjectTypeView;
         typeview = objtypeview;
+        console.log('96', type, type1, objtypeview, typeview);
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = myObjectType;

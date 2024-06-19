@@ -96,6 +96,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
       myRelationshipTypeView = myRelationshipType?.typeview;
     }
+    let inst: akm.cxObject | akm.cxRelationship;
+    let instview: akm.cxObjectView | akm.cxRelationshipView;
+    let inst1: akm.cxObject | akm.cxRelationship;
+    let instview1: akm.cxObjectView | akm.cxRelationshipView;
+    let type: akm.cxObjectType | akm.cxRelationshipType;
     let type1: akm.cxObjectType | akm.cxRelationshipType;
     let typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView;
     let objtypeview: akm.cxObjectTypeView;

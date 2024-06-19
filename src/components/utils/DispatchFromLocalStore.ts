@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 // import { loadState } from './LocalStorage'
 
 
-const DispatchFromLocalStore = (props) => {
+const DispatchFromLocalStore = (props: any) => {
   const dispatch = useDispatch()
   const locState = props
   // console.log('9 modelling', locState.phSource);

@@ -193,30 +193,30 @@ function reducer(state = InitialState, action) {
 
 
 
-        // ToDo:
-      // add new object + date and issue name and github link
-      // const getContext = (curObjectIndex) => {
-      //   return {
-        //   (curObjectIndex < 0) 
-        //     ? {
-        //         ...curModel?.objects[curObjectIndex].context,
-        //         created: {
-          //         user: state.phUser?.focusUser?.id,
-          //         date: new Date().toISOString(),
-          //         issue: state.phFocus?.focusIssue?.id,
-          //         github: state.phFocus?.focusIssue?.github,
-        //         },
-        //         modified: {
-        //           user: state.phUser?.focusUser?.id,
-        //           date: new Date().toISOString(),
-        //           issue: state.phFocus?.focusIssue?.id,
-        //           github: state.phFocus?.focusIssue?.github,
-        //         },
-        //       }
-        //     : curModel?.objects[curObjectIndex]?.context
-        //     }
-        //   }
-      //  }
+  // ToDo:
+  // add new object + date and issue name and github link
+  // const getContext = (curObjectIndex) => {
+  //   return {
+  //   (curObjectIndex < 0) 
+  //     ? {
+  //         ...curModel?.objects[curObjectIndex].context,
+  //         created: {
+  //         user: state.phUser?.focusUser?.id,
+  //         date: new Date().toISOString(),
+  //         issue: state.phFocus?.focusIssue?.id,
+  //         github: state.phFocus?.focusIssue?.github,
+  //         },
+  //         modified: {
+  //           user: state.phUser?.focusUser?.id,
+  //           date: new Date().toISOString(),
+  //           issue: state.phFocus?.focusIssue?.id,
+  //           github: state.phFocus?.focusIssue?.github,
+  //         },
+  //       }
+  //     : curModel?.objects[curObjectIndex]?.context
+  //     }
+  //   }
+  //  }
 
   if (debug) console.log('188 reducer action', action)
   switch (action.type) {
@@ -267,7 +267,11 @@ function reducer(state = InitialState, action) {
             ...state.phData.metis,
             models: [
               ...state.phData.metis.models.slice(0, loadmodindex),
-              action.data.model,
+                ...action.data.model,
+              // {
+              //   ...action.data.model,
+              //   modified: new Date().toISOString(),  // add modified date 
+              // },
               ...state.phData.metis.models.slice(loadmodindex + 1, state.phData.metis.models.length),
             ]
           },
@@ -302,7 +306,7 @@ function reducer(state = InitialState, action) {
         phUser: action.data
       }
     case LOAD_TOSTORE_PHSOURCE:
-      if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action);
+      if (debug) console.log('309 LOAD_TOSTORE_PHSOURCE', action);
       return {
         ...state,
         phSource: action.data
@@ -796,7 +800,7 @@ function reducer(state = InitialState, action) {
       if (curObjectIndex < 0) { curObjectIndex = curObjectLength }  // if object not found, i.e. -1, then add a new object
 
       // const context = getContext(curObjectIndex)
-      
+
       const retval_UPDATE_OBJECT_PROPERTIES = {
         ...state,
         phData: {
@@ -1504,41 +1508,41 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_DATATYPE_PROPERTIES;
 
     case UPDATE_METHODTYPE_PROPERTIES:
-        let curmomttot3 = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-        let curmmmtot = state.phData?.metis?.metamodels?.find(m => m.id === curmomttot3.targetMetamodelRef)
-        let curmmmtindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmomttot3.targetMetamodelRef)
-        let curmtot = curmmmtot?.methodtypes?.find(ot => ot.id === action?.data?.id)
-        const lengthotmt = curmmmtot?.methodtypes?.length
-        let indexdotmt = curmmmtot?.methodtypes?.findIndex(ot => ot.id === curmtot?.id)
-        if (indexdotmt < 0) { indexdotmt = lengthotmt }
-        if (debug) console.log('1630 reducer', lengthotmt, curmtddot, indexdotmt);
-        let retval_UPDATE_METHODTYPE_PROPERTIES = {
-          ...state,
-          phData: {
-            ...state.phData,
-            metis: {
-              ...state.phData.metis,
-              metamodels: [
-                ...state.phData.metis.metamodels.slice(0, curmmmtindexot),
-                {
-                  ...state.phData.metis.metamodels[curmmmtindexot],
-                  methods: [
-                    ...curmmmtot?.methodtypes.slice(0, indexdotmt),
-                    {
-                      ...curmmmtot?.methodtypes[indexdotmt],
-                      ...action.data,
-                    },
-                    ...curmmmtot?.methods.slice(indexdotmt + 1, curmmmtot?.methods.length)
-                  ]
-                },
-                ...state.phData.metis.metamodels.slice(curmmmtindexot + 1, state.phData.metis.metamodels.length),
-              ]
-            },
+      let curmomttot3 = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      let curmmmtot = state.phData?.metis?.metamodels?.find(m => m.id === curmomttot3.targetMetamodelRef)
+      let curmmmtindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmomttot3.targetMetamodelRef)
+      let curmtot = curmmmtot?.methodtypes?.find(ot => ot.id === action?.data?.id)
+      const lengthotmt = curmmmtot?.methodtypes?.length
+      let indexdotmt = curmmmtot?.methodtypes?.findIndex(ot => ot.id === curmtot?.id)
+      if (indexdotmt < 0) { indexdotmt = lengthotmt }
+      if (debug) console.log('1630 reducer', lengthotmt, curmtddot, indexdotmt);
+      let retval_UPDATE_METHODTYPE_PROPERTIES = {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            metamodels: [
+              ...state.phData.metis.metamodels.slice(0, curmmmtindexot),
+              {
+                ...state.phData.metis.metamodels[curmmmtindexot],
+                methods: [
+                  ...curmmmtot?.methodtypes.slice(0, indexdotmt),
+                  {
+                    ...curmmmtot?.methodtypes[indexdotmt],
+                    ...action.data,
+                  },
+                  ...curmmmtot?.methods.slice(indexdotmt + 1, curmmmtot?.methods.length)
+                ]
+              },
+              ...state.phData.metis.metamodels.slice(curmmmtindexot + 1, state.phData.metis.metamodels.length),
+            ]
           },
-        }
-        if (debug) console.log('1660 retval', retval_UPDATE_METHODTYPE_PROPERTIES);
-        return retval_UPDATE_METHODTYPE_PROPERTIES;
-  
+        },
+      }
+      if (debug) console.log('1660 retval', retval_UPDATE_METHODTYPE_PROPERTIES);
+      return retval_UPDATE_METHODTYPE_PROPERTIES;
+
     case UPDATE_PROPERTY_PROPERTIES:
       // if (debug) console.log('501 UPDATE_PROPERTY_PROPERTIES', action);
       let curmopot = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
@@ -1573,7 +1577,7 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-      
+
     case UPDATE_METHOD_PROPERTIES:
       let curmoddtot = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       let metamodelRef = curmoddtot.metamodelRef;

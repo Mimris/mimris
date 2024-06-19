@@ -18,6 +18,9 @@ import useSessionStorage from "../hooks/use-session-storage";
 import SelectContext from '../components/utils/SelectContext';
 import { i } from "../components/utils/SvgLetters";
 import Project from "../components/Project";
+import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
+import Issues from "../components/Issues";
+import Tasks from '../components/Tasks';
 
 const debug = false
 
@@ -30,6 +33,10 @@ const page = (props: any) => {
   
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
   const [mount, setMount] = useState(false)
+  
+  const [showModal, setShowModal] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [minimized, setMinimized] = useState(false);
 
   function dispatchLocalStore(locStore) { 
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -73,11 +80,9 @@ const page = (props: any) => {
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */}
   const contextDiv = ( // the top context area (green)
-    <div className="context-bar d-flex justify-content-between" style={{ backgroundColor: "#cdd"}}>
-      <div className="context-bar--context bg-transparent d-flex justify-content-between align-items-center me-auto border border-light" style={{ backgroundColor: "#dcc" }}>
+    <div className="context-bar d-flex justify-content-between" style={{ backgroundColor: "#ffffed"}}>
         {/* <SelectContext className='ContextModal' buttonLabel={<i className="fas fa-edit fa-lg text-primary" style={{ backgroundColor: "#dcc" }}></i>} phData={props.phData} phFocus={props.phFocus} /> */}
-        <ContextView className='setContext' ph={props} style={{ backgroundColor: "#cdd"}} />
-      </div>
+        <ContextView ph={props} showModal={showModal} setShowModal={setShowModal} />
     </div>
   )
 
@@ -96,21 +101,37 @@ const page = (props: any) => {
               <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
-              {contextDiv}
-            <div className="workplace row d-flex justify-content-between" style={{backgroundColor: "#10859a"}}>
-              <div className="col-3 my-3">
-                <Project props={props} />
-              </div>
-              <div className="col-4 m-3 mx-0 p-0 border rounded">
-                <div className="text-center bg-light">
-                  GitHub:  README.md
-                {iframe}
-               </div>
+            <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
+            <div className="context-bar d-flex justify-content-between align-items-center" 
+              style={{  backgroundColor: "#ffffed" }}>
+              {expanded && 
+                <>
+                  <div className="issuesarea">
+                    <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/>
+                  </div>
+                  <div className="contextarea">
+                    {contextDiv}
+                  </div>
+                  <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                    <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                  </div>
+                </>
+              }
+            </div>
+              <div className="workplace row d-flex justify-content-between ms-2" style={{backgroundColor: "#10859a"}}>
+                <div className="tasksarea bg-transparent col-4 m-1">
+                  <Project props={props}/>
+                </div>
+                <div className="col-4 m-2 mx-0 ms-2 p-0 border rounded">
+                  <div className="text-center bg-light">
+                    GitHub:  README.md
+                  {iframe}
+                </div>
               </div>
               {/* <div className="tasksarea">
                 <TasksHelp />
               </div> */}
-              <div className="workarea col-5">
+              <div className="workarea col-4 ">
                   {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>
             </div>

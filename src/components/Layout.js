@@ -1,5 +1,7 @@
 // 'use client';
 
+const debug = false;
+
 import Head from 'next/head';
 import TopMenu from './Navbar';
 
@@ -7,24 +9,24 @@ import TopMenu from './Navbar';
 // import Toggle from '../utils/Toggle';
 
 const Layout = (props) => {
-  const projName = props && props.children 
-    && props.children.props && props.children.props.children 
-    && props.children.props.children.props && props.children.props.children.props.children 
-    && props.children.props.children.props.children[0] && props.children.props.children.props.children[0].props 
-    && props.children.props.children.props.children[0].props.ph && props.children.props.children.props.children[0].props.ph.phSource 
-    && props.children.props.children.props.children[0].props.ph.phSource.projName;
-  // console.log("11 projName", projName);
-  // const projName = props.phSource.;
+  if (debug) console.log("11 Layout props", props);
+  const projName = "AKMM APP" //props?.children?.props?.children?.props?.children[0]?.props?.props?.phData?.metis?.name || "AKMM APP";
+  // const projSource = "AKMM Source file not found"//props.children.props.children.props.children[0].props.props.phSource || "AKMM Source file not found";
+  // get projSource from props.children
+  const projSource = props?.children?.props?.children?.props?.children[0]?.props?.props?.phSource || "AKMM Source file not found";
+  // console.log("17 projName", projSource);
+  // const projName = props.phSource;
   // const [darkMode, setDarkMode] = useDarkMode();
   return (
     <div style={{ backgroundColor: "#fff" }} >
       <Head>
       <title>
-         {(projName) ? projName : "AKMM"}
+        {projName}
+         {/* {(projName) ? projName : "AKMM"} */}
       </title>
         <link rel="icon" href="" />
       </Head>
-      <TopMenu user={props.user}/>
+      <TopMenu projName={projSource} user={props.user}/>
           {/* <div className="navbar">
             <Toggle darkMode={darkMode} setDarkMode={setDarkMode} />
           </div> */}

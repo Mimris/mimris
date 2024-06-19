@@ -465,10 +465,10 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         return retval;
     const pi = 3.14159265
     let mtd = prop.method;
+    if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let dtype = prop.datatype;
     if (!dtype)
         dtype = myMetis.findDatatype(prop.datatypeRef);
-    if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let expression = mtd?.expression;
     if (expression) { 
         const type = object.type;
@@ -686,7 +686,7 @@ export function addConnectedObject(object: akm.cxObject, context: any) {
                 fromObjview = myModelview.findObjectViewByName(fromObj.name);
                 if (!fromObjview) {
                     fromObjview = new akm.cxObjectView(utils.createGuid(),fromObj.name, fromObj, "", myModelview);
-                    const fromNode = new gjs.goObjectNode(utils.createGuid(), fromObjview);
+                    const fromNode = new gjs.goObjectNode(fromObjview.id, myGoModel, fromObjview);
                     myGoModel.addNode(fromNode);
                     myModelview.addObjectView(fromObjview);
                     const fromObjtype = fromObj.type as akm.cxObjectType;
@@ -700,7 +700,7 @@ export function addConnectedObject(object: akm.cxObject, context: any) {
                 toObjview = myModelview.findObjectViewByName(toObj.name);
                 if (!toObjview) {
                     toObjview = new akm.cxObjectView(utils.createGuid(),toObj.name, toObj, "", myModelview);
-                    const toNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
+                    const toNode = new gjs.goObjectNode(toObjview.id, myGoModel, toObjview);
                     myGoModel.addNode(toNode);
                     myModelview.addObjectView(toObjview);
                     const toObjtype = toObj.type as akm.cxObjectType;

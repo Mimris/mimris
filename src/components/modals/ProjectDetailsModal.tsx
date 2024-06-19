@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 
-function ProjectDetailsModal(props) {
+function ProjectDetailsModal(props: any) {
 
   // console.log("6 ProjectDetailsModal", props.props.phFocus);
   const [showModal, setShowModal] = useState(false);
@@ -16,7 +16,7 @@ function ProjectDetailsModal(props) {
     setShowModal(false);
   };
 
-  const handleSubmit = (details) => {
+  const handleSubmit = (details: any) => {
     props.onSubmit(details);
     handleCloseModal();
   };

@@ -886,8 +886,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const myModel = myMetis.currentModel;
                 myMetis.deleteViewsOnly = false;
                 myMetis.currentNode = obj.part.data;
+                myDiagram.commandHandler.deleteSelection();
               }
-              myDiagram.commandHandler.deleteSelection();
             },
             function (o: any) {
               const node = o.part.data;

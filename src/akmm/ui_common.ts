@@ -817,34 +817,23 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         toObject = myMetis.findObject(toObjview.objectRef);
     const fromPort = "";
     const toPort = "";
-    let reltype;
-    let fromType = fromObject?.type;
-    if (!fromType || !(fromType instanceof akm.cxObjectType)) {
+    let reltype, fromType, toType;
+    let fromTypeRef = fromObject?.typeRef;
+    if (fromTypeRef) {
         fromType = myMetamodel.findObjectType(fromObject?.typeRef);
-        if (!fromType) 
-            fromType = myMetis.findObjectType(fromObject?.typeRef);
     }
-    let toType = toObject?.type;
-    if (!toType || !(toType instanceof akm.cxObjectType)) {
+    let toTypeRef = toObject?.typeRef;
+    if (toTypeRef) {
         toType = myMetamodel.findObjectType(toObject?.typeRef);
-        if (!toType) 
-            toType = myMetis.findObjectType(toObject?.typeRef);
-    }
-    if (fromType) {
-        fromType.allObjecttypes = myMetamodel.objecttypes;
-        fromType.allRelationshiptypes = myMetamodel.relshiptypes;
-    }
-    if (toType) {
-        toType.allObjecttypes = myMetamodel.objecttypes;
-        toType.allRelationshiptypes = myMetamodel.relshiptypes;
     }
     let metamodel = myMetamodel;
     let metamodel2 = myMetamodel;
-    const submetamodels = myMetamodel.submetamodels;
+    const submetamodelRefs = myMetamodel.submetamodelRefs;
     if (!fromType) {
-        for (let i = 0; i < submetamodels?.length; i++) {
-            let mmodel = submetamodels[i];
-            fromType = mmodel.findObjectType(fromNode?.object?.typeRef);
+        for (let i = 0; i < submetamodelRefs?.length; i++) {
+            let mmodelRef = submetamodelRefs[i];
+            let mmodel = myMetis.findMetamodel(mmodelRef);
+            fromType = mmodel.findObjectType(fromObject?.typeRef);
             if (fromType) {
                 metamodel = mmodel;
                 break;
@@ -852,9 +841,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         }
     }
     if (!toType) {
-        for (let i = 0; i < submetamodels?.length; i++) {
-            let mmodel = submetamodels[i];
-            toType = mmodel.findObjectType(toNode?.object?.typeRef);
+        for (let i = 0; i < submetamodelRefs?.length; i++) {
+            let mmodelRef = submetamodelRefs[i];
+            let mmodel = myMetis.findMetamodel(mmodelRef);
+            toType = mmodel.findObjectType(toObject?.typeRef);
             if (toType) {
                 metamodel2 = mmodel;
                 break;
@@ -896,6 +886,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 }
             }
         }
+        if (reltypes.length == 0) {
+            const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+            reltypes.push(rtype);
+        }
         if (reltypes) {
             const choices1: string[] = [];
             if (defText.length > 0) choices1.push(defText);
@@ -910,18 +904,6 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             choices2.sort();
             let choices = choices1.concat(choices2);
             choices = utils.removeArrayDuplicates(choices);
-            // Calling routine to select reltype from list
-            // const args = {
-            //     data: context.data,
-            //     typename: defText,
-            //     fromType: fromType,
-            //     toType: toType,
-            //     gjsFromNode: gjsFromNode,
-            //     gjsToNode: gjsToNode,
-            //     fromPort: fromPort,
-            //     toPort: toPort,
-            //     diagramModel: myDiagram.diagramModel,
-            // }
             const modalContext = {
                 what: "selectDropdown",
                 title: "Select Relationship Type",

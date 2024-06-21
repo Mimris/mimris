@@ -2033,12 +2033,20 @@ class GoJSApp extends React.Component<{}, AppState> {
         let goToNode = myGoModel.findNode(gjsLinkData.to);
         const relshipRef = goLink.relshipRef;
         const relship = myModel.findRelationship(relshipRef);
-        relship.fromObject = goFromNode.object;
-        relship.toObject = goToNode.object;
+        let fromObject = goFromNode.object;
+        if (!fromObject) fromObject = myModel.findObject(goFromNode.objRef);
+        relship.fromObject = fromObject;
+        let toObject = goToNode.object;
+        if (!toObject) toObject = myModel.findObject(goToNode.objRef);
+        relship.toObject = toObject;
         const relviewRef = goLink.relviewRef;
         const relview = myModelview.findRelationshipView(relviewRef);
-        relview.fromObjview = goFromNode.objectview;
-        relview.toObjview = goToNode.objectview;
+        let fromObjview = goFromNode.fromObjview;
+        if (!fromObjview) fromObjview = myModelview.findObjectView(goFromNode.objviewRef);
+        relview.fromObjview = fromObjview;
+        let toObjview = goToNode.toObjview;
+        if (!toObjview) toObjview = myModelview.findObjectView(goToNode.objviewRef);
+        relview.toObjview = toObjview;
         // Prepare for dispatch
         const jsnRelship = new jsn.jsnRelationship(relship);
         modifiedRelships.push(jsnRelship);

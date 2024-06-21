@@ -118,7 +118,7 @@ const LoadFile = (props: any) => {
     // replace the _MM in 
     const filename = data.phData.metis.name//.replace('AKM-', '')
 
-    if(debug) console.log('199 Loadfile', newmm, filename)
+    if (debug) console.log('199 Loadfile', newmm, filename)
     SaveAllToFile(data, filename, '_PR')
     const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
     SaveMetamodelToFile(newmm, metamodelname, '_MM')
@@ -226,7 +226,7 @@ const LoadFile = (props: any) => {
                 <h5>Model</h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current) </h6>
-                  <input className="select-input " type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input " title="Choose a file" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} placeholder="Choose a file" />
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export Models to file </h6>
@@ -248,7 +248,7 @@ const LoadFile = (props: any) => {
                 <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current)</h6>
-                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input" title="Select a file" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export Metamodel to file </h6>

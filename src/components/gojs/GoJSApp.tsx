@@ -1710,10 +1710,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else { // When pasting to another modelview
               sourceNodeKey = targetNodeKey;
               sourceGroupKey = targetGroupKey; // utils.createGuid();
+              targetNodeKey = utils.createGuid();
+              targetGroupKey = utils.createGuid();
             }
-            // const gjsParentNodeKey = sourceNodeKey;
-            // const targetParentNodeKey = targetGroupKey;
-            // let gjsParentGroup = myDiagram.findNodeForKey(gjsParentNodeKey);
             const gjsSourceNode = myDiagram.findNodeForKey(sourceNodeKey);
             const sourceObjectView = myMetis.findObjectView(sourceNodeKey);
             const sourceObject = sourceObjectView?.object;
@@ -1731,27 +1730,18 @@ class GoJSApp extends React.Component<{}, AppState> {
             let targetObjectType: akm.cxObjectType; 
             let targetObjview: akm.cxObjectView;
             let goTargetNode: gjs.goObjectNode;
-
-            if (length == 36) {
-              // Paste to another modelview ( diagram)
-              myDiagram.model.removeNodeData(gjsNode);
-              gjsNode.key = utils.createGuid();
-              myDiagram.model.addNodeData(gjsNode);
-            }
             targetObjectType = objtype;
             // Now handle target nodes
             gjsTargetNodes.push(gjsTargetNode);
-            goTargetNode = myGoModel.findNode(gjsNode.key);
-            if (!goTargetNode) {
-              if (myMetis.pasteViewsOnly) {
-                targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, sourceObject, gjsNode.description, myModelview);
-              } else {
-                targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
-                targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, targetObject, gjsNode.description, myModelview);
-              }
-              targetObjview.isGroup = gjsNode.isGroup;
-              goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
+            targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, targetObject, gjsNode.description, myModelview);
+            goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
+            if (myMetis.pasteViewsOnly) {
+              targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, sourceObject, gjsNode.description, myModelview);
+            } else {
+              targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
             }
+            targetObjview.isGroup = gjsNode.isGroup;
+            goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
             targetObjectType = targetObjectType;
             targetObjview.loc = gjsNode.loc;
             targetObjview.size = gjsNode.size;
@@ -2043,12 +2033,20 @@ class GoJSApp extends React.Component<{}, AppState> {
         let goToNode = myGoModel.findNode(gjsLinkData.to);
         const relshipRef = goLink.relshipRef;
         const relship = myModel.findRelationship(relshipRef);
-        relship.fromObject = goFromNode.object;
-        relship.toObject = goToNode.object;
+        let fromObject = goFromNode.object;
+        if (!fromObject) fromObject = myModel.findObject(goFromNode.objRef);
+        relship.fromObject = fromObject;
+        let toObject = goToNode.object;
+        if (!toObject) toObject = myModel.findObject(goToNode.objRef);
+        relship.toObject = toObject;
         const relviewRef = goLink.relviewRef;
         const relview = myModelview.findRelationshipView(relviewRef);
-        relview.fromObjview = goFromNode.objectview;
-        relview.toObjview = goToNode.objectview;
+        let fromObjview = goFromNode.fromObjview;
+        if (!fromObjview) fromObjview = myModelview.findObjectView(goFromNode.objviewRef);
+        relview.fromObjview = fromObjview;
+        let toObjview = goToNode.toObjview;
+        if (!toObjview) toObjview = myModelview.findObjectView(goToNode.objviewRef);
+        relview.toObjview = toObjview;
         // Prepare for dispatch
         const jsnRelship = new jsn.jsnRelationship(relship);
         modifiedRelships.push(jsnRelship);

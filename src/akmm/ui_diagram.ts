@@ -597,18 +597,13 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     if (debug) console.log('583 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel; 
+    let key = gjsNode.key;
+    let objectview = myModelview.findObjectView(key);
     let object = objectview?.object;
     if (!object) object = myMetis.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
     objecttype = myMetis.findObjectType(objecttype?.id);
-    let key = gjsNode.key;
     let goNode = myGoModel.findNode(key);
-    let objectview = myModelview.findObjectView(key);
-    if (!objectview) {
-        key = utils.createGuid();
-        objectview = new akm.cxObjectView(key, gjsNode.text, object, myModelview, "");
-        goNode = new gjs.goObjectNode(key, goModel, objectview);
-    }
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode.icon);

@@ -614,18 +614,18 @@ class GoJSApp extends React.Component<{}, AppState> {
               myObjectview.loc = myToNode.loc;
               myObjectview.group = myToNode.group;
 
-              const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
-              let goToNode = myGoModel.findNode(myToNode.key);
-              goToNode.loc = myToNode.loc.valueOf();
-              goToNode.size = myToNode.size;
+              // const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+              // let goToNode = myGoModel.findNode(myToNode.key);
+              // goToNode.loc = myToNode.loc.valueOf();
+              // goToNode.size = myToNode.size;
               // Move the object
-              // let goToNode: gjs.goObjectNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
-              // if (goToNode) {
-              //   goToNode = myGoModel.findNode(goToNode.key);
-              //   if (!goToNode instanceof gjs.goObjectNode) {
-              //     myGoModel = myGoModel.fixGoModel();
-              //   }
-              // }
+              let goToNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc, myGoModel, myDiagram, modifiedObjectViews) as gjs.goObjectNode;
+              if (goToNode) {
+                goToNode = myGoModel.findNode(goToNode.key);
+                if (!goToNode instanceof gjs.goObjectNode) {
+                  myGoModel = myGoModel.fixGoModel();
+                }
+              }
 
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);

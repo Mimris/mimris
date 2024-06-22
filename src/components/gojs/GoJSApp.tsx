@@ -1530,16 +1530,16 @@ class GoJSApp extends React.Component<{}, AppState> {
             // uic.updateNode(goNode, typeview, myDiagram, myGoModel);
             myGoModel.addNode(goNode);
             // myDiagram.model.addNodeData(goNode);
-            // Check if goNode is member of a group
-            const group = uic.getGroupByLocation(myGoModel, goNode.loc, goNode.size, goNode);
-            if (group) {
-              const parentgroup = group;
-              goNode.group = parentgroup.key;
-              goNode.objectview.group = parentgroup.objviewRef;
-              myDiagram.model.setDataProperty(part, "group", goNode.group);
-              goNode.scale1 = new String(goNode.getMyScale(myGoModel));
-              part.scale1 = Number(goNode.scale1);
-            }
+          }
+          // Check if goNode is member of a group
+          const group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
+          if (group) {
+            const parentgroup = group;
+            goNode.group = parentgroup.key;
+            goNode.objectview.group = parentgroup.objviewRef;
+            myDiagram.model.setDataProperty(part, "group", goNode.group);
+            goNode.scale1 = new String(goNode.getMyScale(myGoModel));
+            part.scale1 = Number(goNode.scale1);
           }
           if (goNode) {
             goNode.object = null;

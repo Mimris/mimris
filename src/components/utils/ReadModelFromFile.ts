@@ -18,8 +18,10 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
         const text = (e.target.result)
         if (debug) console.log('19 ReadModelFromFile', text)
         let importedfile = JSON.parse(text)
+        // remove null models and models with only {} in them
+        const cleanedData = importedfile.phData.metis.models.filter(m => m && Object.keys(m).length > 0);
         const filename = reader.fileName
-        data = importedfile
+        data = cleanedData
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         props.dispatch('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) props.dispatch('SET_FOCUS_PHFOCUS', data.phFocus)

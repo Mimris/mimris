@@ -109,6 +109,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   public handleCloseModal(e) {
     if (debug) console.log('109 handleCloseModal');
     const modalContext = this.state.modalContext;
+    if (!modalContext) return;
     const myDiagram = modalContext.context?.myDiagram;
     const gjsLink = modalContext.context?.link;
     const data = modalContext.data;

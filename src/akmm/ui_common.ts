@@ -881,9 +881,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             for (let i = 0; i < rtypes.length; i++) {
                 const rtype = rtypes[i];
-                if (rtype.name === constants.types.AKM_REFERS_TO) {
-                    reltypes.push(rtype);
-                }
+                reltypes.push(rtype);
             }
         }
         if (reltypes.length == 0) {
@@ -2368,7 +2366,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     if (nod.key === group.key)
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (grabIsAllowed && grp) {
+                    if (nod && grp?.grabIsAllowed) {
                         if (debug) console.log('960 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;

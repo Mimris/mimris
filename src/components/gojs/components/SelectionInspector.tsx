@@ -92,6 +92,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       myObjectType = myMetis.findObjectType(selObj?.objtypeRef) as akm.cxObjectType;
       myObjectTypeView = myObjectType?.typeview;
     }
+    myObjectTypeView.viewkind = myObjectTypeView.data.viewkind;
     if (!myRelationshipType) {
       myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
       myRelationshipTypeView = myRelationshipType?.typeview;
@@ -394,6 +395,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECT) {
           item = instview;
+          if (what === "editTypeview") {
+            item = objtypeview;
+          }
           // item = objtypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
           item = objtypeview?.data;
@@ -442,6 +446,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (k === 'fromPortid') continue;
         if (k === 'toPortid') continue;
         if (k === 'propvalues') continue;
+        if (k === 'grabIsAllowed') {
+          if (what !== 'editObjectview' && what !== 'editTypeview') continue;
+          if (item['viewkind'] !== 'Container') continue;
+        }
         if (k === 'abstract') {
           if (what === "editObject") {
             if (type && type.name !== constants.types.AKM_ENTITY_TYPE)
@@ -553,12 +561,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           switch (what) {
             case 'editTypeview':
               if (objtypeview) {
-                // val = objtypeview.data[k];
+                val = selObj[k];
+                break;
               } else if (reltypeview) {
-                // val = reltypeview.data[k];
+                val = item[k];
               }
               break;
             case 'editObjectview':
+              if (k === 'grabIsAllowed') {
+                val = selObj[k];
+                break;
+              }
             case 'editRelshipview':
               // val = selObj[k]; // instview[k];
               break;
@@ -736,6 +749,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 values = ['false', 'true'];
               }
               if (!allowsMetamodeling) disabled = true;
+              break;
+            case 'grabIsAllowed':
+              fieldType = 'checkbox';
               break;
             case 'methodtype':
               const methodTypes = myMetamodel.methodtypes;

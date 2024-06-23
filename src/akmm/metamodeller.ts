@@ -1025,6 +1025,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
+            objtypeview.setGrabIsAllowed(item.grabIsAllowed);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
             if (debug) console.log('222 objtypeview', objtypeview, item);
@@ -6415,6 +6416,7 @@ export class cxObjtypeviewData {
     // geometry: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6433,6 +6435,7 @@ export class cxObjtypeviewData {
         // this.geometry = "";
         this.icon = "";
         this.image = "";
+        this.grabIsAllowed = false;
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "gray";
@@ -6456,6 +6459,7 @@ export class cxObjectTypeView extends cxMetaObject {
     // geometry: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6483,7 +6487,8 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textcolor = "";
         this.textcolor2 = "";
         this.textscale = "1";
-        this.viewkind = "";
+        this.viewkind = constants.viewkinds.OBJ;
+        this.grabIsAllowed = false;
         this.icon = 'images/types/' + type?.name;
         this.image = "";
         this.data = new cxObjtypeviewData();
@@ -6542,6 +6547,12 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     getAbstract(): boolean {
         return this.data.abstract;
+    }
+    setGrabIsAllowed(flag: boolean) {
+        this.grabIsAllowed = flag;
+    }
+    getGrabIsAllowed(): boolean {
+        return this.grabIsAllowed;
     }
     // setIsGroup1(flag: boolean) {
     //     this.data.isGroup = flag;
@@ -9250,6 +9261,7 @@ export class cxObjectView extends cxMetaObject {
     isExpanded: boolean;
     isSelected: boolean;
     visible: boolean;
+    grabIsAllowed: boolean;
     text: string;
     loc: string;
     size: string;
@@ -9294,6 +9306,7 @@ export class cxObjectView extends cxMetaObject {
         this.isSelected = false;
         this.text = "";
         this.visible = true;
+        this.grabIsAllowed = false;
         this.viewkind = "";
         this.loc = "";
         this.size = "";
@@ -9523,6 +9536,12 @@ export class cxObjectView extends cxMetaObject {
     //         return "";
     //     return this.template;
     // }
+    setGrabIsAllowed(flag: boolean) {
+        this.grabIsAllowed = flag;
+    }
+    getGrabIsAllowed(): boolean {
+        return this.grabIsAllowed;
+    }
     setSize(size: string) {
         if (size == undefined)
             size = "";

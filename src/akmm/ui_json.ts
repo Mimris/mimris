@@ -892,6 +892,7 @@ export class jsnObjectTypeView {
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    grabIsAllowed:   boolean;
     template:        string;
     // figure:          string;
     // geometry:        string;
@@ -930,6 +931,7 @@ export class jsnObjectTypeView {
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
         this.image           = objtypeview.getImage();
+        this.grabIsAllowed   = objtypeview.grabIsAllowed;
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
         if (objtypeview.description)

@@ -1945,15 +1945,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Typeview",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const modalContext = {
-                what: "editTypeview",
-                title: "Edit Typeview",
-                myDiagram: myDiagram
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link, modalContext);
-              // 
+              uid.editRelshipTypeview(link, myMetis, myDiagram);
             },
             function (o: any) {
               const link = o.part.data;

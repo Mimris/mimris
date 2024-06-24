@@ -868,9 +868,6 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            if (refersToRelType) {
-                reltypes.push(refersToRelType);
-            }
             if (fromType.name === constants.types.AKM_OSDUTYPE) {
                 if (toType.name === constants.types.AKM_PROPERTY) {
                     const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
@@ -884,10 +881,8 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 reltypes.push(rtype);
             }
         }
-        if (reltypes.length == 0) {
-            const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            reltypes.push(rtype);
-        }
+        const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+        reltypes.push(rtype);
         if (reltypes) {
             const choices1: string[] = [];
             if (defText.length > 0) choices1.push(defText);

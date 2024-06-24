@@ -1445,6 +1445,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myMetis.addObject(object);
             const key = n.data.key;
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
+            objview.viewkind = constants.viewkinds.CONT;
             objview.isGroup = n.data.isGroup;
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             object.addObjectView(objview);

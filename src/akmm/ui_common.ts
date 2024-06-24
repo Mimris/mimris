@@ -868,9 +868,6 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            if (refersToRelType) {
-                reltypes.push(refersToRelType);
-            }
             if (fromType.name === constants.types.AKM_OSDUTYPE) {
                 if (toType.name === constants.types.AKM_PROPERTY) {
                     const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
@@ -881,15 +878,11 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             for (let i = 0; i < rtypes.length; i++) {
                 const rtype = rtypes[i];
-                if (rtype.name === constants.types.AKM_REFERS_TO) {
-                    reltypes.push(rtype);
-                }
+                reltypes.push(rtype);
             }
         }
-        if (reltypes.length == 0) {
-            const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            reltypes.push(rtype);
-        }
+        const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+        reltypes.push(rtype);
         if (reltypes) {
             const choices1: string[] = [];
             if (defText.length > 0) choices1.push(defText);
@@ -2368,7 +2361,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     if (nod.key === group.key)
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (grabIsAllowed && grp) {
+                    if (nod && grp?.grabIsAllowed) {
                         if (debug) console.log('960 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;

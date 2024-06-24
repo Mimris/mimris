@@ -450,6 +450,7 @@ export class goObjectNode extends goNode {
     textscale: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     isGroup: boolean | "";
     isExpanded: boolean | "";
     isSelected: boolean | "";
@@ -490,6 +491,7 @@ export class goObjectNode extends goNode {
         this.size           = objview.size;
         this.scale1         = objview.scale1;
         this.memberscale    = objview.memberscale;
+        this.grabIsAllowed  = objview.grabIsAllowed;
         this.isExpanded     = objview.isExpanded;
         this.isSelected     = objview.isSelected;
         this.groupLayout    = objview.groupLayout;

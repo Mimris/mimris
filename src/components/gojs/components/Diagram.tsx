@@ -1123,6 +1123,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.editObjectTypeview(node, myMetis, myDiagram);
             },
             function (o: any) {
+              return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
                 if (node.isSelected) {
@@ -1948,6 +1949,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.editRelshipTypeview(link, myMetis, myDiagram);
             },
             function (o: any) {
+              return false;
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP)
                 return true;
@@ -3796,6 +3798,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let obj1 = this.myMetis.findObject(objRef);
       let objtypeRef = this.state.selectedData?.objtypeRef;
       let objtype = myMetamodel.findObjectType(objtypeRef);
+      let supertypes = modalContext.myContext.supertypes;
       // if (!obj1) obj1 = obj;
       if (objtype?.name === 'Method')
         useTabs = true;
@@ -3813,6 +3816,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myModel: myModel,
         myMetamodel: myMetamodel,
         objtype: objtype,
+        supertypes: supertypes,
         includeConnected: includeConnected,
         includeInherited: includeInherited,
       }

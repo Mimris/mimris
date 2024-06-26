@@ -677,7 +677,6 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             }
             // Else handle delete object
             if (object) {
-                object.markedAsDeleted = deletedFlag;
                 // Remove the object view from the object
                 object.removeObjectView(objview);
             }
@@ -695,7 +694,11 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                             const link = myGoModel.findLinkByViewId(relview.id);
                             if (link) {
                                 link.markedAsDeleted = deletedFlag;
-                                myDiagram.model.removeLinkData(link);
+                                const l = myDiagram.findLinkForKey(relview.id);
+                                myDiagram.startTransaction("remove link");
+                                myDiagram.remove(l);
+                                myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
+                                // myDiagram.model.removeLinkData(link);
                             }
                             relview.markedAsDeleted = deletedFlag;
                         }
@@ -745,6 +748,11 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
             relview.markedAsDeleted = deletedFlag;
             // relship?.removeRelationshipView(relview);
             if (debug) console.log('707 deleteLink', relship, relview);
+            link.markedAsDeleted = deletedFlag;
+            const l = myDiagram.findLinkForKey(relview.id);
+            myDiagram.startTransaction("remove link");
+            myDiagram.remove(l);
+            myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
             return;
         }
         // Else handle delete relships AND relship views
@@ -760,8 +768,6 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
                     if (!rview.markedAsDeleted) {
                         rview.markedAsDeleted = deletedFlag;
                         if (debug) console.log('725 rview', rview);
-                        // Handle relshiptypeview
-                        // deleteRelshipTypeView(rview, deletedFlag);
                     }
                 }
             }
@@ -2982,6 +2988,19 @@ function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): bo
     return false;
 }
 
+function isMemberOfSubMetamodel(myMetis: akm.cxMetis, metamodel: akm.cxMetaModel, objtype: akm.cxObjectType): boolean {
+    const subMetamodelRefs = metamodel.submetamodelRefs;
+    for (let i = 0; i < subMetamodelRefs?.length; i++) {
+        const subMetamodelRef = subMetamodelRefs[i];
+        const subMetamodel = myMetis.findMetamodel(subMetamodelRef);
+        const otype = subMetamodel.findObjectType(objtype.id);
+        if (otype) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {
     if (debug) console.log('2412 verifyAndRepairModel STARTED');
     const format = "%s\n";
@@ -3048,6 +3067,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             const obj = objects[i];
             if (!obj.type) {
                 if (debug) console.log('2434 obj, myMetis', obj, myMetis);
+                // Handle objects without type
                 const type = myMetis.findObjectTypeByName(defObjTypename);
                 if (type) {
                     obj.type = type;
@@ -3068,6 +3088,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 const oview = objviews[i];
                 if (isMemberOfSubmodel(myMetis, oview)) {
                     isPartOfSubmodel = true;
+                    // Do nothing
+                    continue;
+                }
+            }
+            // If obj.type is part of a submetamodel, then do not verify it
+            const otype = obj.type;
+            if (otype) {
+                if (isMemberOfSubMetamodel(myMetis, metamodel, otype)) {
                     // Do nothing
                     continue;
                 }

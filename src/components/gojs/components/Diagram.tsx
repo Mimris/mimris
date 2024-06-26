@@ -1903,7 +1903,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               toType = myMetamodel.findObjectType(toType.id);
               let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-              for (let i = 0; i < rtypes.length; i++) {
+              for (let i = 0; i < rtypes?.length; i++) {
                 const rtype = rtypes[i];
                 if (rtype.name === constants.types.AKM_GENERIC_REL) {
                   reltypes.push(rtype);
@@ -1914,7 +1914,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               link.choices = [];
               if (reltypes) {
-                for (let i = 0; i < reltypes.length; i++) {
+                for (let i = 0; i < reltypes?.length; i++) {
                   const rtype = reltypes[i];
                   link.choices.push(rtype.name);
                 }

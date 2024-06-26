@@ -671,8 +671,6 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                     myDiagram.requestUpdate();
                 }
             }
-            // Remove the object view from the object
-            object.removeObjectView(objview);
             // If deleteViewsOnly we're done
             if (myMetis.deleteViewsOnly) {
                 return;
@@ -680,6 +678,8 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             // Else handle delete object
             if (object) {
                 object.markedAsDeleted = deletedFlag;
+                // Remove the object view from the object
+                object.removeObjectView(objview);
             }
             myDiagram.requestUpdate();
             // Handle connected relationships

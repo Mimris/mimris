@@ -939,10 +939,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
         modelviewList.push(sourcemodelview.name);
         targetMetamodel.objecttypes = new Array();
         targetMetamodel.objecttypes0 = new Array();
-        targetMetamodel.relshtypes = new Array();
-        targetMetamodel.relshtypes0 = new Array();
+        targetMetamodel.relshiptypes = new Array();
+        targetMetamodel.relshiptypes0 = new Array();
         targetMetamodel.objecttypeviews = new Array();
-        targetMetamodel.relshtypeviews = new Array();
+        targetMetamodel.relshiptypeviews = new Array();
     }
     // Now go through the modelviewList and execute 'generate metamodel' for each modelview
     let sourcemodel = context.myModel;

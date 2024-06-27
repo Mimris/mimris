@@ -115,8 +115,8 @@ const LoadFile = (props: any) => {
     }
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
-    // replace the _MM in 
-    const filename = data.phData.metis.name//.replace('AKM-', '')
+
+    const filename = data.phData.metis.name
 
     if (debug) console.log('199 Loadfile', newmm, filename)
     SaveAllToFile(data, filename, '_PR')

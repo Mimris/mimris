@@ -964,7 +964,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
               myMetis.addObjectView(objview);
-              }
+            }
           }
           let fillcolor = "";
           let strokecolor = "";
@@ -1178,6 +1178,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sourceRelshipviews = [];
         const targetRelshipviews = [];
         const selection = e.subject;
+        let pasteAnotherModelview = false;
 
         // Handle objects
         let it1 = selection.iterator;
@@ -1195,10 +1196,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               sourceNodeKey = targetNodeKey.substring(0, length-1);
               sourceGroupKey = targetGroupKey?.substring(0, length-1);
             } else { // When pasting to another modelview
+              pasteAnotherModelview = true;
               sourceNodeKey = targetNodeKey;
               sourceGroupKey = targetGroupKey; // utils.createGuid();
-              targetNodeKey = utils.createGuid();
-              targetGroupKey = utils.createGuid();
             }
             const gjsSourceNode = myDiagram.findNodeForKey(sourceNodeKey);
             const sourceObjectView = myMetis.findObjectView(sourceNodeKey);
@@ -1214,21 +1214,22 @@ class GoJSApp extends React.Component<{}, AppState> {
               objtype = myMetis.findObjectType(goSourceNode.objtypeRef);
 
             let targetObject: akm.cxObject; 
-            let targetObjectType: akm.cxObjectType; 
+            let targetObjectType: akm.cxObjectType = objtype; 
+            let targetObjectTypeview: akm.cxObjectTypeView = sourceObjectView.typeview; 
             let targetObjview: akm.cxObjectView;
             let goTargetNode: gjs.goObjectNode;
             targetObjectType = objtype;
             // Now handle target nodes
             gjsTargetNodes.push(gjsTargetNode);
-            targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, targetObject, gjsNode.description, myModelview);
-            goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
             if (myMetis.pasteViewsOnly) {
               targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, sourceObject, gjsNode.description, myModelview);
             } else {
               targetObject = new akm.cxObject(utils.createGuid(), gjsNode.name, targetObjectType, gjsNode.description);
+              targetObjview = new akm.cxObjectView(targetNodeKey, gjsNode.name, targetObject, gjsNode.description, myModelview);
             }
-            targetObjview.isGroup = gjsNode.isGroup;
+            targetObjview.typeview = targetObjectTypeview;
             goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjview);
+            targetObjview.isGroup = gjsNode.isGroup;
             targetObjectType = targetObjectType;
             targetObjview.loc = gjsNode.loc;
             targetObjview.size = gjsNode.size;
@@ -1248,7 +1249,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             goTargetNode.template = gjsNode.template;
             myGoModel.addNode(goTargetNode);
 
-            if (goTargetNode.group) {
+            if (goSourceNode.group) {
               let goParentGroup = uic.getGroupByLocation(myGoModel, goTargetNode.loc, goTargetNode.size, goTargetNode);
               if (goParentGroup) {
                 goTargetNode.group = goParentGroup.key;
@@ -1270,7 +1271,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               myMetis.addObject(targetObject);
               targetObjects.push(targetObject);
             }
-            uic.copyViewAttributes( targetObjview, gjsTargetNode);
+            uic.copyViewAttributes( targetObjview, sourceObjectView);
+            targetObjview.typeview = targetObjectTypeview;
             myModelview.addObjectView(targetObjview);
             myMetis.addObjectView(targetObjview);
             targetObjectviews.push(targetObjview);
@@ -1286,7 +1288,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             let gjsLink = it2.value.data;
             if (!gjsLink.linkNode) 
               continue;
-            if (gjsLink.key === gjsLink.linkNode?.key) {
+            if (pasteAnotherModelview) {
               // Paste to another modelview ( diagram)
               myDiagram.model.removeLinkData(gjsLink);
               gjsLink.key = utils.createGuid();
@@ -1312,7 +1314,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myModelview.addRelationshipView(sourceRelview);
                 myMetis.addRelationshipView(sourceRelview);
               }
-              const relview = myModelview.findRelationshipView(gjsSourceLink.key);
+              const relview = myMetis.findRelationshipView(gjsSourceLink.key);
               goSourceLink = new gjs.goRelshipLink(gjsSourceLink.key, myGoModel, relview);
               myGoModel.addLink(goSourceLink);
             }

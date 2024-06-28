@@ -18,7 +18,7 @@ function ProjectDetailsForm(props: any) {
   const dispatch = useDispatch();
   console.log("7 ProjectDetailsForm", props.props.phFocus);
 
-  const [projectname, setProjectname] = useState(props.props.phFocus.focusProj.name);
+  const [projectName, setProjectName] = useState(props.props.phFocus.focusProj.name);
 
   const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj.projectNumber);
   const [id, setId] = useState(props.props.phFocus?.focusProj.id);
@@ -42,12 +42,12 @@ function ProjectDetailsForm(props: any) {
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []);
 
   // useEffect(() => {
-    // setOrg(props.phFocus?.focusOrg.org);
-    // setRepo(props.phFocus?.focusProj.name);
-    // setPath(props.phFocus?.focusProj.path);
-    // setFile(props.phFocus?.focusProj.file);
-    // setBranch(props.phFocus?.focusProj.branch);
-    // setFocusProj(props.props.phData?.metis.name)
+  // setOrg(props.phFocus?.focusOrg.org);
+  // setRepo(props.phFocus?.focusProj.name);
+  // setPath(props.phFocus?.focusProj.path);
+  // setFile(props.phFocus?.focusProj.file);
+  // setBranch(props.phFocus?.focusProj.branch);
+  // setFocusProj(props.props.phData?.metis.name)
   // }, []);
 
   useEffect(() => {
@@ -94,10 +94,13 @@ function ProjectDetailsForm(props: any) {
   };
 
   const handleSaveAllToFile = () => {
-    setProjectname(props.props.phFocus.focusProj.name);
-    const data = `${projectname}_PR`
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-    SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, projectname, '_PR')
+    console.log('projectDatailsForm 97', file)
+    // setProjectName(props.props.phFocus.focusProj.name);
+    const data = `${file}`
+    // const data = `${projectName}_PR`
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data }) // setting the new project source filename
+    console.log("ProjectDetailsForm 100", file);
+    SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, file, '_PR')
   }
   const saveFile = (
     <>
@@ -131,6 +134,7 @@ function ProjectDetailsForm(props: any) {
               type="text"
               value={name}
               onChange={(e) => { setName(e.target.value); setFile(e.target.value + '_PR.json'); }}
+              title='Project name'
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
@@ -139,6 +143,7 @@ function ProjectDetailsForm(props: any) {
               type="text"
               value={org}
               onChange={(e) => setOrg(e.target.value)}
+              title='Organisation name'
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
@@ -147,6 +152,7 @@ function ProjectDetailsForm(props: any) {
               type="text"
               value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
               onChange={(e) => setRepo(e.target.value)}
+              title='Repository name'
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
@@ -156,6 +162,7 @@ function ProjectDetailsForm(props: any) {
               placeholder="models"
               value={path}
               onChange={(e) => setPath(e.target.value)}
+              title='Path to the project file in the GitHub repository'
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
@@ -164,15 +171,18 @@ function ProjectDetailsForm(props: any) {
               type="text"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
+              title='Branch name'
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
             <label>Filename:</label>
             <input className='rounded bg-light border-light px-1 w-75'
               type="text"
-              readOnly
+              // readOnly
+              defaultValue={file}
               value={file}
-            // onChange={(e) => {setFile(e.target.value)}}
+              onChange={(e) => { setFile(e.target.value) }}
+              title='Project filename'
             />
           </div>
           <hr />
@@ -182,7 +192,8 @@ function ProjectDetailsForm(props: any) {
             <input className='rounded bg-white px-1 border-light w-100'
               type="text"
               value={`${org}/${repo}${(path === '') ? '/' : `/${path.toString()}/`}${file}`}
-              // onChange={(e) => setSource(e.target.value)}
+              title="File path to the project file in the GitHub repository"
+            // onChange={(e) => setSource(e.target.value)}
             />
           </div>
           <div className='d-flex justify-content-between mb-2'>
@@ -191,15 +202,16 @@ function ProjectDetailsForm(props: any) {
               type="text"
               value={projectNumber}
               onChange={(e) => setProjectNumber(e.target.value)}
+              title="Project number in the GitHub repository"
             />
           </div>
           <div className="d-flex justify-content-end">
             <button className="button btn bg-success btn-sm mt-4 px-3"
-            type="submit"
-            data-toggle="tooltip"
-            data-placement="top"
-            data-bs-html="true"
-            title="Click here to save the above GitHub settings"
+              type="submit"
+              data-toggle="tooltip"
+              data-placement="top"
+              data-bs-html="true"
+              title="Click here to save the above GitHub settings"
             >Save GitHub settings</button>
           </div>
         </div>

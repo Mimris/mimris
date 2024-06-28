@@ -16,6 +16,7 @@ import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopOSDUTypes';
 import SetColorsTopEntityTypes from '../utils/SetColorsTopOSDUTypes';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
+import { configureMetamodel } from '../../akmm/ui_generateTypes';
 // import LoadOpenSubsurfaceDataUniverseJson from './LoadGitLabJson'
 
 const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
@@ -302,172 +303,185 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     //   return entries;
     // };
   }
-
-  return (
+  const curModel = props.ph.phData?.metis?.models?.find(m => m.id === props.ph.phFocus?.focusModel?.id)
+  const curMetamodel = props.ph.phData?.metis?.metamodels?.find(m => m.id === curModel?.metamodelRef)
+  console.log('307', curMetamodel, props.ph.phFocus?.focusMetamodel?.id, props)
+  const modalDiv =
     <>
-      {/* <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> OSDU Import button */}
-      <span><button className="btn bg-success text-white py-1 ps-0 px-0" onClick={toggle}>OSDU Imp <i className="fa fa-file-import fa-lg "></i></button></span>
-
       {/* <Draggable handle=".handle"> */}
-      <Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
-        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Import OSDU Schema: </ModalHeader>
-        {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
-        {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
-        <ModalBody className="d-flex flex-column bg-success">
-          {/* <span className="text-light">Current Source: <strong> {props.ph.phSource}</strong></span> */}
-          {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
-          <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
-          <div className="source bg-light p-2 ">
-            {/* <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} /> */}
+      <Modal Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
+        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Import OSDU Schema:
+        </ModalHeader>
+        {(curMetamodel?.name !== 'AKM-OSDU_MM' && modal)
+          ? <ModalBody className="d-flex flex-column">
+            <div className="source bg-warning p-5 m-5 fs-3">
+              <div>Current metamodel is not an AKM-OSDU_MM metamodel!</div>
+              <br></br>
+              <div>Please select a model with an AKM-OSDU_MM metamodel to import OSDU JSON files.</div>
+            </div>
+          </ModalBody>
+          :
+          <ModalBody className="d-flex flex-column bg-success">
+            {/* <span className="text-light">Current Source: <strong> {props.ph.phSource}</strong></span> */}
+            {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
+                        <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
+            <div className="source bg-light p-2 ">
+              {/* <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} /> */}
 
-            <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
-              {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-              <h5>Import JSON-Schema files:</h5>
-              <p> (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
-              <div className="selectbox3 mb-1 border">
-                {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
-                <div className='mt-2'> Include EntityTypes:</div>
-                <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
-                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }} >
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclMasterdata">Master_data</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclMasterdata} onChange={handleInclMasterdata} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
-                    <label className="flex-grow-1 text-secondary " htmlFor="inclWorkProductComp" >Work_Product_Components</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }} >
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference_Components</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclReference} onChange={handleInclReference} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract_Components</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclAbstract} onChange={handleInclAbstract} />
-                  </span>
-                  {/* <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
-                      <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
-                    </span> */}
+              <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                <h5>Import JSON-Schema files:</h5>
+                <p> (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
+                <div className="selectbox3 mb-1 border">
+                  {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
+                  <div className='mt-2'> Include EntityTypes:</div>
+                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclMasterdata">Master_data</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include master-data" checked={inclMasterdata} onChange={handleInclMasterdata} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary " htmlFor="inclWorkProductComp" >Work_Product_Components</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include work-product-component" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference_Components</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include reference-data" checked={inclReference} onChange={handleInclReference} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract_Components</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include Abstract Types" checked={inclAbstract} onChange={handleInclAbstract} />
+                    </span>
+                    {/* <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                                    <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
+                                    <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
+                                  </span> */}
+                  </div>
+                  <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", marginTop: "3px", marginBottom: "3px" }} />
+                  <div className='mt-2'> Include Properties and relationships Proxies:</div>
+                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
+                    <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
+                      <label className="flex-grow-1" htmlFor="inclProps">Properties</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include Props" checked={inclProps} onChange={handleInclProps} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Relationship_Proxies</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include Proxy" checked={inclPropLinks} onChange={handleInclPropLinks} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract_Proxies</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include Abstract Proxy" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include Array" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x_osdu_Properties</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include XOsdu Properties" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
+                    </span>
+                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                      <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl_DEPRECATED</label>
+                      <input className="checkbox-input ms-1" type="checkbox" title="Include Deprecated" checked={inclDeprecated} onChange={handleInclDeprecated} />
+                    </span>
+                  </div>
+                  <label className="pt-1" htmlFor="directory">File(s)</label>
+                  <input className="select-input w-100" type="file" title="Select Directory" accept=".json" onChange={importFile} multiple />
+                  <label className="pt-3" htmlFor="directory">or Directory</label>
+                  <input
+                    className="select-input w-100"
+                    type="file"
+                    title="Select Directory"
+                    accept=".json"
+                    onChange={importDirectories}
+                    webkitdirectory="true"
+                    directory="true"
+                  />
+                  {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                 </div>
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", marginTop: "3px", marginBottom: "3px" }} />
-                <div className='mt-2'> Include Properties and relationships Proxies:</div>
-                <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
-                  <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
-                    <label className="flex-grow-1" htmlFor="inclProps">Properties</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclProps} onChange={handleInclProps} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Relationship_Proxies</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclPropLinks} onChange={handleInclPropLinks} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract_Proxies</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x_osdu_Properties</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
-                  </span>
-                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                    <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl_DEPRECATED</label>
-                    <input className="checkbox-input ms-1" type="checkbox" checked={inclDeprecated} onChange={handleInclDeprecated} />
-                  </span>
-                </div>
-                <label className="pt-1" htmlFor="directory">File(s)</label>
-                <input className="select-input w-100" type="file" accept=".json" onChange={importFile} multiple />
-                <label className="pt-3" htmlFor="directory">or Directory</label>
-                <input
-                  className="select-input w-100"
-                  type="file"
-                  accept=".json"
-                  onChange={importDirectories}
-                  webkitdirectory="true"
-                  directory="true"
-                />
-                {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
-              </div>
-              {/* <div className="selectbox3 mb-2 border bg-secondary">
-                  <h6>Import OSDU JSON-file as AKM model types</h6>
-                  <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
-                  <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />
-                  <label className="pt-3" htmlFor="inclProps ">Include Properties 
-                    <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
-                  </label>
-                </div> */}
-              {/* <LoadGitLabJsonButton /> */}
-              {/* <button className="btn bg-primary py-1 px-2" onClick={handleLoadGitLabJson}>
-                  Load GitLab JSON
-                </button> */}
-              {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-              <div className="selectbox3 mb-2">
-                <h6>Connect imported OSDU Types</h6>
-                <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                  title="Find Proxies that refers to EntityTypes and convert to relationships!"
-                  onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
-                >
-                  Convert temporary Proxy-objects to Relationships
-                </Button>
-              </div>
-              {/* <div className="selectbox3 mb-2">
-                  <h6>Set colors on EntityTypes</h6> 
-                  <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                    title="Setting colors on EntityTypes!" 
-                    onClick={() => { SetColorsTopEntityTypes(props.ph, dispatch)}}
+                {/* <div className="selectbox3 mb-2 border bg-secondary">
+                                <h6>Import OSDU JSON-file as AKM model types</h6>
+                                <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
+                                <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />
+                                <label className="pt-3" htmlFor="inclProps ">Include Properties 
+                                  <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                                </label>
+                              </div> */}
+                {/* <LoadGitLabJsonButton /> */}
+                {/* <button className="btn bg-primary py-1 px-2" onClick={handleLoadGitLabJson}>
+                                Load GitLab JSON
+                              </button> */}
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                <div className="selectbox3 mb-2">
+                  <h6>Connect imported OSDU Types</h6>
+                  <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                    title="Find Proxies that refers to EntityTypes and convert to relationships!"
+                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
                   >
-                    Set OSDU Colors
+                    Convert temporary Proxy-objects to Relationships
                   </Button>
-                </div> */}
-            </div>
-            <div className="loadsave--JsonToFile  border border-dark" >
-              {/* <h5>OSDU JSON filestructure</h5>
-                <div className="selectbox3 mb-2 border">
-                  <h6>Import OSDU Json file as a Json model </h6>
-                  <h6>(This will import the OSDU Json structure)</h6>
-                  <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
-                </div> */}
-              <div className="selectbox">
-                <h5>Export OSDUType object with attributes to OSDU Excel file :</h5>
-                <p className="selectbox3 mb-0">Select the OsduType you want to export. Then click on "OBJECT DETAIL" in the upper right corner of the modelling area, then select the "Export" tab.</p>
-                {/* {buttonSaveJSONToFileDiv} */}
+                </div>
+                {/* <div className="selectbox3 mb-2">
+                                <h6>Set colors on EntityTypes</h6> 
+                                <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                                  title="Setting colors on EntityTypes!" 
+                                  onClick={() => { SetColorsTopEntityTypes(props.ph, dispatch)}}
+                                >
+                                  Set OSDU Colors
+                                </Button>
+                              </div> */}
+              </div>
+              <div className="loadsave--JsonToFile  border border-dark" >
+                {/* <h5>OSDU JSON filestructure</h5>
+                              <div className="selectbox3 mb-2 border">
+                                <h6>Import OSDU Json file as a Json model </h6>
+                                <h6>(This will import the OSDU Json structure)</h6>
+                                <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
+                              </div> */}
+                <div className="selectbox">
+                  <h5>Export OSDUType object with attributes to OSDU Excel file :</h5>
+                  <p className="selectbox3 mb-0">Select the OsduType you want to export. Then click on "OBJECT DETAIL" in the upper right corner of the modelling area, then select the "Export" tab.</p>
+                  {/* {buttonSaveJSONToFileDiv} */}
+                </div>
+              </div>
+              <div className="selectbox2 mb-1 border bg-light">
+                <h6>Link to the OSDU Open Subsurface Data Universe - Data Definitions</h6>
+                <h6>(This will open a new tab in your browser)</h6>
+                <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank" rel="noopener">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
               </div>
             </div>
-            <div className="selectbox2 mb-1 border bg-light">
-              <h6>Link to the OSDU Open Subsurface Data Universe - Data Definitions</h6>
-              <h6>(This will open a new tab in your browser)</h6>
-              <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
-            </div>
-          </div>
-        </ModalBody>
-        {/* <div className="ml-2">{emailDivMailto}</div> */}
+          </ModalBody>
+        }
+        {/* <div cla ssName="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
             title="Click here when done!" onClick={() => { toggle(); props?.setRefresh(!props?.refresh) }}>Done
           </Button>
         </ModalFooter>
-      </Modal>
-      {/* </Draggable> */}
+      </Modal >
+    </>
+
+  return (
+    <>
+      {/* <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> OSDU Import button */}
+      <span><button className="btn bg-success text-white py-1 ps-0 px-0" onClick={toggle}>OSDU Imp <i className="fa fa-file-import fa-lg "></i></button></span>
+      {modalDiv}
       <style jsx>{`
-            .selectbox2 {
-                background-color: rgba(0, 0, 0, 0.3) ;
-                border: 20px;
-                border-color: tomato;
-                padding: 1%;
-            }
-            .selectbox3 {
-                background-color: rgba(100, 100, 100, 0.1) ;
-                border: 20px;
-                border-color: tomato;
-                padding: 1%;
-            }
-      
-            `}</style>
+        .selectbox2 {
+            background-color: rgba(0, 0, 0, 0.3) ;
+            border: 20px;
+            border-color: tomato;
+            padding: 1%;
+        }
+        .selectbox3 {
+            background-color: rgba(100, 100, 100, 0.1) ;
+            border: 20px;
+            border-color: tomato;
+            padding: 1%;
+        }  
+      `}</style>
     </>
   )
 }
 
 export default LoadJsonFile
-

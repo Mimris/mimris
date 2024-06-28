@@ -679,6 +679,13 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             if (object) {
                 // Remove the object view from the object
                 object.removeObjectView(objview);
+                object.markedAsDeleted = deletedFlag;
+                objview.markedAsDeleted = deletedFlag;
+                // Remove the object view from the object
+                const n = myDiagram.findNodeForKey(objview.id);
+                myDiagram.startTransaction("remove node");
+                myDiagram.remove(n);
+                myDiagram.commitTransaction("remove node");
             }
             myDiagram.requestUpdate();
             // Handle connected relationships
@@ -695,10 +702,10 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                             if (link) {
                                 link.markedAsDeleted = deletedFlag;
                                 const l = myDiagram.findLinkForKey(relview.id);
-                                myDiagram.startTransaction("remove link");
-                                myDiagram.remove(l);
-                                myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
-                                // myDiagram.model.removeLinkData(link);
+                                // myDiagram.startTransaction("remove link");
+                                // myDiagram.remove(l);
+                                // myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
+                                myDiagram.model.removeLinkData(link);
                             }
                             relview.markedAsDeleted = deletedFlag;
                         }

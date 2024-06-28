@@ -470,6 +470,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     const myGoModel = myMetis.gojsModel;
     const goNode = myGoModel.findNode(gjsNode.key);
     let objecttype = myMetis.findObjectType(goNode?.objtypeRef);
+    let supertypes = objecttype?.supertypes;
     const objecttypeview = objecttype.typeview;
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;
@@ -490,6 +491,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
                 objectview: objectview,
                 objecttype: objecttype,
                 objecttypeview: objecttypeview,
+                supertypes: supertypes,
                 relship:     null,
                 relshipview: null,
                 relshiptype: null,

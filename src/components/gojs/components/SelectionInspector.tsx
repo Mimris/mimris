@@ -52,6 +52,33 @@ const useTabs = true;
 
 const booleanAsCheckbox = true;
 
+function editObject(chosenInst: any, context: any) {
+  const myMetis: akm.cxMetis = context.myMetis;
+  const myMetamodel: akm.cxMetaModel = context.myMetamodel;
+  const myModel: akm.cxModel = context.myModel;
+  let myObject: akm.cxObject = context.myObject;
+  let myObjectType: akm.cxObjectType = context.myObjectType;
+  let mySupertypes: akm.cxObjectType[] = context.mySupertypes;
+  let includeConnected = context.includeConnected;
+  let includeInherited = context.includeInherited;
+  let activeTab = context.activeTab;
+  let inheritedTypes = context.mySupertypes;
+  if (inheritedTypes?.length > 0) {
+    inheritedTypes.push(myObjectType);
+    inheritedTypes = [...new Set(inheritedTypes)];
+    if (myObject?.hasInheritedProperties(myModel))
+      context.includeInherited = true;
+  }
+  const connectedObjects: akm.cxObject[] = myObject?.getConnectedObjects2(myMetis);
+  if (connectedObjects?.length > 0)
+    includeConnected = true;
+  let namelist = uic.getNameList(myObject, context, true);
+
+  const typename = namelist[activeTab];
+  const chosenType = myMetis.findObjectTypeByName(typename) as akm.cxObjectType;
+  console.log('77 chosenType, chosenInst', chosenType, chosenInst);
+}
+
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
@@ -72,6 +99,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let myObjectView: akm.cxObjectView = modalContext.objectview;
     let myObjectType: akm.cxObjectType = modalContext.objecttype;
     let myObjectTypeView: akm.cxObjectTypeView = modalContext.objecttypeview;
+    let mySupertypes: akm.cxObjectType[] = modalContext.supertypes;
     let myRelationship: akm.cxRelationship = modalContext.relship;
     let myRelationshipView: akm.cxRelationshipView = modalContext.relshipview;
     let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
@@ -152,6 +180,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // Set chosenType
     let includeInherited = false;
     let includeConnected = false;
+    let context;
     let tabIndex = 0;
     {
       if (category === constants.gojs.C_OBJECT) {
@@ -164,7 +193,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           typename = currentType?.name;
           typedescription = currentType?.description;
           if (useTabs && context1?.what === 'editObject') {
-            let inheritedTypes = inst?.getInheritedTypes();
+            let inheritedTypes = mySupertypes;
             if (inheritedTypes?.length > 0) {
               inheritedTypes.push(currentType);
               inheritedTypes = [...new Set(inheritedTypes)];
@@ -174,10 +203,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             const connectedObjects: akm.cxObject[] = inst?.getConnectedObjects2(myMetis);
             if (connectedObjects?.length > 0)
               includeConnected = true;
-            const context = {
+            context = {
               myMetis: myMetis,
               myModel: myModel,
               myMetamodel: myMetamodel,
+              myObject: inst,
+              myObjectType: currentType,
+              activeTab: activeTab,
+              mySupertypes: inheritedTypes,
               includeConnected: includeConnected,
               includeInherited: includeInherited,
             }
@@ -234,10 +267,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           inheritedTypes = [...new Set(inheritedTypes)];
           if (inst1?.hasInheritedProperties(myModel))
             includeInherited = true;
-          const context = {
+          context = {
             myMetis: myMetis,
             myModel: myModel,
             myMetamodel: myMetamodel,
+            activeTab: activeTab,
             includeConnected: false,
             includeInherited: includeInherited,
           }
@@ -409,8 +443,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (what === "editObjectview") {
           if (type?.name !== constants.types.AKM_PORT)
             useFillColor = false;
-        } else if (what === "editRelshipview" || what === "editTypeview")
+        } else if (what === "editRelshipview" || what === "editTypeview") {
           useStrokeColor = false;
+        }
         test = typeview?.data;
         break;
       default:
@@ -436,7 +471,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       //   }
       // }
     }
-
+    // if (what === 'editObject') {
+    //   editObject(chosenInst, context);
+    // } else {
     for (let k in test) {
       // Filter some system attributes
       {
@@ -965,6 +1002,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
+    //}
     return dets;
   }
 

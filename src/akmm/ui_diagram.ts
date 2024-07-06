@@ -492,6 +492,8 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
                 objecttype: objecttype,
                 objecttypeview: objecttypeview,
                 supertypes: supertypes,
+                includeInherited: false,
+                includeConnected: false,
                 relship:     null,
                 relshipview: null,
                 relshiptype: null,

@@ -2484,6 +2484,22 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     let retVal = true;
     if (k === '__gohashid') retVal = false;
     // if (k === 'abstract') retVal = false;
+    // if (k === 'properties') retVal = false;
+    if (k === 'defaultValueset') retVal = false;
+    if (k === 'queries') retVal = false;
+    if (k === 'properties') retVal = false;
+    if (k === 'ports') retVal = false;
+    if (k === 'fromObjtype') retVal = false;
+    if (k === 'toObjtype') retVal = false;
+    if (k === 'objtypegeos') retVal = false;
+    if (k === 'inputreltypes') retVal = false;
+    if (k === 'outputreltypes') retVal = false;
+    if (k === 'allObjecttypes') retVal = false;
+    if (k === 'allRelationshiptypes') retVal = false;
+    if (k === 'methods') retVal = false;
+    if (k === 'methodRefs') retVal = false;
+    if (k === 'propertyRefs') retVal = false;
+    if (k === 'attributes') retVal = false;
     if (k === 'allowedValues') retVal = false;
     if (k === 'allProperties') retVal = false;
     if (k === 'cardinality') retVal = false;
@@ -2544,12 +2560,16 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'sourceUri') retVal = false;
     if (k === 'targetMetamodelRef') retVal = false;
     if (k === 'targetModelRef') retVal = false;
+    if (k === 'supertypes') retVal = false;
+    if (k === 'supertypeRefs') retVal = false;
     if (k === 'to') retVal = false;
     if (k === 'toNode') retVal = false;
     if (k === 'toObject') retVal = false;
     if (k === 'toobjectRef') retVal = false;
     if (k === 'toObjview') retVal = false;
     if (k === 'toObjviewRef') retVal = false;
+    if (k === 'fromPortid') retVal = false;
+    if (k === 'toPortid') retVal = false;
     if (k === 'toPort') retVal = false;
     if (k === 'type') retVal = false;
     if (k === 'typeid') retVal = false;
@@ -2561,6 +2581,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'valueset') retVal = false;
     // if (k === 'viewkind') retVal = false;
     if (k === 'visible') retVal = false;
+    // if (k === 'viewkind') retVal = false;
+    if (k === 'relshipkind') retVal = false;
     if (type?.name !== 'ViewFormat' &&
         type?.name !== 'Datatype' &&
         type?.name !== 'Property') {
@@ -2575,12 +2597,16 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
         if (k === 'fieldType') retVal = false;
     }
+    return retVal;
+}
+export function isPropIncluded2(k: string, type: akm.cxType): boolean {
+    let retVal = true;
     switch (k) {
         case 'id':
         case 'name':
         case 'description':
-        case 'typeName':
-        case 'typeDescription':
+        case 'typename':
+        case 'typedescription':
             break;
         default:
             try {
@@ -2595,7 +2621,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
                 retVal = false;
             }
             break;
-    }
+        }
     return retVal;
 }
 
@@ -4056,6 +4082,8 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                 if (debug) console.log('3015 inheritedTypes', inheritedTypes);
                 for (let i = 0; i < inheritedTypes?.length; i++) {
                     const type = inheritedTypes[i];
+                    if (type.name === constants.types.AKM_ENTITY_TYPE) 
+                        continue;
                     if (onlyWithProperties) {
                         if (type.properties?.length > 0)
                             namelist.push(type.name);

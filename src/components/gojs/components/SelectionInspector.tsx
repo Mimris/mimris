@@ -75,7 +75,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let row = null;
     const activeTab = this.props.activeTab;
     if (debug) console.log('62 SelectionInspector: myMetis', this.props);
-    // remove recursive references from myMetis
     const context1 = this.props.context;
     const myMetis = this.props.myMetis as akm.cxMetis;
     const modalContext = context1.myContext;
@@ -86,7 +85,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let mySupertypes: akm.cxObjectType[] = modalContext.supertypes;
     let myRelationship: akm.cxRelationship = modalContext.relship;
     let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
-
+    if (myObjectType.name === constants.types.AKM_ENTITY_TYPE) {
+      myObjectType.properties = [];
+    }
     const allowsMetamodeling = myModel?.includeSystemtypes;
     let k =0;
     myMetis.submodels = [];
@@ -215,10 +216,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (typeof (type) !== 'object')
       return;
 
+    let useFillColor = false;
+    let useStrokeColor = false;
     let isLabel = false;
     const what = context1.what;
-    // Get properties, and handle empty property values
-    
+    // Get properties, and handle empty property values    
     if (category === constants.gojs.C_OBJECT) {
       if (what === 'editObject') {
         if (type?.name === 'Method') {
@@ -357,86 +359,95 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // Now build the rows
     for (let n = 0; n < proplist?.length; n++) {
       let val = "";
-      const k = proplist[n].name;
-      if (what === 'editObject') {
-        // Get property values
-        // if (properties?.length > 0) {
-        //   for (let i = 0; i < properties.length; i++) {
-        //     let prop: akm.cxProperty = properties[i];
-        //     if (prop) {
-        //       let myProp = myMetamodel.findProperty(prop.id);
-        //       if (!myProp) {
-        //         myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
-        //         myProp.methodRef = prop.methodRef;
-        //         myProp.datatypeRef = prop.datatypeRef;
-        //         prop = myProp;
-        //       }
-        //       if (prop.name !== k)
-        //         continue;
-        //       if (prop.readOnly) {
-        //         readonly = true;
-        //       }
-        //       if (prop.isRequired) {
-        //         required = true;
-        //       }
-        //       // prop = myMetamodel.findProperty(prop.id);
-        //       let dtype = prop.datatype as akm.cxDatatype;
-        //       if (!dtype) {
-        //         const dtypeRef = prop.datatypeRef;
-        //         if (dtypeRef) {
-        //           dtype = myMetamodel.findDatatype(dtypeRef);
-        //         }
-        //       }
-        //       if (dtype) {
-        //         const dtype1 = dtype.getIsOfDatatype();
-        //         if (dtype1) {
-        //           dtype = dtype1;
-        //         }
-        //       }
-        //       if (dtype) {
-        //         fieldType = dtype.fieldType;
-        //         viewFormat = dtype.viewFormat
-        //         pattern = dtype.inputPattern;
-        //         defValue = dtype.defaultValue;
-        //         values = dtype.allowedValues;
-        //         description = prop.description;
-        //       }
-        //       // Handle methodRef
-        //       const mtdRef = prop?.methodRef;
-        //       if (mtdRef) {
-        //         disabled = true;
-        //         if (inst?.category === constants.gojs.C_OBJECT) {
-        //           const obj = myMetis.findObject(inst.id);
-        //           if (obj) inst = obj;
-        //         } else if (inst?.category === constants.gojs.C_RELATIONSHIP) {
-        //           const rel = myMetis.findRelationship(inst.id);
-        //           if (rel) inst = rel;
-        //         }
-        //         try {
-        //           val = item.getPropertyValue(prop, myMetis);
-        //         } catch {
-        //           // Do nothing
-        //         }
-        //       }
-        //       // Handle connected objects
-        //       if (inst?.category === constants.gojs.C_OBJECT) {
-        //         const objs = chosenInst.getConnectedObjects1(prop, myMetis);
-        //         if (objs?.length > 1)
-        //           val = '';
-        //         for (let i = 0; i < objs?.length; i++) {
-        //           const obj = objs[i];
-        //           if (obj) {
-        //             if (i == 0)
-        //               val = obj.name;
-        //             else
-        //               val += ' | ' + obj.name;
-        //           }
-        //         }
-        //       }
-        //     }
-        //   }
-        // }
+      let fieldType = 'text';
+      let viewFormat = "";
+      let readonly = false;
+      let disabled = false;
+      let checked = false;
+      let pattern = ".";
+      let required = false;
+      let defValue = "";
+      let values = [];
 
+      const k = proplist[n].name;
+      // Get property values
+      if (properties?.length > 0) {
+        for (let i = 0; i < properties.length; i++) {
+          let prop: akm.cxProperty = properties[i];
+          if (prop) {
+            let myProp = myMetamodel.findProperty(prop.id);
+            if (!myProp) {
+              myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
+              myProp.methodRef = prop.methodRef;
+              myProp.datatypeRef = prop.datatypeRef;
+              prop = myProp;
+            }
+            if (prop.name !== k)
+              continue;
+            if (prop.readOnly) {
+              readonly = true;
+            }
+            if (prop.isRequired) {
+              required = true;
+            }
+            // prop = myMetamodel.findProperty(prop.id);
+            let dtype = prop.datatype as akm.cxDatatype;
+            if (!dtype) {
+              const dtypeRef = prop.datatypeRef;
+              if (dtypeRef) {
+                dtype = myMetamodel.findDatatype(dtypeRef);
+              }
+            }
+            if (dtype) {
+              const dtype1 = dtype.getIsOfDatatype();
+              if (dtype1) {
+                dtype = dtype1;
+              }
+            }
+            if (dtype) {
+              fieldType = dtype.fieldType;
+              viewFormat = dtype.viewFormat
+              pattern = dtype.inputPattern;
+              defValue = dtype.defaultValue;
+              values = dtype.allowedValues;
+              description = prop.description;
+            }
+            // Handle methodRef
+            const mtdRef = prop?.methodRef;
+            if (mtdRef) {
+              disabled = true;
+              if (inst?.category === constants.gojs.C_OBJECT) {
+                const obj = myMetis.findObject(inst.id);
+                if (obj) inst = obj;
+              } else if (inst?.category === constants.gojs.C_RELATIONSHIP) {
+                const rel = myMetis.findRelationship(inst.id);
+                if (rel) inst = rel;
+              }
+              try {
+                val = item.getPropertyValue(prop, myMetis);
+              } catch {
+                // Do nothing
+              }
+            }
+            // Handle connected objects
+            if (inst?.category === constants.gojs.C_OBJECT) {
+              const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+              if (objs?.length > 1)
+                val = '';
+              for (let i = 0; i < objs?.length; i++) {
+                const obj = objs[i];
+                if (obj) {
+                  if (i == 0)
+                    val = obj.name;
+                  else
+                    val += ' | ' + obj.name;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (what === 'editObject') {
         if (includeConnected) {
           if (k === "name") {
             val = chosenInst.getName();
@@ -449,18 +460,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           val = chosenInst.type?.description;
         } else 
           val = chosenInst[k];
-        // if (k === 'typedescription') {
-        //   if (chosenInst)  // Object
-        //     val = chosenInst.type?.description;
-        //   else // Object type
-        //     val = chosenInst[k];
-        //   break;
-        // } else {
-        //   val = chosenInst[k];
-        //   if (!val)
-        //     val = item[k];
-          // break;
-        // }
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal
         if (!uic.isPropIncluded(k, type)) {
@@ -469,17 +468,244 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
       }
       if (k) {
-        let fieldType = 'text';
-        let viewFormat = "";
-        let readonly = false;
-        let disabled = false;
-        let checked = false;
-        let pattern = ".";
-        let required = false;
-        let defValue = "";
-        let values = [];
-        // let val = chosenInst[k];
+          // Handle color values
+          {
+            if (
+              (useFillColor && k === 'fillcolor') ||
+              (useFillColor && k === 'fillcolor2') ||
+              (useStrokeColor && k === 'strokecolor') ||
+              (useStrokeColor && k === 'strokecolor2')
+            ) {
+              if (val === "" && what === "editObjectview") {
+                val = typeview.fillcolor;
+              }
 
+              fieldType = 'color';
+              if (val?.substring(0, 3) === 'rgb(') {
+                let color = '#' + val.match(/\d+/g).map(function (x) {
+                  x = parseInt(x).toString(16);
+                  return (x.length == 1) ? "0" + x : x;
+                }).join("");
+                val = color.toUpperCase();
+              }
+              if ((val) && val[0] !== '#') {
+                // Convert colorname to hex
+                val = toHex(val);
+              }
+            }
+          }
+          // Handle datatypes and fieldtypes
+          {
+            let dtype;
+            switch (k) {
+              case 'description':
+              case 'typedescription':
+              case 'geometry':
+                fieldType = 'textarea';
+                break;
+              case 'cardinalityFrom':
+              case 'cardinalityTo':
+                dtype = myMetamodel.findDatatypeByName('cardinality');
+                if (dtype) {
+                  fieldType = 'select' // dtype.fieldType;
+                  viewFormat = dtype.viewFormat
+                  pattern = dtype.inputPattern;
+                  defValue = dtype.defaultValue;
+                  values = dtype.allowedValues;
+                }
+                if (!allowsMetamodeling) disabled = true;
+                break;
+              case 'fieldType':
+              case 'viewkind':
+                dtype = myMetamodel.findDatatypeByName(k);
+                if (dtype) {
+                  fieldType = dtype.fieldType;
+                  pattern = dtype.inputPattern;
+                  defValue = dtype.defaultValue;
+                  values = dtype.allowedValues;
+                }
+                if (!allowsMetamodeling) disabled = true;
+                break;
+              case 'relshipkind':
+                fieldType = 'select';
+                defValue = 'Association';
+                values = ['Association', 'Generalization', 'Composition', 'Aggregation'];
+                break;
+              // case 'isLayoutPositioned':
+              case 'abstract':
+                dtype = myMetis.findDatatypeByName('boolean');
+                if (booleanAsCheckbox)
+                  fieldType = 'checkbox';
+                else {
+                  fieldType = 'radio';
+                  defValue = 'false';
+                  values = ['false', 'true'];
+                }
+                if (!allowsMetamodeling) disabled = true;
+                break;
+              case 'grabIsAllowed':
+                fieldType = 'checkbox';
+                break;
+              case 'methodtype':
+                const methodTypes = myMetamodel.methodtypes;
+                if (methodTypes) {
+                  values = methodTypes.map(mm => mm && mm.name);
+                  fieldType = 'radio';
+                }
+                break;
+              case 'dash':
+                values = ['None', 'Dashed', 'Dotted'];
+                defValue = 'None';
+                fieldType = 'radio';
+                break;
+              case 'template':
+                if (selObj.isGroup) {
+                  if (selObj.viewkind === 'Container') {
+                    values = uit.getGroupTemplateNames();
+                    defValue = '';
+                    fieldType = 'radio';
+                  }
+                } else {
+                  if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                    values = uit.getLinkTemplateNames();
+                    defValue = '';
+                    fieldType = 'radio';
+                  } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+                    values = uit.getLinkTemplateNames();
+                    defValue = '';
+                    fieldType = 'radio';
+                  } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
+                    if (selObj.viewkind === 'Object') {
+                      values = uit.getNodeTemplateNames();
+                      defValue = '';
+                      fieldType = 'radio';
+                    } else if (selObj.viewkind === 'Container') {
+                      values = uit.getGroupTemplateNames();
+                      defValue = '';
+                      fieldType = 'radio';
+                    }
+                  }
+                }
+                break;
+              case 'figure':
+                if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
+                  values = uit.getFigureNames();
+                  defValue = '';
+                  fieldType = 'radio';
+                }
+                break;
+              case 'routing':
+                values = ['Normal', 'Orthogonal', 'AvoidsNodes'];
+                defValue = 'None';
+                fieldType = 'radio';
+                break;
+              case 'curve':
+                values = ['None', 'Bezier', 'JumpOver', 'JumpGap'];
+                defValue = 'None';
+                fieldType = 'radio';
+                break;
+              case 'fromArrow':
+                values = arrowheads;
+                defValue = 'None';
+                fieldType = 'select';
+                break;
+              case 'toArrow':
+                values = arrowheads;
+                defValue = 'OpenTriangle';
+                fieldType = 'select';
+                break;
+              case 'fillcolor':
+              case 'fillcolor2':
+                if (!useFillColor) {
+                  values = colornames;
+                  defValue = 'white';
+                  fieldType = 'select';
+                }
+                break;
+              case 'strokecolor':
+              case 'strokecolor2':
+                if (!useStrokeColor) {
+                  values = colornames;
+                  defValue = 'black';
+                  fieldType = 'select';
+                }
+                break;
+              case 'strokewidth':
+                values = strokewidths;
+                defValue = '1';
+                fieldType = 'select';
+                break;
+              case 'textcolor':
+              case 'textcolor2':
+              case 'fromArrowColor':
+              case 'toArrowColor':
+                values = colornames;
+                defValue = 'black';
+                fieldType = 'select';
+                break;
+              default:
+                if (!fieldType)
+                  fieldType = 'textarea';
+                break;
+            }
+          }
+          // Handle fieldtypes
+          {
+            if (fieldType === 'checkbox') {
+              checked = val;
+            }
+            if (fieldType === 'radio') {
+              fieldType = 'select';
+              const p1 = "^(";
+              const p2 = ")$";
+              let p = "";
+              let cnt = 0;
+              for (let i = 0; i < values?.length; i++) {
+                const value = values[i];
+                if (p === "") {
+                  p = value;
+                } else {
+                  p += "|" + value;
+                }
+              }
+              pattern = p1 + p + p2;
+            }
+            if (fieldType === 'select') {
+              if (val === "")
+                val = defValue;
+            }
+            if (fieldType === 'date') {
+              if (debug) console.log('771 prop', prop);
+              pattern = "";
+              if (val === "") {
+                const d = new Date();
+                val = d.toISOString().slice(0, 10);
+              }
+              if (readonly) {
+                disabled = true;
+              }
+            }
+            if (fieldType === 'time') {
+              pattern = "";
+              if (val === "") {
+                const d = new Date();
+                val = d.getTime();
+              }
+              if (readonly) {
+                disabled = true;
+              }
+            }
+
+            // Handle viewFormat
+            if (k === 'name') {
+              fieldType = 'text';
+            }
+            if (viewFormat) {
+              if (utils.isNumeric(val) && fieldType !== 'time') {
+                val = printf(viewFormat, Number(val));
+              }
+            }
+          }
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
 
         row = <InspectorRow
@@ -733,7 +959,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 break;
             }
           }
-
           // Handle color values
           {
             if (

@@ -356,10 +356,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     // Now build the rows
     for (let n = 0; n < proplist?.length; n++) {
+      let val = "";
       const k = proplist[n].name;
       if (what === 'editObject') {
         // Get property values
-        let val = "";
         // if (properties?.length > 0) {
         //   for (let i = 0; i < properties.length; i++) {
         //     let prop: akm.cxProperty = properties[i];
@@ -443,18 +443,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
           }
         }
-        if (k === 'typeDescription') {
-          if (chosenInst)  // Object
-            val = chosenInst.type?.description;
-          else // Object type
-            val = chosenInst[k];
-          break;
-        } else {
+        if (k === 'typename') 
+          val = chosenInst.type?.name;
+        else if (k === 'typedescription') {
+          val = chosenInst.type?.description;
+        } else 
           val = chosenInst[k];
-          if (!val)
-            val = item[k];
+        // if (k === 'typedescription') {
+        //   if (chosenInst)  // Object
+        //     val = chosenInst.type?.description;
+        //   else // Object type
+        //     val = chosenInst[k];
+        //   break;
+        // } else {
+        //   val = chosenInst[k];
+        //   if (!val)
+        //     val = item[k];
           // break;
-        }
+        // }
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal
         if (!uic.isPropIncluded(k, type)) {
@@ -472,7 +478,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let required = false;
         let defValue = "";
         let values = [];
-        let val = chosenInst[k];
+        // let val = chosenInst[k];
 
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
 

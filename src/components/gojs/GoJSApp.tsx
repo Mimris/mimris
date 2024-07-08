@@ -932,6 +932,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
             objview.viewkind = constants.viewkinds.CONT;
             objview.isGroup = n.data.isGroup;
+            if (objview.isGroup) {
+              objview.viewkind = constants.viewkinds.CONT;
+            } else {
+              objview.viewkind = constants.viewkinds.OBJ;
+            }
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             object.addObjectView(objview);
             myModelview.addObjectView(objview);

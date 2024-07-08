@@ -942,7 +942,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
 
     myDiagram.commitTransaction('addConnectedObjects');
 
-    myDiagram.startTransaction('selectNodesAndLinks');
+    myDiagram.startTransaction('generateNodesAndLinks');
 
     // Now generate the nodes and links, and select them
     const myObjectViews = [];
@@ -955,8 +955,8 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         const jsnObjview = new jsn.jsnObjectView(objview);
         myObjectViews.push(jsnObjview);
         myDiagram.model.addNodeData(goNode);
-        // const node = myDiagram.findNodeForData(goNode)
-        // myCollection.add(node);
+        const node = myDiagram.findNodeForData(goNode)
+        myCollection.add(node);
     }
     for (let i=0; i<relshipviews.length; i++) {
         let relview = relshipviews[i];
@@ -978,7 +978,21 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         const link = myDiagram.findLinkForData(goLink)
         myCollection.add(link);
     }
+    myDiagram.commitTransaction('generateNodesAndLinks');
+
+    myDiagram.startTransaction('selectNodesAndLinks');
+
+    myDiagram.selectCollection(myCollection);
+
     myDiagram.commitTransaction('selectNodesAndLinks');
+
+    myDiagram.startTransaction('layoutNodesAndLinks');
+
+    const mySelection = myDiagram.selection;
+    const lay = doTreeLayout(mySelection, modelview, myDiagram, true);
+
+    myDiagram.commitTransaction('layoutNodesAndLinks');
+
 
     myObjectViews.map(mn => {
         let data = (mn) && mn

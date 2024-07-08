@@ -454,9 +454,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
           }
         }
-        if (k === 'typename') 
+        if (k === 'typename') {
+          if (activeTab !== "0") 
+            continue
           val = chosenInst.type?.name;
-        else if (k === 'typedescription') {
+        } else if (k === 'typedescription') {
+          if (activeTab !== "0") 
+            continue
           val = chosenInst.type?.description;
         } else 
           val = chosenInst[k];

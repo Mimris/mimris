@@ -85,7 +85,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let mySupertypes: akm.cxObjectType[] = modalContext.supertypes;
     let myRelationship: akm.cxRelationship = modalContext.relship;
     let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
-    if (myObjectType.name === constants.types.AKM_ENTITY_TYPE) {
+    if (myObjectType?.name === constants.types.AKM_ENTITY_TYPE) {
       myObjectType.properties = [];
     }
     const allowsMetamodeling = myModel?.includeSystemtypes;
@@ -467,9 +467,18 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal
         if (!uic.isPropIncluded(k, type)) {
-          if (!uic.isOsduAttribute(k))
             continue;
         }
+        if (k === 'typename') {
+          if (activeTab !== "0") 
+            continue
+          val = chosenInst.type?.name;
+        } else if (k === 'typedescription') {
+          if (activeTab !== "0") 
+            continue
+          val = chosenInst.type?.description;
+        } else 
+          val = chosenInst[k];
       }
       if (k) {
           // Handle color values

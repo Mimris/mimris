@@ -471,7 +471,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     const goNode = myGoModel.findNode(gjsNode.key);
     let objecttype = myMetis.findObjectType(goNode?.objtypeRef);
     let supertypes = objecttype?.supertypes;
-    const objecttypeview = objecttype.typeview;
+    const objecttypeview = objecttype?.typeview;
     const icon = uit.findImage(goNode?.icon);
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
@@ -603,7 +603,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
     let objectview = myModelview.findObjectView(key);
-    objectview.viewkind = gjsNode.viewkind;
+    if (objectview) objectview.viewkind = gjsNode.viewkind;
     let object = objectview?.object;
     if (!object) object = myMetis.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
@@ -611,7 +611,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     let goNode = myGoModel.findNode(key);
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    const icon = uit.findImage(goNode.icon);
+    const icon = uit.findImage(goNode?.icon);
     if (!object)
         object = myMetis.findObject(goNode?.objRef);
     if (!objectview)

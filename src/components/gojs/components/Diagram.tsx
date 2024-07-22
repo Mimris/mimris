@@ -443,9 +443,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   addSourceLink(gjsSourceLinks, n);
                 }
               }
-              const myModel = myMetis.currentModel;
-              myModel.args1 = gjsSourceNodes;
-              myModel.args2 = gjsSourceLinks;
               selection = [];
               e.diagram.selection.each(function (sel) {
                 const key = sel.data.key;
@@ -461,6 +458,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
+                node.diagram.selectCollection(node.findSubGraphParts());
                 return true;
               }
               if (node.category === constants.gojs.C_RELATIONSHIP)
@@ -3084,7 +3082,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const data = n.data;
                     if (data.key === objview.id) {
                       // if (debug) 
-                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n node: ", n, data);
+                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n n, data: ", n, data);
                     }
                   }
                 }
@@ -3107,7 +3105,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     if (data.key === relview.id) {
                       // if (debug) 
                       const text = relview.name + " " + relview.toObjview.name;
-                      console.log('300 ', text, '\n relview: ', relview,
+                      console.log('310 ', text, '\n relview: ', relview,
                         "\n goLink: ", goLink, "\n link: ", l, data);
                     }
                   }
@@ -3629,6 +3627,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     function addSourceNode(mySourceNodes: any, n: any) {
+      for (let i = 0; i < mySourceNodes.length; i++) {
+        if (mySourceNodes[i].key === n.data.key) {
+          return;
+        }
+      }
       const mySourceNode = {
         "key": n.data.key,
         "name": n.data.name,

@@ -163,7 +163,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 myDiagram.model.setDataProperty(gjsData, "objectview", objview);
                 myDiagram.model.setDataProperty(gjsData, "group", goNode.group);
                 // Then set the view properties
-                let objtypeView = objtype?.getDefaultTypeView();
+                let objtypeView;
                 if (context.pasted) {
                     const id = gjsData.typeview?.id;
                     objtypeView = myMetis.findObjectTypeView(id);
@@ -679,7 +679,6 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             if (object) {
                 // Remove the object view from the object
                 object.removeObjectView(objview);
-                object.markedAsDeleted = deletedFlag;
                 objview.markedAsDeleted = deletedFlag;
                 // Remove the object view from the object
                 const n = myDiagram.findNodeForKey(objview.id);
@@ -738,7 +737,8 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     const myModel = context.myModel;
     const myModelview = context.myModelview;
     const myGoModel = context.myGoModel;
-
+    const myDiagram = context.myDiagram;
+    
     // Replace myGoModel.links with a new array
     const links = new Array();
     for (let i = 0; i < myGoModel?.links.length; i++) {
@@ -1098,8 +1098,8 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
 export function pasteRelationship(gjsTargetLink, context) {
     const myDiagram = context.myDiagram;
     const myGoModel: gjs.goGoModel = context.myGoModel;
-    const myMetis: akm.cxMetis = context.myMetis;
-    const myModelview: akm.cxModelView = myMetis.currentModelview;
+    const myMetis = context.myMetis;
+    const myModelview = myMetis.currentModelview;
 
     // Find source objects
     let gjsTargetFromKey = gjsTargetLink.from;
@@ -3201,11 +3201,12 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             for (let j = 0; j < objviews?.length; j++) {
                 const oview = objviews[j];
                 const obj = oview.object;
-                if (!obj) continue;
+                if (!obj) 
+                    oview.markedAsDeleted = true;
                 oview.modelview = modelview;
                 if (debug) console.log('2970 oview', oview.name);
-                if (isMemberOfSubmodel(myMetis, oview))
-                    continue;
+                // if (isMemberOfSubmodel(myMetis, oview))
+                //     continue;
                 oviews.push(oview);
             }
             if (i == 0)

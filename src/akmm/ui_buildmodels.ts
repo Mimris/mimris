@@ -213,7 +213,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (objview.name === objview.id)
         continue;
       const obj = objview.object as akm.cxObject;
-      if (!model.findObject(obj?.id))
+      if (!metis.findObject(obj?.id))
         continue;
       if (true) {
         if (objview.id === focusObjview?.id)
@@ -320,8 +320,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         node.isSelected = true;
       }
       let obj = node.object as akm.cxObject;
-      obj = model.findObject(obj.id);
-      if (!obj)
+      if (!metis.findObject(obj?.id))
         continue;
       let objtype = obj.type as akm.cxObjectType;
       if (objtype?.name === 'Label') {

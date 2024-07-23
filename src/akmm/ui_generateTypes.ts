@@ -252,6 +252,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.setName(newName);
             objtype.setDescription(object.description);
             objtype.typeDescription = currentObj.typeDescription;
+            if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+                objtype.properties = new Array();
+            }
         }
     } else // Check if the type has not been generated, but exists anyway
     {
@@ -931,12 +934,21 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     let targetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
     if (!targetMetamodel)
         return false;
+    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
+        targetMetamodel.properties = new Array();
+    }
     if (!sourcemodelview)
         return false;
     targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
     if (targetMetamodel.name !== constants.core.AKM_CORE_MM) {
         modelviewList = new Array();
         modelviewList.push(sourcemodelview.name);
+        targetMetamodel.objecttypes = new Array();
+        targetMetamodel.objecttypes0 = new Array();
+        targetMetamodel.relshiptypes = new Array();
+        targetMetamodel.relshiptypes0 = new Array();
+        targetMetamodel.objecttypeviews = new Array();
+        targetMetamodel.relshiptypeviews = new Array();
     }
     // Now go through the modelviewList and execute 'generate metamodel' for each modelview
     let sourcemodel = context.myModel;
@@ -1011,10 +1023,12 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             }
             // Generate the target metamodel
             context.myTargetMetamodel = targetMetamodel;
+            context.firstTime = true;
             targetMetamodel = generateMetamodel(objviews, relshipviews, context);
+            console.log('1021 Target metamodel: ', targetMetamodel);
         }
         if (sourcemodelview)
-            console.log('1108 sourcemodelview has been generated: ' + sourcemodelview.name);
+            console.log('1024 sourcemodelview has been generated: ' + sourcemodelview.name);
     }
 
     // Check if there already exists models based on the generated metamodel
@@ -1025,9 +1039,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
 
     // Dispatch
     const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
-    let data = { metamodel: jsnMetamodel }
-    data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data }) 
+    myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data: jsnMetamodel });
+
     return true;
 }
 
@@ -1255,7 +1268,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     targetMetamodel.generatedFromModelRef = myModel.id;
     // targetMetamodel.includeSystemtypes = false; 
     const mmname = targetMetamodel.name;
-    if (debug) console.log('1385 generateMetamodel 1');
+    if (debug) console.log('1268 generateMetamodel 1');
     let isCoreMetamodel = false;
     if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         isCoreMetamodel = true;
@@ -1351,6 +1364,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // Add system types 
     // First add object types 
     // let objecttypes  = new Array();
+    let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
     const coreMetamodel = myMetis.findMetamodelByName("AKM-Core_MM");
@@ -1419,6 +1433,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
     }
     const metaObjects = ['EntityType'];
+    const defaultProperties = ['id', 'name', 'description', 'typeName','typeDescription'];
     { // Add or generate objecttypes
         for (let i = 0; i < metaObjects.length; i++) {
             const mObject = metaObjects[i];
@@ -1460,6 +1475,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 for (let i = 0; i < typenames.length; i++) {
                     if (typenames[i] === constants.types.AKM_ENTITY_TYPE) {
                         const objtype = myMetis.findObjectTypeByName(typenames[i]);
+                        if (firstTime) {
+                            objtype.properties = [];
+                            firstTime = false;
+                        }
                         targetMetamodel.addObjectTypeByName(objtype);
                         if (objtype.name !== constants.types.AKM_ENTITY_TYPE)
                             targetMetamodel.addObjectType0ByName(objtype);
@@ -1773,15 +1792,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         //     if (debug) console.log('1920 generateMetamodel 2');
         // }
     }
-
-    // Do the dispatches
-    // {
-    //     modifiedMetamodels.map(mn => {
-    //         let data = mn;
-    //         data = JSON.parse(JSON.stringify(data));
-    //         myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-    //     });
-    // }
     return targetMetamodel;
 }
 

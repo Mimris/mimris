@@ -57,7 +57,7 @@ export const ProjectMenuBar = (props: any) => {
         setProjectname(props.phFocus.focusProj.name);
         const data = `${projectname}_PR`
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-        if (debug) console.log('57 handleSaveAllToFile', props, projectname, props.phFocus)
+        if (!debug) console.log('57 handleSaveAllToFile', props, projectname, props.phFocus)
         SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 

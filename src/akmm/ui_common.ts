@@ -163,7 +163,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 myDiagram.model.setDataProperty(gjsData, "objectview", objview);
                 myDiagram.model.setDataProperty(gjsData, "group", goNode.group);
                 // Then set the view properties
-                let objtypeView = objtype?.getDefaultTypeView();
+                let objtypeView;
                 if (context.pasted) {
                     const id = gjsData.typeview?.id;
                     objtypeView = myMetis.findObjectTypeView(id);
@@ -622,6 +622,7 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
 export function deleteNode(data: any, deletedFlag: boolean, context: any) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
+    const myModelview = context.myModelview;
     const myDiagram = context.myDiagram;
     const selection = myDiagram.selection;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
@@ -670,15 +671,20 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                     myDiagram.requestUpdate();
                 }
             }
-            // Remove the object view from the object
-            object.removeObjectView(objview);
             // If deleteViewsOnly we're done
             if (myMetis.deleteViewsOnly) {
                 return;
             }
             // Else handle delete object
             if (object) {
-                object.markedAsDeleted = deletedFlag;
+                // Remove the object view from the object
+                object.removeObjectView(objview);
+                objview.markedAsDeleted = deletedFlag;
+                // Remove the object view from the object
+                const n = myDiagram.findNodeForKey(objview.id);
+                myDiagram.startTransaction("remove node");
+                myDiagram.remove(n);
+                myDiagram.commitTransaction("remove node");
             }
             myDiagram.requestUpdate();
             // Handle connected relationships
@@ -694,6 +700,10 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                             const link = myGoModel.findLinkByViewId(relview.id);
                             if (link) {
                                 link.markedAsDeleted = deletedFlag;
+                                const l = myDiagram.findLinkForKey(relview.id);
+                                // myDiagram.startTransaction("remove link");
+                                // myDiagram.remove(l);
+                                // myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
                                 myDiagram.model.removeLinkData(link);
                             }
                             relview.markedAsDeleted = deletedFlag;
@@ -727,7 +737,8 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     const myModel = context.myModel;
     const myModelview = context.myModelview;
     const myGoModel = context.myGoModel;
-
+    const myDiagram = context.myDiagram;
+    
     // Replace myGoModel.links with a new array
     const links = new Array();
     for (let i = 0; i < myGoModel?.links.length; i++) {
@@ -744,6 +755,11 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
             relview.markedAsDeleted = deletedFlag;
             // relship?.removeRelationshipView(relview);
             if (debug) console.log('707 deleteLink', relship, relview);
+            link.markedAsDeleted = deletedFlag;
+            const l = myDiagram.findLinkForKey(relview.id);
+            myDiagram.startTransaction("remove link");
+            myDiagram.remove(l);
+            myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
             return;
         }
         // Else handle delete relships AND relship views
@@ -759,8 +775,6 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
                     if (!rview.markedAsDeleted) {
                         rview.markedAsDeleted = deletedFlag;
                         if (debug) console.log('725 rview', rview);
-                        // Handle relshiptypeview
-                        // deleteRelshipTypeView(rview, deletedFlag);
                     }
                 }
             }
@@ -816,34 +830,23 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         toObject = myMetis.findObject(toObjview.objectRef);
     const fromPort = "";
     const toPort = "";
-    let reltype;
-    let fromType = fromObject?.type;
-    if (!fromType || !(fromType instanceof akm.cxObjectType)) {
+    let reltype, fromType, toType;
+    let fromTypeRef = fromObject?.typeRef;
+    if (fromTypeRef) {
         fromType = myMetamodel.findObjectType(fromObject?.typeRef);
-        if (!fromType) 
-            fromType = myMetis.findObjectType(fromObject?.typeRef);
     }
-    let toType = toObject?.type;
-    if (!toType || !(toType instanceof akm.cxObjectType)) {
+    let toTypeRef = toObject?.typeRef;
+    if (toTypeRef) {
         toType = myMetamodel.findObjectType(toObject?.typeRef);
-        if (!toType) 
-            toType = myMetis.findObjectType(toObject?.typeRef);
-    }
-    if (fromType) {
-        fromType.allObjecttypes = myMetamodel.objecttypes;
-        fromType.allRelationshiptypes = myMetamodel.relshiptypes;
-    }
-    if (toType) {
-        toType.allObjecttypes = myMetamodel.objecttypes;
-        toType.allRelationshiptypes = myMetamodel.relshiptypes;
     }
     let metamodel = myMetamodel;
     let metamodel2 = myMetamodel;
-    const submetamodels = myMetamodel.submetamodels;
+    const submetamodelRefs = myMetamodel.submetamodelRefs;
     if (!fromType) {
-        for (let i = 0; i < submetamodels?.length; i++) {
-            let mmodel = submetamodels[i];
-            fromType = mmodel.findObjectType(fromNode?.object?.typeRef);
+        for (let i = 0; i < submetamodelRefs?.length; i++) {
+            let mmodelRef = submetamodelRefs[i];
+            let mmodel = myMetis.findMetamodel(mmodelRef);
+            fromType = mmodel.findObjectType(fromObject?.typeRef);
             if (fromType) {
                 metamodel = mmodel;
                 break;
@@ -851,9 +854,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         }
     }
     if (!toType) {
-        for (let i = 0; i < submetamodels?.length; i++) {
-            let mmodel = submetamodels[i];
-            toType = mmodel.findObjectType(toNode?.object?.typeRef);
+        for (let i = 0; i < submetamodelRefs?.length; i++) {
+            let mmodelRef = submetamodelRefs[i];
+            let mmodel = myMetis.findMetamodel(mmodelRef);
+            toType = mmodel.findObjectType(toObject?.typeRef);
             if (toType) {
                 metamodel2 = mmodel;
                 break;
@@ -877,9 +881,6 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         if (metamodel.id === metamodel2.id) {
             reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            if (refersToRelType) {
-                reltypes.push(refersToRelType);
-            }
             if (fromType.name === constants.types.AKM_OSDUTYPE) {
                 if (toType.name === constants.types.AKM_PROPERTY) {
                     const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
@@ -890,11 +891,11 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
             for (let i = 0; i < rtypes.length; i++) {
                 const rtype = rtypes[i];
-                if (rtype.name === constants.types.AKM_REFERS_TO) {
-                    reltypes.push(rtype);
-                }
+                reltypes.push(rtype);
             }
         }
+        const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+        reltypes.push(rtype);
         if (reltypes) {
             const choices1: string[] = [];
             if (defText.length > 0) choices1.push(defText);
@@ -909,18 +910,6 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             choices2.sort();
             let choices = choices1.concat(choices2);
             choices = utils.removeArrayDuplicates(choices);
-            // Calling routine to select reltype from list
-            // const args = {
-            //     data: context.data,
-            //     typename: defText,
-            //     fromType: fromType,
-            //     toType: toType,
-            //     gjsFromNode: gjsFromNode,
-            //     gjsToNode: gjsToNode,
-            //     fromPort: fromPort,
-            //     toPort: toPort,
-            //     diagramModel: myDiagram.diagramModel,
-            // }
             const modalContext = {
                 what: "selectDropdown",
                 title: "Select Relationship Type",
@@ -1109,8 +1098,8 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
 export function pasteRelationship(gjsTargetLink, context) {
     const myDiagram = context.myDiagram;
     const myGoModel: gjs.goGoModel = context.myGoModel;
-    const myMetis: akm.cxMetis = context.myMetis;
-    const myModelview: akm.cxModelView = myMetis.currentModelview;
+    const myMetis = context.myMetis;
+    const myModelview = myMetis.currentModelview;
 
     // Find source objects
     let gjsTargetFromKey = gjsTargetLink.from;
@@ -2385,7 +2374,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     if (nod.key === group.key)
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (grabIsAllowed && grp) {
+                    if (nod && grp?.grabIsAllowed) {
                         if (debug) console.log('960 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;
@@ -2495,6 +2484,22 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     let retVal = true;
     if (k === '__gohashid') retVal = false;
     // if (k === 'abstract') retVal = false;
+    // if (k === 'properties') retVal = false;
+    if (k === 'defaultValueset') retVal = false;
+    if (k === 'queries') retVal = false;
+    if (k === 'properties') retVal = false;
+    if (k === 'ports') retVal = false;
+    if (k === 'fromObjtype') retVal = false;
+    if (k === 'toObjtype') retVal = false;
+    if (k === 'objtypegeos') retVal = false;
+    if (k === 'inputreltypes') retVal = false;
+    if (k === 'outputreltypes') retVal = false;
+    if (k === 'allObjecttypes') retVal = false;
+    if (k === 'allRelationshiptypes') retVal = false;
+    if (k === 'methods') retVal = false;
+    if (k === 'methodRefs') retVal = false;
+    if (k === 'propertyRefs') retVal = false;
+    if (k === 'attributes') retVal = false;
     if (k === 'allowedValues') retVal = false;
     if (k === 'allProperties') retVal = false;
     if (k === 'cardinality') retVal = false;
@@ -2555,12 +2560,16 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'sourceUri') retVal = false;
     if (k === 'targetMetamodelRef') retVal = false;
     if (k === 'targetModelRef') retVal = false;
+    if (k === 'supertypes') retVal = false;
+    if (k === 'supertypeRefs') retVal = false;
     if (k === 'to') retVal = false;
     if (k === 'toNode') retVal = false;
     if (k === 'toObject') retVal = false;
     if (k === 'toobjectRef') retVal = false;
     if (k === 'toObjview') retVal = false;
     if (k === 'toObjviewRef') retVal = false;
+    if (k === 'fromPortid') retVal = false;
+    if (k === 'toPortid') retVal = false;
     if (k === 'toPort') retVal = false;
     if (k === 'type') retVal = false;
     if (k === 'typeid') retVal = false;
@@ -2572,6 +2581,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'valueset') retVal = false;
     // if (k === 'viewkind') retVal = false;
     if (k === 'visible') retVal = false;
+    // if (k === 'viewkind') retVal = false;
+    if (k === 'relshipkind') retVal = false;
     if (type?.name !== 'ViewFormat' &&
         type?.name !== 'Datatype' &&
         type?.name !== 'Property') {
@@ -2586,12 +2597,16 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
         if (k === 'fieldType') retVal = false;
     }
+    return retVal;
+}
+export function isPropIncluded2(k: string, type: akm.cxType): boolean {
+    let retVal = true;
     switch (k) {
         case 'id':
         case 'name':
         case 'description':
-        case 'typeName':
-        case 'typeDescription':
+        case 'typename':
+        case 'typedescription':
             break;
         default:
             try {
@@ -2606,7 +2621,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
                 retVal = false;
             }
             break;
-    }
+        }
     return retVal;
 }
 
@@ -3006,6 +3021,19 @@ function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): bo
     return false;
 }
 
+function isMemberOfSubMetamodel(myMetis: akm.cxMetis, metamodel: akm.cxMetaModel, objtype: akm.cxObjectType): boolean {
+    const subMetamodelRefs = metamodel.submetamodelRefs;
+    for (let i = 0; i < subMetamodelRefs?.length; i++) {
+        const subMetamodelRef = subMetamodelRefs[i];
+        const subMetamodel = myMetis.findMetamodel(subMetamodelRef);
+        const otype = subMetamodel.findObjectType(objtype.id);
+        if (otype) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel, modelviews: akm.cxModelView[], myDiagram: any, myMetis: akm.cxMetis) {
     if (debug) console.log('2412 verifyAndRepairModel STARTED');
     const format = "%s\n";
@@ -3072,6 +3100,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             const obj = objects[i];
             if (!obj.type) {
                 if (debug) console.log('2434 obj, myMetis', obj, myMetis);
+                // Handle objects without type
                 const type = myMetis.findObjectTypeByName(defObjTypename);
                 if (type) {
                     obj.type = type;
@@ -3092,6 +3121,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 const oview = objviews[i];
                 if (isMemberOfSubmodel(myMetis, oview)) {
                     isPartOfSubmodel = true;
+                    // Do nothing
+                    continue;
+                }
+            }
+            // If obj.type is part of a submetamodel, then do not verify it
+            const otype = obj.type;
+            if (otype) {
+                if (isMemberOfSubMetamodel(myMetis, metamodel, otype)) {
                     // Do nothing
                     continue;
                 }
@@ -3164,11 +3201,12 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             for (let j = 0; j < objviews?.length; j++) {
                 const oview = objviews[j];
                 const obj = oview.object;
-                if (!obj) continue;
+                if (!obj) 
+                    oview.markedAsDeleted = true;
                 oview.modelview = modelview;
                 if (debug) console.log('2970 oview', oview.name);
-                if (isMemberOfSubmodel(myMetis, oview))
-                    continue;
+                // if (isMemberOfSubmodel(myMetis, oview))
+                //     continue;
                 oviews.push(oview);
             }
             if (i == 0)
@@ -4045,6 +4083,8 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                 if (debug) console.log('3015 inheritedTypes', inheritedTypes);
                 for (let i = 0; i < inheritedTypes?.length; i++) {
                     const type = inheritedTypes[i];
+                    if (type.name === constants.types.AKM_ENTITY_TYPE) 
+                        continue;
                     if (onlyWithProperties) {
                         if (type.properties?.length > 0)
                             namelist.push(type.name);

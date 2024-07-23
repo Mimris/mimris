@@ -450,6 +450,7 @@ export class goObjectNode extends goNode {
     textscale: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     isGroup: boolean | "";
     isExpanded: boolean | "";
     isSelected: boolean | "";
@@ -458,12 +459,12 @@ export class goObjectNode extends goNode {
     parent: string;
     constructor(key: string, model: goModel, objview: akm.cxObjectView) {
         super(key, model);
-        this.name           = objview.name;
+        this.name           = objview?.name;
         this.category       = constants.gojs.C_OBJECT;
         this.objectview     = objview as akm.cxObjectView;
         this.object         = null as akm.cxObject;
         this.objecttype     = null as akm.cxObjectType;
-        this.objviewRef     = objview.id;
+        this.objviewRef     = objview?.id;
         this.objRef         = objview?.object?.id;
         this.objtypeRef     = objview?.object?.type?.id;
         this.leftPorts      = null as akm.cxPort[];
@@ -472,32 +473,34 @@ export class goObjectNode extends goNode {
         this.bottomPorts    = null as akm.cxPort[];
         this.typename       = "";
         this.typedescription = "";
-        this.template       = objview.template;
-        // this.figure         = objview.figure;
-        // this.geometry       = objview.geometry;
-        this.fillcolor      = objview.fillcolor;
-        this.fillcolor2      = objview.fillcolor2;
-        this.strokecolor    = objview.strokecolor;
-        this.strokecolor2   = objview.strokecolor2;
-        this.strokewidth    = objview.strokewidth;
-        this.textcolor      = objview.textcolor;
-        this.textcolor2      = objview.textcolor2;
-        this.textscale      = objview.textscale;
-        this.icon           = objview.icon;
-        this.image          = objview.image;
-        this.isGroup        = objview.isGroup;
-        this.loc            = objview.loc;
-        this.size           = objview.size;
-        this.scale1         = objview.scale1;
-        this.memberscale    = objview.memberscale;
-        this.isExpanded     = objview.isExpanded;
-        this.isSelected     = objview.isSelected;
-        this.groupLayout    = objview.groupLayout;
-        this.group          = objview.group as akm.cxObjectView;
-        this.parent         = "";
+
 
         if (objview) {
-            const object = objview.getObject() as akm.cxObject;
+            this.template       = objview?.template;
+            // this.figure         = objview.figure;
+            // this.geometry       = objview.geometry;
+            this.fillcolor      = objview.fillcolor;
+            this.fillcolor2      = objview.fillcolor2;
+            this.strokecolor    = objview.strokecolor;
+            this.strokecolor2   = objview.strokecolor2;
+            this.strokewidth    = objview.strokewidth;
+            this.textcolor      = objview.textcolor;
+            this.textcolor2      = objview.textcolor2;
+            this.textscale      = objview.textscale;
+            this.icon           = objview.icon;
+            this.image          = objview.image;
+            this.isGroup        = objview.isGroup;
+            this.loc            = objview.loc;
+            this.size           = objview.size;
+            this.scale1         = objview.scale1;
+            this.memberscale    = objview.memberscale;
+            this.grabIsAllowed  = objview.grabIsAllowed;
+            this.isExpanded     = objview.isExpanded;
+            this.isSelected     = objview.isSelected;
+            this.groupLayout    = objview.groupLayout;
+            this.group          = objview.group as akm.cxObjectView;
+            this.parent         = "";
+            const object = objview?.getObject() as akm.cxObject;
             if (object && object instanceof akm.cxObject) {
                 this.object = object as akm.cxObject;
                 this.name = object.getName();

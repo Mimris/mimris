@@ -71,6 +71,12 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
             <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2024.07.24</CardTitle>
+              <CardText >
+                &bull;Update Help documentation and bug fixes <br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release Alpha: 2024.06.19</CardTitle>
               <CardText >
                 &bull;Some bug fixes <br />

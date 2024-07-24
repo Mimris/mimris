@@ -64,11 +64,11 @@ We will use this object as a template for our new types.
 (NB! Not “Paste view” as we want a copy of the object, not a view-copy)  
 Right-click the new object and select “Edit Object”
 
-Change all the places you find the Type.1.0.0 text and replace it with our new name “WellLogAcquisition”. (name, osduId and §id)
+Change all the places you find the Type.1.0.0 text and replace it with our new name **“WellLogAcquisition”**. (name, osduId and §id)
 
-1. -Change the groupType attribute to “master-data”.
+1. -Change the groupType attribute to **“master-data”**.
    
-2. -Change the color by select the tab **"Visualisation"** and change **fillcolor** to "lightsalmon".
+2. -Change the color by select the tab **"Visualisation"** and change **fillcolor** to **"lightsalmon"**.
 
 
 ### Repeat for the AbstractLogAcquisitionRunPass

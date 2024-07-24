@@ -9,12 +9,12 @@ export default function Post({ post }) {
       <div className="py-0 mx-auto">{(post.frontmatter.title.startsWith('OSDU ')) ? 'OSDU Usecase' : 'AKMM'} </div>
       <div className={`card d-flex justify-content-between ${post.frontmatter.title.startsWith('OSDU ') ? 'green-border' : ''}`} style={{ height: '100%' }}>
         <div>
-          <Link className="img" href={`/helpblog/${post.slug}`} target="AKMM Help"><img src={post.frontmatter.cover_image } alt='' />...</Link>
+          <Link className="img" href={`/helpblog/${post.slug}`} target="AKMM Help"><img className="mb-1" src={post.frontmatter.cover_image} alt='' /></Link>
           <div className='post-date'>Posted on {post.frontmatter.date}</div>
-          <h3>{post.frontmatter.title}</h3>
+          <h5>{post.frontmatter.title}</h5>
           <p className="excerpt">{post.frontmatter.excerpt}</p>
         </div>
-        <Link href={`/helpblog/${post.slug}#AKMM Help`}  className='btn' >Read More</Link>
+        <Link href={`/helpblog/${post.slug}#AKMM Help`} className='btn' >Read More</Link>
       </div>
       <style jsx>{`
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
@@ -43,7 +43,8 @@ export default function Post({ post }) {
       
       img {
         width: 90%;
-        min-height: 150px;
+        min-height: 140px;
+        max-height: 140px;
         border-radius: 10px;
       }
       
@@ -83,6 +84,7 @@ export default function Post({ post }) {
       }
       
       .btn:hover {
+        background: #333;
         transform: scale(0.98);
       }
       
@@ -95,8 +97,8 @@ export default function Post({ post }) {
       .posts {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
-        margin-top: 30px;
+        gap: 20px;
+        margin-top: 10px;
       }
       
       .card {
@@ -148,6 +150,6 @@ export default function Post({ post }) {
       }
       `}</style>
 
-  </>
+    </>
   )
 }

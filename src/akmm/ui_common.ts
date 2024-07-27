@@ -2403,8 +2403,10 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     }
                 }
             }
-            const modObjview = new jsn.jsnObjectView(objview);
-            modifiedObjectViews.push(modObjview);
+            if (objview) {
+                const modObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(modObjview);
+            }
         }
         return node;
     }

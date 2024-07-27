@@ -603,7 +603,7 @@ export class goObjectNode extends goNode {
     }
     getParentNode(model: goModel): goNode {
         const groupId = this.group;
-        if (groupId !== "") {
+        if (groupId !== "" && groupId !== undefined) {
             const nodes = model.nodes;
             for (let i = 0; i < nodes?.length; i++) {
                 const node = nodes[i] as goObjectNode;

@@ -1,5 +1,5 @@
 ---
-title: ' Overview Modelling User Interface'
+title: ' Overview the AKM Modeller User Interface'
 date: 'May 29, 2023'
 excerpt: 'An overview of the AKM Modeller modelling user interface.
 with Metamodel palette, Object Palette and Modelling Area'
@@ -7,8 +7,6 @@ cover_image: '/images/posts/overview/image01.png'
 ---
 
 ### Overview of the Graphical user interface
-
-
 
 ![Modellingpage](/images/posts/overview/image01.png)
 

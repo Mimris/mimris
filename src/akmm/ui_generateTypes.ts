@@ -256,16 +256,16 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 objtype.properties = new Array();
             }
         }
-    } else // Check if the type has not been generated, but exists anyway
-    {
-        objtype = myMetamodel.findObjectTypeByName(currentObj.name);
+    } // Check if the type has not been generated, but exists anyway
+    if (!objtype) {
+        objtype = myTargetMetamodel.findObjectTypeByName(currentObj.name);
     }
     if (!objtype) { // This is a new object type
         let metaObjectName;
         const metaObjectNames = ['EntityType'];
         for (let i = 0; i < metaObjectNames.length; i++) {
             const mObjectName = metaObjectNames[i];
-            const mType = myMetamodel.findObjectTypeByName(mObjectName);
+            const mType = myTargetMetamodel.findObjectTypeByName(mObjectName);
             if (mType) {
                 // metaObject exists
                 metaObjectName = mObjectName;

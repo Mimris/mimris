@@ -17,6 +17,7 @@ import * as jsn from '../../akmm/ui_json';
 import * as uic from '../../akmm/ui_common';
 import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
+import { read } from 'fs';
 
 const constants = require('../../akmm/constants');
 const utils = require('../../akmm/utilities');
@@ -957,6 +958,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Create a new object
             objId = utils.createGuid();
             object = new akm.cxObject(objId, objName, type, objDescr);
+            object.parentModelRef = myModel.id;
             myModel.addObject(object);
             myMetis.addObject(object);
             console.log('1241 node, data', node, n.data);
@@ -1165,6 +1167,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const selection = e.subject;
         let pasteAnotherModelview = false;
         let pasteViewsOnly = myMetis.pasteViewsOnly;
+        let readOnly = false
         let fromModel = myModel;
         let toModel = myModel;
         let fromModelview = myModelview;
@@ -1275,7 +1278,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModelview.addObjectView(targetObjectView);
             myMetis.addObjectView(targetObjectView);
             nodeAndLinkMaps.replaceNodeKeys(sourceNodeKey, targetObject.id);
-
+            if (fromModel.id !== toModel.id) {
+              readOnly = true;
+            }
+            targetObjectView.readOnly = readOnly;
           } else {
             targetObjectView = new akm.cxObjectView(targetNodeKey, sourceObjectView.name, 
                                                     targetObject, sourceObjectView.description, myModelview);
@@ -1298,6 +1304,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           targetObjectView.setScale(sourceObjectView.scale1);
           targetObjectView.setMemberscale(sourceObjectView.memberscale);
           targetObjectView.setTemplate(sourceObjectView.template);
+          targetObjectView.readonly = readOnly;
           myModelview.addObjectView(targetObjectView);
           myMetis.addObjectView(targetObjectView);
           goTargetNode = new gjs.goObjectNode(nodMap.toTargetKey, myGoModel, targetObjectView);
@@ -1404,6 +1411,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             targetRelview.fromObjview = fromObjview;
             targetRelview.toObjview = toObjview;
             targetRelship.addRelationshipView(targetRelview);
+            targetRelview.readOnly = readOnly;
             const goRelshipLink = new gjs.goRelshipLink(pastedRelviewKey, myGoModel, targetRelview);
             myGoModel.addLink(goRelshipLink);
             myModelview.addRelationshipView(targetRelview);

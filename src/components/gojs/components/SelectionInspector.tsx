@@ -80,6 +80,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const modalContext = context1.myContext;
     const myMetamodel: akm.cxMetaModel = modalContext.metamodel;
     const myModel: akm.cxModel = modalContext.model;
+    const myModelview: akm.cxModelView = modalContext.modelview;
     let myObject: akm.cxObject = modalContext.object;
     let myObjectType: akm.cxObjectType = modalContext.objecttype;
     let mySupertypes: akm.cxObjectType[] = modalContext.supertypes;
@@ -90,6 +91,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     const allowsMetamodeling = myModel?.includeSystemtypes;
     let k =0;
+    let readOnly = false;
     myMetis.submodels = [];
     myMetis.submetamodels = [];
     if (debug) console.log('64 SelectionInspector: myMetis', myMetis);
@@ -131,6 +133,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type = reltype;
         type1 = type;
         break;
+    }
+    if (inst.parentModelRef !== myModel.id) {
+      readOnly = true;
     }
     // Set chosenType
     let includeInherited = false;
@@ -361,7 +366,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let val = "";
       let fieldType = 'text';
       let viewFormat = "";
-      let readonly = false;
+      let readonly = readOnly;
       let disabled = false;
       let checked = false;
       let pattern = ".";
@@ -720,6 +725,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           }
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
+        if (readonly) {
+          disabled = true;
+        }
 
         row = <InspectorRow
         key={k}

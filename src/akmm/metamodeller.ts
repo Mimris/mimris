@@ -7323,6 +7323,8 @@ export class cxModel extends cxMetaObject {
                     }
                 }
             }
+            if (obj.parentModelRef == "")
+                obj.parentModelRef = this.id;
         }
     }
     addObjectRef(obj: cxObject) {
@@ -7688,7 +7690,7 @@ export class cxInstance extends cxMetaObject {
     valueset: any[] | null;
     inputrels: cxRelationship[] | null;
     outputrels: cxRelationship[] | null;
-    parentModel: cxModel | null;
+    parentModelRef: string;
     allProperties: cxProperty[] | null;
     copiedFromId: string;
     constructor(id: string, name: string, type: cxObjectType | cxRelationshipType | null, description: string) {
@@ -7708,7 +7710,7 @@ export class cxInstance extends cxMetaObject {
         this.valueset = null;
         this.inputrels = null;
         this.outputrels = null;
-        this.parentModel = null;
+        this.parentModelRef = "";
         this.allProperties = null;
         this.copiedFromId = "";
         if (this.type) {
@@ -9271,6 +9273,7 @@ export class cxObjectView extends cxMetaObject {
     isSelected: boolean;
     visible: boolean;
     grabIsAllowed: boolean;
+    readonly: boolean;
     text: string;
     loc: string;
     size: string;
@@ -9315,6 +9318,7 @@ export class cxObjectView extends cxMetaObject {
         this.isSelected = false;
         this.text = "";
         this.visible = true;
+        this.readonly = false;
         this.grabIsAllowed = false;
         this.viewkind = "";
         this.loc = "";
@@ -9688,6 +9692,7 @@ export class cxRelationshipView extends cxMetaObject {
     curve: string;
     points: any;
     visible: boolean;
+    readonly: boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.category = constants.gojs.C_RELSHIPVIEW;
@@ -9714,6 +9719,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.corner = "";
         this.points = [];
         this.visible = true;
+        this.readonly = false;
         this.isLayoutPositioned = false;
     }
     // Methods

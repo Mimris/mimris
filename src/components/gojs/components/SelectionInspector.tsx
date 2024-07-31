@@ -141,6 +141,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let includeInherited = false;
     let includeConnected = false;
     let context;
+    let namelist = "";
     let tabIndex = 0;
     {
       if (category === constants.gojs.C_OBJECT) {
@@ -167,9 +168,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               context.includeConnected = true;
             }
             context.includeInherited = true;
-            let namelist = uic.getNameList(inst, context, true);
+            namelist = uic.getNameList(inst, context, true);
             typename = namelist[activeTab];            
-            if (namelist.length > 1 && typename !== 'Element') {
+            if (namelist.length > 1 && typename !== 'Element' && typename !== 'Default') {
               for (let i = 0; i < mySupertypes.length; i++) {
                 const tname = mySupertypes[i]?.name;
                 if (tname === typename) {
@@ -344,22 +345,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       proplist.push(propIdent);      
     }    
     if (debug) console.log('proplist', proplist);
-    // Then extend the proplist with properties
-    for (let n = 0; n < properties?.length; n++) {
-      const p = properties[n];
-      let found = false;
-      for (let i = 0; i < proplist.length; i++) {
-        const prop = proplist[i];
-        if (prop === p.name) {
-          found = true;
-          break;
-        } 
-      }   
-      if (!found) {
-        propNo++;
-        let propIdent = new akm.cxIdent(propNo, p.name);
-        proplist.push(propIdent);
-      }      
+    if (namelist.length > 1) {
+      if (typename === 'Default') {
+        properties = [];
+      } else {
+        // Then extend the proplist with properties
+        for (let n = 0; n < properties?.length; n++) {
+          const p = properties[n];
+          let found = false;
+          propNo++;
+          let propIdent = new akm.cxIdent(propNo, p.name);
+          proplist.push(propIdent);
+        }              
+      }
     }
     // Now build the rows
     for (let n = 0; n < proplist?.length; n++) {
@@ -460,14 +458,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         if (k === 'typename') {
-          if (activeTab !== "0") 
-            continue
           val = chosenInst.type?.name;
         } else if (k === 'typedescription') {
-          if (activeTab !== "0") 
-            continue
           val = chosenInst.type?.description;
-        } else 
+        } else
           val = chosenInst[k];
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal

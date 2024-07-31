@@ -4068,7 +4068,7 @@ function selectNameFromNameList(question, namelist, defText): string {
 }
 
 export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties: boolean): string[] {
-    let namelist = [];
+    let namelist = ['Default'];
     if (obj) {
         if (context.includeConnected) {
             namelist.push(obj.name);

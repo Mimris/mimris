@@ -141,25 +141,26 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // Set chosenType
     let includeInherited = false;
     let includeConnected = false;
-    let context;
+    let context = {
+      myMetis: myMetis,
+      includeConnected: false,
+      includeInherited: false,
+    }
     let tabIndex = 0;
     {
+      let inheritedTypes = [];
       if (category === constants.gojs.C_OBJECT) {
         if (type?.name === 'Method') {
-          chosenType = null;
+          chosenType =  myObjectType as akm.cxObjectType;
         } else {
           currentType = myObjectType as akm.cxObjectType;
           chosenType = currentType;
           chosenInst = inst;
           typename = currentType?.name;
           typedescription = currentType?.description;
-          const context = {
-            myMetis: myMetis,
-            includeConnected: false,
-            includeInherited: true,
-          }
+        
           if (useTabs && context1?.what === 'editObject') {
-            const inheritedTypes = mySupertypes;
+            inheritedTypes = mySupertypes;
             if (inheritedTypes?.length > 0) {
               context.includeInherited = true;
             }
@@ -167,20 +168,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (connectedObjects?.length > 0) {
               context.includeConnected = true;
             }
-            context.includeInherited = true;
-            namelist = uic.getNameList(inst, context, true);
-            typename = namelist[activeTab];            
-            if (namelist.length > 1 && typename !== 'Element' && typename !== 'Default') {
-              for (let i = 0; i < mySupertypes.length; i++) {
-                const tname = mySupertypes[i]?.name;
-                if (tname === typename) {
-                  type = inheritedTypes[i];
-                  chosenType = type as akm.cxObjectType;
-                }
-              }
-            }
           }
         }
+        namelist = uic.getNameList(inst, context, true);
+        typename = namelist[activeTab];            
+        if (namelist.length > 2 && typename !== 'Element' && typename !== 'Default') {
+          for (let i = 0; i < mySupertypes.length; i++) {
+            const tname = mySupertypes[i]?.name;
+            if (tname === typename) {
+              type = inheritedTypes[i];
+              chosenType = type as akm.cxObjectType;
+            }
+          }
+        }        
       } else if (category === constants.gojs.C_RELATIONSHIP) {
         currentType = type as akm.cxRelationshipType;
         chosenType = currentType;
@@ -226,68 +226,58 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let useStrokeColor = false;
     let isLabel = false;
     const what = context1.what;
-    // Get properties, and handle empty property values    
-    if (category === constants.gojs.C_OBJECT) {
-      if (what === 'editObject') {
+    // Get properties, and handle empty property values
+    {
+      if (category === constants.gojs.C_OBJECT) {
+        if (chosenType) {
+          try {
+          properties = chosenType.getProperties(false);
+          // pointerProps = chosenType.getPointerProperties(false);
+          } catch {
+            // Do nothing
+          }
+        } 
         if (type?.name === 'Method') {
           const inst1 = myMetis.findObject(inst.id) as akm.cxObject;
           if (inst1) inst = inst1;
           properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
           chosenInst = inst;
-        }
-        if (chosenType) {
-          try {
-            properties = chosenType.getProperties(modalContext.includeInherited);
-          } catch {
-            // Do nothing
-          }
-          const entType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-          const typelist = [];
-          typelist.push(entType);
-          typelist.push(chosenType);
-          const supertypes = chosenType.getSupertypes();
-          for (let i = 0; i < supertypes?.length; i++) {
-            const supertype = supertypes[i];
-            if (supertype)
-              typelist.push(supertype);
-          } 
-        }
-      }
-    } else if (category === constants.gojs.C_RELATIONSHIP) {
-      if (what === 'editRelationship') {      
-        if (chosenType) {
-          try {
-            properties = chosenType.getProperties(includeInherited);
-            // pointerProps = chosenType.getPointerProperties(false);
-          } catch {
-            // Do nothing
-          }
-          if (debug) console.log('237 chosenType, properties: ', chosenType, properties);
         } else {
-          inst = myMetis.findRelationship(inst?.id);
-          type = myMetis.findRelationshipType(type?.id);
+          let includeInherited = false;
+          let includeConnected = false;
+          inst = myMetis.findObject(inst.id);
+          type = myMetis.findObjectType(type.id);
           try {
-            const typeProps = type1?.getProperties(includeInherited);
-            const inheritedProps = inst1?.getInheritedProperties(myModel);
-            if (inheritedProps?.length > 0)
+            const typeProps = type?.getProperties(includeInherited);
+            const inheritedProps = inst?.getInheritedProperties(myModel);
+            if (inheritedProps?.length>0)
               properties = typeProps.concat(inheritedProps);
             else
               properties = typeProps;
           } catch {
             // Do nothing
           }
-          if (debug) console.log('259 chosenType, properties: ', chosenType, properties);
         }
       }
+      else if (category === constants.gojs.C_RELATIONSHIP) {
+        let flag = false;
+        const typeProps = type?.getProperties(flag);
+        properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
+        properties = typeProps;
+      }
+      else if (category === constants.gojs.C_RELSHIPTYPE) {
+
+      }
+
       // Handle property values that are undefined
-      for (let i = 0; i < properties?.length; i++) {
+      for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
-        if (!prop)
+        if (!prop) 
           continue;
-        if (chosenInst) {
+        if (chosenInst) { 
           const v = chosenInst[prop.name];
           // Sets empty string if undefined:
-          if (!v) chosenInst[prop.name] = "";
+          if (!v) chosenInst[prop.name] = "";  
         }
       }
     }
@@ -348,17 +338,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (namelist.length > 1) {
       if (typename === 'Default') {
         properties = [];
-      } else {
-        // Then extend the proplist with properties
-        for (let n = 0; n < properties?.length; n++) {
-          const p = properties[n];
-          let found = false;
-          propNo++;
-          let propIdent = new akm.cxIdent(propNo, p.name);
-          proplist.push(propIdent);
-        }              
-      }
+      } 
     }
+    // Then extend the proplist with properties
+    for (let n = 0; n < properties?.length; n++) {
+      const p = properties[n];
+      let found = false;
+      propNo++;
+      let propIdent = new akm.cxIdent(propNo, p.name);
+      proplist.push(propIdent);
+    }                    
     // Now build the rows
     for (let n = 0; n < proplist?.length; n++) {
       let val = "";

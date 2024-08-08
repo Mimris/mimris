@@ -360,6 +360,7 @@ export class cxMetis {
                     metamodel.linkcurve = item.linkcurve;
                     metamodel.generatedFromModelRef = item.generatedFromModelRef;
                     metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
+                    // metamodel.methodtypes = item.methodtypes;
                     this.addMetamodel(metamodel);
                     // Metamodel content
                     let items = item.subModels;
@@ -1100,9 +1101,12 @@ export class cxMetis {
                             const property = this.findProperty(prop.id);
                             if (property) {
                                 properties.push(property);
+                            } else {
+                                const property = new cxProperty(prop.id, prop.name, prop.description);
+                                properties.push(property);
                             }
-                            mtd[prop] = properties;
                         }
+                        mtd[prop] = properties;
                     } else
                         mtd[prop] = item[prop];
                 }

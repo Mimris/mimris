@@ -17,6 +17,7 @@ import * as jsn from '../../akmm/ui_json';
 import * as uic from '../../akmm/ui_common';
 import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
+import { read } from 'fs';
 
 const constants = require('../../akmm/constants');
 const utils = require('../../akmm/utilities');
@@ -957,6 +958,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Create a new object
             objId = utils.createGuid();
             object = new akm.cxObject(objId, objName, type, objDescr);
+            object.parentModelRef = myModel.id;
             myModel.addObject(object);
             myMetis.addObject(object);
             console.log('1241 node, data', node, n.data);
@@ -1161,208 +1163,256 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('nodes', nodes);
         break;
       }
-      case 'ClipboardPasted': {
+      case 'ClipboardPasted': { 
+        const selection = e.subject;
         let pasteAnotherModelview = false;
         let pasteViewsOnly = myMetis.pasteViewsOnly;
-        // First remember the FROM locs
-        const myFromNodes = myMetis.currentModel.args1;
-        if (debug) console.log('1306 myMetis, myGoModel, myFromNodes', myMetis, myGoModel, myFromNodes);
-        // Then do the paste
-        const selection = e.subject;
-        context.pasted = true;
-        const pastedNodes = new Array();
-        const myToNodes = [];
-        if (debug) console.log('1312 myFromNodes', myFromNodes);
-        let refloc, cnt = 0;
-        let deltaX = 0, deltaY = 0;
-        let objviews = [], nodes = [];
-        const it = selection.iterator;
-        while (it.next()) {
-          const data = it.value.data;
-          if (data.category === constants.gojs.C_OBJECT) {
-            context.pasted = true;
-            if (cnt == 0) {
-              refloc = data.loc;
-              cnt++;
+        let readOnly = false
+        let fromModel = myModel;
+        let toModel = myModel;
+        let fromModelview = myModelview;
+        let toModelview = myModelview;
+        // Build nodemaps
+        const nodeAndLinkMaps = new akm.cxNodeAndLinkMaps(fromModel, toModel, fromModelview, toModelview);
+        let it = selection.iterator;
+        while (it.next()) { 
+          if (it.value instanceof go.Node) {
+            // Filter out source nodes
+            let gjsNode = it.value.data;  
+            let gjsSourceObject = gjsNode.object;
+            let gjsSourceNode   = gjsNode.fromNode;
+            let sourceNodeKey   = gjsSourceNode.key;
+            let sourceLoc       = gjsSourceNode.loc;
+            let sourceGroupKey  = gjsSourceNode.group;
+            let targetGroupKey  = gjsNode.group;
+            let targetNodeKey   = gjsNode.key;
+            let targetLoc       = gjsNode.loc;
+            if (sourceNodeKey?.length == gjsNode.key.length) {
+              pasteAnotherModelview = true;
+              targetNodeKey = utils.createGuid();
+              fromModelview = gjsNode.fromModelview;
+              fromModel = fromModelview.model;
+              nodeAndLinkMaps.setFromModel(fromModel);
+              nodeAndLinkMaps.setFromModelView(fromModelview);
+              toModelview = myModelview;
+              toModel = myModel;
+              nodeAndLinkMaps.setToModel(toModel);
+              nodeAndLinkMaps.setToModelView(myModelview);
             }
-            if (debug) console.log('1324 data, myGoModel', data, myGoModel);
-            let objview = uic.createObject(data, context);
-            objview.group = "";
-            const key = data.key; // utils.createGuid();
-            const node = new gjs.goObjectNode(key, objview);
-            node.group = "";
-            nodes.push(node);
-            // Now remember the TO locs
-            const scale = node.getMyScale(myGoModel);
-            const myToNode = {
-              "key": key,
-              "name": data.name,
-              "loc": new String(data.loc),
-              "scale": new String(scale),
-              "size": new String(data.size),
-              "template": data.template,
-              "figure": data.figure,
-              "geometry": data.geometry,
-              "fillcolor": data.fillcolor,
-              "fillcolor2": data.fillcolor2,
-              "strokecolor": data.strokecolor,
-              "strokecolor2": data.strokecolor2,
-              "strokewidth": data.strokewidth,
-              "textscale": data.textscale,
-              "textcolor": data.textcolor,
-              "icon": data.icon,
-            }
-            myToNodes.push(myToNode);
-            objview.loc = myToNode.loc.valueOf();
-            if (deltaX == 0) deltaX = myToNode.loc.valueOf().x - refloc.x;  
-            objview.size = myToNode.size.valueOf();
-            objviews.push(objview);
-            node.loc = objview.loc;
-            node.size = objview.size;
-            const n = myGoModel.findNode(key);
-            n.loc = objview.loc;
-            n.size = objview.size;
-            if (debug) console.log('1360 data, objview, node, n', data, objview, node, n);
+            const nodMap = new akm.cxNodeMap(gjsSourceObject, sourceNodeKey, targetNodeKey, gjsNode.isGroup, 
+                                             sourceGroupKey, targetGroupKey, sourceLoc, targetLoc);
+            nodeAndLinkMaps.addNodeMap(nodMap);            
           }
         }
-        // Nodes and objectviews are now filled with values
-        if (debug) console.log('1363 myFromNodes, myToNodes, objviews, nodes', myFromNodes, myToNodes, objviews, nodes);
-        for (let i = 0; i < objviews?.length; i++) {
-          const objview = objviews[i];
-          const node = nodes[i];
-          const myToNode = myToNodes[i];
-          let fromNode;
-          // Find fromNode
-          for (let i = 0; i < myFromNodes?.length; i++) {
-            const myNode = myFromNodes[i];
-            if (myNode.key.substr(0, 36) === node.key.substr(0, 36)) {
-              fromNode = myNode;
-              break;
-            }
-          }
-          if (objview) {
-            const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
-            const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
-            const group = uic.getGroupByLocation(myGoModel, objview.loc, objview.size, node);
-            const gjsNode = myDiagram.findNodeForKey(node.key);
-            if (group && node) {
-              const groupType = myMetis.findObjectTypeByName(group.objecttype?.name);
-              if (groupType?.name !== containerType?.name) {
-                // Create a hasMember relationship from group to node
-                const rel = new akm.cxRelationship(utils.createGuid(), hasMemberType, 
-                                                   group.object, node.object,
-                                                   hasMemberType.name, hasMemberType.description);
-                const jsnRelship = new jsn.jsnRelationship(rel);
-                modifiedRelships.push(jsnRelship);
+
+        if (pasteAnotherModelview) { // Handle groups
+          // This covers both the case of pasting into another modelview and 
+          // the case of pasting into another model
+          // 
+          // Identify the nodes that are member of groups
+          // and finalize the nodemaps
+          const nodemaps = nodeAndLinkMaps.nodeMaps;
+          for (let i=0; i<nodemaps.length; i++) {
+            const nodMap = nodemaps[i];
+            const fromGroupKey = nodMap.fromGroupKey;
+            for (let j=0; j<nodemaps.length; j++) {
+              const grpMap = nodemaps[j];
+              if (grpMap.isGroup) {
+                if (grpMap.fromSourceKey === fromGroupKey) {
+                  nodMap.toGroupKey = grpMap.toTargetKey;
+                  break;
+                }
               }
-              objview.group = group.objectview?.id;
-              node.group = group.key;
-              myDiagram.model?.setDataProperty(gjsNode, "group", group.key);
-            }
-            node.loc = myToNode.loc.valueOf();
-            const scale0 = fromNode ? fromNode.scale.valueOf() : 1;
-            const scale1 = node.getMyScale(myGoModel).toString(); // myToNode.scale.valueOf(); 
-            let scaleFactor = scale1 / scale0;
-            const nodeloc = uic.scaleNodeLocation2(node, refloc, myToNode.loc, scaleFactor);
-            if (nodeloc) {
-              const loc = nodeloc.x + " " + nodeloc.y;
-              myToNode.loc = new String(loc);
-              deltaX = nodeloc.x - refloc[0];
-              deltaY = nodeloc.y - refloc[1];
-            }
-            {
-              node.loc = myToNode.loc.valueOf();
-              objview.loc = myToNode.loc.valueOf();
-              node.scale1 = node.getMyScale(myGoModel);
-              objview.scale1 = node.scale1;
-              objview.template = myToNode.template;
-              objview.figure = myToNode.figure;
-              objview.geometry = myToNode.geometry;
-              objview.fillcolor = myToNode.fillcolor;
-              objview.fillcolor2 = myToNode.fillcolor2;
-              objview.strokecolor = myToNode.strokecolor;
-              objview.strokecolor2 = myToNode.strokecolor2;
-              objview.strokewidth = myToNode.strokewidth;
-              objview.textscale = myToNode.textscale;
-              objview.textcolor = myToNode.textcolor;
-              objview.icon = myToNode.icon;
-              const n = myDiagram.findNodeForKey(node.key);
-              myDiagram.model.setDataProperty(n.data, "loc", node.loc);
-              myDiagram.model.setDataProperty(n, "scale", node.scale1);
-              myDiagram.model.setDataProperty(n.data, "group", node.group);
-              pastedNodes.push(node);
-              const objid = objview.object?.id;
-              objview.object = myMetis.findObject(objid);
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              modifiedObjectViews.push(jsnObjview);
-              if (debug) console.log('1438 jsnObjview', jsnObjview);
-              const jsnObj = new jsn.jsnObject(objview.object);
-              modifiedObjects.push(jsnObj);
             }
           }
         }
 
+       // Now identify objects and objectviews
+        const goSourceNodes = [];
+        const goTargetNodes = [];
+        const sourceObjectviews = [];
+        const targetObjectviews = [];
+        const gjsSourceNodes = [];
+        const gjsTargetNodes = [];
         const gjsSourceLinks = [];
         const gjsTargetLinks = [];
+        const sourceObjects = [];
+        const targetObjects = [];
+        const sourceRelships = [];
         const targetRelships = [];
+        let objtype: akm.cxObjectType;
+        const nodemaps = nodeAndLinkMaps.nodeMaps;
+        for (let i=0; i<nodemaps.length; i++) {
+          const nodMap = nodemaps[i];
+          const sourceNodeKey = nodMap.fromSourceKey;
+          const sourceObjectView: akm.cxObjectView = myMetis.findObjectView(sourceNodeKey);
+          let sourceObject: akm.cxObject = sourceObjectView.object;
+          let goSourceNode: gjs.goObjectNode = myGoModel.findNode(sourceNodeKey);
+          if (!goSourceNode) {
+            goSourceNode = new gjs.goObjectNode(sourceNodeKey, myGoModel, sourceObjectView);
+            myGoModel.addNode(goSourceNode);
+          }
+          objtype = sourceObject?.type;
+          if (!objtype)
+            objtype = myMetis.findObjectType(goSourceNode.objtypeRef);
+
+          goSourceNodes.push(goSourceNode);
+          sourceObjectviews.push(sourceObjectView);
+          sourceObjects.push(sourceObject);
+
+          // Paste the target nodes and objectviews
+          let targetObject: akm.cxObject = sourceObject;
+
+          if (!pasteViewsOnly) {
+            targetObject = new akm.cxObject(utils.createGuid(), sourceObject.name, objtype, sourceObject.description);
+            myModel.addObject(targetObject);
+            myMetis.addObject(targetObject);
+          }
+          targetObjects.push(targetObject);
+          let targetObjectView: akm.cxObjectView; 
+          let targetNodeKey = nodMap.toTargetKey;
+
+          if (pasteAnotherModelview) {
+            targetObjectView = new akm.cxObjectView(targetNodeKey, sourceObjectView.name, 
+                                                    targetObject, sourceObjectView.description, myModelview);
+            myModelview.addObjectView(targetObjectView);
+            myMetis.addObjectView(targetObjectView);
+            nodeAndLinkMaps.replaceNodeKeys(sourceNodeKey, targetObject.id);
+            if (fromModel.id !== toModel.id) {
+              readOnly = true;
+            }
+            targetObjectView.readOnly = readOnly;
+          } else {
+            targetObjectView = new akm.cxObjectView(targetNodeKey, sourceObjectView.name, 
+                                                    targetObject, sourceObjectView.description, myModelview);
+            myModelview.addObjectView(targetObjectView);
+            myMetis.addObjectView(targetObjectView);
+          }
+
+          let goTargetNode: gjs.goObjectNode = myGoModel.findNode(targetNodeKey);
+          if (!goTargetNode) {
+            goTargetNode = new gjs.goObjectNode(targetNodeKey, myGoModel, targetObjectView);
+            myGoModel.addNode(goTargetNode);
+          }
+          if (targetObjectView.isGroup) {
+            targetObjectView.viewkind = constants.viewkinds.CONT;
+          }
+          targetObjectView.setGroup(nodMap.toGroupKey);
+          targetObjectView.setLoc(nodMap.toLoc);
+          targetObjectView.setIsGroup(sourceObjectView.isGroup);
+          targetObjectView.setSize(sourceObjectView.size);
+          targetObjectView.setScale(sourceObjectView.scale1);
+          targetObjectView.setMemberscale(sourceObjectView.memberscale);
+          targetObjectView.setTemplate(sourceObjectView.template);
+          targetObjectView.readonly = readOnly;
+          myModelview.addObjectView(targetObjectView);
+          myMetis.addObjectView(targetObjectView);
+          goTargetNode = new gjs.goObjectNode(nodMap.toTargetKey, myGoModel, targetObjectView);
+          goTargetNode.group = nodMap.toGroupKey;
+          myGoModel.addNode(goTargetNode);
+          goTargetNodes.push(goTargetNode);
+          targetObjectviews.push(targetObjectView);                        
+          const jsnObj = new jsn.jsnObject(targetObject);
+          uic.addItemToList(modifiedObjects, jsnObj);
+          const jsnObjview = new jsn.jsnObjectView(targetObjectView);
+          uic.addItemToList(modifiedObjectViews, jsnObjview);
+        }
+      
         // Now handle the relationships
         let it2 = selection.iterator;
         while (it2.next()) { 
           let n = it2.value;
           if (n instanceof go.Node) 
             continue;
+          const nodemaps = nodeAndLinkMaps.nodeMaps;
           if (it2.value instanceof go.Link) {
-            let gjsLink = it2.value.data;
+            let gjsLink = it2.value.data; // The copied (source) link (i.e. the relationship)
             if (!gjsLink.linkNode) 
               continue;
-            // Build the relationships
-            // The copied (source) relship
-            const gjsSourceLinkKey = gjsLink?.linkNode.from;
-            let gjsSourceLink = gjsLink?.linkNode;
-            if (gjsSourceLink)
-              gjsSourceLinks.push(gjsSourceLink);
-            const sourceRelId = gjsSourceLink?.relid;
-            let sourceRelship = myMetis.findRelationship(sourceRelId);
+            // The copied relviews / links
+            let relviewId = gjsLink.linkNode.key;
+            let relview = myMetis.findRelationshipView(relviewId);
+            let relid = gjsLink.linkNode.relid;
+            let relship = myMetis.findRelationship(relid);
+            const copiedRelship = relship;
+            const gjsCopiedLink = gjsLink.linkNode;
+            const gjsCopiedLinkKey = gjsCopiedLink.key;
+            const gjsCopiedLinkFromNodeKey = gjsCopiedLink.from;
+            const gjsCopiedLinkToNodeKey = gjsCopiedLink.to;
 
-            // The pasted (target) link with nodes:
-            const gjsTargetLinkKey = gjsLink?.linkNode.to;
-            let gjsTargetLink = gjsLink;
-            if (gjsTargetLink)
-              gjsTargetLinks.push(gjsTargetLink);
-            const gjsFromNode = gjsTargetLink?.from;
-            const gjsToNode = gjsTargetLink?.to;
+            const copyPasteLinkMap = 
+                new akm.cxLinkMap(copiedRelship, 
+                                  gjsCopiedLinkFromNodeKey,
+                                  gjsCopiedLinkToNodeKey,
+                                  gjsCopiedLinkKey);
+            nodeAndLinkMaps.addLinkMap(copyPasteLinkMap);    
 
-            // The target FROM objectview
-            let fromObject: akm.cxObject = gjsTargetLink?.relship?.fromObject;
-            let fromObjview: akm.cxObjectView = myMetis.findObjectView(gjsFromNode);
+            let pastedRelshipRef = gjsLink.relshipRef;
+            let pastedRelship: akm.cxRelationship = myMetis.findRelationship(pastedRelshipRef);
+            let gjsPastedLink = gjsLink;
+            let gjsPastedLinkKey = gjsPastedLink.key;
+            let gjsPastedLinkFromNodeKey = gjsPastedLink.from;
+            let gjsPastedLinkToNodeKey = gjsPastedLink.to;
+            if (pasteAnotherModelview) { // 
+              const fromNodeMap = nodeAndLinkMaps.getNodeMap(relship.fromObject, gjsLink.from);
+              gjsPastedLinkFromNodeKey = fromNodeMap.toTargetKey;
+              const toNodeMap = nodeAndLinkMaps.getNodeMap(relship.toObject, gjsLink.to);
+              gjsPastedLinkToNodeKey = toNodeMap.toTargetKey;
+            }
+            let pastedRelviewKey = gjsPastedLinkKey;
+            if (pasteAnotherModelview) { // 
+              pastedRelviewKey = utils.createGuid();
+              myDiagram.model.removeLinkData(gjsLink);
+              gjsLink.key = pastedRelviewKey;
+              myDiagram.model.addLinkData(gjsLink);
+            }
+            copyPasteLinkMap.sourceLinkKey     = gjsCopiedLinkKey;
+            copyPasteLinkMap.targetLinkKey     = gjsPastedLinkKey;
+            copyPasteLinkMap.targetFromNodeKey = gjsPastedLinkFromNodeKey;
+            copyPasteLinkMap.targetToNodeKey   = gjsPastedLinkToNodeKey;
+            // // The pasted FROM and TO links
+            const pastedToLinkMap = 
+                new akm.cxLinkMap(pastedRelship, 
+                                  gjsPastedLinkFromNodeKey,
+                                  gjsPastedLinkToNodeKey,
+                                  gjsPastedLinkKey,
+                                  pastedRelviewKey);
+            nodeAndLinkMaps.addLinkMap(pastedToLinkMap);    
+
+            // // The target FROM objectview
+            let fromObject: akm.cxObject = gjsPastedLink?.relship?.fromObject;
+            let fromObjview: akm.cxObjectView = myMetis.findObjectView(gjsPastedLinkFromNodeKey);
             if (!fromObjview && fromObject) {
-              fromObjview = new akm.cxObjectView(gjsFromNode, gjsFromNode.name, fromObject, gjsFromNode.description, myModelview);
+              fromObjview = new akm.cxObjectView(gjsPastedLinkFromNodeKey, fromObject.name, fromObject, fromObject.description, myModelview);
             }
             // The target TO objectview
-            let toObject: akm.cxObject = gjsTargetLink?.relship?.toObject;
-            let toObjview: akm.cxObjectView = myMetis.findObjectView(gjsToNode);
+            let toObject: akm.cxObject = gjsPastedLink?.relship?.toObject;
+            let toObjview: akm.cxObjectView = myMetis.findObjectView(gjsPastedLinkToNodeKey);
             if (!toObjview && toObject) {
-              toObjview = new akm.cxObjectView(gjsToNode, fromObjview.name, toObject, gjsFromNode.description, myModelview);
+              toObjview = new akm.cxObjectView(gjsPastedLinkToNodeKey, toObject.name, toObject, toObject.description, myModelview);
             } 
-
-            // The target Relationship
+        
+          // The target Relationship
             const fromObj: akm.cxObject = fromObjview?.object;
             const toObj: akm.cxObject = toObjview?.object;
-            let reltype: akm.cxRelationshipType = myMetis.findRelationshipType(gjsLink.reltypeRef);
+            let sourceRelship: akm.cxRelationship = copiedRelship;
+            let reltype: akm.cxRelationshipType = myMetis.findRelationshipType(gjsPastedLink.reltypeRef);
             let targetRelship: akm.cxRelationship = sourceRelship;
             if (!pasteViewsOnly) {
-                targetRelship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, gjsLink.name, gjsLink.description);
+              const relid = utils.createGuid();
+              targetRelship = new akm.cxRelationship(relid, reltype, fromObject, toObject, sourceRelship.name, sourceRelship.description);
             }
             targetRelships.push(targetRelship);
             myModel.addRelationship(targetRelship);
             myMetis.addRelationship(targetRelship);
 
             // The target relationship view
-            let targetRelview = new akm.cxRelationshipView(gjsTargetLink.key, gjsTargetLink.name, targetRelship, "", myModelview);
+            let targetRelview = new akm.cxRelationshipView(pastedRelviewKey, gjsPastedLink.name, targetRelship, "");
             targetRelview.fromObjview = fromObjview;
             targetRelview.toObjview = toObjview;
             targetRelship.addRelationshipView(targetRelview);
-            const goRelshipLink = new gjs.goRelshipLink(targetRelview.id, myGoModel, targetRelview);
+            targetRelview.readOnly = readOnly;
+            const goRelshipLink = new gjs.goRelshipLink(pastedRelviewKey, myGoModel, targetRelview);
             myGoModel.addLink(goRelshipLink);
             myModelview.addRelationshipView(targetRelview);
             myMetis.addRelationshipView(targetRelview);
@@ -1370,67 +1420,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             modifiedRelships.push(jsnRelship);
             const jsnRelview = new jsn.jsnRelshipView(targetRelview);
             modifiedRelshipViews.push(jsnRelview);
-
-            const l = myDiagram.findLinkForKey(gjsTargetLink.key);
-            myDiagram.model.setDataProperty(l.data, "from", fromObjview.id);
-            myDiagram.model.setDataProperty(l.data, "to", toObjview.id);
-            myDiagram.model.setDataProperty(l.data, "name", targetRelship.name);
           }
         }
-
-        // Then handle the relationships
-        // const myFromLinks = myMetis.currentModel.args2;        
-        // const it1 = selection.iterator;
-        // while (it1.next()) {
-        //   const link = it1.value.data;
-        //   if (link.category === constants.gojs.C_RELATIONSHIP) {
-        //     context.pasted = true;
-        //     let relview = uic.pasteRelationship(link, context);
-        //     if (relview) {
-        //       const relid = relview.relship?.id;
-        //       relview.relship = myMetis.findRelationship(relid);
-        //       // Handle relview scaling
-        //       const fromObjview = relview.fromObjview;
-        //       const toObjview = relview.toObjview;
-        //       if (fromObjview && toObjview) {
-        //         const scaleFrom = fromObjview.scale1;
-        //         const scaleTo = toObjview.scale1;
-        //         const textscale = scaleFrom > scaleTo ? scaleFrom : scaleTo;
-        //         relview.textscale = textscale;
-        //       }
-        //       // Handle points
-        //       const points = [];
-        //       for (let it = link.points.iterator; it?.next();) {
-        //         const point = it.value;
-        //         if (debug) console.log('1603 point', point.x, point.y);
-        //         points.push(point.x)
-        //         points.push(point.y)
-        //       }
-        //       // Handle view attributes
-        //       relview.points = points;
-        //       relview.template = link.template;
-        //       relview.arrowscale = link.arrowscale;
-        //       relview.strokecolor = link.strokecolor;
-        //       relview.strokewidth = link.strokewidth;
-        //       relview.textcolor = link.textcolor;
-        //       relview.textscale = link.textscale;
-        //       relview.dash = link.dash;
-        //       relview.fromArrow = link.fromArrow;
-        //       relview.toArrow = link.toArrow;
-        //       relview.fromArrowColor = link.fromArrowColor;
-        //       relview.toArrowColor = link.toArrowColor;
-        //       // Prepare dispatch
-        //       const jsnRelview = new jsn.jsnRelshipView(relview);
-        //       modifiedRelshipViews.push(jsnRelview);
-        //       const jsnRelship = new jsn.jsnRelationship(relview.relship);
-        //       modifiedRelships.push(jsnRelship);
-        //     }
-        //   }
-        // }
-        // if (debug) console.log('1491 ClipboardPasted', modifiedRelshipViews, modifiedRelships, myMetis);
-        // myDiagram.requestUpdate();
         break;
-      }
+      }      
       case 'LayoutCompleted': {
         if (false) {
           const nodes = myDiagram.nodes;

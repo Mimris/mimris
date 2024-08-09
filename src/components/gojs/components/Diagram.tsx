@@ -446,6 +446,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               selection = [];
               e.diagram.selection.each(function (sel) {
                 const key = sel.data.key;
+                sel.data.fromModelview = myMetis.currentModelview;
                 sel.data.fromNode = getSourceNode(gjsSourceNodes, key);
                 sel.data.linkNode = getSourceLink(gjsSourceLinks, key);
                 if (debug) console.log('457 sel.data', sel.data);

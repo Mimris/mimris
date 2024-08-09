@@ -2403,8 +2403,10 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     }
                 }
             }
-            const modObjview = new jsn.jsnObjectView(objview);
-            modifiedObjectViews.push(modObjview);
+            if (objview) {
+                const modObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(modObjview);
+            }
         }
         return node;
     }
@@ -4066,7 +4068,7 @@ function selectNameFromNameList(question, namelist, defText): string {
 }
 
 export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties: boolean): string[] {
-    let namelist = [];
+    let namelist = ['Default'];
     if (obj) {
         if (context.includeConnected) {
             namelist.push(obj.name);

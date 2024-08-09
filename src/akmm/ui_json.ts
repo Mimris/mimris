@@ -1283,6 +1283,7 @@ export class jsnObject {
     abstract:        boolean;
     viewkind:        string;
     typeRef:         string;
+    parentModelRef:  string;
     typeName:        string;
     typeDescription: string;
     propertyValues:  any[];
@@ -1296,6 +1297,7 @@ export class jsnObject {
         this.description     = object.description ? object.description : "";
         this.abstract        = object.abstract;
         this.viewkind        = object.viewkind;
+        this.parentModelRef  = object.parentModelRef;
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";

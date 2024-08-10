@@ -1363,7 +1363,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     // Add system types 
     // First add object types 
-    // let objecttypes  = new Array();
     let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
@@ -1639,7 +1638,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 const fromObjview = relview.fromObjview as akm.cxObjectView;
                 if (!fromObjview) continue;
                 let fromObj = fromObjview?.object as akm.cxObject;
-                fromObj = myModel.findObjectByName(fromObj.name);
+                fromObj = myModel.findObjectByName(fromObj?.name);
                 const toObjview = relview.toObjview as akm.cxObjectView;
                 if (!toObjview) continue;
                 let toObj = toObjview?.object as akm.cxObject;

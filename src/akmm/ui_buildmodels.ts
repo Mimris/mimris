@@ -15,17 +15,27 @@ let includeNoType = false;
 
 export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
   if (debug) console.log('16 metamodel', metamodel);
-  let inheritedTypenames, typenames;
+  let inheritedTypenames = []; 
+  let typenames;
   const modelRef = metamodel?.generatedFromModelRef;
   let model = metis?.findModel(modelRef);
+  let objtypes = [];
+  const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_MM;
   if (metamodel) {
     const mmtypenames = [];
-    const objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
+    objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
     if (objtypes) {
       for (let i = 0; i < objtypes.length; i++) {
         const objtype = objtypes[i];
         if (objtype) {
-          mmtypenames.push(objtype.name);
+          if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+            if (isCoreMetamodel) {
+              mmtypenames.push(objtype.name);
+            } else
+              continue;
+          }
+          if (!objtype.abstract )
+            mmtypenames.push(objtype.name);
         }
       }
     }
@@ -48,7 +58,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     if (debug) console.log('47 objecttypes', inheritedTypenames);
   }
   const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-  let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes0;
+  let objecttypes: akm.cxObjectType[] | null = objtypes; //  metamodel?.objecttypes0;
   if (objecttypes) {
     objecttypes.sort(utils.compare);
   }
@@ -61,7 +71,13 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       if (debug) console.log('60 objtype', objtype);
       if (!objtype) continue;
       if (objtype.markedAsDeleted) continue;
-      if (objtype.abstract) continue;
+      if (objtype.abstract) {
+        if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+          if (!isCoreMetamodel) 
+            continue;
+        } else
+          continue;
+      }
       if (objtype.nameId === 'Entity0') continue;
       if (objtype.name === 'Datatype') includesSystemtypes = true;
       if (!includesSystemtypes) {

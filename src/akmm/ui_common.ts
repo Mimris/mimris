@@ -4100,9 +4100,15 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
             uniquelist.reverse();
             namelist = uniquelist;
         }
+        if (debug) console.log('3031 namelist', namelist);
+        if (namelist.length > 2)
+            return namelist;
+        else {
+            namelist = [];
+            namelist.push(obj.name);
+            return namelist;
+        }
     }
-    if (debug) console.log('3031 namelist', namelist);
-    return namelist;
 }
 
 export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) {

@@ -1292,7 +1292,9 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel;
     const goNode = myGoModel.findNodeByViewId(node.key);
-    const fromType = goNode.objecttype;
+    let fromType = goNode.objecttype;
+    if (!fromType)
+        fromType = myMetamodel.findObjectType(goNode.objtypeRef);   
 
     let objtypenames = [];
     let objtypes = [];

@@ -696,7 +696,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               disabled = true;
             }
           }
-
           // Handle viewFormat
           if (k === 'name') {
             fieldType = 'text';

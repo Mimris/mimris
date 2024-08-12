@@ -3828,7 +3828,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
       // Define the tabs
       selpropgroup = [];
-      for (let i = 0; i < namelist.length; i++) {
+      for (let i = 0; i < namelist?.length; i++) {
         let name = namelist[i];
         if (name === constants.types.AKM_ELEMENT)
           continue; // name = 'Default';

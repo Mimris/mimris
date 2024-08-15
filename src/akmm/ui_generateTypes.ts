@@ -2247,8 +2247,8 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxPro
         if (proptype && proptype instanceof akm.cxObject) {
             const readOnly = proptype.readOnly;
             let prop = type.findPropertyByName(proptype.name);
-            if (prop)
-                prop = myTargetMetamodel.findPropertyByName(prop.name);
+            // if (prop)
+            //     prop = myTargetMetamodel.findPropertyByName(prop.name);
             if (!prop) {
                 // New property - create it
                 prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);

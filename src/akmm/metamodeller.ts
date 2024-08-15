@@ -8160,6 +8160,7 @@ export class cxInstance extends cxMetaObject {
                 case constants.types.MTD_AGGREGATEVALUE: {
                     context = {
                         "myMetis": metis,
+                        "myMetamodel": metis.currentMetamodel,
                         "reltypes": method["reltypes"],
                         "reldir": method["reldir"],
                         "objtypes": method["objtypes"],

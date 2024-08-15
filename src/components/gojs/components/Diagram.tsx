@@ -1562,6 +1562,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "title": "Select Method",
                   "dispatch": myDiagram.dispatch,
                   "postOperation": ui_mtd.executeMethod,
+                  "traverseViews": true,
                   "args": args
                 }
                 ui_mtd.askForMethod(context);

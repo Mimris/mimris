@@ -117,7 +117,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let chosenInst: akm.cxObject | akm.cxRelationship;
     let properties: akm.cxProperty[];
     let chosenType: akm.cxObjectType | akm.cxRelationshipType;
-    let item, description;
+    let item: akm.cxObject | akm.cxRelationship; 
+    let description = "";
     let typename = "";
     let typedescription = "";
     switch (category) {

@@ -374,11 +374,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               continue;
             let myProp = myMetamodel.findProperty(prop.id);
             if (!myProp) {
-              myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
-              myProp.methodRef = prop.methodRef;
-              myProp.datatypeRef = prop.datatypeRef;
-              prop = myProp;
+              myProp = myMetamodel.findPropertyByName(prop.name);
+              if (!myProp) {
+                myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
+                myProp.methodRef = prop.methodRef;
+                myProp.datatypeRef = prop.datatypeRef;
+              }
             }
+            prop = myProp;
             if (prop.readOnly) {
               readonly = true;
             }

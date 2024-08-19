@@ -28,7 +28,7 @@ export function askForMethod(context: any) {
         myDiagram:      myDiagram,
         context:        context,
       } 
-      const methods = new Array();
+      let methods = new Array();
       const allMethods = currentType.methods;
       for (let i=0; i<allMethods?.length; i++) {
         const method = allMethods[i];
@@ -36,6 +36,9 @@ export function askForMethod(context: any) {
             continue;
         methods.push(method);
       }
+      const uniqueSet = new Set(methods); 
+      methods = [...uniqueSet];    
+
       const mmNameIds = methods.map(mm => mm && mm.nameId);
       if (debug) console.log('452', mmNameIds, modalContext, context);
       myDiagram.handleOpenModal(mmNameIds, modalContext);
@@ -262,7 +265,7 @@ export function traverseViews(objview: akm.cxObjectView, context: any): boolean 
     const reltypes       = method["reltypes"];
     let pre_action       = method["preaction"];
     let post_action      = method["postaction"];
-    let noLevels         = parseInt(method["nolevels"]);
+    let noLevels         = parseInt(context["nolevels"]);
     let level            = context.level;
 
     if (conditionIsFulfilled(objview.object, context)) {
@@ -371,8 +374,8 @@ function conditionIsFulfilled(object: akm.cxObject, context: any): boolean {
     const myMetis = context.myMetis;
     const myMetamodel    = context.myMetamodel;
     const method = context.args.method;
-    const objtypecondition  = method["objtypecondition"];  
-    const reltypecondition  = method["reltypecondition"];  
+    const objtypecondition  = method["objtypes"];  
+    const reltypecondition  = method["reltypes"];  
     const valuecondition = method["valuecondition"]; // On object
     const objtype = objtypecondition ? myMetamodel.findObjectTypeByName(objtypecondition) : null;
     const otype = object?.type;

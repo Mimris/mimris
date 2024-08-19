@@ -7730,7 +7730,7 @@ export class cxInstance extends cxMetaObject {
         if (!type) {
             return null;
         }
-        const typeprops = type.getProperties(true);
+        const typeprops = type.getProperties(false);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
         if (type.name === 'Method') {

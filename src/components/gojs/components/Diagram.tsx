@@ -1563,6 +1563,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "dispatch": myDiagram.dispatch,
                   "postOperation": ui_mtd.executeMethod,
                   "traverseViews": true,
+                  "nolevels": "9",
+                  "level": 0,
                   "args": args
                 }
                 ui_mtd.askForMethod(context);

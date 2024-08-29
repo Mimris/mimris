@@ -950,9 +950,15 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     let fromObjview: akm.cxObjectView ;
     fromObjview = myModelview.findObjectView(gjsFromKey);
     let objFrom: akm.cxObject = fromObjview.object;
+    if (!objFrom) {
+        objFrom = myMetis.findObject(fromObjview.objectRef);
+    }
     let toObjview: akm.cxObjectView ;
     toObjview = myModelview.findObjectView(gjsToKey);
     let objTo: akm.cxObject = toObjview.object;
+    if (!objTo) {
+        objTo = myMetis.findObject(toObjview.objectRef);
+    }
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType = args.toType;
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
@@ -993,6 +999,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        objFrom.addOutputrel(relship);
+        objTo.addInputrel(relship);
         myModel.addRelationship(relship);
         myMetis.addRelationship(relship);
     }

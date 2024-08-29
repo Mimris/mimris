@@ -1170,6 +1170,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           nodeTo = myGoModel.findNode(toKey);
           const toObjview = myModelview.findObjectView(toKey);
           const toObj = toObjview.object;
+          if (!toObj) continue;
           const toType = toObj.type;
           // Get the selected relship type
           const relTypename = (selectedOption) && selectedOption; // Get the selected relship typename
@@ -1178,6 +1179,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
           else
             reltype = myMetis.findRelationshipTypeByName2(relTypename, fromType, toType);
+          if (!reltype) continue;
           // Check if the relationship already exists
           let rel = myModel.findRelationship2(fromObj, toObj, relTypename, reltype);
           if (rel && !rel.markedAsDeleted) {

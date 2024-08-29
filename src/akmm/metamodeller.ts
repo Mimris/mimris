@@ -7730,7 +7730,7 @@ export class cxInstance extends cxMetaObject {
         if (!type) {
             return null;
         }
-        const typeprops = type.getProperties(true);
+        const typeprops = type.getProperties(false);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
         if (type.name === 'Method') {
@@ -8160,6 +8160,7 @@ export class cxInstance extends cxMetaObject {
                 case constants.types.MTD_AGGREGATEVALUE: {
                     context = {
                         "myMetis": metis,
+                        "myMetamodel": metis.currentMetamodel,
                         "reltypes": method["reltypes"],
                         "reldir": method["reldir"],
                         "objtypes": method["objtypes"],

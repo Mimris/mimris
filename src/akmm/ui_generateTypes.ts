@@ -424,7 +424,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     // fromName is the relationship type name seen from the from object
     // toName is the relationship type name seen from the to object
     const names = currentRel?.name.split("/");
-    let fromName = names[0];
+    let fromName = names ? names[0] : currentRel?.name;
     let toName = "";
     if (names.length > 0) {
         toName = names[1];
@@ -2104,8 +2104,9 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
                 relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
                 if (debug) console.log('865 relview', relview);
             }
-            const fromObjview = fromObj?.objectviews[0];
-            const toObjview = toObj?.objectviews[0];
+            const fromObjview = fromObj?.objectviews ? fromObj?.objectviews[0] : null;
+            const toObjview = toObj?.objectviews ? toObj?.objectviews[0] : null;
+            if (!fromObjview || !toObjview) continue;
             relview.setFromObjectView(fromObjview);
             relview.setToObjectView(toObjview);
             tempModelview.addRelationshipView(relview);
@@ -2133,7 +2134,7 @@ function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist: any
     }
 }
 
-function getAllPropertytypes(obj: akm.cxObject, typeprops: akm.cxProperty[], myModel: akm.cxModel): any[] {
+function getAllPropertytypes(obj: akm.cxObject, typeprops: akm.cxProperty[], myModel: akm.cxModel): cxObject[] | cxRelationship[] {
     // Check if obj inherits another obj
     const genrels = obj?.getOutputRelships(myModel, constants.relkinds.GEN);
     if (genrels) {
@@ -2148,7 +2149,7 @@ function getAllPropertytypes(obj: akm.cxObject, typeprops: akm.cxProperty[], myM
     return getTypeProperties(obj, typeprops, myModel);
 }
 
-function getTypeProperties(obj: akm.cxObject, typeprops: any[], myModel: akm.cxModel): any[] {
+function getTypeProperties(obj: akm.cxObject, typeprops: akm.cxProperty[], myModel: akm.cxModel): cxObject[] | cxRelationship[] {
     const rels = obj?.getOutputRelships(myModel, constants.relkinds.REL);
     for (let i = 0; i < rels?.length; i++) {
         const rel = rels[i];
@@ -2236,9 +2237,9 @@ function addProperties0(type: akm.cxType | akm.cxMethodType, context: any) {
 }
 
 function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxProperty[], context: any) {
-    const myMetis = context.myMetis;
-    const myModel = context.myModel;
-    const myTargetMetamodel = context.myTargetMetamodel;
+    const myMetis: akm.cxMetis = context.myMetis;
+    const myModel: akm.cxModel = context.myModel;
+    const myTargetMetamodel: akm.cxMetamodel = context.myTargetMetamodel;
     const myDiagram = context.myDiagram;
     for (let i = 0; i < typeprops.length; i++) {
         // Check if property already exists
@@ -2247,7 +2248,7 @@ function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxPro
             const readOnly = proptype.readOnly;
             let prop = type.findPropertyByName(proptype.name);
             if (prop)
-                prop = myTargetMetamodel.findPropertyByName(prop.name);
+                prop = myMetis.findProperty(prop.id);
             if (!prop) {
                 // New property - create it
                 prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);

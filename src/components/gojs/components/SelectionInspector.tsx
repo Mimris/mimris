@@ -12,6 +12,7 @@ import * as uic from '../../../akmm/ui_common';
 import * as uit from '../../../akmm/ui_templates';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
+import { is } from 'cheerio/lib/api/traversing';
 
 const debug = false;
 interface SelectionInspectorProps {
@@ -116,7 +117,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let chosenInst: akm.cxObject | akm.cxRelationship;
     let properties: akm.cxProperty[];
     let chosenType: akm.cxObjectType | akm.cxRelationshipType;
-    let item, description;
+    let item: akm.cxObject | akm.cxRelationship; 
+    let description = "";
     let typename = "";
     let typedescription = "";
     switch (category) {
@@ -360,6 +362,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let required = false;
       let defValue = "";
       let values = [];
+      let isCalculated = false;
 
       const k = proplist[n].name;
       // Get property values
@@ -367,15 +370,18 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         for (let i = 0; i < properties.length; i++) {
           let prop: akm.cxProperty = properties[i];
           if (prop) {
-            let myProp = myMetamodel.findProperty(prop.id);
-            if (!myProp) {
-              myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
-              myProp.methodRef = prop.methodRef;
-              myProp.datatypeRef = prop.datatypeRef;
-              prop = myProp;
-            }
             if (prop.name !== k)
               continue;
+            let myProp = myMetamodel.findProperty(prop.id);
+            if (!myProp) {
+              myProp = myMetamodel.findPropertyByName(prop.name);
+              if (!myProp) {
+                myProp = new akm.cxProperty(prop.id, prop.name, prop.description);
+                myProp.methodRef = prop.methodRef;
+                myProp.datatypeRef = prop.datatypeRef;
+              }
+            }
+            prop = myProp;
             if (prop.readOnly) {
               readonly = true;
             }
@@ -407,7 +413,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // Handle methodRef
             const mtdRef = prop?.methodRef;
             if (mtdRef) {
-              disabled = true;
+              // disabled = true;
+              readonly = true;
               if (inst?.category === constants.gojs.C_OBJECT) {
                 const obj = myMetis.findObject(inst.id);
                 if (obj) inst = obj;
@@ -417,10 +424,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               try {
                 val = item.getPropertyValue(prop, myMetis);
+                isCalculated = true;
               } catch {
                 // Do nothing
               }
-            }
+            } else
+              readonly = false;
             // Handle connected objects
             if (inst?.category === constants.gojs.C_OBJECT) {
               const objs = chosenInst.getConnectedObjects1(prop, myMetis);
@@ -450,8 +459,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           val = chosenInst.type?.name;
         } else if (k === 'typedescription') {
           val = chosenInst.type?.description;
-        } else
+        } else if (!isCalculated) {
           val = chosenInst[k];
+        }
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal
         if (!uic.isPropIncluded(k, type)) {
@@ -709,6 +719,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
         if (readonly) {
           disabled = true;
+        } else {
+          disabled = false;
         }
         if (namelist.length > 2) {
            if (namelist[activeTab] !== 'Default') {

@@ -177,7 +177,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         namelist = uic.getNameList(inst, context, true);
         typename = namelist[activeTab];            
-        if (namelist.length > 2 && typename !== 'Element' && typename !== 'Default') {
+        if (namelist.length > 1 && typename !== 'Element' && typename !== 'Default') {
           for (let i = 0; i < mySupertypes.length; i++) {
             const tname = mySupertypes[i]?.name;
             if (tname === typename) {
@@ -725,7 +725,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         } else {
           disabled = false;
         }
-        if (namelist.length > 2) {
+        if (namelist.length > 1) {
            if (namelist[activeTab] !== 'Default') {
              if (k === 'id' || k === 'typename' || k === 'typedescription' || k === 'name' || k === 'description') 
                 continue;

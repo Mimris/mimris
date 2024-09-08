@@ -375,9 +375,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         objtype.methods = methods;
     }
     { // Handle properties and attributes
-        const typeprops: akm.cxProperty[] = new Array();
+        let typeprops: akm.cxProperty[] = new Array();
         // const typeprops = objtype.properties;
-        let props = getAllPropertytypes(currentObj, typeprops, myModel);
+        typeprops = getAllPropertytypes(currentObj, typeprops, myModel);
         addProperties(objtype, typeprops, context);
     }
     { // Handle ports
@@ -405,9 +405,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     // Dispatch the object
     const jsnObject = new jsn.jsnObject(object);
     context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: jsnObject });
-    console.log('402 objview', objview);
-    const jsnObjView = new jsn.jsnObjectView(objview);
-    context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: jsnObjView });
 
     return objtype;
 }
@@ -961,7 +958,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
         // targetMetamodel.relshiptypeviews = new Array();
         }
     } else {
-        modelviewList = constants.core.AKM_MODELVIEWS;;
+        modelviewList = constants.core.AKM_MODELVIEWS;
     }
     // Now go through the modelviewList and execute 'generate metamodel' for each modelview
     let sourcemodel = context.myModel;

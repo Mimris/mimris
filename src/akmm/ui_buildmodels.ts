@@ -319,6 +319,13 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
           if (typeview) {
             node.fillcolor = typeview.fillcolor;
+            node.fillcolor2 = typeview.fillcolor2;
+            node.strokecolor = typeview.strokecolor;
+            node.strokecolor2 = typeview.strokecolor2;
+            node.textcolor = typeview.textcolor;
+            node.textcolor2 = typeview.textcolor2;
+            node.icon = typeview.icon;
+            node.image = typeview.image;
           }
         }
       }

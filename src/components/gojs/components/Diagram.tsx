@@ -1624,7 +1624,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = obj.part.data;
               const relship = myMetis.findRelationship(link?.relshipRef);
               const relshipview = myMetis.findRelationshipView(link?.relviewRef);
-              const relshiptype = myMetis.findRelationshipType(link?.reltypeRef);
+              const relshiptype = myMetis.findRelationshipType(relship?.typeRef);
               const relshiptypeview = relshiptype?.typeview;
               const myContext = {
                 object:     null,

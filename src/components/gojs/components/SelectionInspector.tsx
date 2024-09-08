@@ -88,6 +88,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let mySupertypes: akm.cxObjectType[] = modalContext.supertypes;
     let myRelationship: akm.cxRelationship = modalContext.relship;
     let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
+    if (myRelationship && !myRelationshipType) {
+      myRelationshipType = myMetis.findRelationshipType(myRelationship.typeRef) as akm.cxRelationshipType;
+    }
     if (myObjectType?.name === constants.types.AKM_ENTITY_TYPE) {
       myObjectType.properties = [];
     }

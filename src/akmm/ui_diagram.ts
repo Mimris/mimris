@@ -768,10 +768,10 @@ export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }    
 
-export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const n = myDiagram.findNodeForKey(inst?.key);
+export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const n = myDiagram.findNodeForKey(goInst?.key);
     if (n) {
-        const oview = myMetis.findObjectView(inst.key);
+        const oview = myMetis.findObjectView(goInst.key);
         oview.applyTypeview();
         const otview = oview.typeview;
         const otdata = otview?.data;
@@ -790,10 +790,10 @@ export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any)
             myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
     }
-    const ll = myDiagram.findLinkForKey(inst?.key);
+    const ll = myDiagram.findLinkForKey(goInst?.key);
     if (ll) {
-        if (debug) console.log('463 inst', inst);
-        const rview = myMetis.findRelationshipView(inst.key);
+        if (debug) console.log('463 goInst', goInst);
+        const rview = myMetis.findRelationshipView(goInst.key);
         if (rview) {
             const rtview = rview.typeview;
             const rtdata = rtview.data;

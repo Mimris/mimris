@@ -1326,7 +1326,7 @@ export class jsnObject {
                 case 'typeview':
                 case 'typeName':
                 case 'typeRef':
-                case 'generatedTypeId':
+                // case 'generatedTypeId':
                 case 'markedAsDeleted':
                 case 'modified':
                 case 'inputrels':

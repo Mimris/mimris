@@ -314,7 +314,16 @@ class GoJSApp extends React.Component<{}, AppState> {
         console.log("Begin: After Reload:");
         const objviews = myModelview.objectviews;
         for (let i = 0; i < objviews?.length; i++) {
+          let resetToTypeview = true;
           const objview = objviews[i];
+          const obj = objview.object;
+          if (!obj) continue;
+          let type = obj.type;
+          if (!type) {
+            type = myMetamodel.findObjectTypeByName(obj.typeName);
+            obj.type = type;
+            resetToTypeview = true;
+          }
           const goNode = myGoModel?.findNodeByViewId(objview.id);
           if (goNode) {
             for (let it = myDiagram.nodes; it?.next();) {
@@ -323,6 +332,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (data.key === goNode.key) {
                 data.scale = goNode.scale;
                 if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
+                data.textcolor = 'black';
               }
             }
           }

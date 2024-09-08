@@ -4101,7 +4101,8 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                     } else
                         namelist.push(type.name);
                 }
-                namelist.push(obj.type?.name);
+                if (obj.type.properties?.length > 0)
+                    namelist.push(obj.type?.name);
             } catch {
             }
             let uniquelist = [...new Set(namelist)];

@@ -14,6 +14,7 @@ const utils = require('./utilities');
 const constants = require('./constants');
 
 import * as gjs from './ui_gojs';
+import { i } from '../components/utils/SvgLetters';
 // import { type } from 'os';
 
 // cxMetis
@@ -73,7 +74,6 @@ export class cxMetis {
     currentNode: any;
     currentLink: any;
     myDiagram: any;
-    selectedData: any = null;
     pasteViewsOnly: boolean = false;
     deleteViewsOnly: boolean = false;
     pasted: boolean = false;
@@ -360,6 +360,7 @@ export class cxMetis {
                     metamodel.linkcurve = item.linkcurve;
                     metamodel.generatedFromModelRef = item.generatedFromModelRef;
                     metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
+                    // metamodel.methodtypes = item.methodtypes;
                     this.addMetamodel(metamodel);
                     // Metamodel content
                     let items = item.subModels;
@@ -613,6 +614,7 @@ export class cxMetis {
                                                 const item = views[i];
                                                 if (includeDeleted || !item.markedAsDeleted) {
                                                     const objview = new cxObjectView(item.id, item.name, null, item.description);
+                                                    objview.markedAsDeleted = item.markedAsDeleted;
                                                     if (!objview) continue;
                                                     mv.addObjectView(objview);
                                                     this.addObjectView(objview);
@@ -1024,6 +1026,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
+            objtypeview.setGrabIsAllowed(item.grabIsAllowed);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
             if (debug) console.log('222 objtypeview', objtypeview, item);
@@ -1098,9 +1101,12 @@ export class cxMetis {
                             const property = this.findProperty(prop.id);
                             if (property) {
                                 properties.push(property);
+                            } else {
+                                const property = new cxProperty(prop.id, prop.name, prop.description);
+                                properties.push(property);
                             }
-                            mtd[prop] = properties;
                         }
+                        mtd[prop] = properties;
                     } else
                         mtd[prop] = item[prop];
                 }
@@ -3103,7 +3109,16 @@ export class cxMetis {
         if (sel.fromObjview) sel.fromObjview = null;
         if (sel.toObjview) sel.toObjview = null;
         return sel;
-      }
+    }
+    substituteNodeMapValues(nodemaps: any, from, to) {
+        for (let i = 0; i < nodemaps.length; i++) {
+            let nodemap = nodemaps[i];
+            if (nodemap.to === from) 
+                nodemap.to = to;
+            if (nodemap.fromGroup === from) 
+                nodemap.fromGroup = to;
+        }
+    }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -6414,6 +6429,7 @@ export class cxObjtypeviewData {
     // geometry: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6432,6 +6448,7 @@ export class cxObjtypeviewData {
         // this.geometry = "";
         this.icon = "";
         this.image = "";
+        this.grabIsAllowed = false;
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "gray";
@@ -6455,6 +6472,7 @@ export class cxObjectTypeView extends cxMetaObject {
     // geometry: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -6482,7 +6500,8 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textcolor = "";
         this.textcolor2 = "";
         this.textscale = "1";
-        this.viewkind = "";
+        this.viewkind = constants.viewkinds.OBJ;
+        this.grabIsAllowed = false;
         this.icon = 'images/types/' + type?.name;
         this.image = "";
         this.data = new cxObjtypeviewData();
@@ -6541,6 +6560,12 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     getAbstract(): boolean {
         return this.data.abstract;
+    }
+    setGrabIsAllowed(flag: boolean) {
+        this.grabIsAllowed = flag;
+    }
+    getGrabIsAllowed(): boolean {
+        return this.grabIsAllowed;
     }
     // setIsGroup1(flag: boolean) {
     //     this.data.isGroup = flag;
@@ -7105,8 +7130,8 @@ export class cxModel extends cxMetaObject {
     portRefs: string[] | null;
     modelviews: cxModelView[] | null;
     modelviewRefs: string[] | null;
-    args1: any[];
-    args2: any[];
+    selectedNodes: any[];
+    selectedLinks: any[];
     constructor(id: string, name: string, metamodel: cxMetaModel | null, description: string) {
         super(id, name, description);
         this.category = constants.gojs.C_MODEL;
@@ -7134,8 +7159,8 @@ export class cxModel extends cxMetaObject {
         this.relshipRefs = null;
         this.portRefs = null;
         this.modelviewRefs = null;
-        this.args1 = [];
-        this.args2 = [];
+        this.selectedNodes = [];
+        this.selectedLinks = [];
     }
     // setModelType(modeltype: string) {
     //     this.modeltype = modeltype;
@@ -7302,6 +7327,8 @@ export class cxModel extends cxMetaObject {
                     }
                 }
             }
+            if (obj.parentModelRef == "")
+                obj.parentModelRef = this.id;
         }
     }
     addObjectRef(obj: cxObject) {
@@ -7667,7 +7694,7 @@ export class cxInstance extends cxMetaObject {
     valueset: any[] | null;
     inputrels: cxRelationship[] | null;
     outputrels: cxRelationship[] | null;
-    parentModel: cxModel | null;
+    parentModelRef: string;
     allProperties: cxProperty[] | null;
     copiedFromId: string;
     constructor(id: string, name: string, type: cxObjectType | cxRelationshipType | null, description: string) {
@@ -7687,7 +7714,7 @@ export class cxInstance extends cxMetaObject {
         this.valueset = null;
         this.inputrels = null;
         this.outputrels = null;
-        this.parentModel = null;
+        this.parentModelRef = "";
         this.allProperties = null;
         this.copiedFromId = "";
         if (this.type) {
@@ -7703,7 +7730,7 @@ export class cxInstance extends cxMetaObject {
         if (!type) {
             return null;
         }
-        const typeprops = type.getProperties(true);
+        const typeprops = type.getProperties(false);
         let mtdprops = null;
         if (debug) console.log('7133 this', this);
         if (type.name === 'Method') {
@@ -8133,6 +8160,7 @@ export class cxInstance extends cxMetaObject {
                 case constants.types.MTD_AGGREGATEVALUE: {
                     context = {
                         "myMetis": metis,
+                        "myMetamodel": metis.currentMetamodel,
                         "reltypes": method["reltypes"],
                         "reldir": method["reldir"],
                         "objtypes": method["objtypes"],
@@ -8597,8 +8625,8 @@ export class cxRelationship extends cxInstance {
             if (prop.name === 'id') continue;
             if (prop) this[prop.name] = "";
         }
-        toObj?.addInputrel(this);
-        fromObj?.addOutputrel(this);
+        // toObj?.addInputrel(this);
+        // fromObj?.addOutputrel(this);
     }
     // Methods
     setNameFrom(name: string) {
@@ -9249,6 +9277,8 @@ export class cxObjectView extends cxMetaObject {
     isExpanded: boolean;
     isSelected: boolean;
     visible: boolean;
+    grabIsAllowed: boolean;
+    readonly: boolean;
     text: string;
     loc: string;
     size: string;
@@ -9293,6 +9323,8 @@ export class cxObjectView extends cxMetaObject {
         this.isSelected = false;
         this.text = "";
         this.visible = true;
+        this.readonly = false;
+        this.grabIsAllowed = false;
         this.viewkind = "";
         this.loc = "";
         this.size = "";
@@ -9522,6 +9554,12 @@ export class cxObjectView extends cxMetaObject {
     //         return "";
     //     return this.template;
     // }
+    setGrabIsAllowed(flag: boolean) {
+        this.grabIsAllowed = flag;
+    }
+    getGrabIsAllowed(): boolean {
+        return this.grabIsAllowed;
+    }
     setSize(size: string) {
         if (size == undefined)
             size = "";
@@ -9659,6 +9697,7 @@ export class cxRelationshipView extends cxMetaObject {
     curve: string;
     points: any;
     visible: boolean;
+    readonly: boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.category = constants.gojs.C_RELSHIPVIEW;
@@ -9685,6 +9724,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.corner = "";
         this.points = [];
         this.visible = true;
+        this.readonly = false;
         this.isLayoutPositioned = false;
     }
     // Methods
@@ -9936,6 +9976,198 @@ export class cxIdent {
     constructor(id: string, name: string) {
         this.id = id;
         this.name = name;
+    }
+}
+
+export class cxNodeAndLinkMaps {copyPasteLinkMap
+    fromModel: cxModel;
+    toModel: cxModel;
+    fromModelView: cxModelView;
+    toModelView: cxModelView;
+    nodeMaps: cxNodeMap[];
+    linkMaps: cxLinkMap[];
+    constructor(model1: cxModel, model2: cxModel, 
+                modelview1: cxModelView, modelview2: cxModelView) {
+        this.fromModel = model1;
+        this.toModel = model2;
+        this.fromModelView = modelview1;
+        this.toModelView = modelview2;
+        this.nodeMaps = new Array();
+        this.linkMaps = new Array();
+    }
+    addNodeMap(map: cxNodeMap) {
+        this.nodeMaps.push(map);
+    }
+    addLinkMap(map: cxLinkMap) {
+        this.linkMaps.push(map);
+    }
+    replaceLinkMap(linkMap: cxLinkMap) {
+        for (let i = 0; i < this.linkMaps.length; i++) {
+            let map = this.linkMaps[i];
+            if (map.inst.id === linkMap.inst.id) {
+                if (map.fromNodeKey === linkMap.fromNodeKey) {
+                    if (map.toNodeKey === linkMap.toNodeKey) {
+                        if (map.fromLinkKey === linkMap.fromLinkKey) {
+                            map = linkMap;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    getNodeMap(inst: cxInstance, fromKey: string, toKey: string): cxNodeMap {
+        for (let i = 0; i < this.nodeMaps.length; i++) {
+            const map = this.nodeMaps[i];
+            if (map.inst.id === inst.id) {
+                if (map.fromSourceKey === fromKey) {
+                    return map;
+                }
+            }
+        }
+        return null;
+    }
+    getLinkMap(name: string, fromLinkKey: string, toNodeKey: string): cxLinkMap {
+        for (let i = 0; i < this.linkMaps.length; i++) {
+            const map = this.linkMaps[i];
+            if (map.name === name) {
+                if (map.fromLinkKey === fromLinkKey) {
+                    if (map.toNodeKey === toNodeKey)
+                        return map;
+                }
+            }
+        }
+        return null;
+    }
+    getNodeMapByToGroup(group: string): cxNodeMap {
+        for (let i = 0; i < this.nodeMaps.length; i++) {
+            const map = this.nodeMaps[i];
+            if (map.toGroup === group)
+                return map;
+        }
+        return null;
+    }
+    setFromModelView(modelview: cxModelView) {
+        this.fromModelView = modelview;
+    }
+    setFromModel(model: cxModel) {
+        this.fromModel = model;
+    }
+    setToModelView(modelview: cxModelView) {
+        this.toModelView = modelview;
+    }
+    setToModel(model: cxModel) {
+        this.toModel = model;
+    }
+    alignNodeMaps() {
+        for (let i = 0; i < this.nodeMaps.length; i++) {
+            const map = this.nodeMaps[i];
+        }
+    }
+    replaceNodeKeys(fromKey: string, toKey: string) {
+        for (let i = 0; i < this.nodeMaps.length; i++) {
+            const nodeMap = this.nodeMaps[i];
+            if (nodeMap.toTargetKey === fromKey) 
+                nodeMap.toTargetKey = toKey;
+            if (nodeMap.toGroupKey === fromKey)
+                nodeMap.toGroupKey = toKey;
+        }
+    }
+}
+
+export class cxLinkMap {
+    inst: cxInstance;
+    name: string;
+    sourceFromNodeKey: string;
+    sourceToNodeKey: string;
+    targetFromNodeKey: string;
+    targetToNodeKey: string;
+    sourceLinkKey: string;
+    targetLinkKey: string;
+    constructor(inst: cxInstance, sourceFromKey: string, sourceToKey: string, sourceLinkKey: string, targetLinkKey: string) {
+        this.inst = inst;
+        this.name = inst.name;
+        this.sourceFromNodeKey = sourceFromKey;
+        this.sourceToNodeKey = sourceToKey;
+        this.targetFromNodeKey = "";
+        this.targetToNodeKey = "";
+        this.sourceLinkKey = sourceLinkKey;
+        this.targetLinkKey = targetLinkKey;
+    }    
+}
+
+export class cxNodeMap {
+    inst: cxInstance;
+    name: string;
+    fromSourceKey: string;
+    toTargetKey: string;
+    isGroup: boolean;
+    fromGroupKey: string;
+    toGroupKey: string;
+    fromLoc: string;
+    toLoc: string;
+    constructor(inst: cxInstance, from: string, to: string, isGroup: boolean, fromGroupKey: string, toGroupKey: string , fromLoc: string, toLoc: string) {
+        this.inst = inst;
+        this.name = inst.name;
+        this.isGroup = isGroup;
+        this.fromSourceKey = from;        // The from key
+        this.toTargetKey = to;            // The to key
+        this.fromGroupKey = fromGroupKey; // The group key
+        this.toGroupKey = toGroupKey;
+        this.fromLoc = fromLoc;
+        this.toLoc = toLoc;
+    }
+    setToGroup(grp: string) {
+        this.toGroup = grp;
+    }
+    setFromLoc(loc: string) {
+        this.fromLoc = loc;
+    }
+    setToLoc(loc: string) {
+        this.toLoc = loc;
+    }
+    setInstance(inst: cxInstance) {
+        this.inst = inst;
+    }
+    getInstance() {
+        return this.inst;
+    }
+    addMap(name: string, from: string, to: string, isGroup: boolean, group: string) {
+        this.name = name;
+        this.fromSource = from;
+        this.toTarget = to;
+        this.fromGroup = group;
+        this.toGroup = "";
+        this.isGroup = isGroup;
+    }
+    getMap(name: string): cxNodeMap {
+        if (name === this.name)
+            return this
+    }
+    getToTarget(fromSource: string): string {
+        if (fromSource === this.fromSourceKey)
+            return this.toTargetKey;
+        return "";
+    }
+    getToGroup(toTarget: string): string {
+        if (toTarget === this.toTarget)
+            return this.group;
+        return "";
+    }
+    isGroupMap(from: string): boolean {
+        if (from === this.fromGroup)
+            return this.isGroup;
+        return false;
+    }
+    replaceId(oldId: string, newId: string) {
+        if (this.fromSource === oldId)
+            this.fromSource = newId;
+        if (this.toTarget === oldId)
+            this.toTarget = newId;
+        if (this.fromGroup === oldId)
+            this.fromGroup = newId;
+        if (this.toGroup === oldId)
+            this.toGroup = newId;
     }
 }
 

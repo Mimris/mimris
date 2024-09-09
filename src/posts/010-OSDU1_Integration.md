@@ -1,7 +1,7 @@
 ---
 title: 'OSDU 1: Integration with the OSDU Data Platform'
 date: 'Oct 19, 2021 sf'
-excerpt: 'The Open Subsurface Data Universe Data platform contains a set of standardized data definitions and Object types that is used to when ingesting data into the platform. The core functionality of this module consists of the ability to import and export OSDU Json files to AKM models.'
+excerpt: 'The Open Subsurface Data Universe Data platform contains a set of standardized data definitions and Object types that is used to when ingesting data into the platform.'
 cover_image: 'images/posts/osdu/osdu.png'
 ---
 

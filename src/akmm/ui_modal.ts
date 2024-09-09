@@ -1033,7 +1033,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_OBJECT) {
         data = selObj;
         objtypeview = selObj.typeview;
-        objtypeview = myMetamodel.findObjectTypeView(objtypeview?.id);
+        if (!objtypeview) {
+          let objtypeRef = selObj.objtypeRef;
+          const objtype = myMetamodel.findObjectType(objtypeRef);
+          objtypeview = objtype.typeview;
+        }
         // for (let prop in objtypeview?.data) {
         //   objtypeview[prop] = selObj[prop];
         // }
@@ -1047,13 +1051,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           objtypeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
-        const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
-        modifiedObjTypeviews.push(jsnObjtypeview);
-        modifiedObjTypeviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        })
+        if (objtypeview) {
+          myMetis.addObjectTypeView(objtypeview);
+          const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
+          modifiedObjTypeviews.push(jsnObjtypeview);
+          modifiedObjTypeviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+          })
+        }
       }
       if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
         const link = myDiagram.findLinkForKey(selObj.key);
@@ -1163,6 +1170,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           nodeTo = myGoModel.findNode(toKey);
           const toObjview = myModelview.findObjectView(toKey);
           const toObj = toObjview.object;
+          if (!toObj) continue;
           const toType = toObj.type;
           // Get the selected relship type
           const relTypename = (selectedOption) && selectedOption; // Get the selected relship typename
@@ -1171,6 +1179,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
           else
             reltype = myMetis.findRelationshipTypeByName2(relTypename, fromType, toType);
+          if (!reltype) continue;
           // Check if the relationship already exists
           let rel = myModel.findRelationship2(fromObj, toObj, relTypename, reltype);
           if (rel && !rel.markedAsDeleted) {

@@ -443,12 +443,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   addSourceLink(gjsSourceLinks, n);
                 }
               }
-              const myModel = myMetis.currentModel;
-              myModel.args1 = gjsSourceNodes;
-              myModel.args2 = gjsSourceLinks;
               selection = [];
               e.diagram.selection.each(function (sel) {
                 const key = sel.data.key;
+                sel.data.fromModelview = myMetis.currentModelview;
                 sel.data.fromNode = getSourceNode(gjsSourceNodes, key);
                 sel.data.linkNode = getSourceLink(gjsSourceLinks, key);
                 if (debug) console.log('457 sel.data', sel.data);
@@ -461,6 +459,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
+                node.diagram.selectCollection(node.findSubGraphParts());
                 return true;
               }
               if (node.category === constants.gojs.C_RELATIONSHIP)
@@ -886,8 +885,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const myModel = myMetis.currentModel;
                 myMetis.deleteViewsOnly = false;
                 myMetis.currentNode = obj.part.data;
+                myDiagram.commandHandler.deleteSelection();
               }
-              myDiagram.commandHandler.deleteSelection();
             },
             function (o: any) {
               const node = o.part.data;
@@ -1123,6 +1122,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.editObjectTypeview(node, myMetis, myDiagram);
             },
             function (o: any) {
+              return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
                 if (node.isSelected) {
@@ -1562,6 +1562,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "title": "Select Method",
                   "dispatch": myDiagram.dispatch,
                   "postOperation": ui_mtd.executeMethod,
+                  "traverseViews": true,
+                  "nolevels": "9",
+                  "level": 0,
                   "args": args
                 }
                 ui_mtd.askForMethod(context);
@@ -1902,7 +1905,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               toType = myMetamodel.findObjectType(toType.id);
               let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-              for (let i = 0; i < rtypes.length; i++) {
+              for (let i = 0; i < rtypes?.length; i++) {
                 const rtype = rtypes[i];
                 if (rtype.name === constants.types.AKM_GENERIC_REL) {
                   reltypes.push(rtype);
@@ -1913,7 +1916,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               link.choices = [];
               if (reltypes) {
-                for (let i = 0; i < reltypes.length; i++) {
+                for (let i = 0; i < reltypes?.length; i++) {
                   const rtype = reltypes[i];
                   link.choices.push(rtype.name);
                 }
@@ -1945,17 +1948,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Typeview",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const modalContext = {
-                what: "editTypeview",
-                title: "Edit Typeview",
-                myDiagram: myDiagram
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link, modalContext);
-              // 
+              uid.editRelshipTypeview(link, myMetis, myDiagram);
             },
             function (o: any) {
+              return false;
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP)
                 return true;
@@ -3090,7 +3086,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const data = n.data;
                     if (data.key === objview.id) {
                       // if (debug) 
-                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n node: ", n, data);
+                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n n, data: ", n, data);
                     }
                   }
                 }
@@ -3113,7 +3109,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     if (data.key === relview.id) {
                       // if (debug) 
                       const text = relview.name + " " + relview.toObjview.name;
-                      console.log('300 ', text, '\n relview: ', relview,
+                      console.log('310 ', text, '\n relview: ', relview,
                         "\n goLink: ", goLink, "\n link: ", l, data);
                     }
                   }
@@ -3635,6 +3631,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     function addSourceNode(mySourceNodes: any, n: any) {
+      for (let i = 0; i < mySourceNodes.length; i++) {
+        if (mySourceNodes[i].key === n.data.key) {
+          return;
+        }
+      }
       const mySourceNode = {
         "key": n.data.key,
         "name": n.data.name,
@@ -3804,6 +3805,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let obj1 = this.myMetis.findObject(objRef);
       let objtypeRef = this.state.selectedData?.objtypeRef;
       let objtype = myMetamodel.findObjectType(objtypeRef);
+      let supertypes = modalContext.myContext.supertypes;
       // if (!obj1) obj1 = obj;
       if (objtype?.name === 'Method')
         useTabs = true;
@@ -3821,6 +3823,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myModel: myModel,
         myMetamodel: myMetamodel,
         objtype: objtype,
+        supertypes: supertypes,
         includeConnected: includeConnected,
         includeInherited: includeInherited,
       }
@@ -3828,7 +3831,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const connectedRoles = obj1?.getConnectedObjectRoles(myMetis);
       // Define the tabs
       selpropgroup = [];
-      for (let i = 0; i < namelist.length; i++) {
+      for (let i = 0; i < namelist?.length; i++) {
         let name = namelist[i];
         if (name === constants.types.AKM_ELEMENT)
           continue; // name = 'Default';
@@ -3991,9 +3994,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editTypeview': {
         header = modalContext.title + ':';
         category = this.state.selectedData.category;
-        if (debug) console.log('2612 category ', category);
-        typename = (modalContext.typename) ? '(' + modalContext.typename + ')' : '(' + this.state.selectedData.object?.typeName + ')'
-
+        if (debug) console.log('3994 category ', category);
         if (this.state.selectedData !== null && this.myMetis != null) {
           modalContent =
             <div className="modal-prop" >

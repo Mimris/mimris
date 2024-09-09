@@ -1,18 +1,15 @@
 ---
 title: 'Getting Started with AKM Modeller'
 date: 'Oct 18, 2021'
-excerpt: 'AKM Modeller is a tool for modeling, creating and managing AKM models and metamodels. 
-This Guide help you getting starte and show  you how to load and save Project with models and metamodels from local Json-files. These files can also be syncronized with a GitHub Repository'
+excerpt: 'AKM Modeller is a tool for Active Knowledge Modelling (AKM). 
+This Guide help you getting started and show you how to load and save a Project with models and metamodels from local Json-files and a GitHub Repository'
 cover_image: 'images/posts/overview/image00.png'
 ---
 
 ## Introduction
 
 AKM Modeller is a tool for modeling, creating and managing AKM models and metamodels.
-The models are stored in Json-files and can be loaded and saved from local and GitHub.
-
-To start an OSDU Modelling project see: 
- <a href="051-OSDU-Case" style="color:blue; weight:bold">OSDU Schema Modelling</a>
+The models are stored in Json-files and can be loaded and saved from local files or from GitHub.
 
 table of contents:
 

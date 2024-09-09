@@ -85,13 +85,13 @@ const Modelling = (props: any) => {
   const metis = ph.phData?.metis
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
-  let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id) 
+  let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
   if (!curmod) curmod = models[0]
 
   const modelviews = curmod?.modelviews?.filter((mv: any) => mv)
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
   if (!curmodview) curmodview = modelviews[0]
-  
+
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
@@ -209,21 +209,21 @@ const Modelling = (props: any) => {
     //   SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     // }
 
-    const handleGetNewProject = () => {
-      alert('Deprecated: Use the "New" button in Project-bar at top-left')
-    }
+    // const handleGetNewProject = () => {
+    //   alert('Deprecated: Use the "New" button in Project-bar at top-left')
+    // }
 
-    const handleSaveAllToFile = () => {
-      let projectname = props.phSource
-      if (props.phFocus.focusProj.name === '' || undefined) {
-        projectname = props.phFocus.focusProj.name
-        const data = `${projectname}_PR`
-        if ((debug)) console.log('275 handleSaveAllToFile', data)
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-      }
-      if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
-      SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
-    }
+    // const handleSaveAllToFile = () => {
+    //   let projectname = props.phSource
+    //   if (props.phFocus.focusProj.name === '' || undefined) {
+    //     projectname = props.phFocus.focusProj.name
+    //     const data = `${projectname}_PR`
+    //     if ((debug)) console.log('275 handleSaveAllToFile', data)
+    //     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+    //   }
+    //   if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
+    //   SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
+    // }
 
     const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
 

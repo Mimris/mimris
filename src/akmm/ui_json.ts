@@ -892,6 +892,7 @@ export class jsnObjectTypeView {
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    grabIsAllowed:   boolean;
     template:        string;
     // figure:          string;
     // geometry:        string;
@@ -930,6 +931,7 @@ export class jsnObjectTypeView {
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
         this.image           = objtypeview.getImage();
+        this.grabIsAllowed   = objtypeview.grabIsAllowed;
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
         if (objtypeview.description)
@@ -1281,6 +1283,7 @@ export class jsnObject {
     abstract:        boolean;
     viewkind:        string;
     typeRef:         string;
+    parentModelRef:  string;
     typeName:        string;
     typeDescription: string;
     propertyValues:  any[];
@@ -1294,6 +1297,7 @@ export class jsnObject {
         this.description     = object.description ? object.description : "";
         this.abstract        = object.abstract;
         this.viewkind        = object.viewkind;
+        this.parentModelRef  = object.parentModelRef;
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";

@@ -4110,13 +4110,13 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
             namelist = uniquelist;
         }
         if (debug) console.log('3031 namelist', namelist);
-        if (namelist.length > 1)
-            return namelist;
-        else {
-            namelist = [];
-            namelist.push(obj.name);
-            return namelist;
-        }
+        // if (namelist.length > 1)
+        return namelist;
+        // else {
+        //     namelist = [];
+        //     namelist.push(obj.name);
+        //     return namelist;
+        // }
     }
 }
 

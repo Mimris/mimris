@@ -70,9 +70,12 @@ const page = (props) => {
                   &bull; GraphQL shema reporting from Solution models!<br />
               </CardText>
             </CardBody> */}
-<<<<<<< HEAD
-             <CardBody className="card-body" >
-=======
+            <CardBody className="card-body" >
+              <CardTitle className="card-title-bold" >Release Beta: 2024.09.09</CardTitle>
+              <CardText >
+                &bull;Update from Alpha <br />
+              </CardText>
+            </CardBody>
             <CardBody className="card-body" >
               <CardTitle className="card-title-bold" >Release Alpha: 2024.07.24</CardTitle>
               <CardText >
@@ -86,7 +89,6 @@ const page = (props) => {
               </CardText>
             </CardBody>
             <CardBody className="card-body" >
->>>>>>> main24-alfa
               <CardTitle className="card-title-bold" >Release Alpha: 2024.06.18</CardTitle>
               <CardText >
                 &bull;Bug fixes and update Help <br />

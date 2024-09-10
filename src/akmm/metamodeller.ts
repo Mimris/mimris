@@ -4789,6 +4789,24 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
+    findRelationshipType0ByNames(reltypeName: string, fromtypeName: string, totypeName: string) {
+        let types = this.getRelshipTypes0();
+        if (!types) return null;
+        let i = 0;
+        let reltype = null;
+        for (i = 0; i < types.length; i++) {
+            reltype = types[i];
+            if (reltype.isDeleted()) continue;
+            if (reltype.getName() === reltypeName) {
+                let fromObjtype = reltype.getFromObjType();
+                let toObjtype = reltype.getToObjType();
+                if (fromObjtype && toObjtype &&
+                    (fromObjtype.getName() === fromtypeName && toObjtype.getName() === totypeName))
+                    return reltype;
+            }
+        }
+        return null;
+    }
     findRelationshipTypesByName(name: string): cxRelationshipType[] | null {
         let types = this.getRelshipTypes();
         if (!types) return null;
@@ -4807,6 +4825,59 @@ export class cxMetaModel extends cxMetaObject {
         if (!fromType || !toType)
             return null;
         const rtypes = this.getRelshipTypes();
+        if (!rtypes) return null;
+        const reltypes = new Array();
+        let i = 0;
+        let reltype = null;
+        for (i = 0; i < rtypes.length; i++) {
+            reltype = rtypes[i];
+            if (reltype.isDeleted())
+                continue;
+            if (reltype.name === constants.types.AKM_IS)
+                continue;
+            if (reltype.name === constants.types.AKM_REFERS_TO) {
+                reltypes.push(reltype);
+                continue;
+            }
+            const fromObjType = reltype.getFromObjType();
+            const toObjType = reltype.getToObjType();
+            if (fromObjType && toObjType) {
+                if (reltype.name === constants.types.AKM_RELATIONSHIP_TYPE) {
+                    if (fromType.name === constants.types.AKM_ENTITY_TYPE &&
+                        toType.name === constants.types.AKM_ENTITY_TYPE) {
+                        reltypes.push(reltype);
+                    } else
+                        continue;
+                }
+                if (fromType.inherits(fromObjType) && toType.inherits(toObjType)) {
+                    if (fromObjType.name === constants.types.AKM_ENTITY_TYPE ||
+                        fromObjType.name === constants.types.AKM_GENERIC) {
+                        if (includeGen)
+                            reltypes.push(reltype);
+                    } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                        reltypes.push(reltype);
+                    }
+                } else if (includeGen) {
+                    if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
+                        toObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                        reltypes.push(reltype);
+                    }
+                }
+            }
+            if (reltype.relshipkind === constants.relkinds.GEN)
+                continue;
+            if (reltype.isAllowedFromType(fromType, includeGen)) {
+                if (reltype.isAllowedToType(toType, includeGen)) {
+                    reltypes.push(reltype);
+                }
+            }
+        }
+        return reltypes;
+    }
+    findRelationshipTypes0BetweenTypes(fromType: cxObjectType, toType: cxObjectType, includeGen: boolean): cxRelationshipType[] | null {
+        if (!fromType || !toType)
+            return null;
+        const rtypes = this.getRelshipTypes0();
         if (!rtypes) return null;
         const reltypes = new Array();
         let i = 0;

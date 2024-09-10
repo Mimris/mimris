@@ -10,8 +10,9 @@ export let core = {
                       '02-EntityType', 
                       '03-MethodTypes', 
                       '1-AKM Core', 
-                      '2-IRTV', 
-                      '1-AKM Core'], 
+                    //   '2-IRTV', 
+                    //   '1-AKM Core'
+                    ], 
 }
   
 export let params = {

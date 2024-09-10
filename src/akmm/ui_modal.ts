@@ -1158,8 +1158,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       nodeFrom = myGoModel.findNode(nodeFrom.key);
       const fromKey = nodeFrom.key;
       const fromObjview = myModelview.findObjectView(fromKey);
-      const fromObj = fromObjview.object;
-      const fromType = fromObj.type;
+      let fromObj = fromObjview.object;
+      if (!fromObj) fromObj = myMetis.findObject(fromObjview.objectRef);
+      let fromType = fromObj.type;
       const nodesTo: gjs.goObjectNode[]  = modalContext.args.nodesTo;
       const selectedOption = modalContext.selected.value;
       const links = [];

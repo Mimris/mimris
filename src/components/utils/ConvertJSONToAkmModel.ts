@@ -320,8 +320,8 @@ export const ReadConvertJSONFromFileToAkm = async (
         ? newosduSchema["$id"].split("/").slice(-1)[0]
         : newosduSchema.id
             ? newosduSchema.id.split(":").slice(-1)[0]
-            : newosduSchema["x-osdu-schema-source"].split(":").slice(-1)[0].split(".")[0];
-    if (debug) console.log("309", topName, newosduSchema);
+            : newosduSchema["x-osdu-schema-source"].split(":")[1].split("--")[1];
+    if (!debug) console.log("309", topName, newosduSchema);
     // const topName = (newosduSchema["$id"]) ? newosduSchema["$id"].split('/').slice(-1)[0] :  newosduSchema["x-osdu-schema-source"]
 
     // ------------------ create top object ------------------
@@ -422,9 +422,6 @@ export const ReadConvertJSONFromFileToAkm = async (
     const osduArray = deepEntries(topModel); // find all the objects in the topModel and down the tree
     if (debug) console.log("407 deepEntries", osduArray);
     // ------------------ create objects and relationships ------------------
-    // ----------------------------------------------------------------------
-    // ----------------------------------------------------------------------
-    // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     // map through the osduArray and create objects and relationships between the objects
     const osduObjects = osduArray?.map((osduObj, index) => {

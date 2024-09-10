@@ -320,7 +320,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         ? newosduSchema["$id"].split("/").slice(-1)[0]
         : newosduSchema.id
             ? newosduSchema.id.split(":").slice(-1)[0]
-            : null;
+            : newosduSchema["x-osdu-schema-source"].split(":").slice(-1)[0].split(".")[0];
     if (debug) console.log("309", topName, newosduSchema);
     // const topName = (newosduSchema["$id"]) ? newosduSchema["$id"].split('/').slice(-1)[0] :  newosduSchema["x-osdu-schema-source"]
 
@@ -381,6 +381,7 @@ export const ReadConvertJSONFromFileToAkm = async (
 
                 if (osduId.includes("|definitions")) {
                     // definitions is in OSDU Generated folder and contain the osdu Json structure, so we strip off all above definitions
+                    // Todo: we should find the object in the definition and make a new osduId for the object with properties
                     const [, ...rest] = newIdArray;
                     newosduId = rest.join("|");
                 } else {

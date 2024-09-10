@@ -305,7 +305,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
   }
   const curModel = props.ph.phData?.metis?.models?.find(m => m.id === props.ph.phFocus?.focusModel?.id)
   const curMetamodel = props.ph.phData?.metis?.metamodels?.find(m => m.id === curModel?.metamodelRef)
-  console.log('307', curMetamodel, props.ph.phFocus?.focusMetamodel?.id, props)
+  if (debug) console.log('308', curMetamodel, props.ph.phFocus?.focusMetamodel?.id, props)
   const modalDiv =
     <>
       {/* <Draggable handle=".handle"> */}

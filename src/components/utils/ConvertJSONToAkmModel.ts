@@ -538,6 +538,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
     }
+    function processRelationships(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
+        createRel(oId, oName, oVal.description, oVal.title, objecttypeRef, "Association", parentId, topName, oId, oName);
+    }
     // ==================== -------------------- ==================== -------------------- ====================
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------

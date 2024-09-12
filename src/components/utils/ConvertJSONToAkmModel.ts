@@ -208,8 +208,8 @@ export const ReadConvertJSONFromFileToAkm = async (
 
         let typeTextColor: string = "gray";
         let typeStrokeColor: string = "gray";
-        if (!reltypeRef) console.log("relationship type not found", typeName, "from", fromobjectName, "to", toobjectName);
-        if (!reltypeRef) reltypeRef = reltypes.find((rt: { name: string }) => rt.name === "refersTo")?.id;
+        // if (!reltypeRef) console.log("relationship type not found", typeName, "from", fromobjectName, "to", toobjectName);
+        // if (!reltypeRef) reltypeRef = reltypes.find((rt: { name: string }) => rt.name === "refersTo")?.id;
 
         const importedRel = (fromobjectId) &&
         {

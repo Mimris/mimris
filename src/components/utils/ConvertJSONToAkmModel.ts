@@ -100,9 +100,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         jsonType = "object",
         oValProps: {},
     ) => {
-        const groupType = oValProps?.groupType || "";
+        const oTypeName = curObjTypes.find((ot: { id: string }) => ot.id === objecttypeRef)?.name;
 
-        if (debug) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType);
+        if (debug) console.log("105 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType);
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
         let typeColor2 = ''
@@ -127,9 +127,9 @@ export const ReadConvertJSONFromFileToAkm = async (
             typeStrokeColor = "red";
         }
 
-        typeColor = (osduType === 'OSDUType')
-            ? setColorsTopOSDUTypes(groupType)
-            : (osduType === 'Array' || osduType === 'Item')
+        typeColor = (oTypeName === 'OSDUType')
+            ? setColorsTopOSDUTypes(osduType)
+            : (oTypeName === 'Array' || oTypeName === 'Item')
                 ? lightenColor(setColorsTopOSDUTypes(osduType), 6)
                 : ''
 
@@ -141,7 +141,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         typeStrokeColor2 = (oValProps?.refGroupType !== '')
             ? setColorsTopOSDUTypes(oValProps?.refGroupType)
             : ''
-        if (debug) console.log("156 createObject", oName, osduType, groupType, typeColor);
+        if (!debug) console.log("144 createObject", oName, osduType, groupType, typeColor);
 
         // if (proxyGroupType) {
         //     typeColor2 = (osduType === 'OSDUType')
@@ -175,7 +175,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             // jsonType: jsonType,
             // jsonKey: oName,˝
             // (groupType === 'OSDUType') ? typeColor : (groupType === 'Array') && lightenColor(typeColor, 20),
-            ...(osduType === "OSDUType" && {
+            ...(oTypeName === "OSDUType" && {
                 fillcolor: typeColor,
                 fillcolor2: typeColor2,
                 textcolor: typeTextColor,
@@ -455,7 +455,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";
         const entityPathElement = oVal.$id ? getNthLastElement(oVal.$id, "/", 2) : "";
         if (debug) console.log("450 entityPathElement", entityPathElement, oVal.$id, oVal);
-        const osduType = oVal.type || entityPathElement; // 
+        const osduType = entityPathElement || oVal.type ; // 
         const version = getLastElement(schemaSource, ":");
 
         if (debug) logDebugInfo("458 ", oName, oVal, jsonType, osduObj, parentName, gparentName);

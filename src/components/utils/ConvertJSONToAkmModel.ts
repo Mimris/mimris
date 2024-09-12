@@ -3,6 +3,9 @@
 import * as utils from "../../akmm/utilities";
 import { Dispatch } from "redux";
 import { setColorsTopOSDUTypes } from "./SetColorsTopOSDUTypes";
+import { find } from "cheerio/lib/api/traversing";
+import { group } from "console";
+import { GridLayout } from "gojs";
 
 const debug = false;
 
@@ -56,6 +59,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     // const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
     const containsType = curRelTypes.find((co: { name: string }) => co.name === "contains" && co);
     const hasType = curRelTypes.find((co: { name: string }) => co.name === "has" && co);
+    const refersTo = curRelTypes.find((co: { name: string }) => co.name === "refersTo" && co);
     // console.log('38', hasPartType);
     let objecttypeRef = JsonObjectType?.id; // default partof relship in JSON structure
     let reltypeRef = hasPartType?.id; // default partof relship in JSON structure
@@ -87,7 +91,6 @@ export const ReadConvertJSONFromFileToAkm = async (
     }
     // oId, topObjName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType
 
-
     const createObject = (
         oId: any,
         oName: string,
@@ -97,14 +100,13 @@ export const ReadConvertJSONFromFileToAkm = async (
         jsonType = "object",
         oValProps: {},
     ) => {
+        const groupType = oValProps?.groupType || "";
 
-
-        if ((debug)) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType, proxyGroupType, proxyReferenceObject);
-
+        if (debug) console.log("117 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, groupType);
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
         let typeColor2 = ''
-        if (debug) console.log("92 createObject", oName, osduType, jsonType, groupType, typeColor);
+        if (debug) console.log("108 createObject", oName, osduType, jsonType, groupType, typeColor, oValProps);
         let typeTextColor: string = "";
         let typeTextColor2: string = "";
         let typeStrokeColor: string = "";
@@ -131,13 +133,13 @@ export const ReadConvertJSONFromFileToAkm = async (
                 ? lightenColor(setColorsTopOSDUTypes(osduType), 6)
                 : ''
 
-        typeColor2 = (oValProps.refGroupType !== '')
-            ? setColorsTopOSDUTypes(oValProps.refGroupType)
+        typeColor2 = (oValProps?.refGroupType !== '')
+            ? setColorsTopOSDUTypes(oValProps?.refGroupType)
             : ''
 
 
-        typeStrokeColor2 = (oValProps.refGroupType !== '')
-            ? setColorsTopOSDUTypes(oValProps.refGroupType)
+        typeStrokeColor2 = (oValProps?.refGroupType !== '')
+            ? setColorsTopOSDUTypes(oValProps?.refGroupType)
             : ''
         if (debug) console.log("156 createObject", oName, osduType, groupType, typeColor);
 
@@ -146,7 +148,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         //     typeStrokeColor2 = proxyGroupType;
         // }
 
-        if ((debug)) console.log('163 createObject', oName, groupType, oValProps.refGroupType, otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
+        if ((debug)) console.log('163 createObject', oName, groupType, oValProps?.refGroupType, otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
 
         const importedObject = //(modelType === "AKM") // don't include json attributes
         {
@@ -164,21 +166,25 @@ export const ReadConvertJSONFromFileToAkm = async (
             osduType: osduType,
             // groupType: groupType,
             // groupType: (osduType) ? groupType : "",
-            dataType: oValProps.type,
-            referenceObject: oValProps.referenceObject,
-            refGroupType: oValProps.refGroupType,
-            refVersion: oValProps.refVersion,
+            dataType: oValProps?.type,
+            ...(osduType === "Proxy" && {
+                referenceObject: oValProps?.referenceObject,
+                refGroupType: oValProps?.refGroupType,
+                refVersion: oValProps?.refVersion,
+            }),
             // jsonType: jsonType,
             // jsonKey: oName,˝
             // (groupType === 'OSDUType') ? typeColor : (groupType === 'Array') && lightenColor(typeColor, 20),
-            fillcolor: typeColor,
-            fillcolor2: typeColor2,
-            textcolor: typeTextColor,
-            textcolor2: typeTextColor2,
-            strokecolor: typeStrokeColor,
-            strokecolor2: typeStrokeColor2,
-            icon: typeIcon,
-            image: typeImage,
+            ...(osduType === "OSDUType" && {
+                fillcolor: typeColor,
+                fillcolor2: typeColor2,
+                textcolor: typeTextColor,
+                textcolor2: typeTextColor2,
+                strokecolor: typeStrokeColor,
+                strokecolor2: typeStrokeColor2,
+                icon: typeIcon,
+                image: typeImage,
+            }),
             ...oValProps, // additional attributes
         }
 
@@ -202,6 +208,8 @@ export const ReadConvertJSONFromFileToAkm = async (
 
         let typeTextColor: string = "gray";
         let typeStrokeColor: string = "gray";
+        if (!reltypeRef) console.log("relationship type not found", typeName, "from", fromobjectName, "to", toobjectName);
+        if (!reltypeRef) reltypeRef = reltypes.find((rt: { name: string }) => rt.name === "refersTo")?.id;
 
         const importedRel = (fromobjectId) &&
         {
@@ -321,12 +329,12 @@ export const ReadConvertJSONFromFileToAkm = async (
         : newosduSchema.id
             ? newosduSchema.id.split(":").slice(-1)[0]
             : newosduSchema["x-osdu-schema-source"].split(":")[1].split("--")[1];
-    if (!debug) console.log("309", topName, newosduSchema);
+    if (debug) console.log("309", topName, newosduSchema);
     // const topName = (newosduSchema["$id"]) ? newosduSchema["$id"].split('/').slice(-1)[0] :  newosduSchema["x-osdu-schema-source"]
 
     // ------------------ create top object ------------------
     const topModel = { [topName]: newosduSchema }; // top object is given topName as key
-    if (!debug) console.log("329", topModel);
+    if (debug) console.log("329", topModel);
 
     // deepEntries take all object-keys and concatenate them in curKey as a path showing all above levels and put them in a new array
     // example: deepEntries
@@ -445,11 +453,12 @@ export const ReadConvertJSONFromFileToAkm = async (
         const gparentName = getNthLastElement(oKey, "|", 3);
         const ggparentName = getNthLastElement(oKey, "|", 4);
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";
-        const entityPathElement = oVal.$id ? getLastElement(oVal.$id, "/") : "";
-        const osduType = entityPathElement;
+        const entityPathElement = oVal.$id ? getNthLastElement(oVal.$id, "/", 2) : "";
+        if (debug) console.log("450 entityPathElement", entityPathElement, oVal.$id, oVal);
+        const osduType = oVal.type || entityPathElement; // 
         const version = getLastElement(schemaSource, ":");
 
-        if (debug) logDebugInfo("start", oName, oVal, jsonType, osduObj, parentName, gparentName);
+        if (debug) logDebugInfo("458 ", oName, oVal, jsonType, osduObj, parentName, gparentName);
 
         if (index === 0) {
             processTopObject(oId, oName, oKey, jsonType, osduType, { ...oValProps, groupType: entityPathElement, version }, oVal);
@@ -485,7 +494,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     function processPropertyOrItem(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any, parentName: string, gparentName: string, ggparentName: string) {
         if (oVal?.description?.includes('DEPRECATED') && !inclXOsduProperties) return;
         if (oVal["x-osdu-relationship"]) {
-            processRelationships(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
+            processProxies(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
         } else if (inclProps && oVal["x-osdu-frame-of-reference"]) {
             createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         } else if (inclArrayProperties && (oVal["x-osdu-indexing"] || oVal.type === "array")) {
@@ -493,13 +502,14 @@ export const ReadConvertJSONFromFileToAkm = async (
         } else if (inclProps && ["string", "number", "integer", "boolean"].includes(oVal.type)) {
             processSimpleProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef, parentName);
         } else if (inclArrayProperties && oVal.type === "object") {
-            processObjectProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, parentName, gparentName, ggparentName);
+            processObjectProperty(oId, oName, oKey, osduType, jsonType, oVal, oValProps, osduObj, curModel, parentName, gparentName, ggparentName);
         } else if (typeof oVal.type === 'object') {
             processEnumProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, oVal.type);
         }
     }
 
     function processRefObject(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Proxy" && ot)?.id;
         const typeRest = getLastElement(oVal["$ref"], "/");
         const title = typeRest?.split(".")[0];
         oValProps.title = title;
@@ -523,6 +533,127 @@ export const ReadConvertJSONFromFileToAkm = async (
         return ["required", "additionalProperties", "x-osdu-review-status", "x-osdu-virtual-properties", "x-osdu-inheriting-from-kind", "x-osdu-side-car-type-to", "x-osdu-supported-file-formats"].some(prop => oName.includes(prop));
     }
 
+
+    // ConnectImportedTopOSDUTypes("JSON", inclProps, props, dispatch)  // this will be run as a separate command
+
+    function createObjectAndRelationships(
+        oId: string,
+        oName: string,
+        oKey: string,
+        osduType: string,
+        jsonType: string,
+        oValProps: any,
+        osduObj: any,
+        curModel: any,
+        objecttypeRef: string
+    ) {
+        if (debug) console.log("1036 createObjectAndRelship", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+    }
+    //oId, oName, oKey, jsonType, osduType, oValProps, oVal
+    function processTopObject(
+        oId: string,
+        oName: string,
+        oKey: string,
+        jsonType: string,
+        osduType: string,
+        oValProps: any,
+        oVal: any
+    ) {
+        if (debug) console.log("936 topObjName", oName, oKey, jsonType, osduType, oValProps, oVal);
+        if (osduType === "reference-data" && !inclReference) return;
+        if (osduType === "master-data" && !inclMasterdata) return;
+        if (osduType === "abstract" && !inclAbstract) return;
+        if (osduType === "work-product-component" && !inclWorkProductComponent) return;
+        let topObjName = oName.replace(".json", "");  //.split(".")[0]
+        if (debug) console.log("1093 topObjName", topObjName, oName, osduType, groupType);
+        if (osduType === "Abstract") {
+            oValProps.abstract = true;
+        }
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "OSDUType")?.id;
+        // osduType = "OSDUType";
+        // groupType = oValProps.groupType;
+        if (topObjName.includes("Abstract")) {
+            if (topObjName !== "AbstractWorkProductComponent") {
+                topObjName = topObjName.replace("Abstract", "");
+                oValProps.abstract = true;
+            }
+        }
+        createObject(oId, topObjName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        if (debug) console.log("957 topObject", topObjName, oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+    }
+
+    function processItemType(
+        oId: string,
+        oName: string,
+        oKey: string,
+        osduType: string,
+        jsonType: string,
+        oValProps: any,
+        osduObj: any,
+        curModel: any
+    ) {
+        if (debug) console.log("929 processOSDUType :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Item")?.id;
+        // if (oKey.endsWith("Items")) { osduType = "Items" } else { osduType = "Item" }
+        osduType = "Item";
+        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+    }
+
+    function processArray(
+        oId: string,
+        oName: string,
+        oKey: string,
+        osduType: string,
+        jsonType: string,
+        oValProps: any,
+        osduObj: any,
+        curModel: any
+    ) {
+        if (debug) console.log("999  array Set: ", oId, oName, objecttypeRef, oKey, jsonType, oValProps);
+        // if includeArrayProperties is false, we do not create the array properties
+        if (!inclArrayProperties) return;
+        switch (true) {
+            case oName.substring(oName.length - 3) === "Set" || oName === "Markers" || oName === "CandidateReferenceCurveIDs" || oName === "GeologicUnitInterpretationIDs":
+                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
+                oValProps.viewkind = "container";
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                if (debug) console.log("1007  array :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+                break;
+            case oName.includes("ID") || oName.includes("IDs"):
+                if (oName === "MarkepLId" || oName === "IntervalID" || oName === "VerticalMeasurementID") {
+                    // do nothing
+                } else {
+                    if (debug) console.log("1014  array", oId, oName, oKey, jsonType, oValProps);
+                    objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
+                    let OSDUType = oName.replace("ID", ""); // remove ID from the name
+                    const proxyName = "has" + oName;
+                    oValProps.OSDUType = oName;
+                    createObject(oId, proxyName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                    if (debug) console.log("1020  array ID", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                    findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+                }
+                break;
+            case oValProps["$ref"]:
+                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                if (debug) console.log("1097  array $ref", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+                break;
+            default:
+                if (debug) console.log("418  ProcessArray", oId, oName, oKey, jsonType);
+                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
+                if (oName === "Markers") oName = oName.substring(0, oName.length - 1); // remove the last character from the name
+                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+                if (debug) console.log("1105  array else", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+                findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+                break;
+        }
+    }
+
     function processXOsduProperty(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, osduObj: any, curModel: any, objecttypeRef: any) {
         const newOValProps = { ...oValProps, description: JSON.stringify(oValProps) };
         createPropertyObject(oId, oName, oKey, osduType, jsonType, newOValProps, osduObj, curModel, objecttypeRef);
@@ -534,13 +665,70 @@ export const ReadConvertJSONFromFileToAkm = async (
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
     }
 
+    function processObjectProperty(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oVal: any, oValProps: any, osduObj: any, curModel: any) {
+        if (!debug) console.log("666  object", oId, oName, oKey, osduType, jsonType, oVal, oValProps, osduObj, curModel);
+        const objecttypeRef = oVal.properties ? curObjTypes.find((ot: { name: string }) => ot.name === "Item")?.id : curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id; // Not sure if Array is correct here
+        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+    }
     function processSimpleProperty(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oValProps: any, osduObj: any, curModel: any, objecttypeRef: any, parentName: string) {
         createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
     }
-    function processRelationships(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
-        createRel(oId, oName, oVal.description, oVal.title, objecttypeRef, "Association", parentId, topName, oId, oName);
+
+    function processProxies(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Proxy" && ot)?.id;
+        osduType = "Proxy";
+        oVal["x-osdu-relationship"].map((rel: { name: string; }) => { // create a proxy object for each relationship
+            // create new unique oid for each relationship
+            const pLId = utils.createGuid();  // ???? check if exist?
+
+            const rKey = oKey + "|" + "x-osdu-relationship"; // add the relationship name to the oKey
+            // const proxyName = 'has' + rel.OSDUType
+            const linkGroupType = rel.GroupType;
+            const referenceObject = rel.EntityType; //(rel.OSDUType) ? rel.OSDUType : parentName;
+
+            osduType = "Proxy";
+
+            const proxyName = (oVal.title)  // create a name for the proxy object just to show where its pointing
+                ? oVal.title.replace(/\s+/g, "")
+                : (oName.includes("ID"))
+                    ? oName
+                    : (rel.OSDUType)
+                        ? rel.OSDUType
+                        : (oName !== 'items')
+                            ? oName
+                            : (gparentName !== 'properties')
+                                ? gparentName
+                                : parentName;
+
+            // oValProps.refGroupType = linkGroupType;
+            // oValProps.referenceObject = referenceObject
+            const pLName = 'has' + proxyName;
+            // groupType = "Proxy";
+            if (debug) console.log("423 ", proxyName, oId, oName, linkGroupType, rel);
+            console.log("1085 ", pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps, osduObj, curModel);
+            createObject(pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps);
+            findOwnerandCreateRelationship(pLId, pLName, osduObj, curModel);
+        });
     }
+
+    function createPropertyObject(
+        oId: string,
+        oName: string,
+        oKey: string,
+        osduType: string,
+        jsonType: string,
+        oValProps: any,
+        osduObj: any,
+        curModel: any,
+        objecttypeRef: string
+    ) {
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
+        if (debug) console.log("1289  property", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+        createObjectAndRelationships(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+    }
+
     // ==================== -------------------- ==================== -------------------- ====================
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
@@ -596,16 +784,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 const fromobjectId = topObjId;
                 const fromobjectName = topObjName;
 
-                if (debug)
-                    console.log(
-                        "470 ---------",
-                        fromobjectName,
-                        reltypeName,
-                        toobjectName,
-                        fromobjectId,
-                        toobjectId,
-                        oVal
-                    );
+                if (debug) console.log("470 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId, oVal);
                 // (fromobjectId !== toobjectId) &&
                 if (fromobjectId && toobjectId)
                     createRel(
@@ -625,7 +804,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                 // console.log('475', gggparentKey, parentName,  topObjKey );
                 const fromobjectId = topObjId;
                 const fromobjectName = topObjName;
-                if (debug) console.log("584 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                if (debug) console.log("836 ---------", fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                 // (fromobjectId !== toobjectId) &&
                 if (fromobjectId && toobjectId)
                     createRel(
@@ -704,7 +883,6 @@ export const ReadConvertJSONFromFileToAkm = async (
                 let fromobjectName = "";
                 let ownerObj: string[];
                 let currObj: string[];
-
                 if (debug) console.log("676", oId, oName, parentName, gparentName, ggparentName, gggparentName, ggggparentName, topObjKey);
                 if (oName === 'VerticalMeasurementID' && ggggparentName === 'VerticalMeasurements') {
                     ownerObj = osduArray.find(o => o[1] === gparentKey)
@@ -898,168 +1076,6 @@ export const ReadConvertJSONFromFileToAkm = async (
                     toobjectName
                 );
         }
-    }
-
-    // ConnectImportedTopOSDUTypes("JSON", inclProps, props, dispatch)  // this will be run as a separate command
-
-    function createObjectAndRelationships(
-        oId: string,
-        oName: string,
-        oKey: string,
-        osduType: string,
-        jsonType: string,
-        oValProps: any,
-        osduObj: any,
-        curModel: any,
-        objecttypeRef: string
-    ) {
-        if (debug) console.log("1036 createObjectAndRelship", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-        findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-    }
-    //oId, oName, oKey, jsonType, osduType, oValProps, oVal
-    function processTopObject(
-        oId: string,
-        oName: string,
-        oKey: string,
-        jsonType: string,
-        osduType: string,
-        oValProps: any,
-        oVal: any
-    ) {
-        if (debug) console.log("1083 topObjName", oName, oKey, jsonType, osduType, oValProps, oVal);
-        if (osduType === "reference-data" && !inclReference) return;
-        if (osduType === "master-data" && !inclMasterdata) return;
-        if (osduType === "abstract" && !inclAbstract) return;
-        if (osduType === "work-product-component" && !inclWorkProductComponent) return;
-        let topObjName = oName.replace(".json", "");  //.split(".")[0]
-        if (debug) console.log("1093 topObjName", topObjName, oName, osduType, groupType);
-
-        if (osduType === "Abstract") {
-            oValProps.abstract = true;
-        }
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "OSDUType")?.id;
-        osduType = "OSDUType";
-        groupType = oValProps.groupType;
-        if (topObjName.includes("Abstract")) {
-            if (topObjName !== "AbstractWorkProductComponent") {
-                topObjName = topObjName.replace("Abstract", "");
-                oValProps.abstract = true;
-            }
-        }
-        createObject(oId, topObjName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-        if (debug) console.log("1108 topObject", topObjName, oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, groupType);//
-    }
-
-    function processItemType(
-        oId: string,
-        oName: string,
-        oKey: string,
-        osduType: string,
-        jsonType: string,
-        oValProps: any,
-        osduObj: any,
-        curModel: any
-    ) {
-        if (debug) console.log("929 processOSDUType :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Item")?.id;
-        // if (oKey.endsWith("Items")) { osduType = "Items" } else { osduType = "Item" }
-        osduType = "Item";
-        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-        findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-    }
-
-    function processProxies(
-        oId: string,
-        oName: string,
-        oKey: string,
-        osduType: string,
-        jsonType: string,
-        oValProps: any,
-        osduObj: any,
-        oVal: any,
-        curModel: any,
-        objecttypeRef: string
-    ) {
-        if (debug) console.log("981 parent = properties :", oName, oVal, oValProps, inclPropLinks);
-        if (inclPropLinks && oVal["x-osdu-relationship"]) {
-            objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Proxy")?.id;
-            // oValProps.OSDUType = oName;
-            if (debug) console.log("996  relationship", oName, objecttypeRef, oValProps, oVal["x-osdu-relationship"]);
-            createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-            if (debug) console.log("980 a-osdu-relship ", oId, oName, objecttypeRef, oKey, osduType, jsonType, osduObj, oValProps);
-            findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-        }
-    }
-
-    function processArray(
-        oId: string,
-        oName: string,
-        oKey: string,
-        osduType: string,
-        jsonType: string,
-        oValProps: any,
-        osduObj: any,
-        curModel: any
-    ) {
-        if (debug) console.log("999  array Set: ", oId, oName, objecttypeRef, oKey, jsonType, oValProps);
-        // if includeArrayProperties is false, we do not create the array properties
-        if (!inclArrayProperties) return;
-        switch (true) {
-            case oName.substring(oName.length - 3) === "Set" || oName === "Markers" || oName === "CandidateReferenceCurveIDs" || oName === "GeologicUnitInterpretationIDs":
-                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
-                oValProps.viewkind = "container";
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                if (debug) console.log("1007  array :", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-                findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-                break;
-            case oName.includes("ID") || oName.includes("IDs"):
-                if (oName === "MarkepLId" || oName === "IntervalID" || oName === "VerticalMeasurementID") {
-                    // do nothing
-                } else {
-                    if (debug) console.log("1014  array", oId, oName, oKey, jsonType, oValProps);
-                    objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
-                    let OSDUType = oName.replace("ID", ""); // remove ID from the name
-                    const proxyName = "has" + oName;
-                    oValProps.OSDUType = oName;
-                    createObject(oId, proxyName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                    if (debug) console.log("1020  array ID", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-                    findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-                }
-                break;
-            case oValProps["$ref"]:
-                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                if (debug) console.log("1097  array $ref", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-                findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-                break;
-            default:
-                if (debug) console.log("418  ProcessArray", oId, oName, oKey, jsonType);
-                objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
-                if (oName === "Markers") oName = oName.substring(0, oName.length - 1); // remove the last character from the name
-                createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
-                if (debug) console.log("1105  array else", oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, osduObj, curModel);
-                findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
-                break;
-        }
-    }
-
-
-
-    function createPropertyObject(
-        oId: string,
-        oName: string,
-        oKey: string,
-        osduType: string,
-        jsonType: string,
-        oValProps: any,
-        osduObj: any,
-        curModel: any,
-        objecttypeRef: string
-    ) {
-        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Property")?.id;
-        if (debug) console.log("1289  property", oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-        createObjectAndRelationships(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
     }
 
     // filter to get only attributes (objects removed)

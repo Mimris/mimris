@@ -2612,11 +2612,11 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
 export function isPropIncluded2(k: string, type: akm.cxType): boolean {
     let retVal = true;
     switch (k) {
-        case 'id':
+        // case 'id':
         case 'name':
         case 'description':
-        case 'typename':
-        case 'typedescription':
+        // case 'typename':
+        // case 'typedescription':
             break;
         default:
             try {
@@ -4106,17 +4106,10 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
             } catch {
             }
             let uniquelist = [...new Set(namelist)];
-            uniquelist.reverse();
             namelist = uniquelist;
         }
         if (debug) console.log('3031 namelist', namelist);
-        // if (namelist.length > 1)
         return namelist;
-        // else {
-        //     namelist = [];
-        //     namelist.push(obj.name);
-        //     return namelist;
-        // }
     }
 }
 

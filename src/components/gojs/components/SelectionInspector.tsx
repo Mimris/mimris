@@ -391,7 +391,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (prop.isRequired) {
               required = true;
             }
-            // prop = myMetamodel.findProperty(prop.id);
             let dtype = prop.datatype as akm.cxDatatype;
             if (!dtype) {
               const dtypeRef = prop.datatypeRef;
@@ -416,7 +415,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // Handle methodRef
             const mtdRef = prop?.methodRef;
             if (mtdRef) {
-              // disabled = true;
               readonly = true;
               if (inst?.category === constants.gojs.C_OBJECT) {
                 const obj = myMetis.findObject(inst.id);
@@ -458,11 +456,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
           }
         }
-        if (k === 'typename') {
-          val = chosenInst.type?.name;
-        } else if (k === 'typedescription') {
-          val = chosenInst.type?.description;
-        } else if (!isCalculated) {
+        if (!isCalculated) {
           val = chosenInst[k];
         }
       } else if (what === 'editRelationship') {
@@ -471,13 +465,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             continue;
         }
         if (k === 'typename') {
-          if (activeTab !== "0") 
             continue
-          val = chosenInst.type?.name;
         } else if (k === 'typedescription') {
-          if (activeTab !== "0") 
             continue
-          val = chosenInst.type?.description;
         } else 
           val = chosenInst[k];
       }
@@ -512,8 +502,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         {
           let dtype;
           switch (k) {
-            case 'description':
+            case 'id':
+            case 'typename':
             case 'typedescription':
+              continue;
+            case 'description':
             case 'geometry':
               fieldType = 'textarea';
               break;

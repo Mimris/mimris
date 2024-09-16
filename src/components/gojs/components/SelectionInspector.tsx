@@ -177,7 +177,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         namelist = uic.getNameList(inst, context, true);
         typename = namelist[activeTab];            
-        if (namelist.length > 1 && typename !== 'Element' && typename !== 'Default') {
+        if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Default'*/) {
           for (let i = 0; i < mySupertypes.length; i++) {
             const tname = mySupertypes[i]?.name;
             if (tname === typename) {
@@ -353,6 +353,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let propIdent = new akm.cxIdent(propNo, p.name);
       proplist.push(propIdent);
     }                    
+    let uniquelist = [...new Set(proplist)];
+    proplist = uniquelist;
     // Now build the rows
     for (let n = 0; n < proplist?.length; n++) {
       let val = "";
@@ -459,15 +461,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (!isCalculated) {
           val = chosenInst[k];
         }
+        if (k === 'typename') {
+          val = currentType.name;
+        } else if (k === 'typedescription') {
+            val = currentType.description;
+        }
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal
         if (!uic.isPropIncluded(k, type)) {
             continue;
         }
         if (k === 'typename') {
-            continue
+            val = currentType.name;
         } else if (k === 'typedescription') {
-            continue
+            val = currentType.description;
         } else 
           val = chosenInst[k];
       }
@@ -505,7 +512,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             case 'id':
             case 'typename':
             case 'typedescription':
-              continue;
             case 'description':
             case 'geometry':
               fieldType = 'textarea';
@@ -712,17 +718,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           }
         }
-        if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
         if (readonly) {
           disabled = true;
         } else {
           disabled = false;
         }
         if (namelist.length > 1) {
-           if (namelist[activeTab] !== 'Default') {
-             if (k === 'id' || k === 'typename' || k === 'typedescription' || k === 'name' || k === 'description') 
+          if (activeTab > 0) {
+            if (k === 'name' || k === 'description') 
+               continue;
+          }
+          if (namelist[activeTab] !== 'Default') {
+              if (k === 'id' || k === 'typename' || k === 'typedescription') 
                 continue;
-           }
+          }
          }
 
         row = <InspectorRow

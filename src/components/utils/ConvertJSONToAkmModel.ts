@@ -142,7 +142,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         typeStrokeColor2 = (oValProps?.refGroupType !== '')
             ? setColorsTopOSDUTypes(oValProps?.refGroupType)
             : ''
-        if (!debug) console.log("144 createObject", oName, osduType, groupType, typeColor);
+        if (debug) console.log("144 createObject", oName, osduType, groupType, typeColor);
 
         // if (proxyGroupType) {
         //     typeColor2 = (osduType === 'OSDUType')
@@ -189,7 +189,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             ...oValProps, // additional attributes
         }
 
-        if (debug) console.log("188 Create object: ", importedObject);
+        if (!debug) console.log("188 Create object: ", importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
         return importedObject;
     };
@@ -271,7 +271,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     }
 
     console.log('273', jsonFile)
-    const osduSchema = jsonFile ;//JSON.parse(jsonFile) // importert JSON file
+    const osduSchema = jsonFile;//JSON.parse(jsonFile) // importert JSON file
     if (debug) console.log('275 osduSchema', osduSchema)
 
     // const osduSchema = JSON.parse(jsonFile.toString()); // imported JSON file
@@ -316,7 +316,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         if (debug) console.log("291 ", osduSchema, aspObj);
     }
 
-    if (!debug) console.log("319 osduSchema", osduSchema);
+    if (debug) console.log("319 osduSchema", osduSchema);
     let newosduSchema = osduSchema;
     const externalID = newosduSchema.id || newosduSchema["$id"] || newosduSchema["x-osdu-schema-source"];
     newosduSchema.externalID = externalID;
@@ -336,7 +336,7 @@ export const ReadConvertJSONFromFileToAkm = async (
 
     // ------------------ create top object ------------------
     const topModel = { [topName]: newosduSchema }; // top object is given topName as key
-    if (!debug) console.log("329", topModel);
+    if (debug) console.log("329", topModel);
 
     // deepEntries take all object-keys and concatenate them in curKey as a path showing all above levels and put them in a new array
     // example: deepEntries
@@ -443,7 +443,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         const isReference = oVal['$id']?.includes("reference-data");
         const isAbstract = oVal['$id']?.includes("abstract");
 
-        if (!debug) logDebugInfo("445 ", oKey, oVal, osduObj, index, isMasterData, inclMasterdata);
+        if (debug) logDebugInfo("445 ", oKey, oVal, osduObj, index, isMasterData, inclMasterdata);
 
         if (!inclMasterdata && isMasterData) return;
         if (!inclWorkProductComponent && isWorkProductComponent) return;
@@ -458,10 +458,10 @@ export const ReadConvertJSONFromFileToAkm = async (
         const jsonType = Array.isArray(oVal) ? "isArray" : "isObject";
         const entityPathElement = oVal.$id ? getNthLastElement(oVal.$id, "/", 2) : "";
         if (debug) console.log("450 entityPathElement", entityPathElement, oVal.$id, oVal);
-        const osduType = entityPathElement || oVal.type ; // 
+        const osduType = entityPathElement || oVal.type; // 
         const version = getLastElement(schemaSource, ":");
 
-        if (!debug) logDebugInfo("458 ", oName, oVal, jsonType, osduObj, parentName, gparentName);
+        if (debug) logDebugInfo("458 ", oName, oVal, jsonType, osduObj, parentName, gparentName);
 
         if (index === 0) {
             processTopObject(oId, oName, oKey, jsonType, osduType, { ...oValProps, groupType: entityPathElement, version }, oVal);
@@ -669,7 +669,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     }
 
     function processObjectProperty(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oVal: any, oValProps: any, osduObj: any, curModel: any) {
-        if (!debug) console.log("666  object", oId, oName, oKey, osduType, jsonType, oVal, oValProps, osduObj, curModel);
+        if (debug) console.log("666  object", oId, oName, oKey, osduType, jsonType, oVal, oValProps, osduObj, curModel);
         const objecttypeRef = oVal.properties ? curObjTypes.find((ot: { name: string }) => ot.name === "Item")?.id : curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id; // Not sure if Array is correct here
         createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);

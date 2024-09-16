@@ -78,7 +78,7 @@ const LoadJsonFile = (props: any) => {
   };
 
   const importJsonFromGitLab = async (url) => {
-    const data = await fetchJsonFromGitLab(url);
+    const data = await fetchJsonFromGitLab(url); // data is returned as js object not json string
     if (debug) console.log('80 importJsonFromGitLab', data, url);
     if (data) {
       ReadConvertJSONFromFileToAkm(
@@ -108,17 +108,32 @@ const LoadJsonFile = (props: any) => {
   const importFile = async (e) => {
     // Convert the FileList into an array and iterate
     let files = Array.from(e.target.files)
-    console.log('125', files);
+    if (debug) console.log('125', files);
     let filess = files.map(file => {
       if (debug) console.log('126 file', file);
       let reader = new FileReader();
-      return new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result);
+      // return new Promise((resolve) => {
+      //   reader.onload = () => resolve(reader.result);
+      //   reader.readAsText(file);
+      // });
+      return new Promise((resolve, reject) => {
+        reader.onload = () => {
+          try {
+            const result = JSON.parse(reader.result);
+            resolve(result);
+          } catch (error) {
+            reject(new Error("Failed to parse JSON"));
+          }
+        };
+        reader.onerror = () => {
+          reject(new Error("Failed to read file"));
+        };
         reader.readAsText(file);
       });
     });
-    if (debug) console.log('12 files', filess);
+    if (debug) console.log('120 filess', filess);
     let res = await Promise.all(filess);
+    if (debug) console.log('122 res', res);
     res.map(r => {
       ReadConvertJSONFromFileToAkm(
         r,

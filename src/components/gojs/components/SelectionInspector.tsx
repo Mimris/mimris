@@ -760,7 +760,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               continue;
             } 
           }
-          if (k === 'id' || k === 'typeid') {
+          if (k === 'id' || k === 'typeid' || k === 'typename' || k === 'typedescription') {
             disabled = true;
           }
         }

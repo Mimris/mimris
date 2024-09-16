@@ -177,7 +177,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         namelist = uic.getNameList(inst, context, true);
         typename = namelist[activeTab];            
-        if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Default'*/) {
+        if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Details'*/) {
           for (let i = 0; i < mySupertypes.length; i++) {
             const tname = mySupertypes[i]?.name;
             if (tname === typename) {
@@ -305,6 +305,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let proplist = [];
     for (let k in chosenType) {
       // Filter some system attributes
+      if (k === 'id')
+        continue;
       if (!uic.isPropIncluded(k, chosenType)) 
         continue;
       if (k === 'viewkind')
@@ -341,7 +343,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }    
     if (debug) console.log('proplist', proplist);
     if (namelist.length > 1) {
-      if (typename === 'Default') {
+      if (typename === 'Type') {
         properties = [];
       } 
     }
@@ -349,12 +351,26 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     for (let n = 0; n < properties?.length; n++) {
       const p = properties[n];
       let found = false;
+      for (let i = 0; i < proplist?.length; i++) {
+        if (proplist[i].name === p.name) {
+          found = true;
+          break;
+        }
+      }
+      if (found) 
+        continue;
       propNo++;
       let propIdent = new akm.cxIdent(propNo, p.name);
       proplist.push(propIdent);
     }                    
+    propNo++;
+    let propIdent = new akm.cxIdent(propNo, "typeid");
+    proplist.push(propIdent);
     let uniquelist = [...new Set(proplist)];
     proplist = uniquelist;
+    propIdent = new akm.cxIdent(propNo, "id");
+    proplist.push(propIdent);
+
     // Now build the rows
     for (let n = 0; n < proplist?.length; n++) {
       let val = "";
@@ -465,6 +481,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           val = currentType.name;
         } else if (k === 'typedescription') {
             val = currentType.description;
+        } else if (k === 'typeid') {
+            val = currentType.id;
+        } else {
+          val = chosenInst[k];
         }
       } else if (what === 'editRelationship') {
         // Check if k should NOT be included in the modal
@@ -475,8 +495,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             val = currentType.name;
         } else if (k === 'typedescription') {
             val = currentType.description;
-        } else 
+          } else if (k === 'typeid') {
+            val = currentType.id;
+        } else {
           val = chosenInst[k];
+        }
       }
       if (k) {
         // Handle color values
@@ -725,14 +748,22 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (namelist.length > 1) {
           if (activeTab > 0) {
-            if (k === 'name' || k === 'description') 
+            if (k === 'name' || k === 'description' || k === 'id') 
                continue;
           }
-          if (namelist[activeTab] !== 'Default') {
-              if (k === 'id' || k === 'typename' || k === 'typedescription') 
+          if (namelist[activeTab] !== 'Type') {
+              if (k === 'typename' || k === 'typedescription') 
                 continue;
           }
-         }
+          if (activeTab < namelist.length-1) {
+            if (k === 'typeid') {
+              continue;
+            } 
+          }
+          if (k === 'id' || k === 'typeid') {
+            disabled = true;
+          }
+        }
 
         row = <InspectorRow
         key={k}

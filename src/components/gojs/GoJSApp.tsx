@@ -311,7 +311,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
-        console.log("Begin: After Reload:");
+        if (debug) console.log("Begin: After Reload:");
         const objviews = myModelview.objectviews;
         for (let i = 0; i < objviews?.length; i++) {
           let resetToTypeview = true;
@@ -338,7 +338,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         const links = myDiagram.links;
-        console.log("End: After Reload:");
+        if (debug) console.log("End: After Reload:");
         if (false) {
           const modelview = myMetis.currentModelview;
           const objviews = modelview.objectviews;

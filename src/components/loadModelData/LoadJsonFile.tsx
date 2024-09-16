@@ -1,184 +1,160 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-// import Draggable from "react-draggable";
-import { useDispatch } from 'react-redux'
-import Select from "react-select"
-// import { loadData } from '../actions/actions'
-// import { loadState, saveState } from '../utils/LocalStorage'
-import useLocalStorage from '../hooks/use-local-storage'
-// import { FaJoint } from 'react-icons/fa';
-// import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
-import GenGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { useDispatch } from 'react-redux';
 import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
-import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopOSDUTypes';
-import SetColorsTopEntityTypes from '../utils/SetColorsTopOSDUTypes';
-import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
-import { configureMetamodel } from '../../akmm/ui_generateTypes';
-// import LoadOpenSubsurfaceDataUniverseJson from './LoadGitLabJson'
+import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
+import { ImportModelFromFile, ImportMetamodelFromFile } from '../utils/ImportModelFromFile';
 
-const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
+const LoadJsonFile = (props: any) => {
+  if (!props.ph.phData?.metis.models) return <></>;
 
-  if (!props.ph.phData?.metis.models) return <></>
+  const debug = false;
+  const dispatch = useDispatch();
 
-  const debug = false
-  const dispatch = useDispatch()
-  // const refresh = props.refresh
-  // const setRefresh = props.setRefresh
-  // function toggleRefresh() { props.setRefresh(!props.refresh); }
-
-  const modelNames = props.ph.phData?.metis?.models.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData, props);
-
-  if (typeof window === 'undefined') return <></>
-
-  const data = {
-    phData: props.ph.phData,
-    phFocus: props.ph.phFocus,
-    phUser: props.ph.phUser,
-    phSource: props.phSource,
-    lastUpdate: new Date().toISOString()
-  }
-
-  // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
-  function handleSaveAllToFile() {
-    const projectname = props.ph.phData.metis.name
-    if (debug) console.log('37 LoadFile', data);
-
-    SaveAllToFile(data, projectname, 'Project')
-    // SaveAllToFile(data, projectname, 'AKMM-Project')
-  }
-
-  // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
-  // function handleSaveAllToFileDate() {
-  //   const projectname = props.ph.phData.metis.name
-  //   console.log('37 LoadFile', data);   
-  //   SaveAllToFileDate(data, projectname, 'Project')
-  //   // SaveAllToFileDate(data, projectname, 'AKMM-Project')
-  // }
-  // Save current modelview (without instances) to a file in downloads folder
-
-  function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
-    const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
-    const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id)
-    const modelview = model.modelviews[focusModelviewIndex]
-    if (debug) console.log('43', focusModelviewIndex, modelview);
-    SaveModelToFile({ modelview: modelview }, modelview.name, 'Modelview')
-    // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  }
-
-  // Save current model to a file with date and time in the name to the downloads folder
-  function handleSaveModelToFile() {
-    const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
-    SaveModelToFile(model, model.name, 'Model')
-    // SaveModelToFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  }
-
-  // Save current metamodel to a file with date and time in the name to the downloads folder
-  function handleSaveMetamodelToFile() {
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
-    const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef)
-    SaveModelToFile(metamodel, metamodel.name, 'Metamodel')
-    // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
-  }
-
-  // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
-  function handleSaveJSONToFile() {
-    const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
-    const modelview = model.modelviews?.find(mv => mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
-    WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
-    // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  }
-
-  const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-  const [gitLabJson, setGitLabJson] = useState(null);
 
-  // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+  const [inclMasterdata, setInclMasterdata] = useState(true);
+  const [inclWorkProductComponent, setInclWorkProductComponent] = useState(true);
+  const [inclReference, setInclReference] = useState(true);
+  const [inclAbstract, setInclAbstract] = useState(true);
+  const [inclProps, setInclProps] = useState(false);
+  const [inclPropLinks, setInclPropLinks] = useState(false);
+  const [inclArrayProperties, setInclArrayProperties] = useState(false);
+  const [inclAbstractPropLinks, setInclAbstractPropLinks] = useState(false);
+  const [inclXOsduProperties, setInclXOsduProperties] = useState(false);
+  const [inclDeprecated, setInclDeprecated] = useState(false);
+  const [inclGeneric, setInclGeneric] = useState(false);
+  const [gitLabUrl, setGitLabUrl] = useState('');
 
-  const [inclMasterdata, setInclMasterdata] = useState(true)
-  const [inclWorkProductComponent, setInclWorkProductComponent] = useState(true)
-  const [inclReference, setInclReference] = useState(true)
-  const [inclAbstract, setInclAbstract] = useState(true)
+  const handleInclProps = () => setInclProps(!inclProps);
+  const handleInclPropLinks = () => setInclPropLinks(!inclPropLinks);
+  const handleInclArrayProperties = () => setInclArrayProperties(!inclArrayProperties);
+  const handleInclAbstractPropLinks = () => setInclAbstractPropLinks(!inclAbstractPropLinks);
+  const handleInclXOsduProperties = () => setInclXOsduProperties(!inclXOsduProperties);
+  const handleInclMasterdata = () => setInclMasterdata(!inclMasterdata);
+  const handleInclWorkProductComponent = () => setInclWorkProductComponent(!inclWorkProductComponent);
+  const handleInclReference = () => setInclReference(!inclReference);
+  const handleInclAbstract = () => setInclAbstract(!inclAbstract);
+  const handleInclDeprecated = () => setInclDeprecated(!inclDeprecated);
+  const handleInclGeneric = () => setInclGeneric(!inclGeneric);
 
-  const [inclProps, setInclProps] = useState(false)
-  const [inclPropLinks, setInclPropLinks] = useState(false)
-  const [inclArrayProperties, setInclArrayProperties] = useState(false)
-  const [inclAbstractPropLinks, setInclAbstractPropLinks] = useState(false)
-  const [inclXOsduProperties, setInclXOsduProperties] = useState(false)
-  const [inclDeprecated, setInclDeprecated] = useState(false)
-  const [inclGeneric, setInclGeneric] = useState(false)
+  const [selectAllEntityTypes, setSelectAllEntityTypes] = useState(false);
+  const [selectAllProperties, setSelectAllProperties] = useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleInclProps = () => { setInclProps(!inclProps); };
-  const handleInclPropLinks = () => { setInclPropLinks(!inclPropLinks); };
-  const handleInclArrayProperties = () => { setInclArrayProperties(!inclArrayProperties); };
-  const handleInclAbstractPropLinks = () => { setInclAbstractPropLinks(!inclAbstractPropLinks); };
-  const handleInclXOsduProperties = () => { setInclXOsduProperties(!inclXOsduProperties); };
-  const handleInclMasterdata = () => { setInclMasterdata(!inclMasterdata); };
-  const handleInclWorkProductComponent = () => { setInclWorkProductComponent(!inclWorkProductComponent); };
-  const handleInclReference = () => { setInclReference(!inclReference); };
-  const handleInclAbstract = () => { setInclAbstract(!inclAbstract); };
-  const handleInclDeprecated = () => { setInclDeprecated(!inclDeprecated); };
-  const handleInclGeneric = () => { setInclGeneric(!inclGeneric); };
+  useEffect(() => {
+    setInclMasterdata(selectAllEntityTypes);
+    setInclWorkProductComponent(selectAllEntityTypes);
+    setInclReference(selectAllEntityTypes);
+    setInclAbstract(selectAllEntityTypes);
+  }, [selectAllEntityTypes]);
 
+  useEffect(() => {
+    setInclProps(selectAllProperties);
+    setInclPropLinks(selectAllProperties);
+    setInclArrayProperties(selectAllProperties);
+    setInclAbstractPropLinks(selectAllProperties);
+    setInclXOsduProperties(selectAllProperties);
+    setInclDeprecated(selectAllProperties);
+  }, [selectAllProperties]);
 
-  // const fetchData = async () => {
-  //   try {
-  //     const response = await fetch('https://community.opengroup.org/osdu/data/data-definitions/-/raw/master/Generated/master-data/ActivityPlan.1.2.0.json', { mode: 'no-cors' });
-  //     console.log('128 LoadJsonfile', response); // Do something with the data
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       console.log('129 LoadJsonfile', data); // Do something with the data
-  //     } else {
-  //       console.log('131 Error fetching data: ' + response);
-  //       throw new Error('132 Error fetching data: ' + response.status);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
+  const fetchJsonFromGitLab = async (url) => {
+    try {
+      const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setData(data);
+      return data; // Ensure data is returned
+    } catch (error) {
+      setError(error.message);
+      return null; // Return null in case of error
+    }
+  };
 
-  // const handleLoadGitLabJson = async () => {
-  //   fetchData();
-  // };
+  const importJsonFromGitLab = async (url) => {
+    const data = await fetchJsonFromGitLab(url); // data is returned as js object not json string
+    if (debug) console.log('80 importJsonFromGitLab', data, url);
+    if (data) {
+      ReadConvertJSONFromFileToAkm(
+        data,
+        dispatch,
+        props.ph,
+        inclProps,
+        inclPropLinks,
+        inclXOsduProperties,
+        inclAbstractPropLinks,
+        inclArrayProperties,
+        inclGeneric,
+        inclAbstract,
+        inclReference,
+        inclMasterdata,
+        inclWorkProductComponent,
+        inclDeprecated,
+        "AKM"
+      );
+    }
+  };
 
+  const handleImportFromGitLab = () => {
+    importJsonFromGitLab(gitLabUrl);
+  };
 
-  const buttonSaveJSONToFileDiv =
-    <button className="btn-success btn-sm text-secondary fs-5 w-100  "
-      data-toggle="tooltip" data-placement="top" data-bs-html="true"
-      title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
-    >Save Current Model to Excel-file (not implemented yet)
-      {/* onClick={handleSaveJSONToFile}>Save Current Model to File  */}
-    </button >
-
-  if (debug) console.log('172', buttonLabel);
-
-  // import files and import them as objects to the project 
-  // const importFilesRecursive = async (files) => {
-  //   for (const file of files) {
-  //     if (file.isDirectory) {
-  //       const subFiles = await file.getFiles();
-  //       await importFilesRecursive(subFiles);
-  //     } else if (file.type === 'application/json') {
-  //       const reader = new FileReader();
-  //       reader.onload = async () => {
-  //         const fileContent = reader.result;
-  //         ReadConvertJSONFromFileToAkm("AKM", inclProps, inclPropLinks, inclAbstractPropLinks, inclGeneric, props.ph, dispatch, fileContent);
-  //       };
-  //       reader.readAsText(file);
-  //     }
-  //   }
-  // };
+  const importFile = async (e) => {
+    // Convert the FileList into an array and iterate
+    let files = Array.from(e.target.files)
+    if (debug) console.log('125', files);
+    let filess = files.map(file => {
+      if (debug) console.log('126 file', file);
+      let reader = new FileReader();
+      // return new Promise((resolve) => {
+      //   reader.onload = () => resolve(reader.result);
+      //   reader.readAsText(file);
+      // });
+      return new Promise((resolve, reject) => {
+        reader.onload = () => {
+          try {
+            const result = JSON.parse(reader.result);
+            resolve(result);
+          } catch (error) {
+            reject(new Error("Failed to parse JSON"));
+          }
+        };
+        reader.onerror = () => {
+          reject(new Error("Failed to read file"));
+        };
+        reader.readAsText(file);
+      });
+    });
+    if (debug) console.log('120 filess', filess);
+    let res = await Promise.all(filess);
+    if (debug) console.log('122 res', res);
+    res.map(r => {
+      ReadConvertJSONFromFileToAkm(
+        r,
+        dispatch,
+        props.ph,
+        inclProps,
+        inclPropLinks,
+        inclXOsduProperties,
+        inclAbstractPropLinks,
+        inclArrayProperties,
+        inclGeneric,
+        inclAbstract,
+        inclReference,
+        inclMasterdata,
+        // inclWorkProduct,
+        inclWorkProductComponent,
+        inclDeprecated,
+        "AKM",
+      )
+    })
+  }
 
   const importDirectories = async (dir) => {
 
@@ -231,239 +207,139 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
     }
   }
 
-  const importFile = async (e) => {
 
-    // Convert the FileList into an array and iterate
-    let files = Array.from(e.target.files)
-    console.log('125', files);
-    let filess = files.map(file => {
-      if (debug) console.log('126 file', file);
-      let reader = new FileReader();
-      return new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result);
-        reader.readAsText(file);
-      });
-    });
-    if (debug) console.log('12 files', filess);
-    let res = await Promise.all(filess);
-    res.map(r => {
-      ReadConvertJSONFromFileToAkm(
-        r,
-        dispatch,
-        props.ph,
-        inclProps,
-        inclPropLinks,
-        inclXOsduProperties,
-        inclAbstractPropLinks,
-        inclArrayProperties,
-        inclGeneric,
-        inclAbstract,
-        inclReference,
-        inclMasterdata,
-        // inclWorkProduct,
-        inclWorkProductComponent,
-        inclDeprecated,
-        "AKM",
-      )
-    })
 
-  }
+  const curModel = props.ph.phData?.metis?.models?.find(m => m.id === props.ph.phFocus?.focusModel?.id);
+  const curMetamodel = props.ph.phData?.metis?.metamodels?.find(m => m.id === curModel?.metamodelRef);
 
-  if (false) {
-    // const openDirectoryPicker = async () => {
-    //   try {
-    //     const fileHandle = await window.showDirectoryPicker();
-    //     const entries = await getDirectoryEntries(fileHandle);
-    //     await importFilesRecursive(entries);
-    //   } catch (error) {
-    //     console.error("Error selecting directory:", error);
-    //   }
-    // };
-
-    // const directoryButton = document.createElement('button');
-    // directoryButton.style.display = 'none';
-    // document.body.appendChild(directoryButton);
-
-    // directoryButton.addEventListener('click', openDirectoryPicker);
-
-    // directoryButton.click();
-    // };
-
-    // const getDirectoryEntry = async (directory) => {
-    //   const fileHandle = await window.showDirectoryPicker();
-    //   const entry = await fileHandle.getDirectoryHandle(directory);
-    //   return entry;
-    // };
-
-    // const getDirectoryEntries = async (entry) => {
-    //   const entries = [];
-    //   for await (const item of entry.values()) {
-    //     entries.push(item);
-    //   }
-    //   return entries;
-    // };
-  }
-  const curModel = props.ph.phData?.metis?.models?.find(m => m.id === props.ph.phFocus?.focusModel?.id)
-  const curMetamodel = props.ph.phData?.metis?.metamodels?.find(m => m.id === curModel?.metamodelRef)
-  console.log('307', curMetamodel, props.ph.phFocus?.focusMetamodel?.id, props)
-  const modalDiv =
-    <>
-      {/* <Draggable handle=".handle"> */}
-      <Modal Modal size="lg" isOpen={modal} toggle={function noRefCheck() { }} >
-        <ModalHeader className="handle" toggle={() => { toggle(); props.setRefresh(!props.refresh); function noRefCheck() { } }}>Import OSDU Schema:
-        </ModalHeader>
-        {(curMetamodel?.name !== 'AKM-OSDU_MM' && modal)
-          ? <ModalBody className="d-flex flex-column">
-            <div className="source bg-warning p-5 m-5 fs-3">
-              <div>Current metamodel is not an AKM-OSDU_MM metamodel!</div>
-              <br></br>
-              <div>Please select a model with an AKM-OSDU_MM metamodel to import OSDU JSON files.</div>
-            </div>
-          </ModalBody>
-          :
-          <ModalBody className="d-flex flex-column bg-success">
-            {/* <span className="text-light">Current Source: <strong> {props.ph.phSource}</strong></span> */}
-            {/* <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
-                        <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div> */}
-            <div className="source bg-light p-2 ">
-              {/* <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} /> */}
-
-              <div className="loadsave--JsonToFile select bg-light mb-1 p-2  border border-dark">
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <h5>Import JSON-Schema files:</h5>
-                <p> (This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
-                <div className="selectbox3 mb-1 border">
-                  {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
-                  <div className='mt-2'> Include EntityTypes:</div>
-                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }} >
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclMasterdata">Master_data</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include master-data" checked={inclMasterdata} onChange={handleInclMasterdata} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
-                      <label className="flex-grow-1 text-secondary " htmlFor="inclWorkProductComp" >Work_Product_Components</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include work-product-component" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }} >
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference_Components</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include reference-data" checked={inclReference} onChange={handleInclReference} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }} >
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract_Components</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include Abstract Types" checked={inclAbstract} onChange={handleInclAbstract} />
-                    </span>
-                    {/* <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                                    <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Debug (Generic objects)</label>
-                                    <input className="checkbox-input" type="checkbox" checked={inclGeneric} onChange={handleInclGeneric} />
-                                  </span> */}
-                  </div>
-                  <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", marginTop: "3px", marginBottom: "3px" }} />
-                  <div className='mt-2'> Include Properties and relationships Proxies:</div>
-                  <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
-                    <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
-                      <label className="flex-grow-1" htmlFor="inclProps">Properties</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include Props" checked={inclProps} onChange={handleInclProps} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Relationship_Proxies</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include Proxy" checked={inclPropLinks} onChange={handleInclPropLinks} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract_Proxies</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include Abstract Proxy" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include Array" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x_osdu_Properties</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include XOsdu Properties" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
-                    </span>
-                    <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
-                      <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl_DEPRECATED</label>
-                      <input className="checkbox-input ms-1" type="checkbox" title="Include Deprecated" checked={inclDeprecated} onChange={handleInclDeprecated} />
-                    </span>
-                  </div>
-                  <label className="pt-1" htmlFor="directory">File(s)</label>
-                  <input className="select-input w-100" type="file" title="Select Directory" accept=".json" onChange={importFile} multiple />
-                  <label className="pt-3" htmlFor="directory">or Directory</label>
-                  <input
-                    className="select-input w-100"
-                    type="file"
-                    title="Select Directory"
-                    accept=".json"
-                    onChange={importDirectories}
-                    webkitdirectory="true"
-                    directory="true"
-                  />
-                  {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
+  const modalDiv = (
+    <Modal size="lg" isOpen={modal} toggle={toggle}>
+      <ModalHeader toggle={() => { toggle(); props.setRefresh(!props.refresh); }}>Import OSDU Schema:</ModalHeader>
+      {curMetamodel?.name !== 'AKM-OSDU_MM' && modal ? (
+        <ModalBody className="d-flex flex-column">
+          <div className="source bg-warning p-5 m-5 fs-3">
+            <div>Current metamodel is not an AKM-OSDU_MM metamodel!</div>
+            <br />
+            <div>Please select a model with an AKM-OSDU_MM metamodel to import OSDU JSON files.</div>
+          </div>
+        </ModalBody>
+      ) : (
+        <ModalBody className="d-flex flex-column bg-success">
+          <div className="source bg-light p-2">
+            <div className="loadsave--JsonToFile select bg-light mb- p-2 border border-dark">
+              <h5>Import JSON-Schema files:</h5>
+              <p>(This will import the Schema EntityTypes with Properties as OSDUTypes, Relationship Proxies, PropertyArrays, Items and Properties)</p>
+              <div className="selectbox3 mb-1 border">
+                <div className='mt-2'> Include EntityTypes:</div>
+                <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="selectAllEntityTypes">Select All</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Select All EntityTypes" checked={selectAllEntityTypes} onChange={() => setSelectAllEntityTypes(!selectAllEntityTypes)} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclMasterdata">Master_data</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include master-data" checked={inclMasterdata} onChange={handleInclMasterdata} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclWorkProductComp">Work_Product_Components</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include work-product-component" checked={inclWorkProductComponent} onChange={handleInclWorkProductComponent} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center m-2 pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclReference">Reference_Components</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include reference-data" checked={inclReference} onChange={handleInclReference} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center m-1 pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclAbstract">Abstract_Components</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include Abstract Types" checked={inclAbstract} onChange={handleInclAbstract} />
+                  </span>
                 </div>
-                {/* <div className="selectbox3 mb-2 border bg-secondary">
-                                <h6>Import OSDU JSON-file as AKM model types</h6>
-                                <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
-                                <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />
-                                <label className="pt-3" htmlFor="inclProps ">Include Properties 
-                                  <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
-                                </label>
-                              </div> */}
-                {/* <LoadGitLabJsonButton /> */}
-                {/* <button className="btn bg-primary py-1 px-2" onClick={handleLoadGitLabJson}>
-                                Load GitLab JSON
-                              </button> */}
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <div className="selectbox3 mb-2">
-                  <h6>Connect imported OSDU Types</h6>
-                  <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                    title="Find Proxies that refers to EntityTypes and convert to relationships!"
-                    onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
-                  >
-                    Convert temporary Proxy-objects to Relationships
-                  </Button>
-                </div>
-                {/* <div className="selectbox3 mb-2">
-                                <h6>Set colors on EntityTypes</h6> 
-                                <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                                  title="Setting colors on EntityTypes!" 
-                                  onClick={() => { SetColorsTopEntityTypes(props.ph, dispatch)}}
-                                >
-                                  Set OSDU Colors
-                                </Button>
-                              </div> */}
-              </div>
-              <div className="loadsave--JsonToFile  border border-dark" >
-                {/* <h5>OSDU JSON filestructure</h5>
-                              <div className="selectbox3 mb-2 border">
-                                <h6>Import OSDU Json file as a Json model </h6>
-                                <h6>(This will import the OSDU Json structure)</h6>
-                                <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />                 
-                              </div> */}
-                <div className="selectbox">
-                  <h5>Export OSDUType object with attributes to OSDU Excel file :</h5>
-                  <p className="selectbox3 mb-0">Select the OsduType you want to export. Then click on "OBJECT DETAIL" in the upper right corner of the modelling area, then select the "Export" tab.</p>
-                  {/* {buttonSaveJSONToFileDiv} */}
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", marginTop: "3px", marginBottom: "3px" }} />
+                <div className='mt-2'> Include Properties and relationships Proxies:</div>
+                <div className="d-flex justify-content-between align-items-center my-2 border label-input-container">
+                  <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
+                    <label className="flex-grow-1" htmlFor="selectAllProperties">Select All</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Select All Properties" checked={selectAllProperties} onChange={() => setSelectAllProperties(!selectAllProperties)} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center" style={{ height: "100%" }}>
+                    <label className="flex-grow-1" htmlFor="inclProps">Properties</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include Props" checked={inclProps} onChange={handleInclProps} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclPropLinks">Relationship_Proxies</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include Proxy" checked={inclPropLinks} onChange={handleInclPropLinks} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclAbstractPropLinks">Abstract_Proxies</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include Abstract Proxy" checked={inclAbstractPropLinks} onChange={handleInclAbstractPropLinks} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclArrayProperties">Arrays</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include Array" checked={inclArrayProperties} onChange={handleInclArrayProperties} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclXOsduProperties">x_osdu_Properties</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include XOsdu Properties" checked={inclXOsduProperties} onChange={handleInclXOsduProperties} />
+                  </span>
+                  <span className="bg-light d-flex align-items-center pe-1" style={{ height: "100%" }}>
+                    <label className="flex-grow-1 text-secondary" htmlFor="inclDeprecated">Incl_DEPRECATED</label>
+                    <input className="checkbox-input ms-1" type="checkbox" title="Include Deprecated" checked={inclDeprecated} onChange={handleInclDeprecated} />
+                  </span>
                 </div>
               </div>
-              <div className="selectbox2 mb-1 border bg-light">
-                <h6>Link to the OSDU Open Subsurface Data Universe - Data Definitions</h6>
-                <h6>(This will open a new tab in your browser)</h6>
-                <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank" rel="noopener">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
+              <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", marginTop: "3px", marginBottom: "3px" }} />
+              <label className="pt-1" htmlFor="gitLabUrl">GitLab URL - Open Raw URL in OSDU community (see link at the bottom) and Copy paste the URL below</label>
+              <input className="select-input w-100" type="text" title="Enter GitLab URL" value={gitLabUrl} onChange={(e) => setGitLabUrl(e.target.value)} />
+                <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Find Proxies that refers to EntityTypes and convert to relationships!"
+                onClick={handleImportFromGitLab}>
+                Import JSON URL from GitLab
+              </Button>
+              <label className="pt-1" htmlFor="directory">File(s)</label>
+              <input className="select-input w-100" type="file" title="Select Directory" accept=".json" onChange={importFile} multiple />
+              <label className="pt-3" htmlFor="directory">or Directory</label>
+              <input
+                className="select-input w-100"
+                type="file"
+                title="Select Directory"
+                accept=".json"
+                onChange={importDirectories}
+                webkitdirectory="true"
+                directory="true"
+              />
+              <div className="selectbox3 mb-2">
+                <h6>Connect imported OSDU Types</h6>
+                <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                  title="Find Proxies that refers to EntityTypes and convert to relationships!"
+                  onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
+                >
+                  Convert temporary Proxy-objects to Relationships
+                </Button>
               </div>
             </div>
-          </ModalBody>
-        }
-        {/* <div cla ssName="ml-2">{emailDivMailto}</div> */}
-        <ModalFooter>
-          <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
-            title="Click here when done!" onClick={() => { toggle(); props?.setRefresh(!props?.refresh) }}>Done
-          </Button>
-        </ModalFooter>
-      </Modal >
-    </>
+            <div className="loadsave--JsonToFile border border-dark">
+              <div className="selectbox">
+                <h5>Export OSDUType object with attributes to OSDU Excel file :</h5>
+                <p className="selectbox3 mb-0">Select the OsduType you want to export. Then click on "OBJECT DETAIL" in the upper right corner of the modelling area, then select the "Export" tab.</p>
+              </div>
+            </div>
+            <div className="selectbox2 mb-1 border bg-light">
+              <h6>Link to the OSDU Open Subsurface Data Universe - Data Definitions</h6>
+              <h6>(This will open a new tab in your browser)</h6>
+              <a className="text-primary" href="https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated" target="_blank" rel="noopener">https://community.opengroup.org/osdu/data/data-definitions/-/tree/master/Generated</a>
+            </div>
+          </div>
+        </ModalBody>
+      )}
+      <ModalFooter>
+        <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+          title="Click here when done!" onClick={() => { toggle(); props?.setRefresh(!props?.refresh) }}>Done
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
 
   return (
     <>
-      {/* <span className="fs-5 "><button className="btn bg-success p-0" onClick={toggle}>OSDU Import</button></span> OSDU Import button */}
       <span><button className="btn bg-success text-white py-1 ps-0 px-0" onClick={toggle}>OSDU Imp <i className="fa fa-file-import fa-lg "></i></button></span>
       {modalDiv}
       <style jsx>{`
@@ -481,7 +357,7 @@ const LoadJsonFile = (props: any) => { // loads the selected OSDU JSON file(s)
         }  
       `}</style>
     </>
-  )
-}
+  );
+};
 
-export default LoadJsonFile
+export default LoadJsonFile;

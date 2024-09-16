@@ -66,7 +66,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         if (!curmod) return null
         const curmmod = metis.metamodels.find(m => m.id === curmod.metamodelRef)
         const modelviews = curmod.modelviews.filter(mv => (mv && mv.id != undefined) && mv) // filter out null or empthy modelviews
-    
+
         const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
 
         let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
@@ -99,7 +99,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             focusModel: focusModel,
             focusModelview: focusModelview,
         }
-        if (!debug) console.log('98 ReadModelFromFile', data)
+        if (debug) console.log('98 ReadModelFromFile', data)
         // let data = (importedfile.phData)
         //     ?  importedfile // if phData exists, then use importedfile
         //     :  (importedfile.models) 
@@ -488,7 +488,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         }
 
 
-        if (!debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+        if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)

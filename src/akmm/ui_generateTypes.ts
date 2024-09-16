@@ -247,6 +247,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.setDescription(object.description);
             objtype.typeDescription = currentObj.typeDescription;
             if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+                objtype.attributes = new Array();
                 objtype.properties = new Array();
             }
         }
@@ -930,6 +931,16 @@ export function askForTargetMetamodel(context: any) {
     myDiagram.handleOpenModal(mmlist, modalContext);
 }
 
+function clearGivenEntityTypes(typeNames: string[], myMetis: akm.cxMetis) {
+    for (let i = 0; i < typeNames.length; i++) {
+        const type = myMetis.findObjectTypeByName(typeNames[i]);
+        if (type) {
+            type.attributes = new Array();
+            type.properties = new Array();
+        }
+    }
+}
+
 export function generateTargetMetamodel2(context: any) { // postoperation
     let modelviewList = []; // constants.core.AKM_MODELVIEWS; // [];
     const myDiagram = context.myDiagram;
@@ -941,7 +952,11 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     if (!targetMetamodel)
         return false;
     if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
-        targetMetamodel.properties = new Array();
+        const typelist = new Array();
+        typelist.push("Default");
+        typelist.push("Entity Type");
+        typelist.push("$Type");
+        clearGivenEntityTypes(typelist, myMetis);
     }
     if (!sourcemodelview)
         return false;
@@ -950,12 +965,6 @@ export function generateTargetMetamodel2(context: any) { // postoperation
         modelviewList = new Array();
         modelviewList.push(sourcemodelview.name);
         {
-        // targetMetamodel.objecttypes = new Array();
-        // targetMetamodel.objecttypes0 = new Array();
-        // targetMetamodel.relshiptypes = new Array();
-        // targetMetamodel.relshiptypes0 = new Array();
-        // targetMetamodel.objecttypeviews = new Array();
-        // targetMetamodel.relshiptypeviews = new Array();
         }
     } else {
         modelviewList = constants.core.AKM_MODELVIEWS;

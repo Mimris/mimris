@@ -4076,7 +4076,7 @@ function selectNameFromNameList(question, namelist, defText): string {
 }
 
 export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties: boolean): string[] {
-    let namelist = [];
+    let namelist = ['Details'];
     if (obj) {
         if (context.includeConnected) {
             namelist.push(obj.name);
@@ -4096,9 +4096,9 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                     const type = inheritedTypes[i];
                     if (type.name === constants.types.AKM_ENTITY_TYPE) 
                         continue;
-                    if (type.name === '_Type') 
+                    if (type.name === 'Details') 
                         continue;
-                    if (type.name === 'Default') 
+                    if (type.name === 'Type') 
                         continue;
                     if (onlyWithProperties) {
                         if (type.properties?.length > 0) {
@@ -4113,10 +4113,10 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                 if (debug) console.log('3029 error', error);
             }
         }
-        namelist.push(obj.type.name);
+        // namelist.push(obj.type.name);
         if (nlist.length > 0)  
             namelist = namelist.concat(nlist);
-        namelist.push('Default');
+        namelist.push('Type');
         if (debug) console.log('3031 namelist', namelist);
         return namelist;
     }

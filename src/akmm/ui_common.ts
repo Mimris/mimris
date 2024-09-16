@@ -4076,7 +4076,7 @@ function selectNameFromNameList(question, namelist, defText): string {
 }
 
 export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties: boolean): string[] {
-    let namelist = ['Default'];
+    let namelist = [];
     if (obj) {
         if (context.includeConnected) {
             namelist.push(obj.name);
@@ -4087,6 +4087,7 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                 namelist.push(connectedObj?.name);
             }
         }
+        let nlist = new Array();
         if (context.includeInherited) {
             try {
                 const inheritedTypes = obj?.getInheritedTypes();
@@ -4095,19 +4096,27 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                     const type = inheritedTypes[i];
                     if (type.name === constants.types.AKM_ENTITY_TYPE) 
                         continue;
+                    if (type.name === '_Type') 
+                        continue;
+                    if (type.name === 'Default') 
+                        continue;
                     if (onlyWithProperties) {
-                        if (type.properties?.length > 0)
-                            namelist.push(type.name);
-                    } else
-                        namelist.push(type.name);
+                        if (type.properties?.length > 0) {
+                            nlist.push(type.name);
+                        }
+                    } else 
+                        nlist.push(type.name);
                 }
-                if (obj.type.properties?.length > 0)
-                    namelist.push(obj.type?.name);
-            } catch {
+                let uniquelist = [...new Set(nlist)];
+                nlist = uniquelist;
+            } catch (error) {
+                if (debug) console.log('3029 error', error);
             }
-            let uniquelist = [...new Set(namelist)];
-            namelist = uniquelist;
         }
+        namelist.push(obj.type.name);
+        if (nlist.length > 0)  
+            namelist = namelist.concat(nlist);
+        namelist.push('Default');
         if (debug) console.log('3031 namelist', namelist);
         return namelist;
     }

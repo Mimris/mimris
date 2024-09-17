@@ -625,8 +625,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
               let node = obj.part.data;
+              const object = node.object;
               if (node.category === constants.gojs.C_OBJECT) {
-                node = myGoModel.findNodeByObjectId(node.object.id);
+                const goNode = myGoModel.findNodeByObjectId(node.key);
                 let noLevels = 1;
                 noLevels = prompt('Enter no of sublevels to follow', noLevels);
                 let reltypes = 'all';
@@ -643,7 +644,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const relshipviews = new Array();
                 const objects = new Array();
                 const relships = new Array();
-                let object = node.object as akm.cxObject;
                 objects.push(object);
                 let objectview = node.objectview as akm.cxObjectView;
                 objectviews.push(objectview);
@@ -1325,7 +1325,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (objview) {
                 if (!objview.isGroup) {
                   const mySelection = myDiagram.selection;
-                  const lay = uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
+                  uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
                   myDiagram.selection.each(function (sel) {
                     const link = sel.data;
                     if (link.category === constants.gojs.C_RELATIONSHIP) {

@@ -842,7 +842,7 @@ export function setTreeLayoutParameters(): go.TreeLayout {
         setsChildPortSpot: false,
         alternateSetsChildPortSpot: false,
         alternateSetsPortSpot: false,
-        sorting: go.TreeLayout.SortingAscending,
+        sorting: go.TreeLayout.SortingDescending,
         arrangement: go.TreeLayout.ArrangementFixedRoots,        
         alignment: go.TreeLayout.AlignmentStart, // AlignmentStart, CenterChildren;
     });
@@ -904,6 +904,7 @@ export function doTreeLayout(mySelection: any, myModelview: akm.cxModelView, myD
 }
 
 export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const myNode = myDiagram.findNodeForKey(node.key);
     let objectviews: akm.cxObjectView[] = new Array();
     let relshipviews: akm.cxRelationshipView[] = new Array();
     myMetis.myDiagram = myDiagram;
@@ -947,7 +948,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     // Now generate the nodes and links, and select them
     const myObjectViews = [];
     const myRelshipViews = [];
-    const myCollection = new go.Set<go.Part | go.Link>();
+    myNode.isSelected = true;
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
         const goNode = new gjs.goObjectNode(objview.id, goModel, objview);
@@ -956,7 +957,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         myObjectViews.push(jsnObjview);
         myDiagram.model.addNodeData(goNode);
         const node = myDiagram.findNodeForData(goNode)
-        myCollection.add(node);
+        node.isSelected = true;
     }
     for (let i=0; i<relshipviews.length; i++) {
         let relview = relshipviews[i];
@@ -969,20 +970,17 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
         goLink.from = goLink.fromNode?.key;
         goLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
         goLink.to = goLink.toNode?.key;
-        // goModel.addLink(goLink);
         relview = uic.setRelviewAttributes(goLink, myDiagram);
         resetToTypeview(goLink, myMetis, myDiagram);
 
         const jsnRelview = new jsn.jsnRelshipView(relview);
         myRelshipViews.push(jsnRelview);
-        const link = myDiagram.findLinkForData(goLink)
-        myCollection.add(link);
+        const link = myDiagram.findLinkForKey(goLink.key)
+        link.isSelected = true;
     }
     myDiagram.commitTransaction('generateNodesAndLinks');
 
     myDiagram.startTransaction('selectNodesAndLinks');
-
-    myDiagram.selectCollection(myCollection);
 
     myDiagram.commitTransaction('selectNodesAndLinks');
 
@@ -992,7 +990,6 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     const lay = doTreeLayout(mySelection, modelview, myDiagram, true);
 
     myDiagram.commitTransaction('layoutNodesAndLinks');
-
 
     myObjectViews.map(mn => {
         let data = (mn) && mn
@@ -2151,7 +2148,6 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
                         const relview = relviews[j];
                         const jsnRelView = new jsn.jsnRelshipView(relview);
                         modifiedRelshipViews.push(jsnRelView);
-                        // relshipviews.push(relview);
                     }
                 } else {
                     cnt++;

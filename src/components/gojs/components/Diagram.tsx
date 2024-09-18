@@ -621,67 +621,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Add connected objects 1",
-            function (e: any, obj: any) {
-              const myGoModel = myMetis.gojsModel;
-              let node = obj.part.data;
-              const object = node.object;
-              if (node.category === constants.gojs.C_OBJECT) {
-                const goNode = myGoModel.findNodeByObjectId(node.key);
-                let noLevels = 1;
-                noLevels = prompt('Enter no of sublevels to follow', noLevels);
-                let reltypes = 'all';
-                reltypes = prompt('Enter relationship types to follow (comma seperated)', reltypes);
-                if (reltypes === 'all')
-                  reltypes = '';
-                let objtypes = 'all';
-                objtypes = prompt('Enter object types to connect to (comma seperated)', objtypes);
-                if (objtypes === 'all')
-                  objtypes = '';
-                let reldir = 'any';
-                reldir = prompt('Enter relationship direction to follow (in | out)', reldir);
-                const objectviews = new Array();
-                const relshipviews = new Array();
-                const objects = new Array();
-                const relships = new Array();
-                objects.push(object);
-                let objectview = node.objectview as akm.cxObjectView;
-                objectviews.push(objectview);
-                const method = new akm.cxMethod(utils.createGuid(), 'addConnectedObjects', "");
-                method["methodtype"] = "Traverse";
-                method["reldir"] = reldir;
-                method["objtypes"] = objtypes;
-                method["reltypes"] = reltypes;
-                method["expression"] = "";
-                method["nolevels"] = noLevels;
-                method["valuecondition"] = null;
-                method["preaction"] = "addConnectedObject";
-                method["postaction"] = "Select";
-                const args = {
-                  "method": method
-                }
-                const context = {
-                  "myDiagram": myDiagram,
-                  "myMetis": myMetis,
-                  "myMetamodel": myMetis.currentMetamodel,
-                  "myModel": myMetis.currentModel,
-                  "myModelview": myMetis.currentModelview,
-                  "myGoModel": myMetis.gojsModel,
-                  "args": args,
-                  "objects": objects,
-                  "relships": relships,
-                  "objectviews": objectviews,
-                  "relshipviews": relshipviews,
-                  "currentObject": object,
-                  "currentObjectview": objectview,
-                  "traverseViews": false,
-                }
-                ui_mtd.executeMethod(context);
-              }
-            },
-            function (o: any) {
-              return false;
-            }),
           makeButton("Add Connected Objects",
             function (e: any, obj: any) {
               const node = obj.part.data;

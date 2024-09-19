@@ -157,6 +157,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (category === constants.gojs.C_OBJECT) {
         if (type?.name === 'Method') {
           chosenType =  myObjectType as akm.cxObjectType;
+          currentType = chosenType;
         } else {
           currentType = myObjectType as akm.cxObjectType;
           chosenType = currentType;
@@ -174,18 +175,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               context.includeConnected = true;
             }
           }
-        }
-        namelist = uic.getNameList(inst, context, true);
-        typename = namelist[activeTab];            
-        if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Details'*/) {
-          for (let i = 0; i < mySupertypes.length; i++) {
-            const tname = mySupertypes[i]?.name;
-            if (tname === typename) {
-              type = inheritedTypes[i];
-              chosenType = type as akm.cxObjectType;
+        
+          namelist = uic.getNameList(inst, context, true);
+          typename = namelist[activeTab];            
+          if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Details'*/) {
+            for (let i = 0; i < mySupertypes.length; i++) {
+              const tname = mySupertypes[i]?.name;
+              if (tname === typename) {
+                type = inheritedTypes[i];
+                chosenType = type as akm.cxObjectType;
+              }
             }
-          }
-        }        
+          }    
+        }    
       } else if (category === constants.gojs.C_RELATIONSHIP) {
         currentType = type as akm.cxRelationshipType;
         chosenType = currentType;

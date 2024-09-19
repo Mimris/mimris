@@ -992,21 +992,14 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
 
     myDiagram.commitTransaction('layoutNodesAndLinks');
 
-    myObjectViews.map(mn => {
-        let data = (mn) && mn
-        if (mn.id) {
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-        }
-    })   
-    myRelshipViews.map(mn => {
-    let data = (mn) && mn
-    if (mn.id) {
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-    }
-    })                 
-    
+    const modifiedModelviews = new Array();
+    const jsnModelview = new jsn.jsnModelView(modelview);
+    modifiedModelviews.push(jsnModelview);
+    modifiedModelviews.map(mn => {
+      let data = mn;
+      data = JSON.parse(JSON.stringify(data));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+    })
 }
 
 export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {

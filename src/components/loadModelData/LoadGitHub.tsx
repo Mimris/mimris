@@ -129,13 +129,13 @@ const LoadGitHub = (props: any) => {
     let impProjFile = null;
     setLoading(true);
 
-    try { 
+    try {
       if (debug) console.log('133 LoadGitHub', rep, repoText, pathText, filename);
       if (debug) console.log('128', pathText, filename, branchText, 'file');
       let url = `https://raw.githubusercontent.com/${rep}/${branchText}/${pathText}/${filename}`;
-      if (pathText ===  '/') {
+      if (pathText === '/') {
         url = `https://raw.githubusercontent.com/${rep}/${branchText}/${filename}`; // this is the project file
-      } 
+      }
       const res = await axios.get(url);
       if (res?.data?.content) {
         // const sha = res?.data?.sha;
@@ -252,7 +252,7 @@ const LoadGitHub = (props: any) => {
           phSource: impProjFile.phData.metis.name || impProjFile.phSource
           // phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
-        if (!debug) console.log('255', data)
+        if (debug) console.log('255', data)
         if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })

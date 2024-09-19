@@ -94,7 +94,7 @@ const Project = (props) => {
                 <div className="border fs-6 p-1">Branch: {props.props.phFocus.focusProj.branch}</div>
               </div>
             <span>File:</span>
-              <div className="borde fs-6">{props.props.phFocus.focusProj.file}</div>
+              <div className="border fs-6">{props.props.phFocus.focusProj.file}</div>
               {/* <hr /> */}
             <span>Current User:</span>
               <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser?.name} </div>

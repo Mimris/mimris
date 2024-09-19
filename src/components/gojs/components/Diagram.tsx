@@ -376,7 +376,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.click = function (e) {
       e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
     };
-    console.log('myDiagram.model', myDiagram.model);
+    if (debug) console.log('myDiagram.model', myDiagram.model);
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.dispatch = this.myMetis?.dispatch;

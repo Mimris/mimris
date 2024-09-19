@@ -464,7 +464,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   modelview.relshipviews = relshipviews;
   // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
   // uic.repairGoModel(myGoModel, modelview);
-  console.log('445 myGoModel', myGoModel);
+  if (debug) console.log('445 myGoModel', myGoModel);
   return myGoModel;
 }
 

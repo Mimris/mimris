@@ -121,7 +121,7 @@ const Modelling = (props: any) => {
 
 
   useEffect(() => {
-    console.log('Modelling 126', mmToggle)
+    if (debug) console.log('Modelling 126', mmToggle)
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
   }, [mmToggle])
 

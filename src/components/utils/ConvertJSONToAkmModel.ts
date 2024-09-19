@@ -270,7 +270,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         // const topModel ={[topName]: newosduSchema} // top object is given topName as key
     }
 
-    console.log('273', jsonFile)
+    // console.log('273', jsonFile)
     const osduSchema = jsonFile;//JSON.parse(jsonFile) // importert JSON file
     if (debug) console.log('275 osduSchema', osduSchema)
 
@@ -436,7 +436,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     // map through the osduArray and create objects and relationships between the objects
     const osduObjects = osduArray?.map((osduObj, index) => {
         const [oId, oKey, oVal] = osduObj;
-        console.log("439 ", oId, oKey, oVal);
+        // console.log("439 ", oId, oKey, oVal);
         const schemaSource = oVal['x-osdu-schema-source'];
         const isMasterData = oVal['$id']?.includes("master-data");
         const isWorkProductComponent = oVal['$id']?.includes("work-product-component");
@@ -462,15 +462,19 @@ export const ReadConvertJSONFromFileToAkm = async (
         const version = getLastElement(schemaSource, ":");
 
         if (debug) logDebugInfo("458 ", oName, oVal, jsonType, osduObj, parentName, gparentName);
+        if (!debug) console.log("465 oName", oName, "$ref ", oVal["$ref"], inclAbstractPropLinks);
 
         if (index === 0) {
             processTopObject(oId, oName, oKey, jsonType, osduType, { ...oValProps, groupType: entityPathElement, version }, oVal);
-        } else if (isPropertyOrItem(parentName, gparentName)) {
-            processPropertyOrItem(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
         } else if (oVal["$ref"] && inclAbstractPropLinks) {
+            console.log("473 processRefObject", oName, oValProps);
             processRefObject(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
         } else if (oName === "items") {
+            console.log("470 processItems",oName, oValProps);
             processItems(oId, oName, oKey, jsonType, osduType, oValProps, parentName, osduObj, curModel, objecttypeRef);
+        } else if (isPropertyOrItem(parentName, gparentName)) {
+            console.log("476 processPropertyOrItem", oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
+            processPropertyOrItem(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
         } else if (inclXOsduProperties && isXOsduProperty(oName)) {
             processXOsduProperty(oId, oName, oKey, jsonType, osduType, oValProps, osduObj, curModel, objecttypeRef);
         } else if (inclGeneric) {
@@ -509,9 +513,10 @@ export const ReadConvertJSONFromFileToAkm = async (
         } else if (typeof oVal.type === 'object') {
             processEnumProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, oVal.type);
         }
-    }
+    } 
 
     function processRefObject(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
+        console.log("518 processRefObject", oName, oValProps);
         objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Proxy" && ot)?.id;
         const typeRest = getLastElement(oVal["$ref"], "/");
         const title = typeRest?.split(".")[0];
@@ -519,9 +524,9 @@ export const ReadConvertJSONFromFileToAkm = async (
         oValProps.refGroupType = getNthLastElement(oVal["$ref"], "/", 2);
         oValProps.referenceObject = title === "AbstractWorkProductComponent" ? title : title.replace("Abstract", "");
         const proxyName = `Is${oValProps.title}`;
+        console.log("523 processRefObject", oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         createObjectAndRelationships(oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
     }
-
     function processItems(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, parentName: string, osduObj: any, curModel: any, objecttypeRef: any) {
         if (inclArrayProperties && parentName?.endsWith("s")) {
             const oMName = parentName.endsWith("ies") ? parentName.slice(0, -3) + "y" : parentName.slice(0, -1);
@@ -535,7 +540,6 @@ export const ReadConvertJSONFromFileToAkm = async (
     function isXOsduProperty(oName: string) {
         return ["required", "additionalProperties", "x-osdu-review-status", "x-osdu-virtual-properties", "x-osdu-inheriting-from-kind", "x-osdu-side-car-type-to", "x-osdu-supported-file-formats"].some(prop => oName.includes(prop));
     }
-
 
     // ConnectImportedTopOSDUTypes("JSON", inclProps, props, dispatch)  // this will be run as a separate command
 

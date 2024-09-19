@@ -103,6 +103,8 @@ const LoadJsonFile = (props: any) => {
 
   const handleImportFromGitLab = () => {
     importJsonFromGitLab(gitLabUrl);
+
+    // ConnectImportedTopEntityTypes("JSON", inclProps, props, dispatch)
   };
 
   const importFile = async (e) => {

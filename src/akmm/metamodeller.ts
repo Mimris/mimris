@@ -10242,6 +10242,13 @@ export class cxNodeMap {
     }
 }
 
+export class cxTraverseDialog {
+    relshipTypeList: string[];
+    relshipDirection: string;
+    objectTypeList: string[];
+    noSubLevels: number;
+}
+
 /*
 module.exports = {
     cxMetis 				: cxMetis,

@@ -831,7 +831,7 @@ export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: an
     }
 }
 
-export function setTreeLayoutParameters(): go.TreeLayout {
+function setTreeLayoutParameters(): go.TreeLayout {
     const layout = new go.TreeLayout({ 
         isOngoing: false,
         treeStyle: go.TreeLayout.StyleRootOnly, 
@@ -843,6 +843,7 @@ export function setTreeLayoutParameters(): go.TreeLayout {
         alternateSetsChildPortSpot: false,
         alternateSetsPortSpot: false,
         sorting: go.TreeLayout.SortingDescending,
+        alternateSorting: go.TreeLayout.SortingDescending,
         arrangement: go.TreeLayout.ArrangementFixedRoots,        
         alignment: go.TreeLayout.AlignmentStart, // AlignmentStart, CenterChildren;
     });
@@ -2514,7 +2515,6 @@ function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis)
     return models;
 }
 
-
 export function setGroupLayoutParameters(groupLayout: string): go.Layout {
 if (false) {
     let layout = null;
@@ -2731,3 +2731,6 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
     return relview;
 }
 
+export function editTraverseDialog() {
+    
+}

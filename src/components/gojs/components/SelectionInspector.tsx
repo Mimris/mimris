@@ -155,6 +155,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     {
       let inheritedTypes = [];
       if (category === constants.gojs.C_OBJECT) {
+        namelist = uic.getNameList(inst, context, true);
         if (type?.name === 'Method') {
           chosenType =  myObjectType as akm.cxObjectType;
           currentType = chosenType;
@@ -170,14 +171,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (inheritedTypes?.length > 0) {
               context.includeInherited = true;
             }
-            const connectedObjects: akm.cxObject[] = inst?.getConnectedObjects2(myMetis);
+            let connectedObjects: akm.cxObject[] = [];
+            try {
+              connectedObjects = inst?.getConnectedObjects2(myMetis);
+            } catch {}
             if (connectedObjects?.length > 0) {
               context.includeConnected = true;
             }
           }
         
           namelist = uic.getNameList(inst, context, true);
-          typename = namelist[activeTab];            
+          typename = namelist[activeTab];     
+          if (typename === 'Details') {
+            typename = currentType?.name;
+          }
           if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Details'*/) {
             for (let i = 0; i < mySupertypes.length; i++) {
               const tname = mySupertypes[i]?.name;
@@ -453,7 +460,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               readonly = false;
             // Handle connected objects
             if (inst?.category === constants.gojs.C_OBJECT) {
-              const objs = chosenInst.getConnectedObjects1(prop, myMetis);
+              const objs = inst?.getConnectedObjects1(prop, myMetis);
               if (objs?.length > 1)
                 val = '';
               for (let i = 0; i < objs?.length; i++) {
@@ -753,14 +760,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (k === 'name' || k === 'description' || k === 'id') 
                continue;
           }
-          if (namelist[activeTab] !== 'Type') {
-              if (k === 'typename' || k === 'typedescription') 
-                continue;
-          }
-          if (activeTab < namelist.length-1) {
-            if (k === 'typeid') {
+          if (namelist[activeTab] === 'Type') {
+            if (k !== 'typename' && k !== 'typedescription' && k !== 'typeid') {
               continue;
-            } 
+            }
+          }
+          if (namelist[activeTab] !== 'Type') {
+            if (k === 'typename' || k === 'typedescription' || k === 'typeid') {
+              continue;
+            }
           }
           if (k === 'id' || k === 'typeid' || k === 'typename' || k === 'typedescription') {
             disabled = true;

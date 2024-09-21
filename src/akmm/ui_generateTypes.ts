@@ -1599,7 +1599,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
             // Then handle inheritance from object types
             rels = obj.getOutputRelships(myModel, constants.relkinds.GEN);
-            for (let i = 0; i < len; i++) {
+            for (let i = 0; i < rels.length; i++) {
                 const rel = rels[i];
                if (rel?.name === 'Is') {
                     rel.relshipkind = constants.relkinds.GEN; // Generalization

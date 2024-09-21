@@ -122,7 +122,7 @@ export function handleSelectDropdownChange(selected, context) {
   switch(modalContext.case) {
     case "Change Object type": {
       const typename = (selectedOption) && selectedOption;
-      const objtype = myMetis.findObjectTypeByName(typename);
+      const objtype = myMetamodel.findObjectTypeByName(typename);
       myDiagram.selection.each(function(sel) {
         const gjsInst = sel.data;
         if (gjsInst.category === constants.gojs.C_OBJECT) {

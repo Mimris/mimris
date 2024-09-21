@@ -1026,7 +1026,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let defText = "";
               if (objtypes) {
                 node.choices = [];
-                node.choices.push('Generic');
                 for (let i = 0; i < objtypes.length; i++) {
                   const otype = objtypes[i];
                   if (!otype.markedAsDeleted && !otype.abstract) {

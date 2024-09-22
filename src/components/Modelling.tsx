@@ -196,6 +196,18 @@ const Modelling = (props: any) => {
     return () => clearTimeout(timer);
   }
 
+  // Function to export curmod.objects to clipboard
+  const exportToClipboard = () => {
+    if (curmod && curmod.objects) {
+      const objectsText = curmod.objects.map(obj => ` - "${obj.id}" | "${obj.name}" | "${obj.description ? obj.description : '(empty)'}" | "(${obj.typeName})"`).join('\n').replace(/\|/g, ',') + '\n';
+      navigator.clipboard.writeText(objectsText).then(() => {
+        alert('Objects copied to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy objects to clipboard: ', err);
+      });
+    }
+  };
+
   if (mount) {
     let phFocus = props.phFocus;
     let phData = props.phData
@@ -524,6 +536,9 @@ const Modelling = (props: any) => {
               {loadfile}
             </span>
           </div>
+            <span className="btn me-1 d-flex justify-content-center align-items-center" onClick={exportToClipboard}>
+            <i className="fas fa-copy me-2"></i> Objects
+            </span>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
 
           {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}

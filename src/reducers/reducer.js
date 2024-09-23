@@ -267,7 +267,7 @@ function reducer(state = InitialState, action) {
             ...state.phData.metis,
             models: [
               ...state.phData.metis.models.slice(0, loadmodindex),
-                ...action.data.model,
+              ...action.data.model,
               // {
               //   ...action.data.model,
               //   modified: new Date().toISOString(),  // add modified date 
@@ -793,7 +793,7 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_MODELVIEW_PROPERTIES
 
     case UPDATE_OBJECT_PROPERTIES:
-      if (debug) console.log('743 UPDATE_OBJECT_PROPERTIES', action);
+      if (debug) console.log('796 UPDATE_OBJECT_PROPERTIES', action);
       const curObject = curModel?.objects?.find((o) => o.id === action.data?.id);
       let curObjectIndex = curModel?.objects?.findIndex((o) => o.id === curObject?.id);
       const curObjectLength = curModel?.objects?.length;

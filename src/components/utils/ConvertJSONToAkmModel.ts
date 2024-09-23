@@ -189,7 +189,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             ...oValProps, // additional attributes
         }
 
-        if (!debug) console.log("188 Create object: ", importedObject);
+        if (debug) console.log("188 Create object: ", importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
         return importedObject;
     };
@@ -462,7 +462,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         const version = getLastElement(schemaSource, ":");
 
         if (debug) logDebugInfo("458 ", oName, oVal, jsonType, osduObj, parentName, gparentName);
-        if (!debug) console.log("465 oName", oName, "$ref ", oVal["$ref"], inclAbstractPropLinks);
+        if (debug) console.log("465 oName", oName, "$ref ", oVal["$ref"], inclAbstractPropLinks);
 
         if (index === 0) {
             processTopObject(oId, oName, oKey, jsonType, osduType, { ...oValProps, groupType: entityPathElement, version }, oVal);
@@ -470,7 +470,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             console.log("473 processRefObject", oName, oValProps);
             processRefObject(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
         } else if (oName === "items") {
-            console.log("470 processItems",oName, oValProps);
+            console.log("470 processItems", oName, oValProps);
             processItems(oId, oName, oKey, jsonType, osduType, oValProps, parentName, osduObj, curModel, objecttypeRef);
         } else if (isPropertyOrItem(parentName, gparentName)) {
             console.log("476 processPropertyOrItem", oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
@@ -513,7 +513,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         } else if (typeof oVal.type === 'object') {
             processEnumProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, oVal.type);
         }
-    } 
+    }
 
     function processRefObject(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
         console.log("518 processRefObject", oName, oValProps);

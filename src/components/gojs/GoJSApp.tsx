@@ -663,7 +663,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 part.scale1 = 1;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
                 myObjectview.group = "";
+                uid.selectContent(myToNode, myMetis, myDiagram);
               }
+              
               // Update objectview scaling and location
                 if (false) {
                   for (let i = 0; i < myGoModel.nodes.length; i++) {
@@ -740,7 +742,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-
         break;
       }
       case "SelectionDeleting": {

@@ -1368,6 +1368,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
+          makeButton("Select Content",
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              if (debug) console.log('1453 obj.part: ', obj.part.toString());
+              uid.selectContent(node, myMetis, myDiagram);
+            },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                if (node.isGroup)
+                  return true;
+              }
+              return false;
+            }),
           makeButton("Select connected objects 1",
             function (e: any, obj: any) {
               const node = obj.part.data;

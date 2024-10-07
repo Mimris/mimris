@@ -1058,11 +1058,7 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
 export function selectContent(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (!node.isGroup)
         return;
-    // get group coordinates
-    // get all objectviews
-    // for each objectview, get the coordinates
-    // loop through all nodes
-    // if node is within group coordinates, add to selection
+    addToSelection(node, myDiagram);
     const goModel = myMetis.gojsModel;
     const groupLoc = node.loc;
     const groupLocs = groupLoc.split(" ");

@@ -639,6 +639,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.loc = myToNode.loc.valueOf();
                 goToNode.size = myToNode.size;
               }
+              uid.selectContent(myToNode, myMetis, myDiagram);
 
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode, );
@@ -663,7 +664,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 part.scale1 = 1;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
                 myObjectview.group = "";
-                uid.selectContent(myToNode, myMetis, myDiagram);
               }
               
               // Update objectview scaling and location

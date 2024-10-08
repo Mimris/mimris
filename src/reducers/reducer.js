@@ -872,7 +872,7 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_OBJECTVIEW_PROPERTIES
 
     case UPDATE_RELSHIP_PROPERTIES:
-      if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
+      if (!debug) console.log('875 UPDATE_RELSHIP_PROPERTIES', action);
       const curRelship = curModel?.relships?.find((r) => r?.id === action.data?.id) || [];
       let curRelshipIndex = curModel?.relships?.findIndex((r) => r?.id === curRelship?.id);
       const curRelshipLength = curModel?.relships?.length;

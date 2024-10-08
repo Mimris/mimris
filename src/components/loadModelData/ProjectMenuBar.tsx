@@ -51,6 +51,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const handleReadProjectFile = (e: any) => {
         ReadModelFromFile(props, dispatch, e);
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
     }
 
     const handleSaveAllToFile = () => {

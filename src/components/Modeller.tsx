@@ -60,7 +60,7 @@ const Modeller = (props: any) => {
     const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
     const [exportSvg, setExportSvg] = useState(null);
     const [diagramReady, setDiagramReady] = useState(false);
-    const [selectedOption, setSelectedOption] = useState('In this modelview');
+    const [selectedOption, setSelectedOption] = useState('Sorted alfabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
@@ -128,13 +128,13 @@ const Modeller = (props: any) => {
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
-        setSelectedOption('Sorted by type')
+        setSelectedOption('Sorted alfabetical')
         if (mmodel?.name === 'AKM-OSDU_MM') {
             setSelectedOption('OSDUType')
         } else if (model?.objects?.length > 500) {
             setSelectedOption('Sorted by type')
         } else {
-            setSelectedOption('In this modelview')
+            setSelectedOption('Sorted alfabetical')
         }
         setMounted(true)
 
@@ -151,11 +151,11 @@ const Modeller = (props: any) => {
             if (selectedOption === 'In this modelview') {
                 setSelectedOption('Sorted by type')
             } else {
-                setSelectedOption('In this modelview')
+                setSelectedOption('Sorted alfabetical')
             }
         } else {
             if (selectedOption === 'Sorted by type') {
-                setSelectedOption('In this modelview')
+                setSelectedOption('Sorted alfabetical')
             }
         }
         setVisibleObjects(!visibleObjects)
@@ -224,7 +224,6 @@ const Modeller = (props: any) => {
 
             const parsedData = JSON.parse(jsonInput);
 
-
             if (!Array.isArray(parsedData.objects)) {
                 throw new Error('ParsedData.object is not an array');
             }
@@ -233,14 +232,15 @@ const Modeller = (props: any) => {
             }
 
             parsedData.objects.forEach(obj => {
-                if (debug) console.log('236 Updating object:', obj);
-                const data = {id: obj.id, name: obj.name, description: obj.description};
+                if (!debug) console.log('236 Updating object:', obj);
+                const data = {id: obj.id, name: obj.name, description: obj.description, proposedType: obj.proposedType, typeName: obj.typeName, typeRef: obj.typeRef};
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: data });
             });
 
             parsedData.relationships.forEach(rel => {
-                const data = {id: rel.id, name: rel.name, description: rel.description, fromobjectRef: rel.fromobjectRef, toobjectRef: rel.toobjectRef};
-                dispatch({ type: 'UPDATE_RELATIONSHIP_PROPERTIES', data: data });
+                const data = {id: rel.id, name: rel.name, fromobjectRef: rel.fromobjectRef, toobjectRef: rel.toobjectRef, typeRef: rel.typeRef};
+                if (!debug) console.log('243 Updating relationship:', rel, data);
+                dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: data });
             });
 
             setShowPasteDialog(false);
@@ -478,12 +478,13 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const myMetamodel = myModel.metamodel;
     const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
 
-    // Function to export curmod.objects to clipboard
+    // Function to export objects and relship to clipboard
     const exportToClipboard = () => {
         if (model && model.objects) {
-            const objectsText = model.objects.map(obj => ` - "${obj.id}", "${obj.name}", "${obj.description ? obj.description : '(empty)'}", "(${obj.typeName})"`).join('\n');
-            navigator.clipboard.writeText(objectsText).then(() => {
-                alert('Objects copied to clipboard!');
+            const objectsText = model.objects.map(obj => ` - "${obj.id}" | "${obj.name}" | "${obj.description ? obj.description : '(empty)'}" | "(${obj.proposedType})" | "(${obj.typeName})"`).join('\n').replace(/\|/g, ',') + '\n'
+            const relshipsText = model.relships.map(rel => ` - "${rel.id}" | "${rel.name}"  | "${rel.typeRef}" | "${rel.fromobjectRef}" | "${rel.toobjectRef}"`).join('\n').replace(/\|/g, ',') + '\n';
+            navigator.clipboard.writeText(`Objects: ${objectsText} \n Relships: ${relshipsText}\n`).then(() => {
+                alert('Objects and relships copied to clipboard!');
             }).catch(err => {
                 console.error('Failed to copy objects to clipboard: ', err);
             });
@@ -493,7 +494,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     // const objectsTabDiv = (gojsobjects.nodeDataArray.length > 0) && (gojsobjects.nodeDataArray.length < 500) && (visibleObjects) && (selectedOption === 'In this modelview') && (isExpanded) && (visibleObjects) &&
     const objectsTabDiv = //(gojsobjects.nodeDataArray.length > 0) && (visibleObjects) && (selectedOption === 'In this modelview') && (isExpanded) && (visibleObjects) &&
         <>
-            <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none", width: isExpanded ? '20hw' : 'auto' }}>
+            <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none", width: isExpanded ? '20hw' : 'auto' }}>
                 <div className="modellingtask bg-light" >
                     {SelectOTypes}
                     <div className="mmname mx-0 px-2 mb-1 bg-white text-secondary" style={{ fontSize: "16px", mimWidth: "120px" }}>{selectedOption}
@@ -572,7 +573,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     }
                 </button>
             </Nav>
-            <TabContent className="bg-white p-0 m-0 border border-white">
+            <TabContent className=" p-0 m-0 border border-white">
                 <TabPane className="">
                     <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
                         {/* {(visibleObjects)
@@ -638,12 +639,15 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const objectsDiv =
         <>
-            <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary" onClick={exportToClipboard}>
-                <i className="fas fa-copy me-2"></i>Objects
+            <Col className="p-0 m-0 my-0" xs="auto">
+                <div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>
+                {objectsTabDiv}
+            </Col>
+            <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
+                <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
             </button>
-            <Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col>
-            <button className="btn me-1 d-flex justify-content-center align-items-center w-100" onClick={openPasteDialog}>
-                <i className="fas fa-paste me-2"></i> Paste JSON
+            <button className="btn me-1 d-flex justify-content-center align-items-center w-100  bg-secondary my-1" onClick={openPasteDialog} style={{ fontSize: "10px"}}>
+                <i className="fas fa-paste me-2"></i> Paste obj / rel (Json)
             </button>
             <Modal show={showPasteDialog} onHide={closePasteDialog}>
                 <Modal.Header closeButton>
@@ -674,23 +678,29 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         (props.modelType === 'model')
             ? // modelling
             <div className="modeller-workarea w-100 d-flex flex-col" style={{ width: '100%' }}>
-                <div className={`modeller--objects me-1 ${visibleObjects
-                    ? isExpanded
-                        ? 'col-3'
-                        : 'col-1'
-                    : 'col-0'} `}
-                    style={{ minWidth: visibleObjects ? '178px' : '12px' }}>
-                    <div className="modeller--objects-top d-flex flex-row justify-content-between">
+                <div className={`modeller--objects me-1 
+                    ${visibleObjects
+                        ? isExpanded
+                            ? 'col-3'
+                            : 'col-1'
+                        : 'col-0'} `}
+                        style={{ minWidth: visibleObjects ? '178px' : '16px', backgroundColor: "#7b8" }}>
+                    <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
+                        style={{ backgroundColor: "#7b8" }}
+                    >
                         <button
-                            className="btn-sm p-0 m-0 text-left" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                            className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
                             onClick={toggleObjects}
                             data-toggle="tooltip"
                             data-placement="top"
                             title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
-                            {visibleObjects ? <span> &lt;- Objects </span> : <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}>O b j e c t s</span></span>}
+                            {visibleObjects 
+                                ? <span> &lt;- Objects </span> 
+                                :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
+                                    </span>}
                         </button>
                         <button
-                            className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                            className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
                             onClick={toggleIsExpanded}
                             data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
                             {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
@@ -701,21 +711,16 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             ? (objectsRefresh)
                                 ? <>{objectsDiv}</>
                                 : <> {objectsDiv} </>
-                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div></Col> </>
+                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal" style={{ fontSize: "10px" }}></div></Col> </>
                         }
                     </div>
                 </div>
-                <div className={`modeller--workarea m-1  
-                                        ${visibleObjects
-                        ? isExpanded
-                            ? 'col-9'
-                            : 'col-11 me-4'
-                        : 'col-12 me-2'
-                    }`}
+                <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-9' : 'col-10') : 'col-12'}`}
                     style={{
-                        minWidth: visibleObjects ? '68%' : '68%',
+                        minWidth: visibleObjects ? '68%' : '88%',
                         overflow: 'hidden',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        flexGrow: 1
                     }}>
                     {modelviewTabDiv}
                 </div>

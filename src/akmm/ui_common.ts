@@ -2582,7 +2582,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'toPortid') retVal = false;
     if (k === 'toPort') retVal = false;
     if (k === 'type') retVal = false;
-    if (k === 'typeid') retVal = false;
+    // if (k === 'typeid') retVal = false;
     if (k === 'typeRef') retVal = false;
     if (k === 'toobjtypeRef') retVal = false;
     if (k === 'fromobjtypeRef') retVal = false;
@@ -4075,12 +4075,12 @@ function selectNameFromNameList(question, namelist, defText): string {
     }
 }
 
-export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties: boolean): string[] {
+export function getNameList(inst: akm.cxObject | akm.cxRelationship, context: any, onlyWithProperties: boolean): string[] {
     let namelist = ['Details'];
-    if (obj) {
+    if (inst) {
         if (context.includeConnected) {
-            namelist.push(obj.name);
-            const connectedObjects = obj.getConnectedObjects2(context.myMetis);
+            namelist.push(inst.name);
+            const connectedObjects = inst.getConnectedObjects2(context.myMetis);
             if (debug) console.log('3006 connectedObjects', connectedObjects);
             for (let i = 0; i < connectedObjects?.length; i++) {
                 const connectedObj = connectedObjects[i];
@@ -4090,7 +4090,7 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
         let nlist = new Array();
         if (context.includeInherited) {
             try {
-                const inheritedTypes = obj?.getInheritedTypes();
+                const inheritedTypes = inst?.getInheritedTypes();
                 if (debug) console.log('3015 inheritedTypes', inheritedTypes);
                 for (let i = 0; i < inheritedTypes?.length; i++) {
                     const type = inheritedTypes[i];
@@ -4113,7 +4113,7 @@ export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties:
                 if (debug) console.log('3029 error', error);
             }
         }
-        // namelist.push(obj.type.name);
+        // namelist.push(inst.type.name);
         if (nlist.length > 0)  
             namelist = namelist.concat(nlist);
         namelist.push('Type');

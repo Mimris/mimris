@@ -639,6 +639,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.loc = myToNode.loc.valueOf();
                 goToNode.size = myToNode.size;
               }
+              uid.selectContent(myToNode, myMetis, myDiagram);
 
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode, );
@@ -664,6 +665,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
                 myObjectview.group = "";
               }
+              
               // Update objectview scaling and location
                 if (false) {
                   for (let i = 0; i < myGoModel.nodes.length; i++) {
@@ -740,7 +742,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-
         break;
       }
       case "SelectionDeleting": {

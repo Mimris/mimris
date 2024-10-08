@@ -1055,6 +1055,32 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
     myDiagram.selectCollection(mySelection);
 }
 
+export function selectContent(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (!node.isGroup)
+        return;
+    addToSelection(node, myDiagram);
+    const goModel = myMetis.gojsModel;
+    const groupLoc = node.loc;
+    const groupLocs = groupLoc.split(" ");
+    const groupX = parseInt(groupLocs[0]);
+    const groupY = parseInt(groupLocs[1]);
+    const groupSize = node.size;
+    const groupSizes = groupSize.split(" ");
+    const groupWidth = parseInt(groupSizes[0]);
+    const groupHeight = parseInt(groupSizes[1]);
+    const mySelection = new go.Set<go.Part | go.Link>();
+    const nodes = myDiagram.nodes;
+    for (let it = nodes.iterator; it?.next();) {
+        const node = it.value;
+        const memberLoc = node.data.loc;
+        const memberLocs = memberLoc.split(" ");
+        const memberX = parseInt(memberLocs[0]);
+        const memberY = parseInt(memberLocs[1]);
+        if (memberX >= groupX && memberX <= groupX + groupWidth && memberY >= groupY && memberY <= groupY + groupHeight)          
+            addToSelection(node, myDiagram);
+    }
+}
+
 export function hideConnectedRelationships(node, myMetis: akm.cxMetis, myDiagram) {
     const goModel = myMetis.gojsModel;
     const objview = node.data.objectview;

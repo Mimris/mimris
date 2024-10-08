@@ -164,8 +164,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           chosenType = currentType;
           chosenInst = inst;
           typename = currentType?.name;
-          typedescription = currentType?.description;
-        
+          typedescription = currentType?.description;        
           if (useTabs && context1?.what === 'editObject') {
             inheritedTypes = mySupertypes;
             if (inheritedTypes?.length > 0) {
@@ -215,7 +214,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             includeConnected: false,
             includeInherited: includeInherited,
           }
-          let namelist = uic.getNameList(inst1, context, true);
+          namelist = uic.getNameList(inst1, context, true);
+          typename = namelist[activeTab];     
+          if (typename === 'Details') {
+            typename = currentType?.name;
+          }
           if (namelist.length > 1) {
             for (let i = 0; i < inheritedTypes.length; i++) {
               const tname = inheritedTypes[i]?.name;
@@ -373,8 +376,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       proplist.push(propIdent);
     }                    
     propNo++;
-    let propIdent = new akm.cxIdent(propNo, "typeid");
-    proplist.push(propIdent);
+    let propIdent;
+    if (what === 'editRelationship') {
+      propIdent = new akm.cxIdent(propNo, "typename");
+      proplist.push(propIdent);
+      propIdent = new akm.cxIdent(propNo, "typedescription");
+      proplist.push(propIdent);
+    }
     let uniquelist = [...new Set(proplist)];
     proplist = uniquelist;
     propIdent = new akm.cxIdent(propNo, "id");
@@ -504,8 +512,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             val = currentType.name;
         } else if (k === 'typedescription') {
             val = currentType.description;
-          } else if (k === 'typeid') {
-            val = currentType.id;
+        } else if (k === 'typeid') {
+          val = currentType.id;
         } else {
           val = chosenInst[k];
         }

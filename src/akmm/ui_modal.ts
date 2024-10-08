@@ -662,12 +662,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', '');
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
-
-
-
-
-
-
       // Dispatch
       const jsnRelview = new jsn.jsnRelshipView(relview);
       let data = JSON.parse(JSON.stringify(jsnRelview));

@@ -381,10 +381,12 @@ const Modeller = (props: any) => {
             const osduTypeFound = initialArr?.find((node: { object: { osduType: string } }) => node && node?.typename === 'OSDUType');
             const sortedArr = osduTypeFound
                 ? sortedByType
-                    ?.sort((a: { object: { osduType: string } }, b: { object: { osduType: string } }) =>
-                        a.object.osduType > b.object.osduType ? 1 : -1
-                    )
-                    ?.sort((a: { object: { osduType: string } }, b: { object: { osduType: string } }) => {
+                    ?.sort((a, b) => {
+                        const aOsduType = a.object?.osduType || '';
+                        const bOsduType = b.object?.osduType || '';
+                        return aOsduType.localeCompare(bOsduType);
+                    })
+                    ?.sort((a, b) => {
                         const typeOrder = {
                             MasterData: 0,
                             WorkProductComponent: 1,
@@ -396,7 +398,9 @@ const Modeller = (props: any) => {
                             Array: 7,
                             Item: 8,
                         };
-                        return typeOrder[a.object.osduType] > typeOrder[b.object.osduType] ? 1 : -1;
+                        const aTypeOrder = typeOrder[a.object?.osduType] ?? Number.MAX_SAFE_INTEGER;
+                        const bTypeOrder = typeOrder[b.object?.osduType] ?? Number.MAX_SAFE_INTEGER;
+                        return aTypeOrder - bTypeOrder;
                     })
                 : sortedByType;
             if (debug) console.log('399 Palette ofilteredOnTypes', osduTypeFound, sortedArr);

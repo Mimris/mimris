@@ -473,7 +473,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             console.log("470 processItems", oName, oValProps);
             processItems(oId, oName, oKey, jsonType, osduType, oValProps, parentName, osduObj, curModel, objecttypeRef);
         } else if (isPropertyOrItem(parentName, gparentName)) {
-            console.log("476 processPropertyOrItem", oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
+            if (debug) console.log("476 processPropertyOrItem", oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
             processPropertyOrItem(oId, oName, oKey, jsonType, osduType, oValProps, oVal, osduObj, curModel, objecttypeRef);
         } else if (inclXOsduProperties && isXOsduProperty(oName)) {
             processXOsduProperty(oId, oName, oKey, jsonType, osduType, oValProps, osduObj, curModel, objecttypeRef);
@@ -506,17 +506,33 @@ export const ReadConvertJSONFromFileToAkm = async (
             createPropertyObject(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         } else if (inclArrayProperties && (oVal["x-osdu-indexing"] || oVal.type === "array")) {
             processArray(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
+        } else if (inclArrayProperties && oVal["Tags"]) {
+            processArray(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel);
         } else if (inclProps && ["string", "number", "integer", "boolean"].includes(oVal.type)) {
-            processSimpleProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef, parentName);
+            // console.log("512 string",  oName, oKey, oVal);
+            if (oName === "additionalProperties") {
+                console.log("514 string", oId, oName, oKey, oVal);
+                Object.entries(oVal).map(([key, value]) => {
+                    const oId1 = utils.createGuid();
+                    const oName1 = key;
+                    oValProps.description = 'additionalProperty';
+                    const oKey1 = oKey+'|'+key;
+                    console.log("519 string", oId1, oName1, oKey1, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef, parentName);
+                    processSimpleProperty(oId1, oName1, oKey1, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef, parentName);
+                }
+            );
+            } else {
+                processSimpleProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef, parentName);
+            }
         } else if (inclArrayProperties && oVal.type === "object") {
-            processObjectProperty(oId, oName, oKey, osduType, jsonType, oVal, oValProps, osduObj, curModel, parentName, gparentName, ggparentName);
+            processObjectProperty(oId, oName, oKey, osduType, jsonType, oVal, oValProps, osduObj, curModel, parentName, gparentName, ggparentName); 
         } else if (typeof oVal.type === 'object') {
             processEnumProperty(oId, oName, oKey, osduType, jsonType, oValProps, osduObj, curModel, oVal.type);
         }
     }
 
     function processRefObject(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, oVal: any, osduObj: any, curModel: any, objecttypeRef: any) {
-        console.log("518 processRefObject", oName, oValProps);
+       if (debug) console.log("518 processRefObject", oName, oValProps);
         objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Proxy" && ot)?.id;
         const typeRest = getLastElement(oVal["$ref"], "/");
         const title = typeRest?.split(".")[0];
@@ -524,7 +540,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         oValProps.refGroupType = getNthLastElement(oVal["$ref"], "/", 2);
         oValProps.referenceObject = title === "AbstractWorkProductComponent" ? title : title.replace("Abstract", "");
         const proxyName = `Is${oValProps.title}`;
-        console.log("523 processRefObject", oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
+        if (debug) console.log("523 processRefObject", oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
         createObjectAndRelationships(oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
     }
     function processItems(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, parentName: string, osduObj: any, curModel: any, objecttypeRef: any) {
@@ -668,6 +684,12 @@ export const ReadConvertJSONFromFileToAkm = async (
 
     function processGenericObject(oId: string, oName: string, oKey: string, jsonType: string, osduType: string, oValProps: any, osduObj: any, curModel: any) {
         const objecttypeRef = "5cc540c0-ea91-4401-74bb-4f7cb52a2366";
+        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
+        findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
+    }
+
+    function processAdditionalProperties(oId: string, oName: string, oKey: string, osduType: string, jsonType: string, oValProps: any, osduObj: any, curModel: any, objecttypeRef: any) {
+        objecttypeRef = curObjTypes.find((ot: { name: string }) => ot.name === "Array")?.id;
         createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps);
         findOwnerandCreateRelationship(oId, oName, osduObj, curModel);
     }
@@ -1026,7 +1048,7 @@ export const ReadConvertJSONFromFileToAkm = async (
                         toobjectName
                     );
             }
-        } else if (oName === "items") { // this is where ...s collection is handled
+        } else if (oName === "items" || oName === "additionalProperties") { // this is where ...s collection is handled
             // if the greatgrandparent is items, we have to find owner and create a relationship between the object and the owner object
             const ownerObj = osduArray.find((o) => o[1] === parentKey);
             const fromobjectId = ownerObj[0];

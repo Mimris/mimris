@@ -834,6 +834,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else
                 return false;
             }),
+          makeButton("Delete View",
+            function (e: any, obj: any) {
+              if (confirm('Do you really want to delete the current selection?')) {
+                const myModel = myMetis.currentModel;
+                myMetis.deleteViewsOnly = true;
+                myMetis.currentNode = obj.part.data;
+              }
+              myDiagram.commandHandler.deleteSelection();
+            },
+            function (o: any) {
+              let selection = myDiagram.selection;
+              const node = o.part.data;
+              if (node.isSelected && selection.count == 1) {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } else
+                return false;
+            }),
           makeButton("Delete Selected Views",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
@@ -844,8 +861,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.commandHandler.deleteSelection();
             },
             function (o: any) {
+              let selection = myDiagram.selection;
               const node = o.part.data;
-              if (node.isSelected) {
+              if (node.isSelected && selection.count > 1) {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else
                 return false;
@@ -1215,6 +1233,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     return true;
                 }
               }
+              return false;
+            }),
+          makeButton("Do Grid Layout",
+          function (e: any, obj: any) {
+            const mySelection = myDiagram.selection;
+            const selectedNodes = [];
+            mySelection.each(function(n) {
+              if (!n instanceof go.Node) return;
+              selectedNodes.push(n);
+            });
+            const params = 
+            uid.setGridLayoutParameters(params);
+            uid.doGridLayout(selectedNodes, 'vertical', myMetis);
+          },
+          function (o: any) {
+            return false;
+            const mySelection = myDiagram.selection;
+            let cnt = 0;
+            if (mySelection.count > 1) {
+              mySelection.each(function(n) {
+                if (!n instanceof go.Node) return;
+                cnt++;
+              });
+              if (cnt > 1)
+                return true;
+            } else
               return false;
             }),
           makeButton("----------"),
@@ -2334,7 +2378,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling')
                 return false;
-              return true;
+              return o.diagram.commandHandler.canPasteSelection();
             }),
           makeButton("New Model",
             function (e: any, obj: any) {
@@ -2698,142 +2742,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("New Metamodel",
-            function (e: any, obj: any) {
-              uid.newMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
-            }),
-          makeButton("Generate Metamodel",
-            function (e: any, obj: any) {
-              gen.generateTargetMetamodel(obj, myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
-            }),
-          makeButton("Replace Current Metamodel",
-            function (e: any, obj: any) {
-              uid.replaceCurrentMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
-            }),
-          makeButton("Add Metamodel",
-            function (e: any, obj: any) {
-              const isSubMetamodel = false;
-              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              } else {
-                const noMetamodels = myMetis.metamodels.length;
-                if (noMetamodels >= 2)
-                  return true;
-                else
-                  return false;
-              }
-            }),
-          makeButton("Add Sub-Metamodel",
-            function (e: any, obj: any) {
-              const isSubMetamodel = true;
-              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              } else {
-                return true;
-              }
-            }),
-          makeButton("Delete Metamodel",
-            function (e: any, obj: any) {
-              uid.deleteMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              let cnt = 0;
-              const metamodels = myMetis.metamodels;
-              for (let i = 0; i < metamodels.length; i++) {
-                const metamodel = metamodels[i];
-                if (metamodel.markedAsDeleted)
-                  continue;
-                cnt++;
-              }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Clear Metamodel Content",
-            function (e: any, obj: any) {
-              uid.clearMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              let cnt = 0;
-              const metamodels = myMetis.metamodels;
-              for (let i = 0; i < metamodels.length; i++) {
-                const metamodel = metamodels[i];
-                if (metamodel.markedAsDeleted)
-                  continue;
-                cnt++;
-              }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Undo",
-            function (e: any, obj: any) {
-              e.diagram.commandHandler.undo();
-            },
-            function (o: any) {
-              return o.diagram.commandHandler.canUndo();
-            }),
-          makeButton("Redo",
-            function (e: any, obj: any) {
-              e.diagram.commandHandler.redo();
-            },
-            function (o: any) {
-              return o.diagram.commandHandler.canRedo();
-            }),
-          makeButton("----------",
-            function (e: any, obj: any) {
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
           makeButton("Add Missing Relationship Views",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
@@ -3002,111 +2910,79 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("Generate SVG",
+          makeButton("Zoom All",
             function (e: any, obj: any) {
-              var svgData = myDiagram.makeSvg({
-                scale: 1,
-                maxSize: new go.Size(NaN, NaN)
+              e.diagram.commandHandler.zoomToFit();
+            },
+            function (o: any) {
+              return true;
+            }),
+          makeButton("Zoom Selection",
+            function (e: any, obj: any) {
+              let selected = myDiagram.selection;
+              let x1 = 0;
+              let y1 = 0;
+              let x2 = 0;
+              let y2 = 0;
+              let w = 0;
+              let h = 0;
+              myDiagram.selection.each(function (node) {
+                if (x1 == 0) x1 = node.actualBounds.x;
+                if (y1 == 0) y1 = node.actualBounds.y;
+                if (w == 0) w = node.actualBounds.width;
+                if (h == 0) h = node.actualBounds.height;
+                x2 = x1 + w;
+                y2 = y1 + h;
+                const X1 = node.actualBounds.x;
+                if (X1 < x1) x1 = X1;
+                const Y1 = node.actualBounds.y;
+                if (Y1 < y1) y1 = Y1;
+                const W = node.actualBounds.width;
+                const X2 = X1 + W;
+                const H = node.actualBounds.height;
+                const Y2 = Y1 + H;
+                // Compare
+                if (X2 > x2) x2 = X2;
+                if (Y2 > y2) y2 = Y2;
+                w = x2 - x1;
+                h = y2 - y1;
               });
-              console.log(svgData); // or send to server to save as file
+              const rect = new go.Rect(x1, y1, w, h);
+              myDiagram.zoomToRect(rect);
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
+              if (myDiagram.selection.count > 0)
+                return true;
               return false;
-            }),
-          makeButton("Toggle Admin layer",
-            function (e: any, obj: any) {
-              utils.toggleAdminModel();
-
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return false;
-              // return true;
-            }),
-          makeButton("Modelview nodes",
-            function (e: any, obj: any) {
-              const objviews = myModelview.objectviews;
-              for (let i = 0; i < objviews?.length; i++) {
-                const objview = objviews[i];
-                const goNode = myMetis.gojsModel.findNodeByViewId(objview.id);
-                if (goNode) {
-                  for (let it = myDiagram.nodes; it?.next();) {
-                    const n = it.value;
-                    const data = n.data;
-                    if (data.key === objview.id) {
-                      // if (debug) 
-                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n n, data: ", n, data);
-                    }
-                  }
-                }
-              }
-              console.log('333 goModel', myMetis.gojsModel);
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("Modelview links",
-            function (e: any, obj: any) {
-              const relviews = myModelview.relshipviews;
-              for (let i = 0; i < relviews?.length; i++) {
-                const relview = relviews[i];
-                const goLink = myMetis.gojsModel.findLinkByViewId(relview.id);
-                if (goLink) {
-                  for (let it = myDiagram.links; it?.next();) {
-                    const l = it.value;
-                    const data = l.data;
-                    if (data.key === relview.id) {
-                      // if (debug) 
-                      const text = relview.name + " " + relview.toObjview.name;
-                      console.log('310 ', text, '\n relview: ', relview,
-                        "\n goLink: ", goLink, "\n link: ", l, data);
-                    }
-                  }
-                }
-              }
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("----------",
-            function (e: any, obj: any) {
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
             }),
           makeButton("Set Layout Scheme",
-            function (e: any, obj: any) {
-              const layoutList = () => [
-                { value: "Circular", label: "Circular Layout" },
-                { value: "Grid", label: "Grid Layout" },
-                { value: "Tree", label: "Tree Layout" },
-                { value: "ForceDirected", label: "ForceDirected Layout" },
-                { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-                { value: "Manual", label: "Manual Layout" },
-              ];
-              const llist = layoutList();
-              if (debug) console.log('3020 layoutList', llist);
-              const layoutLabels = llist.map(ll => (ll) && ll.label);
-              if (debug) console.log('3076', layoutLabels, llist);
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Set Layout Scheme",
-                case: "Set Layout Scheme",
-                layoutList: layoutList(),
-                myDiagram: myDiagram
-              }
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(myDiagram, modalContext);
-              if (debug) console.log('3087 myMetis', myMetis);
-            },
-            function (o: any) {
-              return true;
-            }),
+          function (e: any, obj: any) {
+            const layoutList = () => [
+              { value: "Circular", label: "Circular Layout" },
+              { value: "Grid", label: "Grid Layout" },
+              { value: "Tree", label: "Tree Layout" },
+              { value: "ForceDirected", label: "ForceDirected Layout" },
+              { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
+              { value: "Manual", label: "Manual Layout" },
+            ];
+            const llist = layoutList();
+            if (debug) console.log('3020 layoutList', llist);
+            const layoutLabels = llist.map(ll => (ll) && ll.label);
+            if (debug) console.log('3076', layoutLabels, llist);
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Set Layout Scheme",
+              case: "Set Layout Scheme",
+              layoutList: layoutList(),
+              myDiagram: myDiagram
+            }
+            myMetis.myDiagram = myDiagram;
+            myDiagram.handleOpenModal(myDiagram, modalContext);
+            if (debug) console.log('3087 myMetis', myMetis);
+          },
+          function (o: any) {
+            return true;
+          }),
           makeButton("Do Layout",
             function (e: any, obj: any) {
               let layout = "";
@@ -3235,6 +3111,242 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Verify and Repair Model",
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const modelviews = myModel.modelviews;
+              const myMetamodel = myMetis.currentMetamodel;
+              const myGoModel = myMetis.gojsModel;
+              myDiagram.myGoModel = myGoModel;
+              uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
+              alert("The current model has been repaired");
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("----------",
+      function (e: any, obj: any) {
+      },
+      function (o: any) {
+        if (myMetis.modelType === 'Metamodelling')
+          return false;
+        return true;
+          }),
+          makeButton("New Metamodel",
+            function (e: any, obj: any) {
+              uid.newMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
+              return true;
+            }),
+          makeButton("Generate Metamodel",
+            function (e: any, obj: any) {
+              gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
+              return false;
+            }),
+          makeButton("Replace Current Metamodel",
+            function (e: any, obj: any) {
+              uid.replaceCurrentMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
+              return true;
+            }),
+          makeButton("Add Metamodel",
+            function (e: any, obj: any) {
+              const isSubMetamodel = false;
+              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') {
+                return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              } else {
+                const noMetamodels = myMetis.metamodels.length;
+                if (noMetamodels >= 2)
+                  return true;
+                else
+                  return false;
+              }
+            }),
+          makeButton("Add Sub-Metamodel",
+            function (e: any, obj: any) {
+              const isSubMetamodel = true;
+              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') {
+                return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              } else {
+                return true;
+              }
+            }),
+          makeButton("Delete Metamodel",
+            function (e: any, obj: any) {
+              uid.deleteMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') {
+                return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
+              let cnt = 0;
+              const metamodels = myMetis.metamodels;
+              for (let i = 0; i < metamodels.length; i++) {
+                const metamodel = metamodels[i];
+                if (metamodel.markedAsDeleted)
+                  continue;
+                cnt++;
+              }
+              if (cnt > 1)
+                return true;
+              else
+                return false;
+            }),
+          makeButton("Clear Metamodel Content",
+            function (e: any, obj: any) {
+              uid.clearMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling') {
+                return false;
+              } else if (uic.isGenericMetamodel(myMetis)) {
+                return false;
+              }
+              let cnt = 0;
+              const metamodels = myMetis.metamodels;
+              for (let i = 0; i < metamodels.length; i++) {
+                const metamodel = metamodels[i];
+                if (metamodel.markedAsDeleted)
+                  continue;
+                cnt++;
+              }
+              if (cnt > 1)
+                return true;
+              else
+                return false;
+            }),
+          makeButton("Undo",
+            function (e: any, obj: any) {
+              e.diagram.commandHandler.undo();
+            },
+            function (o: any) {
+              return o.diagram.commandHandler.canUndo();
+            }),
+          makeButton("Redo",
+            function (e: any, obj: any) {
+              e.diagram.commandHandler.redo();
+            },
+            function (o: any) {
+              return o.diagram.commandHandler.canRedo();
+            }),
+          makeButton("Generate SVG",
+            function (e: any, obj: any) {
+              var svgData = myDiagram.makeSvg({
+                scale: 1,
+                maxSize: new go.Size(NaN, NaN)
+              });
+              console.log(svgData); // or send to server to save as file
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return false;
+            }),
+          makeButton("Toggle Admin layer",
+            function (e: any, obj: any) {
+              utils.toggleAdminModel();
+
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return false;
+              // return true;
+            }),
+          makeButton("Modelview nodes",
+            function (e: any, obj: any) {
+              const objviews = myModelview.objectviews;
+              for (let i = 0; i < objviews?.length; i++) {
+                const objview = objviews[i];
+                const goNode = myMetis.gojsModel.findNodeByViewId(objview.id);
+                if (goNode) {
+                  for (let it = myDiagram.nodes; it?.next();) {
+                    const n = it.value;
+                    const data = n.data;
+                    if (data.key === objview.id) {
+                      // if (debug) 
+                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n n, data: ", n, data);
+                    }
+                  }
+                }
+              }
+              console.log('333 goModel', myMetis.gojsModel);
+            },
+            function (o: any) {
+              return false;
+            }),
+          makeButton("Modelview links",
+            function (e: any, obj: any) {
+              const relviews = myModelview.relshipviews;
+              for (let i = 0; i < relviews?.length; i++) {
+                const relview = relviews[i];
+                const goLink = myMetis.gojsModel.findLinkByViewId(relview.id);
+                if (goLink) {
+                  for (let it = myDiagram.links; it?.next();) {
+                    const l = it.value;
+                    const data = l.data;
+                    if (data.key === relview.id) {
+                      // if (debug) 
+                      const text = relview.name + " " + relview.toObjview.name;
+                      console.log('310 ', text, '\n relview: ', relview,
+                        "\n goLink: ", goLink, "\n link: ", l, data);
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) {
+              return false;
+            }),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Toggle Cardinality On/Off",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
@@ -3359,51 +3471,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Zoom All",
-            function (e: any, obj: any) {
-              e.diagram.commandHandler.zoomToFit();
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("Zoom Selection",
-            function (e: any, obj: any) {
-              let selected = myDiagram.selection;
-              let x1 = 0;
-              let y1 = 0;
-              let x2 = 0;
-              let y2 = 0;
-              let w = 0;
-              let h = 0;
-              myDiagram.selection.each(function (node) {
-                if (x1 == 0) x1 = node.actualBounds.x;
-                if (y1 == 0) y1 = node.actualBounds.y;
-                if (w == 0) w = node.actualBounds.width;
-                if (h == 0) h = node.actualBounds.height;
-                x2 = x1 + w;
-                y2 = y1 + h;
-                const X1 = node.actualBounds.x;
-                if (X1 < x1) x1 = X1;
-                const Y1 = node.actualBounds.y;
-                if (Y1 < y1) y1 = Y1;
-                const W = node.actualBounds.width;
-                const X2 = X1 + W;
-                const H = node.actualBounds.height;
-                const Y2 = Y1 + H;
-                // Compare
-                if (X2 > x2) x2 = X2;
-                if (Y2 > y2) y2 = Y2;
-                w = x2 - x1;
-                h = y2 - y1;
-              });
-              const rect = new go.Rect(x1, y1, w, h);
-              myDiagram.zoomToRect(rect);
-            },
-            function (o: any) {
-              if (myDiagram.selection.count > 0)
-                return true;
-              return false;
-            }),
           makeButton("Make Diagram",
             function (e: any, obj: any) {
               myDiagram.makeImage({
@@ -3417,21 +3484,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("----------",
             function (e: any, obj: any) {
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
-          makeButton("Verify and Repair Model",
-            function (e: any, obj: any) {
-              const myModel = myMetis.currentModel;
-              const modelviews = myModel.modelviews;
-              const myMetamodel = myMetis.currentMetamodel;
-              const myGoModel = myMetis.gojsModel;
-              myDiagram.myGoModel = myGoModel;
-              uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
-              alert("The current model has been repaired");
             },
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling')

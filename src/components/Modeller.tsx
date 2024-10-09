@@ -49,6 +49,8 @@ const Modeller = (props: any) => {
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
     const [visibleObjects, setVisibleObjects] = useState(false)
+    const [showPasteDialog, setShowPasteDialog] = useState(false); // State to manage paste dialog visibility
+    const [jsonInput, setJsonInput] = useState(''); // State to manage JSON input
     // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
     const [isExpanded, setIsExpanded] = useState(false)
     const [inputValue, setInputValue] = useState(props.metis.name); // initial value is an empty string
@@ -58,7 +60,7 @@ const Modeller = (props: any) => {
     const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
     const [exportSvg, setExportSvg] = useState(null);
     const [diagramReady, setDiagramReady] = useState(false);
-    const [selectedOption, setSelectedOption] = useState('In this modelview');
+    const [selectedOption, setSelectedOption] = useState('Sorted alfabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
@@ -106,6 +108,11 @@ const Modeller = (props: any) => {
         dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
     }
 
+    // Function to toggle the expanded state
+    const toggleIsExpanded = () => {
+        setIsExpanded(!isExpanded);
+    };
+
     function toggleObjects() {
         // // props.setRefresh(!props.refresh)
         // if (selectedOption === 'Sorted by type') {
@@ -121,13 +128,13 @@ const Modeller = (props: any) => {
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
-        setSelectedOption('Sorted by type')
+        setSelectedOption('Sorted alfabetical')
         if (mmodel?.name === 'AKM-OSDU_MM') {
             setSelectedOption('OSDUType')
         } else if (model?.objects?.length > 500) {
             setSelectedOption('Sorted by type')
         } else {
-            setSelectedOption('In this modelview')
+            setSelectedOption('Sorted alfabetical')
         }
         setMounted(true)
 
@@ -144,14 +151,14 @@ const Modeller = (props: any) => {
             if (selectedOption === 'In this modelview') {
                 setSelectedOption('Sorted by type')
             } else {
-                setSelectedOption('In this modelview')
+                setSelectedOption('Sorted alfabetical')
             }
         } else {
             if (selectedOption === 'Sorted by type') {
-                setSelectedOption('In this modelview')
+                setSelectedOption('Sorted alfabetical')
             }
         }
-        // setVisibleObjects(!visibleObjects)
+        setVisibleObjects(!visibleObjects)
         setObjectsRefresh(!objectsRefresh)
         if (debug) console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
     }, [model.objects.length === 0])
@@ -206,6 +213,55 @@ const Modeller = (props: any) => {
     //     dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: displayValue } }); // update project name
     //     dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: displayValue, name: displayValue } }); // set focus project
     // }
+
+    // Function to handle JSON input change
+    const handleJsonInputChange = (event) => {
+        setJsonInput(event.target.value);
+    };
+    // Function to handle JSON paste
+    const handleJsonPaste = () => {
+        try {
+
+            const parsedData = JSON.parse(jsonInput);
+
+            if (!Array.isArray(parsedData.objects)) {
+                throw new Error('ParsedData.object is not an array');
+            }
+            if (!Array.isArray(parsedData.relationships)) {
+                throw new Error('ParsedData.relationships is not an array');
+            }
+
+            parsedData.objects.forEach(obj => {
+                if (!debug) console.log('236 Updating object:', obj);
+                const data = {id: obj.id, name: obj.name, description: obj.description, proposedType: obj.proposedType, typeName: obj.typeName, typeRef: obj.typeRef};
+                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: data });
+            });
+
+            parsedData.relationships.forEach(rel => {
+                const data = {id: rel.id, name: rel.name, fromobjectRef: rel.fromobjectRef, toobjectRef: rel.toobjectRef, typeRef: rel.typeRef};
+                if (!debug) console.log('243 Updating relationship:', rel, data);
+                dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: data });
+            });
+
+            setShowPasteDialog(false);
+            setJsonInput('');
+            alert('Data imported successfully!');
+        } catch (error) {
+            console.error('Error importing data:', error);
+            alert('Invalid JSON format. Please check your input.');
+        }
+    };
+
+    // Function to open the paste dialog
+    const openPasteDialog = () => {
+        setShowPasteDialog(true);
+    };
+
+    // Function to close the paste dialog
+    const closePasteDialog = () => {
+        setShowPasteDialog(false);
+        setJsonInput('');
+    };
 
     const handleSelectModelChange = (event: any) => { // Setting focus model
         if (debug) console.log('196 Selector', JSON.parse(event.value).name);
@@ -294,56 +350,70 @@ const Modeller = (props: any) => {
     })
     // filter out the objects that are marked as deleted
     const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
-    if (debug) console.log('365 nodeArray_all', nodeArray_all, objectsNotDeleted);
+    if (debug) console.log('350 nodeArray_all', nodeArray_all, objectsNotDeleted);
 
     useEffect(() => {
-        if (debug) useEfflog('300 Modeller useEffect 5 [selectedOption] ');
+        if (debug) console.log('300 Modeller useEffect 5 [selectedOption] ');
         const initialArr = objectsNotDeleted;
-        if (debug) console.log('409 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption)
+        if (debug) console.log('455 Modeller ofilteredOnTypes', initialArr, uniqueTypes, selectedOption);
+
         if (selectedOption === 'In this modelview') {
-            const objectviewsInThisModelview = modelview?.objectviews
-            const objectsInThisModelview = model?.objects.filter((obj: any) => objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id))
-            const mvfilteredArr = objectsInThisModelview?.map(o => initialArr?.find((node: { id: any; }) => node && (node?.typename === o?.typeName && node?.name === o?.name)))//.filter((node: any) => node)
-            if (debug) console.log('422 Modeller ofilteredOnTypes', mvfilteredArr);
+            const objectviewsInThisModelview = modelview?.objectviews;
+            const objectsInThisModelview = model?.objects.filter((obj: any) =>
+                objectviewsInThisModelview?.find((ov: any) => ov?.objectRef === obj?.id)
+            );
+            const mvfilteredArr = objectsInThisModelview?.map((o) =>
+                initialArr?.find((node: { id: any }) => node && node?.typename === o?.typeName && node?.name === o?.name)
+            );
+            if (debug) console.log('365 Modeller ofilteredOnTypes', mvfilteredArr);
             setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
         } else if (selectedOption === 'Sorted alfabetical') {
-            const sortedArr = initialArr?.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1);
+            const sortedArr = initialArr?.sort((a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1));
             setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-            if (debug) console.log('417 Modeller ofilteredOnTypes', sortedArr,);
+            if (debug) console.log('370 Modeller ofilteredOnTypes', sortedArr);
         } else if (selectedOption === 'Sorted by type') {
-            const byType = uniqueTypes.map((t: any) => initialArr?.filter((node: { typename: string; }) => node && (node.typename === t)));
-            const sortedByType = byType?.map(bt => bt.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)).flat();
-            // Sort the sortedByType within each type using the node.object.osduType
-            // check if the osduType is a topEntity attribute, if so then sort by the order of the topEntity attributes
-            const osduTypeFound = initialArr?.find((node: { object: { osduType: string; }; }) => node && (node?.object?.osduType));
-            const sortedArr = (osduTypeFound)
-                ? sortedByType?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => (a.object.osduType > b.object.osduType) ? 1 : -1)
-                    ?.sort((a: { object: { osduType: string; }; }, b: { object: { osduType: string; }; }) => {
+            const byType = uniqueTypes.map((t: any) =>
+                initialArr?.filter((node: { typename: string }) => node && node.typename === t)
+            );
+            const sortedByType = byType
+                ?.map((bt) => bt.sort((a: { typename: string }, b: { typename: string }) => (a.typename > b.typename ? 1 : -1)))
+                .flat();
+            const osduTypeFound = initialArr?.find((node: { object: { osduType: string } }) => node && node?.typename === 'OSDUType');
+            const sortedArr = osduTypeFound
+                ? sortedByType
+                    ?.sort((a, b) => {
+                        const aOsduType = a.object?.osduType || '';
+                        const bOsduType = b.object?.osduType || '';
+                        return aOsduType.localeCompare(bOsduType);
+                    })
+                    ?.sort((a, b) => {
                         const typeOrder = {
-                            'MasterData': 0,
-                            'WorkProductComponent': 1,
-                            'ReferenceData': 2,
-                            'Abstract': 3,
-                            'OSDUType': 4,
-                            'Proxy': 5,
-                            'Property': 6,
-                            'Array': 7,
-                            'Item': 8,
+                            MasterData: 0,
+                            WorkProductComponent: 1,
+                            ReferenceData: 2,
+                            Abstract: 3,
+                            OSDUType: 4,
+                            Proxy: 5,
+                            Property: 6,
+                            Array: 7,
+                            Item: 8,
                         };
-                        return (typeOrder[a.object.osduType] > typeOrder[b.object.osduType]) ? 1 : -1;
+                        const aTypeOrder = typeOrder[a.object?.osduType] ?? Number.MAX_SAFE_INTEGER;
+                        const bTypeOrder = typeOrder[b.object?.osduType] ?? Number.MAX_SAFE_INTEGER;
+                        return aTypeOrder - bTypeOrder;
                     })
                 : sortedByType;
-            if (debug) console.log('455 Palette ofilteredOnTypes', sortedArr);
+            if (debug) console.log('399 Palette ofilteredOnTypes', osduTypeFound, sortedArr);
             setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
-        } else if (selectedOption === 'OSDUType') {
-            const selOfilteredArr = initialArr?.filter((node: { typename: string; }) => node && (node.typename === uniqueTypes.find(ut => ut === selectedOption)));
-            if (debug) console.log('417 Modeller ofilteredOnTypes', selOfilteredArr, uniqueTypes, uniqueTypes[selectedOption], selectedOption);
-            // setOfilteredArr(selOfilteredArr);
+        } else {
+            const selOfilteredArr = initialArr?.filter(
+                (node: { typename: string }) => node && node.typename === selectedOption
+            );
+            if (debug) console.log('376 Modeller ofilteredOnTypes', selOfilteredArr, uniqueTypes, selectedOption);
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
-            // if (debug) console.log('421 Modeller ofilteredOnTypes', selOfilteredArr,);
         }
-        setObjectsRefresh(!objectsRefresh)
-    }, [selectedOption])
+        setObjectsRefresh(!objectsRefresh);
+    }, [selectedOption]);
 
     // useEffect(() => {
     //     setRefresh(!refresh)
@@ -412,26 +482,23 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const myMetamodel = myModel.metamodel;
     const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
 
+    // Function to export objects and relship to clipboard
+    const exportToClipboard = () => {
+        if (model && model.objects) {
+            const objectsText = model.objects.map(obj => ` - "${obj.id}" | "${obj.name}" | "${obj.description ? obj.description : '(empty)'}" | "(${obj.proposedType})" | "(${obj.typeName})"`).join('\n').replace(/\|/g, ',') + '\n'
+            const relshipsText = model.relships.map(rel => ` - "${rel.id}" | "${rel.name}"  | "${rel.typeRef}" | "${rel.fromobjectRef}" | "${rel.toobjectRef}"`).join('\n').replace(/\|/g, ',') + '\n';
+            navigator.clipboard.writeText(`Objects: ${objectsText} \n Relships: ${relshipsText}\n`).then(() => {
+                alert('Objects and relships copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy objects to clipboard: ', err);
+            });
+        }
+    };
+
     // const objectsTabDiv = (gojsobjects.nodeDataArray.length > 0) && (gojsobjects.nodeDataArray.length < 500) && (visibleObjects) && (selectedOption === 'In this modelview') && (isExpanded) && (visibleObjects) &&
     const objectsTabDiv = //(gojsobjects.nodeDataArray.length > 0) && (visibleObjects) && (selectedOption === 'In this modelview') && (isExpanded) && (visibleObjects) &&
         <>
-            <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none", }}>
-                {/* <div className="d-flex justify-content-between"> */}
-                {/* <button 
-                        className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                        onClick={toggleObjects} 
-                        data-toggle="tooltip" 
-                        data-placement="top" 
-                        title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview"> 
-                        {visibleObjects ? <span> &lt;- Objects </span> : <span> -&gt;</span>}
-                    </button> */}
-                {/* <button 
-                        className="btn-sm px-1 m-0 text-left " style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                        onClick={toggleIsExpanded} 
-                        data-toggle="tooltip" data-placement="top" title=" &#013;&#013;"> 
-                        {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
-                    </button> */}
-                {/* </div> */}
+            <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none", width: isExpanded ? '20hw' : 'auto' }}>
                 <div className="modellingtask bg-light" >
                     {SelectOTypes}
                     <div className="mmname mx-0 px-2 mb-1 bg-white text-secondary" style={{ fontSize: "16px", mimWidth: "120px" }}>{selectedOption}
@@ -445,7 +512,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     myMetis={props.myMetis}
                     phFocus={props.phFocus}
                     dispatch={props.dispatch}
-                    diagramStyle={{ height: "74vh" }}
+                    diagramStyle={{ height: "68vh" }}
                 />
             </div>
         </>
@@ -483,7 +550,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const modelviewTabDiv = // this is the modelview tabs
         <>
             <Nav tabs > {/* objects  */}
-                <button className="btn btn-sm bg-transparent text-light"
+                {/* <button className="btn btn-sm bg-transparent text-light"
                     data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Open Modeller left sidepanel with the Object-list!"
                     onClick={toggleObjects}
                 >
@@ -491,7 +558,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         ? <span className="fs-8"><i className="fa fa-lg fa-angle-left  pull-right-container me-1"></i>Objects </span>
                         : <span className="fs-8"><i className="fa fa-lg fa-angle-right pull-right-container me-1"></i>Objects </span>
                     }
-                </button>
+                </button> */}
                 {navitemDiv} {/* modelviewtabs  */}
                 <NavItem > {/* ?  */}
                     <button className="btn p-2 border-white text-white float-right" data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -510,16 +577,16 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     }
                 </button>
             </Nav>
-            <TabContent className="bg-white p-0 m-0 border border-white">
+            <TabContent className=" p-0 m-0 border border-white">
                 <TabPane className="">
                     <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
-                        {(visibleObjects)
+                        {/* {(visibleObjects)
                             ? (objectsRefresh)
                                 ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col></>
                                 : <> <Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col> </>
                             : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div></Col> </>
 
-                        }
+                        } */}
                         <Col className="me-2 my-1 p-1 border" xe="auto" >
                             <div className="workpad bg-white border-light mt-0 pe-0">
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
@@ -574,14 +641,94 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </>
     if (debug) console.log('372 Modeller ', props.modelType)
 
+    const objectsDiv =
+        <>
+            <Col className="p-0 m-0 my-0" xs="auto">
+                <div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>
+                {objectsTabDiv}
+            </Col>
+            <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
+                <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
+            </button>
+            <button className="btn me-1 d-flex justify-content-center align-items-center w-100  bg-secondary my-1" onClick={openPasteDialog} style={{ fontSize: "10px"}}>
+                <i className="fas fa-paste me-2"></i> Paste obj / rel (Json)
+            </button>
+            <Modal show={showPasteDialog} onHide={closePasteDialog}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Paste and Import JSON</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <textarea
+                        value={jsonInput}
+                        onChange={handleJsonInputChange}
+                        placeholder="Paste your JSON here"
+                        rows="10"
+                        cols="50"
+                        style={{ width: '100%' }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={closePasteDialog}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleJsonPaste}>
+                        Import
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
+
     const modellerDiv =
         (props.modelType === 'model')
             ? // modelling
-            <div className="modeller-workarea w-100" >
-                <div className="modeller--workarea-objects m-1" >
+            <div className="modeller-workarea w-100 d-flex flex-col" style={{ width: '100%' }}>
+                <div className={`modeller--objects me-1 
+                    ${visibleObjects
+                        ? isExpanded
+                            ? 'col-3'
+                            : 'col-1'
+                        : 'col-0'} `}
+                        style={{ minWidth: visibleObjects ? '178px' : '16px', backgroundColor: "#7b8" }}>
+                    <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
+                        style={{ backgroundColor: "#7b8" }}
+                    >
+                        <button
+                            className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
+                            onClick={toggleObjects}
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
+                            {visibleObjects 
+                                ? <span> &lt;- Objects </span> 
+                                :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
+                                    </span>}
+                        </button>
+                        <button
+                            className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                            onClick={toggleIsExpanded}
+                            data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
+                            {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                        </button>
+                    </div>
+                    <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >
+                        {(visibleObjects)
+                            ? (objectsRefresh)
+                                ? <>{objectsDiv}</>
+                                : <> {objectsDiv} </>
+                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal" style={{ fontSize: "10px" }}></div></Col> </>
+                        }
+                    </div>
+                </div>
+                <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-9' : 'col-10') : 'col-12'}`}
+                    style={{
+                        minWidth: visibleObjects ? '68%' : '88%',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        flexGrow: 1
+                    }}>
                     {modelviewTabDiv}
                 </div>
-            </div >
+            </div>
             : // metamodelling
             <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
                 <div className="modeller--topbar mt-1 p-0">

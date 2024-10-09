@@ -199,9 +199,10 @@ const Modelling = (props: any) => {
   // Function to export curmod.objects to clipboard
   const exportToClipboard = () => {
     if (curmod && curmod.objects) {
-      const objectsText = curmod.objects.map(obj => ` - "${obj.id}" | "${obj.name}" | "${obj.description ? obj.description : '(empty)'}" | "(${obj.typeName})"`).join('\n').replace(/\|/g, ',') + '\n';
-      navigator.clipboard.writeText(objectsText).then(() => {
-        alert('Objects copied to clipboard!');
+      const objectsText = curmod.objects.map(obj => ` - "${obj.id}" | "${obj.name}" | "${obj.description ? obj.description : '(empty)'}" | "(${obj.typeName})"`).join('\n').replace(/\|/g, ',') + '\n'
+      const relshipsText = curmod.relships.map(rel => ` - "${rel.id}" | "${rel.name}" | "${rel.description ? rel.description : '(empty)'}" | "(${rel.typeName})"`).join('\n').replace(/\|/g, ',') + '\n';
+      navigator.clipboard.writeText(`Objects: ${objectsText} \n Relships: ${relshipsText}\n`).then(() => {
+        alert('Objects and relships copied to clipboard!');
       }).catch(err => {
         console.error('Failed to copy objects to clipboard: ', err);
       });
@@ -212,19 +213,15 @@ const Modelling = (props: any) => {
     let phFocus = props.phFocus;
     let phData = props.phData
     let phUser = props.phUser
-
     if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('256 Modelling', curmod, curmodview);
-
     // function handleSaveAllToFileDate() {
     //   const projectname = props.phData.metis.name
     //   SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     // }
-
     // const handleGetNewProject = () => {
     //   alert('Deprecated: Use the "New" button in Project-bar at top-left')
     // }
-
     // const handleSaveAllToFile = () => {
     //   let projectname = props.phSource
     //   if (props.phFocus.focusProj.name === '' || undefined) {
@@ -236,9 +233,7 @@ const Modelling = (props: any) => {
     //   if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
     //   SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
     // }
-
     const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
-
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
@@ -536,9 +531,9 @@ const Modelling = (props: any) => {
               {loadfile}
             </span>
           </div>
-            <span className="btn me-1 d-flex justify-content-center align-items-center" onClick={exportToClipboard}>
+            {/* <span className="btn me-1 d-flex justify-content-center align-items-center bg-secondary" onClick={exportToClipboard}>
             <i className="fas fa-copy me-2"></i> Objects
-            </span>
+            </span> */}
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
 
           {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}

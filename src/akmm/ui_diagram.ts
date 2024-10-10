@@ -835,15 +835,47 @@ export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: an
 export function setGridLayoutParameters( param: string): go.GridLayout {
     const layout = new go.GridLayout({ 
         isOngoing: false,
-        wrappingColumn: NaN,
-        wrappingWidth: 1,
-
+        wrappingColumn: 1,
+        wrappingWidth: NaN,
+        spacing: new go.Size(35, 35),
     });
     return layout;
 }
 
 export function doGridLayout(mySelection: any, myModelview: akm.cxModelView, myDiagram: any) {
+    const myObjectViews = [];
+    const myRelshipViews = [];
+    const lay = setGridLayoutParameters(); 
+    lay.doLayout(mySelection);
+    // First handle the objects
+    let it = mySelection.iterator;
+    while (it?.next()) {
+        let selected = it.value.data;
+        if (selected.category === 'Object') {
+            let node = selected;
+            const loc = node.loc;
+            const objviewRef = node.key;
+            const objview = myModelview.findObjectView(objviewRef);
+            objview.loc = loc;
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            myObjectViews.push(jsnObjview);
+        }
+    }
 
+    myObjectViews.map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        }
+    })   
+    myRelshipViews.map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        }
+    })                 
 }
 
 function setTreeLayoutParameters(): go.TreeLayout {

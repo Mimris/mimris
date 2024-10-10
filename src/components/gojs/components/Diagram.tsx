@@ -829,12 +829,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.isSelected) {
+              if (node.isSelected && selection.count > 1) {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else
                 return false;
             }),
-          makeButton("Delete View",
+          makeButton("Delete",
+            function (e: any, obj: any) {
+              if (confirm('Do you really want to delete the current object?')) {
+                const myModel = myMetis.currentModel;
+                myMetis.deleteViewsOnly = false;
+                myMetis.currentNode = obj.part.data;
+                myDiagram.commandHandler.deleteSelection();
+              }
+            },
+            function (o: any) {
+              let selection = myDiagram.selection;
+              const node = o.part.data;
+              if (node.isSelected && selection.count == 1) {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } else
+                return false;
+            }),
+            makeButton("Delete View",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
                 const myModel = myMetis.currentModel;
@@ -1243,12 +1260,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (!n instanceof go.Node) return;
               selectedNodes.push(n);
             });
-            const params = 
+            const params = "";
             uid.setGridLayoutParameters(params);
-            uid.doGridLayout(selectedNodes, 'vertical', myMetis);
+            uid.doGridLayout(mySelection, myModelview, myDiagram);
           },
           function (o: any) {
-            return false;
             const mySelection = myDiagram.selection;
             let cnt = 0;
             if (mySelection.count > 1) {
@@ -2213,11 +2229,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   }
                 }
               }),
-                modifiedRelshipViews.map(mn => {
-                  let data = mn;
-                  data = JSON.parse(JSON.stringify(data));
-                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                })
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })
             },
             function (obj: any) {
               const link = obj.part.data;
@@ -2742,6 +2758,62 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
+          makeButton("Select all objects of type",
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myGoModel = myMetis.gojsModel;
+              const typename = prompt("Enter object type name", "");
+              const objects = myModel.getObjectsByTypename(typename, false);
+              let firstTime = true;
+              for (let i = 0; i < objects.length; i++) {
+                const o = objects[i];
+                if (o) {
+                  const oviews = o.objectviews;
+                  if (oviews) {
+                    for (let j = 0; j < oviews.length; j++) {
+                      const ov = oviews[j];
+                      if (ov) {
+                        const node = myGoModel.findNodeByViewId(ov?.id);
+                        const gjsNode = myDiagram.findNodeForKey(node?.key)
+                        if (gjsNode) {
+                          if (firstTime) {
+                            myDiagram.select(gjsNode);
+                            firstTime = false;
+                          } else {
+                            gjsNode.isSelected = true;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Select by Object Name",
+            function (e: any, obj: any) {
+              const value = prompt('Enter name ', "");
+              const name = new RegExp(value, "i");
+              const results = myDiagram.findNodesByExample(
+                { name: value });
+              if (debug) console.log('2288 results', value, results);
+              const it = results.iterator;
+              while (it.next()) {
+                const node = it.value;
+                const gjsNode = myDiagram.findNodeForKey(node?.key);
+                if (gjsNode) gjsNode.isSelected = true;
+              }
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Add Missing Relationship Views",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
@@ -2772,17 +2844,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true;
-            }),
-          makeButton("Clear Relationship Breakpoints",
-            function (e: any, obj: any) {
-              const modelview = myMetis.currentModelview;
-              uic.clearRelationshipPoints(modelview, myMetis);
-            },
-            function (o: any) {
-              return false;
-              if (myMetis.modelType === 'Modelling')
-                return true;
-              return false;
             }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) {
@@ -2845,62 +2906,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myDiagram.selection.count > 0)
                 return true;
               return false;
-            }),
-          makeButton("Select all objects of type",
-            function (e: any, obj: any) {
-              const myModel = myMetis.currentModel;
-              const myModelview = myMetis.currentModelview;
-              const myGoModel = myMetis.gojsModel;
-              const typename = prompt("Enter object type name", "");
-              const objects = myModel.getObjectsByTypename(typename, false);
-              let firstTime = true;
-              for (let i = 0; i < objects.length; i++) {
-                const o = objects[i];
-                if (o) {
-                  const oviews = o.objectviews;
-                  if (oviews) {
-                    for (let j = 0; j < oviews.length; j++) {
-                      const ov = oviews[j];
-                      if (ov) {
-                        const node = myGoModel.findNodeByViewId(ov?.id);
-                        const gjsNode = myDiagram.findNodeForKey(node?.key)
-                        if (gjsNode) {
-                          if (firstTime) {
-                            myDiagram.select(gjsNode);
-                            firstTime = false;
-                          } else {
-                            gjsNode.isSelected = true;
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
-          makeButton("Select by Object Name",
-            function (e: any, obj: any) {
-              const value = prompt('Enter name ', "");
-              const name = new RegExp(value, "i");
-              const results = myDiagram.findNodesByExample(
-                { name: value });
-              if (debug) console.log('2288 results', value, results);
-              const it = results.iterator;
-              while (it.next()) {
-                const node = it.value;
-                const gjsNode = myDiagram.findNodeForKey(node?.key);
-                if (gjsNode) gjsNode.isSelected = true;
-              }
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
             }),
           makeButton("----------",
             function (e: any, obj: any) {
@@ -2986,9 +2991,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Do Layout",
             function (e: any, obj: any) {
               let layout = "";
+              const modifiedRelshipViews = new Array();
               if (myMetis.modelType === 'Modelling') {
+                myDiagram.selection.each(function (sel) {
+                  const link = sel.data;
+                  if (link.category === constants.gojs.C_RELATIONSHIP) {
+                    const fromLink = link.from;
+                    const toLink = link.to;
+                    let relview: akm.cxRelationshipView;
+                    relview = myModelview.findRelationshipView(link.key);
+                    if (relview) {
+                      const fromObjview = relview.fromObjview;
+                      const toObjview = relview.toObjview;
+                      link.points = [];
+                      link.from = fromLink;
+                      link.to = toLink;
+                      myDiagram.model.setDataProperty(link, "points", []);
+                      relview.points = [];
+                      relview.fromObjview = fromObjview;
+                      relview.toObjview = toObjview;
+                      const jsnRelView = new jsn.jsnRelshipView(relview);
+                      modifiedRelshipViews.push(jsnRelView);
+                    }
+                  }
+                });
+
                 const myModelview = myMetis.currentModelview;
-                myModelview.clearRelviewPoints();
+                //myModelview.clearRelviewPoints();
                 const myGoModel = myMetis.gojsModel;
                 layout = myGoModel.modelView?.layout;
               } else if (myMetis.modelType === 'Metamodelling') {
@@ -3008,6 +3037,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   objview.loc = data.loc;
                 }
               }
+
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })
+
+
               const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
               let data = { metis: jsnMetis }
               data = JSON.parse(JSON.stringify(data));
@@ -3134,7 +3171,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("----------",
+          makeButton("!!! PURGE DELETED !!!",
+            function (e: any, obj: any) {
+              if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
+                if (debug) console.log('2402 myMetis', myMetis);
+                uic.purgeModelDeletions(myMetis, myDiagram);
+                if (debug) console.log('2404 myMetis', myMetis);
+              }
+            },
+            function (o: any) {
+              // if (myMetis.modelType === 'Metamodelling')
+              //   return false;
+              return true;
+            }),
+            makeButton("----------",
       function (e: any, obj: any) {
       },
       function (o: any) {
@@ -3520,19 +3570,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myMetis.modelType === 'Metamodelling')
                 return true;
               return false;
-            }),
-          makeButton("!!! PURGE DELETED !!!",
-            function (e: any, obj: any) {
-              if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
-                if (debug) console.log('2402 myMetis', myMetis);
-                uic.purgeModelDeletions(myMetis, myDiagram);
-                if (debug) console.log('2404 myMetis', myMetis);
-              }
-            },
-            function (o: any) {
-              // if (myMetis.modelType === 'Metamodelling')
-              //   return false;
-              return true;
             }),
         )
     }

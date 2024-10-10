@@ -1265,6 +1265,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             uid.doGridLayout(mySelection, myModelview, myDiagram);
           },
           function (o: any) {
+            return false;
             const mySelection = myDiagram.selection;
             let cnt = 0;
             if (mySelection.count > 1) {

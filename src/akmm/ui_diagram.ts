@@ -832,6 +832,52 @@ export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: an
     }
 }
 
+export function setGridLayoutParameters( param: string): go.GridLayout {
+    const layout = new go.GridLayout({ 
+        isOngoing: false,
+        wrappingColumn: 1,
+        wrappingWidth: NaN,
+        spacing: new go.Size(35, 35),
+    });
+    return layout;
+}
+
+export function doGridLayout(mySelection: any, myModelview: akm.cxModelView, myDiagram: any) {
+    const myObjectViews = [];
+    const myRelshipViews = [];
+    const lay = setGridLayoutParameters(); 
+    lay.doLayout(mySelection);
+    // First handle the objects
+    let it = mySelection.iterator;
+    while (it?.next()) {
+        let selected = it.value.data;
+        if (selected.category === 'Object') {
+            let node = selected;
+            const loc = node.loc;
+            const objviewRef = node.key;
+            const objview = myModelview.findObjectView(objviewRef);
+            objview.loc = loc;
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            myObjectViews.push(jsnObjview);
+        }
+    }
+
+    myObjectViews.map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        }
+    })   
+    myRelshipViews.map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        }
+    })                 
+}
+
 function setTreeLayoutParameters(): go.TreeLayout {
     const layout = new go.TreeLayout({ 
         isOngoing: false,
@@ -2749,6 +2795,55 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
     // myDiagram.model.addLinkData(data);
     myDiagram.commitTransaction('updateLink');
     return relview;
+}
+
+export function alignNodes(selectedNodes, direction, myMetis: akm.cxMetis) {
+    const modifiedObjectViews = new Array();
+    const myDiagram = myMetis.myDiagram;
+    const myGoModel = myMetis.gojsModel;
+    const firstNode = selectedNodes[0];
+    const firstNodeLoc = firstNode.location;
+    const firstNodeX = firstNodeLoc.x;
+    const firstNodeY = firstNodeLoc.y;
+    myDiagram.startTransaction('alignNodes');
+    for (let i=0; i<selectedNodes.length; i++) {
+        const node = selectedNodes[i];
+        const nodeLoc = node.location;
+        if (direction === 'horizontal') {
+            nodeLoc.y = firstNodeY;
+        } else if (direction === 'vertical') {
+            nodeLoc.x = firstNodeX;
+        }
+        node.moveTo(nodeLoc);
+        continue;
+
+        let myGoNode = myGoModel.findNode(node.key);
+        if (!myGoNode) {
+            myGoNode = myGoModel.findNodeForKey(node.key);
+        }
+        if (!myGoNode) {
+            continue;
+        } else {
+            myGoNode.loc.x = node.location.x;
+            myGoNode.loc.y = node.location
+        }
+        let myObjectview = myGoNode.objectview;
+        if (!myObjectview) {
+            myObjectview = myMetis.currentModelview.findObjectView(node.key);
+        }
+        myObjectview.loc = nodeLoc;
+        // Prepare dispatch
+        const jsnObjview = new jsn.jsnObjectView(myObjectview);
+        if (jsnObjview) {
+            uic.addItemToList(modifiedObjectViews, jsnObjview);
+        }
+    }
+    modifiedObjectViews.map(ov => {
+        let data = ov;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    });
+    myDiagram.commitTransaction('alignNodes');
 }
 
 export function editTraverseDialog() {

@@ -1362,7 +1362,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             nodeAndLinkMaps.addLinkMap(copyPasteLinkMap);    
 
             let pastedRelshipRef = gjsLink.relshipRef;
+            if (pastedRelshipRef === copiedRelship.id) {
+              pastedRelshipRef = utils.createGuid();
+            }
             let pastedRelship: akm.cxRelationship = myMetis.findRelationship(pastedRelshipRef);
+            if (!pasteViewsOnly) {
+              pastedRelship = new akm.cxRelationship(pastedRelshipRef, copiedRelship.type, null, null, copiedRelship.name, copiedRelship.description);
+              myModel.addRelationship(pastedRelship);
+              myMetis.addRelationship(pastedRelship);
+            }
             let gjsPastedLink = gjsLink;
             let gjsPastedLinkKey = gjsPastedLink.key;
             let gjsPastedLinkFromNodeKey = gjsPastedLink.from;
@@ -1386,7 +1394,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             copyPasteLinkMap.targetToNodeKey   = gjsPastedLinkToNodeKey;
             // // The pasted FROM and TO links
             const pastedToLinkMap = 
-                new akm.cxLinkMap(pastedRelship, 
+                new akm.cxLinkMap(pastedRelship, // Obs: without from and to objects 
                                   gjsPastedLinkFromNodeKey,
                                   gjsPastedLinkToNodeKey,
                                   gjsPastedLinkKey,
@@ -1394,21 +1402,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             nodeAndLinkMaps.addLinkMap(pastedToLinkMap);    
 
             // // The target FROM objectview
-            let fromObject: akm.cxObject = gjsPastedLink?.relship?.fromObject;
             let fromObjview: akm.cxObjectView = myMetis.findObjectView(gjsPastedLinkFromNodeKey);
-            if (!fromObjview && fromObject) {
-              fromObjview = new akm.cxObjectView(gjsPastedLinkFromNodeKey, fromObject.name, fromObject, fromObject.description, myModelview);
-            }
+            let fromObject: akm.cxObject = fromObjview?.object;
             // The target TO objectview
-            let toObject: akm.cxObject = gjsPastedLink?.relship?.toObject;
             let toObjview: akm.cxObjectView = myMetis.findObjectView(gjsPastedLinkToNodeKey);
-            if (!toObjview && toObject) {
-              toObjview = new akm.cxObjectView(gjsPastedLinkToNodeKey, toObject.name, toObject, toObject.description, myModelview);
-            } 
+            let toObject: akm.cxObject = toObjview?.object;
         
           // The target Relationship
-            const fromObj: akm.cxObject = fromObjview?.object;
-            const toObj: akm.cxObject = toObjview?.object;
             let sourceRelship: akm.cxRelationship = copiedRelship;
             let reltype: akm.cxRelationshipType = myMetis.findRelationshipType(gjsPastedLink.reltypeRef);
             let targetRelship: akm.cxRelationship = sourceRelship;
@@ -1417,9 +1417,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               targetRelship = new akm.cxRelationship(relid, reltype, fromObject, toObject, sourceRelship.name, sourceRelship.description);
             }
             targetRelships.push(targetRelship);
+            fromObject.addOutputrel(targetRelship);
+            toObject.addInputrel(targetRelship);
             myModel.addRelationship(targetRelship);
             myMetis.addRelationship(targetRelship);
-
+  
             // The target relationship view
             let targetRelview = new akm.cxRelationshipView(pastedRelviewKey, gjsPastedLink.name, targetRelship, "");
             targetRelview.fromObjview = fromObjview;

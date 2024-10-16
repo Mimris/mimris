@@ -623,8 +623,38 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Add Connected Objects",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              uid.addConnectedObjects(node, myMetis, myDiagram);
+
+              let noLevels = '9';
+              let reltypes = 'All';
+              let reldir   = 'All';
+              let useDefaults = confirm('Use default parameters?');
+              if (useDefaults) {
+                  noLevels = 9;
+                  reltypes = 'All';
+                  reldir === 'All'
+              } else {
+                  noLevels = prompt('Enter no of sublevels to follow', noLevels);
+                  let reltypes = 'All';
+                  reltypes = prompt('Enter relationship type to follow', reltypes);
+                  if (reltypes === 'All') {
+                      reltypes = '';
+                  }
+                  let reldir = 'All';
+                  reldir = prompt('Enter relationship direction to follow (in | out | All)', reldir);
+              }
+              const params = {
+                  noLevels: noLevels,
+                  reltypes: reltypes,
+                  reldir: reldir
+              }
+
+              const mySelection = myDiagram.selection;
+              const nodes = [];
+              for (let it = mySelection.iterator; it?.next();) {
+                let n = it.value;
+                const node = n.data;
+                uid.addConnectedObjects(node, params, myMetis, myDiagram);                
+              }
             },
             function (o: any) {
               const node = o.part.data;

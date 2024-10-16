@@ -951,7 +951,7 @@ export function doTreeLayout(mySelection: any, myModelview: akm.cxModelView, myD
     })                 
 }
 
-export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function addConnectedObjects(node: any, params: any, myMetis: akm.cxMetis, myDiagram: any) {
     const myNode = myDiagram.findNodeForKey(node.key);
     let objectviews: akm.cxObjectView[] = new Array();
     let relshipviews: akm.cxRelationshipView[] = new Array();
@@ -964,24 +964,9 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     let objview: akm.cxObjectView;
     objview = myMetis.findObjectView(node.key);
     objectviews.push(objview);
-    let noLevels = '9';
-    let reltypes = 'All';
-    let reldir   = 'All';
-    let useDefaults = confirm('Use default parameters?');
-    if (useDefaults) {
-        noLevels = 9;
-        reltypes = 'All';
-        reldir === 'All'
-    } else {
-        noLevels = prompt('Enter no of sublevels to follow', noLevels);
-        let reltypes = 'All';
-        reltypes = prompt('Enter relationship type to follow', reltypes);
-        if (reltypes === 'All') {
-            reltypes = '';
-        }
-        let reldir = 'All';
-        reldir = prompt('Enter relationship direction to follow (in | out | All)', reldir);
-    }
+    let noLevels = params.noLevels;
+    let reltypes = params.reltypes;
+    let reldir   = params.reldir;
     myDiagram.startTransaction('addConnectedObjects');
        
     if (reldir === 'All') {
@@ -996,7 +981,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     // Now generate the nodes and links, and select them
     const myObjectViews = [];
     const myRelshipViews = [];
-    myNode.isSelected = true;
+    if (myNode) myNode.isSelected = true;
     for (let i=1; i<objectviews.length; i++) {
         let objview = objectviews[i];
         const goNode = new gjs.goObjectNode(objview.id, goModel, objview);
@@ -2081,6 +2066,8 @@ export function diagramInfo(model: any) {  // Tooltip info for the diagram's mod
 }
 
 function relshipsSortedByNameTypeAndToNames(relships: akm.cxRelationship[], reldir: string) {
+    if (relships.length < 2)
+        return relships;
     relships?.sort((a, b) => {
         const typeA = a.type.name;
         const typeB = b.type.name;
@@ -2153,10 +2140,12 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
         let rels: akm.cxRelationship[];
         if (useinp) {
             rels = object.inputrels;
-            rels = relshipsSortedByNameTypeAndToNames(rels, reldir)
+            if (rels)
+                rels = relshipsSortedByNameTypeAndToNames(rels, reldir)
         } else {
             rels = object.outputrels;
-            rels = relshipsSortedByNameTypeAndToNames(rels, reldir)
+            if (rels)
+                rels = relshipsSortedByNameTypeAndToNames(rels, reldir)
         }
         if (rels) {
             let cnt = 0;

@@ -231,7 +231,6 @@ export function generateSubModel(node: any, myMetis: akm.cxMetis, myDiagram: any
     const newModel = new akm.cxModel(utils.createGuid(), modelname, myMetis.currentTargetMetamodel, "");
 }
 
-
 export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const objview = myMetis.findObjectView(node.objectview?.id);
     // Select model among all models (except the current)
@@ -1090,6 +1089,7 @@ export function selectConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagra
 export function selectContent(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (!node.isGroup)
         return;
+    const n = myDiagram.findNodeForKey(node.key);
     addToSelection(node, myDiagram);
     const goModel = myMetis.gojsModel;
     const groupLoc = node.loc;
@@ -1103,13 +1103,17 @@ export function selectContent(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const mySelection = new go.Set<go.Part | go.Link>();
     const nodes = myDiagram.nodes;
     for (let it = nodes.iterator; it?.next();) {
-        const node = it.value;
-        const memberLoc = node.data.loc;
+        const node1 = it.value;
+        const memberLoc = node1.data.loc;
         const memberLocs = memberLoc.split(" ");
         const memberX = parseInt(memberLocs[0]);
         const memberY = parseInt(memberLocs[1]);
-        if (memberX >= groupX && memberX <= groupX + groupWidth && memberY >= groupY && memberY <= groupY + groupHeight)          
-            addToSelection(node, myDiagram);
+        if (memberX >= groupX && memberX <= groupX + groupWidth && memberY >= groupY && memberY <= groupY + groupHeight) {       
+            // addToSelection(node1, myDiagram);
+            // if (node1.key !== node.key) {
+            //     node1.data.group = node.key;
+            // }
+        }
     }
 }
 

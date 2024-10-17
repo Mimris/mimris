@@ -2359,7 +2359,8 @@ export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, m
     return nodes;
 }
 
-export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc: any, goModel: gjs.goModel, myDiagram: any, modifiedObjectViews: any[]): gjs.goObjectNode {
+export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc: any, 
+                                     goModel: gjs.goModel, myDiagram: any, myMetis: akm.cxMetis, modifiedObjectViews: any[]): gjs.goObjectNode {
     if (data.category === 'Object') {
         let objview;
         let node = goModel?.findNode(data.key);
@@ -2382,7 +2383,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                     if (nod.key === group.key)
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (nod && grp?.grabIsAllowed) {
+                    if (nod && grp /*?.grabIsAllowed*/) {
                         if (debug) console.log('960 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;
@@ -2396,6 +2397,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                                 if (debug) console.log('970 e', e);
                             }
                         }
+                        uid.selectContent(nod, myMetis, myDiagram);
                     } else {
                         nod.group = "";
                     }

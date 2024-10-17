@@ -640,7 +640,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.loc = myToNode.loc.valueOf();
                 goToNode.size = myToNode.size;
               }
-              uid.selectContent(myToNode, myMetis, myDiagram);
+              // uid.selectContent(myToNode, myMetis, myDiagram);
 
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode, );

@@ -2397,7 +2397,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                                 if (debug) console.log('970 e', e);
                             }
                         }
-                        uid.selectContent(nod, myMetis, myDiagram);
+                        // uid.selectContent(nod, myMetis, myDiagram);
                     } else {
                         nod.group = "";
                     }

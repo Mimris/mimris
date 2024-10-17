@@ -3021,6 +3021,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }),
           makeButton("Do Layout",
             function (e: any, obj: any) {
+              const myModelview = myMetis.currentModelview;
+              myDiagram.modelview = myModelview;
               let layout = "";
               const modifiedRelshipViews = new Array();
               if (myMetis.modelType === 'Modelling') {
@@ -3030,7 +3032,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const fromLink = link.from;
                     const toLink = link.to;
                     let relview: akm.cxRelationshipView;
-                    relview = myModelview.findRelationshipView(link.key);
+                    relview = myDiagram.modelview.findRelationshipView(link.key);
                     if (relview) {
                       const fromObjview = relview.fromObjview;
                       const toObjview = relview.toObjview;
@@ -3047,8 +3049,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   }
                 });
 
-                const myModelview = myMetis.currentModelview;
-                //myModelview.clearRelviewPoints();
+                myModelview.clearRelviewPoints();
                 const myGoModel = myMetis.gojsModel;
                 layout = myGoModel.modelView?.layout;
               } else if (myMetis.modelType === 'Metamodelling') {

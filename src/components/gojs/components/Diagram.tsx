@@ -1200,16 +1200,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // node.objectview = objview;
               node.template = template;
               node.viewkind = 'Container';
-              // update this.state.nodeDataArray with this node
-
-              // this.setState(
-              //   {
-              //       nodeDataArray: [
-              //       ...this.state.nodeDataArray,
-              //       node
-              //     ] 
-              //   }
-              // );
               const jsnObjview = new jsn.jsnObjectView(objview);
               jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
@@ -1282,25 +1272,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Do Grid Layout",
+          makeButton("Align Vertical",
           function (e: any, obj: any) {
             const mySelection = myDiagram.selection;
             const selectedNodes = [];
             mySelection.each(function(n) {
-              if (!n instanceof go.Node) return;
-              selectedNodes.push(n);
+              if (n instanceof go.Link) 
+                return;
+              else
+                selectedNodes.push(n);
             });
-            const params = "";
-            uid.setGridLayoutParameters(params);
-            uid.doGridLayout(mySelection, myModelview, myDiagram);
+            uid.alignNodes(selectedNodes, 'vertical', myMetis);
+            const selectedLinks = [];
+            mySelection.each(function(l) {
+              if (l instanceof go.Node) 
+                return;
+              else
+              selectedLinks.push(l);
+            });
+            uid.clearPath(selectedLinks, myMetis, myDiagram);
+            alert("You need to do a Reload to see the result!");
           },
           function (o: any) {
-            return false;
+            // return false;
             const mySelection = myDiagram.selection;
             let cnt = 0;
             if (mySelection.count > 1) {
               mySelection.each(function(n) {
-                if (!n instanceof go.Node) return;
+                if (n instanceof go.Link) return;
                 cnt++;
               });
               if (cnt > 1)

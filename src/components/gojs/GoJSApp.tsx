@@ -586,7 +586,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const selection = e.subject;
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
-          if (!(n instanceof go.Node)) continue;
+          if (n instanceof go.Link) continue;
           const loc = n.data.loc;
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
@@ -1129,7 +1129,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         for (let it = sel.memberParts; it?.next();) {
           let n = it.value;
-          if (!(n instanceof go.Node)) continue;
+          if (n instanceof go.Link) continue;
           if (debug) console.log('1079 n', n.data);
         }
         break;

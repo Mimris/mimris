@@ -2794,21 +2794,25 @@ export function alignNodes(selectedNodes, direction, myMetis: akm.cxMetis) {
     const modifiedObjectViews = new Array();
     const myDiagram = myMetis.myDiagram;
     const myGoModel = myMetis.gojsModel;
-    const firstNode = selectedNodes[0];
-    const firstNodeLoc = firstNode.location;
-    const firstNodeX = firstNodeLoc.x;
-    const firstNodeY = firstNodeLoc.y;
-    myDiagram.startTransaction('alignNodes');
+    const firstNode = selectedNodes[0].data;
+    const firstNodeLoc = firstNode.loc?.split(" ");
+    const firstNodeX = parseInt(firstNodeLoc[0]);
+    const firstNodeY = parseInt(firstNodeLoc[1]);
     for (let i=0; i<selectedNodes.length; i++) {
-        const node = selectedNodes[i];
-        const nodeLoc = node.location;
+        const n = selectedNodes[i];
+        let node = n.data;
+        const nodeLoc = node.loc?.split(" ");
+        if (!nodeLoc) return;
         if (direction === 'horizontal') {
+            nodeLoc.x = nodeLoc[0];
             nodeLoc.y = firstNodeY;
         } else if (direction === 'vertical') {
+            nodeLoc.y = nodeLoc[1];
             nodeLoc.x = firstNodeX;
         }
-        node.moveTo(nodeLoc);
-        continue;
+        const location = nodeLoc.x + " " + nodeLoc.y;
+        node.loc = location;
+        //  continue;
 
         let myGoNode = myGoModel.findNode(node.key);
         if (!myGoNode) {
@@ -2817,26 +2821,60 @@ export function alignNodes(selectedNodes, direction, myMetis: akm.cxMetis) {
         if (!myGoNode) {
             continue;
         } else {
-            myGoNode.loc.x = node.location.x;
-            myGoNode.loc.y = node.location
+            myDiagram.startTransaction('moveNode');
+            myGoNode.loc = location;
+            const n = myDiagram.findNodeForKey(node.key);
+            myDiagram.model.setDataProperty(n.data, 'loc', location);
+            myDiagram.commitTransaction('moveNode');
         }
         let myObjectview = myGoNode.objectview;
         if (!myObjectview) {
             myObjectview = myMetis.currentModelview.findObjectView(node.key);
         }
-        myObjectview.loc = nodeLoc;
+        myObjectview.loc = location;
         // Prepare dispatch
         const jsnObjview = new jsn.jsnObjectView(myObjectview);
         if (jsnObjview) {
             uic.addItemToList(modifiedObjectViews, jsnObjview);
         }
+
     }
     modifiedObjectViews.map(ov => {
         let data = ov;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     });
-    myDiagram.commitTransaction('alignNodes');
+}
+
+export function clearPath(selectedLinks, myMetis, myDiagram) {
+    const myModelview = myMetis.currentModelview;
+    const modifiedRelshipViews = new Array();
+    for (let i=0; i<selectedLinks.length; i++) {
+        const sel = selectedLinks[i];
+        const link = sel.data;
+        const fromLink = link.from;
+        const toLink = link.to;
+        let relview: akm.cxRelationshipView;
+        relview = myModelview.findRelationshipView(link.key);
+        if (relview) {
+            const fromObjview = relview.fromObjview;
+            const toObjview = relview.toObjview;
+            link.points = [];
+            link.from = fromLink;
+            link.to = toLink;
+            myDiagram.model.setDataProperty(link, "points", []);
+            relview.points = [];
+            relview.fromObjview = fromObjview;
+            relview.toObjview = toObjview;
+            const jsnRelView = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelView);
+        }
+    };
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    });
 }
 
 export function editTraverseDialog() {

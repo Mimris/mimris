@@ -3675,7 +3675,7 @@ function finishDrop(e, grp) {
 //     function findPortNode(g, name, input) {
 //         for (let it = g.memberParts; it.next();) {
 //             let n = it.value;
-//             if (!(n instanceof go.Node)) continue;
+//             if (n instanceof go.Link) continue;
 //             if (n.data.name === name && n.data._in === input) return n;
 //         }
 //         return null;

@@ -2803,16 +2803,17 @@ export function alignNodes(selectedNodes, direction, myMetis: akm.cxMetis) {
         let node = n.data;
         const nodeLoc = node.loc?.split(" ");
         if (!nodeLoc) return;
-        if (direction === 'horizontal') {
-            nodeLoc.x = nodeLoc[0];
-            nodeLoc.y = firstNodeY;
-        } else if (direction === 'vertical') {
-            nodeLoc.y = nodeLoc[1];
-            nodeLoc.x = firstNodeX;
+        let nodeLocX = parseInt(nodeLoc[0]);
+        let nodeLocY = parseInt(nodeLoc[1]);
+        if (direction === 'vertical') {
+            nodeLocX = firstNodeX;
+            nodeLocY = parseInt(nodeLoc[1]);
+        } else if (direction === 'horizontal') {
+            nodeLocX = parseInt(nodeLoc[0]);
+            nodeLocY = firstNodeY;
         }
-        const location = nodeLoc.x + " " + nodeLoc.y;
+        const location = nodeLocX + " " + nodeLocY;
         node.loc = location;
-        //  continue;
 
         let myGoNode = myGoModel.findNode(node.key);
         if (!myGoNode) {
@@ -2824,7 +2825,7 @@ export function alignNodes(selectedNodes, direction, myMetis: akm.cxMetis) {
             myDiagram.startTransaction('moveNode');
             myGoNode.loc = location;
             const n = myDiagram.findNodeForKey(node.key);
-            myDiagram.model.setDataProperty(n.data, 'loc', location);
+            n.moveTo(nodeLocX, nodeLocY);
             myDiagram.commitTransaction('moveNode');
         }
         let myObjectview = myGoNode.objectview;

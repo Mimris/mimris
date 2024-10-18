@@ -1291,7 +1291,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               selectedLinks.push(l);
             });
             uid.clearPath(selectedLinks, myMetis, myDiagram);
-            alert("You need to do a Reload to see the result!");
           },
           function (o: any) {
             // return false;

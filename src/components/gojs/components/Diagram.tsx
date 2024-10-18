@@ -2230,40 +2230,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Clear Path",
             function (e: any, obj: any) {
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                const currentLink = obj.part.data;
-                if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
-                selection = myDiagram.selection
-              }
-              const modifiedRelshipViews = new Array();
-              myDiagram.selection.each(function (sel) {
-                const link = sel.data;
-                if (link.category === constants.gojs.C_RELATIONSHIP) {
-                  const fromLink = link.from;
-                  const toLink = link.to;
-                  let relview: akm.cxRelationshipView;
-                  relview = myModelview.findRelationshipView(link.key);
-                  if (relview) {
-                    const fromObjview = relview.fromObjview;
-                    const toObjview = relview.toObjview;
-                    link.points = [];
-                    link.from = fromLink;
-                    link.to = toLink;
-                    myDiagram.model.setDataProperty(link, "points", []);
-                    relview.points = [];
-                    relview.fromObjview = fromObjview;
-                    relview.toObjview = toObjview;
-                    const jsnRelView = new jsn.jsnRelshipView(relview);
-                    modifiedRelshipViews.push(jsnRelView);
-                  }
-                }
-              }),
-              modifiedRelshipViews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              })
+              let mySelection = myDiagram.selection;
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
             },
             function (obj: any) {
               const link = obj.part.data;

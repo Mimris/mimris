@@ -964,6 +964,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             object.addObjectView(objview);
             myModelview.addObjectView(objview);
+            myModelview.setFocusObjectview(objview);
             myMetis.addObjectView(objview);
             let goNode = myGoModel.findNode(key);
             if (!goNode) {
@@ -971,6 +972,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               goNode.loadNodeContent(myGoModel);
               myGoModel.addNode(goNode);
             }
+            // Dispatch modelview
+            const modifiedModelviews = new Array();
+            const jsnModelview = new jsn.jsnModelView(myModelview);
+            modifiedModelviews.push(jsnModelview);
+            modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+            });
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
@@ -995,6 +1005,16 @@ class GoJSApp extends React.Component<{}, AppState> {
               myModelview.addObjectView(objview);
               myMetis.addObjectView(objview);
             }
+            myModelview.setFocusObjectview(objview);
+            // Dispatch modelview
+            const modifiedModelviews = new Array();
+            const jsnModelview = new jsn.jsnModelView(myModelview);
+            modifiedModelviews.push(jsnModelview);
+            modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+            });
           }
           let fillcolor = "";
           let strokecolor = "";
@@ -1064,6 +1084,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           const isLabel = (part.typename === 'Label');
 
+          // Prepare dispatch
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (otype) {

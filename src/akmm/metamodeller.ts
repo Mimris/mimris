@@ -1250,6 +1250,7 @@ export class cxMetis {
                     if (relview && relview.id)
                         this.importRelshipView(relview, modelview);
                 });
+                modelview.focusObjectview = this.findObjectView(item.focusObjectviewRef);
             }
         }
     }

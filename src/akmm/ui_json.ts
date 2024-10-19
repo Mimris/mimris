@@ -1578,6 +1578,7 @@ export class jsnModelView {
     relshipviews:       jsnRelshipView[];
     objecttypeviews:    jsnObjectTypeView[];
     relshiptypeviews:   jsnRelshipTypeView[];
+    focusObjectviewRef: string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     constructor(mv: akm.cxModelView) {
@@ -1598,6 +1599,7 @@ export class jsnModelView {
         this.relshipviews       = [];
         this.objecttypeviews    = [];
         this.relshiptypeviews   = [];
+        this.focusObjectviewRef = mv?.focusObjectview?.id;
         this.markedAsDeleted    = mv?.markedAsDeleted;
         this.modified           = mv?.modified;
 

@@ -313,6 +313,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
         const objviews = myModelview.objectviews;
+        const focusObjectView  = myMetis.currentModelview.focusObjectview;
         for (let i = 0; i < objviews?.length; i++) {
           let resetToTypeview = true;
           const objview = objviews[i];
@@ -334,6 +335,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
                 data.textcolor = 'black';
               }
+            }
+          }
+          if (objview.id === focusObjectView?.id) {
+            const node = myGoModel.findNodeByViewId(objview.id);
+            if (node) {
+              const gjsNode = myDiagram.findNodeForKey(node?.key)
+              myDiagram.select(gjsNode);
             }
           }
         }

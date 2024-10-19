@@ -31,14 +31,16 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
-  const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
-  const models = (metis) && metis.models.filter((m: any) => (m) && m) // filter out null models
-  let focusModel = props.phFocus?.focusModel
+  const metis = (props.phData) && props.phData.metis; // Todo: check if current model and then load only current model
+  const models = (metis) && metis.models.filter((m: any) => (m) && m); // filter out null models
+  let focusModel = props.phFocus?.focusModel;
   if (!focusModel) focusModel = (models) && models[0];
-  let focusModelview = props.phFocus?.focusModelview
+  let focusModelview = props.phFocus?.focusModelview;
   if (!focusModelview) focusModelview = (focusModel) && focusModel.modelviews[0];
-  if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
-  const metamodels = (metis) && metis.metamodels.filter((mm) => (mm) && mm) // filter out null metamodels
+  if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview);
+  let focusObject = props.phFocus?.focusObject;
+  let focusObjectview = props.phFocus?.focusObjectview;
+  const metamodels = (metis) && metis.metamodels.filter((mm) => (mm) && mm); // filter out null metamodels
   let adminModel;
 
   if (metis != null) {
@@ -92,6 +94,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
       if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
+      myModelview.setFocusObjectview(focusObjectview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);

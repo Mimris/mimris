@@ -2790,11 +2790,11 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
     return relview;
 }
 
-export function alignNodes(selectedNodes, direction, myMetis: akm.cxMetis) {
+export function alignNodes(node: any, selectedNodes, direction, myMetis: akm.cxMetis) {
     const modifiedObjectViews = new Array();
     const myDiagram = myMetis.myDiagram;
     const myGoModel = myMetis.gojsModel;
-    const firstNode = selectedNodes[0].data;
+    const firstNode = node;
     const firstNodeLoc = firstNode.loc?.split(" ");
     const firstNodeX = parseInt(firstNodeLoc[0]);
     const firstNodeY = parseInt(firstNodeLoc[1]);

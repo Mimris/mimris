@@ -1273,39 +1273,75 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
           makeButton("Align Vertical",
-          function (e: any, obj: any) {
-            const mySelection = myDiagram.selection;
-            const selectedNodes = [];
-            mySelection.each(function(n) {
-              if (n instanceof go.Link) 
-                return;
-              else
-                selectedNodes.push(n);
-            });
-            uid.alignNodes(selectedNodes, 'vertical', myMetis);
-            const selectedLinks = [];
-            mySelection.each(function(l) {
-              if (l instanceof go.Node) 
-                return;
-              else
-              selectedLinks.push(l);
-            });
-            uid.clearPath(selectedLinks, myMetis, myDiagram);
-          },
-          function (o: any) {
-            // return false;
-            const mySelection = myDiagram.selection;
-            let cnt = 0;
-            if (mySelection.count > 1) {
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              const mySelection = myDiagram.selection;
+              const selectedNodes = [];
               mySelection.each(function(n) {
-                if (n instanceof go.Link) return;
-                cnt++;
+                if (n instanceof go.Link) 
+                  return;
+                else
+                  selectedNodes.push(n);
               });
-              if (cnt > 1)
-                return true;
-            } else
-              return false;
-            }),
+              uid.alignNodes(node, selectedNodes, 'vertical', myMetis);
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
+            },
+            function (o: any) {
+              // return false;
+              const mySelection = myDiagram.selection;
+              let cnt = 0;
+              if (mySelection.count > 1) {
+                mySelection.each(function(n) {
+                  if (n instanceof go.Link) return;
+                  cnt++;
+                });
+                if (cnt > 1)
+                  return true;
+              } else
+                return false;
+              }),
+          makeButton("Align Horizontal",
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              const mySelection = myDiagram.selection;
+              const selectedNodes = [];
+              mySelection.each(function(n) {
+                if (n instanceof go.Link) 
+                  return;
+                else
+                  selectedNodes.push(n);
+              });
+              uid.alignNodes(node, selectedNodes, 'horizontal', myMetis);
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
+            },
+            function (o: any) {
+              // return false;
+              const mySelection = myDiagram.selection;
+              let cnt = 0;
+              if (mySelection.count > 1) {
+                mySelection.each(function(n) {
+                  if (n instanceof go.Link) return;
+                  cnt++;
+                });
+                if (cnt > 1)
+                  return true;
+              } else
+                return false;
+              }),
           makeButton("----------"),
           makeButton("Set Layout Scheme",
             function (e: any, obj: any) {

@@ -981,6 +981,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data = JSON.parse(JSON.stringify(data));
                 myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
             });
+            if (objview && object) {
+              const objvIdName = { id: objview.id, name: objview.name };
+              const objIdName = { id: object.id, name: object.name };
+              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+            }
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 

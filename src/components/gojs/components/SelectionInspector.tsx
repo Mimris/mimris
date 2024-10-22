@@ -500,7 +500,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             val = currentType.description;
         } else if (k === 'typeid') {
             val = currentType.id;
-        } else {
+        } else if (!isCalculated) {
           val = chosenInst[k];
         }
       } else if (what === 'editRelationship') {

@@ -325,6 +325,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.typeview = objtypeview;
             objtype.setModified();
             myMetis.addObjectTypeView(objtypeview);
+            // Do the dispatch
+            const jsnObjTypeview = new jsn.jsnObjectTypeView(objtypeview);
+            context.dispatch({ type: 'UPDATE_OBJTYPEVIEW_PROPERTIES', data: jsnObjTypeview });
         }
     }
     { // Handle relationship to parent ('Is' relationship)
@@ -974,8 +977,17 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     for (let i = 0; i < modelviewList.length; i++) {
         const sourcemodelview = sourcemodel.findModelViewByName(modelviewList[i]);
         if (sourcemodelview) {
-            // Get the relevant objectviews and relshipviews
+            // First get no of EntityType objects in the sourcemodelview
+            let noOfEntityTypes = 0;
             const objectviews = sourcemodelview.objectviews;
+            for (let i = 0; i < objectviews.length; i++) {
+                const objectview = objectviews[i];
+                if (objectview?.object?.type?.name === constants.types.AKM_ENTITY_TYPE)
+                    noOfEntityTypes++;
+            }
+            if (noOfEntityTypes === 0)
+                continue;
+            // Get the relevant objectviews and relshipviews
             let objviews = new Array();
             let relshipviews = new Array();
             for (let i = 0; i < objectviews.length; i++) {
@@ -995,6 +1007,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                                 objviews.push(relview.toObjview);
                             }
                         }
+                    }
+                    if (noOfEntityTypes > objviews.length) {
+                        if (!confirm("The number of EntityType objects in the metamodel is less than in the modelview. Continue?"))
+                            return false;
                     }
                 }
                 if (object.type.name === constants.types.AKM_RELSHIP_TYPE) {

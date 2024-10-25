@@ -1607,7 +1607,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );
     addNodeTemplateName('textAndIcon');
          
-    if (false) {
+    // if (false) {
     nodeTemplateMap.add("textAndGeometry", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -1792,7 +1792,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         )
     );
     addNodeTemplateName('textAndFigure');    
-    }
+    // }
 
     let nodeTemplate4 =  
     $(go.Node, "Table",

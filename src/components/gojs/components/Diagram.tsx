@@ -3295,14 +3295,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //   return false;
               return true;
             }),
-            makeButton("----------",
-      function (e: any, obj: any) {
-      },
-      function (o: any) {
-        if (myMetis.modelType === 'Metamodelling')
-          return false;
-        return true;
-          }),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("New Metamodel",
             function (e: any, obj: any) {
               uid.newMetamodel(myMetis, myDiagram);

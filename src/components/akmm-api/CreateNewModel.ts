@@ -96,7 +96,7 @@ const CreateNewModel = (props: any) => {
 
     const irtvmodel = (metamodelGenerated) && {
       id: uuidv4(),
-      name: 'OSDU-Concept-Model_CM',
+      name: 'Concept-Model_CM',
       description: 'Concept model based on AKM-IRTV_MM Metamodel. It includes the Information, Roles, Tasks, and Views. The intention of this model is to define the concepts and relationships between them, as well as the Roles and Tasks operating on Views of this Information.', 
       metamodelRef: irtvmetamodel?.id,
       sourceMetamodelRef: "",

@@ -1014,8 +1014,8 @@ export class cxMetis {
             objtypeview.setTemplate(item.template);
             objtypeview.setViewKind(item.viewkind);
             objtypeview.setMemberscale(item.memberscale);
-            // objtypeview.setGeometry(item.geometry);
-            // objtypeview.setFigure(item.figure);
+            objtypeview.setGeometry(item.geometry);
+            objtypeview.setFigure(item.figure);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
@@ -6497,8 +6497,8 @@ export class cxObjtypeviewData {
     arrowscale: string;
     viewkind: string;
     template: string;
-    // figure: string;
-    // geometry: string;
+    figure: string;
+    geometry: string;
     icon: string;
     image: string;
     grabIsAllowed: boolean;
@@ -6516,8 +6516,8 @@ export class cxObjtypeviewData {
         this.arrowscale = "1.3";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
-        // this.figure = "";
-        // this.geometry = "";
+        this.figure = "";
+        this.geometry = "";
         this.icon = "";
         this.image = "";
         this.grabIsAllowed = false;
@@ -6540,8 +6540,8 @@ export class cxObjectTypeView extends cxMetaObject {
     memberscale: string;
     viewkind: string;
     template: string;
-    // figure: string;
-    // geometry: string;
+    figure: string;
+    geometry: string;
     icon: string;
     image: string;
     grabIsAllowed: boolean;
@@ -6560,8 +6560,8 @@ export class cxObjectTypeView extends cxMetaObject {
         // this.type        = type;
         this.typeRef = type?.id;
         this.template = "";
-        // this.figure      = "";
-        // this.geometry    = "";
+        this.figure      = "";
+        this.geometry    = "";
         this.arrowscale = "1";
         this.memberscale = "1";
         this.fillcolor = "";
@@ -6674,28 +6674,28 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template;
         return "";
     }
-    // setFigure(figure: string) {
-    //     this.data.figure = figure;
-    //     this.figure = figure;
-    // }
-    // getFigure(): string {
-    //     if (this.figure)
-    //         return this.figure;
-    //     else if (this.data.figure)
-    //         return this.data.figure;
-    //     return "";
-    // }
-    // setGeometry(geometry: string) {
-    //     this.data.geometry = geometry;
-    //     this.geometry = geometry;
-    // }
-    // getGeometry(): string {
-    //     if (this.geometry)
-    //         return this.geometry;
-    //     else if (this.data.geometry)
-    //         return this.data.geometry;
-    //     return "";
-    // }
+    setFigure(figure: string) {
+        this.data.figure = figure;
+        this.figure = figure;
+    }
+    getFigure(): string {
+        if (this.figure)
+            return this.figure;
+        else if (this.data.figure)
+            return this.data.figure;
+        return "";
+    }
+    setGeometry(geometry: string) {
+        this.data.geometry = geometry;
+        this.geometry = geometry;
+    }
+    getGeometry(): string {
+        if (this.geometry)
+            return this.geometry;
+        else if (this.data.geometry)
+            return this.data.geometry;
+        return "";
+    }
     setFillcolor(fillcolor: string) {
         this.data.fillcolor = fillcolor;
         this.fillcolor = fillcolor;
@@ -9360,8 +9360,8 @@ export class cxObjectView extends cxMetaObject {
     arrowscale: string;
     viewkind: string;
     template: string;
-    // figure: string;
-    // geometry: string;
+    figure: string;
+    geometry: string;
     icon: string;
     image: string;
     routing: string;
@@ -9406,8 +9406,8 @@ export class cxObjectView extends cxMetaObject {
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
         this.template = "";
-        // this.figure = "";
-        // this.geometry = "";
+        this.figure = "";
+        this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.fillcolor = "";
@@ -9616,16 +9616,16 @@ export class cxObjectView extends cxMetaObject {
             return "";
         return this.template;
     }
-    // setFigure(figure: string) {
-    //     if (figure == undefined)
-    //     figure = "";
-    //     this.figure = figure;
-    // }
-    // getFigure(): string {
-    //     if (this.template == undefined)
-    //         return "";
-    //     return this.template;
-    // }
+    setFigure(figure: string) {
+        if (figure == undefined)
+        figure = "";
+        this.figure = figure;
+    }
+    getFigure(): string {
+        if (this.template == undefined)
+            return "";
+        return this.template;
+    }
     setGrabIsAllowed(flag: boolean) {
         this.grabIsAllowed = flag;
     }

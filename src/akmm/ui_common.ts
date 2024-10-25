@@ -1036,6 +1036,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     if (!gjsToKey)  gjsToKey = context.nodeTo.key;
     const goFromNode = context.goFromNode;
     const fromObjview = context.fromObjview;
+    const fromObj = fromObjview.object;
     const goToNode = context.goToNode;
     const toObjview = context.toObjview;
     const reltype = context.reltype;
@@ -1045,6 +1046,12 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
     rel.addRelationshipView(relview);
+    if (context.reltype.name === constants.types.AKM_HAS_MEMBER) {
+        if (fromObj.type.name === constants.types.AKM_CONTAINER) {
+            relview.strokecolor = '#dddddd50';
+            relview.textcolor = '#dddddd50';
+        }
+    }
     const goRelshipLink = new gjs.goRelshipLink(relview.id, myGoModel, relview);
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
@@ -1544,8 +1551,17 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 const myLink = uid.getLinkByViewId(rv.id, myDiagram);
                 if (myLink) {
                     link = myDiagram.findLinkForKey(rv.id);
-                    if (link)
+                    if (link) {
+                        if (!link.fromNode) {
+                            link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                            link.from = link.fromNode?.key;
+                        }
+                        if (!link.toNode) {
+                            link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                            link.to = link.toNode?.key;
+                        }
                         continue;  // Link exists - do nothing
+                    }
                 }
                 // Link does not exist - create it
                 link = new gjs.goRelshipLink(rv.id, myGoModel, rv);

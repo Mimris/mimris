@@ -438,8 +438,8 @@ export class goObjectNode extends goNode {
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
     template: string;
-    // figure: string;
-    // geometry: string;
+    figure: string;
+    geometry: string;
     strokewidth: string;
     fillcolor: string;
     fillcolor2: string;
@@ -477,8 +477,8 @@ export class goObjectNode extends goNode {
 
         if (objview) {
             this.template       = objview?.template;
-            // this.figure         = objview.figure;
-            // this.geometry       = objview.geometry;
+            this.figure         = objview.figure;
+            this.geometry       = objview.geometry;
             this.fillcolor      = objview.fillcolor;
             this.fillcolor2      = objview.fillcolor2;
             this.strokecolor    = objview.strokecolor;
@@ -533,12 +533,12 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
-            // if (!this.geometry)
-            //     this.geometry = this.typeview?.geometry;
-            // if (!this.figure)
-            //     this.figure = this.typeview?.figure;
-            // if (!this.figure)
-            //     this.figure = "";
+            if (!this.geometry)
+                this.geometry = this.typeview?.geometry;
+            if (!this.figure)
+                this.figure = this.typeview?.figure;
+            if (!this.figure)
+                this.figure = "";
         }
     }
     // Methods
@@ -1235,8 +1235,8 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
-    // figure: string;
-    // geometry: string;
+    figure: string;
+    geometry: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -1253,8 +1253,8 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
-        // this.figure = "";
-        // this.geometry = "";
+        this.figure = "";
+        this.geometry = "";
         this.fillcolor = "lightyellow";
         this.fillcolor2 = "";
         this.strokecolor = "black";

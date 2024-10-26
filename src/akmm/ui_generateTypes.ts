@@ -246,10 +246,10 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.setName(newName);
             objtype.setDescription(object.description);
             objtype.typeDescription = currentObj.typeDescription;
-            if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+            // if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
                 objtype.attributes = new Array();
                 objtype.properties = new Array();
-            }
+            // }
         }
     } // Check if the type has not been generated, but exists anyway
     if (!objtype) {

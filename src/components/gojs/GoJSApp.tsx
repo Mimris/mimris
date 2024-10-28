@@ -313,6 +313,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
         const objviews = myModelview.objectviews;
+        const focusObjectView  = myMetis.currentModelview.focusObjectview;
         for (let i = 0; i < objviews?.length; i++) {
           let resetToTypeview = true;
           const objview = objviews[i];
@@ -334,6 +335,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
                 data.textcolor = 'black';
               }
+            }
+          }
+          if (objview.id === focusObjectView?.id) {
+            const node = myGoModel.findNodeByViewId(objview.id);
+            if (node) {
+              const gjsNode = myDiagram.findNodeForKey(node?.key)
+              myDiagram.select(gjsNode);
             }
           }
         }
@@ -586,7 +594,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const selection = e.subject;
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
-          if (!(n instanceof go.Node)) continue;
+          if (n instanceof go.Link) continue;
           const loc = n.data.loc;
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
@@ -956,12 +964,28 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
             object.addObjectView(objview);
             myModelview.addObjectView(objview);
+            myModelview.setFocusObjectview(objview);
             myMetis.addObjectView(objview);
             let goNode = myGoModel.findNode(key);
             if (!goNode) {
               goNode = new gjs.goObjectNode(key, myGoModel, objview);
               goNode.loadNodeContent(myGoModel);
               myGoModel.addNode(goNode);
+            }
+            // Dispatch modelview
+            const modifiedModelviews = new Array();
+            const jsnModelview = new jsn.jsnModelView(myModelview);
+            modifiedModelviews.push(jsnModelview);
+            modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+            });
+            if (objview && object) {
+              const objvIdName = { id: objview.id, name: objview.name };
+              const objIdName = { id: object.id, name: object.name };
+              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
             }
           } else {
             // An object type has been dropped - create an object
@@ -987,6 +1011,16 @@ class GoJSApp extends React.Component<{}, AppState> {
               myModelview.addObjectView(objview);
               myMetis.addObjectView(objview);
             }
+            myModelview.setFocusObjectview(objview);
+            // Dispatch modelview
+            const modifiedModelviews = new Array();
+            const jsnModelview = new jsn.jsnModelView(myModelview);
+            modifiedModelviews.push(jsnModelview);
+            modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+            });
           }
           let fillcolor = "";
           let strokecolor = "";
@@ -1056,6 +1090,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           const isLabel = (part.typename === 'Label');
 
+          // Prepare dispatch
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (otype) {
@@ -1129,7 +1164,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         for (let it = sel.memberParts; it?.next();) {
           let n = it.value;
-          if (!(n instanceof go.Node)) continue;
+          if (n instanceof go.Link) continue;
           if (debug) console.log('1079 n', n.data);
         }
         break;

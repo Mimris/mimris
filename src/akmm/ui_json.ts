@@ -894,8 +894,8 @@ export class jsnObjectTypeView {
     group:           string;
     grabIsAllowed:   boolean;
     template:        string;
-    // figure:          string;
-    // geometry:        string;
+    figure:          string;
+    geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
@@ -917,8 +917,8 @@ export class jsnObjectTypeView {
         this.typeRef         = objtypeview.typeRef;
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
-        // this.figure          = objtypeview.getFigure();
-        // this.geometry        = objtypeview.getGeometry();
+        this.figure          = objtypeview.getFigure();
+        this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -1578,6 +1578,7 @@ export class jsnModelView {
     relshipviews:       jsnRelshipView[];
     objecttypeviews:    jsnObjectTypeView[];
     relshiptypeviews:   jsnRelshipTypeView[];
+    focusObjectviewRef: string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     constructor(mv: akm.cxModelView) {
@@ -1598,6 +1599,7 @@ export class jsnModelView {
         this.relshipviews       = [];
         this.objecttypeviews    = [];
         this.relshiptypeviews   = [];
+        this.focusObjectviewRef = mv?.focusObjectview?.id;
         this.markedAsDeleted    = mv?.markedAsDeleted;
         this.modified           = mv?.modified;
 
@@ -1684,8 +1686,8 @@ export class jsnObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
-    // figure:          string;
-    // geometry:        string;
+    figure:          string;
+    geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
@@ -1710,8 +1712,8 @@ export class jsnObjectView {
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
-        // this.figure          = objview?.figure;
-        // this.geometry        = objview?.geometry;
+        this.figure          = objview?.figure;
+        this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.fillcolor2      = objview?.fillcolor2;
         this.strokecolor     = objview?.strokecolor;
@@ -2003,8 +2005,8 @@ export class jsnImportMetis {
         if (utils.objExists(type))
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
-        // objtypeview.setFigure(item.figure);
-        // objtypeview.setGeometry(item.geometry);
+        objtypeview.setFigure(item.figure);
+        objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setFillcolor2(item.fillcolor2);
         objtypeview.setStrokecolor(item.strokecolor);

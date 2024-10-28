@@ -1200,16 +1200,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // node.objectview = objview;
               node.template = template;
               node.viewkind = 'Container';
-              // update this.state.nodeDataArray with this node
-
-              // this.setState(
-              //   {
-              //       nodeDataArray: [
-              //       ...this.state.nodeDataArray,
-              //       node
-              //     ] 
-              //   }
-              // );
               const jsnObjview = new jsn.jsnObjectView(objview);
               jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
@@ -1282,32 +1272,146 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Do Grid Layout",
-          function (e: any, obj: any) {
-            const mySelection = myDiagram.selection;
-            const selectedNodes = [];
-            mySelection.each(function(n) {
-              if (!n instanceof go.Node) return;
-              selectedNodes.push(n);
-            });
-            const params = "";
-            uid.setGridLayoutParameters(params);
-            uid.doGridLayout(mySelection, myModelview, myDiagram);
-          },
-          function (o: any) {
-            return false;
-            const mySelection = myDiagram.selection;
-            let cnt = 0;
-            if (mySelection.count > 1) {
+          makeButton("Align Vertical",
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              const mySelection = myDiagram.selection;
+              const selectedNodes = [];
               mySelection.each(function(n) {
-                if (!n instanceof go.Node) return;
-                cnt++;
+                if (n instanceof go.Link) 
+                  return;
+                else
+                  selectedNodes.push(n);
               });
-              if (cnt > 1)
-                return true;
-            } else
-              return false;
-            }),
+              uid.alignNodes(node, selectedNodes, 'vertical', myMetis);
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
+            },
+            function (o: any) {
+              // return false;
+              const mySelection = myDiagram.selection;
+              let cnt = 0;
+              if (mySelection.count > 1) {
+                mySelection.each(function(n) {
+                  if (n instanceof go.Link) return;
+                  cnt++;
+                });
+                if (cnt > 1)
+                  return true;
+              } else
+                return false;
+              }),
+          makeButton("Align Horizontal",
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              const mySelection = myDiagram.selection;
+              const selectedNodes = [];
+              mySelection.each(function(n) {
+                if (n instanceof go.Link) 
+                  return;
+                else
+                  selectedNodes.push(n);
+              });
+              uid.alignNodes(node, selectedNodes, 'horizontal', myMetis);
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
+            },
+            function (o: any) {
+              // return false;
+              const mySelection = myDiagram.selection;
+              let cnt = 0;
+              if (mySelection.count > 1) {
+                mySelection.each(function(n) {
+                  if (n instanceof go.Link) return;
+                  cnt++;
+                });
+                if (cnt > 1)
+                  return true;
+              } else
+                return false;
+              }),
+          makeButton("Spread Even Vertical",
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              const mySelection = myDiagram.selection;
+              const selectedNodes = [];
+              mySelection.each(function(n) {
+                if (n instanceof go.Link) 
+                  return;
+                else
+                  selectedNodes.push(n);
+              });
+              uid.spreadEven(node, selectedNodes, 'vertical', myMetis);
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
+            },
+            function (o: any) {
+              // return false;
+              const mySelection = myDiagram.selection;
+              let cnt = 0;
+              if (mySelection.count > 1) {
+                mySelection.each(function(n) {
+                  if (n instanceof go.Link) return;
+                  cnt++;
+                });
+                if (cnt > 1)
+                  return true;
+              } else
+                return false;
+              }),
+          makeButton("Spread Even Horizontal",
+            function (e: any, obj: any) {
+              let node = obj.part.data;
+              const mySelection = myDiagram.selection;
+              const selectedNodes = [];
+              mySelection.each(function(n) {
+                if (n instanceof go.Link) 
+                  return;
+                else
+                  selectedNodes.push(n);
+              });
+              uid.spreadEven(node, selectedNodes, 'horizontal', myMetis);
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
+            },
+            function (o: any) {
+              // return false;
+              const mySelection = myDiagram.selection;
+              let cnt = 0;
+              if (mySelection.count > 1) {
+                mySelection.each(function(n) {
+                  if (n instanceof go.Link) return;
+                  cnt++;
+                });
+                if (cnt > 1)
+                  return true;
+              } else
+                return false;
+              }),
           makeButton("----------"),
           makeButton("Set Layout Scheme",
             function (e: any, obj: any) {
@@ -2231,40 +2335,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Clear Path",
             function (e: any, obj: any) {
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                const currentLink = obj.part.data;
-                if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
-                selection = myDiagram.selection
-              }
-              const modifiedRelshipViews = new Array();
-              myDiagram.selection.each(function (sel) {
-                const link = sel.data;
-                if (link.category === constants.gojs.C_RELATIONSHIP) {
-                  const fromLink = link.from;
-                  const toLink = link.to;
-                  let relview: akm.cxRelationshipView;
-                  relview = myModelview.findRelationshipView(link.key);
-                  if (relview) {
-                    const fromObjview = relview.fromObjview;
-                    const toObjview = relview.toObjview;
-                    link.points = [];
-                    link.from = fromLink;
-                    link.to = toLink;
-                    myDiagram.model.setDataProperty(link, "points", []);
-                    relview.points = [];
-                    relview.fromObjview = fromObjview;
-                    relview.toObjview = toObjview;
-                    const jsnRelView = new jsn.jsnRelshipView(relview);
-                    modifiedRelshipViews.push(jsnRelView);
-                  }
-                }
-              }),
-              modifiedRelshipViews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              })
+              let mySelection = myDiagram.selection;
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else
+                selectedLinks.push(l);
+              });
+              uid.clearPath(selectedLinks, myMetis, myDiagram);
             },
             function (obj: any) {
               const link = obj.part.data;
@@ -3216,14 +3295,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //   return false;
               return true;
             }),
-            makeButton("----------",
-      function (e: any, obj: any) {
-      },
-      function (o: any) {
-        if (myMetis.modelType === 'Metamodelling')
-          return false;
-        return true;
-          }),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("New Metamodel",
             function (e: any, obj: any) {
               uid.newMetamodel(myMetis, myDiagram);

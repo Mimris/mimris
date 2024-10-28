@@ -1607,7 +1607,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );
     addNodeTemplateName('textAndIcon');
          
-    if (false) {
+    // if (false) {
     nodeTemplateMap.add("textAndGeometry", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -1792,7 +1792,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         )
     );
     addNodeTemplateName('textAndFigure');    
-    }
+    // }
 
     let nodeTemplate4 =  
     $(go.Node, "Table",
@@ -3675,7 +3675,7 @@ function finishDrop(e, grp) {
 //     function findPortNode(g, name, input) {
 //         for (let it = g.memberParts; it.next();) {
 //             let n = it.value;
-//             if (!(n instanceof go.Node)) continue;
+//             if (n instanceof go.Link) continue;
 //             if (n.data.name === name && n.data._in === input) return n;
 //         }
 //         return null;

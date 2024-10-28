@@ -151,6 +151,7 @@ export function handleSelectDropdownChange(selected, context) {
       instances.map(inst => {
         if (inst.category === constants.gojs.C_OBJECT) {
           let objview = inst.objectview;
+          if (!objview) objview = myMetis.findObjectView(inst.objviewRef);
           const icn = myDiagram.findNodeForKey(inst.key);
           const idata = icn.data;
           myDiagram.model.setDataProperty(idata, "icon", icon);

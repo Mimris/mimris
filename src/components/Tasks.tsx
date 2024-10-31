@@ -309,7 +309,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           X
         </button>
         <div className="fle-d">
-          <div className="ps-2 text-success font-weight-bold fs-5 " >Tasks Modelling Guides</div>
+          <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Guide</div>
           <div>
             Role:{" "}
             <span className="font-weight-bold text-success bg-white p-1">

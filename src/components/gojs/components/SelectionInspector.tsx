@@ -141,7 +141,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
     }
     if (inst.parentModelRef !== myModel.id) {
-      readOnly = true;
+      // readOnly = true;
     }
     // Set chosenType
     let includeInherited = false;

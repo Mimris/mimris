@@ -2,12 +2,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { set } from "immer/dist/internal";
+
+import { gojs } from "../akmm/constants";
+import * as uib from '../akmm/ui_buildmodels';
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import genRoleTasks from "./utils/SetRoleTaskFilter";
+import Tasks from '../components/Tasks'
 
-import * as uib from '../akmm/ui_buildmodels';
-import { gojs } from "../akmm/constants";
-import { set } from "immer/dist/internal";
 
 const debug = false;
 
@@ -254,12 +256,25 @@ const Palette = (props: any) => {
       />
     </details>
 
+  const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
+
   const gojsappPaletteDiv =
     <>
+    <div className="d-flex justify-content-left">
+      <div>
       {gojsappPaletteTopDiv}
       {gojsappPaletteCoreDiv}
       {gojsappPaletteIRTVDiv}
+      </div>
+        <div 
+          className="ps-1 m-0 bg-transparent" 
+          // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
+         >
+          {metamodelTasks}
+      </div>
+    </div>
     </>
+
 
   const palette = // this is the left pane with the palette and toggle for refreshing
     <>

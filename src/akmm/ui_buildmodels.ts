@@ -243,6 +243,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         includeObjview = true;
         includeNoType = true;
       } else {
+        if (objtype.name === 'Metamodel')
+          modelview.isMetamodel = true;
         if (obj && obj?.markedAsDeleted == undefined)
           obj.markedAsDeleted = false;
         if (obj?.markedAsDeleted)

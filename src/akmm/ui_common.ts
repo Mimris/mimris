@@ -878,56 +878,100 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             includeInherited = true;
         }
         let reltypes: akm.cxRelationshipType[] = [];
-        if (metamodel.id === metamodel2.id) {
-            reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            const refersToRelType: akm.cxRelationshipType = metamodel.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            if (fromType.name === constants.types.AKM_OSDUTYPE) {
-                if (toType.name === constants.types.AKM_PROPERTY) {
-                    const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
+        if (!myModelview.isMetamodel) { // IS NOT Metamodel
+            if (metamodel.id === metamodel2.id) {
+                // Handle OSDU relationships
+                reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                if (fromType.name === constants.types.AKM_OSDUTYPE) {
+                    if (toType.name === constants.types.AKM_PROPERTY) {
+                        const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
+                        reltypes.push(rtype);
+                    }
+                }            
+            } else {
+                const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                for (let i = 0; i < rtypes.length; i++) {
+                    const rtype = rtypes[i];
                     reltypes.push(rtype);
                 }
-            }            
+            }
+            if (!myModelview.isMetamodel) {
+                if (metamodel.id === metamodel2.id) {
+                    reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                    if (fromType.name === constants.types.AKM_OSDUTYPE) {
+                        if (toType.name === constants.types.AKM_PROPERTY) {
+                            const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
+                            reltypes.push(rtype);
+                        }
+                    }            
+                    if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
+                        // reltypes = [];
+                        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
+                        reltypes.push(rtype);
+                        rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
+                        reltypes.push(rtype);
+                    }
+                } else {
+                    const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                    for (let i = 0; i < rtypes.length; i++) {
+                        const rtype = rtypes[i];
+                        reltypes.push(rtype);
+                    }
+                }
+            }
         } else {
-            const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-            for (let i = 0; i < rtypes.length; i++) {
-                const rtype = rtypes[i];
+            // IS Metamodel
+            reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, false);
+            if (fromType.name === constants.types.AKM_OSDUTYPE) {
+                if (toType.name === constants.types.AKM_PROPERTY) {
+                    const rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
+                    reltypes.push(rtype);
+                }
+            }
+            else if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
+                reltypes = [];
+                let rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_IS);
+                reltypes.push(rtype);
+                rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
                 reltypes.push(rtype);
             }
         }
-        const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-        reltypes.push(rtype);
         if (reltypes) {
-            const choices1: string[] = [];
-            if (defText.length > 0) choices1.push(defText);
-            let choices2: string[] = [];
-            for (let i = 0; i < reltypes.length; i++) {
-                const rtype = reltypes[i];
-                if (rtype.name === constants.types.AKM_GENERIC_REL)
-                    continue
-                choices2.push(rtype.name);
+            const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+            reltypes.push(rtype);
+            if (reltypes) {
+                const choices1: string[] = [];
+                if (defText.length > 0) choices1.push(defText);
+                let choices2: string[] = [];
+                for (let i = 0; i < reltypes.length; i++) {
+                    const rtype = reltypes[i];
+                    if (rtype.name === constants.types.AKM_GENERIC_REL)
+                        continue
+                    choices2.push(rtype.name);
+                }
+                choices2 = [...new Set(choices2)];
+                choices2.sort();
+                let choices = choices1.concat(choices2);
+                choices = utils.removeArrayDuplicates(choices);
+                const modalContext = {
+                    what: "selectDropdown",
+                    title: "Select Relationship Type",
+                    case: "Create Relationship",
+                    myDiagram: myDiagram,
+                    myGoModel: myGoModel,
+                    myMetamodel: metamodel,
+                    context: context,
+                    data: context.data,
+                    typename: defText,
+                    fromType: fromType,
+                    toType: toType,
+                    gjsFromNode: gjsFromNode,
+                    portFrom: fromPort,
+                    gjsToNode: gjsToNode,
+                    portTo: toPort,
+                }
+                context.handleOpenModal(choices, modalContext);
             }
-            choices2 = [...new Set(choices2)];
-            choices2.sort();
-            let choices = choices1.concat(choices2);
-            choices = utils.removeArrayDuplicates(choices);
-            const modalContext = {
-                what: "selectDropdown",
-                title: "Select Relationship Type",
-                case: "Create Relationship",
-                myDiagram: myDiagram,
-                myGoModel: myGoModel,
-                myMetamodel: metamodel,
-                context: context,
-                data: context.data,
-                typename: defText,
-                fromType: fromType,
-                toType: toType,
-                gjsFromNode: gjsFromNode,
-                portFrom: fromPort,
-                gjsToNode: gjsToNode,
-                portTo: toPort,
-            }
-            context.handleOpenModal(choices, modalContext);
         }
     }
 }

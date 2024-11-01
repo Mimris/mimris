@@ -809,8 +809,8 @@ function getMetamodelObject(nodes: any, containsType: akm.cxRelationshipType, my
         let obj = node.data.object;
         if (obj?.type.name === constants.types.AKM_METAMODEL) {
             obj = myMetis.findObject(obj.id);
-            let rels = obj.getOutputRelshipsByType(containsType);
-            if (rels.length > 0) {
+            let rels = obj?.getOutputRelshipsByType(containsType);
+            if (rels?.length > 0) {
                 retval = obj;
                 break;
             }

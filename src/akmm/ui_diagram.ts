@@ -1376,24 +1376,34 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     const includeInheritedReltypes = myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
-    for (let i=0; i<objtypes.length; i++) {
-        let toType = objtypes[i];
-        toType = myMetamodel.findObjectType(toType.id);
-        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
-        if (i == 0) {
-            // First time
-            reltypes = rtypes;
-        } else {
-            // The other times
-            const types = utils.getIntersection(reltypes, rtypes);
-            reltypes = types;
+    if (!myModelview.isMetamodel) {
+        for (let i=0; i<objtypes.length; i++) {
+            let toType = objtypes[i];
+            toType = myMetamodel.findObjectType(toType.id);
+            const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+            if (i == 0) {
+                // First time
+                reltypes = rtypes;
+            } else {
+                // The other times
+                const types = utils.getIntersection(reltypes, rtypes);
+                reltypes = types;
+            }
+            for (let i=0; i<reltypes?.length; i++) {
+                const rtname = reltypes[i].name;
+                if (rtname === constants.types.AKM_GENERIC_REL)
+                    continue;
+                reltypeNames.push(rtname);
+            }
         }
-        for (let i=0; i<reltypes?.length; i++) {
-            const rtname = reltypes[i].name;
-            if (rtname === constants.types.AKM_GENERIC_REL)
-                continue;
-            reltypeNames.push(rtname);
-        }
+    } else if (fromType.name !== constants.types.AKM_METAMODEL) {
+        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
+        reltypeNames.push(rtype.name);
+        rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
+        reltypeNames.push(rtype.name);
+    } else {
+        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+        reltypeNames.push(rtype.name);
     }
     if (reltypeNames.length > 0) {
         uniqueSet = utils.removeArrayDuplicates(reltypeNames);

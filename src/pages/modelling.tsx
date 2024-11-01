@@ -229,7 +229,7 @@ const Page1 = (props: any) => {
             <div className="context-bar  pt-0"
               style={{ backgroundColor: "#b0cfcf" }}>
               {focusExpanded &&
-                <div className="d-flex justify-content-between align-items-center" style={{ backgroundColor: "#fffffd" }}>
+                <div className="d-flex justify-content-start align-items-center" style={{ backgroundColor: "#fffffd" }}>
                   <div className="issuesarea" >
                     <Issues {...props}
                       showModal={showModal} setShowModal={setShowModal}
@@ -241,9 +241,9 @@ const Page1 = (props: any) => {
                   <div className="contextarea">
                     {contextDiv}
                   </div>
-                  <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                  {/* <div className="tasksarea mr-1 bg-transparent" style={{ backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                     <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-                  </div>
+                  </div> */}
                 </div>
               }
             </div>

@@ -517,7 +517,7 @@ const Modelling = (props: any) => {
               data-bs-toggle="tooltip"
               data-bs-placement="top"
               title="Load downloaded Schema from OSDU (Jsonfiles)"
-            // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
+              // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
             >
               {/* <i className="fa fa-house-tsunami fa-lg"></i> */}
               {loadjsonfile}

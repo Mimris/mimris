@@ -260,19 +260,11 @@ const Palette = (props: any) => {
 
   const gojsappPaletteDiv =
     <>
-    <div className="d-flex justify-content-left">
       <div>
       {gojsappPaletteTopDiv}
       {gojsappPaletteCoreDiv}
       {gojsappPaletteIRTVDiv}
       </div>
-        <div 
-          className="ps-1 m-0 bg-transparent" 
-          // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
-         >
-          {metamodelTasks}
-      </div>
-    </div>
     </>
 
 
@@ -285,13 +277,21 @@ const Palette = (props: any) => {
           : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
         }
       </button>
-      <div>
-        {visiblePalette
-          ? (refreshPalette)
-            ? <>{gojsappPaletteDiv}</>
-            : <> {gojsappPaletteDiv}  </>
-          : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
-        }
+      <div className="d-flex justify-content-left">
+        <div>
+          {visiblePalette
+            ? (refreshPalette)
+              ? <>{gojsappPaletteDiv}</>
+              : <> {gojsappPaletteDiv}  </>
+            : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
+          }
+        </div>
+        <div
+          className="ps-1 m-0 bg-transparent"
+        // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
+        >
+          {metamodelTasks}
+        </div>
       </div>
     </>
 

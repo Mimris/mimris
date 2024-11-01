@@ -36,7 +36,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   if (debug) console.log('24 Tasks state', state);
 
   const [selectedTask, setSelectedTask] = useState(null);
-  const [minimizedTask, setMinimizedTask] = useState(false);
+  const [minimizedTask, setMinimizedTask] = useState(true);
   const [maximizedTask, setMaximizedTask] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
@@ -189,8 +189,6 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     }
   };
 
-
-
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
   let curParentObj: any = null;
@@ -293,8 +291,6 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     })
   }
 
-
-
   const genTasksHeaderDiv =
     <>
       <div className="tasklist p-1 mt-2 me-2"
@@ -348,7 +344,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           </div>
           <hr className="m-0 p-2" />
         </div>
-        <div className="tasks" style={{ maxHeight: "80vh", overflow: "scroll" }}>
+        <div className="tasks" style={{ maxHeight: "70vh", overflow: "scroll" }}>
           <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
             {genTasksDiv()}
           </div>
@@ -387,23 +383,19 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     );
   } else {
     return (
-      <>
+      <div className="tasklist">
         <button
           className="btn btn-sm border text-success px-1 py-0 float-end"
           style={{ backgroundColor: "#ffffdd", whiteSpace: "nowrap" }}
           data-toggle="tooltip" data-placement="top" data-bs-html="true"
           title="Close Task pane!"
           onClick={() => setMinimizedTask(true)}
-        // style={{ backgroundColor: "lightyellow"}}
         >
           <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-sm fa-angle-left pull-left-container"></i></span>
         </button>
-        <div className="tasklist mt-2"
-        // ref={containerRef}
-        // style={{ position: "fixed", top: "72px", right: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
-        >
+        <div 
+          className="tasklist">
           {genTasksHeaderDiv}
-          {/* {modalDiv} */}
         </div>
         <style jsx>{`
             .tasklist {
@@ -513,11 +505,10 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           }
         `}
         </style>
-      </>
+      </div>
     );
   }
 }
-
 
 function type(metamodels: any[], model: { metamodelRef: any; }, subModelobjects: any[], curov: { objectRef: any; }) {
   const retval = metamodels?.find((mm: { id: any; }) => mm.id === model?.metamodelRef)

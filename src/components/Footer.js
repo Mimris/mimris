@@ -1,17 +1,26 @@
 // import React from 'react'
 // import PropTypes from 'prop-types'
-import { FaCrosshairs, FaGlobe, FaDharmachakra, FaBeer, FaClipboardList, FaEmpire, FaOilCan, FaListOl } from 'react-icons/fa';
+import { FaCrosshairs, FaGlobe, FaDharmachakra, FaBeer, FaClipboardList, FaEmpire, FaOilCan, FaListOl, FaRegCopyright, FaSpaceShuttle, FaLine, FaAutoprefixer, FaMehRollingEyes, FaMagento, FaMagic, FaAccessibleIcon, FaBan, FaXing, FaBezierCurve, FaCommentDots, FaRegCommentDots, FaDirections, FaDashcube, FaDAndDBeyond, FaCircleNotch, FaCloudMeatball, FaCloud, FaCloudMoon, FaCloudversify, FaAsterisk, FaRegSave, FaSourcetree, FaCompactDisc, FaStamp, FaCloudDownloadAlt, FaMixcloud, FaAssistiveListeningSystems, FaApper, FaLaptop } from 'react-icons/fa';
 
 const Footer = props => {
   return (
-    <div className="footer d-flex ">
-      <div className="ms-4"> Copyright: Kavca AS</div>
-      <div className="ms-auto me-4" >
-        {(props.phFocus?.focusProj?.filename) 
-          ? <div>Current project file:  {props.phFocus?.focusProj.filename} </div>
-          : <div>Current source:  {props.phSource}</div>
-        }
+    <div className="footer d-flex align-items-center">
+      <FaDharmachakra className="ms-2" />
+      {/* <FaLaptop className="ms-2" /> */}
+      <div>AKM Modeller - 2024</div>
+      <FaRegCopyright className='ms-2'/>
+      <div className="ms-1">Kavca AS</div>
+      <div className="d-flex justify-content-between align-items-center ms-auto me-4" >
+        <FaCloudDownloadAlt className="me-1" />
+        <div>Template : {props.phTemplate}</div>
+        <FaRegSave className="ms-5 me-1" />
+        <div>
+          {(props.phSource) 
+            ? <div>AKM file: {props.phSource}</div>
+            : <div>AKM file: {props.phFocus?.focusProj.filename} </div>
+          }
         </div>
+      </div>
     </div>
   )
 }

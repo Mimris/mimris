@@ -60,7 +60,7 @@ const Modeller = (props: any) => {
     const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
     const [exportSvg, setExportSvg] = useState(null);
     const [diagramReady, setDiagramReady] = useState(false);
-    const [selectedOption, setSelectedOption] = useState('Sorted alfabetical');
+    const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
@@ -128,13 +128,13 @@ const Modeller = (props: any) => {
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
-        setSelectedOption('Sorted alfabetical')
+        setSelectedOption('Sorted alphabetical')
         if (mmodel?.name === 'AKM-OSDU_MM') {
             setSelectedOption('OSDUType')
         } else if (model?.objects?.length > 500) {
             setSelectedOption('Sorted by type')
         } else {
-            setSelectedOption('Sorted alfabetical')
+            setSelectedOption('Sorted alphabetical')
         }
         setMounted(true)
 
@@ -151,11 +151,11 @@ const Modeller = (props: any) => {
             if (selectedOption === 'In this modelview') {
                 setSelectedOption('Sorted by type')
             } else {
-                setSelectedOption('Sorted alfabetical')
+                setSelectedOption('Sorted alphabetical')
             }
         } else {
             if (selectedOption === 'Sorted by type') {
-                setSelectedOption('Sorted alfabetical')
+                setSelectedOption('Sorted alphabetical')
             }
         }
         setVisibleObjects(!visibleObjects)
@@ -367,7 +367,7 @@ const Modeller = (props: any) => {
             );
             if (debug) console.log('365 Modeller ofilteredOnTypes', mvfilteredArr);
             setGojsobjects({ nodeDataArray: mvfilteredArr, linkDataArray: ldArr });
-        } else if (selectedOption === 'Sorted alfabetical') {
+        } else if (selectedOption === 'Sorted alphabetical') {
             const sortedArr = initialArr?.sort((a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1));
             setGojsobjects({ nodeDataArray: sortedArr, linkDataArray: ldArr });
             if (debug) console.log('370 Modeller ofilteredOnTypes', sortedArr);
@@ -466,7 +466,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <option value="In this modelview" key="02">
                     Objects in this Modelview *
                 </option>
-                <option value="Sorted alfabetical" key="03">
+                <option value="Sorted alphabetical" key="03">
                     All Sorted Alphabetical *
                 </option>
                 <option value="Sorted by type" key="04">
@@ -501,7 +501,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <div className="workpad p-1 m-1 border" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none", width: isExpanded ? '20hw' : 'auto' }}>
                 <div className="modellingtask bg-light" >
                     {SelectOTypes}
-                    <div className="mmname mx-0 px-2 mb-1 bg-white text-secondary" style={{ fontSize: "16px", mimWidth: "120px" }}>{selectedOption}
+                    <div className="mmname mx-0 px-2 mb-1 bg-white text-secondary" style={{ fontSize: "14px", mimWidth: "120px" }}>
+                        {selectedOption}
                     </div>
                 </div>
                 <GoJSPaletteApp // this is the Objects list
@@ -643,9 +644,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const objectsDiv =
         <>
-            <Col className="p-0 m-0 my-0" xs="auto">
-                <div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>
-                {objectsTabDiv}
+            <Col className="p-0 m-0 my-0 " xs="auto">
+                <div className="btn-horizontal bg-light" style={{ fontSize: "14px", minWidth: '14rem'}}>
+                    {objectsTabDiv}
+                </div>
             </Col>
             <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
                 <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
@@ -681,14 +683,15 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     const modellerDiv =
         (props.modelType === 'model')
             ? // modelling
-            <div className="modeller-workarea w-100 d-flex flex-col" style={{ width: '100%' }}>
+            <div className="modeller-workarea w-100 d-flex flex-col">
                 <div className={`modeller--objects me-1 
                     ${visibleObjects
                         ? isExpanded
-                            ? 'col-3'
+                            ? 'col-2'
                             : 'col-1'
                         : 'col-0'} `}
-                        style={{ minWidth: visibleObjects ? '178px' : '16px', backgroundColor: "#7b8" }}>
+                        style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
+                >
                     <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
                         style={{ backgroundColor: "#7b8" }}
                     >
@@ -719,9 +722,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         }
                     </div>
                 </div>
-                <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-9' : 'col-10') : 'col-12'}`}
+                <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-8' : 'col-10') : 'col-12'}`}
                     style={{
-                        minWidth: visibleObjects ? '68%' : '88%',
+                        minWidth: visibleObjects ? '48%' : '28%',
                         overflow: 'hidden',
                         whiteSpace: 'nowrap',
                         flexGrow: 1

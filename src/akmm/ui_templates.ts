@@ -346,6 +346,8 @@ export function groupTop1(contextMenu: any, notation: string) {
                     font: "Bold 14pt Sans-Serif",
                     editable: true, 
                     isMultiline: false,
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
                     name: "name",
                 },
                 new go.Binding("fill", "fillcolor"),
@@ -434,12 +436,11 @@ export function groupTop2(contextMenu: any, notation: string) {
                 $(go.TextBlock, // group title located at the left
                     { 
                         column: 1, 
-                        stretch: go.GraphObject.Horizontal,
                         alignment: go.Spot.Left,
                         margin: new go.Margin(0, 0, 0, 5), 
                         font: "Bold 14pt Sans-Serif",
+                        isMultiline: true,
                         editable: true, 
-                        isMultiline: false,
                     },
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("stroke", "textcolor").makeTwoWay()

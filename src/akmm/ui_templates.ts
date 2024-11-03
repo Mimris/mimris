@@ -1482,8 +1482,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 {
                     cursor: "alias", 
                     name: 'SHAPE', 
-                    fill: 'red', 
-                    stroke: "#fff",  
+                    fill: 'transparent', 
+                    stroke: "#aaa",  
                     strokeWidth: 2, 
                     margin: new go.Margin(1, 1, 1, 1),
                     shadowVisible: true,
@@ -1544,14 +1544,14 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             $(go.Shape, 
                                 {  // this is the square around the image with fillcolor ---------
                                     fill: "white", 
-                                    stroke: "transparent", 
+                                    stroke: "black", 
                                     opacity: 0.9,
                                     desiredSize: new go.Size(52, 52), 
                                     margin: new go.Margin(0, 2, 0, 16),
                                     // shadowVisible: true,
                                 },
                                 new go.Binding("fill", "fillcolor2"),
-                                // new go.Binding("stroke", "strokecolor2"),
+                                new go.Binding("stroke", "strokecolor2"),
                                 new go.Binding("template")
                             ),                                                                
                             $(go.Shape, 
@@ -1583,9 +1583,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             ),    
                             $(go.TextBlock, textStyle(), // the unicode symbol \uf015 is the plus sign
                                 {
-                                    // fill: "white",
+                                    background: "transparent",
                                     textAlign: "center",    
-                                    stroke: "#0e0",
+                                    // stroke: {(strokcolor2 !== '') ? strokcolor2 : "black"},
                                     // margin: new go.Margin(20, 12, 12, 12), 
                                     desiredSize: new go.Size(48, 36),
                                     font: "38px 'FontAwesome'",
@@ -1593,8 +1593,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     isMultiline: false,
                                     // alignment: go.Spot.Center, // Add this line to align the text center
                                 },
-                                // new go.Binding("fill", "fillcolor2"),
-                                new go.Binding("stroke", "strokecolor2"),
+                                new go.Binding("fill", "fillcolor2"),
+                                new go.Binding("stroke", "strokecolor2", defaultStrokeColor), // Apply converter here
                                 new go.Binding("text", "icon", findUnicodeImage)
                             )
                         ),
@@ -3559,19 +3559,19 @@ export function addPortTemplates() {
     // define the Node template for each attribute in the nodeDataArray
 }
 
+function defaultStrokeColor(strokecolor2) {
+  console.log("3567 defaultStrokeColor: ", strokecolor2);
+  return  (strokecolor2 === "") ? strokecolor2 : "#466"; // Dark bluegreen
+}
+
 // Function to identify images related to an image id
 export function findImage(image: string) {
     if (debug) console.log("3238 findImage: ", image);
     if (image == "")
          return "";
-    // if (image.substring(0,4) === 'http') { // its an URL
     if (image?.includes('//')) { // this is an http:// or https:// image
         if (debug) console.log('3249 Diagram', image);
         return image;
-    // } else if (image?.includes('\\u')) { // its an awesome font image
-    //     if (debug) console.log('3247', image);
-    //     // return image;
-    //     return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
     } else if (image?.includes('/')) { // its a local image with path i.e. /images/...
         if (debug) console.log('3250 Diagram', image);   
         return image;
@@ -3579,19 +3579,6 @@ export function findImage(image: string) {
         const img = image //{image:'data:image/svg+xml;charset=UTF-8,image'}
         if (debug) console.log('3244', img);
         return img;
-        // } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-        //     const firstcharacter = image.substring(0, 1)
-        //     const secondcharacter = image.substring(1, 2)
-        //     if (debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
-        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-        //   const letter = image.substring(0, image.length - 4)
-        //   // const lettersvg = letter
-        //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
-        //   return svgs[letter].svg //svgs[`'${letter}'`]
-        // } else if (image.includes('fakepath')) { // its a local image
-        //   console.log('3025', image);
-        //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
-        //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
     } else if (image?.includes('<svg')) { // its an svg code image
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
         if (debug) console.log('3269', img);

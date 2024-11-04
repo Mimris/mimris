@@ -447,7 +447,6 @@ export function groupTop2(contextMenu: any, notation: string) {
                 ),
                 makeNotation(notation),
                 ), // End Panel
-
             $(go.Shape,  // using a Shape instead of a Placeholder 
                 //This is open container - showing the content
                 {

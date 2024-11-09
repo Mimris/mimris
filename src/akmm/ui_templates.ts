@@ -1515,7 +1515,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, "Table", // Panel for text and icon ------------------------
                 { 
                     defaultAlignment: go.Spot.Left, 
-                    margin: 2, 
+                    margin: 1, 
                     cursor: "move" 
                 },
                 $(go.RowColumnDefinition, 
@@ -1527,7 +1527,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Panel, "Horizontal",
                     // { margin: new go.Margin(10, 10, 10, 10) },
                     {
-                        defaultAlignment: go.Spot.Center
+                        defaultAlignment: go.Spot.Center,
                     },
                     // comment out icon start
                     $(go.Panel, "Vertical", // Panel for Icon  ------------------------
@@ -1600,6 +1600,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     ),
                     // comment out icon stop
                     // define the panel where the text will appear
+
                     addNodeText(contextMenu),
                 ),
             ),
@@ -3596,7 +3597,6 @@ export function findUnicodeImage(image: string) {
         return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
     }
     return ""; 
-
 }
 
 // Function to specify default text style

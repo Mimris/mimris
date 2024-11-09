@@ -216,7 +216,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               $(go.TextBlock, textStyle(),
                 {
                   name: "name",
-                  font: "14pt Segoe UI,sans-serif",
+                  font: "11pt Segoe UI,sans-serif",
                   editable: false,
                   isMultiline: true,
                   minSize: new go.Size(14, 16),
@@ -252,21 +252,52 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
 
           $(go.Panel, "Vertical",
             // define the panel where the text will appear
-            $(go.Panel, "Table",
+            $(go.Panel, "Horizontal",
               {
                 defaultRowSeparatorStroke: "black",
                 maxSize: new go.Size(100, 999),
-                minSize: new go.Size(90, 40),
+                minSize: new go.Size(150, 20),
                 margin: new go.Margin(6, 10, 0, 3),
                 defaultAlignment: go.Spot.TopLeft
               },
               $(go.RowColumnDefinition, { column: 2, width: 4 }
               ),
               // content
+              // Spot Panel for Icon Area
+              $(go.Panel, "Spot",
+                {
+                  alignment: go.Spot.Center,
+                  cursor: "grabbing",
+                },
+                // Picture Element
+                $(go.Picture,
+                  {
+                    name: "Picture",
+                    desiredSize: new go.Size(30, 30),
+                    margin: new go.Margin(0, 0, 10, 0), // Reduced left margin
+                  },
+                  new go.Binding("source", "icon", findImage)
+                ),
+                // TextBlock for Unicode Icon
+                $(go.TextBlock, textStyle(),
+                  {
+                    background: "transparent",
+                    desiredSize: new go.Size(30, 30),
+                    textAlign: "center",
+                    stroke: "#666",
+                    margin: new go.Margin(0, 0, 0, 0), // Adjusted margins
+                    font: "18px 'FontAwesome'",
+                    editable: false,
+                    isMultiline: false,
+                    alignment: go.Spot.Center, // Center alignment
+                  },
+                  new go.Binding("text", "icon", findGroupUnicodeImage)
+                ),
+              ),
               $(go.TextBlock, textStyle(),  // the name
                 {
                   row: 0, column: 0, columnSpan: 6,
-                  font: "12pt Segoe UI,sans-serif",
+                  font: "11pt Segoe UI,sans-serif",
                   editable: true, isMultiline: false,
                   minSize: new go.Size(80, 40),
                   name: "name"
@@ -314,9 +345,18 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     function findUnicodeImage(image: string) {
       if (image.includes('\\u')) { // its an awesome font image
         return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      }
+      } 
       return "";
-
+    }
+    function findGroupUnicodeImage(image: string) {
+      if (image.includes('\\u')) { // its an awesome font image
+        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+      } else if (image === '') {
+       const groupImage = '\\uf07c'
+        return String.fromCharCode(parseInt(groupImage.slice(2), 16)).toLowerCase();
+      } else {
+        return image;
+      }
     }
 
     // Function to specify default text style

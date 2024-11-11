@@ -666,7 +666,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
                 // Check if the group has visible relationships to members
                 // If so, hide them
-                const outputRelviews = parentObjview.outputrelviews;
+                const outputRelviews = parentObjview?.outputrelviews;
                 for (let i = 0; i < outputRelviews?.length; i++) {
                   const relview = outputRelviews[i];
                   if (relview && !relview.markedAsDeleted) {

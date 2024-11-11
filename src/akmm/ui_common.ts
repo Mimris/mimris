@@ -1604,9 +1604,11 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                             link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
                             link.to = link.toNode?.key;
                         }
-                        myDiagram.model.addLinkData(link);
+                        if (link.from && link.to) 
+                            myDiagram.model.addLinkData(link);
+
                         // Prepare dispatch
-                        const jsnRelview = new jsn.jsnRelshipView(relview);
+                        const jsnRelview = new jsn.jsnRelshipView(rv);
                         modifiedRelshipViews.push(jsnRelview);
                         continue;  // Link exists - do nothing
                     }

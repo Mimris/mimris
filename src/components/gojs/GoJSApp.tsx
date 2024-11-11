@@ -747,7 +747,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       link.from = link.fromNode?.key;
                       link.toNode = uid.getNodeByViewId(relview.toObjview.id, myDiagram);
                       link.to = link.toNode?.key;
-                      link.points = [];
+                      link.points = []; 
                       myGoModel.addLink(link);
                       myDiagram.model.addLinkData(link);   
                       myDiagram.commitTransaction('AddLink');

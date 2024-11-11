@@ -696,7 +696,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 myToNode.group = "";
                 myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
-                /*
                 let scale = 1; // To be done later
                 gjsPart.scale = scale;
                 gjsPart.scale1 = scale;
@@ -704,7 +703,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myObjectview.scale1 = gjsPart.scale1;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale1);
                 myObjectview.group = "";
-                */
                 // Check if the node has a relationship FROM a group
                 const inputRelships = movedObj?.inputrels;
                 for (let i = 0; i < inputRelships?.length; i++) {
@@ -1028,7 +1026,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let objId: string;
           let object: akm.cxObject;
           if (!type || !typeview) {
-            // An object has been dropped (but there is no objectview)
+            // An object has been dropped (dragged from object palette)
             type = myMetis.findObjectType(n.data.objtypeRef);
             typeview = type.typeview;
             objId = n.data.objRef;

@@ -355,7 +355,29 @@ export function groupTop1(contextMenu: any, notation: string) {
                 },
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+            ),
+            $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
+            {
+                row: 0, 
+                column: 1, 
+                isMultiline: false,  // don't allow newlines in text
+                maxLines: 1,
+                editable: true,  // allow in-place editing by user
+                font: "Bold 28pt Sans-Serif",
+                textAlign: "left",
+                alignment: go.Spot.Left,
+                margin: new go.Margin(0, 0, 0, 10),
+                wrap: go.TextBlock.None,
+                overflow: go.TextBlock.OverflowEllipsis,
+                stretch: go.GraphObject.Horizontal,
+                name: "name"
+            },        
+            new go.Binding("fill", "fillcolor"),
+            new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("stroke", "textcolor").makeTwoWay(),
+            new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ),
             makeNotation(notation),
             ), // End Horizontal Panel
@@ -436,7 +458,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                         scale: 1.2,
                     },
                 ),  
-                $(go.TextBlock, textStyle(),  // the name -----------------------
+                $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
                 {
                     row: 0, 
                     column: 1, 
@@ -454,10 +476,33 @@ export function groupTop2(contextMenu: any, notation: string) {
                 },        
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
-            ),
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                ),
+                $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
+                {
+                    row: 0, 
+                    column: 1, 
+                    isMultiline: false,  // don't allow newlines in text
+                    maxLines: 1,
+                    editable: true,  // allow in-place editing by user
+                    font: "Bold 28pt Sans-Serif",
+                    textAlign: "left",
+                    alignment: go.Spot.Left,
+                    margin: new go.Margin(0, 0, 0, 10),
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    stretch: go.GraphObject.Horizontal,
+                    name: "name"
+                },        
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("text", "name").makeTwoWay(),
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                ),
+
                 makeNotation(notation),
-                ), // End Panel
+            ), // End Panel
             $(go.Shape,  // using a Shape instead of a Placeholder 
                 //This is open container - showing the content
                 {

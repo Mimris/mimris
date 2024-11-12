@@ -455,7 +455,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                         column: 0, 
                         margin: new go.Margin(-2, 2, 2, 0), 
                         alignment: go.Spot.Left,
-                        scale: 1.2,
+                        scale: 1.5,
                     },
                 ),  
                 $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
@@ -471,7 +471,6 @@ export function groupTop2(contextMenu: any, notation: string) {
                     margin: new go.Margin(0, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    stretch: go.GraphObject.Horizontal,
                     name: "name"
                 },        
                 new go.Binding("fill", "fillcolor"),
@@ -492,13 +491,13 @@ export function groupTop2(contextMenu: any, notation: string) {
                     margin: new go.Margin(0, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    stretch: go.GraphObject.Horizontal,
                     name: "name"
                 },        
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
                 new go.Binding("stroke", "textcolor").makeTwoWay(),
-                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                new go.Binding('visible', 'isSubGraphExpanded', 
+                    function (e) { return !e; }).ofObject(),
                 ),
 
                 makeNotation(notation),

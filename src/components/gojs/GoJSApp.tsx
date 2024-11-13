@@ -694,7 +694,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (!fromObj.objectviews) 
                     continue;
                   const fromObjview = fromObj.objectviews[0] as akm.cxObjectView;
-                  if (fromObjview.id === parentObjview.id) 
+                  if (fromObjview?.id === parentObjview?.id) 
                     continue;
                   if (fromObjview?.isGroup) {
                     // YES
@@ -724,8 +724,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                         gjsToNode.group = ""; 
                         gjsToNode.data.group = ""; 
                         myDiagram.model.setDataProperty(gjsToNode, "group", gjsToNode.group);
-                      //   }
-                      // }
                         const lnk = myDiagram.findLinkForKey(relview?.id);
                         if (!lnk && relview) {                    
                             myDiagram.startTransaction('AddLink');

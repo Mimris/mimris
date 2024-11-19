@@ -653,6 +653,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode, );
               if (goParentGroup) {
+                const parentObjview = goParentGroup.objectview;
                 const part = myToNode.gjsData;
                 goToNode.group = goParentGroup.key;
                 myObjectview.group = goParentGroup.objviewRef;
@@ -662,21 +663,156 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myObjectview.scale = part.scale1;
                 myObjectview.scale1 = part.scale1;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
+
+                // Check if the group has visible relationships to members
+                // If so, hide them
+                const outputRelviews = parentObjview?.outputrelviews;
+                for (let i = 0; i < outputRelviews?.length; i++) {
+                  const relview = outputRelviews[i];
+                  if (relview && !relview.markedAsDeleted) {
+                    const toObjview = relview.toObjview;
+                    if (!toObjview.group)
+                      continue;
+                    if (toObjview?.id === myObjectview.id) {
+                      const toObj = toObjview.object;
+                      if (goToNode.object.id === toObj.id) {
+                        relview.markedAsDeleted = true;
+                      }                                  
+                    }
+                  }
+                  const lnk = myDiagram.findLinkForKey(relview.id);
+                  if (lnk) 
+                    myDiagram.remove(lnk);
+                  const jsnRelview = new jsn.jsnRelshipView(relview);
+                  modifiedRelshipViews.push(jsnRelview);
+                }
+                // Check if the node has a relationship FROM a group
+                const inputRelships = myObject?.inputrels;
+                for (let i = 0; i < inputRelships?.length; i++) {
+                  const relship = inputRelships[i];
+                  const fromObj = relship.fromObject;
+                  if (!fromObj.objectviews) 
+                    continue;
+                  const fromObjview = fromObj.objectviews[0] as akm.cxObjectView;
+                  if (fromObjview?.id === parentObjview?.id) 
+                    continue;
+                  if (fromObjview?.isGroup) {
+                    // YES
+                    const fromGroup = fromObjview.object;
+                    const fromGroupView = fromObjview;
+                    const relviews = myModelview.findRelationshipViewsByRel(relship, true);
+                    let relview: akm.cxRelationshipView;
+                    if (relviews?.length > 0) {
+                      relview = relviews[0];
+                      relview.markedAsDeleted = false;
+                      const fromObjview = relview.fromObjview;
+                      const toObjview = myObjectview;
+                      relview.toObjview = toObjview;
+                      const points = [];
+                      relview.points = points;
+                      toObjview.group = "";
+                      const jsnObjview = new jsn.jsnObjectView(toObjview);
+                      modifiedObjectViews.push(jsnObjview);                          
+                      const jsnRelview = new jsn.jsnRelshipView(relview);
+                      modifiedRelshipViews.push(jsnRelview);  
+                      const fromNode = myGoModel.findNodeByViewId(fromObjview.id);
+                      const toNode = myGoModel.findNodeByViewId(toObjview.id);   
+                      if (fromNode && toNode) {
+                        toNode.group = ""; 
+                        const gjsFromNode = myDiagram.findNodeForKey(fromNode.key);
+                        const gjsToNode = myDiagram.findNodeForKey(toNode.key);
+                        gjsToNode.group = ""; 
+                        gjsToNode.data.group = ""; 
+                        myDiagram.model.setDataProperty(gjsToNode, "group", gjsToNode.group);
+                        const lnk = myDiagram.findLinkForKey(relview?.id);
+                        if (!lnk && relview) {                    
+                            myDiagram.startTransaction('AddLink');
+                            const link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
+                            link.loadLinkContent(myGoModel);
+                            link.fromNode = uid.getNodeByViewId(relview.fromObjview.id, myDiagram);
+                            link.from = link.fromNode?.key
+                            link.toNode = uid.getNodeByViewId(relview.toObjview.id, myDiagram);
+                            link.to = link.toNode?.key;
+                            myGoModel.addLink(link);
+                            myDiagram.model.addLinkData(link);   
+                            myDiagram.commitTransaction('AddLink');
+                        }
+                      }
+                    }
+                  }
+                }
               } else {
-                const part = myToNode.gjsData;
-                // let fromScale = myFromNode.scale;
-                // let toScale = myGoNode.getMyScale(myGoModel); // 1;
-                // let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
+                const gjsPart = myToNode.gjsData;
+                myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
+                const movedObj = goToNode.object;
+                const movedObjview = goToNode.objectview;
+                if (movedObjview?.isGroup) {
+                  // ...
+                }
                 myToNode.group = "";
-                myDiagram.model.setDataProperty(myToNode.gjsData, "group", myToNode.group);
-                goToNode.scale = "1";
-                goToNode.scale1 = "1";
-                part.scale = 1;
-                part.scale1 = 1;
-                myObjectview.scale = part.scale1;
-                myObjectview.scale1 = part.scale1;
-                myDiagram.model.setDataProperty(myToNode.n, "scale", part.scale1);
+                myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
+                let scale = 1; // To be done later
+                gjsPart.scale = scale;
+                gjsPart.scale1 = scale;
+                myObjectview.scale = gjsPart.scale1;
+                myObjectview.scale1 = gjsPart.scale1;
+                myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale1);
                 myObjectview.group = "";
+                // Check if the node has a relationship FROM a group
+                const inputRelships = movedObj?.inputrels;
+                for (let i = 0; i < inputRelships?.length; i++) {
+                  const relship = inputRelships[i];
+                  const fromObj = relship.fromObject;
+                  if (!fromObj.objectviews) 
+                    continue;
+                  const fromObjview = fromObj.objectviews[0] as akm.cxObjectView;
+                  if (fromObjview?.isGroup) {
+                    // YES
+                    const fromGroup = fromObjview.object;
+                    const fromGroupView = fromObjview;
+                    const relviews = myModelview.findRelationshipViewsByRel(relship, true);
+                    let relview: akm.cxRelationshipView;
+                    if (relviews?.length > 0) {
+                      relview = relviews[0];
+                      relview.markedAsDeleted = false;
+                      const fromObjview = relview.fromObjview;
+                      const toObjview = movedObjview;
+                      relview.toObjview = toObjview;
+                      toObjview.group = "";
+                      const jsnObjview = new jsn.jsnObjectView(toObjview);
+                      modifiedObjectViews.push(jsnObjview);                          
+                      const jsnRelview = new jsn.jsnRelshipView(relview);
+                      modifiedRelshipViews.push(jsnRelview);  
+                      const fromNode = myGoModel.findNodeByViewId(fromObjview.id);
+                      const toNode = myGoModel.findNodeByViewId(toObjview.id);   
+                      if (fromNode && toNode) {
+                        toNode.group = ""; 
+                        const gjsFromNode = myDiagram.findNodeForKey(fromNode.key);
+                        const gjsToNode = myDiagram.findNodeForKey(toNode.key);
+                        gjsToNode.group = ""; 
+                        gjsToNode.data.group = ""; 
+                        myDiagram.model.setDataProperty(gjsToNode, "group", gjsToNode.group);
+                      }
+                    }
+                    const lnk = myDiagram.findLinkForKey(relview?.id);
+                    if (!lnk && relview) {                    
+                      // Create a new gojs link
+                      myDiagram.startTransaction('AddLink');
+                      const link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
+                      link.loadLinkContent(myGoModel);
+                      link.fromNode = uid.getNodeByViewId(relview.fromObjview.id, myDiagram);
+                      link.from = link.fromNode?.key;
+                      link.toNode = uid.getNodeByViewId(relview.toObjview.id, myDiagram);
+                      link.to = link.toNode?.key;
+                      link.points = []; 
+                      myGoModel.addLink(link);
+                      myDiagram.model.addLinkData(link);   
+                      myDiagram.commitTransaction('AddLink');
+                    }                 
+                   } else {
+                    // NO
+                  }
+                }
               }
               
               // Update objectview scaling and location
@@ -949,7 +1085,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let objId: string;
           let object: akm.cxObject;
           if (!type || !typeview) {
-            // An object has been dropped (but there is no objectview)
+            // An object has been dropped (dragged from object palette)
             type = myMetis.findObjectType(n.data.objtypeRef);
             typeview = type.typeview;
             objId = n.data.objRef;

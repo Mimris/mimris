@@ -332,7 +332,7 @@ export function groupTop1(contextMenu: any, notation: string) {
             $("SubGraphExpanderButton",
                 {
                     column: 0, 
-                    margin: new go.Margin(-2, -10, 2, 0),
+                    margin: new go.Margin(-2, 2, 2, 0),
                     alignment: go.Spot.Left,
                     scale: 1.2,
                 },
@@ -341,16 +341,43 @@ export function groupTop1(contextMenu: any, notation: string) {
                 { 
                     row: 0, 
                     column: 1, 
-                    margin: new go.Margin(0, 0, 0, 0), 
-                    alignment: go.Spot.Left,
-                    font: "Bold 14pt Sans-Serif",
-                    editable: true, 
                     isMultiline: false,
+                    maxLines: 1,
+                    editable: true, 
+                    font: "Bold 14pt Sans-Serif",
+                    textAlign: "left",
+                    alignment: go.Spot.Left,
+                    margin: new go.Margin(0, 0, 0, 10), 
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    stretch: go.GraphObject.Horizontal,
                     name: "name",
                 },
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+            ),
+            $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
+            {
+                row: 0, 
+                column: 1, 
+                isMultiline: false,  // don't allow newlines in text
+                maxLines: 1,
+                editable: true,  // allow in-place editing by user
+                font: "Bold 28pt Sans-Serif",
+                textAlign: "left",
+                alignment: go.Spot.Left,
+                margin: new go.Margin(0, 0, 0, 10),
+                wrap: go.TextBlock.None,
+                overflow: go.TextBlock.OverflowEllipsis,
+                stretch: go.GraphObject.Horizontal,
+                name: "name"
+            },        
+            new go.Binding("fill", "fillcolor"),
+            new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("stroke", "textcolor").makeTwoWay(),
+            new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ),
             makeNotation(notation),
             ), // End Horizontal Panel
@@ -428,25 +455,53 @@ export function groupTop2(contextMenu: any, notation: string) {
                         column: 0, 
                         margin: new go.Margin(-2, 2, 2, 0), 
                         alignment: go.Spot.Left,
-                        scale: 1.2,
+                        scale: 1.5,
                     },
                 ),  
-                $(go.TextBlock, // group title located at the left
-                    { 
-                        column: 1, 
-                        stretch: go.GraphObject.Horizontal,
-                        alignment: go.Spot.Left,
-                        margin: new go.Margin(0, 0, 0, 5), 
-                        font: "Bold 14pt Sans-Serif",
-                        editable: true, 
-                        isMultiline: false,
-                    },
-                    new go.Binding("text", "name").makeTwoWay(),
-                    new go.Binding("stroke", "textcolor").makeTwoWay()
+                $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
+                {
+                    row: 0, 
+                    column: 1, 
+                    isMultiline: false,  // don't allow newlines in text
+                    maxLines: 1,
+                    editable: true,  // allow in-place editing by user
+                    font: "Bold 14pt Sans-Serif",
+                    textAlign: "left",
+                    alignment: go.Spot.Left,
+                    margin: new go.Margin(0, 0, 0, 10),
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    name: "name"
+                },        
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("text", "name").makeTwoWay(),
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
                 ),
-                makeNotation(notation),
-                ), // End Panel
+                $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
+                {
+                    row: 0, 
+                    column: 1, 
+                    isMultiline: false,  // don't allow newlines in text
+                    maxLines: 1,
+                    editable: true,  // allow in-place editing by user
+                    font: "Bold 28pt Sans-Serif",
+                    textAlign: "left",
+                    alignment: go.Spot.Left,
+                    margin: new go.Margin(0, 0, 0, 10),
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    name: "name"
+                },        
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("text", "name").makeTwoWay(),
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding('visible', 'isSubGraphExpanded', 
+                    function (e) { return !e; }).ofObject(),
+                ),
 
+                makeNotation(notation),
+            ), // End Panel
             $(go.Shape,  // using a Shape instead of a Placeholder 
                 //This is open container - showing the content
                 {

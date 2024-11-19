@@ -9206,14 +9206,14 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
     }
-    findRelationshipViewsByRel(rel: cxRelationship): cxRelationshipView[] | null {
+    findRelationshipViewsByRel(rel: cxRelationship, includeDeleted: boolean): cxRelationshipView[] | null {
         const relviews = new Array();
         let rviews = this.relshipviews;
         if (!rviews)
             return null;
         for (let i = 0; i < rviews.length; i++) {
             const rv = rviews[i];
-            if (rv?.markedAsDeleted)
+            if (!includeDeleted && rv?.markedAsDeleted)
                 continue;
             if (rv?.relship?.id === rel.id) {
                 relviews.push(rv);

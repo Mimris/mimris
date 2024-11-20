@@ -436,6 +436,19 @@ export function groupTop2(contextMenu: any, notation: string) {
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
         ),
+        $(go.Shape, "RoundedRectangle", // Inner shape for moving
+            {
+                cursor: "move",
+                fill: "transparent", 
+                stroke: "transparent",
+                margin: new go.Margin(30, 12, 12, 12),
+                minSize: new go.Size(150, 55),
+                stretch: go.GraphObject.Fill,
+            },
+            new go.Binding("fill", "fillcolor"),
+            // new go.Binding("stroke", "strokecolor"),
+        ),
+
         $(go.Panel, "Table",  // position header above the subgraph
             {
                 stretch: go.GraphObject.Fill,
@@ -443,12 +456,12 @@ export function groupTop2(contextMenu: any, notation: string) {
             },            
             $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Table",  // the header
-                {
-                    row: 0,
-                    contextMenu: contextMenu , 
-                    cursor: "move",
-                    stretch: go.GraphObject.Horizontal,
-                },
+                    {
+                        row: 0,
+                        contextMenu: contextMenu , 
+                        cursor: "move",
+                        stretch: go.GraphObject.Horizontal,
+                    },
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
                 $("SubGraphExpanderButton",
                     {
@@ -491,7 +504,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     margin: new go.Margin(0, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name"
+                    name: "name",
                 },        
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
@@ -499,7 +512,6 @@ export function groupTop2(contextMenu: any, notation: string) {
                 new go.Binding('visible', 'isSubGraphExpanded', 
                     function (e) { return !e; }).ofObject(),
                 ),
-
                 makeNotation(notation),
             ), // End Panel
             $(go.Shape,  // using a Shape instead of a Placeholder 

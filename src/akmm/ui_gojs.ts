@@ -351,7 +351,6 @@ export class goNode extends goMetaObject {
     loc:             string;
     size:            string;
     scale:           string;
-    scale1:          string;
     memberscale:     string;
     strokecolor:     string;
     strokecolor2:    string;
@@ -368,7 +367,6 @@ export class goNode extends goMetaObject {
         this.loc = "";
         this.size = "";
         this.scale = "1";
-        this.scale1 = "1";
         this.memberscale = "";
         this.strokecolor = "";
         this.strokecolor2 = "";
@@ -395,19 +393,12 @@ export class goNode extends goMetaObject {
         if (scale == undefined || scale == "" || scale == null)
             scale = "1";
         this.scale = scale;
-        this.scale1 = scale;
     }
     getScale(): string {
         let scale = this.scale;
         if (scale == undefined || scale == "" || scale == null)
             this.scale = "1";
         return this.scale;
-    }
-    getScale1(): string {
-        let scale = this.scale1;
-        if (scale == undefined || scale == "" || scale == null)
-            this.scale1 = "1";
-        return this.scale1;
     }
     setViewkind(kind: string) {
         this.viewkind = kind;
@@ -492,7 +483,7 @@ export class goObjectNode extends goNode {
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
             this.size           = objview.size;
-            this.scale1         = objview.scale1;
+            this.scale         = objview.scale;
             this.memberscale    = objview.memberscale;
             this.grabIsAllowed  = objview.grabIsAllowed;
             this.isExpanded     = objview.isExpanded;
@@ -558,8 +549,8 @@ export class goObjectNode extends goNode {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
                     }
-                    if (prop === 'scale1') {
-                        if (objview.scale1 === "") {
+                    if (prop === 'scale') {
+                        if (objview.scale === "") {
                             this[prop] = "1";
                         }
                         this[prop] = Number(this[prop]);
@@ -630,7 +621,9 @@ export class goObjectNode extends goNode {
         return this;
     }
     getMyScale(model: goModel): number {
-        let scale = this.scale1;
+        let scale = this.scale;
+        if (!this.group)
+            scale = 1;
         const pnode = this.getParentNode(model);
         if (pnode) {
             scale = pnode.memberscale;
@@ -642,17 +635,16 @@ export class goObjectNode extends goNode {
         return scale;
     }
     getActualScale(model: goModel): number {
-        let scale1 = this.scale1;
+        let scale = this.scale;
         if (!scale || scale == 'undefined')
-            scale1 = 1;
+            scale = 1;
         const node = this.getParentNode(model);
         if (debug) console.log('597 node', node);
         if (node && node.key !== this.key) {
-            let scale = node.getActualScale(model);
-            scale1 *= scale;
-            if (debug) console.log('601 scale, scale1', scale, scale1);
+            let scale1 = node.getActualScale(model);
+            scale *= scale1;
         }
-        return scale1;
+        return scale;
     }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view

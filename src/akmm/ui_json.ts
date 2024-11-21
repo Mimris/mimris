@@ -1724,7 +1724,7 @@ export class jsnObjectView {
         this.icon            = objview?.icon;
         this.image           = objview?.image;
         this.size            = objview?.size;
-        this.scale           = Number(objview?.scale1);
+        this.scale           = Number(objview?.scale);
         this.memberscale     = Number(objview?.memberscale);
         this.textscale       = objview?.textscale;
         this.arrowscale      = objview?.arrowscale;

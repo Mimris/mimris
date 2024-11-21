@@ -309,7 +309,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           continue;
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
-        node.scale = objview.scale1;
+        node.scale = objview.scale;
         if (!node.template)
           node.template = 'textAndIcon';
         myGoModel.addNode(node);
@@ -339,6 +339,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       let objview = node.objectview as akm.cxObjectView;
       objview = modelview.findObjectView(objview.id);
       if (!objview)
+        continue;
+      if (!objview.size || objview.size === "")
         continue;
       if (objview.id === focusObjview?.id) {
         objview.isSelected = true;

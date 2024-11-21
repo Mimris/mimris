@@ -162,8 +162,8 @@ let groupTemplateNames = [];
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
-    new go.Binding("source", "icon", findImage),
-    {
+        new go.Binding("source", "icon", findImage),
+        {
             name: "Picture",
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -1065,7 +1065,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
+        new go.Binding("scale", "scale").makeTwoWay(),
         { // Tooltips
             toolTip:
             $(go.Adornment, "Auto",
@@ -1129,7 +1129,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
+        new go.Binding("scale", "scale").makeTwoWay(),
         {
             toolTip:
             $(go.Adornment, "Auto",
@@ -1244,7 +1244,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
+        new go.Binding("scale", "scale").makeTwoWay(),
         { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
@@ -1349,7 +1349,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
+        new go.Binding("scale", "scale").makeTwoWay(),
         { // Tooltips
             toolTip:
             $(go.Adornment, "Auto",
@@ -1512,7 +1512,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             {
                 mouseEnter: (e, node) => node.isHighlighted = true,
                 mouseLeave: (e, node) => node.isHighlighted = false,
@@ -1670,7 +1670,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -1761,7 +1761,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -1856,7 +1856,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
+        new go.Binding("scale", "scale").makeTwoWay(),
         { // Tooltips
             toolTip:
             $(go.Adornment, "Auto",
@@ -1953,7 +1953,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             },
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -2077,7 +2077,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             },
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -2267,7 +2267,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
+        new go.Binding("scale", "scale").makeTwoWay(),
         { contextMenu: contextMenu },
         { // Tooltip
             toolTip:
@@ -2422,7 +2422,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             {
                 selectionObjectName: "SHAPE",
                 resizable: true, 
@@ -2926,7 +2926,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
@@ -2970,7 +2970,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
@@ -3012,7 +3012,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale").makeTwoWay(),
             new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
@@ -3695,11 +3695,11 @@ export function setDashed(d: string) {
 }
 
 function defaultColor(horiz) {  // a Binding conversion function
-return horiz ? "rgba(255, 221, 51, 0.55)" : "rgba(51,211,229, 0.5)";
+    return horiz ? "rgba(255, 221, 51, 0.55)" : "rgba(51,211,229, 0.5)";
 }
 
 function defaultFont(horiz) {  // a Binding conversion function
-return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
+    return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
 }
 
 // Upon a drop onto a Group, we try to add the selection as members of the Group.

@@ -1174,7 +1174,6 @@ export class cxMetis {
         const obj = this.findObject(item.id);
         if (obj) {
             const objtype = this.findObjectType(item.typeRef);
-            if (debug) console.log('866 item, obj, objtype', item, obj, objtype);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
@@ -9087,7 +9086,6 @@ export class cxModelView extends cxMetaObject {
     }
     addObjectView(objview: cxObjectView) {
         // Check if input is of correct category and not already in list (TBD)
-        if (debug) console.log('5151 objview', objview.markedAsDeleted, objview);
         if (objview.category === constants.gojs.C_OBJECTVIEW) {
             if (this.objectviews == null)
                 this.objectviews = new Array();
@@ -9294,6 +9292,60 @@ export class cxModelView extends cxMetaObject {
         }
         return relviews;
     }
+    repairObjectView(objview: cxObjectView): boolean {
+        if (!objview) return false;
+        if (objview.isDeleted()) return false;
+        if (!objview.object) return false;
+        if (objview.object?.markedAsDeleted) return false;
+        // Validate input relviews
+        const inputrelviews = objview.getInputRelviews();
+        if (inputrelviews) {
+            for (let i = 0; i < inputrelviews.length; i++) {
+                const relview = inputrelviews[i];
+                if (!relview.fromObjview) {
+                    const rel = relview.relship;
+                    if (rel) {
+                        const fromObj = rel.fromObject;
+                        if (fromObj) {
+                            const fromObjview = this.findObjectView(fromObj.id);
+                            if (fromObjview) 
+                                relview.fromObjview = fromObjview;
+                        }
+                        const toObj = rel.toObject;
+                        if (toObj) {
+                            const toObjview = this.findObjectView(toObj.id);
+                            if (toObjview)
+                                relview.toObjview = toObjview;
+                        }
+                    }
+                }
+            }
+        }
+        // Repair output relviews
+        const outputrelviews = objview.getOutputRelviews();
+        if (outputrelviews) {
+            for (let i = 0; i < outputrelviews.length; i++) {
+                const relview = outputrelviews[i];
+                if (!relview.toObjview) {
+                    const rel = relview.relship;
+                    if (rel) {
+                        const fromObj = rel.fromObject;
+                        if (fromObj) {
+                            const fromObjview = this.findObjectView(fromObj.id);
+                            if (fromObjview)
+                                relview.fromObjview = fromObjview;
+                        }
+                        const toObj = rel.toObject;
+                        if (toObj) {
+                            const toObjview = this.findObjectView(toObj.id);
+                            if (toObjview)
+                                relview.toObjview = toObjview;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 export class cxCollectionOfViews {
@@ -9355,7 +9407,6 @@ export class cxObjectView extends cxMetaObject {
     loc: string;
     size: string;
     scale: string;
-    scale1: string;
     memberscale: string;
     arrowscale: string;
     viewkind: string;
@@ -9401,7 +9452,6 @@ export class cxObjectView extends cxMetaObject {
         this.loc = "";
         this.size = "";
         this.scale = "1";
-        this.scale1 = "1";
         this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
@@ -9500,6 +9550,23 @@ export class cxObjectView extends cxMetaObject {
     }
     getOutputRelviews(): cxRelationshipView[] | null {
         return this.outputrelviews;
+    }
+    purgeInputRelviews() {
+        if (this.inputrelviews) {
+            const relviews = new Array();
+            const relview0 = this.inputrelviews[0];
+            if (relview0 && !relview0.markedAsDeleted)
+                relviews.push(relview0);
+            for (let i = 1; i < this.inputrelviews.length; i++) {
+                const relview = this.inputrelviews[i];
+                if (!relview.markedAsDeleted) {
+                    relviews.push(relview);
+                }
+            }
+            if (relviews.length == 0 && relview0)
+                relviews.push(relview0);
+            this.inputrelviews = relviews;
+        }
     }
     setTypeView(typeview: cxObjectTypeView) {
         if (typeview) {
@@ -9646,13 +9713,12 @@ export class cxObjectView extends cxMetaObject {
         if (scale == undefined || scale == "" || scale == null)
             scale = "1";
         this.scale = scale;
-        this.scale1 = scale;
     }
     getScale(): string {
-        const scale = this.scale1;
+        const scale = this.scale;
         if (scale == undefined || scale == "" || scale == null)
             return "1";
-        return this.scale1;
+        return this.scale;
     }
     setMemberscale(memberscale: string) {
         if (memberscale == undefined || memberscale == "" || memberscale == null)

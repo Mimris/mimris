@@ -7,7 +7,7 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
-require('gojs/extensions/Figures.js');
+// require('gojs/extensions/Figures.js');
 
 let myDiagram: go.Diagram;
 

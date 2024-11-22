@@ -120,7 +120,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           new go.Binding("stroke", "strokecolor"),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
-          new go.Binding("scale", "scale1").makeTwoWay(),
+          new go.Binding("scale", "scale").makeTwoWay(),
           {
             name: "GROUP",
             resizable: true,
@@ -132,7 +132,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             }
           },
           new go.Binding("text", "name"),
-          new go.Binding("scale", "scale1").makeTwoWay(),
+          new go.Binding("scale", "scale").makeTwoWay(),
           new go.Binding("background", "isHighlighted",
             function (h) {
               return h ? "rgba(255,0,0,0.2)" : "transparent";

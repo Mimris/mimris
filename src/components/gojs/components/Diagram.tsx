@@ -1749,7 +1749,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 msg = 'My Scale is: ' + myScale;
               }
               else {
-                msg = data.scale1;
+                msg = data.scale;
               }
               alert(msg);
             },

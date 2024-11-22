@@ -1209,7 +1209,6 @@ export class cxMetis {
                 rel.cardinalityTo = item.cardinalityTo;
                 rel.markedAsDeleted = item.markedAsDeleted;
                 rel.generatedTypeId = item.generatedTypeId;
-                if (debug) console.log('966 fromObj, toObj, rel', fromObj, toObj, rel);
                 if (model)
                     model.addRelationship(rel);
             } else {

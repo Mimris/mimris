@@ -152,7 +152,6 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
                 myMetis.addObjectView(objview);
-                if (debug) console.log('114 gjsData, objview', gjsData, objview);
                 // Then update the gjsNode with its new properties
                 // First set name and reference to the objectview
                 let n = myDiagram.findNodeForKey(objview.id);
@@ -228,7 +227,6 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 });
                 return objview;
             }
-            if (debug) console.log('191 myMetis', myMetis);
         }
     }
     return null;

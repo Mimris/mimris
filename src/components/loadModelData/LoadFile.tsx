@@ -115,7 +115,6 @@ const LoadFile = (props: any) => {
     }
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
-
     const filename = data.phData.metis.name
 
     if (debug) console.log('199 Loadfile', newmm, filename)

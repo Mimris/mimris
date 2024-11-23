@@ -7,7 +7,7 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
-require('gojs/extensions/Figures.js');
+// require('gojs/extensions/Figures.js');
 
 let myDiagram: go.Diagram;
 
@@ -436,6 +436,19 @@ export function groupTop2(contextMenu: any, notation: string) {
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
         ),
+        $(go.Shape, "RoundedRectangle", // Inner shape for moving
+            {
+                cursor: "move",
+                fill: "transparent", 
+                stroke: "transparent",
+                margin: new go.Margin(30, 12, 12, 12),
+                minSize: new go.Size(150, 55),
+                stretch: go.GraphObject.Fill,
+            },
+            new go.Binding("fill", "fillcolor"),
+            // new go.Binding("stroke", "strokecolor"),
+        ),
+
         $(go.Panel, "Table",  // position header above the subgraph
             {
                 stretch: go.GraphObject.Fill,
@@ -443,12 +456,12 @@ export function groupTop2(contextMenu: any, notation: string) {
             },            
             $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Table",  // the header
-                {
-                    row: 0,
-                    contextMenu: contextMenu , 
-                    cursor: "move",
-                    stretch: go.GraphObject.Horizontal,
-                },
+                    {
+                        row: 0,
+                        contextMenu: contextMenu , 
+                        cursor: "move",
+                        stretch: go.GraphObject.Horizontal,
+                    },
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
                 $("SubGraphExpanderButton",
                     {
@@ -491,7 +504,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     margin: new go.Margin(0, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name"
+                    name: "name",
                 },        
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
@@ -499,7 +512,6 @@ export function groupTop2(contextMenu: any, notation: string) {
                 new go.Binding('visible', 'isSubGraphExpanded', 
                     function (e) { return !e; }).ofObject(),
                 ),
-
                 makeNotation(notation),
             ), // End Panel
             $(go.Shape,  // using a Shape instead of a Placeholder 
@@ -1570,7 +1582,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, "Table", // Panel for text and icon ------------------------
                 { 
                     defaultAlignment: go.Spot.Left, 
-                    margin: 2, 
+                    margin: 1, 
                     cursor: "move" 
                 },
                 $(go.RowColumnDefinition, 
@@ -1582,7 +1594,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Panel, "Horizontal",
                     // { margin: new go.Margin(10, 10, 10, 10) },
                     {
-                        defaultAlignment: go.Spot.Center
+                        defaultAlignment: go.Spot.Center,
                     },
                     // comment out icon start
                     $(go.Panel, "Vertical", // Panel for Icon  ------------------------
@@ -1655,6 +1667,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     ),
                     // comment out icon stop
                     // define the panel where the text will appear
+
                     addNodeText(contextMenu),
                 ),
             ),
@@ -3651,7 +3664,6 @@ export function findUnicodeImage(image: string) {
         return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
     }
     return ""; 
-
 }
 
 // Function to specify default text style

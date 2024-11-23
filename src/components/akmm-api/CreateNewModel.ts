@@ -44,13 +44,13 @@ const CreateNewModel = (props: any) => {
                 : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
 
     const newModelName = (metamodelGenerated?.name === 'AKM-Core_MM')
-      ? '03-Typedef_META'
+      ? '01-Typedef_META'
       : (metamodelGenerated.name === 'AKM-IRTV_MM')
-        ? '02-Concept_IRTV'
+        ? '01-Concept_IRTV'
         : (metamodelGenerated.name === 'AKM-POPS_MM')
           ? '01-Overview_POPS'
           : (metamodelGenerated.name === 'AKM-OSDU_MM')
-            ? 'OSDU-Typedef_META'
+            ? '01-OSDU-Typedef_META'
             : 'Basic-Models_META'
 
     const newModelDesc = (metamodelGenerated?.name === 'AKM-Core_MM')
@@ -131,7 +131,7 @@ const CreateNewModel = (props: any) => {
 
     const popsmodel = (metamodelGenerated) && {
       id: uuidv4(),
-      name: '01-Overview_POPS',
+      name: '03-Overview_POPS',
       description: 'Overview model based on AKM-POPS_MM Metamodel. It includes the Products, Organisations, Processes, and Systems. The intention of this model is to make an overview model (Citymap).', 
       metamodelRef: popsmetamodel?.id,
       sourceMetamodelRef: "",
@@ -161,10 +161,10 @@ const CreateNewModel = (props: any) => {
               ...metamodelGenerated,
               subMetamodels: [],
             },
-            adminmetamodel,
             (coremetamodel !== metamodelGenerated) && coremetamodel,
             (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
             (popsmetamodel !== metamodelGenerated) && popsmetamodel,
+            adminmetamodel,
           ].filter((m: any) => m)
 
     const data = {
@@ -173,9 +173,9 @@ const CreateNewModel = (props: any) => {
           ...ph.phData.metis,
           models:
             [
+              newmodel, 
               (popsmetamodel !== metamodelGenerated) && popsmodel,
               (irtvmetamodel !== metamodelGenerated) && irtvmodel, 
-              newmodel, 
               adminmodel
             ], // add admin to the new model
           metamodels: generated_metamodels,
@@ -188,8 +188,8 @@ const CreateNewModel = (props: any) => {
       },
       phFocus: {
         ...ph.phFocus,
-        focusModel: { id: irtvmodel.id, name: irtvmodel.name },
-        focusModelview: { id: irtvmodel.modelviews[0].id, name: irtvmodel.modelviews[0].name },
+        focusModel: { id: newmodel.id, name: newmodel.name },
+        focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },
         focusObject: { id: '', name: '' },
         focusRelship: { id: '', name: '' },
         focusObjectview: { id: '', name: '' },

@@ -10,7 +10,7 @@ import LoadFile from './LoadFile';
 import LoadJsonFile from './LoadJsonFile'
 import LoadNewModelProjectFromGitHub from './LoadNewModelProjectFromGitHub';
 import ProjectDetailsForm from "../forms/ProjectDetailsForm";
-import { is } from 'cheerio/lib/api/traversing';
+// import { is } from 'cheerio/lib/api/traversing';
 import { bottom } from '@popperjs/core';
 
 const debug = false;

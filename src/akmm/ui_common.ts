@@ -2245,10 +2245,11 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         if (debug) console.log('798 node', node);
         if (node.key === nod?.key) continue;
         if (node.isGroup) {
+            let nodeScale = 1;
+            let grpScale = 1;
             const myGroup = node;
             const grpLoc = myGroup.loc?.split(" ");
             const grpSize = myGroup.size?.split(" ");
-            const scale = myGroup.getMyScale(model);
             if (!grpLoc) return;
             const gx = parseInt(grpLoc[0]);
             const gy = parseInt(grpLoc[1]);
@@ -2257,17 +2258,17 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             if (
                 (nx > gx) // Check upper left corner of node
                 &&
-                (nx + nw * scale <= gx + gw * scale) // Check upper right corner of node
+                (nx + nw * nodeScale <= gx + gw * grpScale) // Check upper right corner of node
                 &&
                 (ny > gy) // Check lower left corner of node
                 &&
-                (ny + nh * scale <= gy + gh * scale) // Check lower right corner of node
+                (ny + nh * nodeScale <= gy + gh * grpScale) // Check lower right corner of node
             ) {
                 let grp = {
                     "name": node.name,
                     "groupId": node.key,
                     "group": node,
-                    "size": gw * scale * gh * scale,
+                    "size": gw * grpScale * gh * grpScale,
                 };
                 groups.push(grp);
             }
@@ -2283,7 +2284,6 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     if (groups.length > 0) {
         const grp = groups[0];
         const group = model.findNode(grp.groupId);
-        if (debug) console.log('835 grp, group', grp, group);
         if (group) {
             return group;
         }

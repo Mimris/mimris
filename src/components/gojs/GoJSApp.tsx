@@ -604,12 +604,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!goNode) continue;
           goNode.loc = loc;
           const size = n.actualBounds.width + " " + n.actualBounds.height;
-          let groupKey = n.data.group;
           const group = uic.getGroupByLocation(myGoModel, loc, size, goNode);
+          let groupKey = "";
           if (!group) {
-            groupKey = "";
             goNode.scale = "1"; // goNode.getMyScale(myGoModel);
           } else {
+            groupKey = n.data.group;
             goNode.scale = goNode.getMyScale(myGoModel);
           }
           const myToNode = {

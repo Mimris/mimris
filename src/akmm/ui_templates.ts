@@ -2230,7 +2230,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         )
     );
     // addNodeTemplateName('label');
-
+  if (false) {
     nodeTemplateMap.add("Annotation",
         $(go.Node, 'Auto',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -2639,6 +2639,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         ),
     );
     addNodeTemplateName('DataStoreNode');
+  }
 }
 
 export function getLinkTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {

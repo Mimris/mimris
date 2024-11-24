@@ -2230,7 +2230,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         )
     );
     // addNodeTemplateName('label');
-  if (false) {
     nodeTemplateMap.add("Annotation",
         $(go.Node, 'Auto',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -2274,6 +2273,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );
     addNodeTemplateName('Annotation');
 
+  if (false) {
     nodeTemplateMap.add("ActivityNode",
     $(go.Node, 'Spot',
         new go.Binding("isSelected", "isSelected").makeTwoWay(),

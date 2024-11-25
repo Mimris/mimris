@@ -696,18 +696,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                         relview.relocate(fromObjview, parentObjview, );
                         relview.markedAsDeleted = true;
                     }
-
-                    // fromObjview.id = parentObjview ? parentObjview.id : null;
-                    // if (fromObjview?.id === parentObjview?.id) { // The group found by getGroupByLocation
-                    //   const relship = relview.relship;
-                    //   relship.fromObject = parentObjview.object;
-                    //   relship.toObject = goToNode.object;
-                    //   relview.fromObjview = parentObjview;
-                    //   relview.toObjview = myObjectview;
-                    //   relview.markedAsDeleted = true;
-                    // } else {
-                    //   // ???
-                    // }
                     const lnk = myDiagram.findLinkForKey(relview.id);
                     if (lnk) 
                       myDiagram.remove(lnk);

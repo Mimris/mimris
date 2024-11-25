@@ -746,32 +746,34 @@ export function deleteLink(data: any, deletedFlag: boolean, context: any) {
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
     if (link) {
         const relview = myModelview.findRelationshipView(data.key) as akm.cxRelationshipView;
-        const relship = relview.relship;
-        // Handle deleteViewsOnly
-        if (myMetis.deleteViewsOnly) {
-            relview.markedAsDeleted = deletedFlag;
-            // relship?.removeRelationshipView(relview);
-            if (debug) console.log('707 deleteLink', relship, relview);
-            link.markedAsDeleted = deletedFlag;
-            const l = myDiagram.findLinkForKey(relview.id);
-            myDiagram.startTransaction("remove link");
-            myDiagram.remove(l);
-            myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
-            return;
-        }
-        // Else handle delete relships AND relship views
-        // First delete relship
-        if (relship) {
-            relship.markedAsDeleted = deletedFlag;
-            relview.markedAsDeleted = deletedFlag;
-            const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
-            if (rviews) {
-                for (let i = 0; i < rviews.length; i++) {
-                    const rview = rviews[i];
-                    if (debug) console.log('721 rview', rview);
-                    if (!rview.markedAsDeleted) {
-                        rview.markedAsDeleted = deletedFlag;
-                        if (debug) console.log('725 rview', rview);
+        if (relview) {
+            const relship = relview.relship;
+            // Handle deleteViewsOnly
+            if (myMetis.deleteViewsOnly) {
+                relview.markedAsDeleted = deletedFlag;
+                // relship?.removeRelationshipView(relview);
+                if (debug) console.log('707 deleteLink', relship, relview);
+                link.markedAsDeleted = deletedFlag;
+                const l = myDiagram.findLinkForKey(relview.id);
+                myDiagram.startTransaction("remove link");
+                myDiagram.remove(l);
+                myDiagram.commitTransaction("remove link");                                myDiagram.remove(l);
+                return;
+            }
+            // Else handle delete relships AND relship views
+            // First delete relship
+            if (relship) {
+                relship.markedAsDeleted = deletedFlag;
+                relview.markedAsDeleted = deletedFlag;
+                const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
+                if (rviews) {
+                    for (let i = 0; i < rviews.length; i++) {
+                        const rview = rviews[i];
+                        if (debug) console.log('721 rview', rview);
+                        if (!rview.markedAsDeleted) {
+                            rview.markedAsDeleted = deletedFlag;
+                            if (debug) console.log('725 rview', rview);
+                        }
                     }
                 }
             }

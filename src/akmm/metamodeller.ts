@@ -8754,6 +8754,20 @@ export class cxRelationship extends cxInstance {
         }
         this.relshipviews = relviews;
     }
+    relocate(oldFromObj: cxObject, newFromObj: cxObject,
+             oldToObj: cxObject, newToObj: cxObject)
+    {
+        if (this.fromObject) {
+            oldFromObj.removeOutputrel(this);
+            this.fromObject = newFromObj;
+            newFromObj.addOutputrel(this);
+        }
+        if (this.toObject) {
+            oldToObj.removeInputrel(this);
+            this.toObject = newToObj;
+            newToObj.addInputrel(this);
+        }
+    }
     getRelationshipViews(): cxRelationshipView[] | null {
         return this.relshipviews;
     }
@@ -9902,6 +9916,20 @@ export class cxRelationshipView extends cxMetaObject {
             if (k === 'abstract') continue;
             if (k === 'relshipkind') continue;
             this[k] = "";
+        }
+    }
+    relocate(newFromObjview: cxObjectView, newToObjview: cxObjectView) {
+        if (newFromObjview) {
+            this.fromObjview = newFromObjview;
+            this.fromObjview.removeOutputRelview(this);
+            this.fromObjview = newFromObjview;
+            newFromObjview.addOutputRelview(this);
+        }
+        if (newToObjview) {
+            this.toObjview = newToObjview;
+            this.toObjview.removeOutputRelview(this);
+            this.toObjview = newToObjview;
+            newToObjview.addOutputRelview(this);
         }
     }
     setTemplate(template: string) {

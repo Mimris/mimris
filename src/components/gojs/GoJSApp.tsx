@@ -686,17 +686,28 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let fromObjview = relview.fromObjview; 
                     // Handle the relationship from group to its member
                     // Relocate
-                    fromObjview.id = parentObjview ? parentObjview.id : null;
-                    if (fromObjview?.id === parentObjview?.id) { // The group found by getGroupByLocation
-                      const relship = relview.relship;
-                      relship.fromObject = parentObjview.object;
-                      relship.toObject = goToNode.object;
-                      relview.fromObjview = parentObjview;
-                      relview.toObjview = myObjectview;
-                      relview.markedAsDeleted = true;
-                    } else {
-                      // ???
+                    const relship = relview.relship;
+                    const oldFromObj = relship.fromObject;
+                    const newFromObj = parentObjview.object;
+                    const oldToObj = relship.toObject;
+                    const newToObj = goToNode.object;
+                    if (oldFromObj.id !== newFromObj.id) {
+                        relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
+                        relview.relocate(fromObjview, parentObjview, );
+                        relview.markedAsDeleted = true;
                     }
+
+                    // fromObjview.id = parentObjview ? parentObjview.id : null;
+                    // if (fromObjview?.id === parentObjview?.id) { // The group found by getGroupByLocation
+                    //   const relship = relview.relship;
+                    //   relship.fromObject = parentObjview.object;
+                    //   relship.toObject = goToNode.object;
+                    //   relview.fromObjview = parentObjview;
+                    //   relview.toObjview = myObjectview;
+                    //   relview.markedAsDeleted = true;
+                    // } else {
+                    //   // ???
+                    // }
                     const lnk = myDiagram.findLinkForKey(relview.id);
                     if (lnk) 
                       myDiagram.remove(lnk);
@@ -720,8 +731,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.group = "";
                 const gjsPart = myToNode.gjsData;
                 myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
-                const movedObj = goToNode.object;
-                const movedObjview = goToNode.objectview;
+                let movedObj = goToNode.object;
+                if (!movedObj) {
+                  movedObj = myModel.findObject(goToNode.objRef);
+                }
+                let movedObjview = goToNode.objectview;
+                if (!movedObjview) {
+                  movedObjview = myModelview.findObjectView(goToNode.objviewRef);
+                }
                 if (movedObjview?.isGroup) {
                   // ...
                 }

@@ -833,10 +833,14 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     let fromTypeRef = fromObject?.typeRef;
     if (fromTypeRef) {
         fromType = myMetamodel.findObjectType(fromObject?.typeRef);
+        if (!fromType) 
+            fromType = myMetis.findObjectType(fromObject?.typeRef);
     }
     let toTypeRef = toObject?.typeRef;
     if (toTypeRef) {
         toType = myMetamodel.findObjectType(toObject?.typeRef);
+        if (!toType) 
+            toType = myMetis.findObjectType(toObject?.typeRef);
     }
     let metamodel = myMetamodel;
     let metamodel2 = myMetamodel;

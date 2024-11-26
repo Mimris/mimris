@@ -8757,12 +8757,12 @@ export class cxRelationship extends cxInstance {
     relocate(oldFromObj: cxObject, newFromObj: cxObject,
              oldToObj: cxObject, newToObj: cxObject)
     {
-        if (this.fromObject) {
+        if (this.fromObject && newFromObj) {
             oldFromObj.removeOutputrel(this);
             this.fromObject = newFromObj;
             newFromObj.addOutputrel(this);
         }
-        if (this.toObject) {
+        if (this.toObject && newToObj) {
             oldToObj.removeInputrel(this);
             this.toObject = newToObj;
             newToObj.addInputrel(this);

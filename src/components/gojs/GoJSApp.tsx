@@ -693,13 +693,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const newToObj = goToNode.object;
                     if (oldFromObj.id !== newFromObj.id) {
                         relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
-                        relview.relocate(fromObjview, parentObjview, );
+                        relview.relocate(fromObjview, parentObjview);
                         relview.markedAsDeleted = true;
                     }
                     const lnk = myDiagram.findLinkForKey(relview.id);
-                    if (lnk) 
+                    if (lnk) {
+                      relview.markedAsDeleted = true;
                       myDiagram.remove(lnk);
-                    else {
+                    } else {
                       const linkDataArray = myDiagram.model.linkDataArray;
                       for (let i = 0; i < linkDataArray.length; i++) {
                         const linkData = linkDataArray[i];

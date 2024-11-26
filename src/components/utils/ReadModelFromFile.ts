@@ -39,7 +39,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (!debug) console.log('13 ReadModelFromFile', props, reader.fileName)
+    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => {
         const text = (e.target.result)
@@ -48,7 +48,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const filename = reader.fileName
         if (importedfile.project) console.log('ReadModelFromFile.ts: The imported file contains .project', importedfile)
         importedfile = (importedfile.project) ? importedfile.project : importedfile
-        if (!debug) console.log('51 ReadModelFromFile', importedfile)
+        if (debug) console.log('51 ReadModelFromFile', importedfile)
 
         const impObjecttypes = importedfile.objecttypes || null
         const impRelshiptypes = importedfile.relshiptypes || null
@@ -85,7 +85,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const metamodels2 = metis2?.metamodels?.filter(mm => (mm) && mm) // filter out null metamodels
         // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
         // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
-        if (!debug) console.log('335 ReadModelFromFile', data)
+        if (debug) console.log('335 ReadModelFromFile', data)
         data.phData = {
             ...data.phData,
             metis: {

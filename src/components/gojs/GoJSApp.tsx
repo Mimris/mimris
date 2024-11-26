@@ -1246,7 +1246,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
-        console.log('1313 selected', data, sel);
+        if (debug) console.log('1313 selected', data, sel);
         const objectview = myModelview.findObjectView(data?.key);
         const object = objectview?.object;
         console.log('1316 object, objectview', object, objectview);
@@ -1254,12 +1254,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           const n = it.value;
           const data = n.data;
           if (data.isSelected) {
-            console.log('1319 goNode', data);
+            if (debug) console.log('1319 goNode', data);
           }
         }
         {
           const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
-          console.log('1319 myGoModel, goNode', myGoModel, goNode);
+          if (debug) console.log('1319 myGoModel, goNode', myGoModel, goNode);
         }
         if (objectview && object) {
           const objvIdName = { id: objectview.id, name: objectview.name };
@@ -1280,7 +1280,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         // dispatch to focusCollection here ???
-        console.log('1316 selected', data, sel);
+        if (debug) console.log('1316 selected', data, sel);
         break;
       }
       case "PartResized": {

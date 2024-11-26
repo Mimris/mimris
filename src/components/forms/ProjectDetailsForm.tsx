@@ -59,7 +59,7 @@ function ProjectDetailsForm(props: any) {
     setPath(path);
     setBranch(branch);
     setFile(file);
-    setSource(`${org}/${repo}${(path === '') ? '/' : `/${path.toString()}/`}${file}`);
+    setSource(`${org}/${repo}${(!path || path === '') ? '/' : `/${path.toString()}/`}${file}`);
     setProjectNumber(projectNumber);
     setFocusIssue(props.props.phFocus?.focusIssue);
   }, [file, name, org, repo, path, branch, projectNumber, focusIssue, props.props.phFocus, id]);
@@ -191,7 +191,7 @@ function ProjectDetailsForm(props: any) {
             <label>github.com/</label>
             <input className='rounded bg-white px-1 border-light w-100'
               type="text"
-              value={`${org}/${repo}${(path === '') ? '/' : `/${path.toString()}/`}${file}`}
+              value={`${org}/${repo}${(!path || path === '') ? '/' : `/${path.toString()}/`}${file}`}
               title="File path to the project file in the GitHub repository"
             // onChange={(e) => setSource(e.target.value)}
             />

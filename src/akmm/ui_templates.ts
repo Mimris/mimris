@@ -3627,7 +3627,7 @@ export function addPortTemplates() {
 }
 
 function defaultStrokeColor(strokecolor2) {
-  console.log("3567 defaultStrokeColor: ", strokecolor2);
+  if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
   return  (strokecolor2 === "") ? strokecolor2 : "#466"; // Dark bluegreen
 }
 

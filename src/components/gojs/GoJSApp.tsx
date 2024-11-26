@@ -656,10 +656,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               // Check if the node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
-              if (goParentGroup) { // the container (group)
+              const parentObjview = goParentGroup?.objectview; // The container objectview
+              if (goParentGroup && parentObjview) { // the container (group)
                 // goToNode is member of a group
                 // First handle the object (node)
-                const parentObjview = goParentGroup.objectview; // The container objectview
                 const gjsPart = myToNode.gjsData; // The object (node) to be moved
                 goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
                 myObjectview.group = goParentGroup.key;
@@ -668,6 +668,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 gjsPart.scale = Number(goToNode.scale);
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
+                //
                 // const objvIdName = { id: goToNode.key, name: goToNode.name };
                 // const objIdName = { id: goToNode.object.id, name: goToNode.object.name };
                 // myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
@@ -688,10 +689,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // Relocate
                     const relship = relview.relship;
                     const oldFromObj = relship.fromObject;
-                    const newFromObj = parentObjview.object;
+                    const newFromObj = parentObjview?.object;
                     const oldToObj = relship.toObject;
                     const newToObj = goToNode.object;
-                    if (oldFromObj.id !== newFromObj.id) {
+                    if (parentObjview && oldFromObj.id !== newFromObj.id) {
                         relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
                         relview.relocate(fromObjview, parentObjview);
                         relview.markedAsDeleted = true;
@@ -705,7 +706,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                       for (let i = 0; i < linkDataArray.length; i++) {
                         const linkData = linkDataArray[i];
                         if (linkData.key === relview.id) {
-                          myDiagram.model.removeLinkData(linkData);
                           break;
                         }
                       }
@@ -807,7 +807,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myDiagram.model.addLinkData(link);   
                       myDiagram.commitTransaction('AddLink');
                     }                 
-                   } else {
+                  } else {
                     // NO
                   }
                 }

@@ -379,6 +379,14 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   const relshipviews = [] as akm.cxRelationshipView[];
   let relviews = (modelview) && modelview.getRelationshipViews();
   if (relviews) {
+    for (let i = 0; i < relviews?.length; i++) {
+      const rview = relviews[i] as akm.cxRelationshipView;
+      if (!rview.id) continue;
+      if (rview.markedAsDeleted)
+        continue;
+      relshipviews.push(rview);
+    }
+    relviews = relshipviews;
     const modifiedRelviews = [];
     let lng = relviews.length;
     for (let i = 0; i < lng; i++) {

@@ -3504,7 +3504,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              return false;
+              return true;
             }),
           makeButton("----------",
             function (e: any, obj: any) {

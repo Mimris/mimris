@@ -789,65 +789,65 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return o.diagram.commandHandler.canCutSelection();
             }),
-          makeButton("Delete Selection",
-            function (e: any, obj: any) {
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                const currentNode = obj.part.data;
-                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
-                selection = myDiagram.selection
-              }
-              if (confirm('Do you really want to delete the current selection?')) {
-                const myGoModel = myMetis.gojsModel;
-                myMetis.deleteViewsOnly = false;
-                myDiagram.selection.each(function (sel) {
-                  const data = sel.data;
-                  if (data.category === constants.gojs.C_OBJECT) {
-                    const objview = myModelview.findObjectView(data.key);
-                    const object = objview.object;
-                    const objviews = object.objectviews;
-                    if (objviews) {
-                      objviews.forEach(ov => {
-                        let ovnode = myGoModel.findNodeByViewId(ov.id);
-                        if (ovnode) {
-                          const n = myDiagram.findNodeForKey(ovnode.key);
-                          if (n) n.isSelected = true;
-                        }
-                      })
-                    }
-                    let node = myGoModel.findNode(data.key);
-                    if (debug) console.log('749 node', node);
-                    if (node?.isGroup) {
-                      const groupMembers = node.getGroupMembers(myGoModel);
-                      for (let i = 0; i < groupMembers?.length; i++) {
-                        const member = groupMembers[i];
-                        const n = myDiagram.findNodeForKey(member?.key);
-                      }
-                    }
-                    const n = myDiagram.findNodeForKey(node?.key);
-                    if (n)
-                      n.findLinksConnected().each(function (l) {
-                        l.isSelected = true;
-                      });
-                  }
-                  if (data.category === constants.gojs.C_OBJECTTYPE) {
-                    const node = myDiagram.findNodeForKey(data.key);
-                    node.findLinksConnected().each(function (l) {
-                      l.isSelected = true;
-                    });
-                  }
-                })
-                e.diagram.commandHandler.deleteSelection();
-              }
-            },
-            function (o: any) {
-              return false;
-              const node = o.part.data;
-              if (node.isSelected) {
-                return o.diagram.commandHandler.canDeleteSelection();
-              } else
-                return true;
-            }),
+          // makeButton("Delete Selection",
+          //   function (e: any, obj: any) {
+          //     let selection = myDiagram.selection;
+          //     if (selection.count == 0) {
+          //       const currentNode = obj.part.data;
+          //       if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
+          //       selection = myDiagram.selection
+          //     }
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       const myGoModel = myMetis.gojsModel;
+          //       myMetis.deleteViewsOnly = false;
+          //       myDiagram.selection.each(function (sel) {
+          //         const data = sel.data;
+          //         if (data.category === constants.gojs.C_OBJECT) {
+          //           const objview = myModelview.findObjectView(data.key);
+          //           const object = objview.object;
+          //           const objviews = object.objectviews;
+          //           if (objviews) {
+          //             objviews.forEach(ov => {
+          //               let ovnode = myGoModel.findNodeByViewId(ov.id);
+          //               if (ovnode) {
+          //                 const n = myDiagram.findNodeForKey(ovnode.key);
+          //                 if (n) n.isSelected = true;
+          //               }
+          //             })
+          //           }
+          //           let node = myGoModel.findNode(data.key);
+          //           if (debug) console.log('749 node', node);
+          //           if (node?.isGroup) {
+          //             const groupMembers = node.getGroupMembers(myGoModel);
+          //             for (let i = 0; i < groupMembers?.length; i++) {
+          //               const member = groupMembers[i];
+          //               const n = myDiagram.findNodeForKey(member?.key);
+          //             }
+          //           }
+          //           const n = myDiagram.findNodeForKey(node?.key);
+          //           if (n)
+          //             n.findLinksConnected().each(function (l) {
+          //               l.isSelected = true;
+          //             });
+          //         }
+          //         if (data.category === constants.gojs.C_OBJECTTYPE) {
+          //           const node = myDiagram.findNodeForKey(data.key);
+          //           node.findLinksConnected().each(function (l) {
+          //             l.isSelected = true;
+          //           });
+          //         }
+          //       })
+          //       e.diagram.commandHandler.deleteSelection();
+          //     }
+          //   },
+          //   function (o: any) {
+          //     return false;
+          //     const node = o.part.data;
+          //     if (node.isSelected) {
+          //       return o.diagram.commandHandler.canDeleteSelection();
+          //     } else
+          //       return true;
+          //   }),
           makeButton("Delete Selection",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
@@ -858,6 +858,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
+              let selection = myDiagram.selection;
               const node = o.part.data;
               if (node.isSelected && selection.count > 1) {
                 return o.diagram.commandHandler.canDeleteSelection();
@@ -1203,8 +1204,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const jsnObjview = new jsn.jsnObjectView(objview);
               jsnObjview.template = template;
               const data = JSON.parse(JSON.stringify(jsnObjview));
-              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              alert("You need to do a Reload to see the change!");
+              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+              myDiagram.model.setCategoryForNodeData(node.data, template);
+
+
+
+              // alert("You need to do a Reload to see the change!");
             },
             function (o: any) {
               const node = o.part.data;

@@ -538,12 +538,12 @@ export const ReadConvertJSONFromFileToAkm = async (
         oValProps.title = title;
         oValProps.refGroupType = getNthLastElement(oVal["$ref"], "/", 2);
         oValProps.referenceObject = title === "AbstractWorkProductComponent" ? title : title.replace("Abstract", "");
-        oValProps.refVersion = getLastElement(oVal["$ref"], ":");
+        oValProps.refVersion = getLastElement(oVal["$ref"], ":").split(".").slice(-1)[0];
         const linkGroupType = oValProps.refGroupType;
         const referenceObject = oValProps.referenceObject;
         const proxyName = `Is${oValProps.title}`;
         if (debug) console.log("523 processRefObject", oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
-        createObject(oId, oName, objecttypeRef, oKey, osduType, jsonType, oValProps, linkGroupType, referenceObject);
+        createObject(oId, proxyName, objecttypeRef, oKey, osduType, jsonType, oValProps, linkGroupType, referenceObject);
         findOwnerandCreateRelationship(oId, proxyName, osduObj, curModel);
         // createObjectAndRelationships(oId, proxyName, oKey, osduType, jsonType, oValProps, osduObj, curModel, objecttypeRef);
     }
@@ -716,17 +716,15 @@ export const ReadConvertJSONFromFileToAkm = async (
             // create new unique oid for each relationship
             const pLId = utils.createGuid();  // ???? check if exist?
 
-            const rKey = oKey + "|" + "x-osdu-relationship"; // add the relationship name to the oKey
-            // const proxyName = 'has' + rel.OSDUType
             const linkGroupType = rel.GroupType;
             const referenceObject = rel.EntityType; //(rel.OSDUType) ? rel.OSDUType : parentName;
-
+            
             osduType = "Proxy";
-
-            const proxyName = (oVal.title)  // create a name for the proxy object just to show where its pointing
-                ? oVal.title.replace(/\s+/g, "")
-                : (oName.includes("ID"))
-                    ? oName
+            
+            const proxyName = (oName.includes("ID"))  // create a name for the proxy object just to show where its pointing
+                ? referenceObject
+                : (oVal.title)
+                    ? oVal.title.replace(/\s+/g, "")
                     : (rel.OSDUType)
                         ? rel.OSDUType
                         : (oName !== 'items')
@@ -734,10 +732,11 @@ export const ReadConvertJSONFromFileToAkm = async (
                             : (gparentName !== 'properties')
                                 ? gparentName
                                 : parentName;
-
+            
+            const rKey = oKey + "|" + "x-osdu-relationship" + "|" + proxyName; // add the relationship name to the oKey
             const pLName = 'has' + proxyName;
 
-            if (debug) console.log("740 ", proxyName, oId, oName, linkGroupType, rel);
+            if (!debug) console.log("740 ", proxyName, oId, oName, linkGroupType, rel);
             if (!debug) console.log("741 ", pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps, linkGroupType, referenceObject, osduObj, curModel);
             createObject(pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps, linkGroupType, referenceObject);
             findOwnerandCreateRelationship(pLId, pLName, osduObj, curModel);

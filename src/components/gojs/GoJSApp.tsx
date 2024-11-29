@@ -702,34 +702,36 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (relview) {
                     let fromObjview = relview.fromObjview; 
                     // Handle the relationship from group to its member
-                    // Relocate
-                    const relship = relview.relship;
-                    const oldFromObj = relship.fromObject;
-                    const newFromObj = parentObjview?.object;
-                    const oldToObj = relship.toObject;
-                    const newToObj = goToNode.object;
-                    if (parentObjview && oldFromObj?.id !== newFromObj?.id) {
-                        relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
-                        relview.relocate(fromObjview, parentObjview);
+                    if (fromObjview?.isGroup) {
+                      // Relocate
+                      const relship = relview.relship;
+                      const oldFromObj = relship.fromObject;
+                      const newFromObj = parentObjview?.object;
+                      const oldToObj = relship.toObject;
+                      const newToObj = goToNode.object;
+                      if (parentObjview && oldFromObj?.id !== newFromObj?.id) {
+                          relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
+                          relview.relocate(fromObjview, parentObjview);
+                          relview.markedAsDeleted = true;
+                      }
+                      const lnk = myDiagram.findLinkForKey(relview.id);
+                      if (lnk) {
                         relview.markedAsDeleted = true;
-                    }
-                    const lnk = myDiagram.findLinkForKey(relview.id);
-                    if (lnk) {
-                      relview.markedAsDeleted = true;
-                      myDiagram.remove(lnk);
-                    } else {
-                      const linkDataArray = myDiagram.model.linkDataArray;
-                      for (let i = 0; i < linkDataArray.length; i++) {
-                        const linkData = linkDataArray[i];
-                        if (linkData.key === relview.id) {
-                          break;
+                        myDiagram.remove(lnk);
+                      } else {
+                        const linkDataArray = myDiagram.model.linkDataArray;
+                        for (let i = 0; i < linkDataArray.length; i++) {
+                          const linkData = linkDataArray[i];
+                          if (linkData.key === relview.id) {
+                            break;
+                          }
                         }
                       }
+                      const jsnRelship = new jsn.jsnRelationship(relview.relship);
+                      uic.addItemToList(modifiedRelships, jsnRelship);
+                      const jsnRelview = new jsn.jsnRelshipView(relview);
+                      uic.addItemToList(modifiedRelshipViews, jsnRelview);
                     }
-                    const jsnRelship = new jsn.jsnRelationship(relview.relship);
-                    uic.addItemToList(modifiedRelships, jsnRelship);
-                    const jsnRelview = new jsn.jsnRelshipView(relview);
-                    uic.addItemToList(modifiedRelshipViews, jsnRelview);
                   }
                 }
               } else {

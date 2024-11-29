@@ -232,14 +232,14 @@ const Modeller = (props: any) => {
             }
 
             parsedData.objects.forEach(obj => {
-                if (!debug) console.log('236 Updating object:', obj);
+                if (debug) console.log('236 Updating object:', obj);
                 const data = {id: obj.id, name: obj.name, description: obj.description, proposedType: obj.proposedType, typeName: obj.typeName, typeRef: obj.typeRef};
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: data });
             });
 
             parsedData.relationships.forEach(rel => {
                 const data = {id: rel.id, name: rel.name, fromobjectRef: rel.fromobjectRef, toobjectRef: rel.toobjectRef, typeRef: rel.typeRef};
-                if (!debug) console.log('243 Updating relationship:', rel, data);
+                if (debug) console.log('243 Updating relationship:', rel, data);
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: data });
             });
 

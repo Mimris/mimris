@@ -174,8 +174,8 @@ const CreateNewModel = (props: any) => {
           models:
             [
               newmodel, 
-              (popsmetamodel !== metamodelGenerated) && popsmodel,
               (irtvmetamodel !== metamodelGenerated) && irtvmodel, 
+              (popsmetamodel !== metamodelGenerated) && popsmodel,
               adminmodel
             ], // add admin to the new model
           metamodels: generated_metamodels,

@@ -9581,6 +9581,23 @@ export class cxObjectView extends cxMetaObject {
             this.inputrelviews = relviews;
         }
     }
+    purgeOutputRelviews() {
+        if (this.outputrelviews) {
+            const relviews = new Array();
+            const relview0 = this.outputrelviews[0];
+            if (relview0 && !relview0.markedAsDeleted)
+                relviews.push(relview0);
+            for (let i = 1; i < this.outputrelviews.length; i++) {
+                const relview = this.outputrelviews[i];
+                if (!relview.markedAsDeleted) {
+                    relviews.push(relview);
+                }
+            }
+            if (relviews.length == 0 && relview0)
+                relviews.push(relview0);
+            this.outputrelviews = relviews;
+        }
+    }
     setTypeView(typeview: cxObjectTypeView) {
         if (typeview) {
             this.typeview = typeview;

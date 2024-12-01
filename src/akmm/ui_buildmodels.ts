@@ -440,9 +440,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (!relview.markedAsDeleted && relview.relship) {
         includeRelview = true;
       }
-      if (!includeDeleted && !includeNoObject && !includeNoType && relview)
+      if (!includeDeleted && !includeNoObject && !includeNoType && relview) {
         if (relview.strokecolor === "")
           relcolor = relview?.typeview?.strokecolor;
+      }
       if (!relcolor) relcolor = 'black';
       if (relview.visible == false)
         includeRelview = false;

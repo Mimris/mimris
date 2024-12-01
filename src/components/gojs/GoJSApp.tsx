@@ -311,7 +311,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     switch (name) {
       case "InitialLayoutCompleted": {
-        if (debug) console.log("Begin: After Reload:");
+          if (debug) console.log("Begin: After Reload:");
         const objviews = myModelview.objectviews;
         const focusObjectView  = myMetis.currentModelview.focusObjectview;
         if (true) {
@@ -667,14 +667,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.size = myToNode.size;
                 goToNode.scale = myToNode.scale;
               }
-              // Check if the node (goToNode) is member of a group
+              // Check if the MOVED node (goToNode) is member of a group
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
               let parentObjview = goParentGroup?.objectview; // The container objectview
               if (!parentObjview) {
                 parentObjview = myModelview.findObjectView(goParentGroup?.objviewRef);
               }
               if (goParentGroup && parentObjview) { // the container (group)
-                // goToNode is member of a group
+                // goToNode IS member of a group
                 // First handle the object (node)
                 const gjsPart = myToNode.gjsData; // The object (node) to be moved
                 goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
@@ -684,6 +684,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 gjsPart.scale = Number(goToNode.scale);
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
+                myObjectview.loc = myToNode.loc;
+                myDiagram.model.setDataProperty(myToNode.n, "loc", myToNode.loc);
                 //
                 // const objvIdName = { id: goToNode.key, name: goToNode.name };
                 // const objIdName = { id: goToNode.object.id, name: goToNode.object.name };
@@ -692,6 +694,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     
                 // Check if the moved node (goToNode) has a relationship from a group
                 // If so, relocate the node to its new parent group (from myObjectview to parentObjview)
+                let inoutRelviews = new Array();
                 let inputRelviews = myObjectview?.inputrelviews;
                 if (inputRelviews?.length > 0) {
                   myObjectview.purgeInputRelviews();
@@ -712,28 +715,72 @@ class GoJSApp extends React.Component<{}, AppState> {
                       if (parentObjview && oldFromObj?.id !== newFromObj?.id) {
                           relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
                           relview.relocate(fromObjview, parentObjview);
-                          relview.markedAsDeleted = true;
                       }
-                      const lnk = myDiagram.findLinkForKey(relview.id);
-                      if (lnk) {
+                      const reltype = relship.type;
+                      if (reltype.name === constants.types.AKM_HAS_MEMBER 
+                          || reltype.name === constants.types.AKM_HAS_PART) {
                         relview.markedAsDeleted = true;
-                        myDiagram.remove(lnk);
-                      } else {
-                        const linkDataArray = myDiagram.model.linkDataArray;
-                        for (let i = 0; i < linkDataArray.length; i++) {
-                          const linkData = linkDataArray[i];
-                          if (linkData.key === relview.id) {
-                            break;
-                          }
-                        }
+                        const lnk = myDiagram.findLinkForKey(relview.id);
+                        if (lnk) {
+                            myDiagram.remove(lnk);
+                        }                        
                       }
+                      inoutRelviews.push(relview);
+                      // Prepare dispatch
                       const jsnRelship = new jsn.jsnRelationship(relview.relship);
                       uic.addItemToList(modifiedRelships, jsnRelship);
-                      const jsnRelview = new jsn.jsnRelshipView(relview);
-                      uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                      const jsnRelshipview = new jsn.jsnRelshipView(relview);
+                      if (jsnRelshipview) {
+                        uic.addItemToList(modifiedRelshipViews, jsnRelshipview);
+                      }
                     }
                   }
                 }
+                let outputRelviews = myObjectview?.outputrelviews;
+                if (outputRelviews?.length > 0) {
+                  myObjectview.purgeOutputRelviews();
+                  outputRelviews = myObjectview.outputrelviews;
+                }                
+                for (let i = 0; i < outputRelviews?.length; i++) {
+                  const relview = outputRelviews[i];
+                  if (relview) {
+                    let toObjview = relview.toObjview; 
+                    // Handle the relationship from group to its member
+                    if (toObjview?.isGroup) {
+                      // Relocate
+                      const relship = relview.relship;
+                      const oldFromObj = relship.fromObject;
+                      const newFromObj = parentObjview?.object;
+                      const oldToObj = relship.toObject;
+                      const newToObj = goToNode.object;
+                      if (parentObjview && oldFromObj?.id !== newFromObj?.id) {
+                        relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
+                        relview.relocate(toObjview, parentObjview);
+                        relview.markedAsDeleted = true;
+                      }
+                    }
+                    inoutRelviews.push(relview);
+                    const lnk = myDiagram.findLinkForKey(relview.id);
+                    if (lnk) {
+                      if (relview.markedAsDeleted)
+                        myDiagram.remove(lnk);
+                    }
+                  }
+
+                  const linkDataArray = myDiagram.model.linkDataArray;
+                  for (let i = 0; i < linkDataArray.length; i++) {
+                    const linkData = linkDataArray[i];
+                    if (linkData.key === relview.id) {
+                      break;
+                    }
+                  }
+                  
+                  const jsnRelship = new jsn.jsnRelationship(relview.relship);
+                  uic.addItemToList(modifiedRelships, jsnRelship);
+                  const jsnRelview = new jsn.jsnRelshipView(relview);
+                  uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                  
+                }                
               } else {
                 // goToNode is NOT member of a group
                 goToNode.group = "";
@@ -750,7 +797,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (movedObjview?.isGroup) {
                   // ...
                 }
-                myToNode.group = goToNode.group;
+                myToNode.group = goToNode.group; // ""
                 myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
                 let scale = 1; // Not part of group
                 gjsPart.scale = scale;
@@ -851,31 +898,31 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
-        const links = myDiagram.links;
-        for (let it = links.iterator; it?.next();) {
-          const link = it.value;
-          const rview = myModelview.findRelationshipView(link.data.key);
-          if (!rview) continue;
-          const relviews = myModelview.relshipviews;
-          for (let i = 0; i < relviews?.length; i++) {
-            const relview = relviews[i];
-            if (relview.id === rview.id) {
-              const points = [];
-              for (let it = link.points.iterator; it?.next();) {
-                const point = it.value;
-                points.push(point.x)
-                points.push(point.y)
-              }
-              relview.points = points;
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              if (jsnRelview) {
-                uic.addItemToList(modifiedRelshipViews, jsnRelview);
-              }
-              myModelview.addRelationshipView(relview);
-            }
-          }
-        }
-        uid.clearPath(links, myMetis, myDiagram);
+        // const links = myDiagram.links;
+        // for (let it = links.iterator; it?.next();) {
+        //   const link = it.value;
+        //   const rview = myModelview.findRelationshipView(link.data.key);
+        //   if (!rview) continue;
+        //   const relviews = myModelview.relshipviews;
+        //   for (let i = 0; i < relviews?.length; i++) {
+        //     const relview = relviews[i];
+        //     if (relview.id === rview.id) {
+        //       const points = [];
+        //       for (let it = link.points.iterator; it?.next();) {
+        //         const point = it.value;
+        //         points.push(point.x)
+        //         points.push(point.y)
+        //       }
+        //       relview.points = points;
+        //       const jsnRelview = new jsn.jsnRelshipView(relview);
+        //       if (jsnRelview) {
+        //         uic.addItemToList(modifiedRelshipViews, jsnRelview);
+        //       }
+        //       myModelview.addRelationshipView(relview);
+        //     }
+        //   }
+        // }
+        // uid.clearPath(links, myMetis, myDiagram);
         break;
       }
       case "SelectionDeleting": {

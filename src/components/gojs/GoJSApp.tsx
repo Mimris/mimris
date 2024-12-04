@@ -387,23 +387,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               relview = myModelview.findRelationshipView(data.key);
               relview.markedAsDeleted = data.markedAsDeleted;
               if (relview.visible === false) {
-                myDiagram.remove(link);;
+                myDiagram.remove(link);
               } else {
-                // const relship = relview.relship;
-                // const fromObjview1 = relview.fromObjview;
-                // const fromObj1 = fromObjview1.object;
-                // const toObjview1 = relview.toObjview;
-                // const toObj1 = toObjview1.object;
-                // const fromObj2 = relship.fromObject;
-                // const toObj2 = relship.toObject;
-                // if (fromObj1?.id !== fromObj2?.id) {
-                //   const fromObjview2: akm.cxObjectView = fromObj2.objectviews.find((ov) => ov.object.id === fromObj2.id)
-                //   if (fromObjview2) {
-                //     relview.relocate(fromObjview2, toObjview1);
-                //     const lnk = uid.getLinkByViewId(relview.id, myDiagram);
-                //     lnk.points = [];
-                //   }
-                // }
+                const points = relview.points;
+                if (points.length == 0 || points.length == 4) {
+                  link.points = [];
+                  relview.points = [];
+                  const jsnRelview = new jsn.jsnRelshipView(relview);
+                  modifiedRelshipViews.push(jsnRelview);
+                }
               }
             }
           }
@@ -572,6 +564,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionMoved": {
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
+        myModelview.purgeRelshipviews();
         // uic.repairObjectAndRelshipViews(myModelview);
         // First remember the original locs and scales
         const dragTool = myDiagram.toolManager.draggingTool;
@@ -794,12 +787,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (!movedObjview) {
                   movedObjview = myModelview.findObjectView(goToNode.objviewRef);
                 }
-                if (movedObjview?.isGroup) {
-                  // ...
-                }
                 myToNode.group = goToNode.group; // ""
                 myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
-                let scale = 1; // Not part of group
+                let scale = goToNode.scale; // Not part of group
                 gjsPart.scale = scale;
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
@@ -815,17 +805,18 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const fromObj = relship.fromObject;
                   if (!fromObj.objectviews) 
                     continue;
-                  const fromObjview = fromObj.objectviews[0] as akm.cxObjectView;
+                  const fromObjviews = myModelview.findObjectViewsByObject(fromObj) as akm.cxObjectView;
+                  const fromObjview = fromObjviews[0];
                   if (fromObjview?.isGroup) {
                     // YES
                     const fromGroup = fromObjview.object;
                     const fromGroupView = fromObjview;
-                    const relviews = myModelview.findRelationshipViewsByRel(relship, true);
+                    const relviews = myModelview.findRelationshipViewsByRel2(relship, fromObjview, movedObjview);
                     let relview: akm.cxRelationshipView;
                     if (relviews?.length > 0) {
                       relview = relviews[0];
                       relview.markedAsDeleted = false;
-                      const fromObjview = relview.fromObjview; // Container
+                      // const fromObjview = relview.fromObjview; // Container
                       movedObjview.group = goToNode.group;
                       const jsnObjview = new jsn.jsnObjectView(movedObjview);
                       modifiedObjectViews.push(jsnObjview);                          
@@ -845,18 +836,21 @@ class GoJSApp extends React.Component<{}, AppState> {
                     } else {
                       // The relview does not exist - create it
                       relview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship);
-                      fromObjview.removeOutputRelview(relview);
-                      movedObjview.removeInputRelview(relview);
                       fromObjview.addOutputRelview(relview);
                       movedObjview.addInputRelview(relview);
-                      myModelview.addRelationshipView(relview);
                       relview.fromObjview = fromGroupView;
                       relview.toObjview = movedObjview;
                       relview.points = [];
+                      relship.addRelationshipView(relview);
                       const jsnRelview = new jsn.jsnRelshipView(relview);
                       if (jsnRelview) {
                         uic.addItemToList(modifiedRelshipViews, jsnRelview);
                       }
+                      const jsnRelship = new jsn.jsnRelationship(relship);
+                      if (jsnRelship) {
+                        uic.addItemToList(modifiedRelships, jsnRelship);
+                      }
+                      myModelview.addRelationshipView(relview);
                     }
                     const lnk = myDiagram.findLinkForKey(relview?.id);
                     if (!lnk && relview) {                    
@@ -873,14 +867,28 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myDiagram.model.addLinkData(link);   
                       uid.clearPath(myDiagram.links, myMetis, myDiagram);
                       myDiagram.commitTransaction('AddLink');
-                    }                 
+                    } else if (lnk) {
+                      uid.clearPath(myDiagram.links, myMetis, myDiagram);
+                      // lnk.points = [];
+                    }
                   } else {
                     // NO
+                    const relviews = myModelview.findRelationshipViewsByRel(relship, true);
+                    let relview: akm.cxRelationshipView;
+                    if (relviews?.length > 0) {
+                      relview = relviews[0];
+                      relview.markedAsDeleted = false;
+                      relview.toObjview = movedObjview;
+                      relview.points = [];
+                      const jsnRelview = new jsn.jsnRelshipView(relview);
+                      modifiedRelshipViews.push(jsnRelview);
+                    }
                   }
                 }
               }
               if (myGoNode.key !== myToNode.group) {
                 myGoNode.scale = myToNode.scale;
+                myGoNode.loc = myToNode.loc;
                 myGoNode.group = myToNode.group;
               }
               if (myGoNode.object) {
@@ -897,7 +905,16 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-
+        // Dispatch modelview
+        const modifiedModelviews = new Array();
+        const jsnModelview = new jsn.jsnModelView(myModelview);
+        modifiedModelviews.push(jsnModelview);
+        modifiedModelviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+        });
+        { /////////
         // const links = myDiagram.links;
         // for (let it = links.iterator; it?.next();) {
         //   const link = it.value;
@@ -923,6 +940,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         //   }
         // }
         // uid.clearPath(links, myMetis, myDiagram);
+        }
         break;
       }
       case "SelectionDeleting": {
@@ -1784,7 +1802,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (!toObject) toObject = myModel.findObject(goToNode.objRef);
         relship.toObject = toObject;
         const relviewRef = goLink.relviewRef;
-        const relview = myModelview.findRelationshipView(relviewRef);
+        let relview = myModelview.findRelationshipView(relviewRef);
+        if (!relview) relview = myModelview.findRelationshipView(relviewRef);
+        if (!relview) 
+          break;
         let fromObjview = goFromNode.fromObjview;
         if (!fromObjview) fromObjview = myModelview.findObjectView(goFromNode.objviewRef);
         relview.fromObjview = fromObjview;
@@ -1899,7 +1920,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
       })
 
-      if (debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
+      if (!debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
       modifiedRelshipViews.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
@@ -1936,7 +1957,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       data = JSON.parse(JSON.stringify(data));
       myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
-    if (debug) console.log('1704 myMetis', myMetis);
+    if (!debug) console.log('1704 myMetis', myMetis);
   }
 
   public render() {

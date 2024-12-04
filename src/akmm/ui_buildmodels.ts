@@ -396,7 +396,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relview.fromArrow = '';
       if (relview?.toArrow === 'None' || relview?.toArrow === ' ')
         relview.toArrow = '';
-      if (relview.points === "")
+      if (relview.points.length == 4)
         relview.points = [];
       let fromObjview = relview.fromObjview as akm.cxObjectView;
       if (!fromObjview || !modelview.findObjectView(fromObjview.id))

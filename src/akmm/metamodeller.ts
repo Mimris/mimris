@@ -9217,6 +9217,20 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
     }
+    findRelationshipViewsById(id: string): cxRelationshipView[] | null {
+        if (!this.relshipviews) return null;
+        let relshipviews = this.relshipviews;
+        let relviews = new Array();
+        let i = 0;
+        let rv = null;
+        while (i < relshipviews.length) {
+            rv = relshipviews[i];
+            if (rv.id === id)
+                relviews.push(rv);
+            i++;
+        }
+        return relviews;
+    }
     findRelationshipViewsByRel(rel: cxRelationship, includeDeleted: boolean): cxRelationshipView[] | null {
         const relviews = new Array();
         let rviews = this.relshipviews;
@@ -9226,9 +9240,6 @@ export class cxModelView extends cxMetaObject {
             const rv = rviews[i];
             if (!includeDeleted && rv?.markedAsDeleted)
                 continue;
-            if (rv?.relship?.id === rel.id) {
-                relviews.push(rv);
-            }
         }
         return relviews;
     }
@@ -9357,6 +9368,26 @@ export class cxModelView extends cxMetaObject {
                     }
                 }
             }
+        }
+    }
+    purgeRelshipviews() {
+        if (this.relshipviews) {
+            const relviews = new Array();
+            for (let i = 0; i < this.relshipviews.length; i++) {
+                const relview = this.relshipviews[i];
+                const id = relview.id;
+                let found = false;
+                for (let j = 0; i < this.relshipviews.length; i++) {
+                    const rview = this.relshipviews[j];
+                    if (rview.id === id) {
+                        if (!found) { 
+                            found = true;
+                            relviews.push(relview);
+                        }
+                    }
+                }
+            }
+            this.relshipviews = relviews;
         }
     }
 }
@@ -9542,6 +9573,7 @@ export class cxObjectView extends cxMetaObject {
                 // Relationship is already in list
                 return;
             }
+            
         }
         this.outputrelviews.push(relview);
     }

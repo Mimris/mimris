@@ -405,8 +405,8 @@ const Issues = (props: any) => {
           {/* {projectModalDiv} */}
         </div>
       </>
-  }
     );
+  }
   return null;
 };
 

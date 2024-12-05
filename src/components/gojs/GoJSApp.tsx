@@ -390,7 +390,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myDiagram.remove(link);
               } else {
                 const points = relview.points;
-                if (points.length == 0 || points.length == 4) {
+                if (points?.length == 0 || points?.length == 4) {
                   link.points = [];
                   relview.points = [];
                   const jsnRelview = new jsn.jsnRelshipView(relview);
@@ -811,7 +811,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // YES
                     const fromGroup = fromObjview.object;
                     const fromGroupView = fromObjview;
-                    const relviews = myModelview.findRelationshipViewsByRel2(relship, fromObjview, movedObjview);
+                    const relviews = myModelview.findRelationshipViewsByRel2(relship, fromObjview, movedObjview, true);
                     let relview: akm.cxRelationshipView;
                     if (relviews?.length > 0) {
                       relview = relviews[0];

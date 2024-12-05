@@ -9243,7 +9243,7 @@ export class cxModelView extends cxMetaObject {
         }
         return relviews;
     }
-    findRelationshipViewsByRel2(rel: cxRelationship, fromObjview: cxObjectView, toObjview: cxObjectView): cxRelationshipView[] {
+    findRelationshipViewsByRel2(rel: cxRelationship, fromObjview: cxObjectView, toObjview: cxObjectView, includeDeleted): cxRelationshipView[] {
         const relviews = new Array();
         if (fromObjview && toObjview) {
             let rviews = this.relshipviews;
@@ -9251,7 +9251,7 @@ export class cxModelView extends cxMetaObject {
                 return null;
             for (let i = 0; i < rviews.length; i++) {
                 const rv: cxRelationshipView = rviews[i];
-                if (rv?.markedAsDeleted)
+                if (!includeDeleted && rv?.markedAsDeleted)
                     continue;
                 if (rv?.relship?.id === rel?.id) {
                     if (rv.fromObjview?.id === fromObjview.id) {

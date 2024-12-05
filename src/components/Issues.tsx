@@ -397,6 +397,7 @@ const Issues = (props: any) => {
             <div className='p-2 m-1'> {/*link to Issues */}
               <div className='text-muted'>Link to GitHub Issues:</div>
               {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+              {(repo) && <Link className='text-primary ' href={`http://github.com/kavca/kavca-akm-models/issues`} target="_blank">kavca/kavca-akm-models/issues</Link>}
             </div>
             <hr className="m-1" />
           </div>
@@ -404,8 +405,8 @@ const Issues = (props: any) => {
           {/* {projectModalDiv} */}
         </div>
       </>
-    );
   }
+    );
   return null;
 };
 

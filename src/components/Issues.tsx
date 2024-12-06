@@ -396,7 +396,8 @@ const Issues = (props: any) => {
             <hr className="m-1 p-0" />
             <div className='p-2 m-1'> {/*link to Issues */}
               <div className='text-muted'>Link to GitHub Issues:</div>
-              {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+              {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>} <br />
+              {<Link className='text-primary ' href={`http://github.com/kavca/akmm-app/issues`} target="_blank">kavca/akmm-app/issues</Link>}
             </div>
             <hr className="m-1" />
           </div>

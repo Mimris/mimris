@@ -81,7 +81,7 @@ const CreateNewModel = (props: any) => {
         {
           id: uuidv4(),
           name: '0-Main',
-          description: 'Main OSDUType view, with OSDUTypes of master-data, reference-data, work-product-component and abstract as well as Properties, Proxies, Arrays and Items.',
+          description: 'Main view',
           objectviews: [],
           relshipviews: []
         }

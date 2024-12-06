@@ -3481,7 +3481,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               console.log('333 goModel', myMetis.gojsModel);
             },
             function (o: any) {
-              return false;
+              return true;
             }),
           makeButton("Modelview links",
             function (e: any, obj: any) {

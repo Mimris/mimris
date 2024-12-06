@@ -312,7 +312,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     switch (name) {
       case "InitialLayoutCompleted": {
           if (debug) console.log("Begin: After Reload:");
-        const objviews = myModelview.objectviews;
+        let objviews = myModelview.objectviews;
+        myModelview.objectviews = utils.removeArrayDuplicates(objviews);
+        objviews = myModelview.objectviews;
         const focusObjectView  = myMetis.currentModelview.focusObjectview;
         if (true) {
         for (let i = 0; i < objviews?.length; i++) {
@@ -1147,6 +1149,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
             objview.viewkind = constants.viewkinds.CONT;
             objview.isGroup = n.data.isGroup;
+            objview.size = n.data.size;
             if (objview.isGroup) {
               objview.viewkind = constants.viewkinds.CONT;
             } else {

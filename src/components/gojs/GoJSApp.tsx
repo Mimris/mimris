@@ -352,9 +352,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         }
 
-        const links = myDiagram.links;
         if (debug) console.log("End: After Reload:");
-        if (true) {
+        const links = myDiagram.links;
+        if (links.count > 0) {
           const modelview = myMetis.currentModelview;
           const objviews = modelview.objectviews;
           const nodes = myDiagram.nodes;

@@ -10196,7 +10196,7 @@ export class cxIdent {
     }
 }
 
-export class cxNodeAndLinkMaps {copyPasteLinkMap
+export class cxNodeAndLinkMaps { // copyPasteLinkMap
     fromModel: cxModel;
     toModel: cxModel;
     fromModelView: cxModelView;
@@ -10204,7 +10204,7 @@ export class cxNodeAndLinkMaps {copyPasteLinkMap
     nodeMaps: cxNodeMap[];
     linkMaps: cxLinkMap[];
     constructor(model1: cxModel, model2: cxModel, 
-                modelview1: cxModelView, modelview2: cxModelView) {
+        modelview1: cxModelView, modelview2: cxModelView) {
         this.fromModel = model1;
         this.toModel = model2;
         this.fromModelView = modelview1;
@@ -10303,7 +10303,7 @@ export class cxLinkMap {
     targetLinkKey: string;
     constructor(inst: cxInstance, sourceFromKey: string, sourceToKey: string, sourceLinkKey: string, targetLinkKey: string) {
         this.inst = inst;
-        this.name = inst.name;
+        this.name = inst?.name;
         this.sourceFromNodeKey = sourceFromKey;
         this.sourceToNodeKey = sourceToKey;
         this.targetFromNodeKey = "";
@@ -10325,7 +10325,7 @@ export class cxNodeMap {
     toLoc: string;
     constructor(inst: cxInstance, from: string, to: string, isGroup: boolean, fromGroupKey: string, toGroupKey: string , fromLoc: string, toLoc: string) {
         this.inst = inst;
-        this.name = inst.name;
+        this.name = inst?.name;
         this.isGroup = isGroup;
         this.fromSourceKey = from;        // The from key
         this.toTargetKey = to;            // The to key

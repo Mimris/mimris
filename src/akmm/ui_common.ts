@@ -1034,7 +1034,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     if (relship && !relship.markedAsDeleted) {
         // The relationship already exists
         // Check if relationship view also exists
-        const relviews = myModelview.findRelationshipViewsByRel(relship);
+        const relviews = myModelview.findRelationshipViewsByRel(relship, true);
         for (let i = 0; i < relviews.length; i++) {
             const relview = relviews[i];
             if (!relview.markedAsDeleted) {
@@ -1564,6 +1564,8 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
     const myGoModel = myMetis.gojsModel;
     const myModel = myMetis.currentModel;
     const objviews = modelview.objectviews;
+    let relshipviews = modelview.relshipviews;
+    modelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
     const links = new Array();
     const modifiedObjectViews = new Array();
     const modifiedRelshipViews = new Array();
@@ -1591,7 +1593,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             if (fromObjviews.length == 0 || toObjviews.length == 0)
                 continue; // One or both objects are not in the modelview
             // Check if relview exists in modelview
-            const rviews = modelview.findRelationshipViewsByRel(rel);
+            const rviews = modelview.findRelationshipViewsByRel(rel, true);
             if (rviews?.length > 0) {
                 // Relview(s) exist 
                 const rv = rviews[0];
@@ -1614,22 +1616,23 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                         if (link.from && link.to) 
                             myDiagram.model.addLinkData(link);
 
-                        // Prepare dispatch
-                        const jsnRelview = new jsn.jsnRelshipView(rv);
-                        modifiedRelshipViews.push(jsnRelview);
                         continue;  // Link exists - do nothing
                     }
+                } else {
+                    // Link does not exist - create it
+                    link = new gjs.goRelshipLink(rv.id, myGoModel, rv);
+                    link.loadLinkContent(myGoModel);
+                    link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                    link.from = link.fromNode?.key;
+                    link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                    link.to = link.toNode?.key;
+                    myGoModel.addLink(link);
+                    links.push(link);
+                    myDiagram.model.addLinkData(link);
                 }
-                // Link does not exist - create it
-                link = new gjs.goRelshipLink(rv.id, myGoModel, rv);
-                link.loadLinkContent(myGoModel);
-                link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-                link.from = link.fromNode?.key;
-                link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-                link.to = link.toNode?.key;
-                myGoModel.addLink(link);
-                links.push(link);
-                myDiagram.model.addLinkData(link);
+                // Prepare dispatch
+                const jsnRelview = new jsn.jsnRelshipView(rv);
+                modifiedRelshipViews.push(jsnRelview);
                 continue;
             } else {
                 // Relview is missing - create it
@@ -3560,7 +3563,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     const rel = rview.relship;
                     const fromObjview = rview.fromObjview;
                     const toObjview = rview.toObjview;
-                    const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
+                    const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview, true);
                     if (debug) console.log('2697 rel, relviews', rel, relviews);
                     if (relviews.length > 1) {
                         // Duplicate relationship views between two object views
@@ -3636,7 +3639,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         const mview = modelviews[i];
         for (let j = 0; j < hasSubMdlRels.length; j++) {
             const rel = hasSubMdlRels[j];
-            const relviews = mview.findRelationshipViewsByRel2(rel);
+            const relviews = mview.findRelationshipViewsByRel(rel, true);
             if (!relviews || relviews.length === 0) {
                 const rview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
                 mview.relshipviews.push(rview);
@@ -3672,7 +3675,7 @@ export function deleteDuplicateRelshipViews(modelview: akm.cxmModelView, myDiagr
             const rel = rview.relship;
             const fromObjview = rview.fromObjview;
             const toObjview = rview.toObjview;
-            const relviews = modelview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
+            const relviews = modelview.findRelationshipViewsByRel2(rel, fromObjview, toObjview, true);
             if (debug) console.log('2925 rel, relviews', rel, relviews);
             if (relviews.length > 1) {
                 // Duplicate relationship views between two object views

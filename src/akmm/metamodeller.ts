@@ -9210,7 +9210,7 @@ export class cxModelView extends cxMetaObject {
         let rv = null;
         while (i < relshipviews.length) {
             rv = relshipviews[i];
-            if (!rv?.isDeleted()) {
+            if (rv && !rv?.isDeleted()) {
                 if (rv.id === id)
                     return rv;
             }
@@ -9238,8 +9238,12 @@ export class cxModelView extends cxMetaObject {
             return null;
         for (let i = 0; i < rviews.length; i++) {
             const rv = rviews[i];
-            if (!includeDeleted && rv?.markedAsDeleted)
-                continue;
+            if (rv.relship.id === rel.id) {
+                if (!includeDeleted && rv?.markedAsDeleted)
+                    continue;
+                else
+                    relviews.push(rv);
+            }
         }
         return relviews;
     }
@@ -9370,22 +9374,21 @@ export class cxModelView extends cxMetaObject {
             }
         }
     }
-    purgeRelshipviews() {
+    purgeRelshipviewsById(modelview: cxModelview) {
         if (this.relshipviews) {
             const relviews = new Array();
             for (let i = 0; i < this.relshipviews.length; i++) {
                 const relview = this.relshipviews[i];
-                const id = relview.id;
+                if (!relview) continue;
+                const id = relview?.id;
+                const rviews = modelview.findRelationshipViewsById(id); 
                 let found = false;
-                for (let j = 0; i < this.relshipviews.length; i++) {
-                    const rview = this.relshipviews[j];
-                    if (rview.id === id) {
-                        if (!found) { 
-                            found = true;
-                            relviews.push(relview);
-                        }
-                    }
+                for (let j=0; j<relviews?.length; j++) {
+                    if (relviews[j]?.id == id)
+                        found = true;
                 }
+                if (!found)
+                    relviews.push(relview[i]);
             }
             this.relshipviews = relviews;
         }

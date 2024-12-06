@@ -349,6 +349,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         }
+
         const links = myDiagram.links;
         if (debug) console.log("End: After Reload:");
         if (true) {
@@ -419,7 +420,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
-            if (myNode) {
+            if (gjsData) {
               gjsData.name = text;
               uic.updateObjectType(gjsData, field, text, context);
               const objtype = myMetis.findObjectType(gjsData.objecttype?.id);
@@ -564,8 +565,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionMoved": {
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
-        myModelview.purgeRelshipviews();
-        // uic.repairObjectAndRelshipViews(myModelview);
+        let relshipviews = myModelview.relshipviews;
+        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
         // First remember the original locs and scales
         const dragTool = myDiagram.toolManager.draggingTool;
         const myParts = dragTool.draggedParts;
@@ -876,7 +877,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const relviews = myModelview.findRelationshipViewsByRel(relship, true);
                     let relview: akm.cxRelationshipView;
                     if (relviews?.length > 0) {
-                      relview = relviews[0];
+                      const relview = relviews[0];
                       relview.markedAsDeleted = false;
                       relview.toObjview = movedObjview;
                       relview.points = [];
@@ -905,6 +906,33 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        { /////////
+        const links = myDiagram.links;
+        for (let it = links.iterator; it?.next();) {
+          const link = it.value;
+          const rview = myModelview.findRelationshipView(link.data.key);
+          if (!rview) continue;
+          const relviews = myModelview.relshipviews;
+          for (let i = 0; i < relviews?.length; i++) {
+            const relview = relviews[i];
+            if (relview.id === rview.id) {
+              const points = [];
+              for (let it = link.points.iterator; it?.next();) {
+                const point = it.value;
+                points.push(point.x)
+                points.push(point.y)
+              }
+              relview.points = points;
+              const jsnRelview = new jsn.jsnRelshipView(relview);
+              if (jsnRelview) {
+                uic.addItemToList(modifiedRelshipViews, jsnRelview);
+              }
+              myModelview.addRelationshipView(relview);
+            }
+          }
+        }
+        uid.clearPath(links, myMetis, myDiagram);
+        }
         // Dispatch modelview
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);
@@ -914,33 +942,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
-        { /////////
-        // const links = myDiagram.links;
-        // for (let it = links.iterator; it?.next();) {
-        //   const link = it.value;
-        //   const rview = myModelview.findRelationshipView(link.data.key);
-        //   if (!rview) continue;
-        //   const relviews = myModelview.relshipviews;
-        //   for (let i = 0; i < relviews?.length; i++) {
-        //     const relview = relviews[i];
-        //     if (relview.id === rview.id) {
-        //       const points = [];
-        //       for (let it = link.points.iterator; it?.next();) {
-        //         const point = it.value;
-        //         points.push(point.x)
-        //         points.push(point.y)
-        //       }
-        //       relview.points = points;
-        //       const jsnRelview = new jsn.jsnRelshipView(relview);
-        //       if (jsnRelview) {
-        //         uic.addItemToList(modifiedRelshipViews, jsnRelview);
-        //       }
-        //       myModelview.addRelationshipView(relview);
-        //     }
-        //   }
-        // }
-        // uid.clearPath(links, myMetis, myDiagram);
-        }
         break;
       }
       case "SelectionDeleting": {

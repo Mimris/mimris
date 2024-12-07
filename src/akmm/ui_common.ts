@@ -426,7 +426,7 @@ export function updateObjectType(data: any, name: string, value: string, context
     }
 }
 
-export function setObjectType(data: any, objtype: akm.cxObjectType, context: any) {
+export function setObjectType(data: any, objtype: akm.cxObjectType, context: any, doNotResetToTypeview: boolean) {
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
     // data, i.e. node
@@ -447,12 +447,14 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 }
                 myDiagram.model.setDataProperty(data, "typename", objtype.name);
                 // Apply local overrides
-                currentObjectView['template'] = data.template;
-                currentObjectView['figure'] = data.figure;
-                currentObjectView['fillcolor'] = data.fillcolor;
-                currentObjectView['strokecolor'] = data.strokecolor;
-                currentObjectView['strokewidth'] = data.strokewidth;
-                currentObjectView['icon'] = data.icon;
+                if (!doNotResetToTypeview) {
+                    currentObjectView['template'] = data.template;
+                    currentObjectView['figure'] = data.figure;
+                    currentObjectView['fillcolor'] = data.fillcolor;
+                    currentObjectView['strokecolor'] = data.strokecolor;
+                    currentObjectView['strokewidth'] = data.strokewidth;
+                    currentObjectView['icon'] = data.icon;
+                }
                 // Update data (node)
                 data.objtypeRef = objtype.id;
                 data.typename = objtype.name;

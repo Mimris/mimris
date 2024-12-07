@@ -128,10 +128,11 @@ export function handleSelectDropdownChange(selected, context) {
         if (gjsInst.category === constants.gojs.C_OBJECT) {
           const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(gjsInst.key);
           let object: akm.cxObject = goNode?.object;
-          uic.setObjectType(gjsInst, objtype, context);
+          uic.setObjectType(gjsInst, objtype, context, false);
           const n = myDiagram.findNodeForKey(gjsInst.key);
           // myDiagram.model.setDataProperty(n.data, "typename", typename);
-          uid.resetToTypeview(gjsInst, myMetis, myDiagram);
+          if (objtype.name !== constants.types.AKM_ENTITY_TYPE)
+            uid.resetToTypeview(gjsInst, myMetis, myDiagram);
           if (n) n.isSelected = false;
           myMetis.myDiagram.requestUpdate();
         }

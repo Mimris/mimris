@@ -1429,14 +1429,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (it.value instanceof go.Node) {
             // Filter out source nodes
             let gjsNode = it.value.data;  
-            let gjsSourceObject = gjsNode.object;
-            let gjsSourceNode   = gjsNode.fromNode;
-            let sourceNodeKey   = gjsSourceNode.key;
-            let sourceLoc       = gjsSourceNode.loc;
-            let sourceGroupKey  = gjsSourceNode.group;
-            let targetGroupKey  = gjsNode.group;
-            let targetNodeKey   = gjsNode.key;
-            let targetLoc       = gjsNode.loc;
+            let gjsSourceNode       = gjsNode.fromNode;
+            let gjsSourceObject     = gjsNode.object;
+            let gjsSourceObjectView = gjsNode.objectview;
+            let sourceNodeKey       = gjsSourceNode.key;
+            let sourceLoc           = gjsSourceNode.loc;
+            let sourceGroupKey      = gjsSourceNode.group;
+            let targetGroupKey      = gjsNode.group;
+            let targetNodeKey       = gjsNode.key;
+            let targetLoc           = gjsNode.loc;
             if (sourceNodeKey?.length == gjsNode.key.length) {
               pasteAnotherModelview = true;
               targetNodeKey = utils.createGuid();
@@ -1525,6 +1526,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (pasteAnotherModelview) {
             targetObjectView = new akm.cxObjectView(targetNodeKey, sourceObjectView.name, 
                                                     targetObject, sourceObjectView.description, myModelview);
+            uic.copyViewAttributes(targetObjectView, sourceObjectView);                                        
             myModelview.addObjectView(targetObjectView);
             myMetis.addObjectView(targetObjectView);
             nodeAndLinkMaps.replaceNodeKeys(sourceNodeKey, targetObject.id);

@@ -2049,6 +2049,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const myModelview = myMetis.currentModelview;
               const myMetamodel = myMetis.currentMetamodel;
               let includeInheritedReltypes = myModelview.includeInheritedReltypes;
+              let includeIsType = false;
               const link = obj.part.data;
               const relshipRef = link.relshipRef;
               const relship = myMetis.findRelationship(relshipRef);
@@ -2056,6 +2057,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               fromType = myMetamodel.findObjectType(fromType.id);
               let toType: akm.cxObjectType = relship.toObject.type;
               toType = myMetamodel.findObjectType(toType.id);
+              if (fromType.name === constants.types.AKM_ENTITY_TYPE && 
+                toType.name === constants.types.AKM_ENTITY_TYPE) {
+                  includeIsType = true;
+              }              
               let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
               for (let i = 0; i < rtypes?.length; i++) {
@@ -2072,6 +2077,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 for (let i = 0; i < reltypes?.length; i++) {
                   const rtype = reltypes[i];
                   link.choices.push(rtype.name);
+                }
+                if (includeIsType) {
+                  reltypes.push(constants.types.AKM_IS);
                 }
                 let uniqueSet = utils.removeArrayDuplicates(link.choices);
                 link.choices = uniqueSet;

@@ -1617,7 +1617,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const fromNodeMap = nodeAndLinkMaps.getNodeMap(relship.fromObject, gjsLink.from);
               gjsPastedLinkFromNodeKey = fromNodeMap.toTargetKey;
               const toNodeMap = nodeAndLinkMaps.getNodeMap(relship.toObject, gjsLink.to);
-              gjsPastedLinkToNodeKey = toNodeMap.toTargetKey;
+              if (toNodeMap) gjsPastedLinkToNodeKey = toNodeMap.toTargetKey;
             }
             let pastedRelviewKey = gjsPastedLinkKey;
             if (pasteAnotherModelview) { // 

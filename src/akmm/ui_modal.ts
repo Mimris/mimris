@@ -340,6 +340,7 @@ export function handleSelectDropdownChange(selected, context) {
           if (!link) return;
           const relshipRef = link.relshipRef;
           let relship = myModel.findRelationship(relshipRef);
+          if (!relship) relship = myMetis.findRelationship(relshipRef);
           let fromNode = link.fromNode;
           let toNode   = link.toNode;
           let fromType = fromNode?.objecttype;

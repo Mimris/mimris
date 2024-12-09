@@ -1537,6 +1537,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             targetObjectView = new akm.cxObjectView(targetNodeKey, sourceObjectView.name, 
                                                     targetObject, sourceObjectView.description, myModelview);
+            uic.copyViewAttributes(targetObjectView, sourceObjectView);                                        
+            myModelview.addObjectView(targetObjectView);
             myModelview.addObjectView(targetObjectView);
             myMetis.addObjectView(targetObjectView);
           }

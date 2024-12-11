@@ -1579,9 +1579,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Select Content",
             function (e: any, obj: any) {
-              let node = obj.part.data;
-              if (debug) console.log('1453 obj.part: ', obj.part.toString());
-              uid.selectContent(node, myMetis, myDiagram);
+              let node = obj.part;
+              node = myDiagram.findNodeForKey(node.key);
+              const myCollection = node.findSubGraphParts();
+              myCollection.add(node);
+              try {
+                myDiagram.selectCollection(myCollection);
+              } catch {}
             },
             function (o: any) {
               const node = o.part.data;
@@ -1647,7 +1651,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return false;
+                return true;
               }
               return false;
             }),

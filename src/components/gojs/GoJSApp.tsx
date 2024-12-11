@@ -1430,6 +1430,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Filter out source nodes
             let gjsNode = it.value.data;  
             let gjsSourceNode       = gjsNode.fromNode;
+            if (!gjsSourceNode)
+              continue;
             let gjsSourceObject     = gjsNode.object;
             let gjsSourceObjectView = gjsNode.objectview;
             let sourceNodeKey       = gjsSourceNode.key;

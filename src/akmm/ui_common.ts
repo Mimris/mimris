@@ -662,13 +662,15 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             const object = objview.object;
             // If group, delete members of group
             if (node.isGroup) {
-                if (debug) console.log('479 delete container', objview);
-                const groupMembers = node.getGroupMembers(myGoModel);
-                for (let i = 0; i < groupMembers?.length; i++) {
-                    const member = groupMembers[i];
-                    deleteNode(member, deletedFlag, context);
-                    myDiagram.requestUpdate();
-                }
+                const gjsNode = myDiagram.findNodeForKey(data.key);
+                gjsNode.ungroupable = true;
+                // if (debug) console.log('479 delete container', objview);
+                // const groupMembers = node.getGroupMembers(myGoModel);
+                // for (let i = 0; i < groupMembers?.length; i++) {
+                //     const member = groupMembers[i];
+                //     deleteNode(member, deletedFlag, context);
+                //     myDiagram.requestUpdate();
+                // }
             }
             // If deleteViewsOnly we're done
             if (myMetis.deleteViewsOnly) {

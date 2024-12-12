@@ -429,11 +429,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               let node = obj.part;
               node = myDiagram.findNodeForKey(node.key);
-              const myCollection = node.findSubGraphParts();
-              myCollection.add(node);
               try {
+                const myCollection = node.findSubGraphParts();
+                myCollection.add(node);
                 myDiagram.selectCollection(myCollection);
-              } catch {}
+              } catch {
+              }
               const gjsNode = myDiagram.findNodeForKey(node?.key);
               let currentNode = obj.part.data;
               let selection = myDiagram.selection;
@@ -875,8 +876,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              if (confirm('Do you really want to delete the current object?')) {
-                const myModel = myMetis.currentModel;
+              // const myModel = myMetis.currentModel;
+              let node = obj.part;
+              // node = myDiagram.findNodeForKey(node.key);
+              // const myCollection = node.findSubGraphParts();
+              // myCollection.add(node);
+              // try {
+              //   myDiagram.selectCollection(myCollection);
+              // } catch {}
+
+              if (confirm('Do you really want to delete the current selection?')) {
                 myMetis.deleteViewsOnly = false;
                 myMetis.currentNode = obj.part.data;
                 myDiagram.commandHandler.deleteSelection();

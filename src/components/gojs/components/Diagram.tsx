@@ -876,15 +876,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              // const myModel = myMetis.currentModel;
               let node = obj.part;
-              // node = myDiagram.findNodeForKey(node.key);
-              // const myCollection = node.findSubGraphParts();
-              // myCollection.add(node);
-              // try {
-              //   myDiagram.selectCollection(myCollection);
-              // } catch {}
-
               if (confirm('Do you really want to delete the current selection?')) {
                 myMetis.deleteViewsOnly = false;
                 myMetis.currentNode = obj.part.data;

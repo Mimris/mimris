@@ -892,8 +892,14 @@ export function askForTargetMetamodel(context: any) {
     const objectviews = myModelview.objectviews;
     for (let i = 0; i < objectviews?.length; i++) {
         const objectview = objectviews[i] as akm.cxObjectView;
+        if (!objectview) 
+            continue;
         let object = objectview.object as akm.cxObject;
-        if (!object) object = myMetis.getObject(objectview.objectRef);
+        if (!object) {
+            const objId = objectview.objectRef;
+            if (objId)
+                object = myMetis.getObject(objId);
+        }
         if (object?.type?.name === constants.types.AKM_METAMODEL) {
             const relviews = objectview.getInputRelviews();
             for (let j = 0; j < relviews?.length; j++) {
@@ -955,21 +961,21 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     let targetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
     if (!targetMetamodel)
         return false;
+    if (!sourcemodelview)
+        return false;
     if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         const typelist = new Array();
         typelist.push("Default");
         typelist.push("Entity Type");
         typelist.push("$Type");
         clearGivenEntityTypes(typelist, myMetis);
+    } else {
+        targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
+        targetMetamodel.clearContent();
     }
-    if (!sourcemodelview)
-        return false;
-    targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
     if (targetMetamodel.name !== constants.core.AKM_CORE_MM) {
         modelviewList = new Array();
         modelviewList.push(sourcemodelview.name);
-        {
-        }
     } else {
         modelviewList = constants.core.AKM_MODELVIEWS;
     }

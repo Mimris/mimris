@@ -662,13 +662,15 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             const object = objview.object;
             // If group, delete members of group
             if (node.isGroup) {
-                if (debug) console.log('479 delete container', objview);
-                const groupMembers = node.getGroupMembers(myGoModel);
-                for (let i = 0; i < groupMembers?.length; i++) {
-                    const member = groupMembers[i];
-                    deleteNode(member, deletedFlag, context);
-                    myDiagram.requestUpdate();
-                }
+                const gjsNode = myDiagram.findNodeForKey(data.key);
+                gjsNode.ungroupable = true;
+                // if (debug) console.log('479 delete container', objview);
+                // const groupMembers = node.getGroupMembers(myGoModel);
+                // for (let i = 0; i < groupMembers?.length; i++) {
+                //     const member = groupMembers[i];
+                //     deleteNode(member, deletedFlag, context);
+                //     myDiagram.requestUpdate();
+                // }
             }
             // If deleteViewsOnly we're done
             if (myMetis.deleteViewsOnly) {
@@ -902,6 +904,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             }
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
+                    includeInherited = true;
                     reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
@@ -1407,10 +1410,10 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
             const nameIsChanged = (name !== currentRelship.type.name);
             if (debug) console.log('1665 data, nameIsChanged, name, currentRelship', data, nameIsChanged, name, currentRelship);
             currentRelship.setType(reltype);
-            if (!nameIsChanged) {
-                name = reltype.name;
-                currentRelship.setName(name);
-            }
+            // if (!nameIsChanged) {
+            //     name = reltype.name;
+            //     currentRelship.setName(name);
+            // }
             currentRelship.setModified();
             const currentRelshipView = myMetis.findRelationshipView(data.relshipview.id);
             if (currentRelshipView) {

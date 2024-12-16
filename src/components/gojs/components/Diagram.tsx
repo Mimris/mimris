@@ -427,7 +427,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
             function (e: any, obj: any) {
-              const currentNode = obj.part.data;
+              let node = obj.part;
+              node = myDiagram.findNodeForKey(node.key);
+              try {
+                const myCollection = node.findSubGraphParts();
+                myCollection.add(node);
+                myDiagram.selectCollection(myCollection);
+              } catch {
+              }
+              const gjsNode = myDiagram.findNodeForKey(node?.key);
+              let currentNode = obj.part.data;
               let selection = myDiagram.selection;
               if (selection.count == 0) {
                 if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
@@ -459,7 +468,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                node.diagram.selectCollection(node.findSubGraphParts());
+                // node.diagram.selectCollection(node.findSubGraphParts());
                 return true;
               }
               if (node.category === constants.gojs.C_RELATIONSHIP)
@@ -867,8 +876,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              if (confirm('Do you really want to delete the current object?')) {
-                const myModel = myMetis.currentModel;
+              // const myModel = myMetis.currentModel;
+              let node = obj.part;
+              // node = myDiagram.findNodeForKey(node.key);
+              // const myCollection = node.findSubGraphParts();
+              // myCollection.add(node);
+              // try {
+              //   myDiagram.selectCollection(myCollection);
+              // } catch {}
+
+              if (confirm('Do you really want to delete the current selection?')) {
                 myMetis.deleteViewsOnly = false;
                 myMetis.currentNode = obj.part.data;
                 myDiagram.commandHandler.deleteSelection();
@@ -1571,9 +1588,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Select Content",
             function (e: any, obj: any) {
-              let node = obj.part.data;
-              if (debug) console.log('1453 obj.part: ', obj.part.toString());
-              uid.selectContent(node, myMetis, myDiagram);
+              let node = obj.part;
+              node = myDiagram.findNodeForKey(node.key);
+              const myCollection = node.findSubGraphParts();
+              myCollection.add(node);
+              try {
+                myDiagram.selectCollection(myCollection);
+              } catch {}
             },
             function (o: any) {
               const node = o.part.data;
@@ -1639,7 +1660,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
-                return false;
+                return true;
               }
               return false;
             }),
@@ -2053,12 +2074,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = obj.part.data;
               const relshipRef = link.relshipRef;
               const relship = myMetis.findRelationship(relshipRef);
-              let fromType: akm.cxObjectType = relship.fromObject.type;
-              fromType = myMetamodel.findObjectType(fromType.id);
-              let toType: akm.cxObjectType = relship.toObject.type;
-              toType = myMetamodel.findObjectType(toType.id);
-              if (fromType.name === constants.types.AKM_ENTITY_TYPE && 
-                toType.name === constants.types.AKM_ENTITY_TYPE) {
+              let fromTypeId = relship.fromObject.type.id;
+              let fromType = myMetamodel.findObjectType(fromTypeId);
+              if (!fromType) fromType = myMetis.findObjectType(fromTypeId);
+              let toTypeId = relship.toObject.type.id;
+              let toType = myMetamodel.findObjectType(toTypeId);
+              if (!toType) toType = myMetis.findObjectType(toTypeId);
+              if (fromType?.name === constants.types.AKM_ENTITY_TYPE && 
+                toType?.name === constants.types.AKM_ENTITY_TYPE) {
                   includeIsType = true;
               }              
               let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);

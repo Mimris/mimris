@@ -889,12 +889,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         let link = myMetis.currentLink;
         link = myDiagram.findLinkForKey(link.key);
         link.data.relshiptype = reltype;
-        link.name = reltype.name;
         const relshipRef = link.data.relshipRef;
         let relship = myModel.findRelationship(relshipRef);
+        if (!relship)
+          relship = myMetis.findRelationshipType(relshipRef);
         const fromReltype = relship.type;
         if ( relship.name === fromReltype.name) {
           relship.name = reltype.name;
+          // link.name = reltype.name;
           myDiagram.model.setDataProperty(link.data, 'name', relship.name);
         }
         relship.type = reltype;

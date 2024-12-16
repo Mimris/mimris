@@ -892,7 +892,8 @@ export function askForTargetMetamodel(context: any) {
     const objectviews = myModelview.objectviews;
     for (let i = 0; i < objectviews?.length; i++) {
         const objectview = objectviews[i] as akm.cxObjectView;
-        const object = objectview.object as akm.cxObject;
+        let object = objectview.object as akm.cxObject;
+        if (!object) object = myMetis.getObject(objectview.objectRef);
         if (object?.type?.name === constants.types.AKM_METAMODEL) {
             const relviews = objectview.getInputRelviews();
             for (let j = 0; j < relviews?.length; j++) {

@@ -598,7 +598,9 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
     const myModel: akm.cxModel = context.myModel;
     const myDiagram = context.myDiagram;
     const object = myMetis.findObject(obj.id);
-    const name = object.name;
+    let name = object.name;
+    if (name === 'Datatype')
+        name = 'string';
     const descr = object.description;
     const myTargetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
     if (!myTargetMetamodel)

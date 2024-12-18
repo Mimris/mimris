@@ -38,7 +38,6 @@ export let isArrayEmpty = (array: any) => {
     return retval;
 }
 
-
 export let nameExistsInNames = (names: string[], name: string) => {
     for (let i = 0; i < names.length; i++) {
         const n = names[i];
@@ -163,14 +162,17 @@ export function findObjectsByType(objects: any, objecttypes: any,  objTypeName: 
 export function findObjectByName(objects: any,  name: any) {
     return objects.find(o => o.name === name && o);
 }
+
 export function findObjectByNameOnly(objects: any, name: any) { // find object by name only, exclude version
     const obj = objects.find(o => (o.name.split('.')[0] === name) && o);
     if (debug) console.log('124 ',objects[0].name.split('.')[0], name, obj, objects);
     return obj;
 }
+
 export function findObjectByNameVersion(objects: any,nameVersion: any) {
     return objects.find(o => o.name === nameVersion && o);
 }
+
 export function findObjectByTitle(objects: any, title: any) {
     return objects.find(o => o.title === title && o);
 }
@@ -208,12 +210,12 @@ export function findTopLevelObject( o: any, type: string, objects, relationships
     return topObj;
 }
 
-
 export function findRelshipByToIdAndType(curRelships: any, toObjId: string, relType: string) {
     if (debug) console.log('151 ', curRelships, toObjId, relType);
     const relship = (toObjId) ? curRelships?.find(r => r.toobjectRef === toObjId && r.typeRef === relType) : null;
     return relship;
 }
+
 export function findRelshipByFromIdToIdAndType(curRelships: any, fromObjId: string, toObjId: string, relType: string) {
     if (debug) console.log('151 ', curRelships, toObjId, relType);
     const relship = (toObjId && fromObjId) ? curRelships?.find(r => r.fromobjectRef === fromObjId && r.toobjectRef === toObjId && r.typeRef === relType) : null;

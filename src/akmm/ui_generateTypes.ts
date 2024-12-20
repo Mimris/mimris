@@ -997,41 +997,48 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             if (noOfEntityTypes === 0)
                 continue;
             // Get the relevant objectviews and relshipviews
-            let objviews = new Array();
-            let relshipviews = new Array();
+            let objects = new Array();
+            // let objviews = new Array();
             for (let i = 0; i < objectviews.length; i++) {
                 const objectview = objectviews[i];
-                const object = objectview.object;
+                const object: akm.cxObject = objectview.object;
                 if (!object) continue
                 if (!object.type) continue
                 if (object.type?.name === constants.types.AKM_METAMODEL) {
                     // Follow 'contains' relationships
-                    let relviews = objectview.getOutputRelviews();
-                    for (let j = 0; j < relviews?.length; j++) {
-                        let relview = relviews[j];
-                        let rel = relview.relship;
+                    let relships = object.getOutputRelships(context.myModel, constants.relkinds.REL);
+                    for (let j = 0; j < relships?.length; j++) {
+                        let rel = relships[j];
                         if (rel?.type?.name === constants.types.AKM_CONTAINS) {
                             let toObj = rel.toObject;
                             if (toObj.type.name === constants.types.AKM_ENTITY_TYPE) {
-                                objviews.push(relview.toObjview);
+                                objects.push(toObj);
                             }
                         }
                     }
-                    if (noOfEntityTypes > objviews.length) {
+                    if (noOfEntityTypes > objects.length) {
                         if (!confirm("The number of EntityType objects in the metamodel is less than in the modelview. Continue?"))
                             return false;
                     }
                 }
                 if (object.type.name === constants.types.AKM_RELSHIP_TYPE) {
-                    objviews.push(objectview);
+                    objects.push(object);
                 }
             }
-            relshipviews = sourcemodelview.relshipviews;
-            for (let i = 0; i <= objectviews?.length; i++) {
-                const objview = objectviews[i];
-                if (!objview /*|| objview.markedAsDeleted*/)
-                    continue;
-                let obj = objview.object;
+            let relshipviews: akm.cxRelationshipView[] = sourcemodelview.relshipviews;
+            let relships: akm.cxRelationship[] = new Array();
+            for (let i=0; i<relshipviews.length; i++) {
+                const relview = relshipviews[i];
+                const rel = relview?.relship;
+                relships.push(rel);
+            }
+            // Remove duplicates
+            relships = [... new Set(relships)];
+            for (let i = 0; i <= objects?.length; i++) {
+                const obj = objects[i];
+                // if (!objview /*|| objview.markedAsDeleted*/)
+                //     continue;
+                // let obj = objview.object;
                 if (!obj /*|| obj.markedAsDeleted*/)
                     continue;
                 if (obj.isOfType('Metamodel')) {
@@ -1068,7 +1075,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             // Generate the target metamodel
             context.myTargetMetamodel = targetMetamodel;
             context.firstTime = true;
-            targetMetamodel = generateMetamodel(objviews, relshipviews, context);
+            targetMetamodel = generateMetamodel(objects, relships, context);
             console.log('1021 Target metamodel: ', targetMetamodel);
         }
         if (sourcemodelview)
@@ -1292,7 +1299,7 @@ function getSubModelObjects(obj: akm.cxObject, hasSubmodelType: cxRelationshipTy
     }
 }
 
-export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any): akm.cxMetaModel {
+export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelationship[], context: any): akm.cxMetaModel {
     const myMetis = context.myMetis as akm.cxMetis;
     const myMetamodel = context.myMetamodel as akm.cxMetaModel;
     const myModel = context.myModel as akm.cxModel;
@@ -1331,11 +1338,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
 
     // Handle datatype
-    let objects = myModel?.getObjectsByTypename('Datatype', false);
-    if (objects) {
+    let objs = myModel?.getObjectsByTypename('Datatype', false);
+    if (objs) {
         // For each Datatype object call generateDatatype
-        for (let i = 0; i < objects.length; i++) {
-            let obj = objects[i];
+        for (let i = 0; i < objs.length; i++) {
+            let obj = objs[i];
             if (obj && !obj.markedAsDeleted) {
                 const datatype = generateDatatype(obj, context);
             }
@@ -1348,10 +1355,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         targetMetamodel.methodtypes = mtdtypes;
     }
     // For each MethodType object call generateMethodType
-    objects = myModel?.getObjectsByTypename('MethodType', false);
-    if (objects) {
-        for (let i = 0; i < objects.length; i++) {
-            let obj = objects[i];
+    objs = myModel?.getObjectsByTypename('MethodType', false);
+    if (objs) {
+        for (let i = 0; i < objs.length; i++) {
+            let obj = objs[i];
             if (obj && !obj.markedAsDeleted) {
                 let mtdType = targetMetamodel.findMethodTypeByName(obj.name);
                 if (mtdType) {
@@ -1367,10 +1374,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
     }
     // For each Method object call generateMethod
-    objects = myModel?.getObjectsByTypename('Method', false);
-    if (objects) {
-        for (let i = 0; i < objects.length; i++) {
-            let obj = objects[i];
+    objs = myModel?.getObjectsByTypename('Method', false);
+    if (objs) {
+        for (let i = 0; i < objs.length; i++) {
+            let obj = objs[i];
             if (obj && !obj.markedAsDeleted) {
                 const method = generateMethod(obj, context);
                 const mtdtypename = method.methodtype;
@@ -1444,11 +1451,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     let metaObject;
     {   // Add metamodel contents
-        for (let i = 0; i <= objectviews?.length; i++) {
-            const objview = objectviews[i];
-            if (!objview /*|| objview.markedAsDeleted*/)
+        for (let i = 0; i <= objects?.length; i++) {
+            let obj = objects[i];
+            if (!obj /*|| objview.markedAsDeleted*/)
                 continue;
-            let obj = objview.object;
             if (!obj /*|| obj.markedAsDeleted*/)
                 continue;
             if (obj && obj instanceof akm.cxObject) {
@@ -1488,13 +1494,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 break;
             }
         }
-        if (objectviews) {
-            if (debug) console.log('1270 objectviews', objectviews);
-            for (let i = 0; i < objectviews.length; i++) {
-                const objview = objectviews[i];
-                if (!objview /*|| objview.markedAsDeleted*/)
-                    continue;
-                let obj = objview.object;
+        if (objects) {
+            let objtypeviews = new Array();
+            if (debug) console.log('1270 objects', objects);
+            for (let i = 0; i < objects.length; i++) {
+                let obj = objects[i];
                 if (!obj /*|| obj.markedAsDeleted*/)
                     continue;
                 switch (obj.type?.name) {
@@ -1513,7 +1517,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         if (obj.isOfType('Property'))
                             continue;
                 }
-                const typenames = [];
+                const typenames = new Array();
                 if (obj.name === obj.type?.name)
                     typenames.push(obj.type.name);
                 typenames.push(metaObject);
@@ -1533,11 +1537,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         if (type.markedAsDeleted)
                             continue;
                         // Check if obj inherits one of the specified types - otherwise do not generate type
-                        let objtype;
+                        let objtype: akm.cxObjectType;
                         if (
                             (obj.type.name === metaObject)
                         ) {
-                            objtype = generateObjectType(obj, objview, context);
+                            objtype = generateObjectType(obj, myObjectview, context);
                             if (objtype) targetMetamodel.addObjectTypeByName(objtype);
                             if (objtype && objtype.name !== constants.types.AKM_ENTITY_TYPE) {
                                 targetMetamodel.addObjectType0ByName(objtype);
@@ -1563,17 +1567,22 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                                 }
                             }
                             // Handle typeviews
-                            // First get all typeviews for the object type in the target metamodel
-                            const typeview = objtype?.typeview;
-                            const typeviews = targetMetamodel.removeAllObjectTypeViewsByObjectType(objtype);
-                            // Remove them all
-                            if (typeview) {
-                                typeviews.push(typeview);
+                            let typeview = objtype.typeview;
+                            // First get all objectviews of obj in the actual model
+                            let objviews = myModel.getObjectViewsByObject(obj);
+                            for (let i=0; i<objviews?.length; i++) {
+                                const oview = objviews[i];
+                                if (oview) {
+                                    typeview.applyObjectViewParameters(oview);
+                                    objtypeviews.push(typeview);
+                                    break;
+                                }
                             }
-                            targetMetamodel.objecttypeviews = typeviews;
-                            if (debug) console.log('1327 targetMetamodel ', targetMetamodel);
                         }
                     }
+                    // Then get all typeviews for the object type in the target metamodel
+                    objtypeviews = utils.removeArrayDuplicates(objtypeviews);
+                    targetMetamodel.objecttypeviews = objtypeviews;
                 }
             }
         }
@@ -1581,9 +1590,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // Add or generate relationship types
     { // First handle objects of type "RelshipType"
         let relshiptypeByNames: string[] = new Array();
-        for (let i = 0; i < objectviews?.length; i++) {
-            const objview = objectviews[i];
-            const obj = objview.object;
+        for (let i = 0; i < objects?.length; i++) {
+            const obj = objects[i];
             if (!obj)
                 continue;
             if (!obj || !(obj instanceof akm.cxObject))
@@ -1650,7 +1658,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 if (reltype) {
                     // Add supertypes i.e. inherited object types
                     // reltype.properties = [];
-        //            reltype.supertypes = supertypes;
+                    // reltype.supertypes = supertypes;
                     // Handle typeview
                     const relTypeview = reltype.typeview as akm.cxRelationshipTypeView;
                     if (relTypeview) {
@@ -1669,25 +1677,27 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         if (debug) console.log(relshiptypes);
     }
     { // Then handle relationships of type "relationshipType"
-        if (relshipviews) {
-            for (let i = 0; i < relshipviews.length; i++) {
-                const relview = relshipviews[i] as akm.cxRelationshipView;
-                if (!relview) continue;
-                const rel = relview.relship as akm.cxRelationship;
-                if (debug) console.log('1427 rel.name', rel.name);
+        if (relships) {
+            for (let i = 0; i < relships.length; i++) {
+                const rel = relships[i] as akm.cxRelationship;
+                const relviews = myModelview.findRelationshipViewsByRel(rel) as akm.cxRelationshipView[];
+                const relview = relviews[0];
+                if (!relviews) continue;
+                 if (debug) console.log('1427 rel.name', rel.name);
                 if (rel.isSystemRel()) {
                     continue;
                 }
                 if (rel.name === constants.types.AKM_CONTAINS) {
                     continue;
                 }
-                const fromObjview = relview.fromObjview as akm.cxObjectView;
-                if (!fromObjview) continue;
-                let fromObj = fromObjview?.object as akm.cxObject;
+                const fromObj = rel.fromObject as akm.cxObject;
+                if (!fromObj) continue;
+                // let fromObj = fromObjview?.object as akm.cxObject;
                 // fromObj = myModel.findObjectByName(fromObj?.name);
-                const toObjview = relview.toObjview as akm.cxObjectView;
-                if (!toObjview) continue;
-                let toObj = toObjview?.object as akm.cxObject;
+                const toObj = rel.toObject as akm.cxObject;
+                if (!toObj) continue;
+                // if (!toObjview) continue;
+                // let toObj = toObjview?.object as akm.cxObject;
                 // toObj = myModel.findObjectByName(toObj.name);
                 if (rel.name === constants.types.AKM_IS) {
                     for (let j = 0; j < objecttypes.length; j++) {
@@ -1721,12 +1731,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             // Handle typeviews
                             // First get all typeviews for the relship type in the target metamodel
                             const typeview = reltype?.typeview;
-                            const typeviews = targetMetamodel.removeAllRelshipTypeViewsByRelshipType(reltype);
+                            const reltypeviews = targetMetamodel.removeAllRelshipTypeViewsByRelshipType(reltype);
                             // Remove them all
                             if (typeview) {
-                                typeviews.push(typeview);
+                                reltypeviews.push(typeview);
                             }
-                            targetMetamodel.relshiptypeviews = typeviews;
+                            targetMetamodel.relshiptypeviews = reltypeviews;
                             // Then handle relationship typeview
                             const relTypeview = reltype.typeview;
                             if (relTypeview) {

@@ -7286,6 +7286,21 @@ export class cxModel extends cxMetaObject {
     getObjects(): cxObject[] | null {
         return this.objects;
     }
+    getObjectViewsByObject(obj: cxObjectView): cxObjectView[] {
+        const modelviews = this.modelviews;
+        const objviews = new Array();
+        for (let i=0; i<modelviews.length; i++) {
+            const mv = modelviews[i];
+            const oviews = mv.findObjectViewsByObject(obj);
+            for (let j=0; j<oviews.length; j++) {
+                const oview = oviews[j];
+                objviews.push(oview);
+            }
+        }
+        if (objviews.length > 1)
+            utils.removeArrayDuplicates(objviews);
+        return objviews;
+    }
     getObjectsByType(objtype: cxObjectType, includeSubTypes: boolean): cxObject[] | null {
         let objects = new Array();
         if (this.objects) {

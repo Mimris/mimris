@@ -1384,7 +1384,6 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
 
 export function getNodeByViewId(viewId: string, myDiagram: any): any {
     let node = null;
-    const it = myDiagram.nodes;
     for (let it = myDiagram.nodes; it?.next();) {
         const n = it.value;
         if (n.data.objviewRef === viewId) {

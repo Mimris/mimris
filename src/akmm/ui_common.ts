@@ -683,9 +683,11 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
                 objview.markedAsDeleted = deletedFlag;
                 // Remove the object view from the object
                 const n = myDiagram.findNodeForKey(objview.id);
-                myDiagram.startTransaction("remove node");
-                myDiagram.remove(n);
-                myDiagram.commitTransaction("remove node");
+                if (n) {
+                    myDiagram.startTransaction("remove node");
+                    myDiagram.remove(n);
+                    myDiagram.commitTransaction("remove node");
+                }
             }
             myDiagram.requestUpdate();
             // Handle connected relationships
@@ -1604,24 +1606,26 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 const rv = rviews[0];
                 const fromObjview = rv.fromObjview;
                 const toObjview = rv.toObjview;
+                rv.markedAsDeleted = false;
                 // Check if link exists
                 let link;
                 const myLink = uid.getLinkByViewId(rv.id, myDiagram);
                 if (myLink) {
                     link = myDiagram.findLinkForKey(rv.id);
                     if (link) {
-                        if (!link.fromNode) {
-                            link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+                        if (!link.fromNode)
+                            link.fromNode = myDiagram.findNodeForKey(fromObjview.id);
+                        if (!link.from)
                             link.from = link.fromNode?.key;
-                        }
-                        if (!link.toNode) {
-                            link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+                        if (!link.toNode)
+                            link.toNode = myDiagram.findNodeForKey(toObjview.id); // uid.getNodeByViewId(toObjview.id, myDiagram);
+                        if (!link.to)
                             link.to = link.toNode?.key;
-                        }
-                        if (link.from && link.to) 
-                            myDiagram.model.addLinkData(link);
-
+                        // if (link.from && link.to) 
+                        //     myDiagram.model.addLinkData(link);
                         continue;  // Link exists - do nothing
+                    } else {
+
                     }
                 } else {
                     // Link does not exist - create it
@@ -3173,7 +3177,7 @@ function isMemberOfSubMetamodel(myMetis: akm.cxMetis, metamodel: akm.cxMetaModel
     for (let i = 0; i < subMetamodelRefs?.length; i++) {
         const subMetamodelRef = subMetamodelRefs[i];
         const subMetamodel = myMetis.findMetamodel(subMetamodelRef);
-        const otype = subMetamodel.findObjectType(objtype.id);
+        const otype = subMetamodel?.findObjectType(objtype.id);
         if (otype) {
             return true;
         }
@@ -3188,6 +3192,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     let report = printf(format, msg);
     msg = "First do some initial checks\n";
     const metamodels = myMetis.metamodels;
+    let modifiedRelshipViews = new Array();
 
     { // Check for duplicate relship types in the metamodels
         for (let i = 0; i < metamodels?.length; i++) {
@@ -3349,8 +3354,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 const oview = objviews[j];
                 const obj = oview.object;
                 if (!obj) 
-                    oview.markedAsDeleted = true;
-                oview.modelview = modelview;
+                    continue; // oview.markedAsDeleted = true;
                 if (debug) console.log('2970 oview', oview.name);
                 // if (isMemberOfSubmodel(myMetis, oview))
                 //     continue;
@@ -3361,6 +3365,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             else {
                 objectviews = objectviews?.concat(oviews);
             }
+            modelview.objectviews = objectviews;
         }
         const objviews = [];
         if (debug) console.log('2515 objectviews', objectviews);
@@ -3560,8 +3565,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         for (let i = 0; i < modelviews?.length; i++) {
             let mview = modelviews[i];
             if (mview /*&& mview.id === modelview.id*/) {
-                mview = repairRelationshipViews(mview, myDiagram);
-                const rviews = mview.relshipviews;
+                // mview = repairRelationshipViews(mview, myDiagram);
+                let rviews = mview.relshipviews;
                 if (debug) console.log('2690 modelview', mview);
                 for (let j = 0; j < rviews?.length; j++) {
                     const rview = rviews[j];
@@ -3624,7 +3629,10 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                         }
                         // report += printf(format, msg);
                     }
+                    const jsnRelview = new jsn.jsnRelshipView(rview);
+                    modifiedRelshipViews.push(jsnRelview);
                 }
+                rviews = utils.removeArrayDuplicates(rviews);
             }
         }
         msg += "\nVerifying relationship views is completed\n";
@@ -3658,10 +3666,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
-    if (debug) console.log('2831 jsnMetis', jsnMetis, myMetis);
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-    if (debug) console.log('2833 data', data, myMetis);
-    if (debug) console.log('2834 myGoModel', myGoModel);
     msg = "End Verification\n";
 
     report += printf(format, msg);
@@ -3982,15 +3987,19 @@ export function repairRelationshipViews(myModelView: akm.cxModelView, myDiagram:
     const relviews = myModelView.relshipviews;
     for (let i = 0; i < relviews?.length; i++) {
         let relview = relviews[i];
+        const rel = relview.relship;
         let fromObjview = relview.fromObjview;
         let toObjview = relview.toObjview;
-        if (!fromObjview)
-            continue;
-        if (!fromObjview.object)
-            continue;
-        const rel = relview.relship;
         const fromObj = rel.fromObject;
         const toObj = rel.toObject;
+        if (!fromObjview)
+            continue;
+        if (!fromObjview.object) {
+            fromObjview.object = fromObj;
+        }
+        if (!toObjview.object) {
+            toObjview.object = toObj;
+        }
         if (fromObjview.object?.id === fromObj?.id && toObjview.object?.id === toObj?.id) {
             continue;
         } else {

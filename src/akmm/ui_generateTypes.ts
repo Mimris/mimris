@@ -317,10 +317,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         object.generatedTypeId = objtype.getId();
         { // Handle objecttypeview
             let objtypeview = objtype.typeview;
-            if (!objtypeview) {
-                const id = utils.createGuid();
-                objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
-            }
+            let id;
+            if (objtypeview)
+                id = objtypeview.id;
+            if (!objtypeview) 
+                id = utils.createGuid();
+            objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
             objtype.setModified();
@@ -599,8 +601,6 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
     const myDiagram = context.myDiagram;
     const object = myMetis.findObject(obj.id);
     let name = object.name;
-    if (name === 'Datatype')
-        name = 'string';
     const descr = object.description;
     const myTargetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
     if (!myTargetMetamodel)
@@ -1345,6 +1345,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
             let obj = objs[i];
             if (obj && !obj.markedAsDeleted) {
                 const datatype = generateDatatype(obj, context);
+                myMetamodel.addDatatype(datatype);
             }
         }
     }

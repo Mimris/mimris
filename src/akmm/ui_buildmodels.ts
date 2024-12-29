@@ -376,7 +376,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
     }
   }
   // load relship views
-  const relshipviews = [] as akm.cxRelationshipView[];
+  let relshipviews = [] as akm.cxRelationshipView[];
   let relviews = (modelview) && modelview.getRelationshipViews();
   if (relviews) {
     for (let i = 0; i < relviews?.length; i++) {
@@ -474,6 +474,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       }
     }
   }
+  relshipviews = utils.removeArrayDuplicates(relshipviews);
   modelview.relshipviews = relshipviews;
   // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
   // uic.repairGoModel(myGoModel, modelview);

@@ -601,8 +601,6 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
     const myDiagram = context.myDiagram;
     const object = myMetis.findObject(obj.id);
     let name = object.name;
-    if (name === 'Datatype')
-        name = 'string';
     const descr = object.description;
     const myTargetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
     if (!myTargetMetamodel)
@@ -1347,6 +1345,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
             let obj = objs[i];
             if (obj && !obj.markedAsDeleted) {
                 const datatype = generateDatatype(obj, context);
+                myMetamodel.addDatatype(datatype);
             }
         }
     }

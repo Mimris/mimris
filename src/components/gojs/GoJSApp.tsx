@@ -1184,10 +1184,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
-            const objName = node.data.object.name;
+            let objName = node.data.object.name;
             const objDescr = node.data.object.description;
             type = myMetis.findObjectType(type.id);
             typeview = type.typeview;
+            if (type.name === 'Datatype' && objName === 'Datatype') {
+              objName = prompt("Enter Datatype name;", 'datatype' + Math.floor(Math.random() * 100));
+              n.data.name = objName;
+            }
             // Create a new object
             objId = utils.createGuid();
             object = new akm.cxObject(objId, objName, type, objDescr);

@@ -317,10 +317,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         object.generatedTypeId = objtype.getId();
         { // Handle objecttypeview
             let objtypeview = objtype.typeview;
-            if (!objtypeview) {
-                const id = utils.createGuid();
-                objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
-            }
+            let id;
+            if (objtypeview)
+                id = objtypeview.id;
+            if (!objtypeview) 
+                id = utils.createGuid();
+            objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
             objtype.setModified();

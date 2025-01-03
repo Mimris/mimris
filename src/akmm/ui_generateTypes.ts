@@ -119,21 +119,20 @@ function isSystemObjectType(objtype: akm.cxObjectType, includeMetamodelling: boo
 }
 
 function getRelationshipSystemTypes(myMetamodel: akm.cxMetaModel, includeMetamodelling: boolean) {
-    const retval = new Array();
+    let retval = new Array();
     const reltypes = myMetamodel.relshiptypes;
     for (let i = 0; i < reltypes.length; i++) {
         const reltype = reltypes[i];
         if (isSystemRelationshipType(reltype, includeMetamodelling))
             retval.push(reltype);
     }
+    retval = utils.removeArrayDuplicatesById(retval, "id");
     return retval;
 }
 
 function isSystemRelationshipType(reltype: akm.cxRelationshipType, includeMetamodelling: boolean, includeEntityType: boolean) {
     const typename = reltype.name;
     switch (typename) {
-        case constants.types.AKM_HAS_PART:
-        case constants.types.AKM_HAS_MEMBER:
         case constants.types.AKM_REFERS_TO:
         case constants.types.AKM_ANNOTATES:
         case constants.types.AKM_GENERIC_REL:

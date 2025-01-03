@@ -1112,7 +1112,6 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
     myGoModel.addLink(goRelshipLink);
-    myDiagram.startTransaction('CreateLink');
     // create a link data between the actual nodes
     let linkdata = {
         key:    relview?.id,
@@ -1145,7 +1144,6 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
     uid.updateLinkAndView(linkdata, goRelshipLink, relview, myDiagram);
-    myDiagram.commitTransaction('CreateLink');
 
     // Prepare for dispatch
     const jsnRelship = new jsn.jsnRelationship(rel);

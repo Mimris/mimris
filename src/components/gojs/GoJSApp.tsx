@@ -1144,7 +1144,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             objId = n.data.objRef;
             object = myMetis.findObject(objId);
             myModel.addObject(object);
-            myMetis.addObject(object);
             const key = n.data.key;
             objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
             objview.viewkind = constants.viewkinds.CONT;

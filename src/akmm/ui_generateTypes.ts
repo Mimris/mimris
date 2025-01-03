@@ -1345,7 +1345,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
             let obj = objs[i];
             if (obj && !obj.markedAsDeleted) {
                 const datatype = generateDatatype(obj, context);
-                myMetamodel.addDatatype(datatype);
+                if (datatype) myMetamodel.addDatatype(datatype);
             }
         }
     }

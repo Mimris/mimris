@@ -1189,7 +1189,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             type = myMetis.findObjectType(type.id);
             typeview = type.typeview;
             if (type.name === 'Datatype' && objName === 'Datatype') {
-              objName = prompt("Enter Datatype name;", 'datatype' + Math.floor(Math.random() * 100));
+              let found = true;
+              while (found) {
+                objName = 'datatype' + Math.floor(Math.random() * 100);
+                found = myMetis.findDatatype(objName);
+              }
+              if (!found)
+                objName = prompt("Enter Datatype name;", objName);
               n.data.name = objName;
             }
             // Create a new object

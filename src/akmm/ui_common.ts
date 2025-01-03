@@ -3345,8 +3345,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     }
     { // Handle object views
         msg = "Verifying object views\n";
-        let objectviews = [];
+        let allObjectviews = [];
         for (let i = 0; i < modelviews?.length; i++) {
+            let objectviews = [];
             const modelview = modelviews[i];
             const objviews = modelview.objectviews;
             const oviews = [];
@@ -3360,17 +3361,20 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 //     continue;
                 oviews.push(oview);
             }
-            if (i == 0)
+            if (i == 0) {
                 objectviews = oviews;
-            else {
+            } else {
                 objectviews = objectviews?.concat(oviews);
             }
             modelview.objectviews = objectviews;
+            allObjectviews = allObjectviews?.concat(objectviews);
+
         }
-        const objviews = [];
         if (debug) console.log('2515 objectviews', objectviews);
-        for (let i = 0; i < objectviews?.length; i++) {
-            const oview = objectviews[i];
+        
+        const objviews = [];
+        for (let i = 0; i < allObjectviews?.length; i++) {
+            const oview = allObjectviews[i];
             if (oview) {
                 const obj = oview.object;
                 if (obj && obj.type.name === constants.types.AKM_MODEL)
@@ -3394,10 +3398,10 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 objviews.push(oview);
             }
         }
-        objectviews = objviews;
-        if (debug) console.log('2515 objectviews', objectviews);
-        for (let i = 0; i < objectviews?.length; i++) {
-            const oview = objectviews[i];
+        allObjectviews = objviews;
+        if (debug) console.log('2515 objectviews', allObjectviews);
+        for (let i = 0; i < allObjectviews?.length; i++) {
+            const oview = allObjectviews[i];
             if (oview) {
                 if (!oview.markedAsDeleted) { // Object view is not deleted
                     if (debug) console.log('2520 oview, object:', oview, oview.object);
@@ -3421,7 +3425,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 }
             }
         }
-        myMetis.objectviews = objectviews;
+        myMetis.objectviews = allObjectviews;
         msg += "Verifying object views is completed\n";
         report += printf(format, msg);
     }
@@ -3674,6 +3678,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     myDiagram.requestUpdate();
 
     if (debug) console.log('2841 verifyAndRepairModel ENDED, myMetis', myMetis);
+    return;
 }
 
 export function deleteDuplicateRelshipViews(modelview: akm.cxmModelView, myDiagram: any) {

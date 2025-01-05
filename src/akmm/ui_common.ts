@@ -551,9 +551,11 @@ export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm
     toObjview["scale"]        = fromObjview["scale"];
     toObjview["memberscale"]  = fromObjview["memberscale"];
     toObjview["arrowscale"]   = fromObjview["arrowscale"];
-    toObjview["icon"]         = fromObjview["icon"];
-    toObjview["routing"]      = fromObjview["routing"];
     toObjview["image"]        = fromObjview["image"];
+    toObjview["icon"]         = fromObjview["icon"];
+    toObjview["geometry"]     = fromObjview["geometry"];
+    toObjview["figure"]       = fromObjview["figure"];
+    toObjview["routing"]      = fromObjview["routing"];
     toObjview["linkcurve"]    = fromObjview["linkcurve"];
     toObjview["fillcolor"]    = fromObjview["fillcolor"];
     toObjview["fillcolor1"]   = fromObjview["fillcolor1"];
@@ -1112,7 +1114,6 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
     myGoModel.addLink(goRelshipLink);
-    myDiagram.startTransaction('CreateLink');
     // create a link data between the actual nodes
     let linkdata = {
         key:    relview?.id,
@@ -1145,7 +1146,6 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
     uid.updateLinkAndView(linkdata, goRelshipLink, relview, myDiagram);
-    myDiagram.commitTransaction('CreateLink');
 
     // Prepare for dispatch
     const jsnRelship = new jsn.jsnRelationship(rel);
@@ -3345,8 +3345,9 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     }
     { // Handle object views
         msg = "Verifying object views\n";
-        let objectviews = [];
+        let allObjectviews = [];
         for (let i = 0; i < modelviews?.length; i++) {
+            let objectviews = [];
             const modelview = modelviews[i];
             const objviews = modelview.objectviews;
             const oviews = [];
@@ -3360,17 +3361,20 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 //     continue;
                 oviews.push(oview);
             }
-            if (i == 0)
+            if (i == 0) {
                 objectviews = oviews;
-            else {
+            } else {
                 objectviews = objectviews?.concat(oviews);
             }
             modelview.objectviews = objectviews;
+            allObjectviews = allObjectviews?.concat(objectviews);
+
         }
-        const objviews = [];
         if (debug) console.log('2515 objectviews', objectviews);
-        for (let i = 0; i < objectviews?.length; i++) {
-            const oview = objectviews[i];
+        
+        const objviews = [];
+        for (let i = 0; i < allObjectviews?.length; i++) {
+            const oview = allObjectviews[i];
             if (oview) {
                 const obj = oview.object;
                 if (obj && obj.type.name === constants.types.AKM_MODEL)
@@ -3394,10 +3398,10 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 objviews.push(oview);
             }
         }
-        objectviews = objviews;
-        if (debug) console.log('2515 objectviews', objectviews);
-        for (let i = 0; i < objectviews?.length; i++) {
-            const oview = objectviews[i];
+        allObjectviews = objviews;
+        if (debug) console.log('2515 objectviews', allObjectviews);
+        for (let i = 0; i < allObjectviews?.length; i++) {
+            const oview = allObjectviews[i];
             if (oview) {
                 if (!oview.markedAsDeleted) { // Object view is not deleted
                     if (debug) console.log('2520 oview, object:', oview, oview.object);
@@ -3421,7 +3425,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 }
             }
         }
-        myMetis.objectviews = objectviews;
+        myMetis.objectviews = allObjectviews;
         msg += "Verifying object views is completed\n";
         report += printf(format, msg);
     }
@@ -3674,6 +3678,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     myDiagram.requestUpdate();
 
     if (debug) console.log('2841 verifyAndRepairModel ENDED, myMetis', myMetis);
+    return;
 }
 
 export function deleteDuplicateRelshipViews(modelview: akm.cxmModelView, myDiagram: any) {
@@ -4382,9 +4387,6 @@ export function setObjviewColors(data: any, object: any, objview: any, typeview:
         } else if (typeview?.textcolor) {
             textcolor = typeview.textcolor;
         }
-        objview.fillcolor = fillcolor;
-        objview.strokecolor = strokecolor;
-        objview.textcolor = textcolor;
         data.fillcolor = fillcolor;
         myDiagram.model.setDataProperty(data, "fillcolor", fillcolor);
         data.strokecolor = strokecolor;

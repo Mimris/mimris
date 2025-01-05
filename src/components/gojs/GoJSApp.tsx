@@ -1143,38 +1143,39 @@ class GoJSApp extends React.Component<{}, AppState> {
             typeview = type.typeview;
             objId = n.data.objRef;
             object = myMetis.findObject(objId);
-            myModel.addObject(object);
-            myMetis.addObject(object);
-            const key = n.data.key;
-            objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
-            objview.viewkind = constants.viewkinds.CONT;
-            objview.isGroup = n.data.isGroup;
-            objview.size = n.data.size;
-            if (objview.isGroup) {
+            if (object) {
+              myModel.addObject(object);
+              const key = n.data.key;
+              objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
               objview.viewkind = constants.viewkinds.CONT;
-            } else {
-              objview.viewkind = constants.viewkinds.OBJ;
+              objview.isGroup = n.data.isGroup;
+              objview.size = n.data.size;
+              if (objview.isGroup) {
+                objview.viewkind = constants.viewkinds.CONT;
+              } else {
+                objview.viewkind = constants.viewkinds.OBJ;
+              }
+              objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
+              object.addObjectView(objview);
+              myModelview.addObjectView(objview);
+              myModelview.setFocusObjectview(objview);
+              myMetis.addObjectView(objview);
+              let goNode = myGoModel.findNode(key);
+              if (!goNode) {
+                goNode = new gjs.goObjectNode(key, myGoModel, objview);
+                goNode.loadNodeContent(myGoModel);
+                myGoModel.addNode(goNode);
+              }
+              // Dispatch modelview
+              const modifiedModelviews = new Array();
+              const jsnModelview = new jsn.jsnModelView(myModelview);
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                  let data = mn;
+                  data = JSON.parse(JSON.stringify(data));
+                  myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+              });
             }
-            objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
-            object.addObjectView(objview);
-            myModelview.addObjectView(objview);
-            myModelview.setFocusObjectview(objview);
-            myMetis.addObjectView(objview);
-            let goNode = myGoModel.findNode(key);
-            if (!goNode) {
-              goNode = new gjs.goObjectNode(key, myGoModel, objview);
-              goNode.loadNodeContent(myGoModel);
-              myGoModel.addNode(goNode);
-            }
-            // Dispatch modelview
-            const modifiedModelviews = new Array();
-            const jsnModelview = new jsn.jsnModelView(myModelview);
-            modifiedModelviews.push(jsnModelview);
-            modifiedModelviews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
-            });
             if (objview && object) {
               const objvIdName = { id: objview.id, name: objview.name };
               const objIdName = { id: object.id, name: object.name };
@@ -1682,6 +1683,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             targetRelview.readOnly = readOnly;
             const goRelshipLink = new gjs.goRelshipLink(pastedRelviewKey, myGoModel, targetRelview);
             myGoModel.addLink(goRelshipLink);
+            uid.updateLinkAndView(gjsPastedLink, goRelshipLink, targetRelview, myDiagram);
             myModelview.addRelationshipView(targetRelview);
             myMetis.addRelationshipView(targetRelview);
             const jsnRelship = new jsn.jsnRelationship(targetRelship);

@@ -2706,6 +2706,7 @@ function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
 
 export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objview: akm.cxObjectView, myDiagram: any) {
     myDiagram.startTransaction('updateNode');
+    const typeview = objview.typeview;
     for (let it = myDiagram.nodes; it?.next();) {
         const n = it.value;
         const ndata = n.data;
@@ -2714,8 +2715,10 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
                         try {
-                            objview[prop] = gjsNode[prop];
-                            goNode[prop]  = gjsNode[prop];
+                            if (gjsNode[prop] !== typeview[prop]) {
+                                objview[prop] = gjsNode[prop];
+                                goNode[prop]  = gjsNode[prop];
+                            }
                             myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
                         } catch {
                         }

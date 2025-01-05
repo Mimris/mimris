@@ -4385,9 +4385,6 @@ export function setObjviewColors(data: any, object: any, objview: any, typeview:
         } else if (typeview?.textcolor) {
             textcolor = typeview.textcolor;
         }
-        objview.fillcolor = fillcolor;
-        objview.strokecolor = strokecolor;
-        objview.textcolor = textcolor;
         data.fillcolor = fillcolor;
         myDiagram.model.setDataProperty(data, "fillcolor", fillcolor);
         data.strokecolor = strokecolor;

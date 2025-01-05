@@ -1683,6 +1683,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             targetRelview.readOnly = readOnly;
             const goRelshipLink = new gjs.goRelshipLink(pastedRelviewKey, myGoModel, targetRelview);
             myGoModel.addLink(goRelshipLink);
+            uid.updateLinkAndView(gjsPastedLink, goRelshipLink, targetRelview, myDiagram);
             myModelview.addRelationshipView(targetRelview);
             myMetis.addRelationshipView(targetRelview);
             const jsnRelship = new jsn.jsnRelationship(targetRelship);

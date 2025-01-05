@@ -551,9 +551,11 @@ export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm
     toObjview["scale"]        = fromObjview["scale"];
     toObjview["memberscale"]  = fromObjview["memberscale"];
     toObjview["arrowscale"]   = fromObjview["arrowscale"];
-    toObjview["icon"]         = fromObjview["icon"];
-    toObjview["routing"]      = fromObjview["routing"];
     toObjview["image"]        = fromObjview["image"];
+    toObjview["icon"]         = fromObjview["icon"];
+    toObjview["geometry"]     = fromObjview["geometry"];
+    toObjview["figure"]       = fromObjview["figure"];
+    toObjview["routing"]      = fromObjview["routing"];
     toObjview["linkcurve"]    = fromObjview["linkcurve"];
     toObjview["fillcolor"]    = fromObjview["fillcolor"];
     toObjview["fillcolor1"]   = fromObjview["fillcolor1"];

@@ -1137,6 +1137,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           let objview: akm.cxObjectView;
           let objId: string;
           let object: akm.cxObject;
+          let objName: string;
+          let objDescr: string;
           if (!type || !typeview) {
             // An object has been dropped (dragged from object palette)
             type = myMetis.findObjectType(n.data.objtypeRef);
@@ -1185,8 +1187,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
-            let objName = node.data.object.name;
-            const objDescr = node.data.object.description;
+            objName = node.data.object.name;
+            objDescr = node.data.object.description;
             type = myMetis.findObjectType(type.id);
             typeview = type.typeview;
             if (type.name === 'Datatype' && objName === 'Datatype') {

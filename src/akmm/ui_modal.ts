@@ -847,8 +847,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Add Port') {
         const selectedValue = modalContext.selected?.value;
         const node = modalContext.node;
+        let objId;
         let object = node.object;
-        object = myMetis.findObject(object.id)
+        if (object)
+          objId = object.id;
+        else
+          objId = node.objRef;
+        object = myMetis.findObject(objId)
         const side = selectedValue;
         let name = '';
         switch(side) {

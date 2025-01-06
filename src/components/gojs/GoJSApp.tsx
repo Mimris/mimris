@@ -1296,7 +1296,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.objectview = null;
           }
           const isLabel = (part.typename === 'Label');
-
+          if (isLabel) {
+            part.text = "Label";
+          }
           // Prepare dispatch
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);

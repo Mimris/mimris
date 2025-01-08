@@ -674,6 +674,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // First handle the object (node)
                 const gjsPart = myToNode.gjsData; // The object (node) to be moved
                 goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
+                parentObjview.isExpanded = true;
                 myObjectview.group = goParentGroup.key;
                 myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
                 goToNode.scale = new String(goToNode.getMyScale(myGoModel));

@@ -2347,7 +2347,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const links = myDiagram.links;
               for (let it = links.iterator; it?.next();) {
                 const link = it.value;
-                if (link.data.relshiptype.id == currentType.id) {
+                if (link.data.relshiptype?.id == currentType?.id) {
                   link.isSelected = true;
                 }
               }

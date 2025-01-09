@@ -347,18 +347,20 @@ export function updateObject(nodeData: gjs.goObjectNode, name: string, value: st
         if (!currentObject) {
             currentObject = myMetis.findObject(nodeData.objRef);
         }
-        myMetis.addObject(currentObject);
-        let currentObjectView: akm.cxObjectView = nodeData.objectview;
-        if (!currentObjectView) {
-            currentObjectView = myMetis.findObjectView(nodeData.key);
-        }
-        myMetis.addObjectView(currentObjectView);
-        currentObject.setName(value);
-        currentObject.setModified();
-        if (currentObjectView) {
-            currentObjectView.setName(value);
-            currentObjectView.setModified();
-            currentObject.addObjectView(currentObjectView);
+        if (currentObject) {
+            myMetis.addObject(currentObject);
+            let currentObjectView: akm.cxObjectView = nodeData.objectview;
+            if (!currentObjectView) {
+                currentObjectView = myMetis.findObjectView(nodeData.key);
+            }
+            myMetis.addObjectView(currentObjectView);
+            currentObject.setName(value);
+            currentObject.setModified();
+            if (currentObjectView) {
+                currentObjectView.setName(value);
+                currentObjectView.setModified();
+                currentObject.addObjectView(currentObjectView);
+            }
         }
         return currentObject;
     }

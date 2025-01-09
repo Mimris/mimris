@@ -8416,6 +8416,9 @@ export class cxObject extends cxInstance {
             if (prop.name === 'id') continue;
             if (prop) this[prop.name] = "";
         }
+        if (this.type?.name === 'Label') {
+            this['text'] = "Label";
+        }
         if (debug) console.log('4600 obj', this);
         // Handle ports
         const ports = this.type?.ports;

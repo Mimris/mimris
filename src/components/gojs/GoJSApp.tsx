@@ -674,6 +674,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // First handle the object (node)
                 const gjsPart = myToNode.gjsData; // The object (node) to be moved
                 goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
+                parentObjview.isExpanded = true;
                 myObjectview.group = goParentGroup.key;
                 myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
                 goToNode.scale = new String(goToNode.getMyScale(myGoModel));
@@ -1137,6 +1138,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           let objview: akm.cxObjectView;
           let objId: string;
           let object: akm.cxObject;
+          let objName: string;
+          let objDescr: string;
           if (!type || !typeview) {
             // An object has been dropped (dragged from object palette)
             type = myMetis.findObjectType(n.data.objtypeRef);
@@ -1185,8 +1188,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
-            let objName = node.data.object.name;
-            const objDescr = node.data.object.description;
+            objName = node.data.object.name;
+            objDescr = node.data.object.description;
             type = myMetis.findObjectType(type.id);
             typeview = type.typeview;
             if (type.name === 'Datatype' && objName === 'Datatype') {
@@ -1294,7 +1297,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.objectview = null;
           }
           const isLabel = (part.typename === 'Label');
-
+          if (isLabel) {
+            part.text = "Label";
+          }
           // Prepare dispatch
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);

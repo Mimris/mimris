@@ -1703,6 +1703,8 @@ export class jsnObjectView {
         this.name            = objview?.name;
         this.description     = objview?.description;
         this.objectRef       = objview?.object?.id;
+        if (!this.objectRef) 
+            this.objectRef   = objview?.objectRef;
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
         this.groupLayout     = objview?.groupLayout;

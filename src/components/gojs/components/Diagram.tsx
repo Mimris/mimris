@@ -1027,6 +1027,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
+              myDiagram.dispatch = e.diagram.dispatch;
               gen.generateTargetMetamodel(obj, myMetis, myDiagram);
             },
             function (o: any) {

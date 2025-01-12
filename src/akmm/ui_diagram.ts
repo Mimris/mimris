@@ -396,7 +396,8 @@ export function deleteModelview(modelView: akm.cxModelView, myMetis: akm.cxMetis
     for (let i=0; i<objviews?.length; i++) {
         const objview = objviews[i];
         objview.markedAsDeleted = true;
-        const obj = objview.object;
+        let obj = objview.object; // The object
+        if (!obj) obj = myMetis.findObject(objview.objectRef);
         const oviews = obj?.objectviews;
         if (oviews?.length == 1) {
             obj.markedAsDeleted = true;
@@ -601,12 +602,13 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('597 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
+    const myModel = myModelview.model;
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
     let objectview = myModelview.findObjectView(key);
     if (objectview) objectview.viewkind = gjsNode.viewkind;
     let object = objectview?.object;
-    if (!object) object = myMetis.findObject(gjsNode?.objRef);
+    if (!object) object = myModel.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
     objecttype = myMetis.findObjectType(objecttype?.id);
     let goNode = myGoModel.findNode(key);
@@ -614,11 +616,11 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);
     if (!object)
-        object = myMetis.findObject(goNode?.objRef);
+        object = myModel.findObject(goNode?.objRef);
     if (!objectview)
-        objectview = myMetis.findObjectView(goNode?.objviewRef);
+        objectview = myModelview.findObjectView(goNode?.objviewRef);
     if (!objecttype)
-        objecttype = myMetis.findObjectType(goNode?.objtypeRef);
+        objecttype = myModelview.findObjectType(goNode?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
     // if (objectview)
     // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
@@ -2094,6 +2096,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
     const modifiedRelshipViews: akm.cxRelationshipView[] = new Array();
     const myDiagram = myMetis.myDiagram;
     let object: akm.cxObject = objview.object;
+    if (!object) object = myMetis.findObject(objview.objectRef);
     if (object)
         object = myMetis.currentModel.findObject(object.id);
     if (objview)
@@ -2355,7 +2358,8 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
     if (noLevels < 1)
         return;
     const myDiagram = myMetis.myDiagram;
-    let object = objview.object;
+    let object: akm.cxObject = objview.object;
+    if (!object) object = myMetis.findObject(objview.objectRef);
     if (object)
         object = myMetis.findObject(object.id);
     if (objview && object) {
@@ -2478,7 +2482,9 @@ function addSubModel1(context: any) {
                 const objectviews = myModelView.objectviews;
                 for (let j=0; j<objectviews.length; j++) {
                     const objview = objectviews[j];
-                    if (objview.object?.name === submodelObj?.name) {
+                    let object: akm.cxObject = objview.object;
+                    if (!object) object = myMetis.findObject(objview.objectRef);
+                    if (object?.name === submodelObj?.name) {
                         submodelView = objview;
                         break;
                     }
@@ -2486,10 +2492,14 @@ function addSubModel1(context: any) {
                 if (submodelView) {
                     for (let j=0; j<objectviews.length; j++) {
                         const objview = objectviews[j];
-                        if (objview.object?.name === submodelObj?.name) 
+                        let object: akm.cxObject = objview.object;
+                        if (!object) object = myMetis.findObject(objview.objectRef);
+                        if (object?.name === submodelObj?.name) {
+                            if (object?.name === submodelObj?.name) 
                             continue;
-                        if (objview.object && objview.group === submodelView?.id) {
-                            submodel.addObject(objview.object);
+                        }
+                        if (object && objview.group === submodelView?.id) {
+                            submodel.addObject(object);
                         }
                     }
                     const jsnModel = new jsn.jsnModel(submodel, true);

@@ -663,7 +663,8 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             if (!objview) objview = myMetis.findObjectView(data.key) as akm.cxObjectView;
             if (!objview) return;
             objview.markedAsDeleted = deletedFlag;
-            const object = objview.object;
+            let object = objview.object; // The object
+            if (!object) object = myMetis.findObject(objview.objectRef);
             // If group, delete members of group
             if (node.isGroup) {
                 const gjsNode = myDiagram.findNodeForKey(data.key);
@@ -804,7 +805,9 @@ export function addNodeToDataArray(parent: any, node: any, myGoModel: gjs.goMode
     myNode.size = node.size;
     myNode.parentModelRef = node.parentModelRef;
     myNode.type = node.type;
-    const objtype = objview.object?.type;
+    let obj = objview.object; // The object
+    if (!obj) obj = myMetis.findObject(objview.objectRef);
+    const objtype = obj?.type;
     const typeview = objtype?.typeview;
     myNode.typeview = typeview as akm.cxObjectTypeView;
     const viewdata = typeview?.data;
@@ -1718,7 +1721,8 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
 export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, objview: akm.cxObjectView, myMetis: akm.cxMetis) {
     const relviews = new Array();
     const modifiedRelshipViews = new Array();
-    const obj = objview.object;
+    let obj = objview.object; // The object
+    if (!obj) obj = myMetis.findObject(objview.objectRef);
     const outrels = obj?.outputrels;
     const inrels = obj?.inputrels;
     let rels = outrels;
@@ -3145,7 +3149,8 @@ function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): bo
     if (objview?.group) { // then objview is a member of a group
         let mview = objview.modelview; // Current modelview
         if (!mview) {
-            const obj = objview.object; // The object
+            let obj = objview.object; // The object
+            if (!obj) obj = myMetis.findObject(objview.objectRef);
             const models = myMetis.models;
             for (let i = 0; i < models?.length; i++) {
                 const model = models[i];
@@ -3156,7 +3161,7 @@ function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): bo
                         const objviews = mview2.objectviews;
                         for (let k = 0; k < objviews?.length; k++) {
                             const objview2 = objviews[k];
-                            if (objview2?.object?.id === obj.id) {
+                            if (objview2?.object?.id === obj?.id) {
                                 return true;
                             }
                         }
@@ -3757,12 +3762,14 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
             }
         }
     }
-
     // repair RelationshipTypeViews
     purgeUnusedRelshiptypes(myMetis);
     repairRelationshipTypeViews(myMetis, myDiagram);
     if (debug) console.log('2852 myMetis', myMetis);
 
+    // repair EntityType
+    repairEntityType(myMetis, null, myDiagram);
+    repairRelshipType(myMetis, myDiagram);
     // repair ObjectTypeViews
     const modifiedMetamodels = new Array();
     const metamodels: akm.cxMetaModel[] = [];
@@ -4044,6 +4051,68 @@ export function repairMetisProperties(myMetis: akm.cxMetis, myDiagram: any) {
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+}
+
+export function repairEntityType(myMetis: akm.cxMetis, myMetamodel: akm.cxMetaModel, myDiagram: any) {
+    let entityType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+    let relshipType = myMetis.findObjectTypeByName(constants.types.AKM_RELSHIPTYPE);
+    if (myMetamodel) {
+        entityType = myMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+        entityType.removeDuplicateProperties();
+    }
+    if (entityType) {
+        // Get type view
+        const typeviewRef = entityType.typeviewRef;
+        if (typeviewRef) {
+            let typeview: akm.cxObjectTypeView; 
+            if (myMetamodel)
+                typeview = myMetamodel.findObjectTypeView(typeviewRef);
+            else 
+                typeview = myMetis.findObjectTypeView(typeviewRef);
+            if (myDiagram && typeview) {
+                typeview.icon = "";
+                const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
+                let data = jsnObjtypeview;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+            }
+        }
+    }
+    if (relshipType) {
+        // Get type view
+        const typeviewRef = relshipType.typeviewRef;
+        if (typeviewRef) {
+            let typeview: akm.cxObjectTypeView; 
+            if (myMetamodel)
+                typeview = myMetamodel.findObjectTypeView(typeviewRef);
+            else 
+                typeview = myMetis.findObjectTypeView(typeviewRef);
+            if (myDiagram && typeview) {
+                typeview.icon = "";
+                const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
+                let data = jsnObjtypeview;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+            }
+        }
+    }
+}
+
+export function repairRelshipType(myMetis: akm.cxMetis, myDiagram: any) {
+    const relshipType = myMetis.findObjectTypeByName(constants.types.AKM_RELSHIP_TYPE);
+    if (relshipType) {
+        // Get type view
+        const typeviewRef = relshipType.typeviewRef;
+        if (typeviewRef) {
+            const typeview = myMetis.findObjectTypeView(typeviewRef);
+            typeview.icon = "";
+            const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
+            let data = jsnObjtypeview;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+        }
+
+    }
 }
 
 export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
@@ -4481,7 +4550,8 @@ export function fullFillGoModel(myGoModel: gjs.goModel, myModelView: akm.cxModel
     const objviews = myModelView.objectviews;
     for (let i = 0; i < objviews?.length; i++) {
         const objview = objviews[i];
-        const obj = objview.object;
+        let obj = objview.object; // The object
+        if (!obj) obj = myMetis.findObject(objview.objectRef);
         if (obj) {
             const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
             myGoModel.addNode(node);

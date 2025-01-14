@@ -602,6 +602,7 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('597 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
+    const myMetamodel = myMetis.currentMetamodel;
     const myModel = myModelview.model;
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
@@ -620,7 +621,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     if (!objectview)
         objectview = myModelview.findObjectView(goNode?.objviewRef);
     if (!objecttype)
-        objecttype = myModelview.findObjectType(goNode?.objtypeRef);
+        objecttype = myMetamodel.findObjectType(goNode?.objtypeRef);
     const objecttypeview = objecttype?.typeview;
     // if (objectview)
     // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
@@ -2725,7 +2726,7 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
                         try {
-                            if (!typeview || gjsNode[prop] !== typeview[prop]) {
+                            if (!typeview || gjsNode[prop] !== typeview[prop] || typeview[prop] === "") {
                                 objview[prop] = gjsNode[prop];
                                 goNode[prop]  = gjsNode[prop];
                                 myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);

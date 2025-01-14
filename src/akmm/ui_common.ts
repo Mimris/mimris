@@ -4115,6 +4115,33 @@ export function repairRelshipType(myMetis: akm.cxMetis, myDiagram: any) {
     }
 }
 
+export function repairContainsTypeview(myMetis: akm.cxMetis, myMetamodel: akm.cxMetaModel, myDiagram: any) {
+    let containsType = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+    if (myMetamodel) {
+        containsType = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+        containsType.removeDuplicateProperties();
+    }
+    if (containsType) {
+        // Get type view
+        const typeviewRef = containsType.typeviewRef;
+        if (typeviewRef) {
+            let typeview: akm.cxRelationshipTypeView; 
+            if (myMetamodel)
+                typeview = myMetamodel.findRelationshipTypeView(typeviewRef);
+            else 
+                typeview = myMetis.findRelationshipTypeView(typeviewRef);
+            if (myDiagram && typeview) {
+                typeview.strokecolor = "lightgrey";
+                const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
+                let data = jsnReltypeview;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+            }
+        }
+    }
+
+}
+
 export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
     const reltypes = metamodel.relshiptypes;
     for (let i = 0; i < reltypes?.length; i++) {

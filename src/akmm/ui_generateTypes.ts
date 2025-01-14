@@ -1113,6 +1113,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     // const myObject = context.myCurrentObjectview.object;
     // uid.addSubModels(myObject, myMetis, context.myDiagram);
     uic.repairEntityType(myMetis, targetMetamodel, myDiagram);
+    uic.repairContainsTypeview(myMetis, null, myDiagram);
 
     // Dispatch
     const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);

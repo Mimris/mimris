@@ -818,6 +818,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const what = context1.what;
     const myMetis = this.props.myMetis as akm.cxMetis;
     const modalContext = context1.myContext;
+    const myContext = modalContext.myContext;
     const myMetamodel: akm.cxMetaModel = modalContext.metamodel;
     const myModel: akm.cxModel = modalContext.model;
     let myObject: akm.cxObject = modalContext.object;

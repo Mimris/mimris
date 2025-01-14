@@ -2725,11 +2725,11 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
                         try {
-                            if (gjsNode[prop] !== typeview[prop]) {
+                            if (!typeview || gjsNode[prop] !== typeview[prop]) {
                                 objview[prop] = gjsNode[prop];
                                 goNode[prop]  = gjsNode[prop];
+                                myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
                             }
-                            myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
                         } catch {
                         }
                     }

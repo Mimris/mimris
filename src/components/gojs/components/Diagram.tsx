@@ -234,10 +234,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
+    const myContext = modalContext.myContext;
     if (debug) console.log('218 modalContext:', modalContext);
-    const myDiagram = modalContext.myDiagram;
-    const data = modalContext.data;
-    if (debug) console.log('221 state', data);
+    let myDiagram = modalContext.myDiagram;
+    if (!myDiagram) myDiagram = myContext.myDiagram;
+    // const data = modalContext.data;
     if (e === 'x') {
       if (debug) console.log('223 x:', e);
       const links = modalContext.links;
@@ -1027,6 +1028,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
+              myDiagram.dispatch = e.diagram.dispatch;
               gen.generateTargetMetamodel(obj, myMetis, myDiagram);
             },
             function (o: any) {

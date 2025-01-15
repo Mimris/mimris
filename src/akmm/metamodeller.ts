@@ -6572,7 +6572,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.textscale = "1";
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
-        this.icon = 'images/types/' + type?.name;
+        this.icon = "";
         this.image = "";
         this.data = new cxObjtypeviewData();
         if (type) {
@@ -6813,19 +6813,8 @@ export class cxObjectTypeView extends cxMetaObject {
     getIcon(): string {
         if (this.icon)
             return this.icon;
-        else if (this.data.icon)
-            return this.data.icon;
-        return "";
-    }
-    setIcon(icon: string) {
-        this.data.icon = icon;
-        this.icon = icon;
-    }
-    getIcon(): string {
-        if (this.icon)
-            return this.icon;
-        else if (this.data.icon)
-            return this.data.icon;
+        // else if (this.data.icon)
+        //     return this.data.icon;
         return "";
     }
     setImage(image: string) {

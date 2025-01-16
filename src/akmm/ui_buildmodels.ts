@@ -310,25 +310,25 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
-        if (!node.template)
-          node.template = 'textAndIcon';
+        // if (!node.template)
+        //   node.template = 'textAndIcon';
         myGoModel.addNode(node);
         node.name = objview.name;
-        if (node.fillcolor === "") {
-          node.fillcolor = "lightgrey";
-          const object = node.object as akm.cxObject;
-          const objtype = object?.type as akm.cxObjectType;
-          const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
-          if (typeview) {
-            node.fillcolor = typeview.fillcolor;
-            node.fillcolor2 = typeview.fillcolor2;
-            node.strokecolor = typeview.strokecolor;
-            node.strokecolor2 = typeview.strokecolor2;
-            node.textcolor = typeview.textcolor;
-            node.textcolor2 = typeview.textcolor2;
-            node.icon = typeview.icon;
-            node.image = typeview.image;
-          }
+        if (node.fillcolor === "")
+          node.fillcolor = "white";
+        const object = node.object as akm.cxObject;
+        const objtype = object?.type as akm.cxObjectType;
+        const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
+        if (typeview) {
+          if (node.fillcolor === "") node.fillcolor = typeview.fillcolor;
+          if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
+          if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
+          if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
+          if (node.textcolor === "") node.textcolor = typeview.textcolor;
+          if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
+          if (node.icon === "") node.icon = typeview.icon;
+          if (node.image === "") node.image = typeview.image;
+          if (node.template === "") node.template = typeview.template;
         }
       }
     }

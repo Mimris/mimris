@@ -328,6 +328,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
           if (node.icon === "") node.icon = typeview.icon;
           if (node.image === "") node.image = typeview.image;
+          if (node.viewkind === "") node.viewkind = typeview.viewkind;
           if (node.template === "") node.template = typeview.template;
         }
       }

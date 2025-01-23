@@ -2767,6 +2767,8 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
             for (let prop in goLink) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
+                        if (prop === 'category')
+                            continue;
                         if (gjsLink[prop] !== undefined && gjsLink[prop] !== null && gjsLink[prop] !== "") {
                             relview[prop] = gjsLink[prop];
                             ldata[prop]    = gjsLink[prop];

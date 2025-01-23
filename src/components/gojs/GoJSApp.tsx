@@ -1569,13 +1569,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (targetObjectView.isGroup) {
             targetObjectView.viewkind = constants.viewkinds.CONT;
           }
+          uic.copyViewAttributes(targetObjectView, sourceObjectView);
           targetObjectView.setGroup(nodMap.toGroupKey);
           targetObjectView.setLoc(nodMap.toLoc);
-          targetObjectView.setIsGroup(sourceObjectView.isGroup);
-          targetObjectView.setSize(sourceObjectView.size);
-          targetObjectView.setScale(sourceObjectView.scale);
-          targetObjectView.setMemberscale(sourceObjectView.memberscale);
-          targetObjectView.setTemplate(sourceObjectView.template);
           targetObjectView.readonly = readOnly;
           myModelview.addObjectView(targetObjectView);
           myMetis.addObjectView(targetObjectView);
@@ -1602,77 +1598,65 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!gjsLink.linkNode) 
               continue;
             // The copied relviews / links
-            let relviewId = gjsLink.linkNode.key;
-            let relview = myMetis.findRelationshipView(relviewId);
-            let relid = gjsLink.linkNode.relid;
-            let relship = myMetis.findRelationship(relid);
-            const copiedRelship = relship;
-            const gjsCopiedLink = gjsLink.linkNode;
-            const gjsCopiedLinkKey = gjsCopiedLink.key;
-            const gjsCopiedLinkFromNodeKey = gjsCopiedLink.from;
-            const gjsCopiedLinkToNodeKey = gjsCopiedLink.to;
+            let sourceRelviewid = gjsLink.linkNode.key;
+            let sourceRelview = myMetis.findRelationshipView(sourceRelviewid);
+            let targetRelviewId = gjsLink.key;
+            let targetRelview = myMetis.findRelationshipView(targetRelviewId);
+            const sourceRelship = sourceRelview.relship;
+            const gjsSourceLink = gjsLink.linkNode;
+            const gjsSourceLinkKey = gjsSourceLink.key;
+            const gjsSourceLinkFromNodeKey = gjsSourceLink.from;
+            const gjsSourceLinkToNodeKey = gjsSourceLink.to;
 
-            const copyPasteLinkMap = 
-                new akm.cxLinkMap(copiedRelship, 
-                                  gjsCopiedLinkFromNodeKey,
-                                  gjsCopiedLinkToNodeKey,
-                                  gjsCopiedLinkKey);
-            nodeAndLinkMaps.addLinkMap(copyPasteLinkMap);    
+            const sourceFromLinkMap = 
+                new akm.cxLinkMap(sourceRelship, 
+                                  gjsSourceLinkFromNodeKey,
+                                  gjsSourceLinkToNodeKey,
+                                  gjsSourceLinkKey);
+            nodeAndLinkMaps.addLinkMap(sourceFromLinkMap);    
 
-            let pastedRelshipRef = gjsLink.relshipRef;
-            if (pastedRelshipRef === copiedRelship.id) {
-              pastedRelshipRef = utils.createGuid();
+            // Target relationships
+            let targetRelshipRef = gjsLink.relshipRef;
+            if (targetRelshipRef === sourceRelship.id) {
+              targetRelshipRef = utils.createGuid();
+              gjsLink.relshipRef = targetRelshipRef;
             }
-            let pastedRelship: akm.cxRelationship = myMetis.findRelationship(pastedRelshipRef);
-            if (!pasteViewsOnly) {
-              pastedRelship = new akm.cxRelationship(pastedRelshipRef, copiedRelship.type, null, null, copiedRelship.name, copiedRelship.description);
-              myModel.addRelationship(pastedRelship);
-              myMetis.addRelationship(pastedRelship);
-            }
-            let gjsPastedLink = gjsLink;
-            let gjsPastedLinkKey = gjsPastedLink.key;
-            let gjsPastedLinkFromNodeKey = gjsPastedLink.from;
-            let gjsPastedLinkToNodeKey = gjsPastedLink.to;
+            let gjsTargetLink = gjsLink;
+            let gjsTargetLinkKey = gjsLink.key;
+            let gjsTargetLinkFromNodeKey = gjsTargetLink.from;
+            let gjsTargetLinkToNodeKey = gjsTargetLink.to;
             if (pasteAnotherModelview) { // 
-              const fromNodeMap = nodeAndLinkMaps.getNodeMap(relship.fromObject, gjsLink.from);
-              if (fromNodeMap) gjsPastedLinkFromNodeKey = fromNodeMap.toTargetKey;
-              const toNodeMap = nodeAndLinkMaps.getNodeMap(relship.toObject, gjsLink.to);
-              if (toNodeMap) gjsPastedLinkToNodeKey = toNodeMap.toTargetKey;
+              const fromNodeMap = nodeAndLinkMaps.getNodeMap(sourceRelship.fromObject, gjsLink.from);
+              if (fromNodeMap) gjsTargetLinkFromNodeKey = fromNodeMap.fromSourceKey;
+              const toNodeMap = nodeAndLinkMaps.getNodeMap(sourceRelship.toObject, gjsLink.to);
+              if (toNodeMap) gjsTargetLinkToNodeKey = toNodeMap.toTargetKey;
             }
-            let pastedRelviewKey = gjsPastedLinkKey;
-            if (pasteAnotherModelview) { // 
-              pastedRelviewKey = utils.createGuid();
-              myDiagram.model.removeLinkData(gjsLink);
-              gjsLink.key = pastedRelviewKey;
-              myDiagram.model.addLinkData(gjsLink);
-            }
-            copyPasteLinkMap.sourceLinkKey     = gjsCopiedLinkKey;
-            copyPasteLinkMap.targetLinkKey     = gjsPastedLinkKey;
-            copyPasteLinkMap.targetFromNodeKey = gjsPastedLinkFromNodeKey;
-            copyPasteLinkMap.targetToNodeKey   = gjsPastedLinkToNodeKey;
-            // // The pasted FROM and TO links
-            const pastedToLinkMap = 
-                new akm.cxLinkMap(pastedRelship, // Obs: without from and to objects 
-                                  gjsPastedLinkFromNodeKey,
-                                  gjsPastedLinkToNodeKey,
-                                  gjsPastedLinkKey,
-                                  pastedRelviewKey);
-            nodeAndLinkMaps.addLinkMap(pastedToLinkMap);    
+            sourceFromLinkMap.sourceLinkKey     = gjsSourceLinkKey;
+            sourceFromLinkMap.targetLinkKey     = gjsTargetLinkKey;
+            sourceFromLinkMap.targetFromNodeKey = gjsTargetLinkFromNodeKey;
+            sourceFromLinkMap.targetToNodeKey   = gjsTargetLinkToNodeKey;
 
             // // The target FROM objectview
-            let fromObjview: akm.cxObjectView = myMetis.findObjectView(gjsPastedLinkFromNodeKey);
+            let fromObjview: akm.cxObjectView = myMetis.findObjectView(gjsTargetLinkFromNodeKey);
             let fromObject: akm.cxObject = fromObjview?.object;
             // The target TO objectview
-            let toObjview: akm.cxObjectView = myMetis.findObjectView(gjsPastedLinkToNodeKey);
+            let toObjview: akm.cxObjectView = myMetis.findObjectView(gjsTargetLinkToNodeKey);
             let toObject: akm.cxObject = toObjview?.object;
-        
-          // The target Relationship
-            let sourceRelship: akm.cxRelationship = copiedRelship;
-            let reltype: akm.cxRelationshipType = myMetis.findRelationshipType(gjsPastedLink.reltypeRef);
+            if (!fromObject || !toObject)
+              continue;
+            // The target Relationship
+            let targetRelviewKey = gjsTargetLinkKey;
+            if (pasteAnotherModelview) { // 
+              targetRelviewKey = utils.createGuid();
+              myDiagram.model.removeLinkData(gjsLink);
+              gjsLink.key = targetRelviewKey;
+              myDiagram.model.addLinkData(gjsLink);
+            }
+            let reltype: akm.cxRelationshipType = myMetis.findRelationshipType(gjsTargetLink.reltypeRef);
             let targetRelship: akm.cxRelationship = sourceRelship;
-            if (!pasteViewsOnly) {
-              const relid = utils.createGuid();
-              targetRelship = new akm.cxRelationship(relid, reltype, fromObject, toObject, sourceRelship.name, sourceRelship.description);
+            if (!pasteViewsOnly || pasteAnotherModelview) {
+              targetRelship = new akm.cxRelationship(targetRelshipRef, reltype, fromObject, toObject, sourceRelship.name, sourceRelship.description);
+              gjsTargetLink.relship = targetRelship;
             }
             targetRelships.push(targetRelship);
             fromObject.addOutputrel(targetRelship);
@@ -1680,15 +1664,26 @@ class GoJSApp extends React.Component<{}, AppState> {
             myModel.addRelationship(targetRelship);
             myMetis.addRelationship(targetRelship);
   
+            // // The pasted FROM and TO links
+            const targetToLinkMap = 
+                new akm.cxLinkMap(targetRelship, // Obs: without from and to objects 
+                                  gjsSourceLinkFromNodeKey,
+                                  gjsSourceLinkToNodeKey,
+                                  gjsTargetLinkKey,
+                                  targetRelviewKey);
+            targetToLinkMap.targetFromNodeKey = gjsTargetLinkFromNodeKey;
+            targetToLinkMap.targetToNodeKey   = gjsTargetLinkToNodeKey;
+            nodeAndLinkMaps.addLinkMap(targetToLinkMap);    
+
             // The target relationship view
-            let targetRelview = new akm.cxRelationshipView(pastedRelviewKey, gjsPastedLink.name, targetRelship, "");
+            targetRelview = new akm.cxRelationshipView(targetRelviewKey, gjsTargetLink.name, targetRelship, "");
             targetRelview.fromObjview = fromObjview;
             targetRelview.toObjview = toObjview;
             targetRelship.addRelationshipView(targetRelview);
             targetRelview.readOnly = readOnly;
-            const goRelshipLink = new gjs.goRelshipLink(pastedRelviewKey, myGoModel, targetRelview);
+            const goRelshipLink = new gjs.goRelshipLink(targetRelviewKey, myGoModel, targetRelview);
             myGoModel.addLink(goRelshipLink);
-            uid.updateLinkAndView(gjsPastedLink, goRelshipLink, targetRelview, myDiagram);
+            uid.updateLinkAndView(gjsTargetLink, goRelshipLink, targetRelview, myDiagram);
             myModelview.addRelationshipView(targetRelview);
             myMetis.addRelationshipView(targetRelview);
             const jsnRelship = new jsn.jsnRelationship(targetRelship);
@@ -1697,6 +1692,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             modifiedRelshipViews.push(jsnRelview);
           }
         }
+        // Dispatch modelview
+        const modifiedModelviews = new Array();
+        const jsnModelview = new jsn.jsnModelView(myModelview);
+        modifiedModelviews.push(jsnModelview);
+        modifiedModelviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+        });
         break;
       }      
       case 'LayoutCompleted': {

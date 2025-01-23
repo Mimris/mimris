@@ -1005,7 +1005,7 @@ export class cxMetis {
         const objtypeview = this.findObjectTypeView(item.id);
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
-        if (!item.template) item.template = constants.gojs.C_NODETEMPLATE;
+        if (!item.template || item.template === "") item.template = constants.gojs.C_NODETEMPLATE;
         if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);

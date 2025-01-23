@@ -310,8 +310,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
-        // if (!node.template)
-        //   node.template = 'textAndIcon';
+        if (!node.template || node.template === "")
+          node.template = 'textAndIcon';
         myGoModel.addNode(node);
         node.name = objview.name;
         if (node.fillcolor === "")
@@ -328,6 +328,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
           if (node.icon === "") node.icon = typeview.icon;
           if (node.image === "") node.image = typeview.image;
+          if (node.viewkind === "") node.viewkind = typeview.viewkind;
           if (node.template === "") node.template = typeview.template;
         }
       }

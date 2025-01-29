@@ -3118,6 +3118,25 @@ export class cxMetis {
                 nodemap.fromGroup = to;
         }
     }
+    getCurrentNode() {
+        return this.currentNode();
+    }
+    getNodeGroup(node: cxNode) {
+        return node.group;
+    }
+    setNodeGroup(node: cxNode, grp: string) {
+        node.group = grp;
+    }
+    getNodeByGroup(nodes: cxNode[], grp: string): cxNode {
+        let node: cxNode = null;
+        for (let i=0; i<nodes.length; i++) {
+            const n = nodes[i];
+            if (n.group === grp) {
+                node = n;
+            }
+        }
+        return node;
+    }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -10308,7 +10327,8 @@ export class cxLinkMap {
     targetToNodeKey: string;
     sourceLinkKey: string;
     targetLinkKey: string;
-    constructor(inst: cxInstance, sourceFromKey: string, sourceToKey: string, sourceLinkKey: string, targetLinkKey: string) {
+    constructor(inst: cxInstance, sourceFromKey: string, sourceToKey: string, 
+                sourceLinkKey: string, targetLinkKey: string) {
         this.inst = inst;
         this.name = inst?.name;
         this.sourceFromNodeKey = sourceFromKey;
@@ -10318,6 +10338,24 @@ export class cxLinkMap {
         this.sourceLinkKey = sourceLinkKey;
         this.targetLinkKey = targetLinkKey;
     }    
+}
+
+export class cxNode {
+    name: string;
+    objId: string;
+    descr: string;
+    object: cxObject;
+    objecttype: cxObjectType;
+    objviewId: string;
+    objectview: cxObjectView;
+    goNodeId: string;
+    goNode: goNode;
+    gjsKey: string;
+    gjsNode: any;
+    group: string;  // group key
+    isGroup: boolean;
+    loc: any;
+    size: any;
 }
 
 export class cxNodeMap {
@@ -10330,7 +10368,8 @@ export class cxNodeMap {
     toGroupKey: string;
     fromLoc: string;
     toLoc: string;
-    constructor(inst: cxInstance, from: string, to: string, isGroup: boolean, fromGroupKey: string, toGroupKey: string , fromLoc: string, toLoc: string) {
+    constructor(inst: cxInstance, from: string, to: string, isGroup: boolean, fromGroupKey: string, 
+                toGroupKey: string , fromLoc: string, toLoc: string) {
         this.inst = inst;
         this.name = inst?.name;
         this.isGroup = isGroup;

@@ -627,7 +627,6 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
     const myMetamodel = context.myMetamodel;
     const myModelview = context.myModelview;
     const myDiagram = context.myDiagram;
-    const selection = myDiagram.selection;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
         const myGoMetamodel = context.myGoMetamodel;
         let node = myGoMetamodel?.findNode(data.key) as gjs.goObjectNode;
@@ -1617,22 +1616,15 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 const myLink = uid.getLinkByViewId(rv.id, myDiagram);
                 if (myLink) {
                     link = myDiagram.findLinkForKey(rv.id);
-                    if (link) {
+                    if (link && link.from && link.to) {
                         if (!link.fromNode)
                             link.fromNode = myDiagram.findNodeForKey(fromObjview.id);
-                        if (!link.from)
-                            link.from = link.fromNode?.key;
                         if (!link.toNode)
                             link.toNode = myDiagram.findNodeForKey(toObjview.id); // uid.getNodeByViewId(toObjview.id, myDiagram);
-                        if (!link.to)
-                            link.to = link.toNode?.key;
-                        // if (link.from && link.to) 
-                        //     myDiagram.model.addLinkData(link);
-                        continue;  // Link exists - do nothing
-                    } else {
-
+                        }
                     }
-                } else {
+                
+                if (!link || !link.fromNode || !link.toNode) {
                     // Link does not exist - create it
                     link = new gjs.goRelshipLink(rv.id, myGoModel, rv);
                     link.loadLinkContent(myGoModel);

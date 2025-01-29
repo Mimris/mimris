@@ -1235,7 +1235,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let textcolor = "";
           let part = n.data;
           part.scale = n.scale;
-          if (part.size === "") {
+          if (part.size === "" || !part.size) {
             if (part.isGroup) {
               part.size = "200 100";
             } else {

@@ -34,21 +34,23 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
 }
 
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
-
     e.preventDefault();
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
+    if (debug) console.log('42 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => {
         const text = (e.target.result)
-        if (debug) console.log('19 ReadModelFromFile', text)
+        if (debug) console.log('46 ReadModelFromFile', text)
         let importedfile = JSON.parse(text)
         const filename = reader.fileName
         if (importedfile.project) console.log('ReadModelFromFile.ts: The imported file contains .project', importedfile)
-        importedfile = (importedfile.project) ? importedfile.project : importedfile
-        if (debug) console.log('51 ReadModelFromFile', importedfile)
+        if (importedfile.project) importedfile = importedfile.project
+
+        if (!debug) console.log('52 ReadModelFromFile', importedfile)
+
+  
 
         const impObjecttypes = importedfile.objecttypes || null
         const impRelshiptypes = importedfile.relshiptypes || null
@@ -74,34 +76,61 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
 
         // ---------------------  Set up imported model for merging of imported data ---------------------
-        let data = importedfile
 
-        // remove model if it is empty or undefined
-        const metis2 = data?.phData?.metis
-        const models2 = metis2?.models?.filter(m => (m) && m) // filter out null models 
-        // const curmod2 = models2.find(m => m.id === focus.focusModel?.id) // current model
-        // const modelviews = curmod2.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
-        // const curmodview2 = modelviews.find(mv => mv.id === focus.focusModelview?.id) || modelviews[0] // current modelview
-        const metamodels2 = metis2?.metamodels?.filter(mm => (mm) && mm) // filter out null metamodels
-        // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
-        // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
-        if (debug) console.log('335 ReadModelFromFile', data)
-        data.phData = {
-            ...data.phData,
-            metis: {
-                ...data.phData.metis2,
-                models: models2,
-                metamodels: metamodels2,
-            },
-        }
-        const focusModel = models2.find(m => m.id === focus.focusModel?.id) || models2[0]
-        const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
-        data.phFocus = {
-            ...data.phFocus,
-            focusModel: focusModel,
-            focusModelview: focusModelview,
-        }
-        if (debug) console.log('98 ReadModelFromFile', data)
+
+        let data = importedfile
+        if (!data) return null
+
+        data = (importedfile.phData) 
+                ? {
+                    ...props,
+                    phData: {
+                    ...props.phData,
+                    ...importedfile 
+                    }
+                }
+                : {
+                    ...props,
+                    phData: {
+                        metis: { 
+                            models: [
+                                ...(Array.isArray(importedfile.models) ? importedfile.models : [importedfile.models])    
+                            ],
+                            metamodels: [
+                                importedfile.metamodels
+                            ]
+                        }
+                    }
+                }
+
+        if (!debug) console.log('72 ReadModelFromFile', props, importedfile)
+
+        // // remove model if it is empty or undefined
+        // const metis2 = data?.phData?.metis
+        // const models2 = metis2?.models?.filter(m => (m) && m) // filter out null models 
+        // // const curmod2 = models2.find(m => m.id === focus.focusModel?.id) // current model
+        // // const modelviews = curmod2.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
+        // // const curmodview2 = modelviews.find(mv => mv.id === focus.focusModelview?.id) || modelviews[0] // current modelview
+        // const metamodels2 = metis2?.metamodels?.filter(mm => (mm) && mm) // filter out null metamodels
+        // // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
+        // // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
+        // if (!debug) console.log('116 ReadModelFromFile', data)
+        // data.phData = {
+        //     ...data.phData,
+        //     metis: {
+        //         ...data.phData?.metis2,
+        //         models: models2,
+        //         metamodels: metamodels2,
+        //     },
+        // }
+        // const focusModel = models2?.find(m => m.id === focus.focusModel?.id) || models2[0]
+        // const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+        // data.phFocus = {
+        //     ...data.phFocus,
+        //     focusModel: focusModel,
+        //     focusModelview: focusModelview,
+        // }
+        // if (debug) console.log('132 ReadModelFromFile', data)
         // let data = (importedfile.phData)
         //     ?  importedfile // if phData exists, then use importedfile
         //     :  (importedfile.models) 

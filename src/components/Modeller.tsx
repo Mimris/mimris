@@ -158,7 +158,6 @@ const Modeller = (props: any) => {
                 setSelectedOption('Sorted alphabetical')
             }
         }
-        // setVisibleObjects(!visibleObjects)
         setObjectsRefresh(!objectsRefresh)
         if (debug) console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
     }, [model.objects.length === 0])

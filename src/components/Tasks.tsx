@@ -378,7 +378,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         style={{ backgroundColor: "#ffffdd" }}
         onClick={() => setMinimizedTask(false)}
       >
-        <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-sm fa-angle-right pull-right-container"></i></span>
+        <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-question pull-right-container"></i></span>
       </button>
     );
   } else {

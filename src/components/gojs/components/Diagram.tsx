@@ -441,7 +441,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let selection = myDiagram.selection;
               if (selection.count == 0) {
                 if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
-                selection = myDiagram.selection
+                selection = myDiagram.selection;
               }
               const gjsSourceNodes = []; // source nodes
               const gjsSourceLinks = []; // source links
@@ -453,15 +453,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   addSourceLink(gjsSourceLinks, n);
                 }
               }
+              // Build the structure that is used in copy/paste
               selection = [];
               e.diagram.selection.each(function (sel) {
                 const key = sel.data.key;
                 sel.data.fromModelview = myMetis.currentModelview;
+                sel.data.fromGoModel   = myMetis.gojsModel;
                 sel.data.fromNode = getSourceNode(gjsSourceNodes, key);
-                sel.data.linkNode = getSourceLink(gjsSourceLinks, key);
+                sel.data.fromLink = getSourceLink(gjsSourceLinks, key);
                 if (debug) console.log('457 sel.data', sel.data);
                 selection.push(sel.data);
               });
+
               myMetis.currentSelection = selection;
               if (debug) console.log('438 myMetis', myMetis);
               e.diagram.commandHandler.copySelection();

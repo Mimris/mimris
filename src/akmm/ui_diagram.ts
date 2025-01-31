@@ -469,54 +469,48 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
-    const myGoModel = myMetis.gojsModel;
-    const goNode = myGoModel.findNode(gjsNode.key);
-    let objecttype = myMetis.findObjectType(goNode?.objtypeRef);
-    let supertypes = objecttype?.supertypes;
+    const objRef = gjsNode.objRef;
+    const objviewRef = gjsNode.objviewRef;
+    let object: akm.cxObject = myMetis.findObject(objRef);
+    let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
+    const objtypeRef = gjsNode.objtypeRef;
+    let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;
-    const icon = uit.findImage(goNode?.icon);
-    myMetis.currentNode = goNode;
+    let supertypes = objecttype?.supertypes;
+    const icon = uit.findImage(gjsNode.icon);
+
     myMetis.myDiagram = myDiagram;
-    let object: akm.cxObject = null;
-    let objectview: akm.cxObjectView = null;
-    objectview = goNode?.objectview;
-    if (!objectview) 
-        objectview = myMetis.findObjectView(goNode?.key);
-    if (objectview) {
-        object = objectview?.object;
-        if (!object) object = myMetis.findObject(objectview.objectRef);
-        if (object) {
-            myMetis.addObject(object);
-            myMetis.addObjectView(objectview);
-            const myContext = {
-                object:     object,
-                objectview: objectview,
-                objecttype: objecttype,
-                objecttypeview: objecttypeview,
-                supertypes: supertypes,
-                includeInherited: false,
-                includeConnected: false,
-                relship:     null,
-                relshipview: null,
-                relshiptype: null,
-                relshiptypeview: null,
-                model:      myMetis.currentModel,
-                modelview:  myMetis.currentModelview,
-                metamodel:  myMetis.currentMetamodel,
-            }
-            if (debug) console.log('490 myMetis', myMetis);
-            const modalContext = {
-                what:       "editObject",
-                title:      "Edit Object",
-                icon:       icon,
-                myDiagram:  myDiagram,
-                myContext:  myContext
-            }
-            if (debug) console.log('498 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
-            myDiagram.handleOpenModal(gjsNode, modalContext);
+    if (objectview && object) {
+        myMetis.addObject(object);
+        myMetis.addObjectView(objectview);
+        const myContext = {
+            object:     object,
+            objectview: objectview,
+            objecttype: objecttype,
+            objecttypeview: objecttypeview,
+            supertypes: supertypes,
+            includeInherited: false,
+            includeConnected: false,
+            relship:     null,
+            relshipview: null,
+            relshiptype: null,
+            relshiptypeview: null,
+            model:      myMetis.currentModel,
+            modelview:  myMetis.currentModelview,
+            metamodel:  myMetis.currentMetamodel,
         }
+        if (debug) console.log('490 myMetis', myMetis);
+        const modalContext = {
+            what:       "editObject",
+            title:      "Edit Object",
+            icon:       icon,
+            myDiagram:  myDiagram,
+            myContext:  myContext
+        }
+        if (debug) console.log('498 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
+        myDiagram.handleOpenModal(gjsNode, modalContext);        
     } else {
-        alert("Object view not found");
+        alert("Object not found");
     }
 }
 

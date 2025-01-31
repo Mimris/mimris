@@ -48,7 +48,7 @@ const Modeller = (props: any) => {
     const [objectsRefresh, setObjectsRefresh] = useState(false)
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
-    const [visibleObjects, setVisibleObjects] = useState(false)
+    const [visibleObjects, setVisibleObjects] = useState(false) // State to manage objects visibility 
     const [showPasteDialog, setShowPasteDialog] = useState(false); // State to manage paste dialog visibility
     const [jsonInput, setJsonInput] = useState(''); // State to manage JSON input
     // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
@@ -138,7 +138,7 @@ const Modeller = (props: any) => {
         }
         setMounted(true)
 
-        setVisibleObjects(true);
+        setVisibleObjects(false);
         const timer = setTimeout(() => {
             setObjectsRefresh(!objectsRefresh)
         }, 250);
@@ -158,7 +158,7 @@ const Modeller = (props: any) => {
                 setSelectedOption('Sorted alphabetical')
             }
         }
-        setVisibleObjects(!visibleObjects)
+        // setVisibleObjects(!visibleObjects)
         setObjectsRefresh(!objectsRefresh)
         if (debug) console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
     }, [model.objects.length === 0])
@@ -702,7 +702,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             data-placement="top"
                             title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
                             {visibleObjects 
-                                ? <span> &lt;- Objects </span> 
+                                ?   <span> &lt;- Objects </span> 
                                 :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
                                     </span>}
                         </button>

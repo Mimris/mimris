@@ -78,6 +78,20 @@ export let removeElementFromArray = (arr: any[], id: string) => {
     }
 }
 
+export function findElementInArray(a, arr: any): boolean {
+    let retval = false;
+    for (let i = 0; i < arr.length; i++) {
+        const element = arr[i];
+        if (objExists(element)) {
+            if (element?.id === id) {
+                retval = true;
+                return retval;
+            }
+        }
+    }
+    return retval;
+}
+
 export function getIntersection(a, b) {
     const set1 = new Set(a);
     const set2 = new Set(b);

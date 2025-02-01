@@ -34,21 +34,25 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
 }
 
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
-
     e.preventDefault();
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
+    if (!debug) console.log('42 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => {
         const text = (e.target.result)
-        if (debug) console.log('19 ReadModelFromFile', text)
+        if (debug) console.log('46 ReadModelFromFile', text)
         let importedfile = JSON.parse(text)
         const filename = reader.fileName
         if (importedfile.project) console.log('ReadModelFromFile.ts: The imported file contains .project', importedfile)
-        importedfile = (importedfile.project) ? importedfile.project : importedfile
-        if (debug) console.log('51 ReadModelFromFile', importedfile)
+        if (importedfile.project) importedfile = importedfile.project
+
+        const importedModel = { metamodels: Array.isArray(importedfile.metamodels) ? importedfile.metamodels : [importedfile.metamodels], 
+                             models: Array.isArray(importedfile.models) ? importedfile.models : [importedfile.models]};
+        
+                            
+        if (!debug) console.log('52 ReadModelFromFile', importedModel)
 
         const impObjecttypes = importedfile.objecttypes || null
         const impRelshiptypes = importedfile.relshiptypes || null
@@ -74,64 +78,31 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
 
         // ---------------------  Set up imported model for merging of imported data ---------------------
+
+        console.log('79 ReadModelFromFile.ts: impMetamodels0', importedModel)
         let data = importedfile
+        if (!data) return null
 
-        // remove model if it is empty or undefined
-        const metis2 = data?.phData?.metis
-        const models2 = metis2?.models?.filter(m => (m) && m) // filter out null models 
-        // const curmod2 = models2.find(m => m.id === focus.focusModel?.id) // current model
-        // const modelviews = curmod2.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
-        // const curmodview2 = modelviews.find(mv => mv.id === focus.focusModelview?.id) || modelviews[0] // current modelview
-        const metamodels2 = metis2?.metamodels?.filter(mm => (mm) && mm) // filter out null metamodels
-        // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
-        // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
-        if (debug) console.log('335 ReadModelFromFile', data)
-        data.phData = {
-            ...data.phData,
-            metis: {
-                ...data.phData.metis2,
-                models: models2,
-                metamodels: metamodels2,
-            },
-        }
-        const focusModel = models2.find(m => m.id === focus.focusModel?.id) || models2[0]
-        const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
-        data.phFocus = {
-            ...data.phFocus,
-            focusModel: focusModel,
-            focusModelview: focusModelview,
-        }
-        if (debug) console.log('98 ReadModelFromFile', data)
-        // let data = (importedfile.phData)
-        //     ?  importedfile // if phData exists, then use importedfile
-        //     :  (importedfile.models) 
-        //         ?   { // if no phData, then create phData.metis
-        //                 phData: {
-        //                     metis: {
-        //                         ...importedfile
-        //                     }
-        //                 }
-        //             }
-        //         :   importedfile
+        data = importedfile.phData
+            ? {
+                ...importedfile,
+            }
+            : {
+                ...props,
+                phData: {
+                    ...props.phData,
+                    metis: { 
+                        models: props.phData?.metis.models.map(m => 
+                            (importedModel.models[0].id === m.id) ? importedModel.models[0] : m
+                        ),
+                        metamodels: [
+                            ...props.phData.metis.metamodels
+                        ]
+                    },
+                }
+            }
 
-        // ---------------------  add mv if missing in import ---------------------
-        // if (!data.phData?.metis.models[0].modelviews) { // if modelview does not exist, then add it to   data.phData.metis.models
-        //     data.phData.metis.models[0].modelviews = [
-        //         {
-        //             id: 'mv1',
-        //             name: 'mv1',
-        //             // markedAsDeleted: false,
-        //             modified: false,
-        //             modelRef: curmod.id,
-        //             objectviews: [],
-        //             relshipviews: [],
-        //             objecttypeviews: [],
-        //             relshiptypeviews: []
-        //         }
-        //     ]    
-        // }
-
-        if (debug) console.log('29 ReadModelFromFile', data)
+        if (!debug) console.log('105 ReadModelFromFile', data)
 
 
         // check if imported objtype is compatible with current metamodel
@@ -210,9 +181,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         }
 
 
-
-
-        if (debug) console.log('100 ReadModelFromFile', data)
 
         if (debug) console.log('160 ReadModelFromFile 1', data.phData?.metis)
 
@@ -323,174 +291,174 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         // ---------------------  check type of import --------------------- Todo: this can be removed
 
-        if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
-            if (debug) console.log('248 ReadModelFromFile _MV found', data)
+        // if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
+        //     if (debug) console.log('248 ReadModelFromFile _MV found', data)
 
-            if (!impObjects) { //|| !impRelships) {
-                const r = window.confirm("This Modelview import has no Objects and/or Relships. Click OK to cancel?")
-                if (r === false) { return null } // if user clicks cancel, then do nothing
-            }
+        //     if (!impObjects) { //|| !impRelships) {
+        //         const r = window.confirm("This Modelview import has no Objects and/or Relships. Click OK to cancel?")
+        //         if (r === false) { return null } // if user clicks cancel, then do nothing
+        //     }
 
-            const mmod = data.metamodels
-            const modview = data.modelviews
-            const mobjects = data.objects
-            const mrelships = data.relships
+        //     const mmod = data.metamodels
+        //     const modview = data.modelviews
+        //     const mobjects = data.objects
+        //     const mrelships = data.relships
 
-            // dispatch mmod, modview, mobjects, mrelships to store
-            const r = window.confirm(`This import includes metamodel: ${mmod.name}. If you want to import this metamodel, Click OK`)
-            if (r === true) {
-                dispatchLocalFile('UPDATE_METAMODEL_PROPERTIES', mmod)
-            }
-            dispatchLocalFile('UPDATE_MODELVIEW_PROPERTIES', modview)
-            const objects = mobjects.map(o => {
-                dispatchLocalFile('UPDATE_OBJECT_PROPERTIES', o)
-            })
-            const relships = mrelships.map(r => {
-                dispatchLocalFile('UPDATE_RELSHIP_PROPERTIES', r)
-            })
-            return; // skip the rest of this function
-        }
-        // merge imported with existing project
-        if (data.phData || filename.includes('_PR' || '.Project')) { // its a project file, just import as is
-            data = importedfile
-        } else if (importedfile.phData) { // its a model, modelview or metamodel file, merge with existing project
-            data = {
-                phData: {
-                    ...props.phData,
-                    metis: {
-                        ...props.phData.metis,
-                        metamodels: [
-                            ...props.phData.metis.metamodels,
-                            (impMetamodels) && data.phData.metis.metamodels,
-                        ],
-                        models: [
-                            ...props.phData.metis.models,
-                            ...data.phData.metis.models,
-                        ],
-                    },
-                },
-            }
-        } else if (filename.includes('_MO')) { // its a model, modelview or metamodel file, merge with existing project
-            if (debug) console.log('332 ReadModelFromFile', data)//, data.models[0].modelviews.length)
-            if (!Array.isArray(data.models))
-                data.models = [data.models];
-            if (data.models[0].modelviews.length === 0) { // if modelview exists, then add it to   data.phData.metis.models
-                if (debug) console.log('334 ReadModelFromFile', data.models[0].modelviews.length)
-                data.models[0].modelviews[0] =
-                {
-                    id: 'mv1',
-                    markedAsDeleted: false,
-                    name: 'mv1',
-                    modified: false,
-                    modelRef: data.models[0].id,
-                    UseUMLrelshipkinds: false,
-                    includeInheritedReltypes: false,
-                    objectviews: [],
-                    relshipviews: [],
-                    objecttypeviews: [],
-                    relshiptypeviews: []
-                }
-            }
+        //     // dispatch mmod, modview, mobjects, mrelships to store
+        //     const r = window.confirm(`This import includes metamodel: ${mmod.name}. If you want to import this metamodel, Click OK`)
+        //     if (r === true) {
+        //         dispatchLocalFile('UPDATE_METAMODEL_PROPERTIES', mmod)
+        //     }
+        //     dispatchLocalFile('UPDATE_MODELVIEW_PROPERTIES', modview)
+        //     const objects = mobjects.map(o => {
+        //         dispatchLocalFile('UPDATE_OBJECT_PROPERTIES', o)
+        //     })
+        //     const relships = mrelships.map(r => {
+        //         dispatchLocalFile('UPDATE_RELSHIP_PROPERTIES', r)
+        //     })
+        //     return; // skip the rest of this function
+        // }
+        // // merge imported with existing project
+        // if (data.phData || filename.includes('_PR' || '.Project')) { // its a project file, just import as is
+        //     data = importedfile
+        // } else if (importedfile.phData) { // its a model, modelview or metamodel file, merge with existing project
+        //     data = {
+        //         phData: {
+        //             ...props.phData,
+        //             metis: {
+        //                 ...props.phData.metis,
+        //                 metamodels: [
+        //                     ...props.phData.metis.metamodels,
+        //                     (impMetamodels) && data.phData.metis.metamodels,
+        //                 ],
+        //                 models: [
+        //                     ...props.phData.metis.models,
+        //                     ...data.phData.metis.models,
+        //                 ],
+        //             },
+        //         },
+        //     }
+        // } else if (filename.includes('_MO')) { // its a model, modelview or metamodel file, merge with existing project
+        //     if (!debug) console.log('402 ReadModelFromFile', data)//, data.models[0].modelviews.length)
+        //     if (!Array.isArray(data.models))
+        //         data.models = [data.models];
+        //     if (data.models[0].modelviews.length === 0) { // if modelview exists, then add it to   data.phData.metis.models
+        //         if (debug) console.log('334 ReadModelFromFile', data.models[0].modelviews.length)
+        //         data.models[0].modelviews[0] =
+        //         {
+        //             id: 'mv1',
+        //             markedAsDeleted: false,
+        //             name: 'mv1',
+        //             modified: false,
+        //             modelRef: data.models[0].id,
+        //             UseUMLrelshipkinds: false,
+        //             includeInheritedReltypes: false,
+        //             objectviews: [],
+        //             relshipviews: [],
+        //             objecttypeviews: [],
+        //             relshiptypeviews: []
+        //         }
+        //     }
 
-            if (debug) console.log('304 ReadModelFromFile', data, props.phData.metis.metamodels)
-            data = {
-                phData: {
-                    ...props.phData,
-                    metis: {
-                        ...props.phData.metis,
-                        metamodels: [
-                            ...props.phData.metis.metamodels,
-                            // (impMetamodels) && data.phData.metis.metamodels,             
-                        ],
-                        models: [
-                            ...props.phData.metis.models,
-                            ...data.models,
-                        ],
-                    },
-                },
-            }
-            if (debug) console.log('307 ReadModelFromFile', data)
-        } else if (filename.includes('_OR')) { // its a Object relationship file, merge with existing project'
-            if (debug) console.log('370 ReadModelFromFile', data)
-            if (!data.objects) data.objects = []
-            if (!data.relships) data.relships = []
-            if (debug) console.log('373 ReadModelFromFile', data)
-            let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
-            let mlength = props.phData?.metis?.models.length
-            // check if imported file has objects and relships
-            if (data.objects && data.relships) {
-                data = {
-                    phData: {
-                        ...props.phData,
-                        metis: {
-                            ...props.phData.metis,
-                            models: [
-                                ...props.phData.metis.models?.slice(0, mindex),
-                                {
-                                    ...props.phData.metis.models[mindex],
-                                    objects: [
-                                        ...props.phData.metis.models[mindex].objects,
-                                        ...data.objects,
-                                    ],
-                                    relships: [
-                                        ...props.phData.metis.models[mindex].relships,
-                                        ...data.relships,
-                                    ],
-                                },
-                                ...props.phData.metis.models?.slice(mindex + 1, mlength),
-                            ],
-                        },
-                    },
-                };
-            }
-            if (debug) console.log('399 ReadModelFromFile', data)
-        } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'
-            data = {
-                phData: {
-                    ...props.phData,
-                    metis: {
-                        ...props.phData.metis,
-                        metamodels: [
-                            ...props.phData.metis.models,
-                            data,
-                        ],
-                    },
-                },
-            }
-        } else {
-            if (debug) console.log('335 ReadModelFromFile: ', data)
-            // find current model index
-            let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
-            // check if imported file has objects and relships
-            if (data.phData?.metis?.models[0]?.objects && data.phData.metis.models[0]?.relships) {
-                data = {
-                    phData: {
-                        ...props.phData,
-                        metis: {
-                            ...props.phData.metis,
-                            models: [
-                                ...props.phData.metis.models?.slice(0, mindex),
-                                {
-                                    ...props.phData.metis.models[mindex],
-                                    objects: [
-                                        ...props.phData.metis.models[mindex].objects,
-                                        ...data.phData.metis.models[0].objects,
-                                    ],
-                                    relships: [
-                                        ...props.phData.metis.models[mindex].relships,
-                                        ...data.phData.metis.models[0].relships,
-                                    ],
-                                },
-                                ...props.phData.metis.models?.slice(mindex + 1, mlength),
-                            ],
-                        },
-                    },
-                }
-            }
-        }
+        //     if (debug) console.log('304 ReadModelFromFile', data, props.phData.metis.metamodels)
+        //     data = {
+        //         phData: {
+        //             ...props.phData,
+        //             metis: {
+        //                 ...props.phData.metis,
+        //                 metamodels: [
+        //                     ...props.phData.metis.metamodels,
+        //                     // (impMetamodels) && data.phData.metis.metamodels,             
+        //                 ],
+        //                 models: [
+        //                     ...props.phData.metis.models,
+        //                     ...data.models,
+        //                 ],
+        //             },
+        //         },
+        //     }
+        //     if (debug) console.log('307 ReadModelFromFile', data)
+        // } else if (filename.includes('_OR')) { // its a Object relationship file, merge with existing project'
+        //     if (debug) console.log('370 ReadModelFromFile', data)
+        //     if (!data.objects) data.objects = []
+        //     if (!data.relships) data.relships = []
+        //     if (debug) console.log('373 ReadModelFromFile', data)
+        //     let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
+        //     let mlength = props.phData?.metis?.models.length
+        //     // check if imported file has objects and relships
+        //     if (data.objects && data.relships) {
+        //         data = {
+        //             phData: {
+        //                 ...props.phData,
+        //                 metis: {
+        //                     ...props.phData.metis,
+        //                     models: [
+        //                         ...props.phData.metis.models?.slice(0, mindex),
+        //                         {
+        //                             ...props.phData.metis.models[mindex],
+        //                             objects: [
+        //                                 ...props.phData.metis.models[mindex].objects,
+        //                                 ...data.objects,
+        //                             ],
+        //                             relships: [
+        //                                 ...props.phData.metis.models[mindex].relships,
+        //                                 ...data.relships,
+        //                             ],
+        //                         },
+        //                         ...props.phData.metis.models?.slice(mindex + 1, mlength),
+        //                     ],
+        //                 },
+        //             },
+        //         };
+        //     }
+        //     if (debug) console.log('399 ReadModelFromFile', data)
+        // } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'
+        //     data = {
+        //         phData: {
+        //             ...props.phData,
+        //             metis: {
+        //                 ...props.phData.metis,
+        //                 metamodels: [
+        //                     ...props.phData.metis.models,
+        //                     data,
+        //                 ],
+        //             },
+        //         },
+        //     }
+        // } else {
+        //     if (debug) console.log('335 ReadModelFromFile: ', data)
+        //     // find current model index
+        //     let mindex = props.phData?.metis?.models?.findIndex(m => m.id === curmod.id) // current model index
+        //     // check if imported file has objects and relships
+        //     if (data.phData?.metis?.models[0]?.objects && data.phData.metis.models[0]?.relships) {
+        //         data = {
+        //             phData: {
+        //                 ...props.phData,
+        //                 metis: {
+        //                     ...props.phData.metis,
+        //                     models: [
+        //                         ...props.phData.metis.models?.slice(0, mindex),
+        //                         {
+        //                             ...props.phData.metis.models[mindex],
+        //                             objects: [
+        //                                 ...props.phData.metis.models[mindex].objects,
+        //                                 ...data.phData.metis.models[0].objects,
+        //                             ],
+        //                             relships: [
+        //                                 ...props.phData.metis.models[mindex].relships,
+        //                                 ...data.phData.metis.models[0].relships,
+        //                             ],
+        //                         },
+        //                         ...props.phData.metis.models?.slice(mindex + 1, mlength),
+        //                     ],
+        //                 },
+        //             },
+        //         }
+        //     }
+        // }
 
 
-        if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+        if (!debug) console.log('356 ReadModelFromFile', data)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)

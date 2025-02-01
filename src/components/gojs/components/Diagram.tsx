@@ -3496,7 +3496,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const objview = objviews[i];
                 const goNode = myMetis.gojsModel.findNodeByViewId(objview.id);
                 if (goNode) {
-                  for (let it = myDiagram.nodes; it?.next();) {
+                  for (let it = myMetis.myDiagram.nodes; it?.next();) {
                     const n = it.value;
                     const data = n.data;
                     if (data.key === objview.id) {

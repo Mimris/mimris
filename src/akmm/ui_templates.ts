@@ -7,7 +7,7 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
-require('gojs/extensions/Figures.js');
+require('./Figures.ts');
 
 let myDiagram: go.Diagram;
 
@@ -2520,7 +2520,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         $(go.Node, 'Vertical',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'File',
+            $(go.Shape, "File",
                 {
                 name: 'SHAPE', 
                 portId: '', 

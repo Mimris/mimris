@@ -2243,7 +2243,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 locationSpot: go.Spot.Center, 
             },            
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'Annotation', // A left bracket shape
+            $(go.Shape, 'RoundedRectangle', //'Annotation', // A left bracket shape
                 {
                     portId: '', 
                     fromLinkable: true, toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: false,

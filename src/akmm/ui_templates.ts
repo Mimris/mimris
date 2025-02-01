@@ -2587,7 +2587,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             { locationObjectName: 'SHAPE', locationSpot: go.Spot.Center },
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'Database',
+            $(go.Shape, 'Rectangle', //'Database',
                 {
                     name: 'SHAPE', 
                     portId: '', 

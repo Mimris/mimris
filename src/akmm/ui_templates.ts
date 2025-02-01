@@ -4,7 +4,6 @@ import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
 import context from '../pages/context';
-import 'gojs/extensions/Figures.js';
 
 const $ = go.GraphObject.make;
 
@@ -2521,7 +2520,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         $(go.Node, 'Vertical',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'File',
+            $(go.Shape, 'Rectangle',  // 'File'
                 {
                 name: 'SHAPE', 
                 portId: '', 

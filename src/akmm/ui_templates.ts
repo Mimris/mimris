@@ -4,10 +4,11 @@ import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
 import context from '../pages/context';
+import 'gojs/extensions/Figures.js';
 
 const $ = go.GraphObject.make;
 
-require('gojs/extensions/Figures.js');
+// require('gojs/extensions/Figures.js');
 
 let myDiagram: go.Diagram;
 

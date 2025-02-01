@@ -7,11 +7,7 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
-<<<<<<< HEAD
 require('./Figures.ts');
-=======
-// require('gojs/extensions/Figures.js');
->>>>>>> 9e978d680e7b83889a5f3bf9d6d56aa00ec01608
 
 let myDiagram: go.Diagram;
 
@@ -2247,7 +2243,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 locationSpot: go.Spot.Center, 
             },            
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'RoundedRectangle', //'Annotation', // A left bracket shape
+            $(go.Shape, 'Annotation', // A left bracket shape
                 {
                     portId: '', 
                     fromLinkable: true, toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: false,
@@ -2524,11 +2520,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         $(go.Node, 'Vertical',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-<<<<<<< HEAD
             $(go.Shape, "File",
-=======
-            $(go.Shape, 'Rectangle',  // 'File'
->>>>>>> 9e978d680e7b83889a5f3bf9d6d56aa00ec01608
                 {
                 name: 'SHAPE', 
                 portId: '', 
@@ -2595,7 +2587,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             { locationObjectName: 'SHAPE', locationSpot: go.Spot.Center },
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'Rectangle', //'Database',
+            $(go.Shape, 'Database',
                 {
                     name: 'SHAPE', 
                     portId: '', 

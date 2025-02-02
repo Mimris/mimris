@@ -666,8 +666,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
       // Dispatch
+      const jsnRelship = new jsn.jsnRelship(relship);
+      let data = JSON.parse(JSON.stringify(jsnRelship));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       const jsnRelview = new jsn.jsnRelshipView(relview);
-      let data = JSON.parse(JSON.stringify(jsnRelview));
+      data = JSON.parse(JSON.stringify(jsnRelview));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       break;
     }

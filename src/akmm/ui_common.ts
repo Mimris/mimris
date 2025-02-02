@@ -1000,6 +1000,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     const myMetamodel: akm.cxMetaModel = args.metamodel;
     const myModel: akm.cxModel = args.context.myModel;
     const myModelview: akm.cxModelView = myMetis.currentModelview;
+    const askForRelshipName = myModelview.askForRelshipName;
     let data = args.context.gjsData;
     const typename = args.typename;
     const gjsFromKey = data.from;
@@ -1024,6 +1025,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
     if (!reltypes) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
     let reltype: akm.cxRelationshipType;
+    let relname: string;
     if (reltypes) {
         for (let i = 0; i < reltypes.length; i++) {
             reltype = reltypes[i];
@@ -1059,6 +1061,10 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        if (askForRelshipName) {
+            relname = prompt("Enter relationship name:", typename);
+            relship.name = relname;
+        }
         objFrom.addOutputrel(relship);
         objTo.addInputrel(relship);
         myModel.addRelationship(relship);
@@ -1076,7 +1082,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             gjsToKey: gjsToKey,
             reltype: reltype,
             data: data,
-            
+            relname: relname,
         }
         relshipview = createRelationshipView(relship, context);
     }
@@ -1100,9 +1106,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const goToNode = context.goToNode;
     const toObjview = context.toObjview;
     const reltype = context.reltype;
+    const relname = context.relname;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
-    const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "");
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
     rel.addRelationshipView(relview);
@@ -1121,7 +1128,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // create a link data between the actual nodes
     let linkdata = {
         key:    relview?.id,
-        name:   relTypename,
+        name:   rel.name,
         category: constants.gojs.C_RELATIONSHIP,
         from:   gjsFromKey, 
         to:     gjsToKey,

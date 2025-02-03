@@ -2683,7 +2683,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             ),
             // the "from" arrowhead
             $(go.Shape, { fromArrow: "None"},
-            { scale: 1.3, fill: "" },
+            { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
             new go.Binding("stroke", "strokecolor"),
@@ -2779,7 +2779,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             ),
             // the "from" arrowhead
             $(go.Shape, { fromArrow: "None"},
-            { scale: 1.3, fill: "" },
+            { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
             new go.Binding("stroke", "strokecolor"),

@@ -7,8 +7,6 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
-require('../components/gojs/Figures.ts');
-
 let myDiagram: go.Diagram;
 
 const KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);

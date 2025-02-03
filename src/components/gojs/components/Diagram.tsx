@@ -47,7 +47,7 @@ import { METHODS } from 'http';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
-import "../BalloonLink.js";
+// import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
 import { set } from 'immer/dist/internal';
 import { on } from 'process';
@@ -390,7 +390,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       $("ToolTip", { margin: 4 },
         $(go.TextBlock, new go.Binding("text", "", diagramInfo),
           {
-            font: "bold arial 72px sans-serif" // Seems not supported
+            font: "bold 12px Arial, sans-serif"
           }
         ),
         // use a converter to display information about the diagram model
@@ -3496,7 +3496,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const objview = objviews[i];
                 const goNode = myMetis.gojsModel.findNodeByViewId(objview.id);
                 if (goNode) {
-                  for (let it = myDiagram.nodes; it?.next();) {
+                  for (let it = myMetis.myDiagram.nodes; it?.next();) {
                     const n = it.value;
                     const data = n.data;
                     if (data.key === objview.id) {

@@ -7,7 +7,7 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
-require('gojs/extensions/Figures.js');
+// require('gojs/extensions/Figures.js');
 
 let myDiagram: go.Diagram;
 
@@ -2520,8 +2520,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         $(go.Node, 'Vertical',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'File',
+            $(go.Shape,// 'File',
                 {
+                figure: 'File',
                 name: 'SHAPE', 
                 portId: '', 
                 fromLinkable: true, 
@@ -2587,8 +2588,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             { locationObjectName: 'SHAPE', locationSpot: go.Spot.Center },
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            $(go.Shape, 'Database',
+            $(go.Shape, //'Database',
                 {
+                    figure: 'Database',
                     name: 'SHAPE', 
                     portId: '', 
                     fromLinkable: true, 
@@ -2982,7 +2984,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
-            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify()),
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
@@ -3846,4 +3848,69 @@ function finishDrop(e, grp) {
 //         }
 //     };
 // }
+function InputOutputGroupLayout() {
+    go.Layout.call(this);
+}
+
+InputOutputGroupLayout.prototype = Object.create(go.Layout.prototype);
+InputOutputGroupLayout.prototype.constructor = InputOutputGroupLayout;
+
+InputOutputGroupLayout.prototype.doLayout = function(coll) {
+    coll = this.collectParts(coll);
+
+    let portSpacing = 2;
+    let iconAreaWidth = 60;
+
+    // compute the counts and areas of the inputs and the outputs
+    let left = 0;
+    let leftwidth = 0;  // max
+    let leftheight = 0; // total
+    let right = 0;
+    let rightwidth = 0;  // max
+    let rightheight = 0; // total
+    coll.each(function(n) {
+        if (n instanceof go.Link) return;  // ignore Links
+        if (n.data._in) {
+        left++;
+        leftwidth = Math.max(leftwidth, n.actualBounds.width);
+        leftheight += n.actualBounds.height;
+        } else {
+        right++;
+        rightwidth = Math.max(rightwidth, n.actualBounds.width);
+        rightheight += n.actualBounds.height;
+        }
+    });
+    if (left > 0) leftheight += portSpacing * (left - 1);
+    if (right > 0) rightheight += portSpacing * (right - 1);
+
+    let loc = new go.Point(0, 0);
+    if (this.group !== null && this.group.location.isReal()) loc = this.group.location;
+
+    // first lay out the left side, the inputs
+    let y = loc.y - leftheight / 2;
+    coll.each(function(n) {
+        if (n instanceof go.Link) return;  // ignore Links
+        if (!n.data._in) return;  // ignore outputs
+        n.position = new go.Point(loc.x - iconAreaWidth / 2 - leftwidth, y);
+        y += n.actualBounds.height + portSpacing;
+    });
+
+    // now the right side, the outputs
+    y = loc.y - rightheight / 2;
+    coll.each(function(n) {
+        if (n instanceof go.Link) return;  // ignore Links
+        if (n.data._in) return;  // ignore inputs
+        n.position = new go.Point(loc.x + iconAreaWidth / 2 + rightwidth - n.actualBounds.width, y);
+        y += n.actualBounds.height + portSpacing;
+    });
+
+    // then position the group and size its icon area
+    if (this.group !== null) {
+        // position the group so that its ICON is in the middle, between the "ports"
+        this.group.location = loc;
+        // size the ICON so that it's wide enough to overlap the "ports" and tall enough to hold all of the "ports"
+        let icon = this.group.findObject("ICON");
+        if (icon !== null) icon.desiredSize = new go.Size(iconAreaWidth + leftwidth / 2 + rightwidth / 2, Math.max(leftheight, rightheight) + 10);
+    }
+};
 

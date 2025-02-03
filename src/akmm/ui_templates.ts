@@ -7,6 +7,8 @@ import context from '../pages/context';
 
 const $ = go.GraphObject.make;
 
+// require('gojs/extensions/Figures.js');
+
 let myDiagram: go.Diagram;
 
 const KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
@@ -33,7 +35,7 @@ export function getMinSize(): go.Size {
 export function getRouting(r: string): any {
     switch(r) {
     case 'Normal':
-        return go.Link.Normal;
+        return go.Link.Normal;ƒ
     case 'Orthogonal':
         return go.Link.Orthogonal;
     case 'AvoidsNodes':
@@ -103,32 +105,36 @@ export function getFigureNames() {
                 
 export function getFigure(f: string): any {
     switch(f) {
-    case 'Rectangle':
-        return go.Shape.Rectangle;
     case 'Circle':
         return go.Shape.Circle;
-    case 'Ellipse':
-        return go.Shape.Ellipse;
-    case 'Triangle':
-        return go.Shape.Triangle;
     case 'Diamond':
         return go.Shape.Diamond;
+    case 'Ellipse':
+        return go.Shape.Ellipse;
+    case 'File':
+        return go.Shape.File;
     case 'Hexagon':
         return go.Shape.Hexagon;
-    case 'Star':
-        return go.Shape.Star;
-    case 'Pentagon':
-        return go.Shape.Pentagon;
     case 'LineH':
         return go.Shape.LineH;
     case 'LineV':
         return go.Shape.LineV;
-    case 'PlusLine':
-        return go.Shape.PlusLine;
     case 'MinusLine':
         return go.Shape.MinusLine;
-    case 'XLine':
-        return go.Shape.XLine;
+    case 'Pentagon':
+        return go.Shape.Pentagon;
+    case 'PlusLine':
+        return go.Shape.PlusLine;
+    case 'Rectangle':
+        return go.Shape.Rectangle;
+    case 'RoundedRectangle':
+        return go.Shape.RoundedRectangle;
+    case 'Square':
+        return go.Shape.Square;
+    case 'Star':
+        return go.Shape.Star;
+    case 'Square':
+        return go.Shape.Square;
     case 'ThickX':
         return go.Shape.ThickX;
     case 'ThinX':
@@ -137,18 +143,18 @@ export function getFigure(f: string): any {
         return go.Shape.ThickCross;
     case 'ThinCross':
         return go.Shape.ThinCross;
-    case 'TriangleRight':
-        return go.Shape.TriangleRight;
-    case 'TriangleLeft':
-        return go.Shape.TriangleLeft;
-    case 'TriangleUp':
-        return go.Shape.TriangleUp;
+    case 'Triangle':
+        return go.Shape.Triangle;
     case 'TriangleDown':
         return go.Shape.TriangleDown;
-    case 'RoundedRectangle':
-        return go.Shape.RoundedRectangle;
-    case 'Square':
-        return go.Shape.Square;
+    case 'TriangleLeft':
+        return go.Shape.TriangleLeft;
+    case 'TriangleRight':
+        return go.Shape.TriangleRight;
+    case 'TriangleUp':
+        return go.Shape.TriangleUp;
+    case 'XLine':
+        return go.Shape.XLine;
     default:
         return go.Shape.Rectangle;
    }
@@ -2514,6 +2520,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );    
     addNodeTemplateName('GatewayNode');
 
+    /*
     nodeTemplateMap.add("DataObjectNode",
         $(go.Node, 'Vertical',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -2579,7 +2586,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         ),
     );
     addNodeTemplateName('DataObjectNode');
-
     nodeTemplateMap.add("DataStoreNode",
         $(go.Node, 'Vertical',
             { locationObjectName: 'SHAPE', locationSpot: go.Spot.Center },
@@ -2637,6 +2643,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         ),
     );
     addNodeTemplateName('DataStoreNode');
+*/
 }
 
 export function getLinkTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {

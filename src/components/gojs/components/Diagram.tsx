@@ -46,7 +46,7 @@ import { METHODS } from 'http';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
-import "../BalloonLink.js";
+// import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
 import { set } from 'immer/dist/internal';
 import { on } from 'process';

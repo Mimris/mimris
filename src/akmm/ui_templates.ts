@@ -4,6 +4,7 @@ import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
 import context from '../pages/context';
+import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses.js';
 
 const $ = go.GraphObject.make;
 
@@ -2252,10 +2253,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     portId: '', 
                     fromLinkable: true, toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: false,
                     cursor: 'alias', 
-                    // fromSpot: go.Spot.AllSides,
-                    fromSpot: go.Spot.Left,
+                    fromSpot: go.Spot.AllSides,
+                    // fromSpot: go.Spot.Left,
                     strokeWidth: 2, 
-                    // stroke: 'gray', 
+                    stroke: 'gray', 
                 },
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('background', 'fillcolor'),   
@@ -2272,7 +2273,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 new go.Binding('text', 'text').makeTwoWay(),
                 new go.Binding('scale', 'textscale').makeTwoWay(),
                 new go.Binding('stroke', 'strokecolor'),   
-                // new go.Binding('background', 'fillcolor'),      
                 ),
         )
     );
@@ -2324,6 +2324,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: '#CDAA7D',
                         parameter1: 10, // corner size
                         portId: '', 
+                        fromLinkable: true,
+                        fromSpot: go.Spot.RightSide,
+                        toLinkable: true,
+                        toSpot: go.Spot.LeftSide,
                         fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
                         toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
                     },
@@ -2398,7 +2402,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         fromLinkable: true,
                         fromSpot: go.Spot.RightSide,
                         toLinkable: true,
-                        toSpot: go.Spot.LeftSide,
+                        toSpot: go.Spot.AllSides,
                         toLinkableSelfNode: false,
                         toLinkableDuplicates: false,
                     },
@@ -2843,17 +2847,18 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     const annotationLinkTemplate =
         $(go.Link,
         {
+            contextMenu: contextMenu,
             reshapable: true, 
-            relinkableFrom: true, relinkableTo: true,
+            relinkableFrom: true, 
+            relinkableTo: true,
             fromSpot: go.Spot.AllSides,
             toSpot: go.Spot.AllSides,
-            toEndSegmentLength: 20, fromEndSegmentLength: 40
+            toEndSegmentLength: 20, // fromEndSegmentLength: 40
         },
-        { contextMenu: contextMenu },    
         new go.Binding('points').makeTwoWay(),
         $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] }),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black' }),
-        { segmentOffset: new go.Point(-10, -10) },
+        // { segmentOffset: new go.Point(-10, -10) },
         new go.Binding("stroke", "textcolor").makeTwoWay(),
         new go.Binding("scale", "textscale").makeTwoWay(),
     );
@@ -2862,7 +2867,48 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     addLinkTemplateName('AnnotationLink');
     
     if (debug) console.log('1514 linkTemplateMap, linkTemplateNames', linkTemplateMap, linkTemplateNames);
-}
+
+    const sequenceLinkTemplate = 
+        $(go.Link,
+        {
+          contextMenu: contextMenu,
+          routing: go.Link.AvoidsNodes,
+          corner: 10,
+          // fromSpot: go.Spot.RightSide, toSpot: go.Spot.LeftSide,
+          reshapable: true,
+          relinkableFrom: true,
+          relinkableTo: true,
+          toEndSegmentLength: 20,
+        },
+        new go.Binding('points').makeTwoWay(),
+        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
+        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
+        $(go.Shape,
+          { fromArrow: '', scale: 1.5, stroke: 'black', fill: 'white' },
+          new go.Binding('fromArrow', 'isDefault', function (s) {
+            if (s === null) return '';
+            return s ? 'BackSlash' : 'StretchedDiamond';
+          }),
+          new go.Binding('segmentOffset', 'isDefault', function (s) {
+            return s ? new go.Point(5, 0) : new go.Point(0, 0);
+          })
+        ),
+        $(go.TextBlock,
+          {
+            // this is a Link label
+            name: 'Label',
+            editable: true,
+            text: 'label',
+            segmentOffset: new go.Point(-10, -10),
+            visible: false,
+          },
+          new go.Binding('text', 'text').makeTwoWay(),
+          new go.Binding('visible', 'visible').makeTwoWay()
+        )
+      );    
+      linkTemplateMap.add("sequenceLinkTemplate", sequenceLinkTemplate);
+      addLinkTemplateName('sequenceLinkTemplate');
+  }
 
 export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis): any {
     const groupTemplate0 =

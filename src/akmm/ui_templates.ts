@@ -918,7 +918,7 @@ function addLinkTemplateName(name: string) {
 }
 
 // some shared functions
-if (true) {  // Swimpool and swimlane code
+if (false) {  // Swimpool and swimlane code
     // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
     function relayoutDiagram() {
         myDiagram.layout.invalidateLayout();
@@ -2893,18 +2893,31 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             return s ? new go.Point(5, 0) : new go.Point(0, 0);
           })
         ),
-        $(go.TextBlock,
+        $(go.TextBlock, "",
           {
             // this is a Link label
-            name: 'Label',
+            isMultiline: true,  // allow newlines in text
             editable: true,
-            text: 'label',
             segmentOffset: new go.Point(-10, -10),
-            visible: false,
           },
-          new go.Binding('text', 'text').makeTwoWay(),
-          new go.Binding('visible', 'visible').makeTwoWay()
-        )
+          new go.Binding('text', 'name').makeTwoWay(),
+          new go.Binding("stroke", "textcolor").makeTwoWay(),
+          new go.Binding("scale", "textscale").makeTwoWay(),
+        ),
+        {
+            toolTip:
+                $(go.Adornment, "Auto",
+                    { background: "transparent" },  // avoid hiding tooltip when mouse moves
+                    $(go.Shape, { fill: "#FFFFCC" }),
+                    $(go.TextBlock, { margin: 4,  },  // the tooltip shows the result of calling linkInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.linkInfo(d, myMetis);
+                            }
+                        )
+                    ),
+                )
+            },
       );    
       linkTemplateMap.add("sequenceLinkTemplate", sequenceLinkTemplate);
       addLinkTemplateName('sequenceLinkTemplate');

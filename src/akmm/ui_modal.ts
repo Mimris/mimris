@@ -666,7 +666,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
       // Dispatch
-      const jsnRelship = new jsn.jsnRelship(relship);
+      const jsnRelship = new jsn.jsnRelationship(relship);
       let data = JSON.parse(JSON.stringify(jsnRelship));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       const jsnRelview = new jsn.jsnRelshipView(relview);
@@ -752,12 +752,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       else if (modalContext.case === 'Generate Target Metamodel') {
         const context = modalContext.context;
-        const selectedValue = modalContext.selected?.value;
+        let selectedValue;
+        try {
+          selectedValue = selectedData[0];
+        } catch {
+          selectedValue = selectedData;
+        }
         const objview = myMetis.currentModelview.findObjectViewByName(selectedValue);
         context.myCurrentObjectview = objview;
         let metamodel = myMetis.findMetamodelByName(selectedValue); 
         if (!metamodel) {
-          metamodel = new akm.cxMetaModel();
+          metamodel = new akm.cxMetaModel(utils.createGuid(), selectedValue, "");
         }
         context.myTargetMetamodel = metamodel;
         context.myCurrentModelview = myMetis.currentModelview;

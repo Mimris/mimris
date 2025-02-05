@@ -228,7 +228,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
-    const myContext = modalContext.myContext;
+    const myContext = modalContext.context;
     let myDiagram = modalContext.myDiagram;
     if (!myDiagram) myDiagram = myContext.myDiagram;
     // const data = modalContext.data;
@@ -832,6 +832,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
                 const myModel = myMetis.currentModel;
+                const myGoModel = myMetis.gojsModel;
                 myMetis.deleteViewsOnly = false;
                 myDiagram.selection.each(function (sel) {
                   const data = sel.data;

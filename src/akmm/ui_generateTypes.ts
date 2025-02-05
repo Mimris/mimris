@@ -845,9 +845,9 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
             myMetis.addMetamodel(targetMetamodel);
         }
         mmObjectView = myMetis.currentModelview.findObjectViewByName(mmObject.name);
-        let obj = mmObjectView.object
-        obj = myMetis.findObject(obj.id);
-        mmObjectView.object = obj;
+        let obj1 = mmObjectView.object
+        obj1 = myMetis.findObject(obj1.id);
+        mmObjectView.object = obj1;
         break;
     }
     if (mmname === constants.core.AKM_CORE_MM) {

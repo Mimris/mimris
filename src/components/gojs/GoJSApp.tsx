@@ -340,7 +340,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             const gjsNode = myDiagram.findNodeForKey(goNode?.key)
-            if (gjsNode) gjsNode.scale = goNode.scale;
+            if (gjsNode && goNode.scale) gjsNode.scale = goNode.scale;
           }
           if (objview.id === focusObjectView?.id) {
             const node = myGoModel.findNodeByViewId(objview.id);

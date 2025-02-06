@@ -1107,6 +1107,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const toObjview = context.toObjview;
     const reltype = context.reltype;
     const relname = context.relname;
+    const reltypeview = reltype.typeview;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
     const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "");
@@ -1138,7 +1139,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         reltypeview: reltype?.typeview?.id,
     };
     // set the link attributes
-    const rtviewdata = reltype?.typeview?.data;
+    const rtviewdata = reltypeview?.data;
     for (let prop in rtviewdata) {
         if (prop === 'id') continue;
         if (prop === 'name') continue;

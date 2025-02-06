@@ -918,7 +918,7 @@ function addLinkTemplateName(name: string) {
 }
 
 // some shared functions
-if (false) {  // Swimpool and swimlane code
+if (true) {  // Swimpool and swimlane code
     // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
     function relayoutDiagram() {
         myDiagram.layout.invalidateLayout();

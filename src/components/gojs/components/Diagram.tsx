@@ -1044,7 +1044,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
-              const node = o.part.data;
+              const node = obj.part.data;
               const objectview = myMetis.findObjectView(node.key);
               let object = objectview.object;
               uid.addSubModels(object, myMetis, myDiagram);
@@ -1075,7 +1075,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Object Type",
             function (e: any, obj: any) {
-              const node = o.part.data;
+              const node = obj.part.data;
               const icon = uit.findImage(node.icon);
               const modalContext = {
                 what: "editObjectType",
@@ -1097,7 +1097,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Change Object Type",
             function (e: any, obj: any) {
-              const node = o.part.data;
+              const node = obj.part.data;
               const currentType = node.objecttype;
               const myMetamodel = myMetis.currentMetamodel;
               const objtypes = myMetamodel.getObjectTypes();
@@ -2085,7 +2085,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Typeview",
             function (e: any, obj: any) {
-              const link = o.part.data;
+              const link = obj.part.data;
               uid.editRelshipTypeview(link, myMetis, myDiagram);
             },
             function (o: any) {
@@ -3986,31 +3986,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
         }
-        // else if (modalContext?.title === 'Select Submodel to Add') {
-        //   if (debug) console.log('2923 modalContext', this.state.modalContext);
-        //   const choices = modalContext.context.args.modelnames;
-        //   options = choices.map(modelname => {
-        //     return { value: modelname, label: modelname }
-        //   })
-        //   comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        // }
         else {
           options = this.state.selectedData.map(o => o && { 'label': o, 'value': o });
           comps = null
         }
         const { selectedOption } = this.state;
-
         const value = (selectedOption) ? selectedOption.value : options[0]
-
         header = modalContext.title;
-        modalContent = (
-          <Select
-            value={selectedOption}
-            onChange={this.handleChange}
-            options={options}
-            components={{ Option: CustomSelectOption, SingleValue: CustomSelectValue }}
-          />
-        );
+        modalContent = //(
+        //   <Select
+        //     value={selectedOption}
+        //     onChange={this.handleChange}
+        //     options={options}
+        //     components={{ Option: CustomSelectOption, SingleValue: CustomSelectValue }}
+        //   />
+        // );
           <div className="modal-selection d-flex justify-content-center">
             <Select className="modal-select"
               options={options}
@@ -4047,6 +4037,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editTypeview': {
         header = modalContext.title + ':';
         category = this.state.selectedData.category;
+        typename = (modalContext.typename) ? '(' + modalContext.typename + ')' : '(' + this.state.selectedData.name + ')'
         if (this.state.selectedData !== null && this.myMetis != null) {
           modalContent =
             <div className="modal-prop" >
@@ -4074,19 +4065,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     const navitemDiv = (!selpropgroup) ? <></> : selpropgroup.map((pg, index) => {
-      const tabName = pg?.tabName;
-      const strindex = index.toString()
-      const activeTab = (this.state.currentActiveTab === strindex) ? 'active' : ''
-      return (
-        <NavItem key={strindex}>
-          <NavLink
-            className={classnames({ active: this.state.currentActiveTab === strindex })}
-            onClick={() => { toggle(strindex) }}
-          >
-            {tabName}
-          </NavLink>
-        </NavItem>
-      )
+      if (pg) {
+        const tabName = pg?.tabName;
+        const strindex = index.toString()
+        const activeTab = (this.state.currentActiveTab === strindex) ? 'active' : ''
+        return (
+          <NavItem key={strindex}>
+            <NavLink
+              className={classnames({ active: this.state.currentActiveTab === strindex })}
+              onClick={() => { toggle(strindex) }}
+            >
+              {tabName}
+            </NavLink>
+          </NavItem>
+        )
+      }
     })
 
     const toolTip = (!selpropgroup) && <div className="btn-sm bg-light text-black py-0 mt-2 ml-3" data-toggle="tooltip" data-placement="top" data-bs-html="true"
@@ -4114,8 +4107,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
+          nodeDataArray={this.props.nodeDataArray}
+          linkDataArray={this.props.linkDataArray}
           modelData={this.props.modelData}
           // myMetis={this.props.myMetis}
           // modelType={this.props.modelType}

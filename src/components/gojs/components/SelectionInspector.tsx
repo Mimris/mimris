@@ -185,7 +185,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             typename = currentType?.name;
           }
           if (namelist.length > 1 && typename !== 'Element' /* && typename !== 'Details'*/) {
-            for (let i = 0; i < mySupertypes.length; i++) {
+            for (let i = 0; i < mySupertypes?.length; i++) {
               const tname = mySupertypes[i]?.name;
               if (tname === typename) {
                 type = inheritedTypes[i];

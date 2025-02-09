@@ -1929,7 +1929,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP) {
-                const currentRelship = myMetis.findRelationship(link.relship?.id);
+                let currentRelship = myMetis.findRelationship(link.relship?.id);
+                if (!currentRelship) currentRelship = myMetis.findRelationship(link.relshipRef);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview?.id);
                 if (currentRelship && currentRelshipView) {
                   const myMetamodel = myMetis.currentMetamodel;
@@ -2229,7 +2230,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Select all views of this relationship",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const relship = myMetis.findRelationship(link.relship.id)
+              let relship = myMetis.findRelationship(link.relship?.id);
+              if (!relship) relship = myMetis.findRelationship(link.relshipRef);
               const links = myDiagram.links;
               for (let it = links.iterator; it?.next();) {
                 const link = it.value;
@@ -2240,7 +2242,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const link = o.part.data;
-              const relship = myMetis.findRelationship(link.relship.id)
+              let relship = myMetis.findRelationship(link.relship?.id);
+              if (!relship) relship = myMetis.findRelationship(link.relshipRef);
               const links = myDiagram.links;
               let cnt = 0;
               for (let it = links.iterator; it?.next();) {
@@ -2257,7 +2260,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Select all relationships of this type",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const currentRelship = myMetis.findRelationship(link.relship.id)
+              let currentRelship = myMetis.findRelationship(link.relship?.id);
+              if (!currentRelship) currentRelship = myMetis.findRelationship(link.relshipRef);
               const currentType = currentRelship?.type as akm.cxRelationshipType;
               const links = myDiagram.links;
               for (let it = links.iterator; it?.next();) {

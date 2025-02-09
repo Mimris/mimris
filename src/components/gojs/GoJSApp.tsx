@@ -315,6 +315,20 @@ class GoJSApp extends React.Component<{}, AppState> {
         let objviews = myModelview.objectviews;
         myModelview.objectviews = utils.removeArrayDuplicates(objviews);
         objviews = myModelview.objectviews;
+        for (let i = 0; i < objviews?.length; i++) {
+          const objview = objviews[i];
+          if (!objview.typeview) {
+            const obj = myModel.findObject(objview.objectRef);
+            if (obj) {
+              const objtype = myMetamodel.findObjectType(obj.typeRef);
+              if (objtype) {
+                const typeview = myMetamodel.findObjectTypeView(objtype.typeviewRef);
+                objview.typeview = typeview;
+                objview.typeviewRef = typeview?.id;
+              }
+            }
+          }
+        }
         const focusObjectView  = myMetis.currentModelview.focusObjectview;
         if (true) {
         for (let i = 0; i < objviews?.length; i++) {

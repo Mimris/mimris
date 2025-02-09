@@ -39,9 +39,7 @@ export class goModel {
         this.nodes = new Array();
         this.links = new Array();
         this.model = (modelView) ? modelView.model : null;
-        this.metamodel = (modelView)
-            ? ((modelView.model) ? (modelView.model.metamodel) : null)
-            : null;
+        this.metamodel = (modelView)? ((modelView.model) ? (modelView.model.metamodel) : null) : null;
         this.layout = "";
         this.layer = this.model?.layer;
         this.visible = this.layer !== 'Admin';
@@ -53,13 +51,23 @@ export class goModel {
     fixGoModel() {
         for (let i=0; i<this.nodes.length; i++) {
             let node = this.nodes[i];
-            if (!node instanceof goObjectNode) {
-                node = new goObjectNode(node.key, node.objectview);
+            if (node instanceof goObjectNode) {
+                let object = node.object;
+                let objecttype = node.objecttype;
+                if (!objecttype)
+                    objecttype = this.metamodel?.findObjectType(object.typeRef);
+                if (objecttype) {
+                    const typeviews = this.metamodel?.getObjectTypeViewsByObjectType(objecttype);
+                    if (typeviews?.length > 0) {
+                        node.typeview = typeviews[0];
+                    }
+                }
+                // node = new goObjectNode(node.key, node.objectview);
                 for (let prop in node) {
                     if (node[prop] !== this.nodes[i][prop]) {
                         node[prop] = this.nodes[i][prop];
                     }
-                }
+                }           
             }
             this.node = node;
         }
@@ -468,18 +476,18 @@ export class goObjectNode extends goNode {
 
         if (objview) {
             this.template       = objview?.template;
-            this.figure         = objview.figure;
-            this.geometry       = objview.geometry;
-            this.fillcolor      = objview.fillcolor;
-            this.fillcolor2      = objview.fillcolor2;
-            this.strokecolor    = objview.strokecolor;
-            this.strokecolor2   = objview.strokecolor2;
-            this.strokewidth    = objview.strokewidth;
-            this.textcolor      = objview.textcolor;
-            this.textcolor2      = objview.textcolor2;
-            this.textscale      = objview.textscale;
-            this.icon           = objview.icon;
-            this.image          = objview.image;
+            this.figure         = objview.figure ? objview.figure : "";
+            this.geometry       = objview.geometry ? objview.geometry : "";
+            this.fillcolor      = objview.fillcolor ? objview.fillcolor : "";
+            this.fillcolor2     = objview.fillcolor2 ? objview.fillcolor2 : "";
+            this.strokecolor    = objview.strokecolor ? objview.strokecolor : "";
+            this.strokecolor2   = objview.strokecolor2 ? objview.strokecolor2 : "";
+            this.strokewidth    = objview.strokewidth ? objview.strokewidth : "";
+            this.textcolor      = objview.textcolor ? objview.textcolor : "";
+            this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
+            this.textscale      = objview.textscale ? objview.textscale : "";
+            this.icon           = objview.icon ? objview.icon : "";
+            this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
             this.size           = objview.size;

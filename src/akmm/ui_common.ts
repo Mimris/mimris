@@ -4058,7 +4058,7 @@ export function repairEntityType(myMetis: akm.cxMetis, myMetamodel: akm.cxMetaMo
     let relshipType = myMetis.findObjectTypeByName(constants.types.AKM_RELSHIPTYPE);
     if (myMetamodel) {
         entityType = myMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-        entityType.removeDuplicateProperties();
+        entityType?.removeDuplicateProperties();
     }
     if (entityType) {
         // Get type view

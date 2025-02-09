@@ -239,6 +239,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       }
       let objtype;
       objtype = obj?.type as akm.cxObjectType;
+      if (!objtype) 
+        objtype = metis.findObjectType(obj.typeRef);
       if (!objtype) {
         includeObjview = true;
         includeNoType = true;
@@ -314,13 +316,12 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           node.template = 'textAndIcon';
         myGoModel.addNode(node);
         node.name = objview.name;
-        if (node.fillcolor === "")
-          node.fillcolor = "white";
         const object = node.object as akm.cxObject;
-        const objtype = object?.type as akm.cxObjectType;
+        let objtype = object?.type as akm.cxObjectType;
+        if (!objtype) objtype = metis.findObjectType(object.typeRef);
         const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
         if (typeview) {
-          if (node.fillcolor === "") node.fillcolor = typeview.fillcolor;
+          if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
           if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
           if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
           if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
@@ -333,6 +334,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         }
       }
     }
+    myGoModel.fixGoModel();
     const nodes = myGoModel.nodes;
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i] as gjs.goObjectNode;

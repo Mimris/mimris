@@ -259,7 +259,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (inst1) inst = inst1;
           properties = inst.setAndGetAllProperties(myMetis) as akm.cxProperty[];
           chosenInst = inst;
-        } else {
+        } else if (type) {
           let includeInherited = false;
           let includeConnected = false;
           inst = myMetis.findObject(inst.id);

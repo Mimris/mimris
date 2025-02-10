@@ -1268,6 +1268,8 @@ export class cxMetis {
                     objview.setTextscale(item.textscale);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
+                    objview.setArrowscale(item.arrowscale);
+                    objview.setMemberscale(item.memberscale);
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.fillcolor = item.fillcolor;

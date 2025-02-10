@@ -1489,6 +1489,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myCopiedNode.objectview = fromModelview.findObjectView(myCopiedNode.objviewId);
             myCopiedNode.gjsKey = copiedNodeKey;
             myCopiedNode.gjsNode = gjsCopiedNode;
+            myCopiedNode.memberscale = gjsCopiedNode.memberscale;
             myCopiedNode.loc = gjsCopiedNode.loc;
             myCopiedNode.size = gjsCopiedNode.size;
             myCopiedNode.group = gjsCopiedNode.group; // Group key

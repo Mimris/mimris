@@ -834,43 +834,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const myModel = myMetis.currentModel;
                 const myGoModel = myMetis.gojsModel;
                 myMetis.deleteViewsOnly = false;
-                myDiagram.selection.each(function (sel) {
-                  const data = sel.data;
-                  if (data.category === constants.gojs.C_OBJECT) {
-                    const objview = myModelview.findObjectView(data.key);
-                    const object = objview.object;
-                    const objviews = object.objectviews;
-                    if (objviews) {
-                      objviews.forEach(ov => {
-                        let ovnode = myGoModel.findNodeByViewId(ov.id);
-                        if (ovnode) {
-                          const n = myDiagram.findNodeForKey(ovnode.key);
-                          if (n) n.isSelected = true;
-                        }
-                      })
-                    }
-                    let node = myGoModel.findNode(data.key);
-                    if (node?.isGroup) {
-                      const groupMembers = node.getGroupMembers(myGoModel);
-                      for (let i = 0; i < groupMembers?.length; i++) {
-                        const member = groupMembers[i];
-                        const n = myDiagram.findNodeForKey(member?.key);
-                      }
-                    }
-                    const n = myDiagram.findNodeForKey(node?.key);
-                    if (n)
-                      n.findLinksConnected().each(function (l) {
-                        l.isSelected = true;
-                      });
-                  }
-                  if (data.category === constants.gojs.C_OBJECTTYPE) {
-                    const node = myDiagram.findNodeForKey(data.key);
-                    node.findLinksConnected().each(function (l) {
-                      l.isSelected = true;
-                    });
-                  }
-                })
-                e.diagram.commandHandler.deleteSelection();
+                // myDiagram.selection.each(function (sel) {
+                //   const data = sel.data;
+                //   if (data.category === constants.gojs.C_OBJECT) {
+                //     const objview = myModelview.findObjectView(data.key);
+                //     const object = objview.object;
+                //     const objviews = object.objectviews;
+                //     if (objviews) {
+                //       objviews.forEach(ov => {
+                //         let ovnode = myGoModel.findNodeByViewId(ov.id);
+                //         if (ovnode) {
+                //           const n = myDiagram.findNodeForKey(ovnode.key);
+                //           if (n) n.isSelected = true;
+                //         }
+                //       })
+                //     }
+                //     let node = myGoModel.findNode(data.key);
+                //     if (node?.isGroup) {
+                //       const groupMembers = node.getGroupMembers(myGoModel);
+                //       for (let i = 0; i < groupMembers?.length; i++) {
+                //         const member = groupMembers[i];
+                //         const n = myDiagram.findNodeForKey(member?.key);
+                //       }
+                //     }
+                //     const n = myDiagram.findNodeForKey(node?.key);
+                //     if (n)
+                //       n.findLinksConnected().each(function (l) {
+                //         l.isSelected = true;
+                //       });
+                //   }
+                //   if (data.category === constants.gojs.C_OBJECTTYPE) {
+                //     const node = myDiagram.findNodeForKey(data.key);
+                //     node.findLinksConnected().each(function (l) {
+                //       l.isSelected = true;
+                //     });
+                //   }
+                // })
+                myDiagram.commandHandler.deleteSelection();
               }
             },
             function (o: any) {
@@ -884,6 +884,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Delete",
             function (e: any, obj: any) {
               let node = obj.part;
+              node = myDiagram.findNodeForKey(node.key);
+              if (node.data.isGroup) {
+                if (confirm('Do you want to also delete the content?')) {
+                  try {
+                    const myCollection = node.findSubGraphParts();
+                    myCollection.add(node);
+                    myDiagram.selectCollection(myCollection);
+                  } catch {
+                  }
+                }
+              }
               if (confirm('Do you really want to delete the current selection?')) {
                 myMetis.deleteViewsOnly = false;
                 myMetis.currentNode = obj.part.data;

@@ -360,6 +360,7 @@ export class goNode extends goMetaObject {
     size:            string;
     scale:           string;
     memberscale:     string;
+    arrowscale:      string;
     strokecolor:     string;
     strokecolor2:    string;
     fillcolor:       string;
@@ -376,6 +377,7 @@ export class goNode extends goMetaObject {
         this.size = "";
         this.scale = "1";
         this.memberscale = "";
+        this.arrowscale = "1.3";
         this.strokecolor = "";
         this.strokecolor2 = "";
         this.fillcolor = "";

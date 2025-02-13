@@ -312,9 +312,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
-        if (!node.template || node.template === "")
-          node.template = 'textAndIcon';
-        myGoModel.addNode(node);
+         myGoModel.addNode(node);
         node.name = objview.name;
         const object = node.object as akm.cxObject;
         let objtype = object?.type as akm.cxObjectType;
@@ -330,7 +328,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (node.icon === "") node.icon = typeview.icon;
           if (node.image === "") node.image = typeview.image;
           if (node.viewkind === "") node.viewkind = typeview.viewkind;
-          if (node.template === "") node.template = typeview.template;
+          node.template = typeview.template;
         }
       }
     }
@@ -401,6 +399,18 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relview.toArrow = '';
       if (relview.points?.length == 4)
         relview.points = [];
+      if (!relview.template) {
+        const rel = relview.relship;
+        let reltype = rel.type;
+        const metamodel = model.getMetamodel();
+        if (!reltype) {
+          reltype = metamodel.findRelationshipType(rel.typeRef);
+          if (reltype) {
+            const reltypeview = reltype.typeview;
+            relview.template = reltypeview.template;
+          }
+        }
+      }
       let fromObjview = relview.fromObjview as akm.cxObjectView;
       if (!fromObjview || !modelview.findObjectView(fromObjview.id))
         continue;

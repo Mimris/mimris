@@ -42,15 +42,15 @@ const page = (props) => {
   // }, [focusModelview])
 
   return (
-    <div className="workpad me-2" >
-      <div className="homepage pt-2 pr-0">
+    <div className="workpad me-2 h-100" >
+      <div className="homepage pt-2 pr-0 h-100">
         <div className="p-0 pt-0">
           <GettingStarted />
           {/* </div>
         <div className="col" style={{maxHeight: "42px"}}> releasenotes */}
-          <Card className="card mt-2 me-3"
+          <Card className="card mt-2 me-3 h-100"
             style={{
-              maxHeight: "60vh", overflow: "scroll",
+              maxHeight: "98vh", overflow: "scroll",
               borderRadius: "10px",
               border: "1px solid rgba(255,255,255,0.2)",
               position: "relative",
@@ -61,7 +61,7 @@ const page = (props) => {
               padding: "0px"
             }}
           >
-            <CardHeader className="card-header " >AKMM release log ... </CardHeader>
+            <CardHeader className="card-header h-100" >AKMM release log ... </CardHeader>
             {/* <CardBody className="card-body" >  
               <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
               <CardText >
@@ -70,7 +70,7 @@ const page = (props) => {
                   &bull; GraphQL shema reporting from Solution models!<br />
               </CardText>
             </CardBody> */}
-            <CardBody className="card-body" >
+            <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2024.11.22</CardTitle>
               <CardText >
                 &bull;Bug fixes <br />

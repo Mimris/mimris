@@ -77,7 +77,7 @@ const Project = (props) => {
     </>;
 
   return mounted && (
-    <div className="project bg-light">
+    <div className="project bg-light h-100">
       <Tabs defaultActiveKey="domain" id="custom-tabs" className="custom-tabs nav-link mb-0 pb-0">
         <Tab eventKey="domain" title="ModelSuite Domain">
           {/* <div className="domain bg-warning"> */}

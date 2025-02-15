@@ -966,19 +966,6 @@ if (true) {  // Swimpool and swimlane code
     }
     
     
-    function groupStyle() {  // common settings for both Lane and Pool Groups
-        return [
-        {
-            layerName: 'Background',  // all pools and lanes are always behind all nodes and links
-            background: 'transparent',  // can grab anywhere in bounds
-            movable: true, // allows users to re-order by dragging
-            copyable: false,  // can't copy lanes or pools
-            avoidable: false  // don't impede AvoidsNodes routed Links
-        },
-        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
-        ];
-    }
-
     // hide links between lanes when either lane is collapsed
     function updateCrossLaneLinks(group: go.Group) {
         group.findExternalLinksConnected().each((ll) => {
@@ -3224,6 +3211,20 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("groupFigNoPorts", groupWithoutPorts3);
         addGroupTemplateName('groupFigNoPorts');        
     }
+
+    function groupStyle() {  // common settings for both Lane and Pool Groups
+        return [
+        {
+            layerName: 'Background',  // all pools and lanes are always behind all nodes and links
+            background: 'transparent',  // can grab anywhere in bounds
+            movable: true, // allows users to re-order by dragging
+            copyable: false,  // can't copy lanes or pools
+            avoidable: false  // don't impede AvoidsNodes routed Links
+        },
+        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
+        ];
+    }
+
 
     if (false) { // laneTemplate
       // each Group is a "swimlane" with a header on the left and a resizable lane on the right

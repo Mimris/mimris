@@ -458,7 +458,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     if (resetTypeIdOnRelship) 
         typeid = "";
     else
-        typeid = currentRel.generatedTypeId;
+        typeid = currentRel?.generatedTypeId;
     if (!typeid)
         typeid = utils.createGuid();
     if (typeid) // The type has been generated before
@@ -516,7 +516,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     }
     if (reltype) {
         { // Handle the properties
-            let props = currentRel.type?.getProperties(false);
+            let props = currentRel?.type?.getProperties(false);
             if (props !== undefined && props !== null && props.length > 0)
                 reltype.properties = props;
             else
@@ -530,9 +530,11 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         }
         myTargetMetamodel?.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
-        currentRel.generatedTypeId = reltype.id;
-        myModel.addRelationship(currentRel);
-        myMetis.addRelationship(currentRel);
+        if (currentRel) {
+            currentRel.generatedTypeId = reltype.id;
+            myModel.addRelationship(currentRel);
+            myMetis.addRelationship(currentRel);
+        }
 
         // Create/Modify the relationship typeview
         reltypeview = reltype.typeview;

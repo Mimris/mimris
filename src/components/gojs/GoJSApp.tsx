@@ -402,16 +402,20 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (data.category === "Relationship") {
               let relview: akm.cxRelationshipView = data.relshipview;
               relview = myModelview.findRelationshipView(data.key);
-              relview.markedAsDeleted = data.markedAsDeleted;
-              if (relview.visible === false) {
-                myDiagram.remove(link);
-              } else {
-                const points = relview.points;
-                if (points?.length == 0 || points?.length == 4) {
-                  link.points = [];
-                  relview.points = [];
-                  const jsnRelview = new jsn.jsnRelshipView(relview);
-                  modifiedRelshipViews.push(jsnRelview);
+              if (!relview)
+                relview = myMetis.findRelationshipView(data.key);
+              if (relview) {
+                relview.markedAsDeleted = data.markedAsDeleted;
+                if (relview.visible === false) {
+                  myDiagram.remove(link);
+                } else {
+                  const points = relview.points;
+                  if (points?.length == 0 || points?.length == 4) {
+                    link.points = [];
+                    relview.points = [];
+                    const jsnRelview = new jsn.jsnRelshipView(relview);
+                    modifiedRelshipViews.push(jsnRelview);
+                  }
                 }
               }
             }

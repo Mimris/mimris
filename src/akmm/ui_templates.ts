@@ -918,8 +918,21 @@ function addLinkTemplateName(name: string) {
 }
 
 // some shared functions
-if (true) {  // Swimpool and swimlane code
+// if (true) {  // Swimpool and swimlane code
     // this is called after nodes have been moved or lanes resized, to layout all of the Pool Groups again
+
+    const MINLENGTH = 200; // this controls the minimum length of any swimlane
+    const MINBREADTH = 20; // this controls the minimum breadth of any non-collapsed swimlane
+  
+    function relayoutLanes() {
+        myDiagram.nodes.each((lane) => {
+        if (!(lane instanceof go.Group)) return;
+        if (lane.category === 'Pool') return;
+        lane.layout.isValidLayout = false; // force it to be invalid
+        });
+        myDiagram.layoutDiagram();
+    }
+
     function relayoutDiagram() {
         myDiagram.layout.invalidateLayout();
         myDiagram.findTopLevelGroups().each(function (g) { if (g.category === 'Pool' && g.layout !== null) g.layout.invalidateLayout(); });
@@ -1054,7 +1067,7 @@ if (true) {  // Swimpool and swimlane code
         }
         myDiagram.commitTransaction('addLane');
     }
-}
+// }
 export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
     if (debug) console.log('981 addNodeTemplates', myMetis, contextMenu, portContextMenu);
@@ -3545,7 +3558,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Container6", groupTemplate6);
         addGroupTemplateName('Container6'); 
     }
-    if (false) { // swimLanesGroupTemplate
+    // if (false) { // swimLanesGroupTemplate
         const swimLanesGroupTemplate =
         $(go.Group, 'Spot', groupStyle(),
           {
@@ -3657,8 +3670,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );
         groupTemplateMap.add("SwimLane", swimLanesGroupTemplate);
         addGroupTemplateName('SwimLane'); 
-    }    
-    if (false) { // poolGroupTemplate
+    //}    
+    if (true) { // poolGroupTemplate
         const poolGroupTemplate =
         $(go.Group, 'Auto', groupStyle(),
         {

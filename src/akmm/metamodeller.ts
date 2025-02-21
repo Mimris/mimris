@@ -1012,6 +1012,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
             objtypeview.setTemplate(item.template);
+            objtypeview.setTemplate2(item.template2);
             objtypeview.setViewKind(item.viewkind);
             objtypeview.setMemberscale(item.memberscale);
             objtypeview.setGeometry(item.geometry);
@@ -1058,6 +1059,7 @@ export class cxMetis {
             reltypeview.setType(type);
             reltypeview.setName(item.name);
             reltypeview.setTemplate(item.template);
+            reltypeview.setTemplate2(item.template2);
             reltypeview.setStrokecolor(item.strokecolor);
             reltypeview.setTextcolor(item.textcolor);
             reltypeview.setStrokewidth(item.strokewidth);
@@ -1337,6 +1339,7 @@ export class cxMetis {
                     relview.fromPortid = relship.fromPortid;
                     relview.toPortid = relship.toPortid;
                     relview.template = item.template;
+                    relview.template2 = item.template2;
                     relview.arrowscale = item.arrowscale;
                     relview.strokecolor = item.strokecolor;
                     relview.strokewidth = item.strokewidth;
@@ -1379,6 +1382,7 @@ export class cxMetis {
                     }
                     relview.markedAsDeleted = item.markedAsDeleted;
                     relview.template = item.template;
+                    relview.template2 = item.template2;
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
                 }
@@ -6516,6 +6520,7 @@ export class cxObjtypeviewData {
     arrowscale: string;
     viewkind: string;
     template: string;
+    template2: string;
     figure: string;
     geometry: string;
     icon: string;
@@ -6535,6 +6540,7 @@ export class cxObjtypeviewData {
         this.arrowscale = "1.3";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
+        this.template2 = "";
         this.figure = "";
         this.geometry = "";
         this.icon = "";
@@ -6559,6 +6565,7 @@ export class cxObjectTypeView extends cxMetaObject {
     memberscale: string;
     viewkind: string;
     template: string;
+    template2: string;
     figure: string;
     geometry: string;
     icon: string;
@@ -6579,6 +6586,7 @@ export class cxObjectTypeView extends cxMetaObject {
         // this.type        = type;
         this.typeRef = type?.id;
         this.template = "";
+        this.template2 = "";
         this.figure      = "";
         this.geometry    = "";
         this.arrowscale = "1";
@@ -6691,6 +6699,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.template;
         else if (this.template)
             return this.template;
+        return "";
+    }
+    setTemplate2(template: string) {
+        this.data.template2 = template;
+        this.getTemplate2 = template;
+    }
+    getTemplate2(): string {
+        if (this.data.template2)
+            return this.data.template2;
+        else if (this.template2)
+            return this.template2;
         return "";
     }
     setFigure(figure: string) {
@@ -6856,6 +6875,7 @@ export class cxReltypeviewData {
     class: string;
     relshipkind: string;
     template: string;
+    template2: string;
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
@@ -6873,6 +6893,7 @@ export class cxReltypeviewData {
         this.abstract = false;
         this.relshipkind = constants.relkinds.REL;
         this.template = "linkTemplate1";
+        this.template2 = "";
         this.strokecolor = "black";
         this.strokewidth = "1";
         this.textcolor = "black";
@@ -6894,6 +6915,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     typeRef: string;
     data: cxReltypeviewData;
     template: string;
+    template2: string;
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
@@ -6931,6 +6953,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
             for (prop in data) {
                 if (relview[prop] == undefined || relview[prop] === "") continue;
                 if (prop === 'template') data[prop] = relview[prop];
+                if (prop === 'template2') data[prop] = relview[prop];
                 if (prop === 'strokecolor') data[prop] = relview[prop];
                 if (prop === 'strokewidth') data[prop] = relview[prop];
                 if (prop === 'textcolor') data[prop] = relview[prop];
@@ -6999,6 +7022,18 @@ export class cxRelationshipTypeView extends cxMetaObject {
             return this.template;
         else if (this.data.template)
             return this.data.template;
+        else
+            return "linkTemplate1";
+    }
+    setTemplate2(template: string) {
+        this.data.template2 = template;
+        this.template2 = template;
+    }
+    getTemplate2(): string {
+        if (this.template2)
+            return this.template2;
+        else if (this.data.template2)
+            return this.data.template2;
         else
             return "linkTemplate1";
     }
@@ -9486,6 +9521,7 @@ export class cxObjectView extends cxMetaObject {
     arrowscale: string;
     viewkind: string;
     template: string;
+    template2: string;
     figure: string;
     geometry: string;
     icon: string;
@@ -9511,6 +9547,8 @@ export class cxObjectView extends cxMetaObject {
         this.objectRef = object?.id;
         this.inputrelviews = null;
         this.outputrelviews = null;
+        this.template = "";
+        this.template2 = "";
         this.typeview = object?.type?.typeview as cxObjectTypeView;
         this.typeviewRef = this.typeview?.id;
         this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
@@ -9532,6 +9570,7 @@ export class cxObjectView extends cxMetaObject {
         this.size = "";
         this.scale = "1";
         this.template = "";
+        this.template2 = "";
         this.figure = "";
         this.geometry = "";
         this.routing = "Normal";
@@ -9778,6 +9817,16 @@ export class cxObjectView extends cxMetaObject {
             return "";
         return this.template;
     }
+    setTemplate2(template: string) {
+        if (template == undefined)
+            template2 = "";
+        this.template2 = template;
+    }
+    getTemplate2(): string {
+        if (this.template2 == undefined)
+            return "";
+        return this.template2;
+    }
     setFigure(figure: string) {
         if (figure == undefined)
         figure = "";
@@ -9915,6 +9964,7 @@ export class cxRelationshipView extends cxMetaObject {
     fromPortid: string;
     toPortid: string;
     template: string;
+    template2: string;
     arrowscale: string;
     strokecolor: string;
     strokewidth: string;
@@ -9942,6 +9992,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.toPortid = "";
         this.toObjview = null;
         this.template = "";
+        this.template2 = "";
         this.textscale = "1";
         this.arrowscale = "1";
         this.strokecolor = "black";
@@ -10023,6 +10074,16 @@ export class cxRelationshipView extends cxMetaObject {
         if (this.template == undefined)
             return "";
         return this.template;
+    }
+    setTemplate2(template: string) {
+        if (template == undefined)
+            template = "";
+        this.template2 = template;
+    }
+    getTemplate(): string {
+        if (this.template2 == undefined)
+            return "";
+        return this.template2;
     }
     setTextScale(scale: string) {
         this.textscale = scale;

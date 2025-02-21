@@ -426,14 +426,17 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'TextEdited': {
         const sel = e.subject.part;
         const gjsData = sel.data;
-        const textvalue = gjsData.name;
+        let textvalue = gjsData.name;
+        if (gjsData.typename === 'Label'){
+          textvalue = gjsData.text;
+        }
         let field = e.subject.name;
         if (field === "") field = "name";
         // Object type or Object
         if (sel instanceof go.Node) {
           const key: string = gjsData.key;
           const goNode = myGoModel.findNode(key);
-          let text: string = gjsData.name;
+          let text: string = textvalue;
           const category: string = gjsData.category;
           // Object type
           if (category === constants.gojs.C_OBJECTTYPE) {
@@ -1519,7 +1522,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             myPastedNode.objviewId = utils.createGuid();
             myPastedNode.goNodeId = myPastedNode.objviewId;
-            myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myCopiedNode.objectview.name,
+            myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
                                                            myPastedNode.object, myCopiedNode.descr, toModelview);
             gjsNode.key = myPastedNode.objviewId;
             uic.copyViewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        

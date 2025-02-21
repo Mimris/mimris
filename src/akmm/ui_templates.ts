@@ -988,10 +988,13 @@ function addLinkTemplateName(name: string) {
 
     const laneEventMenu =  // context menu for each lane
         $<go.Adornment>('ContextMenu',
-        $('ContextMenuButton',
-            $(go.TextBlock, 'Add Lane'),
-            // in the click event handler, the obj.part is the Adornment; its adornedObject is the port
-            { click: function (e: go.InputEvent, obj: go.GraphObject) { addLaneEvent((obj.part as go.Adornment).adornedObject as go.Node); } })
+            $('ContextMenuButton',
+                $(go.TextBlock, 'Add Lane'),
+                // in the click event handler, the obj.part is the Adornment; its adornedObject is the port
+                { click: function (e: go.InputEvent, obj: go.GraphObject) { 
+                    addLaneEvent((obj.part as go.Adornment).adornedObject as go.Node); } 
+                }
+            )
         );
 
     class PoolLayout extends go.GridLayout {
@@ -3239,7 +3242,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
     }
 
 
-    if (false) { // laneTemplate
+    if (true) { // laneTemplate
       // each Group is a "swimlane" with a header on the left and a resizable lane on the right
       const laneTemplate = 
       $(go.Group, "Horizontal", groupStyle(),
@@ -3559,15 +3562,15 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('Container6'); 
     }
     // if (false) { // swimLanesGroupTemplate
-        const swimLanesGroupTemplate =
+    const swimLanesGroupTemplate =
         $(go.Group, 'Spot', groupStyle(),
           {
             name: 'Lane',
             contextMenu: contextMenu,
-            minLocation: new go.Point(NaN, -Infinity),  // only allow vertical movement
-            maxLocation: new go.Point(NaN, Infinity),
+            selectionObjectName: 'SHAPE', // selecting a lane causes the body of the lane to be highlit, not the label
+            resizable: true, 
+            resizeObjectName: 'SHAPE',  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             selectionObjectName: 'SHAPE',  // selecting a lane causes the body of the lane to be highlit, not the label
-            resizable: true, resizeObjectName: 'SHAPE',  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             // layout: $(go.LayeredDigraphLayout,  // automatically lay out the lane's subgraph
             //   {
             //     isInitial: false,  // don't even do initial layout
@@ -3591,7 +3594,24 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 } else {
                   grp.diagram.currentTool.doCancel();
                 }
+            } else
+            // dropping a copy of some Nodes and Links onto this Group adds them to this Group
+            // don't allow drag-and-dropping a mix of regular Nodes and Groups
+            if (
+              !e.diagram.selection.any(
+                (n) =>
+                  (n instanceof go.Group && n.category !== 'subprocess') ||
+                  n.category === 'privateProcess'
+              )
+            ) {
+              const ok = grp.addMembers(grp.diagram.selection, true);
+              if (ok) {
+                updateCrossLaneLinks(grp);
+                relayoutDiagram();
+              } else {
+                grp.diagram.currentTool.doCancel();
               }
+                  }
             },
             subGraphExpandedChanged: function (grp: go.Group) {
               if (grp.diagram === null) return;
@@ -3606,11 +3626,31 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
               updateCrossLaneLinks(grp);
             }
           },
-          // new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
+          { // Tooltip
+            toolTip:
+            $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "lightyellow" }),
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", 
+                        function (d) { 
+                            return uid.nodeInfo(d, myMetis);                
+                        }
+                    )
+                )
+            )
+          },
+        // new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
     
           $(go.Shape, 'Rectangle',  // this is the resized object
-            { name: 'SHAPE', fill: 'white', stroke: null },  // need stroke null here or you gray out some of pool border.
-            new go.Binding('fill', 'color'),
+            { 
+                name: 'SHAPE', 
+                fill: 'white', 
+                stroke: "black",
+                opacity: 0.75,
+                margin: new go.Margin(1, 4, 1, 4),
+                cursor: "move",
+            },  // need stroke null here or you gray out some of pool border.
+            new go.Binding('fill', 'fillcolor'),
             new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify)),
     
           // the lane header consisting of a Shape and a TextBlock
@@ -3618,24 +3658,44 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
               name: 'HEADER',
               angle: 270,  // maybe rotate the header to read sideways going up
-              alignment: go.Spot.LeftCenter, alignmentFocus: go.Spot.LeftCenter
+              alignment: go.Spot.LeftCenter, 
+              alignmentFocus: go.Spot.LeftCenter,
             },
             $(go.TextBlock,  // the lane label
               { editable: true, margin: new go.Margin(2, 0, 0, 8) },
               new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
-              new go.Binding('text', 'name').makeTwoWay()),
-            $('SubGraphExpanderButton', { margin: 4, angle: -270 })  // but this remains always visible!
+              new go.Binding('text', 'name').makeTwoWay()
+            ),
+            $('SubGraphExpanderButton', 
+                { 
+                    margin: 4, 
+                    angle: -270 
+                }
+            )  // but this remains always visible!
           ),  // end Horizontal Panel
           $(go.Placeholder,
-            { padding: 12, alignment: go.Spot.TopLeft, alignmentFocus: go.Spot.TopLeft }),
-          $(go.Panel, 'Horizontal', { alignment: go.Spot.TopLeft, alignmentFocus: go.Spot.TopLeft },
+            { 
+                padding: 12, 
+                alignment: go.Spot.TopLeft, 
+                alignmentFocus: go.Spot.TopLeft 
+            }),
+          $(go.Panel, 'Horizontal', 
+            { 
+                alignment: go.Spot.TopLeft, 
+                alignmentFocus: go.Spot.TopLeft 
+            },
             $(go.TextBlock,  // this TextBlock is only seen when the swimlane is collapsed
               {
                 name: 'LABEL',
-                editable: true, visible: false,
-                angle: 0, margin: new go.Margin(6, 0, 0, 20)
+                editable: true, 
+                visible: false,
+                angle: 0, 
+                margin: new go.Margin(6, 0, 0, 20)
               },
-              new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+              new go.Binding('visible', 'isSubGraphExpanded', 
+                function (e) { 
+                    return !e; 
+                }).ofObject(),
               new go.Binding('text', 'name').makeTwoWay())
           )
         );  // end swimLanesGroupTemplate
@@ -3649,7 +3709,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
             alignment: go.Spot.Right,
             desiredSize: new go.Size(7, 50),
-            fill: 'lightblue', stroke: 'dodgerblue',
+            fill: 'lightblue', 
+            stroke: 'dodgerblue',
             cursor: 'col-resize'
             },
             new go.Binding('visible', '', function (ad) {
@@ -3660,44 +3721,97 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
             alignment: go.Spot.Bottom,
             desiredSize: new go.Size(50, 7),
-            fill: 'lightblue', stroke: 'dodgerblue',
+            fill: 'lightblue', 
+            stroke: 'dodgerblue',
             cursor: 'row-resize'
             },
-            new go.Binding('visible', '', function (ad) {
-            if (ad.adornedPart === null) return false;
-            return ad.adornedPart.isSubGraphExpanded;
-            }).ofObject())
-        );
+            new go.Binding('visible', '', 
+                function (ad) {
+                    if (ad.adornedPart === null) return false;
+                    return ad.adornedPart.isSubGraphExpanded;
+                }).ofObject()
+        )
+    );
         groupTemplateMap.add("SwimLane", swimLanesGroupTemplate);
-        addGroupTemplateName('SwimLane'); 
+        // addGroupTemplateName('SwimLane'); 
     //}    
-    if (true) { // poolGroupTemplate
-        const poolGroupTemplate =
+    // if (true) { // poolGroupTemplate
+
+
+
+    const poolGroupTemplate =
         $(go.Group, 'Auto', groupStyle(),
         {
-            computesBoundsIncludingLinks: false,
+            resizable: true,
+            minSize: getMinSize(),
+            selectionAdorned: true,
+        },
+        new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        new go.Binding("layout", "groupLayout").makeTwoWay(),
+        
+        { // Tooltip
+            toolTip:
+            $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "lightyellow" }),
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", 
+                        function (d) { 
+                            return uid.nodeInfo(d, myMetis);                
+                        }
+                    )
+                )
+            )
+        },
+        {
+            // computesBoundsAfterDrag: true, // needed to prevent recomputing Group.placeholder bounds too soon
+            // computesBoundsIncludingLinks: false,
             // use a simple layout that ignores links to stack the "lane" Groups on top of each other
-            layout: $(PoolLayout, { spacing: new go.Size(0, 0) })  // no space between lanes
+            layout: $(PoolLayout, { 
+                spacing: new go.Size(0, 0) 
+            }),  // no space between lanes
+            name: 'Pool',
+            contextMenu: contextMenu, // laneEventMenu,
+            // minLocation: new go.Point(NaN, -Infinity),  // only allow vertical movement
+            // maxLocation: new go.Point(NaN, Infinity),
+            selectionObjectName: 'SHAPE',  // selecting a lane causes the body of the lane to be highlit, not the label
+            resizable: true, 
+            resizeObjectName: 'SHAPE',  // the custom resizeAdornmentTemplate only permits two kinds of resizing
         },
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Shape,
-            { fill: 'white' },
-            new go.Binding('fill', 'color')),
+            { 
+                fill: 'white' 
+            },
+            new go.Binding('fill', 'fillcolor')),
+            new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
         $(go.Panel, 'Table',
             { defaultColumnSeparatorStroke: 'black' },
             $(go.Panel, 'Horizontal',
-            { column: 0, angle: 270 },
-            $(go.TextBlock,
-                { editable: true, margin: new go.Margin(5, 0, 5, 0) },  // margin matches private process (black box pool)
-                new go.Binding('text').makeTwoWay())
+                { 
+                    column: 0, angle: 270 
+                },
+                $(go.TextBlock,
+                { 
+                    name: 'LABEL',
+                    editable: true, 
+                    visible: true,
+                    angle: 90, 
+                    margin: new go.Margin(5, 0, 5, 0) 
+                },  // margin matches private process (black box pool)
+                new go.Binding('text', 'name').makeTwoWay())
             ),
             $(go.Placeholder,
-            { background: 'darkgray', column: 1 })
+            { 
+                background: 'darkgray', 
+                column: 1 
+            })
         )
         ); // end poolGroupTemplate
         groupTemplateMap.add("SwimPool", poolGroupTemplate);
-        addGroupTemplateName('SwimPool');    
-    }
+        // addGroupTemplateName('SwimPool');    
+    // }
 }
 
 export function addPortTemplates() {

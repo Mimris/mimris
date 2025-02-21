@@ -894,6 +894,7 @@ export class jsnObjectTypeView {
     group:           string;
     grabIsAllowed:   boolean;
     template:        string;
+    template2:       string;
     figure:          string;
     geometry:        string;
     fillcolor:       string;
@@ -917,6 +918,7 @@ export class jsnObjectTypeView {
         this.typeRef         = objtypeview.typeRef;
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
+        // this.template2       = objtypeview.getTemplate2();
         this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
@@ -1686,6 +1688,7 @@ export class jsnObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
+    template2:       string;
     figure:          string;
     geometry:        string;
     fillcolor:       string;
@@ -1714,6 +1717,7 @@ export class jsnObjectView {
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
+        this.template2       = objview?.template2;
         this.figure          = objview?.figure;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
@@ -1745,6 +1749,7 @@ export class jsnRelshipView {
     fromPortid:      string;
     toPortid:        string;
     template:        string;
+    template2:       string;
     arrowscale:      string;
     strokecolor:     string;
     strokewidth:     string;
@@ -1769,6 +1774,7 @@ export class jsnRelshipView {
         this.relshipRef      = "";
         this.typeviewRef     = "";
         this.template        = relview?.template;
+        this.template2       = relview?.template2;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
         this.strokewidth     = relview?.strokewidth;
@@ -2047,6 +2053,7 @@ export class jsnImportMetis {
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
         reltypeview.setType(type);
         reltypeview.setTemplate(item.template);
+        // reltypeview.setTemplate2(item.template2);
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);
         reltypeview.setDash(item.dash);

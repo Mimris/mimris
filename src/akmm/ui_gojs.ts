@@ -439,6 +439,7 @@ export class goObjectNode extends goNode {
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
     template: string;
+    template2: string;
     figure: string;
     geometry: string;
     strokewidth: string;
@@ -477,7 +478,8 @@ export class goObjectNode extends goNode {
 
 
         if (objview) {
-            this.template       = objview?.template;
+            this.template       = objview.template;
+            this.template2      = objview.template2;
             this.figure         = objview.figure ? objview.figure : "";
             this.geometry       = objview.geometry ? objview.geometry : "";
             this.fillcolor      = objview.fillcolor ? objview.fillcolor : "";
@@ -534,6 +536,8 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
+            if (!this.template2)
+                this.template2 = this.typeview?.template2;
             if (!this.geometry)
                 this.geometry = this.typeview?.geometry;
             if (!this.figure)
@@ -858,6 +862,7 @@ export class goRelshipLink extends goLink {
     typedescription:    string;
     typeview:           akm.cxRelationshipTypeView | null;
     template:           string;
+    template2:          string;
     fromNode:           goNode | null;
     toNode:             goNode | null;
     from:               string;
@@ -905,6 +910,7 @@ export class goRelshipLink extends goLink {
         this.toPort          = relview?.toPortid;
         this.typename        = "";
         this.template        = relview?.template;
+        this.template2       = relview?.template2;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
         this.strokewidth     = relview?.strokewidth;
@@ -965,6 +971,8 @@ export class goRelshipLink extends goLink {
             this.relshipkind = this.relshiptype?.getRelshipKind();
             if (!this.template)
                 this.template = this.typeview?.template;
+            if (!this.template2)
+                this.template = this.typeview?.template2;
             const fromObjview: akm.cxObjectView | null = relview.getFromObjectView();
             if (fromObjview) {
                 let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
@@ -1111,6 +1119,7 @@ export class goRelshipTypeLink extends goLink {
     from:       string | undefined;
     to:         string | undefined;
     template:   string;
+    template2:  string;
     relshipkind: string;
     cardinality: string;
     cardinalityFrom: string;
@@ -1136,6 +1145,7 @@ export class goRelshipTypeLink extends goLink {
         this.from       = "";
         this.to         = "";
         this.template   = "";
+        this.template2  = "";
         this.relshipkind = "";
         this.cardinality = "";
         this.cardinalityFrom = "";

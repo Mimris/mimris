@@ -612,6 +612,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'radio';
               break;
             case 'template':
+            case 'template2':
               if (selObj.isGroup) {
                 if (selObj.viewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
@@ -924,7 +925,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
           item = reltypeview?.data;
-          item = reltypeview?.data;
+          item = reltypeview;
         } else if (selObj.category === constants.gojs.C_OBJECT) {
           item = instview;
           if (what === "editTypeview") {
@@ -994,338 +995,340 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         continue;
       }
 
-        description = "";
-        if (k) {
-          let fieldType = 'text';
-          let viewFormat = "";
-          let readonly = false;
-          let disabled = false;
-          let checked = false;
-          let pattern = ".";
-          let required = false;
-          let defValue = "";
-          let values = [];
-          let val = selObj[k];
-          // Handle attributes not to be included in modal
-          {
-            if (k === 'dash') {
-              if (typeof (val) === 'object') {
-                val = val.valueOf();
-              }
+      description = "";
+      if (k) {
+        let fieldType = 'text';
+        let viewFormat = "";
+        let readonly = false;
+        let disabled = false;
+        let checked = false;
+        let pattern = ".";
+        let required = false;
+        let defValue = "";
+        let values = [];
+        let val = selObj[k];
+        if (!val) val = "";
+        // Handle attributes not to be included in modal
+        {
+          if (k === 'dash') {
+            if (typeof (val) === 'object') {
+              val = val.valueOf();
             }
           }
-          // Get field value (val)
-          {
-            switch (what) {
-              case 'editTypeview':
-                if (objtypeview) {
-                  val = selObj[k];
-                  break;
-                } else if (reltypeview) {
-                  val = item[k];
-                }
+        }
+        // Get field value (val)
+        {
+          switch (what) {
+            case 'editTypeview':
+              if (objtypeview) {
+                val = selObj[k];
                 break;
-              case 'editObjectview':
-                if (k === 'grabIsAllowed') {
-                  val = selObj[k];
-                  break;
-                }
-              case 'editRelshipview':
-                // val = selObj[k]; // instview[k];
-                break;
-            }
-          }
-          // Handle color values
-          {
-            if (
-              (useFillColor && k === 'fillcolor') ||
-              (useFillColor && k === 'fillcolor2') ||
-              (useStrokeColor && k === 'strokecolor') ||
-              (useStrokeColor && k === 'strokecolor2')
-            ) {
-              if (val === "" && what === "editObjectview") {
-                val = typeview.fillcolor;
+              } else if (reltypeview) {
+                val = item[k];
               }
+              break;
+            case 'editObjectview':
+              if (k === 'grabIsAllowed') {
+                val = selObj[k];
+                break;
+              }
+            case 'editRelshipview':
+              // val = selObj[k]; // instview[k];
+              break;
+          }
+        }
+        // Handle color values
+        {
+          if (
+            (useFillColor && k === 'fillcolor') ||
+            (useFillColor && k === 'fillcolor2') ||
+            (useStrokeColor && k === 'strokecolor') ||
+            (useStrokeColor && k === 'strokecolor2')
+          ) {
+            if (val === "" && what === "editObjectview") {
+              val = typeview.fillcolor;
+            }
 
-              fieldType = 'color';
-              if (val?.substring(0, 3) === 'rgb(') {
-                let color = '#' + val.match(/\d+/g).map(function (x) {
-                  x = parseInt(x).toString(16);
-                  return (x.length == 1) ? "0" + x : x;
-                }).join("");
-                val = color.toUpperCase();
-              }
-              if ((val) && val[0] !== '#') {
-                // Convert colorname to hex
-                val = toHex(val);
-              }
+            fieldType = 'color';
+            if (val?.substring(0, 3) === 'rgb(') {
+              let color = '#' + val.match(/\d+/g).map(function (x) {
+                x = parseInt(x).toString(16);
+                return (x.length == 1) ? "0" + x : x;
+              }).join("");
+              val = color.toUpperCase();
+            }
+            if ((val) && val[0] !== '#') {
+              // Convert colorname to hex
+              val = toHex(val);
             }
           }
-          // Handle datatypes and fieldtypes
-          {
-            let dtype;
-            switch (k) {
-              case 'description':
-              case 'typedescription':
-              case 'geometry':
-                fieldType = 'textarea';
-                break;
-              case 'cardinalityFrom':
-              case 'cardinalityTo':
-                dtype = myMetamodel.findDatatypeByName('cardinality');
-                if (dtype) {
-                  fieldType = 'select' // dtype.fieldType;
-                  viewFormat = dtype.viewFormat
-                  pattern = dtype.inputPattern;
-                  defValue = dtype.defaultValue;
-                  values = dtype.allowedValues;
-                }
-                if (!allowsMetamodeling) disabled = true;
-                break;
-              case 'fieldType':
-              case 'viewkind':
-                dtype = myMetamodel.findDatatypeByName(k);
-                if (dtype) {
-                  fieldType = dtype.fieldType;
-                  pattern = dtype.inputPattern;
-                  defValue = dtype.defaultValue;
-                  values = dtype.allowedValues;
-                }
-                if (!allowsMetamodeling) disabled = true;
-                break;
-              case 'relshipkind':
-                fieldType = 'select';
-                defValue = 'Association';
-                values = ['Association', 'Generalization', 'Composition', 'Aggregation'];
-                break;
-              // case 'isLayoutPositioned':
-              case 'abstract':
-                dtype = myMetis.findDatatypeByName('boolean');
-                if (booleanAsCheckbox)
-                  fieldType = 'checkbox';
-                else {
-                  fieldType = 'radio';
-                  defValue = 'false';
-                  values = ['false', 'true'];
-                }
-                if (!allowsMetamodeling) disabled = true;
-                break;
-              case 'grabIsAllowed':
+        }
+        // Handle datatypes and fieldtypes
+        {
+          let dtype;
+          switch (k) {
+            case 'description':
+            case 'typedescription':
+            case 'geometry':
+              fieldType = 'textarea';
+              break;
+            case 'cardinalityFrom':
+            case 'cardinalityTo':
+              dtype = myMetamodel.findDatatypeByName('cardinality');
+              if (dtype) {
+                fieldType = 'select' // dtype.fieldType;
+                viewFormat = dtype.viewFormat
+                pattern = dtype.inputPattern;
+                defValue = dtype.defaultValue;
+                values = dtype.allowedValues;
+              }
+              if (!allowsMetamodeling) disabled = true;
+              break;
+            case 'fieldType':
+            case 'viewkind':
+              dtype = myMetamodel.findDatatypeByName(k);
+              if (dtype) {
+                fieldType = dtype.fieldType;
+                pattern = dtype.inputPattern;
+                defValue = dtype.defaultValue;
+                values = dtype.allowedValues;
+              }
+              if (!allowsMetamodeling) disabled = true;
+              break;
+            case 'relshipkind':
+              fieldType = 'select';
+              defValue = 'Association';
+              values = ['Association', 'Generalization', 'Composition', 'Aggregation'];
+              break;
+            // case 'isLayoutPositioned':
+            case 'abstract':
+              dtype = myMetis.findDatatypeByName('boolean');
+              if (booleanAsCheckbox)
                 fieldType = 'checkbox';
-                break;
-              case 'methodtype':
-                const methodTypes = myMetamodel.methodtypes;
-                if (methodTypes) {
-                  values = methodTypes.map(mm => mm && mm.name);
+              else {
+                fieldType = 'radio';
+                defValue = 'false';
+                values = ['false', 'true'];
+              }
+              if (!allowsMetamodeling) disabled = true;
+              break;
+            case 'grabIsAllowed':
+              fieldType = 'checkbox';
+              break;
+            case 'methodtype':
+              const methodTypes = myMetamodel.methodtypes;
+              if (methodTypes) {
+                values = methodTypes.map(mm => mm && mm.name);
+                fieldType = 'radio';
+              }
+              break;
+            case 'dash':
+              values = ['None', 'Dashed', 'Dotted'];
+              defValue = 'None';
+              fieldType = 'radio';
+            break;
+            case 'template':
+            case 'template2':
+              if (selObj.isGroup) {
+                if (selObj.viewkind === 'Container') {
+                  values = uit.getGroupTemplateNames();
+                  defValue = '';
                   fieldType = 'radio';
                 }
-                break;
-              case 'dash':
-                values = ['None', 'Dashed', 'Dotted'];
-                defValue = 'None';
-                fieldType = 'radio';
-                break;
-              case 'template':
-                if (selObj.isGroup) {
-                  if (selObj.viewkind === 'Container') {
+              } else {
+                if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                  values = uit.getLinkTemplateNames();
+                  defValue = '';
+                  fieldType = 'radio';
+                } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+                  values = uit.getLinkTemplateNames();
+                  defValue = '';
+                  fieldType = 'radio';
+                } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
+                  if (selObj.viewkind === 'Object') {
+                    values = uit.getNodeTemplateNames();
+                    defValue = '';
+                    fieldType = 'radio';
+                  } else if (selObj.viewkind === 'Container') {
                     values = uit.getGroupTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
                   }
-                } else {
-                  if (selObj.category === constants.gojs.C_RELATIONSHIP) {
-                    values = uit.getLinkTemplateNames();
-                    defValue = '';
-                    fieldType = 'radio';
-                  } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
-                    values = uit.getLinkTemplateNames();
-                    defValue = '';
-                    fieldType = 'radio';
-                  } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                    if (selObj.viewkind === 'Object') {
-                      values = uit.getNodeTemplateNames();
-                      defValue = '';
-                      fieldType = 'radio';
-                    } else if (selObj.viewkind === 'Container') {
-                      values = uit.getGroupTemplateNames();
-                      defValue = '';
-                      fieldType = 'radio';
-                    }
-                  }
                 }
-                break;
-              case 'figure':
-                if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                  values = uit.getFigureNames();
-                  defValue = '';
-                  fieldType = 'radio';
-                }
-                break;
-              case 'routing':
-                values = ['Normal', 'Orthogonal', 'AvoidsNodes'];
-                defValue = 'None';
+              }
+              break;
+            case 'figure':
+              if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
+                values = uit.getFigureNames();
+                defValue = '';
                 fieldType = 'radio';
-                break;
-              case 'curve':
-                values = ['None', 'Bezier', 'JumpOver', 'JumpGap'];
-                defValue = 'None';
-                fieldType = 'radio';
-                break;
-              case 'fromArrow':
-                values = arrowheads;
-                defValue = 'None';
+              }
+              break;
+            case 'routing':
+              values = ['Normal', 'Orthogonal', 'AvoidsNodes'];
+              defValue = 'None';
+              fieldType = 'radio';
+              break;
+            case 'curve':
+              values = ['None', 'Bezier', 'JumpOver', 'JumpGap'];
+              defValue = 'None';
+              fieldType = 'radio';
+              break;
+            case 'fromArrow':
+              values = arrowheads;
+              defValue = 'None';
+              fieldType = 'select';
+              break;
+            case 'toArrow':
+              values = arrowheads;
+              defValue = 'OpenTriangle';
+              fieldType = 'select';
+              break;
+            case 'fillcolor':
+            case 'fillcolor2':
+              if (!useFillColor) {
+                values = colornames;
+                defValue = 'white';
                 fieldType = 'select';
-                break;
-              case 'toArrow':
-                values = arrowheads;
-                defValue = 'OpenTriangle';
-                fieldType = 'select';
-                break;
-              case 'fillcolor':
-              case 'fillcolor2':
-                if (!useFillColor) {
-                  values = colornames;
-                  defValue = 'white';
-                  fieldType = 'select';
-                }
-                break;
-              case 'strokecolor':
-              case 'strokecolor2':
-                if (!useStrokeColor) {
-                  values = colornames;
-                  defValue = 'black';
-                  fieldType = 'select';
-                }
-                break;
-              case 'strokewidth':
-                values = strokewidths;
-                defValue = '1';
-                fieldType = 'select';
-                break;
-              case 'textcolor':
-              case 'textcolor2':
-              case 'fromArrowColor':
-              case 'toArrowColor':
+              }
+              break;
+            case 'strokecolor':
+            case 'strokecolor2':
+              if (!useStrokeColor) {
                 values = colornames;
                 defValue = 'black';
                 fieldType = 'select';
-                break;
-              default:
-                if (!fieldType)
-                  fieldType = 'textarea';
-                break;
-            }
-          }
-          // Handle fieldtypes
-          {
-            if (fieldType === 'checkbox') {
-              checked = val;
-            }
-            if (fieldType === 'radio') {
+              }
+              break;
+            case 'strokewidth':
+              values = strokewidths;
+              defValue = '1';
               fieldType = 'select';
-              const p1 = "^(";
-              const p2 = ")$";
-              let p = "";
-              let cnt = 0;
-              for (let i = 0; i < values?.length; i++) {
-                const value = values[i];
-                if (p === "") {
-                  p = value;
-                } else {
-                  p += "|" + value;
-                }
-              }
-              pattern = p1 + p + p2;
-            }
-            if (fieldType === 'select') {
-              if (val === "")
-                val = defValue;
-            }
-            if (fieldType === 'date') {
-              if (debug) console.log('771 prop', prop);
-              pattern = "";
-              if (val === "") {
-                const d = new Date();
-                val = d.toISOString().slice(0, 10);
-              }
-              if (readonly) {
-                disabled = true;
-              }
-            }
-            if (fieldType === 'time') {
-              pattern = "";
-              if (val === "") {
-                const d = new Date();
-                val = d.getTime();
-              }
-              if (readonly) {
-                disabled = true;
-              }
-            }
-
-            // Handle viewFormat
-            if (k === 'name') {
-              fieldType = 'text';
-            }
-            if (viewFormat) {
-              if (utils.isNumeric(val) && fieldType !== 'time') {
-                val = printf(viewFormat, Number(val));
-              }
-            }
+              break;
+            case 'textcolor':
+            case 'textcolor2':
+            case 'fromArrowColor':
+            case 'toArrowColor':
+              values = colornames;
+              defValue = 'black';
+              fieldType = 'select';
+              break;
+            default:
+              if (!fieldType)
+                fieldType = 'textarea';
+              break;
           }
-
-          // Handle disabled
-          {
-            if (includeConnected) {
-              if (tabIndex > 0)
-                disabled = true;
-            }
-            switch (k) {
-              case 'id':
-                description = 'Unique identifier';
-              case "typename":
-              case "typeName":
-              case "typedescription":
-              case "typeDescription":
-              case "loc":
-              case "size":
-              case "markedAsDeleted":
-              case "modelId":
-              case "metamodelId":
-              case "modelviewId":
-                disabled = true;
-                break;
-            }
-            if (isLabel) {
-              if (k !== 'text')
-                disabled = true;
-            }
-          }
-          if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
-
-          row = <InspectorRow
-            key={k}
-            id={k}
-            type={fieldType}
-            value={val}
-            values={values}
-            description={description}
-            default={defValue}
-            readonly={readonly}
-            disabled={disabled}
-            required={required}
-            checked={checked}
-            pattern={pattern}
-            obj={selObj}
-            context={modalContext}
-            onInputChange={this.props.onInputChange}
-          />
-        }      
-        if (k === 'key') {
-          dets.unshift(row); // key always at start
-        } else {
-          dets.push(row);
         }
+        // Handle fieldtypes
+        {
+          if (fieldType === 'checkbox') {
+            checked = val;
+          }
+          if (fieldType === 'radio') {
+            fieldType = 'select';
+            const p1 = "^(";
+            const p2 = ")$";
+            let p = "";
+            let cnt = 0;
+            for (let i = 0; i < values?.length; i++) {
+              const value = values[i];
+              if (p === "") {
+                p = value;
+              } else {
+                p += "|" + value;
+              }
+            }
+            pattern = p1 + p + p2;
+          }
+          if (fieldType === 'select') {
+            if (val === "")
+              val = defValue;
+          }
+          if (fieldType === 'date') {
+            if (debug) console.log('771 prop', prop);
+            pattern = "";
+            if (val === "") {
+              const d = new Date();
+              val = d.toISOString().slice(0, 10);
+            }
+            if (readonly) {
+              disabled = true;
+            }
+          }
+          if (fieldType === 'time') {
+            pattern = "";
+            if (val === "") {
+              const d = new Date();
+              val = d.getTime();
+            }
+            if (readonly) {
+              disabled = true;
+            }
+          }
+
+          // Handle viewFormat
+          if (k === 'name') {
+            fieldType = 'text';
+          }
+          if (viewFormat) {
+            if (utils.isNumeric(val) && fieldType !== 'time') {
+              val = printf(viewFormat, Number(val));
+            }
+          }
+        }
+
+        // Handle disabled
+        {
+          if (includeConnected) {
+            if (tabIndex > 0)
+              disabled = true;
+          }
+          switch (k) {
+            case 'id':
+              description = 'Unique identifier';
+            case "typename":
+            case "typeName":
+            case "typedescription":
+            case "typeDescription":
+            case "loc":
+            case "size":
+            case "markedAsDeleted":
+            case "modelId":
+            case "metamodelId":
+            case "modelviewId":
+              disabled = true;
+              break;
+          }
+          if (isLabel) {
+            if (k !== 'text')
+              disabled = true;
+          }
+        }
+        if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
+
+        row = <InspectorRow
+          key={k}
+          id={k}
+          type={fieldType}
+          value={val}
+          values={values}
+          description={description}
+          default={defValue}
+          readonly={readonly}
+          disabled={disabled}
+          required={required}
+          checked={checked}
+          pattern={pattern}
+          obj={selObj}
+          context={modalContext}
+          onInputChange={this.props.onInputChange}
+        />
+      }      
+      if (k === 'key') {
+        dets.unshift(row); // key always at start
+      } else {
+        dets.push(row);
+      }
         
     }
     return dets;

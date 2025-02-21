@@ -221,7 +221,7 @@ function isApplicationRelType(reltype: akm.cxRelationshipType, objtypes: akm.cxO
     return retval;
 }
 
-export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectView, context: any) {
+export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView, context: any) {
     if (!object) {
         return;
     }
@@ -283,8 +283,25 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         return null;
     }
     if (objtype) { // The type has been generated - fullfill the generation
+        let viewkind = currentObj.getViewKind();
+        let objview = currentObj.objectviews[0];
+        if (currentObj.name === "SwimPool") {
+            viewkind = "Container";
+            objview.template = "SwimPool";
+        } else if (currentObj.name === "SwimLane") {
+            viewkind = "Container";
+            objview.template = "SwimLane";
+        } else {
+            viewkind = currentObj.getViewKind();
+        }
+        if (objview.template2) {
+            objview.template = objview.template2;
+        }
+
+        objview.viewkind = viewkind;
+        object.viewkind = viewkind;
         object.generatedTypeId = objtype.getId();
-        objtype.setViewKind(currentObj.getViewKind());
+        objtype.setViewKind(viewkind);
         objtype.setAbstract(currentObj.getAbstract());
         objtype.setModified();
         objtype.markedAsDeleted = object.markedAsDeleted;
@@ -310,7 +327,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         }
         { // Handle special attributes
             objtype.abstract = currentObj.abstract;
-            objtype.viewkind = currentObj.viewkind;
         }
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
@@ -325,7 +341,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
+            objtypeview.viewkind = viewkind;
             objtype.setModified();
+            myTargetMetamodel.addObjectTypeView(objtypeview);
             myMetis.addObjectTypeView(objtypeview);
             // Do the dispatch
             const jsnObjTypeview = new jsn.jsnObjectTypeView(objtypeview);
@@ -419,9 +437,9 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     if (!relship) {
         return;
     }
-    const myMetis = context.myMetis;
+    const myMetis:akm.cxMetis = context.myMetis;
     const myDiagram = context.myDiagram;
-    const myTargetMetamodel = context.myTargetMetamodel;
+    const myTargetMetamodel: akm.cxMetamodel = context.myTargetMetamodel;
     const myModel = context.myModel as akm.cxModel;
     const myModelView = context.myCurrentModelview as akm.cxModelView;
     // relship is the relationship defining the relationship type to be generated
@@ -452,8 +470,9 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     // if (newName !== constants.types.AKM_IS)
     //     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
-    let reltype, reltypeview;
-    let typeid;
+    let reltype: akm.cxRelationshipType;
+    let reltypeview: akm.cxRelationshipTypeView;
+    let typeid: string;
 
     if (resetTypeIdOnRelship) 
         typeid = "";
@@ -531,6 +550,10 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         myTargetMetamodel?.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
         if (currentRel) {
+            let relview = currentRel.relshipviews[0];
+            if (relview.template2) {
+                relview.template = relview.template2;
+            }
             currentRel.generatedTypeId = reltype.id;
             myModel.addRelationship(currentRel);
             myMetis.addRelationship(currentRel);
@@ -1610,6 +1633,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                                     oview.name = utils.capitalizeFirstLetter(newName);
                                     if (oview.name === objtype.name) {
                                         typeview.applyObjectViewParameters(oview);
+                                        oview.template = typeview.template;
                                         objtypeviews.push(typeview);
                                         break;
                                     }

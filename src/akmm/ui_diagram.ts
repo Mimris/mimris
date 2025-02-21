@@ -469,10 +469,9 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
-    const objRef = gjsNode.objRef;
     const objviewRef = gjsNode.objviewRef;
-    let object: akm.cxObject = myMetis.findObject(objRef);
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
+    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
     const objtypeRef = gjsNode.objtypeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;

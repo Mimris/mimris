@@ -339,7 +339,7 @@ export function createObjectType(data: any, context: any): any {
 }
 
 export function updateObject(nodeData: gjs.goObjectNode, name: string, value: string, context: any) {
-    if ((nodeData === null) || (name !== "name") || (!nodeData.objRef)) {
+    if ((nodeData === null) || (!nodeData.objRef)) {
         return;
     } else {
         const myMetis = context.myMetis;
@@ -451,6 +451,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 // Apply local overrides
                 if (!doNotResetToTypeview) {
                     currentObjectView['template'] = data.template;
+                    currentObjectView['template2'] = data.template2;
                     currentObjectView['figure'] = data.figure;
                     currentObjectView['fillcolor'] = data.fillcolor;
                     currentObjectView['strokecolor'] = data.strokecolor;

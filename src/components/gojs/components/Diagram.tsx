@@ -909,7 +909,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else
                 return false;
             }),
-            makeButton("Delete View",
+          makeButton("Delete View",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
                 const myModel = myMetis.currentModel;
@@ -1067,7 +1067,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const myGoModel = myMetis.gojsModel;
                 const myNode = myGoModel.findNode(node.key);
                 const objview = myMetis.findObjectView(node.key);
-                let object = objview.object;
+                let object = objview?.object;
                 const objtype = object.type;
                 if (objtype?.name === constants.types.AKM_METAMODEL) {
                   const myModel: akm.cxModel = myMetis.currentModel;
@@ -1199,37 +1199,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const allowPorts = !noPorts;
               const node = obj.part.data; 
               let objview = myMetis.findObjectView(node?.key);
-              objview.viewkind = 'Container';
-              let template = node.template;
-              switch (template) {
-                case 'textAndGeometry':
-                  template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
-                  break;
-                case 'textAndFigure':
-                  template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
-                  break;
-                case 'textAndIcon':
-                default:
-                  template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
-                  break;
-              }
-              objview.template = template;
-              objview.isGroup = true;
-              // objview.size = "200 100";
-              objview.viewkind = 'Container';
-              // node.objectview = objview;
-              node.template = template;
-              node.viewkind = 'Container';
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              jsnObjview.template = template;
-              const data = JSON.parse(JSON.stringify(jsnObjview));
-              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+              if (objview) {
+                objview.viewkind = 'Container';
+                let template = node.template;
+                switch (template) {
+                  case 'textAndGeometry':
+                    template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
+                    break;
+                  case 'textAndFigure':
+                    template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
+                    break;
+                  case 'textAndIcon':
+                  default:
+                    template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
+                    break;
+                }
+                objview.template = template;
+                objview.isGroup = true;
+                // objview.size = "200 100";
+                objview.viewkind = 'Container';
+                // node.objectview = objview;
+                node.template = template;
+                node.viewkind = 'Container';
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                jsnObjview.template = template;
+                const data = JSON.parse(JSON.stringify(jsnObjview));
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
 
-              myDiagram.model.setCategoryForNodeData(node.data, template);
-
-
-
-              // alert("You need to do a Reload to see the change!");
+                myDiagram.model.setCategoryForNodeData(node.data, template);
+              } else 
+                alert("You need to do a Reload to see the change!");
             },
             function (o: any) {
               const node = o.part.data;
@@ -1243,12 +1242,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               let objview = myMetis.findObjectView(node?.key);
-              objview = myMetis.findObjectView(objview.id);
-              objview.viewkind = 'Object';
-              objview.template = 'textAndIcon'
-              objview.isGroup = false;
-              // objview.size = "200 100";
-              // node.objectview = objview;
+              objview = myMetis.findObjectView(objview?.id);
+              if (objview) {
+                objview.viewkind = 'Object';
+                objview.template = 'textAndIcon'
+                objview.isGroup = false;
+                // objview?.size = "200 100";
+                // node.objectview = objview;
+              }
               node.viewkind = 'Object';
             //  this.setState(
             //     {
@@ -1267,7 +1268,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const objview = node.objectview;
-                if (objview.viewkind === 'Container')
+                if (objview?.viewkind === 'Container')
                   return true;
               }
               return false;
@@ -1288,8 +1289,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const objview = node.objectview;
-                if (objview.viewkind === 'Container') {
-                  if (objview.isExpanded === false)
+                if (objview?.viewkind === 'Container') {
+                  if (objview?.isExpanded === false)
                     return true;
                 }
               }
@@ -1465,8 +1466,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const objview = node.objectview;
-                if (objview.isGroup) {
-                  if (objview.isExpanded === true)
+                if (objview?.isGroup) {
+                  if (objview?.isExpanded === true)
                     return true;
                 }
               }
@@ -1479,7 +1480,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const key = node.key;
               const objview = myMetis.findObjectView(key);
               if (objview) {
-                if (!objview.isGroup) {
+                if (!objview?.isGroup) {
                   const mySelection = myDiagram.selection;
                   uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
                   myDiagram.selection.each(function (sel) {
@@ -1505,7 +1506,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     }
                   })
                 } else {
-                  if (objview.groupLayout)
+                  if (objview?.groupLayout)
                     uid.doGroupLayout(objview, myDiagram);
                 }
               }
@@ -1539,8 +1540,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               let obj = o.part.data.object;
-              let objtype = obj.type;
-              if (objtype.name === constants.types.AKM_INFORMATION)
+              let objtype = obj?.type;
+              if (objtype?.name === constants.types.AKM_INFORMATION)
                 return false;
               else
                 return false;
@@ -1672,10 +1673,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const object = node.object;
-                let type = object.type;
-                type = myMetis.findObjectType(type.id);
+                let type = object?.type;
+                type = myMetis.findObjectType(type?.id);
                 const propname = "osduId";
-                if (type.findPropertyByName2(propname, true)) {
+                if (type && type.findPropertyByName2(propname, true)) {
                   return true;
                 }
               }
@@ -1686,9 +1687,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object as akm.cxObject;
-                object = myMetis.findObject(object.id);
+                object = myMetis.findObject(object?.id);
                 let objectview = node.objectview as akm.cxObjectView;
-                objectview = myMetis.findObjectView(objectview.id);
+                objectview = myMetis.findObjectView(objectview?.id);
                 const objectviews = new Array();
                 objectviews.push(objectview);
                 const relshipviews = new Array();
@@ -2228,6 +2229,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const rel = o.part.data.relship;
+              if (!rel) return false;
               const fromObj = rel.fromObject;
               const toObj = rel.toObject;
               let reltype = rel.type;
@@ -2753,7 +2755,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       if (obj['modelviewId'] === currentModelview.id) {
                         if (obj) {
                           const objview = obj.objectviews[0];
-                          const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
+                          const node = new gjs.goObjectNode(objview?.id, myGoModel, objview);
                           uid.editObject(node, myMetis, myDiagram);
                         }
                       }
@@ -3382,13 +3384,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const objviews = myModelview.objectviews;
               for (let i = 0; i < objviews?.length; i++) {
                 const objview = objviews[i];
-                const goNode = myMetis.gojsModel.findNodeByViewId(objview.id);
+                const goNode = myMetis.gojsModel.findNodeByViewId(objview?.id);
                 if (goNode) {
                   for (let it = myMetis.myDiagram.nodes; it?.next();) {
                     const n = it.value;
                     const data = n.data;
-                    if (data.key === objview.id) {
-                      console.log('300 ', objview.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n n, data: ", n, data);
+                    if (data.key === objview?.id) {
+                      console.log('300 ', objview?.name, '\n objview: ', objview, "\n goNode: ", goNode, "\n n, data: ", n, data);
                     }
                   }
                 }

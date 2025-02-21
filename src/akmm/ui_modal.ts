@@ -679,6 +679,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
+      goNode.template2 = selObj.template2;
+      objview.template2 = selObj.template2;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       if (debug) console.log("editObjectview: ", selObj);
 
@@ -936,6 +938,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const gjsData = gjsLink.data;
       const goLink = myGoModel.findLinkByViewId(selRel.key);
       let relview = myModelview.findRelationshipView(selRel.key);
+      goLink.template2 = selRel.template2;
+      relview.template2 = selRel.template2;
       let relship = relview.relship;
       const reltype = relship.type;
       const reltypeview = reltype.typeview;
@@ -959,6 +963,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const data = gjsLink.data;
         for (let prop in reltypeview?.data) {
           if (prop === 'template' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'template2' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);

@@ -15,7 +15,8 @@ import * as jsn from './ui_json';
 import * as utils from '../akmm/utilities';
 import * as constants from '../akmm/constants';
 // import exp from 'constants';
-const RegexParser = require("regex-parser");
+// const RegexParser = require("regex-parser");
+import RegexParser from 'regex-parser';
 
 export function askForMethod(context: any) {
     if (debug) console.log('433 context', context);

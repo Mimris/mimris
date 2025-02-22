@@ -19,8 +19,10 @@ import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
 import { read } from 'fs';
 
-const constants = require('../../akmm/constants');
-const utils = require('../../akmm/utilities');
+// const constants = require('../../akmm/constants');
+// const utils = require('../../akmm/utilities');
+import * as constants from '../../akmm/constants';
+import * as utils from '../../akmm/utilities';
 
 const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype',
   'Value', 'FieldType', 'InputPattern', 'ViewFormat',
@@ -349,7 +351,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const data = n.data;
               if (data.key === goNode.key) {
                 data.scale = goNode.scale;
-                if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
+                if (!debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
                 data.textcolor = 'black';
               }
             }

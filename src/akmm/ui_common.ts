@@ -10,8 +10,12 @@ import { LinkReshapingTool } from 'gojs';
 import { get } from 'http';
 import { core } from './constants';
 import context from '../pages/context';
-const constants = require('./constants');
-const printf = require('printf');
+import { i } from '@/components/utils/SvgLetters';
+// const constants = require('./constants');
+// const printf = require('printf');
+import * as constants from './constants';
+import printf from 'printf';
+
 const grabIsAllowed = true;
 
 // functions to handle nodes

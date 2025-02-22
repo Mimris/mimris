@@ -329,7 +329,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        const focusObjectView  = myMetis.currentModelview.focusObjectview;
+        const focusObjectView  = myMetis.currentModelview?.focusObjectview;
         if (true) {
         for (let i = 0; i < objviews?.length; i++) {
           let resetToTypeview = true;

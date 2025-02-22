@@ -13,8 +13,10 @@ import { clear } from 'console';
 import { is } from 'immer/dist/internal';
 import { use } from 'react';
 import { get } from 'http';
-const constants = require('./constants');
-const printf = require('printf');
+// const constants = require('./constants');
+// const printf = require('printf');
+import constants from './constants';
+import printf from 'printf';
 
 const $ = go.GraphObject.make;
 

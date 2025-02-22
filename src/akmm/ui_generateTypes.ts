@@ -7,7 +7,8 @@ import * as uic from './ui_common';
 import * as uid from './ui_diagram';
 import * as jsn from './ui_json';
 import { has } from 'immer/dist/internal';
-const constants = require('./constants');
+// const constants = require('./constants');
+import * as constants from './constants';
 
 const resetTypeIdOnRelship = false;
 

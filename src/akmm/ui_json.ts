@@ -1,9 +1,12 @@
 // @ts-nocheck
 const debug = false; 
 
-const utils = require('./utilities');
 import * as akm from './metamodeller';
-const constants = require('./constants');
+
+// const utils = require('./utilities');
+// const constants = require('./constants');
+import * as utils from './utilities';
+import * as constants from './constants';
 
 let jsnMetis: akm.cxMetis;
 

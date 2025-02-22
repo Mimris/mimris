@@ -32,8 +32,10 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-const printf = require('printf');
-const RegexParser = require("regex-parser");
+// const printf = require('printf');
+// const RegexParser = require("regex-parser");
+import { RegexParser } from 'regex-parser';
+import printf from 'printf';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'

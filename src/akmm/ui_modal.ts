@@ -10,10 +10,12 @@ import * as uic from './ui_common';
 import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
-const utils = require('./utilities');
 import * as constants from './constants';
 import { filter } from 'cheerio/lib/api/traversing';
-const RegexParser = require("regex-parser");
+// const RegexParser = require("regex-parser");
+// const utils = require('./utilities');
+import * as utils from './utilities';
+import { RegexParser } from 'regex-parser';
 
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {

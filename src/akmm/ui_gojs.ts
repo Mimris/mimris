@@ -2,8 +2,10 @@
 // Application code
 const debug = false;
 
-const constants = require('./constants');
-const vkc = require('./viewkinds');
+// const constants = require('./constants');
+// const vkc = require('./viewkinds');
+import * as constants from './constants';
+import * as vkc from './viewkinds';
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';

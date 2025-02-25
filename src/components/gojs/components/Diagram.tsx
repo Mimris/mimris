@@ -373,7 +373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       $("ToolTip", { margin: 4 },
         $(go.TextBlock, new go.Binding("text", "", diagramInfo),
           {
-            font: "bold 24pt sans-serif"
+            font: "bold 16pt sans-serif"
           }
         ),
         // use a converter to display information about the diagram model
@@ -3360,7 +3360,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Generate SVG",
             function (e: any, obj: any) {
               var svgData = myDiagram.makeSvg({
-                scale: 1,
+                scale: 1.0,
                 maxSize: new go.Size(NaN, NaN)
               });
               console.log(svgData); // or send to server to save as file
@@ -3554,7 +3554,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Make Diagram",
             function (e: any, obj: any) {
               myDiagram.makeImage({
-                scale: 1,
+                scale: 1.0,
                 background: "AntiqueWhite",
                 type: "image/jpeg"
               });
@@ -3619,7 +3619,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myDiagram.linkTemplateMap.add("linkToLink",
           $("Link",
             { relinkableFrom: false, relinkableTo: false },
-            $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
+            $("Shape", { stroke: "#2D9945", strokeWidth: 2.0 })
           ));
       }
 
@@ -3768,9 +3768,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         "toArrow": l.data.toArrow,
         "fromArrowColor": l.data.fromArrowColor,
         "toArrowColor": l.data.toArrowColor,
-        "arrowscale": l.data.arrowscale,
-        "arrowscale": l.data.arrowscale,
-        "arrowscale": l.data.arrowscale,
         "dash": l.data.dash,
         "routing": l.data.routing,
         "corner": l.data.corner,

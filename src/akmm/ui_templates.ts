@@ -75,24 +75,24 @@ export function getGatewayType(t: string): any {
 let figureNames = [ 
                     'Circle',
                     'Diamond',
-                    'Ellipse',
-                    'Gear',
-                    'Help',
-                    'Hexagon',
+                    // 'Ellipse',
+                    // 'Gear',
+                    // 'Help',
+                    // 'Hexagon',
                     'LineH',
                     'LineV',
                     'MinusLine',
                     'PlusLine',
                     'XLine',
-                    'Pentagon',
+                    // 'Pentagon',
                     'Rectangle',
                     'RoundedRectangle',
                     'Square',
-                    'FivePointedStar',
-                    'ThinX',
-                    'ThickX',
-                    'ThinCross',
-                    'ThickCross',
+                    // 'FivePointedStar',
+                    // 'ThinX',
+                    // 'ThickX',
+                    // 'ThinCross',
+                    // 'ThickCross',
                     'Triangle',
                     'TriangleRight',
                     'TriangleLeft',
@@ -1487,7 +1487,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             //     },
             //     new go.Binding("fill", "fillcolor2"),
             //     new go.Binding("stroke", "strokecolor2"),
-            //     new go.Binding("template")
+            //     new go.Binding("template", "template"),
             // ),                                                                
             $(go.Picture,  // the image -------------------------------------
                 {
@@ -1626,7 +1626,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 },
                                 new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2"),
-                                new go.Binding("template")
+                                new go.Binding("template", "template"),
                             ),                                                                
                             $(go.Shape, 
                                 {  // this is the square outer border around the image with tranparent content---------
@@ -1640,7 +1640,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 },
                                 // new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2"),
-                                new go.Binding("template")
+                                new go.Binding("template", "template"),
                             ),                                                                
                             $(go.Picture,  // the image -------------------------------------
                                 {
@@ -1659,7 +1659,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 {
                                     background: "transparent",
                                     textAlign: "center",    
-                                    // stroke: {(strokcolor2 !== '') ? strokcolor2 : "black"},
+                                    stroke:    "black",
+                                    // stroke: {(strokecolor2 !== '') ? strokecolor2 : "black"},
                                     // margin: new go.Margin(20, 12, 12, 12), 
                                     desiredSize: new go.Size(48, 36),
                                     font: "38px 'FontAwesome'",
@@ -1667,7 +1668,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     isMultiline: false,
                                     // alignment: go.Spot.Center, // Add this line to align the text center
                                 },
-                                new go.Binding("fill", "fillcolor2"),
+                                // new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2", defaultStrokeColor), // Apply converter here
                                 new go.Binding("text", "icon", findUnicodeImage)
                             )
@@ -1751,7 +1752,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         $(go.Shape, 
                             // new go.Binding("fill", "fillcolor"),
                             new go.Binding('stroke', 'strokecolor2'), 
-                            new go.Binding("template"),
+                            new go.Binding("template", "template"),
                             new go.Binding("geometryString", "geometry"),
                             new go.Binding("fill", "fillcolor2"),
                             { 
@@ -2343,7 +2344,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         $(go.Panel, 'Auto',  // make an area around text for move cursor
             $(go.Shape, 'Rectangle',  // area around the text
                 {
-                    fill: 'transparent', stroke: null, strokeWidth: 0,
+                    fill: 'transparent', stroke: null, strokeWidth: 1,
                     cursor: 'move',
                     desiredSize: new go.Size(80, 50),
                 },

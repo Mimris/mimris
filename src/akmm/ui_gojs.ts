@@ -359,10 +359,10 @@ export class goNode extends goMetaObject {
     parentModelRef:  string;
     text:            string;
     loc:             string;
-    size:            string;
-    scale:           string;
-    memberscale:     string;
-    arrowscale:      string;
+    size:            float;
+    scale:           float;
+    memberscale:     float;
+    arrowscale:      float;
     strokecolor:     string;
     strokecolor2:    string;
     fillcolor:       string;
@@ -376,10 +376,10 @@ export class goNode extends goMetaObject {
         this.parentModelRef = model?.key;  // goModel
         this.text = "";
         this.loc = "";
-        this.size = "";
-        this.scale = "1";
-        this.memberscale = "";
-        this.arrowscale = "1.3";
+        this.size = 1;
+        this.scale = 1;
+        this.memberscale = 1;
+        this.arrowscale = 1.3;
         this.strokecolor = "";
         this.strokecolor2 = "";
         this.fillcolor = "";
@@ -395,21 +395,21 @@ export class goNode extends goMetaObject {
     getLoc(): string {
         return this.loc;
     }
-    setSize(size: string) {
+    setSize(size: number) {
         this.size = size;
     }
-    getSize(): string {
+    getSize(): number {
         return this.size;
     }
-    setScale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setScale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1;
         this.scale = scale;
     }
-    getScale(): string {
+    getScale(): number {
         let scale = this.scale;
-        if (scale == undefined || scale == "" || scale == null)
-            this.scale = "1";
+        if (scale == undefined || scale == null)
+            this.scale = 1;
         return this.scale;
     }
     setViewkind(kind: string) {
@@ -488,10 +488,10 @@ export class goObjectNode extends goNode {
             this.fillcolor2     = objview.fillcolor2 ? objview.fillcolor2 : "";
             this.strokecolor    = objview.strokecolor ? objview.strokecolor : "";
             this.strokecolor2   = objview.strokecolor2 ? objview.strokecolor2 : "";
-            this.strokewidth    = objview.strokewidth ? objview.strokewidth : "";
+            this.strokewidth    = objview.strokewidth ? objview.strokewidth : 1.0;
             this.textcolor      = objview.textcolor ? objview.textcolor : "";
             this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
-            this.textscale      = objview.textscale ? objview.textscale : "";
+            this.textscale      = objview.textscale ? objview.textscale : 1.0;
             this.icon           = objview.icon ? objview.icon : "";
             this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
@@ -566,8 +566,8 @@ export class goObjectNode extends goNode {
                         this[prop] = objview[prop];
                     }
                     if (prop === 'scale') {
-                        if (objview.scale === "") {
-                            this[prop] = "1";
+                        if (!objview.scale) {
+                            this[prop] = 1;
                         }
                         this[prop] = Number(this[prop]);
                     }
@@ -1104,39 +1104,40 @@ export class goRelshipLink extends goLink {
         }
     }
     removeClassInstances() {
-        this.relshipview = null;
-        this.relship = null;
-        this.relshiptype = null;
-        this.typeview = null;
-        this.fromNode = null;
-        this.toNode = null;
+        this.relshipview    = null;
+        this.relship        = null;
+        this.relshiptype    = null;
+        this.typeview       = null;
+        this.fromNode       = null;
+        this.toNode         = null;
     }
 }
 
 export class goRelshipTypeLink extends goLink {
-    reltype:    akm.cxRelationshipType | null;
-    typeview:   akm.cxRelationshipTypeView | null;
-    fromNode:   goNode | null;
-    toNode:     goNode | null;
-    from:       string | undefined;
-    to:         string | undefined;
-    template:   string;
-    template2:  string;
-    relshipkind: string;
-    cardinality: string;
+    reltype:        akm.cxRelationshipType | null;
+    typeview:       akm.cxRelationshipTypeView | null;
+    fromNode:       goNode | null;
+    toNode:         goNode | null;
+    from:           string | undefined;
+    to:             string | undefined;
+    template:       string;
+    template2:      string;
+    relshipkind:    string;
+    cardinality:    string;
     cardinalityFrom: string;
-    cardinalityTo: string;
-    nameFrom:   string;
-    nameTo:     string;
-    strokecolor: string;
-    strokewidth: string;
+    cardinalityTo:  string;
+    nameFrom:       string;
+    nameTo:         string;
+    strokecolor:    string;
+    strokewidth:    string;
     textcolor:      string;
-    arrowscale:     string;
-    textscale:      string;
+    arrowscale:     number;
+    textscale:      number;
     dash:           string;
-    routing:    string;
-    curve:      string;
-    points:     any;
+    routing:        string;
+    corner:         number;
+    curve:          number;
+    points:         any;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
         this.category   = constants.gojs.C_RELSHIPTYPE;
@@ -1203,7 +1204,7 @@ export class goRelshipTypeLink extends goLink {
                         this.addData(data);
                         this.setName(this.reltype.getName());
                         if (!this.strokewidth)
-                            this.strokewidth = '1';
+                            this.strokewidth = '1.0';
                         if (!this.strokecolor)
                             this.strokecolor = 'black';
                         if (this.fromArrow === ' ' || this.fromArrow === 'None')
@@ -1272,7 +1273,7 @@ export class paletteNode {
         this.fillcolor = "lightyellow";
         this.fillcolor2 = "";
         this.strokecolor = "black";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.icon = "";
         this.image = "";
     }

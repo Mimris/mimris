@@ -16,7 +16,7 @@ export let core = {
 }
   
 export let params = {
-     MEMBERSCALE:   "1",
+     MEMBERSCALE:  1.0,
 }
 
 export let viewkinds = {

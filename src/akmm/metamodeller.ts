@@ -1011,22 +1011,22 @@ export class cxMetis {
         if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
-            objtypeview.setStrokewidth(item.strokewidth);
+            objtypeview.setStrokewidth(Number(item.strokewidth));
             objtypeview.setType(type);
             objtypeview.setTemplate(item.template);
             objtypeview.setTemplate2(item.template2);
             objtypeview.setViewKind(item.viewkind);
-            objtypeview.setMemberscale(item.memberscale);
+            objtypeview.setMemberscale(Number(item.memberscale));
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFigure(item.figure);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
             objtypeview.setTextcolor2(item.textcolor2);
-            objtypeview.setTextscale(item.textscale);
+            objtypeview.setTextscale(Number(item.textscale));
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokecolor2(item.strokecolor2);
-            objtypeview.setStrokewidth(item.strokewidth);
+            objtypeview.setStrokewidth(Number(item.strokewidth));
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
             objtypeview.setGrabIsAllowed(item.grabIsAllowed);
@@ -1064,14 +1064,14 @@ export class cxMetis {
             reltypeview.setTemplate2(item.template2);
             reltypeview.setStrokecolor(item.strokecolor);
             reltypeview.setTextcolor(item.textcolor);
-            reltypeview.setStrokewidth(item.strokewidth);
+            reltypeview.setStrokewidth(Number(item.strokewidth));
             reltypeview.setDash(item.dash);
             reltypeview.setFromArrow(item.fromArrow);
             reltypeview.setToArrow(item.toArrow);
             reltypeview.setFromArrowColor(item.fromArrowColor);
             reltypeview.setToArrowColor(item.toArrowColor);
-            reltypeview.setCurve(item.curve);
-            reltypeview.setCorner(item.corner);
+            reltypeview.setCurve(Number(item.curve));
+            reltypeview.setCorner(Number(item.corner));
             reltypeview.setRouting(item.routing);
             parent.addRelationshipTypeView(reltypeview);
             if (debug) console.log("929 item.id, item.name, reltypeview: " + item.id + ", " + item.name, reltypeview);
@@ -1268,22 +1268,22 @@ export class cxMetis {
                     objview.setIcon(item.icon);
                     objview.setLoc(item.loc);
                     objview.setSize(item.size);
-                    objview.setScale(item.scale);
-                    objview.setTextscale(item.textscale);
+                    objview.setScale(Number(item.scale));
+                    objview.setTextscale(Number(item.textscale));
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
-                    objview.setArrowscale(item.arrowscale);
-                    objview.setMemberscale(item.memberscale);
+                    objview.setArrowscale(Number(item.arrowscale));
+                    objview.setMemberscale(Number(item.memberscale));
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.fillcolor = item.fillcolor;
                     objview.fillcolor2 = item.fillcolor2;
                     objview.strokecolor = item.strokecolor;
                     objview.strokecolor2 = item.strokecolor2;
-                    objview.strokewidth = item.strokewidth;
+                    objview.strokewidth = Number(item.strokewidth);
                     objview.textcolor = item.textcolor;
                     objview.textcolor2 = item.textcolor2;
-                    objview.textscale = item.textscale;
+                    objview.textscale = Number(item.textscale);
                     objview.viewkind = item.viewkind;
                     objview.groupLayout = item.groupLayout;
                     if (item.isExpanded == undefined) {
@@ -1342,19 +1342,19 @@ export class cxMetis {
                     relview.toPortid = relship.toPortid;
                     relview.template = item.template;
                     relview.template2 = item.template2;
-                    relview.arrowscale = item.arrowscale;
+                    relview.arrowscale = Number(item.arrowscale);
                     relview.strokecolor = item.strokecolor;
-                    relview.strokewidth = item.strokewidth;
+                    relview.strokewidth = Number(item.strokewidth);
                     relview.textcolor = item.textcolor;
-                    relview.textscale = item.textscale;
+                    relview.textscale = Number(item.textscale);
                     relview.dash = item.dash;
                     relview.fromArrow = item.fromArrow;
                     relview.toArrow = item.toArrow;
                     relview.fromArrowColor = item.fromArrowColor;
                     relview.toArrowColor = item.toArrowColor;
                     relview.routing = item.routing;
-                    relview.corner = item.corner;
-                    relview.curve = item.curve;
+                    relview.corner = Number(item.corner);
+                    relview.curve = Number(item.curve);
                     relview.points = item.points;
                     relview.visible = item.visible;
                     let reltypeview;
@@ -6518,8 +6518,8 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     // abstract: boolean;
-    memberscale: string;
-    arrowscale: string;
+    memberscale: number;
+    arrowscale: number;
     viewkind: string;
     template: string;
     template2: string;
@@ -6532,14 +6532,14 @@ export class cxObjtypeviewData {
     fillcolor2: string;
     strokecolor: string;
     strokecolor2: string;
-    strokewidth: string;
+    strokewidth: number;
     textcolor: string;
     textcolor2: string;
-    textscale: string;
+    textscale: number;
     constructor() {
         // this.abstract = false;
-        this.memberscale = "1";
-        this.arrowscale = "1.3";
+        this.memberscale = 1.0;
+        this.arrowscale = 1.3;
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.template2 = "";
@@ -6552,10 +6552,10 @@ export class cxObjtypeviewData {
         this.fillcolor2 = "";
         this.strokecolor = "gray";
         this.strokecolor2 = "gray";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.textcolor = "";
         this.textcolor2 = "";
-        this.textscale = "1";
+        this.textscale = 1.0;
     }
 }
 
@@ -6563,8 +6563,8 @@ export class cxObjectTypeView extends cxMetaObject {
     // type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
-    arrowscale: string;
-    memberscale: string;
+    arrowscale: number;
+    memberscale: number;
     viewkind: string;
     template: string;
     template2: string;
@@ -6577,10 +6577,10 @@ export class cxObjectTypeView extends cxMetaObject {
     fillcolor2: string;
     strokecolor: string;
     strokecolor2: string;
-    strokewidth: string;
+    strokewidth: number;
     textcolor: string;
     textcolor2: string;
-    textscale: string;
+    textscale: number;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
@@ -6591,16 +6591,16 @@ export class cxObjectTypeView extends cxMetaObject {
         this.template2 = "";
         this.figure      = "";
         this.geometry    = "";
-        this.arrowscale = "1";
-        this.memberscale = "1";
+        this.arrowscale = 1.0;
+        this.memberscale = 1.0;
         this.fillcolor = "";
         this.fillcolor2 = "";
         this.strokecolor = "";
         this.strokecolor2 = "";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.textcolor = "";
         this.textcolor2 = "";
-        this.textscale = "1";
+        this.textscale = 1.0;
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
         this.icon = "";
@@ -6780,18 +6780,18 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.textcolor2;
         return "black";
     }
-    setTextscale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setTextscale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1.0;
         this.data.textscale = scale;
         this.textscale = scale;
     }
-    getTextscale(): string {
+    getTextscale(): number {
         if (this.textscale)
             return this.textscale;
         else if (this.data.textscale)
             return this.data.textscale;
-        return "1";
+        return 1.0;
     }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
@@ -6815,38 +6815,38 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.strokecolor2;
         return "black";
     }
-    setStrokewidth(strokewidth: string) {
+    setStrokewidth(strokewidth: number) {
         this.strokewidth = strokewidth;
         this.data.strokewidth = strokewidth;
     }
-    getStrokewidth(): string {
+    getStrokewidth(): number {
         if (this.strokewidth)
             return this.strokewidth;
         else if (this.data.strokewidth)
             return this.data.strokewidth;
-        return "2";
+        return 2.0;
     }
-    setMemberscale(memberscale: string) {
+    setMemberscale(memberscale: number) {
         this.memberscale = memberscale;
         this.data.memberscale = memberscale;
     }
-    getMemberscale(): string {
+    getMemberscale(): number {
         if (this.memberscale)
             return this.memberscale;
         else if (this.data.memberscale)
             return this.data.memberscale;
-        return "1"; // Default  1
+        return 1.0; // Default  1
     }
-    setArrowscale(arrowscale: string) {
+    setArrowscale(arrowscale: number) {
         this.arrowscale = arrowscale;
         this.data.arrowscale = arrowscale;
     }
-    getArrowscale(): string {
+    getArrowscale(): number {
         if (this.arrowscale)
             return this.arrowscale;
         else if (this.data.arrowscale)
             return this.data.arrowscale;
-        return "1.3"; // Default  1
+        return 1.3; // Default  1
     }
     setIcon(icon: string) {
         this.data.icon = icon;
@@ -6879,36 +6879,36 @@ export class cxReltypeviewData {
     template: string;
     template2: string;
     strokecolor: string;
-    strokewidth: string;
+    strokewidth: number;
     textcolor: string;
-    arrowscale: string;
-    textscale: string;
+    arrowscale: number;
+    textscale: number;
     dash: string;
     fromArrow: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
     routing: string;
-    corner: string;
-    curve: string;
+    corner: number;
+    curve: number;
     constructor() {
         this.abstract = false;
         this.relshipkind = constants.relkinds.REL;
         this.template = "linkTemplate1";
         this.template2 = "";
         this.strokecolor = "black";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.textcolor = "black";
-        this.arrowscale = "1.3";
-        this.textscale = "1";
+        this.arrowscale = 1.3;
+        this.textscale = 1.0;
         this.dash = "None";
         this.fromArrow = "";
         this.toArrow = "OpenTriangle";
         this.fromArrowColor = "";
         this.toArrowColor = "white";
         this.routing = "Normal";
-        this.corner = "0";
-        this.curve = "0";
+        this.corner = 0;
+        this.curve = 0;
     }
 }
 
@@ -6919,18 +6919,18 @@ export class cxRelationshipTypeView extends cxMetaObject {
     template: string;
     template2: string;
     strokecolor: string;
-    strokewidth: string;
+    strokewidth: number;
     textcolor: string;
     dash: string;
-    textscale: string;
-    arrowscale: string;
+    textscale: number;
+    arrowscale: number;
     fromArrow: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
     routing: string;
-    corner: string;
-    curve: string;
+    corner: number;
+    curve: number;
     constructor(id: string, name: string, type: cxRelationshipType | null, description: string) {
         if (name === "" || name === id) {
             name = type?.name + '_' + type?.relshipkind;
@@ -7063,44 +7063,44 @@ export class cxRelationshipTypeView extends cxMetaObject {
         else
             return "black";
     }
-    setTextscale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setTextscale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1.0;
         this.data.textscale = scale;
         this.textscale = scale;
     }
-    getTextscale(): string {
+    getTextscale(): number {
         if (this.textscale)
             return this.textscale;
         else if (this.data.textscale)
             return this.data.textscale;
         else
-            return "1";
+            return 1.0;
     }
-    setArrowscale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setArrowscale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1.0;
         this.data.arrowscale = scale;
         this.arrowscale = scale;
     }
-    getArrowscale(): string {
+    getArrowscale(): number {
         if (this.arrowscale)
             return this.arrowscale;
         else if (this.data.arrowscale)
             return this.data.arrowscale;
         else
-            return "1";
+            return 1.0;
     }
-    setStrokewidth(strokewidth: string) {
+    setStrokewidth(strokewidth: number) {
         this.data.strokewidth = strokewidth;
         this.strokewidth = strokewidth;
     }
-    getStrokewidth(): string {
+    getStrokewidth(): number {
         if (this.strokewidth)
             return this.strokewidth;
         else if (this.data.strokewidth)
             return this.data.strokewidth;
-        return "1";
+        return 1.0;
     }
     setDash(dash: string) {
         this.data.dash = dash;
@@ -7126,29 +7126,29 @@ export class cxRelationshipTypeView extends cxMetaObject {
         else
             return "";
     }
-    setCurve(curve: string) {
+    setCurve(curve: numberr) {
         this.data.curve = curve;
         this.curve = curve;
     }
-    getCurve(): string {
+    getCurve(): number {
         if (this.curve)
             return this.curve;
         else if (this.data.curve)
             return this.data.curve;
         else
-            return "";
+            return 0;
     }
-    setCorner(corner: string) {
+    setCorner(corner: number) {
         this.data.corner = corner;
         this.corner = corner;
     }
-    getCorner(): string {
+    getCorner(): number {
         if (this.corner)
             return this.corner;
         else if (this.data.corner)
             return this.data.corner;
         else
-            return "";
+            return 0;
     }
     setFromArrow(fromArrow: string) {
         this.data.fromArrow = fromArrow;
@@ -9019,7 +9019,7 @@ export class cxModelView extends cxMetaObject {
         this.objectviews = null;
         this.relshipviews = null;
         this.focusObjectview = null;
-        this.scale = "1";
+        this.scale = 1.0;
         this.memberscale = constants.params.MEMBERSCALE;
         this.layout = "ForceDirected";
         this.routing = "Normal";
@@ -9518,9 +9518,9 @@ export class cxObjectView extends cxMetaObject {
     text: string;
     loc: string;
     size: string;
-    scale: string;
-    memberscale: string;
-    arrowscale: string;
+    scale: number;
+    memberscale: number;
+    arrowscale: number;
     viewkind: string;
     template: string;
     template2: string;
@@ -9536,10 +9536,10 @@ export class cxObjectView extends cxMetaObject {
     strokecolor: string;
     strokecolor1: string;
     strokecolor2: string;
-    strokewidth: string;
+    strokewidth: number;
     textcolor: string;
     textcolor2: string;
-    textscale: string;
+    textscale: number;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.modelview = modelview;
@@ -9553,9 +9553,9 @@ export class cxObjectView extends cxMetaObject {
         this.template2 = "";
         this.typeview = object?.type?.typeview as cxObjectTypeView;
         this.typeviewRef = this.typeview?.id;
-        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
-        this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
-        this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
+        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+        this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
+        this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
         if (false) {
         this.group = "";
         this.isGroup = false;
@@ -9570,7 +9570,7 @@ export class cxObjectView extends cxMetaObject {
         this.viewkind = "";
         this.loc = "";
         this.size = "";
-        this.scale = "1";
+        this.scale = 1.0;
         this.template = "";
         this.template2 = "";
         this.figure = "";
@@ -9583,7 +9583,7 @@ export class cxObjectView extends cxMetaObject {
         this.strokecolor = "";
         this.strokecolor1 = "";
         this.strokecolor2 = "";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.textcolor = "";
         this.textcolor2 = "";
         this.icon = "";
@@ -9855,48 +9855,48 @@ export class cxObjectView extends cxMetaObject {
             return "";
         return this.size;
     }
-    setScale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setScale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1.0;
         this.scale = scale;
     }
-    getScale(): string {
+    getScale(): number {
         const scale = this.scale;
-        if (scale == undefined || scale == "" || scale == null)
-            return "1";
+        if (scale == undefined || scale == null)
+            return 1.0;
         return this.scale;
     }
-    setMemberscale(memberscale: string) {
-        if (memberscale == undefined || memberscale == "" || memberscale == null)
-            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
+    setMemberscale(memberscale: number) {
+        if (memberscale == undefined || memberscale == null)
+            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
         this.memberscale = memberscale;
     }
-    getMemberscale(): string {
+    getMemberscale(): number {
         const memberscale = this.memberscale;
         if (memberscale == undefined || memberscale == "" || memberscale == null)
-            return this.typeview?.memberscale ? this.typeview.memberscale : "1";
+            return this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
         return this.memberscale;
     }
-    setArrowscale(arrowscale: string) {
-        if (arrowscale == undefined || arrowscale == "" || arrowscale == null)
-            this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
+    setArrowscale(arrowscale: number) {
+        if (arrowscale == undefined || arrowscale == null)
+            this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
         this.arrowscale = arrowscale;
     }
-    getArrowscale(): string {
+    getArrowscale(): number {
         const arrowscale = this.arrowscale;
-        if (arrowscale == undefined || arrowscale == "" || arrowscale == null)
-            return this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
+        if (arrowscale == undefined || arrowscale == null)
+            return this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
         return this.arrowscale;
     }
-    setTextscale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setTextscale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1.0;
         this.textscale = scale;
     }
-    getTextscale(): string {
+    getTextscale(): number {
         const scale = this.textscale;
-        if (scale == undefined || scale == "" || scale == null)
-            return "1";
+        if (scale == undefined || scale == null)
+            return 1.0;
         return this.textscale;
     }
     setLoc(loc: string) {
@@ -9967,19 +9967,19 @@ export class cxRelationshipView extends cxMetaObject {
     toPortid: string;
     template: string;
     template2: string;
-    arrowscale: string;
+    arrowscale: number;
     strokecolor: string;
-    strokewidth: string;
+    strokewidth: number;
     textcolor: string;
-    textscale: string;
+    textscale: number;
     dash: string;
     fromArrow: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
     routing: string;
-    corner: string;
-    curve: string;
+    corner: number;
+    curve: number;
     points: any;
     visible: boolean;
     readonly: boolean;
@@ -9995,10 +9995,10 @@ export class cxRelationshipView extends cxMetaObject {
         this.toObjview = null;
         this.template = "";
         this.template2 = "";
-        this.textscale = "1";
-        this.arrowscale = "1";
+        this.textscale = 1.0;
+        this.arrowscale = 1.0;
         this.strokecolor = "black";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.textcolor = "black";
         this.dash = "";
         this.fromArrow = "";
@@ -10006,8 +10006,8 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromArrowColor = "";
         this.toArrowColor = "";
         this.routing = "";
-        this.curve = "";
-        this.corner = "";
+        this.curve = 0;
+        this.corner = 0;
         this.points = [];
         this.visible = true;
         this.readonly = false;
@@ -10092,17 +10092,17 @@ export class cxRelationshipView extends cxMetaObject {
     }
     getTextScale(): string {
         if (this.textscale == undefined)
-            return "1";
+            return 1.0;
         return this.textscale;
     }
     setArrowScale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+        if (scale == undefined || scale == null)
+            scale = 1.0;
         this.arrowscale = scale;
     }
     getArrowScale(): string {
         if (this.arrowscale == undefined)
-            return "1";
+            return 1.0;
         return this.arrowscale;
     }
     setFromArrow(fromArrow: string) {
@@ -10183,20 +10183,20 @@ export class cxRelationshipView extends cxMetaObject {
             return "";
         return this.curve;
     }
-    setCorner(corner: string) {
+    setCorner(corner: number) {
         this.corner = corner;
     }
-    getCorner(): string {
+    getCorner(): number {
         if (this.corner == undefined)
-            return "";
+            return 0;
         return this.corner;
     }
-    setRouting(routing: string) {
+    setRouting(routing: number) {
         this.routing = routing;
     }
-    getRouting(): string {
+    getRouting(): number {
         if (this.routing == undefined)
-            return "";
+            return 0;
         return this.routing;
     }
     setDash(dash: string) {
@@ -10215,12 +10215,12 @@ export class cxRelationshipView extends cxMetaObject {
             return "";
         return this.strokecolor;
     }
-    setStrokeWidth(width: string) {
+    setStrokeWidth(width: number) {
         this.strokewidth = width;
     }
-    getStrokeWidth(): string {
+    getStrokeWidth(): number {
         if (this.strokewidth == undefined)
-            return "1";
+            return 1.0;
         return this.strokewidth;
     }
     setTextColor(color: string) {

@@ -15,7 +15,7 @@ import { use } from 'react';
 import { get } from 'http';
 // const constants = require('./constants');
 // const printf = require('printf');
-import constants from './constants';
+import * as constants from './constants';
 import printf from 'printf';
 
 const $ = go.GraphObject.make;

@@ -274,7 +274,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (objview.modified) {
             if (objview.object?.modified) {
               objview.strokecolor = "green";
-              objview.strokewidth = 2;
+              objview.strokewidth = 2.0;
               includeObjview = true;
             } else {
               // objview.strokecolor = "pink";
@@ -462,7 +462,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (relview.visible == false)
         includeRelview = false;
       if (includeRelview) {
-        if (relview.strokewidth === "NaN") relview.strokewidth = "1";
+        if (!relview.strokewidth) relview.strokewidth = 1;
         relview.setFromArrow2(rel?.relshipkind);
         relview.setToArrow2(rel?.relshipkind);
         relview = uic.updateRelationshipView(relview);
@@ -482,7 +482,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           link.name = " ";
         if (includeDeleted || includeNoObject || includeNoType) {
           link.strokecolor = relview.strokecolor ? relview.strokecolor : relview.typeview?.strokecolor;
-          link.strokewidth = "1";
+          link.strokewidth = relview.strokewidth;
         }
         myGoModel.addLink(link);
       }
@@ -517,7 +517,7 @@ export function buildGoMetaPalette() {
 export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boolean, showModified: boolean): gjs.goModel | undefined {
   if (!metamodel)
     return;
-  if (debug) console.log('435 metamodel', metamodel);
+  if (debug) console.log('520 metamodel', metamodel);
   metamodel.objecttypes = utils.removeArrayDuplicatesById(metamodel?.objecttypes, "id");
   if (metamodel.objecttypes) {
     if (debug) console.log('438 metamodel', metamodel);
@@ -632,7 +632,7 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
           if (debug) console.log('530 reltype, link', reltype, link);
           let strokewidth = reltype.typeview.strokewidth;
           if (!strokewidth)
-            strokewidth = "1";
+            strokewidth = 1.0;
           if (link.loadLinkContent()) {
             let routing = reltype.typeview.routing;
             if (!routing || routing === "Normal")
@@ -650,7 +650,7 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
         }
       }
     }
-    if (debug) console.log('547 myGoMetamodel', myGoMetamodel);
+    if (debug) console.log('653 myGoMetamodel', myGoMetamodel);
     return myGoMetamodel;
   }
 }

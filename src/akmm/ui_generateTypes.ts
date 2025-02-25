@@ -285,11 +285,13 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
     }
     if (objtype) { // The type has been generated - fullfill the generation
         let viewkind = currentObj.getViewKind();
-        let objview = currentObj.objectviews[0];
+        let objview: cxObjectView;  
+        if (currentObj.objectviews) 
+            objview = currentObj.objectviews[0];
         if (currentObj.name === "SwimPool") {
             viewkind = "Container";
             objview.template = "SwimPool";
-        } else if (currentObj.name === "SwimLane") {
+        } else if (objview && currentObj.name === "SwimLane") {
             viewkind = "Container";
             objview.template = "SwimLane";
         } else {
@@ -1778,6 +1780,13 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                         if (!rtype) {
                             rtype = generateRelshipType(rel, relview, context);
                         }
+                        if (rel.relshipviews?.length > 0) {
+                            let relview = rel.relshipviews[0];
+                            if (relview.template2) {
+                                relview.template = relview.template2;
+                            }
+                        }
+                
                         // Prepare dispatches
                         if (rtype) {
                             myMetis.addRelationshipType(rtype);

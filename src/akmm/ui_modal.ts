@@ -970,17 +970,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'strokewidth' && relview[prop] !== "")
+          if (prop === 'strokewidth' && relview[prop])
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'textcolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'textscale' && relview[prop] !== "") 
+          if (prop === 'textscale' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'routing' && relview[prop] !== "") 
+          if (prop === 'routing' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'curve' && relview[prop] !== "") 
+          if (prop === 'curve' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'fromArrow') {
             let fromArrow = relview[prop];
@@ -1117,7 +1117,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }         
             if (prop === 'memberscale') {
                 let scale = typeview[prop];
-                if (typeview[prop] === 'None') scale = "1";
+                if (typeview[prop] === 'None') scale = 1.0;
                 myDiagram.model.setDataProperty(data, prop, scale);           
             } else {          
               typeview[prop] = selObj[prop];

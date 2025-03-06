@@ -2500,7 +2500,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("----------",
+          makeButton("Delete Model",
             function (e: any, obj: any) {
               uid.deleteModel(myMetis, myDiagram);
             },

@@ -684,13 +684,23 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       goNode.template2 = selObj.template2;
       objview.template2 = selObj.template2;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
       let data = JSON.parse(JSON.stringify(jsnObjview));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      return;
+      const modifiedModelviews = new Array();
+      
+      const jsnModelview = new jsn.jsnModelView(myModelview);
+      modifiedModelviews.push(jsnModelview);
+      modifiedModelviews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+      })
+    return;
     }
 
     case "selectDropdown": {

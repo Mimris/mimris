@@ -298,6 +298,8 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
         } else if (objview && currentObj.name === "SwimLane") {
             viewkind = "Container";
             objview.template = "SwimLane";
+        } else if (objview.isGroup) {
+            viewkind = "Container";
         } else {
             viewkind = currentObj.getViewKind();
         }

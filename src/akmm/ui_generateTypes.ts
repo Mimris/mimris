@@ -77,8 +77,8 @@ function getObjectSystemTypes(myMetis: akm.cxMetis, includeMeta: boolean): akm.c
 function getRelshipSystemTypes(myMetis: akm.cxMetis): akm.cxObjectType[] {
     const retval: akm.cxRelationshipType[] = new Array();
     let typenames = new Array();
-    typenames.push(constants.types.AKM_HAS_PART);
-    typenames.push(constants.types.AKM_HAS_MEMBER);
+    // typenames.push(constants.types.AKM_HAS_PART);
+    // typenames.push(constants.types.AKM_HAS_MEMBER);
     typenames.push(constants.types.AKM_REFERS_TO);
     typenames.push(constants.types.AKM_ANNOTATES);
     typenames.push(constants.types.AKM_GENERIC_REL);
@@ -158,8 +158,8 @@ function isSystemRelationshipType(reltype: akm.cxRelationshipType, includeMetamo
             case constants.types.AKM_HAS_VIEWFORMAT:
             case constants.types.AKM_HAS_VALUE:
             case constants.types.AKM_ANNOTATES:
-            case constants.types.AKM_HAS_MEMBER:
-            case constants.types.AKM_HAS_PART:
+            // case constants.types.AKM_HAS_MEMBER:
+            // case constants.types.AKM_HAS_PART:
                 return true;
         }
         // typename === constants.types.AKM_IS

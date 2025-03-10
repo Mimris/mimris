@@ -1502,10 +1502,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             myPastedNode.goNodeId = myPastedNode.objviewId;
             myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myCopiedNode.objectview.name,
                                                            myPastedNode.object, myCopiedNode.descr, toModelview);
-
+            gjsNode.key = myPastedNode.objviewId;
             uic.copyViewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        
             myPastedNode.loc = gjsNode.loc;
             myPastedNode.size = gjsNode.size;
+            myPastedNode.gjsKey = gjsNode.key;
             myPastedNode.group = gjsNode.group;
             myPastedNode.isGroup = gjsNode.isGroup;
             myPastedNode.objectview.loc = myPastedNode.loc;
@@ -1517,7 +1518,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             toModelview.addObjectView(myPastedNode.objectview);
             myMetis.addObjectView(myPastedNode.objectview);
             myMetis.setGojsModel(toGoModel);
-            myPastedNode.goNode = new gjs.goNode(myPastedNode.goNodeId, toGoModel);
             pastedNodes.push(myPastedNode);
             if (debug) console.log('Checkpoint');
           }
@@ -1584,12 +1584,15 @@ class GoJSApp extends React.Component<{}, AppState> {
 
             let pastedRelship = new akm.cxRelationship(utils.createGuid(), copiedRelship.type, pastedFromObject, pastedToObject, copiedRelship.name, copiedRelship.description);
 
-            let pastedRelview = new akm.cxRelationshipView(utils.createGuid(), copiedRelview.name, pastedRelship, copiedRelview.description);
+            const relviewId = utils.createGuid();
+            gjsLink.key = relviewId;
+            let pastedRelview = new akm.cxRelationshipView(relviewId, copiedRelview.name, pastedRelship, copiedRelview.description);
             pastedRelview.fromObjview = pastedFromObjview;
             pastedRelview.toObjview   = pastedToObjview;
+            const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
+            toGoModel.addLink(pastedLink);
             toModelview.addRelationshipView(pastedRelview);
             myMetis.addRelationshipView(pastedRelview);
-
             const jsnRelship = new jsn.jsnRelationship(pastedRelship);
             uic.addItemToList(modifiedRelships, jsnRelship);
             const jsnRelview = new jsn.jsnRelshipView(pastedRelview);

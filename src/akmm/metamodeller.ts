@@ -9511,6 +9511,10 @@ export class cxObjectView extends cxMetaObject {
         this.outputrelviews = null;
         this.typeview = object?.type?.typeview as cxObjectTypeView;
         this.typeviewRef = this.typeview?.id;
+        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
+        this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
+        this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
+        if (false) {
         this.group = "";
         this.isGroup = false;
         this.groupLayout = "";
@@ -9525,9 +9529,6 @@ export class cxObjectView extends cxMetaObject {
         this.loc = "";
         this.size = "";
         this.scale = "1";
-        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
-        this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
-        this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
         this.template = "";
         this.figure = "";
         this.geometry = "";
@@ -9544,6 +9545,7 @@ export class cxObjectView extends cxMetaObject {
         this.textcolor2 = "";
         this.icon = "";
         this.image = "";
+        }
     }
     // Methods
     setModelView(modelview: cxModelView) {

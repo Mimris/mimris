@@ -5,11 +5,11 @@
 // Define View kinds
 
 export let core = {
-     AKM_CORE_MM:   "AKM-Core_MM",
+     AKM_CORE_MM:   "AKM-META_MM",
      AKM_MODELVIEWS: ['01-Property', 
                       '02-EntityType', 
                       '03-MethodTypes', 
-                      '1-AKM Core', 
+                      '1-AKM META', 
                     //   '2-IRTV', 
                     //   '1-AKM Core'
                     ], 

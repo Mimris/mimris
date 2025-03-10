@@ -872,11 +872,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         inst1 = myObject;
         if (instview1)
           instview = instview1;
-        if (inst1)
-          inst = inst1;
+        inst = inst1;
         type = myObjectType;
         objtypeview = myObjectTypeView;
         typeview = objtypeview;
+        if (inst1?.template === 'Pool') {
+          instview.viewkind = 'Container';
+          objtypeview.template = 'Pool';
+          objtypeview.viewkind = 'Container';
+        }
         console.log('96', type, type1, objtypeview, typeview);
         break;
       case constants.gojs.C_OBJECTTYPE:

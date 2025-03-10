@@ -100,7 +100,7 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                     goNode.loc = gjsData.loc;
                     goNode.size = gjsData.size;
                     const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
-                    const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
+                    const hasMemberType = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
                     const group = getGroupByLocation(myGoModel, goNode.loc, goNode.size, goNode);
                     if (group) {
                         const parentgroup = group;
@@ -969,7 +969,9 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 let choices2: string[] = [];
                 for (let i = 0; i < reltypes.length; i++) {
                     const rtype = reltypes[i];
-                    if (rtype.name === constants.types.AKM_GENERIC_REL)
+                    if (!rtype)
+                        continue;
+                    if (rtype?.name === constants.types.AKM_GENERIC_REL)
                         continue
                     choices2.push(rtype.name);
                 }

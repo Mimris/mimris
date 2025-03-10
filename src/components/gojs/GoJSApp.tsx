@@ -1114,7 +1114,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (data.category === constants.gojs.C_RELATIONSHIP) {
               const relview = myModelview.findRelationshipView(key);
-              uic.deleteLink(data, deletedFlag, context);
               if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
                 relview.markedAsDeleted = deletedFlag;
                 const relship = relview.relship;
@@ -1125,6 +1124,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 modifiedRelshipViews.push(jsnRelview);
               }
+            }
+          }
+          const relshipviews = myModelview.relshipviews;
+          for (let i=0; i<relshipviews.length; i++) {
+            const relview = relshipviews[i];
+            if (relview.markedAsDeletet) {
+              const gjsData = myDiagram.findNodeForKey(relview.key);
+              uic.deleteLink(gjsData, true, context);
             }
           }
           // Handle objects

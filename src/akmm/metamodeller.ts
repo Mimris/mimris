@@ -1270,6 +1270,8 @@ export class cxMetis {
                     objview.setSize(item.size);
                     objview.setScale(Number(item.scale));
                     objview.setTextscale(Number(item.textscale));
+                    objview.setTemplate(item.template);
+                    objview.setTemplate2(item.template2);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
                     objview.setArrowscale(Number(item.arrowscale));
@@ -6649,6 +6651,7 @@ export class cxObjectTypeView extends cxMetaObject {
     setViewKind(viewkind: string) {
         this.data.viewkind = viewkind;
         // this.setIsGroup(viewkind);
+        this.viewkind = viewkind;
     }
     getViewKind(): string {
         if (this.data.viewkind)
@@ -9821,7 +9824,7 @@ export class cxObjectView extends cxMetaObject {
     }
     setTemplate2(template: string) {
         if (template == undefined)
-            template2 = "";
+            template = "";
         this.template2 = template;
     }
     getTemplate2(): string {

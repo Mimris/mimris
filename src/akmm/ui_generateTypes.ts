@@ -1611,7 +1611,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                         ) {
                             objtype = generateObjectType(obj, myObjectview, context);
                             if (objtype) targetMetamodel.addObjectTypeByName(objtype);
-                            if (objtype && objtype.name !== constants.types.AKM_ENTITY_TYPE) {
+                            if (objtype /* && objtype.name !== constants.types.AKM_ENTITY_TYPE */) {
                                 targetMetamodel.addObjectType0ByName(objtype);
                                 // Check if there already is an Is relationship type between the object type and EntityType
                                 const reltypes = targetMetamodel.relshiptypes;

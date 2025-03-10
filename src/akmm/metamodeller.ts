@@ -5820,9 +5820,9 @@ export class cxObjectType extends cxType {
     addObjtypeGeo(geo: cxObjtypeGeo) {
         if (this.objtypegeos == null)
             this.objtypegeos = new Array();
-        if (!utils.findObjtypeGeo(geo.id)) {
+        // if (findObjtypeGeo(geo.id)) {
             this.objtypegeos.push(geo);
-        }
+        // }
     }
     setDefaultTypeView(typeview: cxObjectTypeView | cxRelationshipTypeView) {
         let tv = typeview as cxObjectTypeView;
@@ -8236,7 +8236,7 @@ export class cxInstance extends cxMetaObject {
     }
     isEkaRelationship(): boolean {
         let retval = false;
-        if (this.viewkind === constants.VIEWKINDS.REL)
+        if (this.viewkind === constants.viewkinds.REL)
             retval = true;
         return retval;
     }

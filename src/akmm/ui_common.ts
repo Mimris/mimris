@@ -2339,7 +2339,7 @@ export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObje
             let groupType = groupObj?.getType();
             let childType = nodeObj?.getType();
             if (groupType) {
-                let reltype = groupType.findRelshipTypeByKind(constants.RELKINDS.COMP, childType);
+                let reltype = groupType.findRelshipTypeByKind(constants.relkinds.COMP, childType);
                 if (reltype) {
                     // Check if relship already exists
                     let rel = myModel.findRelationship1(groupObj, nodeObj, reltype);
@@ -2352,7 +2352,7 @@ export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObje
                         }
                     }
                 } else if (childType) {
-                    let reltype = groupType.findRelshipTypeByKind(constants.RELKINDS.AGGR, childType);
+                    let reltype = groupType.findRelshipTypeByKind(constants.relkinds.AGGR, childType);
                     if (reltype) {
                         let rel = new akm.cxRelationship(utils.createGuid(), reltype, groupObj, nodeObj, reltype.name, "");
                         if (rel) {
@@ -2375,13 +2375,13 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
             let nodeObjview = node.objectview;
             if (nodeObjview) {
                 nodeObjview.setGroup("");
-                let rels = nodeObj.getInputRelships(myModel, constants.RELKINDS.COMP);
+                let rels = nodeObj.getInputRelships(myModel, constants.relkinds.COMP);
                 if (rels) {
                     for (let i = 0; i < rels.length; i++) {
                         let rel = rels[i];
                         if (rel) {
                             let fromObj = rel.getFromObject();
-                            if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
+                            if (fromObj.getType().getViewKind() === constants.viewkinds.CONT) {
                                 rel.setModified();
                                 rel.setMarkedAsDeleted(true);
                             }

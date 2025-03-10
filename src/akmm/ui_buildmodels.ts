@@ -30,7 +30,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
         const objtype = objtypes[i];
         if (objtype) {
           if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
-            if (isCoreMetamodel) {
+            if (isCoreMetamodel || !metamodel.includeSystemtypes) {
               mmtypenames.push(objtype.name);
             } else
               continue;
@@ -68,16 +68,20 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     let includesSystemtypes = false;
     const otypes = new Array();
     for (let i = 0; i < objecttypes.length; i++) {
+      includesSystemtypes = false;
       const objtype: akm.cxObjectType = objecttypes[i];
       if (debug) console.log('60 objtype', objtype);
       if (!objtype) continue;
       if (objtype.markedAsDeleted) continue;
       if (objtype.abstract) {
         if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
-          if (!isCoreMetamodel) 
+          if (isCoreMetamodel) {
+            typenames.push(objtype.name);
+          } else if (!isCoreMetamodel && !metamodel.includeSystemtypes) {
+            typenames.push(objtype.name);
+          } else
             continue;
-        } else
-          continue;
+        }
       }
       if (objtype.nameId === 'Entity0') continue;
       if (objtype.name === 'Datatype') includesSystemtypes = true;

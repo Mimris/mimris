@@ -71,6 +71,13 @@ const page = (props) => {
               </CardText>
             </CardBody> */}
             <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.03.11</CardTitle>
+              <CardText >
+                &bull;Added ModelSuite description <br />
+                &bull;Bug fixes <br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2025.02.14</CardTitle>
               <CardText >
                 &bull;Bug fixes <br />

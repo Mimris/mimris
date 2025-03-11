@@ -1880,6 +1880,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
                 selection = myDiagram.selection
               }
+              const linksHided = new Array();
               const modifiedRelshipViews = new Array();
               myDiagram.selection.each(function (sel) {
                 const link = sel;
@@ -1890,9 +1891,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const jsnRelView = new jsn.jsnRelshipView(relview);
                   modifiedRelshipViews.push(jsnRelView);
                   link.visible = false;
-                  myDiagram.remove(link);
+                  linksHided.push(link);
                 }
-              })
+              });
+              for (let i=0; i<linksHided.length; i++) {
+                const link = linksHided[i];
+                myDiagram.remove(link);
+              }
               modifiedRelshipViews.map(mn => {
                 let data = mn;
                 data = JSON.parse(JSON.stringify(data));

@@ -397,8 +397,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             modifiedObjViews.push(jsnObjview);
           }
           // Fix links 
+          const linksToRemove = [];
           const links = myDiagram.links;
-          for (let it = links.iterator; it?.next();) {
+          for (let it = links.iterator; it?.next();) 
+            {
             const link = it.value;
             const data = link.data;
             if (data.category === "Relationship") {
@@ -409,7 +411,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (relview) {
                 relview.markedAsDeleted = data.markedAsDeleted;
                 if (relview.visible === false) {
-                  myDiagram.remove(link);
+                  linksToRemove.push(link);
                 } else {
                   const points = relview.points;
                   if (points?.length == 0 || points?.length == 4) {
@@ -421,6 +423,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
               }
             }
+          }
+          for (let i=0; i<linksToRemove.length; i++) {
+            const link = linksToRemove[i];
+            myDiagram.remove(link);
           }
         }
         break;

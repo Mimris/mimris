@@ -4,7 +4,8 @@
 */
 
 import * as React from 'react';
-const RegexParser = require("regex-parser");
+// const RegexParser = require("regex-parser");
+import RegexParser from 'regex-parser';
 
 const debug = false;
 interface InspectorRowProps {

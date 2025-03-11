@@ -10,8 +10,12 @@ import { LinkReshapingTool } from 'gojs';
 import { get } from 'http';
 import { core } from './constants';
 import context from '../pages/context';
-const constants = require('./constants');
-const printf = require('printf');
+import { i } from '@/components/utils/SvgLetters';
+// const constants = require('./constants');
+// const printf = require('printf');
+import * as constants from './constants';
+import printf from 'printf';
+
 const grabIsAllowed = true;
 
 // functions to handle nodes
@@ -96,15 +100,15 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                     goNode.loc = gjsData.loc;
                     goNode.size = gjsData.size;
                     const containerType = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
-                    const hasMemberType = myMetis.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
+                    const hasMemberType = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_MEMBER);
                     const group = getGroupByLocation(myGoModel, goNode.loc, goNode.size, goNode);
                     if (group) {
                         const parentgroup = group;
                         goNode.group = parentgroup.key;
                         goNode.objectview.group = parentgroup.objectview.id;
                         myDiagram.model.setDataProperty(gjsData, "group", goNode.group);
-                        goNode.scale = new String(goNode.getMyScale(myGoModel));
-                        gjsData.scale = Number(goNode.scale);
+                        goNode.scale = goNode.getMyScale(myGoModel);
+                        gjsData.scale = goNode.scale;
                         // Check if the group is a container or not
                         if (group.objecttype?.id !== containerType?.id && hasMemberType) {
                             // Check if the group already has a hasMember relationship to the node
@@ -208,13 +212,13 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                     if (group) {
                         group.memberscale = group.memberscale ? group.memberscale : group.typeview.memberscale;
                         goNode.group = group.key;
-                        let scale = Number(group.scale) * Number(group.memberscale);
+                        let scale = group.scale *group.memberscale;
                         if (scale === 0) scale = 1;
-                        goNode.scale = scale.toString();
+                        goNode.scale = scale;
                         objview.group = group.objectview.id;
                         objview.scale = goNode.scale;
                         myDiagram.model.setDataProperty(gjsData, "group", goNode.group);
-                        myDiagram.model.setDataProperty(gjsData, "memberscale", Number(gjsData.memberscale));
+                        myDiagram.model.setDataProperty(gjsData, "memberscale", gjsData.memberscale);
                     }
                     // myDiagram.model.setDataProperty(node, "memberscale", Number(gjsData.memberscale));
                     // myDiagram.model.setDataProperty(n, "scale", Number(data.scale));
@@ -339,7 +343,7 @@ export function createObjectType(data: any, context: any): any {
 }
 
 export function updateObject(nodeData: gjs.goObjectNode, name: string, value: string, context: any) {
-    if ((nodeData === null) || (name !== "name") || (!nodeData.objRef)) {
+    if ((nodeData === null) || (!nodeData.objRef)) {
         return;
     } else {
         const myMetis = context.myMetis;
@@ -451,6 +455,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 // Apply local overrides
                 if (!doNotResetToTypeview) {
                     currentObjectView['template'] = data.template;
+                    currentObjectView['template2'] = data.template2;
                     currentObjectView['figure'] = data.figure;
                     currentObjectView['fillcolor'] = data.fillcolor;
                     currentObjectView['strokecolor'] = data.strokecolor;
@@ -937,7 +942,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             }
         } else {
             // IS Metamodel
-            reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, false);
+            let inheritsFlag = false;
+            if (fromType.name === "Property" && toType.name === "Method")
+                inheritsFlag = true;
+            reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag);
             if (fromType.name === constants.types.AKM_OSDUTYPE) {
                 if (toType.name === constants.types.AKM_PROPERTY) {
                     const rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
@@ -961,7 +969,9 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 let choices2: string[] = [];
                 for (let i = 0; i < reltypes.length; i++) {
                     const rtype = reltypes[i];
-                    if (rtype.name === constants.types.AKM_GENERIC_REL)
+                    if (!rtype)
+                        continue;
+                    if (rtype?.name === constants.types.AKM_GENERIC_REL)
                         continue
                     choices2.push(rtype.name);
                 }
@@ -1107,6 +1117,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const toObjview = context.toObjview;
     const reltype = context.reltype;
     const relname = context.relname;
+    const reltypeview = reltype.typeview;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
     const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "");
@@ -1138,7 +1149,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         reltypeview: reltype?.typeview?.id,
     };
     // set the link attributes
-    const rtviewdata = reltype?.typeview?.data;
+    const rtviewdata = reltypeview?.data;
     for (let prop in rtviewdata) {
         if (prop === 'id') continue;
         if (prop === 'name') continue;
@@ -1470,9 +1481,9 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
 export function updateRelationshipView(relview: akm.cxRelationshipView): akm.cxRelationshipView {
     if (relview) {
         if (!relview.textscale)
-            relview.textscale = "1";
+            relview.textscale = 1.0;
         if (!relview.arrowscale)
-            relview.arrowscale = "1.3";
+            relview.arrowscale = 1.3;
         const typeview = relview.typeview;
         if (typeview) {
             const viewdata = typeview.data;
@@ -1482,8 +1493,8 @@ export function updateRelationshipView(relview: akm.cxRelationshipView): akm.cxR
                 }
             }
         }
-        if (relview.strokewidth === "") {
-            relview.strokewidth = "1";
+        if (!relview.strokewidth) {
+            relview.strokewidth = 1.0;
         }
     }
     return relview;
@@ -1836,7 +1847,7 @@ export function createLink(data: any, context: any): any {
         let reltype = null;
         let relshipview;
         let fromNode = data.fromNode;
-        let scale = 1;
+        let scale = 1.0;
         if (!fromNode) {
             fromNode = myGoModel.findNode(data.from);
             scale = fromNode.scale;
@@ -1898,8 +1909,8 @@ export function createLink(data: any, context: any): any {
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
                         relshipview.setTextScale(scale);
-                        relshipview.strokewidth = "";
-                        relshipview.textscale = "";
+                        relshipview.strokewidth = 1.0;
+                        relshipview.textscale = 1.0;
                         relshipview.fromport = fromPort;
                         relshipview.toport = toPort;
                         relshipview.markedAsDeleted = false;
@@ -2266,8 +2277,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         if (debug) console.log('798 node', node);
         if (node.key === nod?.key) continue;
         if (node.isGroup) {
-            let nodeScale = 1;
-            let grpScale = 1;
+            let nodeScale = 1.0;
+            let grpScale = 1.0;
             const myGroup = node;
             const grpLoc = myGroup.loc?.split(" ");
             const grpSize = myGroup.size?.split(" ");
@@ -2328,7 +2339,7 @@ export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObje
             let groupType = groupObj?.getType();
             let childType = nodeObj?.getType();
             if (groupType) {
-                let reltype = groupType.findRelshipTypeByKind(constants.RELKINDS.COMP, childType);
+                let reltype = groupType.findRelshipTypeByKind(constants.relkinds.COMP, childType);
                 if (reltype) {
                     // Check if relship already exists
                     let rel = myModel.findRelationship1(groupObj, nodeObj, reltype);
@@ -2341,7 +2352,7 @@ export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObje
                         }
                     }
                 } else if (childType) {
-                    let reltype = groupType.findRelshipTypeByKind(constants.RELKINDS.AGGR, childType);
+                    let reltype = groupType.findRelshipTypeByKind(constants.relkinds.AGGR, childType);
                     if (reltype) {
                         let rel = new akm.cxRelationship(utils.createGuid(), reltype, groupObj, nodeObj, reltype.name, "");
                         if (rel) {
@@ -2364,13 +2375,13 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
             let nodeObjview = node.objectview;
             if (nodeObjview) {
                 nodeObjview.setGroup("");
-                let rels = nodeObj.getInputRelships(myModel, constants.RELKINDS.COMP);
+                let rels = nodeObj.getInputRelships(myModel, constants.relkinds.COMP);
                 if (rels) {
                     for (let i = 0; i < rels.length; i++) {
                         let rel = rels[i];
                         if (rel) {
                             let fromObj = rel.getFromObject();
-                            if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
+                            if (fromObj.getType().getViewKind() === constants.viewkinds.CONT) {
                                 rel.setModified();
                                 rel.setMarkedAsDeleted(true);
                             }
@@ -2402,8 +2413,8 @@ export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myO
 
 export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[],
     fromLocs: any, toLocs: any): any[] {
-    let fromScale = Number(groupNode.scale);
-    let toScale = Number(groupNode.scale) * Number(groupNode.memberscale);
+    let fromScale = groupNode.scale;
+    let toScale = groupNode.scale * groupNode.memberscale;
     let scaleFactor = toScale / fromScale;
     // First handle the group itself
     const size = groupNode.size.split(" ");
@@ -2443,12 +2454,12 @@ export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, m
             if (nodeloc) {
                 let loc = nodeloc.x + " " + nodeloc.y;
                 n.loc = loc;
-                n.scale = toScale.toString();
+                n.scale = toScale;
 
                 const nod = myGoModel.findNodeByViewId(n.objectview.id);
                 if (nod) {
                     nod.loc = loc;
-                    nod.scale = toScale.toString();
+                    nod.scale = toScale;
                     toNode.loc = loc;
                 }
             }
@@ -2467,7 +2478,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
             node.loc = toloc;
             node.size = data.size;
             try {
-                node.scale = node.getMyScale(goModel).toString();
+                node.scale = node.getMyScale(goModel);
             } catch (e) {
                 if (debug) console.log('1181 e', e);
             }
@@ -4057,7 +4068,7 @@ export function repairEntityType(myMetis: akm.cxMetis, myMetamodel: akm.cxMetaMo
     let relshipType = myMetis.findObjectTypeByName(constants.types.AKM_RELSHIPTYPE);
     if (myMetamodel) {
         entityType = myMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-        entityType.removeDuplicateProperties();
+        entityType?.removeDuplicateProperties();
     }
     if (entityType) {
         // Get type view
@@ -4224,8 +4235,8 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                     if (debug) console.log('2904 updateLink', prop, viewdata[prop], relview[prop]);
                 }
                 if (prop === 'strokewidth') {
-                    if (relview[prop] === "" || !relview[prop])
-                        relview[prop] === "1";
+                    if (!relview[prop])
+                        relview[prop] === 1;
                 } else if (prop === 'fromArrowColor') {
                     if (relview[prop] === "" || !relview[prop])
                         relview[prop] === "white";

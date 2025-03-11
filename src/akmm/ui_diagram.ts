@@ -13,8 +13,10 @@ import { clear } from 'console';
 import { is } from 'immer/dist/internal';
 import { use } from 'react';
 import { get } from 'http';
-const constants = require('./constants');
-const printf = require('printf');
+// const constants = require('./constants');
+// const printf = require('printf');
+import * as constants from './constants';
+import printf from 'printf';
 
 const $ = go.GraphObject.make;
 
@@ -469,10 +471,9 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
-    const objRef = gjsNode.objRef;
     const objviewRef = gjsNode.objviewRef;
-    let object: akm.cxObject = myMetis.findObject(objRef);
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
+    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
     const objtypeRef = gjsNode.objtypeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;
@@ -794,37 +795,39 @@ export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: an
         const rview = myMetis.findRelationshipView(goInst.key);
         if (rview) {
             const rtview = rview.typeview;
-            const rtdata = rtview.data;
-            if (debug) console.log('467 rview, rtview, rtdata', rview, rtview, rtdata);
-            for (let prop in rtdata) {
-                switch(prop) {
-                    case 'name':
-                    case 'nameId':
-                    case 'description':
-                    case 'category':
-                    case 'fs_collection':
-                    case 'markedAsDeleted':
-                    case 'modified':
-                    case 'sourceUri':
-                    case 'typeRef':
-                    case 'class':
-                    case 'relshipkind':      
-                        continue;              
+            if (rtview && rtview.data) {
+                const rtdata = rtview.data;
+                if (debug) console.log('467 rview, rtview, rtdata', rview, rtview, rtdata);
+                for (let prop in rtdata) {
+                    switch(prop) {
+                        case 'name':
+                        case 'nameId':
+                        case 'description':
+                        case 'category':
+                        case 'fs_collection':
+                        case 'markedAsDeleted':
+                        case 'modified':
+                        case 'sourceUri':
+                        case 'typeRef':
+                        case 'class':
+                        case 'relshipkind':      
+                            continue;              
+                    }
+                    rview[prop] = rtview[prop];
+                    if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
+                    myDiagram.model.setDataProperty(ll.data, prop, rtview[prop]);
                 }
-                rview[prop] = rtview[prop];
-                if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
-                myDiagram.model.setDataProperty(ll.data, prop, rtview[prop]);
+                // Dispatch
+                const jsnRelview = new jsn.jsnRelshipView(rview);
+                const modifiedRelViews = new Array();
+                modifiedRelViews.push(jsnRelview);
+                modifiedRelViews.map(mn => {
+                    let data = mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    if (debug) console.log('494 data', data);
+                    myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                });
             }
-            // Dispatch
-            const jsnRelview = new jsn.jsnRelshipView(rview);
-            const modifiedRelViews = new Array();
-            modifiedRelViews.push(jsnRelview);
-            modifiedRelViews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                if (debug) console.log('494 data', data);
-                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-            })
         }
     }
 }
@@ -1425,6 +1428,7 @@ function askForMetamodel(context: any) {
         }
 
         switch (context.case) {
+            case "New model":
             case "Add Metamodel":
             case "Delete Metamodel":
             case "Clear Metamodel":
@@ -1593,6 +1597,8 @@ function addMetamodel2(context: any) {
 
 function deleteMetamodel2(context: any) {
     const metamodel = context.args.metamodel;
+    if (!metamodel)
+        return;
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
     if (debug) console.log('271 metamodel, myMetis', metamodel, myMetis);

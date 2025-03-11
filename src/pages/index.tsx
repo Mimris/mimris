@@ -36,7 +36,10 @@ const page = (props: any) => {
   
   const [showModal, setShowModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
+  const [exportTab, setExportTab] = useState(false);
 
   function dispatchLocalStore(locStore) { 
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -101,7 +104,14 @@ const page = (props: any) => {
               <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
-            <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
+            <ProjectMenuBar {...props}
+              expanded={expanded} setExpanded={setExpanded}
+              focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
+              refresh={refresh} setRefresh={setRefresh}
+              visibleFocusDetails={visibleFocusDetails}
+              setVisibleFocusDetails={setVisibleFocusDetails}
+              exportTab={exportTab} setExportTab={setExportTab}
+            />
             <div className="context-bar d-flex justify-content-between align-items-center" 
               style={{  backgroundColor: "#ffffed" }}>
               {expanded && 

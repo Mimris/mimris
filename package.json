@@ -13,7 +13,8 @@
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "startlocal1": "next start -p 3000",
     "start1": "tsc --downlevelIteration & node ./database-test.js & next build & NODE_ENV=production server.js -p ${PORT}",
-    "watch": "tsc --watch --noEmit --project ./tsconfig.json"
+    "watch": "tsc --watch --noEmit --project ./tsconfig.json",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@apollo/server": "^4.2.2",
@@ -138,5 +139,8 @@
     "bufferutil": "^4.0.1",
     "fsevents": "^2.3.2",
     "utf-8-validate": "^5.0.2"
+  },
+  "engines": {
+    "node": "16.x" 
   }
 }

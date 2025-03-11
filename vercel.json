@@ -1,3 +1,11 @@
 {
-    "installCommand": "npm install --legacy-peer-deps"
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/node",
+            "config": {
+                "installCommand": "npm install --ignore-scripts && npm rebuild"
+            }
+        }
+    ]
 }

@@ -4,7 +4,7 @@
             "src": "package.json",
             "use": "@vercel/node",
             "config": {
-                "installCommand": "npm install --ignore-scripts && npm rebuild"
+                "installCommand": "npm install --force && npm rebuild"
             }
         }
     ]

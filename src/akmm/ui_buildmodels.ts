@@ -333,7 +333,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (node.icon === "") node.icon = typeview.icon;
           if (node.image === "") node.image = typeview.image;
           if (node.viewkind === "") node.viewkind = typeview.viewkind;
-          node.template = typeview.template;
+          if (node.template === "") node.template = typeview.template;
         }
       }
     }

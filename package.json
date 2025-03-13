@@ -13,7 +13,11 @@
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "startlocal1": "next start -p 3000",
     "start1": "tsc --downlevelIteration & node ./database-test.js & next build & NODE_ENV=production server.js -p ${PORT}",
-    "watch": "tsc --watch --noEmit --project ./tsconfig.json"
+    "watch": "tsc --watch --noEmit --project ./tsconfig.json",
+    "prepare": "npx husky install"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
     "@apollo/server": "^4.2.2",
@@ -125,7 +129,7 @@
     "css-loader": "^6.7.2",
     "eslint": "^8.40.0",
     "husky": "^2.4.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "pretty-quick": "^4.0.0",
     "promise": "^8.1.0",
     "react-scripts": "^5.0.1",

@@ -1,9 +1,12 @@
 // @ts-nocheck
 const debug = false; 
 
-const utils = require('./utilities');
 import * as akm from './metamodeller';
-const constants = require('./constants');
+
+// const utils = require('./utilities');
+// const constants = require('./constants');
+import * as utils from './utilities';
+import * as constants from './constants';
 
 let jsnMetis: akm.cxMetis;
 
@@ -894,6 +897,7 @@ export class jsnObjectTypeView {
     group:           string;
     grabIsAllowed:   boolean;
     template:        string;
+    template2:       string;
     figure:          string;
     geometry:        string;
     fillcolor:       string;
@@ -901,11 +905,11 @@ export class jsnObjectTypeView {
     strokecolor:     string;
     strokecolor1:    string;
     strokecolor2:    string;
-    strokewidth:     string;
+    strokewidth:     number;
     textcolor:       string;
     textcolor2:      string;
-    textscale:       string;
-    memberscale:     string;
+    textscale:       number;
+    memberscale:     number;
     icon:            string;
     image:           string;
     markedAsDeleted: boolean;
@@ -917,6 +921,7 @@ export class jsnObjectTypeView {
         this.typeRef         = objtypeview.typeRef;
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
+        // this.template2       = objtypeview.getTemplate2();
         this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
@@ -968,17 +973,17 @@ export class jsnRelshipTypeView {
     template:        string;
     strokecolor:     string;
     strokecolor1:    string;
-    strokewidth:     string;
+    strokewidth:     number;
     textcolor:       string;
-    textscale:       string;
+    textscale:       number;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
-    routing:         string;
-    corner:          string;
-    curve:           string;
+    routing:         number;
+    corner:          number;
+    curve:           number;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(reltypeview: akm.cxRelationshipTypeView) {
@@ -1675,7 +1680,7 @@ export class jsnObjectView {
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
-    isExpanded:     boolean;
+    isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
     size:            string;
@@ -1686,16 +1691,17 @@ export class jsnObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
+    template2:       string;
     figure:          string;
     geometry:        string;
     fillcolor:       string;
     fillcolor2:      string;
     strokecolor:     string;
     strokecolor2:    string;
-    strokewidth:     string;
+    strokewidth:     number;
     textcolor:       string;
     textcolor2:      string;
-    textscale:       string;
+    textscale:       number;
     icon:            string;
     image:           string;
     constructor(objview: akm.cxObjectView) {
@@ -1714,6 +1720,7 @@ export class jsnObjectView {
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
+        this.template2       = objview?.template2;
         this.figure          = objview?.figure;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
@@ -1726,8 +1733,8 @@ export class jsnObjectView {
         this.icon            = objview?.icon;
         this.image           = objview?.image;
         this.size            = objview?.size;
-        this.scale           = Number(objview?.scale);
-        this.memberscale     = Number(objview?.memberscale);
+        this.scale           = objview?.scale;
+        this.memberscale     = objview?.memberscale;
         this.textscale       = objview?.textscale;
         this.arrowscale      = objview?.arrowscale;
         this.markedAsDeleted = objview?.markedAsDeleted;
@@ -1745,18 +1752,19 @@ export class jsnRelshipView {
     fromPortid:      string;
     toPortid:        string;
     template:        string;
-    arrowscale:      string;
+    template2:       string;
+    arrowscale:      number;
     strokecolor:     string;
-    strokewidth:     string;
+    strokewidth:     number;
     textcolor:       string;
-    textscale:       string;
+    textscale:       number;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
-    routing:         string;
-    corner:          string;
+    routing:         number;
+    corner:          number;
     curve:           string;
     points:          any;
     markedAsDeleted: boolean;
@@ -1769,6 +1777,7 @@ export class jsnRelshipView {
         this.relshipRef      = "";
         this.typeviewRef     = "";
         this.template        = relview?.template;
+        this.template2       = relview?.template2;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
         this.strokewidth     = relview?.strokewidth;
@@ -2047,6 +2056,7 @@ export class jsnImportMetis {
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
         reltypeview.setType(type);
         reltypeview.setTemplate(item.template);
+        reltypeview.setTemplate2(item.template2);
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);
         reltypeview.setDash(item.dash);

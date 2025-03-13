@@ -19,8 +19,10 @@ import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
 import { read } from 'fs';
 
-const constants = require('../../akmm/constants');
-const utils = require('../../akmm/utilities');
+// const constants = require('../../akmm/constants');
+// const utils = require('../../akmm/utilities');
+import * as constants from '../../akmm/constants';
+import * as utils from '../../akmm/utilities';
 
 const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype',
   'Value', 'FieldType', 'InputPattern', 'ViewFormat',
@@ -162,7 +164,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "key": n.data.key,
       "name": n.data.name,
       "loc": new String(n.data.loc),
-      "scale": new String(n.scale),
+      "scale": Number(n.data.scale),
       "size": new String(n.data.size),
       "template": n.data.template,
       "figure": n.data.figure,
@@ -172,8 +174,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       "strokecolor": n.data.strokecolor,
       "strokecolor2": n.data.strokecolor2,
       "textcolor": n.data.textcolor,
-      "strokewidth": n.data.strokewidth,
-      "textscale": n.data.textscale,
+      "strokewidth": Number(n.data.strokewidth),
+      "textscale": Number(n.data.textscale),
       "icon": n.data.icon,
     }
     myToNodes.push(myToNode);
@@ -329,7 +331,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        const focusObjectView  = myMetis.currentModelview.focusObjectview;
+        const focusObjectView  = myMetis.currentModelview?.focusObjectview;
         if (true) {
         for (let i = 0; i < objviews?.length; i++) {
           let resetToTypeview = true;
@@ -348,13 +350,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               const n = it.value;
               const data = n.data;
               if (data.key === goNode.key) {
-                data.scale = goNode.scale;
+                data.scale = Number(goNode.scale);
                 if (debug) console.log('300 objview, goNode, node: ', objview, goNode, n, data);
                 data.textcolor = 'black';
               }
             }
             const gjsNode = myDiagram.findNodeForKey(goNode?.key)
-            if (gjsNode && goNode.scale) gjsNode.scale = goNode.scale;
+            if (gjsNode && goNode.scale) gjsNode.scale = Number(goNode.scale);
           }
           if (objview.id === focusObjectView?.id) {
             const node = myGoModel.findNodeByViewId(objview.id);
@@ -379,7 +381,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const data = node.data;
             if (data.category === "Object type")
               continue;
-            node.scale = data.scale;
+            //node.scale = Number(data.scale);
             node.loc = data.loc;
             node.size = data.size;
             node.fillcolor = data.fillcolor;
@@ -395,26 +397,36 @@ class GoJSApp extends React.Component<{}, AppState> {
             modifiedObjViews.push(jsnObjview);
           }
           // Fix links 
+          const linksToRemove = [];
           const links = myDiagram.links;
-          for (let it = links.iterator; it?.next();) {
+          for (let it = links.iterator; it?.next();) 
+            {
             const link = it.value;
             const data = link.data;
             if (data.category === "Relationship") {
               let relview: akm.cxRelationshipView = data.relshipview;
               relview = myModelview.findRelationshipView(data.key);
-              relview.markedAsDeleted = data.markedAsDeleted;
-              if (relview.visible === false) {
-                myDiagram.remove(link);
-              } else {
-                const points = relview.points;
-                if (points?.length == 0 || points?.length == 4) {
-                  link.points = [];
-                  relview.points = [];
-                  const jsnRelview = new jsn.jsnRelshipView(relview);
-                  modifiedRelshipViews.push(jsnRelview);
+              if (!relview)
+                relview = myMetis.findRelationshipView(data.key);
+              if (relview) {
+                relview.markedAsDeleted = data.markedAsDeleted;
+                if (relview.visible === false) {
+                  linksToRemove.push(link);
+                } else {
+                  const points = relview.points;
+                  if (points?.length == 0 || points?.length == 4) {
+                    link.points = [];
+                    relview.points = [];
+                    const jsnRelview = new jsn.jsnRelshipView(relview);
+                    modifiedRelshipViews.push(jsnRelview);
+                  }
                 }
               }
             }
+          }
+          for (let i=0; i<linksToRemove.length; i++) {
+            const link = linksToRemove[i];
+            myDiagram.remove(link);
           }
         }
         break;
@@ -422,14 +434,17 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'TextEdited': {
         const sel = e.subject.part;
         const gjsData = sel.data;
-        const textvalue = gjsData.name;
+        let textvalue = gjsData.name;
+        if (gjsData.typename === 'Label'){
+          textvalue = gjsData.text;
+        }
         let field = e.subject.name;
         if (field === "") field = "name";
         // Object type or Object
         if (sel instanceof go.Node) {
           const key: string = gjsData.key;
           const goNode = myGoModel.findNode(key);
-          let text: string = gjsData.name;
+          let text: string = textvalue;
           const category: string = gjsData.category;
           // Object type
           if (category === constants.gojs.C_OBJECTTYPE) {
@@ -598,8 +613,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           myModelview.repairObjectView(objectview);
           let object = objectview.object;
           object = myModel.findObject(object?.id);
-          let scale = objectview.scale;
-          if (!scale) scale = "1";
+          let scale = Number(objectview.scale);
+          if (!scale) scale = 1.0;
           let groupKey = "";
           if (it.key.data.group)
             groupKey = it.key.data.group;
@@ -610,7 +625,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             "isGroup": it.key.data.isGroup,
             "loc": objectview.loc,
             "size": objectview.size,
-            "scale": objectview.scale,
+            "scale": scale,
             "object": object,
             "objectview": objectview,
           }
@@ -630,7 +645,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const group = uic.getGroupByLocation(myGoModel, loc, size, goNode);
           let groupKey = "";
           if (!group) {
-            goNode.scale = "1"; // goNode.getMyScale(myGoModel);
+            goNode.scale = 1.0; // goNode.getMyScale(myGoModel);
           } else {
             groupKey = n.data.group;
             goNode.scale = goNode.getMyScale(myGoModel);
@@ -644,7 +659,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             "isGroup": n.data.isGroup,
             "loc": goNode.loc,
             "size": size,
-            "scale": goNode.scale,
+            "scale": Number(goNode.scale),
             "object": n.data.object,
             "objectview": n.data.objectview,
             "objecttype": n.data.objecttype,
@@ -691,7 +706,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 parentObjview.isExpanded = true;
                 myObjectview.group = goParentGroup.key;
                 myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
-                goToNode.scale = new String(goToNode.getMyScale(myGoModel));
+                goToNode.scale = goToNode.getMyScale(myGoModel);
                 gjsPart.scale = Number(goToNode.scale);
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
@@ -807,7 +822,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 myToNode.group = goToNode.group; // ""
                 myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
-                let scale = goToNode.scale; // Not part of group
+                let scale = Number(goToNode.scale); // Not part of group
                 gjsPart.scale = scale;
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
@@ -1105,7 +1120,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (data.category === constants.gojs.C_RELATIONSHIP) {
               const relview = myModelview.findRelationshipView(key);
-              uic.deleteLink(data, deletedFlag, context);
               if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
                 relview.markedAsDeleted = deletedFlag;
                 const relship = relview.relship;
@@ -1118,6 +1132,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+          const relshipviews = myModelview.relshipviews;
+          for (let i=0; i<relshipviews.length; i++) {
+            const relview = relshipviews[i];
+            if (relview.markedAsDeletet) {
+              const gjsData = myDiagram.findNodeForKey(relview.key);
+              uic.deleteLink(gjsData, true, context);
+            }
+          }
           // Handle objects
           for (let it = selection?.iterator; it?.next();) {
             const sel = it.value;
@@ -1128,18 +1150,26 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (myNode) {
                 const objview = myModelview.findObjectView(myNode.key);
                 const object = objview?.object;
-                uic.deleteNode(myNode, deletedFlag, context);
                 if (object) {
                   object.markedAsDeleted = !myMetis.deleteViewsOnly;
+                  objview.markedAsDeleted = true;
                   const jsnObject = new jsn.jsnObject(object);
                   modifiedObjects.push(jsnObject);
-                  // objview.markedAsDeleted = myMetis.deleteViewsOnly;
                   const jsnObjview = new jsn.jsnObjectView(objview);
                   modifiedObjectViews.push(jsnObjview);
                 }
               }
             }
           }
+        }
+        for (let i=0; i<modifiedObjectViews.length; i++) {
+          const objview = modifiedObjectViews[i];
+          if (objview.markedAsDeleted) {
+            const myNode = this.getNode(context.myGoModel, objview.id);  
+            if (myNode) {
+                uic.deleteNode(myNode, deletedFlag, context);
+              }
+            }
         }
         break;
       }
@@ -1248,7 +1278,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let strokecolor = "";
           let textcolor = "";
           let part = n.data;
-          part.scale = n.scale;
+          part.scale = Number(n.scale);
           if (part.size === "" || !part.size) {
             if (part.isGroup) {
               part.size = "200 100";
@@ -1275,7 +1305,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
             objview.loc = part.loc;
             objview.viewkind = type.viewkind;
-            objview.scale = part.scale;
+            objview.scale = Number(part.scale);
             objview.size = part.size;
             if (objview.viewkind === 'Container') {
               objview.isGroup = true;
@@ -1302,7 +1332,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.group = parentgroup.key;
             goNode.objectview.group = parentgroup.objviewRef;
             myDiagram.model.setDataProperty(part, "group", goNode.group);
-            goNode.scale = new String(goNode.getMyScale(myGoModel));
+            goNode.scale = goNode.getMyScale(myGoModel);
             part.scale = Number(goNode.scale);
           }
           if (goNode) {
@@ -1489,7 +1519,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myCopiedNode.objectview = fromModelview.findObjectView(myCopiedNode.objviewId);
             myCopiedNode.gjsKey = copiedNodeKey;
             myCopiedNode.gjsNode = gjsCopiedNode;
-            myCopiedNode.memberscale = gjsCopiedNode.memberscale;
+            myCopiedNode.memberscale = Number(gjsCopiedNode.memberscale);
             myCopiedNode.loc = gjsCopiedNode.loc;
             myCopiedNode.size = gjsCopiedNode.size;
             myCopiedNode.group = gjsCopiedNode.group; // Group key
@@ -1515,7 +1545,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             myPastedNode.objviewId = utils.createGuid();
             myPastedNode.goNodeId = myPastedNode.objviewId;
-            myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myCopiedNode.objectview.name,
+            myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
                                                            myPastedNode.object, myCopiedNode.descr, toModelview);
             gjsNode.key = myPastedNode.objviewId;
             uic.copyViewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        
@@ -1631,7 +1661,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myGoNode.group = goParentGroup.key; // Make the node a member of the group (container)
             parentObjview.isExpanded = true;
             myObjectview.group = goParentGroup.key;
-            let scale = new String(myGoNode.getMyScale(myGoModel));
+            let scale = Number(myGoNode.getMyScale(myGoModel));
             myObjectview.scale = scale;
             myObjectview.loc = myGoNode.loc;
           }

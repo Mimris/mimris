@@ -13,8 +13,10 @@ import { clear } from 'console';
 import { is } from 'immer/dist/internal';
 import { use } from 'react';
 import { get } from 'http';
-const constants = require('./constants');
-const printf = require('printf');
+// const constants = require('./constants');
+// const printf = require('printf');
+import * as constants from './constants';
+import printf from 'printf';
 
 const $ = go.GraphObject.make;
 
@@ -469,10 +471,9 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
-    const objRef = gjsNode.objRef;
     const objviewRef = gjsNode.objviewRef;
-    let object: akm.cxObject = myMetis.findObject(objRef);
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
+    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
     const objtypeRef = gjsNode.objtypeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;

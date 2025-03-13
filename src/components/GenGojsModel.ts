@@ -80,9 +80,9 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified);
       if (debug) console.log('79 myGoMetamodel', myGoMetamodel);
       const myGoMetamodelPalette = (myMetamodel) && uib.buildGoMetaPalette();
-      if (debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
+      if (debug) console.log('83 myMetamodelPalette', myMetamodelPalette);
       const myGoPalette = (myMetamodel) && uib.buildGoPalette(myMetamodel, myMetis);
-      if (debug) console.log('92 myPalette', myPalette);
+      if (debug) console.log('85 myPalette', myPalette);
 
       const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
@@ -111,6 +111,6 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
     }
   }
-  if (debug) console.log('172 GenGojsModel myMetis', myMetis);
+  if (!debug) console.log('114 GenGojsModel myMetis', myMetis);
 }
 export default GenGojsModel;

@@ -10,10 +10,12 @@ import * as uic from './ui_common';
 import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
-const utils = require('./utilities');
 import * as constants from './constants';
 import { filter } from 'cheerio/lib/api/traversing';
-const RegexParser = require("regex-parser");
+// const RegexParser = require("regex-parser");
+// const utils = require('./utilities');
+import * as utils from './utilities';
+import { RegexParser } from 'regex-parser';
 
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
@@ -679,14 +681,26 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
+      goNode.template2 = selObj.template2;
+      objview.template2 = selObj.template2;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
       let data = JSON.parse(JSON.stringify(jsnObjview));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      return;
+      const modifiedModelviews = new Array();
+      
+      const jsnModelview = new jsn.jsnModelView(myModelview);
+      modifiedModelviews.push(jsnModelview);
+      modifiedModelviews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+      })
+    return;
     }
 
     case "selectDropdown": {
@@ -936,6 +950,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const gjsData = gjsLink.data;
       const goLink = myGoModel.findLinkByViewId(selRel.key);
       let relview = myModelview.findRelationshipView(selRel.key);
+      goLink.template2 = selRel.template2;
+      relview.template2 = selRel.template2;
       let relship = relview.relship;
       const reltype = relship.type;
       const reltypeview = reltype.typeview;
@@ -960,19 +976,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         for (let prop in reltypeview?.data) {
           if (prop === 'template' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'template2' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'strokewidth' && relview[prop] !== "")
+          if (prop === 'strokewidth' && relview[prop])
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'textcolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'textscale' && relview[prop] !== "") 
+          if (prop === 'textscale' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'routing' && relview[prop] !== "") 
+          if (prop === 'routing' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'curve' && relview[prop] !== "") 
+          if (prop === 'curve' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'fromArrow') {
             let fromArrow = relview[prop];
@@ -1109,7 +1127,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }         
             if (prop === 'memberscale') {
                 let scale = typeview[prop];
-                if (typeview[prop] === 'None') scale = "1";
+                if (typeview[prop] === 'None') scale = 1.0;
                 myDiagram.model.setDataProperty(data, prop, scale);           
             } else {          
               typeview[prop] = selObj[prop];

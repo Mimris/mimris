@@ -1,5 +1,3 @@
-
-
 import axios from 'axios';
 // import { axiosGetCancellable } from './axios.helper';
 import Cors from 'cors'
@@ -18,6 +16,7 @@ const axiosConfig = {
     // password: process.env.NEXT_PUBLIC_GITHUB_CLIENT_SECRET
   }
 };
+
 const axiosConfigRaw = {
   baseURL: 'https://raw.githubusercontent.com/',
   auth: {
@@ -28,7 +27,6 @@ const axiosConfigRaw = {
     'Content-Type': 'application/vnd.github.v3.raw',
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
-
     // 'Content-Type': 'application/json',
     // 'Authorization': 'Token +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'
   }

@@ -19,7 +19,6 @@
     "node": "18.x"
   },
   "dependencies": {
-    "@apollo/server": "^4.2.2",
     "@babel/core": "^7.20.5",
     "@fortawesome/fontawesome-free": "^6.4.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
@@ -47,6 +46,7 @@
     "color-convert": "^2.0.1",
     "colornames": "^1.1.1",
     "cookie": "^1.0.2",
+    "cors": "^2.8.5",
     "cors-anywhere": "^0.4.4",
     "dataloader": "^2.0.0",
     "es6-promise": "^4.1.1",

@@ -8,5 +8,8 @@
                 "installCommand": "npm install --force && npm rebuild"
             }
         }
-    ]
+    ],
+    "env": {
+        "NODE_ENV": "production"
+    }
 }

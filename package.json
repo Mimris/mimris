@@ -15,6 +15,9 @@
     "start1": "tsc --downlevelIteration & node ./database-test.js & next build & NODE_ENV=production server.js -p ${PORT}",
     "watch": "tsc --watch --noEmit --project ./tsconfig.json"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@babel/core": "^7.20.5",
     "@fortawesome/fontawesome-free": "^6.4.0",

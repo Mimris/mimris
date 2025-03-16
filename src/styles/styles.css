@@ -862,24 +862,6 @@ li span {
   max-height: 90%;
 }
 
-imgInProp {
-  width: "20%;"  // Import the necessary FontAwesome components
-  import { library } from '@fortawesome/fontawesome-svg-core';
-  import { faCoffee } from '@fortawesome/free-solid-svg-icons';
-  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-  
-  // Add the icons to the library
-  library.add(faCoffee);
-  
-  // Use the FontAwesomeIcon component in your code
-  const MyComponent = () => (
-    <div>
-      <FontAwesomeIcon icon="coffee" />
-    </div>
-  );
-  
-  export default MyComponent;
-
 .thumbnail {
   max-width: 10%;
 }

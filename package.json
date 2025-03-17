@@ -16,7 +16,7 @@
     "watch": "tsc --watch --noEmit --project ./tsconfig.json"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   },
   "dependencies": {
     "@babel/core": "^7.20.5",

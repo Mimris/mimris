@@ -13,21 +13,3 @@
         "NODE_ENV": "production"
     }
 }
-// {
-//     "version": 2,
-//     "builds": [
-//         {
-//             "src": "next.config.js",
-//             "use": "@vercel/next"
-//         }
-//     ],
-//     "routes": [
-//         {
-//             "src": "/(.*)",
-//             "dest": "/"
-//         }
-//     ],
-//     "env": {
-//         "NODE_ENV": "production"
-//     }
-// }

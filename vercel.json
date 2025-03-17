@@ -3,7 +3,7 @@
     "builds": [
         {
             "src": "package.json",
-            "use": "@vercel/node",
+            "use": "@vercel/next",
             "config": {
                 "installCommand": "npm install --force && npm rebuild"
             }

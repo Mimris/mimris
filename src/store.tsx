@@ -17,7 +17,7 @@ export const makeStore = (context: Context) => {
     // 2: Add an extra parameter for applying middleware:
     const bindMiddleware = (middleware: any) => {
         if (process.env.NODE_ENV !== 'production') {
-            const { composeWithDevTools } = require('redux-devtools-extension')
+            const { composeWithDevTools } = require('@redux-devtools/extension')
             return composeWithDevTools(applyMiddleware(...middleware))
         }
         return applyMiddleware(...middleware)

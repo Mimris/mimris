@@ -1,3 +1,15 @@
 {
-    "installCommand": "npm install --legacy-peer-deps"
+    "version": 2,
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/next",
+            "config": {
+                "installCommand": "npm install --force && npm rebuild"
+            }
+        }
+    ],
+    "env": {
+        "NODE_ENV": "production"
+    }
 }

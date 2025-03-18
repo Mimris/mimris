@@ -1,6 +1,7 @@
 
 // Bootstrap CSS
 import "bootstrap/dist/css/bootstrap.min.css";
+import '@fortawesome/fontawesome-free/css/all.css';
 // // Bootstrap Bundle JS
 // import "bootstrap/dist/js/bootstrap.bundle.min";
 import { useEffect } from "react";

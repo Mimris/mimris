@@ -335,7 +335,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (true) {
         for (let i = 0; i < objviews?.length; i++) {
           let resetToTypeview = true;
+          let isGroup = false;
           const objview = objviews[i];
+          if (objview.isGroup) {
+            isGroup = true;
+          }
           const obj = objview.object;
           if (!obj) continue;
           let type = obj.type;
@@ -357,7 +361,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             const gjsNode = myDiagram.findNodeForKey(goNode?.key)
             if (gjsNode && goNode.scale) gjsNode.scale = Number(goNode.scale);
+            if (isGroup) gjsNode.expandTree();
           }
+          // Set focus object view
           if (objview.id === focusObjectView?.id) {
             const node = myGoModel.findNodeByViewId(objview.id);
             if (node) {
@@ -1397,6 +1403,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         let data = sel.data;
+        // sel.location = data.loc;
         if (debug) console.log('1313 selected', data, sel);
         let objectview = myModelview.findObjectView(data?.key);
         if (!objectview) objectview = myModelview.findObjectView(data?.fromNode?.key);

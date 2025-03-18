@@ -15,14 +15,15 @@ import { get } from 'http';
 const debug = false;
 
 const Project = (props) => {
-  if (debug) console.log('25 Tasks props', props.props.phData, props);
+  if (debug) console.log('25 Tasks props', modeldata.phData, props);
 
   const dispatch = useDispatch();
   const projectModalRef = useRef(null);
   const router = useRouter();
-  const state = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
-  const models = state.phData.metis.models;
-  const curmodel = models.find((model: any) => model.id === props.props.phFocus.focusModelview.id);
+  // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
+  const modeldata = props.props;
+  const models = modeldata.phData.metis.models;
+  const curmodel = models.find((model: any) => model.id === modeldata.phFocus.focusModelview.id);
   const modelviews = curmodel?.modelviews;
 
   const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -36,14 +37,14 @@ const Project = (props) => {
   const [refresh, setRefresh] = useState(false);
   // const [toggleRefresh, setToggleRefresh] = useState(false);
 
-  const [org, setOrg] = useState(props.props.phFocus.focusProj?.org);
-  const [repo, setRepo] = useState(props.props.phFocus.focusProj?.repo);
-  const [path, setPath] = useState(props.props.phFocus.focusProj?.path);
-  const [file, setFile] = useState(props.props.phFocus.focusProj?.file);
-  const [branch, setBranch] = useState(props.props.phFocus.focusProj?.branch);
-  const [focus, setFocus] = useState(props.props.phFocus.focusProj?.focus);
-  const [ghtype, setGhtype] = useState(props.props.phFocus.focusProj?.ghtype);
-  const [projectNumber, setProjectNumber] = useState(props.props.phFocus.focusProj?.projectNumber); // this is the project number in the list of github project
+  const [org, setOrg] = useState(modeldata.phFocus.focusProj?.org);
+  const [repo, setRepo] = useState(modeldata.phFocus.focusProj?.repo);
+  const [path, setPath] = useState(modeldata.phFocus.focusProj?.path);
+  const [file, setFile] = useState(modeldata.phFocus.focusProj?.file);
+  const [branch, setBranch] = useState(modeldata.phFocus.focusProj?.branch);
+  const [focus, setFocus] = useState(modeldata.phFocus.focusProj?.focus);
+  const [ghtype, setGhtype] = useState(modeldata.phFocus.focusProj?.ghtype);
+  const [projectNumber, setProjectNumber] = useState(modeldata.phFocus.focusProj?.projectNumber); // this is the project number in the list of github project
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber);
 
   const [mounted, setMounted] = useState(false);
@@ -55,6 +56,7 @@ const Project = (props) => {
     props.onSubmit(details);
     handleCloseProjectModal();
   };
+
 
   const handleCloseProjectModal = () => setShowProjectModal(false);
 
@@ -76,6 +78,8 @@ const Project = (props) => {
       <ModellingHeaderButtons props={props} />
     </>;
 
+  if (debug) console.log('79 Project ', modeldata, props);
+
   return mounted && (
     <div className="project bg-light h-100">
       <Tabs defaultActiveKey="domain" id="custom-tabs" className="custom-tabs nav-link mb-0 pb-0">
@@ -84,11 +88,11 @@ const Project = (props) => {
           <Card className="metis px-1 mx-1 me-0 mt-0">
             {/* <CardHeader className="card-header">AKM Domain :</CardHeader> */}
             <div className="card-body">
-              <CardTitle className="card-title-bold nobreak">Domain : {state.phData.domain?.name}</CardTitle>
-              <CardSubtitle className="card-subtitle-bold text-secondary">{state.phData.domain?.description}</CardSubtitle>
-              <CardText className="card-text">
-                <div className="border fs-6 p-1">Summary: {state.phData.domain?.presentation}</div>
-              </CardText>
+              <CardTitle className="card-title-bold nobreak">Domain : {modeldata.phData.domain?.name}</CardTitle>
+              <CardSubtitle className="card-subtitle-bold text-secondary">{modeldata.phData.domain?.description}</CardSubtitle>
+              <CardText className="card-text"> </CardText>
+                <div className="border fs-6 p-1">Summary: {modeldata.phData.domain?.presentation}</div>
+             
             </div>
           </Card>
           {/* </div> */}
@@ -98,32 +102,32 @@ const Project = (props) => {
             <Card className="metis p-1 m-1 me-0">
               <CardHeader className="card-header">Model Suite Details</CardHeader>
               <CardBody className="card-body bg-light">
-                <CardTitle className="card-title-bold nobreak">Model Suite : {props.props.phData.metis.name}</CardTitle>
-                <CardSubtitle className="card-subtitle-bold"> {props.props.phData.metis.description}</CardSubtitle>
-                <CardText className="card-text">
+                <CardTitle className="card-title-bold nobreak">Model Suite : {modeldata.phData.metis.name}</CardTitle>
+                <CardSubtitle className="card-subtitle-bold"> {modeldata.phData.metis.description}</CardSubtitle>
+               <CardText className="card-text"></CardText>
                   <span>GitHub:</span>
                   <div className="d-flex justify-content-between align-items-baseline border">
-                    <div className="border fs-6 p-1">Proj.no.: {props.props.phFocus.focusProj.projectNumber} </div>
-                    <div className="border fs-6 p-1 w-75">Repository: {props.props.phFocus.focusProj.repo} </div>
-                    <div className="border fs-6 p-1 ">Path: {(props.props.phFocus.focusProj.path) ? props.props.phFocus.focusProj.path : 'models'}</div>
-                    <div className="border fs-6 p-1">Branch: {props.props.phFocus.focusProj.branch}</div>
+                    <div className="border fs-6 p-1">Proj.no.: {modeldata.phFocus.focusProj.projectNumber} </div>
+                    <div className="border fs-6 p-1 w-75">Repository: {modeldata.phFocus.focusProj.repo} </div>
+                    <div className="border fs-6 p-1 ">Path: {(modeldata.phFocus.focusProj.path) ? modeldata.phFocus.focusProj.path : 'models'}</div>
+                    <div className="border fs-6 p-1">Branch: {modeldata.phFocus.focusProj.branch}</div>
                   </div>
                   <span>File:</span>
-                  <div className="border fs-6">{props.props.phFocus.focusProj.file}</div>
+                  <div className="border fs-6">{modeldata.phFocus.focusProj.file}</div>
                   <span>Current User:</span>
-                  <div className="border fs-6 p-1">Name: {props.props.phUser.focusUser?.name} </div>
-                  <div className="border fs-6 p-1">E-mail: {props.props.phUser.focusUser?.email} </div>
-                  <div className="border fs-6 p-1">Role: {props.props.phFocus.focusRole?.name} </div>
-                  <div className="border fs-6 p-1">Task: {props.props.phFocus.focusTask?.name} </div>
+                  <div className="border fs-6 p-1">Name: {modeldata.phUser.focusUser?.name} </div>
+                  <div className="border fs-6 p-1">E-mail: {modeldata.phUser.focusUser?.email} </div>
+                  <div className="border fs-6 p-1">Role: {modeldata.phFocus.focusRole?.name} </div>
+                  <div className="border fs-6 p-1">Task: {modeldata.phFocus.focusTask?.name} </div>
                   <div className="justify-content-between align-items-baseline borde mt-2">In Focus:
-                    <div className="border fs-6 p-1">Model: {props.props.phFocus.focusModel?.name} </div>
-                    <div className="border fs-6 p-1">Modelview: {props.props.phFocus.focusModelview?.name} </div>
-                    <div className="border fs-6 p-1">Object: {props.props.phFocus.focusObject?.name} </div>
-                    <div className="border fs-6 p-1">Objecttype: {props.props.phFocus.focusObjecttype?.name} </div>
-                    <div className="border fs-6 p-1">Target metamodel: {props.props.phFocus.focusTargetMetamodel?.name} </div>
-                    <div className="border fs-6 p-1">Source: {props.props.phFocus.focusSource.name} </div>
+                    <div className="border fs-6 p-1">Model: {modeldata.phFocus.focusModel?.name} </div>
+                    <div className="border fs-6 p-1">Modelview: {modeldata.phFocus.focusModelview?.name} </div>
+                    <div className="border fs-6 p-1">Object: {modeldata.phFocus.focusObject?.name} </div>
+                    <div className="border fs-6 p-1">Objecttype: {modeldata.phFocus.focusObjecttype?.name} </div>
+                    <div className="border fs-6 p-1">Target metamodel: {modeldata.phFocus.focusTargetMetamodel?.name} </div>
+                    <div className="border fs-6 p-1">Source: {modeldata.phFocus.focusSource.name} </div>
                   </div>
-                </CardText>
+
               </CardBody>
             </Card>
           </div>
@@ -132,9 +136,9 @@ const Project = (props) => {
           <div className="metis-modelsuite">
             <Card className="project p-1 m-1 me-0">
               <CardBody className="card-body">
-                <CardTitle className="card-title-bold nobreak">Model Suite: {state.phData.metis.name}</CardTitle>
-                <CardSubtitle className="card-subtitle-bold text-secondary">{state.phData.metis.description}</CardSubtitle>
-                <CardText className="card-text fs-6 border-top">
+                <CardTitle className="card-title-bold nobreak">Model Suite: {modeldata.phData.metis.name}</CardTitle>
+                <CardSubtitle className="card-subtitle-bold text-secondary">{modeldata.phData.metis.description}</CardSubtitle>
+                <CardText className="card-text fs-6 border-top"></CardText>
                   <div className="border-top"> Models:</div>
                   {models.map((model: any, index: any) => {
                     return (
@@ -157,7 +161,7 @@ const Project = (props) => {
                       </Card>
                     );
                   })}
-                </CardText>
+
               </CardBody>
             </Card>
           </div>

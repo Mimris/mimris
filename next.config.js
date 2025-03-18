@@ -1,43 +1,13 @@
-const removeImports = require('next-remove-imports')();
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Ensure that custom webpack configurations are preserved.
-    config.node = {
-      global: true,
-      __filename: true,
-      __dirname: true,
-    };
-    return config;
-  },
-};
+  reactStrictMode: true,
+  swcMinify: true,
+  experimental: {
+    // Disable ISR for development
+    isrMemoryCacheSize: 0,
+    // Set one approach clearly
+    appDir: false, // Using Pages Router
+  }
+}
 
-module.exports = removeImports(nextConfig);
-
-
-// module.exports = {
-//     // webpack: (config) => {
-
-//     //   return config
-//     // }
-//     reactStrictMode: false,
-//     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-//       config.node = {
-//         // fs: 'empty'
-//         global: true,
-//         __filename: true,
-//         __dirname: true,
-//       }
-    
-//     return config
-//   }
-//   // webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-//   //   config.node = {
-//   //     fs: 'empty'
-//   //   }
-//   //   return config
-//   // }
-// }
-// const removeImports = require('next-remove-imports')();
-// module.exports = removeImports({});
+module.exports = nextConfig

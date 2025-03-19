@@ -15,16 +15,21 @@ import { get } from 'http';
 const debug = false;
 
 const Project = (props) => {
-  if (debug) console.log('25 Tasks props', modeldata.phData, props);
+
 
   const dispatch = useDispatch();
   const projectModalRef = useRef(null);
   const router = useRouter();
   // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
   const modeldata = props.props;
-  const models = modeldata.phData.metis.models;
-  const curmodel = models.find((model: any) => model.id === modeldata.phFocus.focusModelview.id);
+
+  if (debug) console.log('25 Tasks props', modeldata?.phData, props);
+
+  const models = modeldata?.phData?.metis?.models || [];
+  const curmodel = models.find((model: any) => model?.id === modeldata?.phFocus?.focusModelview?.id);
   const modelviews = curmodel?.modelviews;
+
+
 
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [issues, setIssues] = useState([]);

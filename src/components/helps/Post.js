@@ -4,6 +4,9 @@ import Layout from '../Layout'
 
 export default function Post({ post }) {
   // console.log('5 Post', post)
+  if (!post) {
+    return <div>Post not found</div>;
+  }
   return (
     <>
       <div className="py-0 mx-auto">{(post.frontmatter.title.startsWith('OSDU ')) ? 'OSDU Usecase' : 'AKMM'} </div>

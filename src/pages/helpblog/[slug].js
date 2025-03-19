@@ -181,21 +181,27 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps({ params: { slug } }) {
-  const markdownWithMeta = fs.readFileSync(
-    path.join('src/posts', slug + '.md'),
-    'utf-8'
-  )
-  // console.log('49' ,markdownWithMeta)
-  const { data: frontmatter, content } = matter(markdownWithMeta)
+export async function getStaticProps({ params }) {
+  try {
+    const post = await getPostBySlug(params.slug);
 
-  const result = {
-    props: {
-      frontmatter,
-      slug,
-      content,
-    },
+    // Check if post exists before returning it
+    if (!post) {
+      console.error(`Post not found for slug: ${params.slug}`);
+      return {
+        notFound: true, // This will show your 404 page
+      };
+    }
+
+    return {
+      props: {
+        post,
+      },
+    };
+  } catch (error) {
+    console.error(`Error loading post ${params.slug}:`, error);
+    return {
+      notFound: true,
+    };
   }
-  // console.log('60', result)
-  return result
 }

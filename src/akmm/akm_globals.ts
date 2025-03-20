@@ -3,13 +3,8 @@
 
 'use strict';
 
-// import {cxMetis} from './metamodeller';
-// import go  from './ui_gojs';
 import * as akm from './metamodeller';
-// import * as go from 'gojs';
-// import * as go from './ui_gojs';
-// import * as gojs from './ui_gojs';
-
+import * as gjs from './ui_gojs';
 
 // Define globals
 
@@ -22,16 +17,16 @@ const akm_globals = {
     myModelView     : akm.cxModelView,
     myDiagram       : "",
     myDiagram2      : "",
-    myGoModel       : go.goModel,
-    myGoMetaModel   : go.goModel,
-    myNode          : go.goNode,
+    myGoModel       : gjs.goModel,
+    myGoMetaModel   : gjs.goModel,
+    myNode          : gjs.goNode,
     myGql           : "",
     initiated       : false,
     initiated2      : false,
     firsttime       : false,
     logged_in       : false,
-    myPalette       : go.paletteNode,
-    myMetaPalette   : go.paletteNode,
+    myPalette       : gjs.paletteNode,
+    myMetaPalette   : gjs.paletteNode,
     myPaletteModel  : "",
     pasteViewsOnly  : false,
     deleteViewsOnly : false

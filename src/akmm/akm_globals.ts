@@ -6,7 +6,9 @@
 // import {cxMetis} from './metamodeller';
 // import go  from './ui_gojs';
 import * as akm from './metamodeller';
-import * as go from './ui_gojs';
+// import * as go from 'gojs';
+// import * as go from './ui_gojs';
+// import * as gojs from './ui_gojs';
 
 
 // Define globals

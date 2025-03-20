@@ -1,12 +1,4 @@
 // @ts-nocheck
-const debug = false;
-
-const clogGreen = console.log.bind(console, '%c %s', // green colored cosole log
-  'background: green; color: white');
-const clogBlue = console.log.bind(console, '%c %s', // green colored cosole log
-  'background: blue; color: white');
-const ctrace = console.trace.bind(console, '%c %s',
-  'background: green; color: white');
 
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
@@ -17,8 +9,16 @@ import * as akm from '../akmm/metamodeller';
 // import * as jsn from '../akmm/ui_json';
 import * as uib from '../akmm/ui_buildmodels';
 // import * as uic from '../akmm/ui_common';
+import * as constants from './constants';
 
-const constants = require('../akmm/constants');
+const debug = false;
+
+const clogGreen = console.log.bind(console, '%c %s', // green colored cosole log
+  'background: green; color: white');
+const clogBlue = console.log.bind(console, '%c %s', // green colored cosole log
+  'background: blue; color: white');
+const ctrace = console.trace.bind(console, '%c %s',
+  'background: green; color: white');
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 

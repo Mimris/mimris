@@ -2,10 +2,10 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
+import * as go from 'gojs';
+
 const debug = false;
 const linkToLink = false;
-
-import * as go from 'gojs';
 
 const $ = go.GraphObject.make; 
 if (debug) console.log('ui_menus.ts');

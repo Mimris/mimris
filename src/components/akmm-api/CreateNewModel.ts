@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux';
-import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { v4 as uuidv4 } from 'uuid';
+
+import { SaveAllToFile } from '../utils/SaveModelToFile';
 import GenGojsModel from '../GenGojsModel';
 
 const debug = false;

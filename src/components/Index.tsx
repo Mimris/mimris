@@ -9,9 +9,10 @@ import {
   CardGroup, Card, CardImg, CardText, CardBody, CardHeader,
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
+import { toNamespacedPath } from "path";
+
 import Page from './page';
 import Blog from './Blog'
-import { toNamespacedPath } from "path";
 import GettingStarted from "./content/GettingStarted";
 import Project from "../components/Project";
 

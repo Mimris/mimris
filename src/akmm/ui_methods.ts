@@ -4,7 +4,9 @@
 */
 const debug = false;
 
+import RegexParser from 'regex-parser';
 // import * as go from 'gojs';
+
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
 import * as uic from '../akmm/ui_common';
@@ -16,7 +18,6 @@ import * as utils from '../akmm/utilities';
 import * as constants from '../akmm/constants';
 // import exp from 'constants';
 // const RegexParser = require("regex-parser");
-import RegexParser from 'regex-parser';
 
 export function askForMethod(context: any) {
     if (debug) console.log('433 context', context);

@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import { createHook } from "async_hooks";
 import classnames from 'classnames';
+
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from '../utils/Selector'
 import GenGojsModel from './GenGojsModel'
-import { createHook } from "async_hooks";
 
 
 const TargetModeller = (props: any) => {

@@ -1,14 +1,13 @@
 // @ts-nocheck
-
-const debug = false;
-
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
+
 import Page from './page';
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteTargetApp from "./gojs/GoJSPaletteTargetApp";
-
 import * as uib from '../akmm/ui_buildmodels';
+
+const debug = false;
 
 const TargetMeta = (props) => {
   const dispatch = useDispatch();

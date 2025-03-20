@@ -2,13 +2,13 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-const debug = false;
-const linkToLink = false;
 
 import * as go from 'gojs';
 import * as React from 'react';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { read } from 'fs';
+
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 import * as akm from '../../akmm/metamodeller';
@@ -17,12 +17,11 @@ import * as jsn from '../../akmm/ui_json';
 import * as uic from '../../akmm/ui_common';
 import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
-import { read } from 'fs';
-
-// const constants = require('../../akmm/constants');
-// const utils = require('../../akmm/utilities');
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
+
+const debug = false;
+const linkToLink = false;
 
 const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype',
   'Value', 'FieldType', 'InputPattern', 'ViewFormat',

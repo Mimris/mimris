@@ -10,15 +10,12 @@ Classes:
 Functions:      None
 */
 import * as ui_mtd from './ui_methods';
-// const utils = require('./utilities');
-// const constants = require('./constants');
 import * as utils from './utilities';
 import * as constants from './constants';
 
 import * as gjs from './ui_gojs';
 import { i } from '../components/utils/SvgLetters';
-// import { type } from 'os';
-
+// import { type } from 'os'
 // cxMetis
 
 export class cxMetis {

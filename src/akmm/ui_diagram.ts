@@ -1,5 +1,11 @@
 // @ts-nocheck
 const debug = false; 
+import { clear } from 'console';
+import { is } from 'immer/dist/internal';
+import { use } from 'react';
+import { get } from 'http';
+import printf from 'printf';
+
 import * as go from 'gojs';
 import * as utils from './utilities';
 import * as uic from './ui_common';
@@ -9,14 +15,7 @@ import * as uib from './ui_buildmodels';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';
 import * as gjs from './ui_gojs';
-import { clear } from 'console';
-import { is } from 'immer/dist/internal';
-import { use } from 'react';
-import { get } from 'http';
-// const constants = require('./constants');
-// const printf = require('printf');
 import * as constants from './constants';
-import printf from 'printf';
 
 const $ = go.GraphObject.make;
 

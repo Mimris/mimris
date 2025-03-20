@@ -2,7 +2,6 @@
 // Utility functions
 const debug = false;
 
-// const constants = require('./constants');
 import * as constants from './constants';   
 
 let showAdminModel = false;

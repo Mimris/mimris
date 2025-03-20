@@ -15,7 +15,7 @@ const MyApp = ({ Component, pageProps }) => {
 
   return (
     <Provider store={store}>
-      <Component {...props.pageProps} />
+      <Component {...props} />
     </Provider>
   );
 }

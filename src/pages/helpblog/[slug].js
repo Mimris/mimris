@@ -18,13 +18,13 @@ export default function PostPage({
 
   return (
     <>
-        {/* <Layout ></Layout> */}
-    {/* <Layout> */}
+      {/* <Layout ></Layout> */}
+      {/* <Layout> */}
       <div className="container">
-          <Link href='/helpblog/'>Go Back</Link>
+        <Link href='/helpblog/'>Go Back</Link>
         <div className='card card-page' >
           <h1 className='post-title'>{title}</h1>
-          <img src={cover_image} alt='' max-width="200px"/>
+          <img src={cover_image} alt='' max-width="200px" />
           <div className='post-body'>
             <div dangerouslySetInnerHTML={{ __html: marked(content) }}></div>
           </div>
@@ -181,27 +181,21 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps({ params }) {
-  try {
-    const post = await getPostBySlug(params.slug);
+export async function getStaticProps({ params: { slug } }) {
+  const markdownWithMeta = fs.readFileSync(
+    path.join('src/posts', slug + '.md'),
+    'utf-8'
+  )
+  // console.log('49' ,markdownWithMeta)
+  const { data: frontmatter, content } = matter(markdownWithMeta)
 
-    // Check if post exists before returning it
-    if (!post) {
-      console.error(`Post not found for slug: ${params.slug}`);
-      return {
-        notFound: true, // This will show your 404 page
-      };
-    }
-
-    return {
-      props: {
-        post,
-      },
-    };
-  } catch (error) {
-    console.error(`Error loading post ${params.slug}:`, error);
-    return {
-      notFound: true,
-    };
+  const result = {
+    props: {
+      frontmatter,
+      slug,
+      content,
+    },
   }
+  // console.log('60', result)
+  return result
 }

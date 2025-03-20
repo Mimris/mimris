@@ -151,7 +151,8 @@ const TargetModeller = (props: any) => {
 
   return (
     <>
-       <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Target Modeller
+       <div className="modeller-heading"
+        style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Target Modeller
        <span className="float-right">{focusTargetModel?.name}</span>
         {/* {selector} */}
         {modelviewTabDiv} 

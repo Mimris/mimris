@@ -67,7 +67,7 @@ export const SaveMetamodelToFile = (metamodel, name, type) => {
 export const SaveAllToFile = (data, name, type) => {
     if (!name) { name = 'New-Project' }
     const fileName = (name?.includes('_PR')) ? name : name+type 
-    if (!debug) console.log('69 SaveModelToFile', fileName, data);
+    if ((debug)) console.log('69 SaveModelToFile', fileName, data);
     // const json = JSON.stringify(data);
     const json = JSON.safeStringify(data);
     if (debug) console.log('72 SaveModelToFile', json);
@@ -76,7 +76,7 @@ export const SaveAllToFile = (data, name, type) => {
     // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
-    link.download = fileName + ".json";
+    link.download = (fileName.includes('.json')) ? fileName : fileName + ".json";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

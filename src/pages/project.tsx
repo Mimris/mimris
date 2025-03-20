@@ -1,3 +1,4 @@
+// @ts-nocheck
 // make a page for project
 import { connect, useDispatch } from 'react-redux';
 import React, { useState, useEffect } from "react";
@@ -88,20 +89,20 @@ const page = (props: any) => {
 
         if ((window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") { // if page is refreshed
           console.log('Page is refreshed');
-        
+
           // let data = {}
           if (debug) console.log('68 project', props.phFocus.focusProj.file)
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (memoryLocState && memoryLocState.phData) {
               // if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-                // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-                  const locStore = memoryLocState
-                  if (locStore) {
-                    dispatchLocalStore(locStore)
-                    // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-                    // console.log('modelling 73 ', data)
-                  }
-                // }
+              // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
+              const locStore = memoryLocState
+              if (locStore) {
+                dispatchLocalStore(locStore)
+                // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
+                // console.log('modelling 73 ', data)
+              }
+              // }
               // }
             }
           } else {
@@ -131,7 +132,7 @@ const page = (props: any) => {
 
   useEffect(() => { // when the page loads, set the focus
     if (debug) console.log('61 project', query, query?.repo)
-    const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus, projectNumber: query.projectNumber, ghtype: query.ghtype  }
+    const data = { id: query.org + query.repo + query.path + query.file + query.branch, name: query.repo, org: query.org, repo: query.repo, path: query.path, file: query.file, branch: query.branch, focus: query.focus, projectNumber: query.projectNumber, ghtype: query.ghtype }
     if (debug) console.log('65 project', data);
     (query.repo) && dispatch({ type: 'SET_FOCUS_PROJ', data });
 
@@ -144,10 +145,10 @@ const page = (props: any) => {
     return () => clearTimeout(timer);
   }, [query.repo !== undefined]);
 
-  useEffect(() => {
-    if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
-    GenGojsModel(props, dispatch);
-  }, [props.phFocus?.focusRefresh?.id])
+  // useEffect(() => {
+  //   if (debug) useEfflog('126 project GenGojsModel run,  useEffect 6 [props.phFocus?.focusRefresh?.id]');
+  //   // GenGojsModel(props, dispatch, goParams);
+  // }, [props.phFocus?.focusRefresh?.id])
 
 
   // useEffect(() => {
@@ -227,7 +228,7 @@ const page = (props: any) => {
                     <h6 className='text-muted pt-2'>Links to Github :</h6>
                     <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
                       <div className='text-muted'>Repository :</div>
-                      {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
+                      {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}`} target="_blank"> {org}/{repo}</Link>}
                     </div>
                     <div className='bg-light px-2 m-1 w-100'> {/*link to repo */}
                       <div className='text-muted'>GitHub Docs :</div>
@@ -235,42 +236,42 @@ const page = (props: any) => {
                     </div>
                     <div className='bg-light px-2 m-1 w-100'> {/*link to Issues */}
                       <div className='text-muted'>Issues for this repo:</div>
-                      {(repo) && <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+                      {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
                     </div>
                     <div className='bg-light px-2 m-1 w-100'> {/*link to canban */}
                       <div className='text-muted'>Project Canban for this repo:</div>
-                      {(org) && <Link className='text-primary ' href={`https:/github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
+                      {(org) && <Link className='text-primary ' href={`http://github.com/orgs/${org}/projects/${projectNumber}`} target="_blank"> {org}/{repo}/project/{projectNumber}</Link>}
                     </div>
                     <h6 className='text-muted pt-2'>Other GitHub links :</h6>
                     {/* <div className='bg-light px-2 m-1 w-100'> 
                       <div className='text-muted'>GitHub :</div>
-                      {(org) && <Link className='text-primary ' href={`https:/github.com/${org}`} target="_blank"> {org}</Link>}
+                      {(org) && <Link className='text-primary ' href={`http://github.com/${org}`} target="_blank"> {org}</Link>}
                     </div> */}
 
                     {/* <div className='bg-light px-2 m-1 w-100'> 
                       <div className='text-muted'>Path :</div>
                       {(repo)
                         ? (path)
-                          ? <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
-                          : <Link className='text-primary ' href={`https:/github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
+                          ? <Link className='text-primary ' href={`http://github.com/${org}/${repo}/tree/${branch}/${path}/`} target="_blank"> {org}/{repo}/tree/{branch}/{path}/</Link>
+                          : <Link className='text-primary ' href={`http://github.com/${org}/${repo}/tree/${branch}/`} target="_blank"> {org}/{repo}/{branch}/</Link>
                         : <></>
                       }
                     </div> */}
-                  {/* Listing GitHub Issues */}
-                  <div >
-                    <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
-                    {(issues.length > 0) && issues.map((issue) => (
-                      <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
-                        <div className='d-flex justify-content-between'>
-                          <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
-                          <div className='text-muted'>{issue.user.name}</div>
+                    {/* Listing GitHub Issues */}
+                    <div >
+                      <h2 className='text-muted fs-6 p-2'>GitHub Issues :</h2>
+                      {(issues.length > 0) && issues.map((issue) => (
+                        <div className='bg-light fs-6  m-2 p-2' key={issue.id}>
+                          <div className='d-flex justify-content-between'>
+                            <Link className='text-primary' href={issue.html_url} target="_blank"># {issue.number} - {issue.state} - {issue.created_at.slice(0, 10)}</Link>
+                            <div className='text-muted'>{issue.user.name}</div>
+                          </div>
+                          <h6>{issue.title}</h6>
+                          {/* <p className='text-secondary m-2'>{issue.body}</p> */}
+                          <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
                         </div>
-                        <h6>{issue.title}</h6>
-                        {/* <p className='text-secondary m-2'>{issue.body}</p> */}
-                        <div className='text-muted'>Created by: {issue.user.login} - Assignee: {issue.assignees[0]?.login} </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
                   </div>
                   {/* List the modelling params and link to modelling page */}
                   <div className=" main m-1 fs-6 " style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }}>

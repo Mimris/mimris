@@ -1,6 +1,6 @@
-// import React from 'react';
+// @ts-nocheck/
 
-const Toggle = ({ darkMode, setDarkMode }) => (
+const Toggle = ({ darkMode, setDarkMode }: { darkMode: boolean, setDarkMode: (mode: boolean) => void }) => (
   <div className="dark-mode-toggle">
     <button type="button" onClick={() => setDarkMode(false)}>
       ☀

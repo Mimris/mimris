@@ -6,33 +6,34 @@ const debug = false
 // const ConnectImportedTopEntityTypes = (props, dispatch) => {
 
 
-export const setColorsTopEntityTypes = (osduType: string) => {
+export const setColorsTopOSDUTypes = (osduType: string) => {
     switch (osduType) {
-        case 'MasterData':
+        case 'master-data':
             return '#FEA07A';
-        case 'WorkProduct':
+        case 'work-product':
             return '#FEFECE';
-        case 'WorkProductComponent':
+        case 'work-product-component':
             return '#FFD701';
-        case 'Abstract':
-            return '#B0C4DE';
-        case 'Content':
+        case 'abstract':
+            return '#87CEFA';
+            // return '#B0C4DE';
+        case 'content':
             return '#F9C846';
-        case 'ReferenceData':
+        case 'reference-data':
             return '#40E0D0';
-        case 'Type':
+        case 'type':
             return '#87CEFE';
-        case 'Dataset':
+        case 'dataset':
             return '#F9C846';
-        case 'Manifest':
+        case 'manifest':
             return '#F9C846';
-        case 'Collection':
+        case 'Array':
             return '#BEFFC2';
         case 'Item':
             return '#BEFFC5';
         case 'Property':
             return '#90EE90';
-        case 'PropLink':
+        case 'Proxy':
             return '#BDFFC4';
         case 'object':
             return '#EEEEEE'; 

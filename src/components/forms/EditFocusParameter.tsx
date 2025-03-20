@@ -1,15 +1,15 @@
-import React, { use, useState, useEffect } from 'react';
+import React, { use, useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 
 
 
-function FormField(props) {
+function FormField(props: any) {
   const { label, id, value, options, handleEdit, handleSave } = props; // label is the field name, id is the "focusField" name, value is the focus id and name, options is the list of options(objects) for the field
   // console.log('8 FormField: ', label, id, value, options, props);
 
-  const curfocus = options?.find((option) => option?.id === value?.id) || {value};
+  const curfocus = options?.find((option: any) => option?.id === value?.id) || {value};
 
   console.log('10 FormField: ', label, curfocus, value, options);
 
@@ -21,7 +21,7 @@ function FormField(props) {
         <select className="form-control select-with-arrow" id={id} value={value} onChange={(event) => handleEdit(id, event.target.value)}> 
           <option value="">{curfocus?.name}</option>
           {/* <option value="">Select {label}</option> */}
-          {options?.map((option) => (
+          {options?.map((option: any) => (
             <option key={option?.id} value={option?.id}>{option?.name}</option>
           ))}
         </select>)
@@ -41,7 +41,7 @@ function FormField(props) {
   );
 }
 
-function FocusParametersForm(props) {
+function FocusParametersForm(props: any) {
 
   const [focusModel, setFocusModel] = useState(props.phFocus?.focusModel);
   const [focusModelview, setFocusModelview] = useState(props.phFocus?.focusModelview);
@@ -58,24 +58,29 @@ function FocusParametersForm(props) {
   const dispatch = useDispatch();
   console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
   const models = props.models;
-  let curmod = models.find((model) => model.id === focusModel.id);
-  const modelOptions = models.map((model) => ({ id: model.id, name: model.name }));
+  let curmod = models.find((model: any) => model.id === focusModel.id);
+  const modelOptions = models.map((model: any) => ({ id: model.id, name: model.name }));
   const modelviews = curmod?.modelviews;
-  const curmodelview = modelviews?.find((modelview) => modelview.id === focusModelview.id);
-  let modelviewOptions = modelviews?.map((modelview) => ({ id: modelview.id, name: modelview.name }));
+  const curmodelview = modelviews?.find((modelview: any) => modelview.id === focusModelview.id);
+  let modelviewOptions = modelviews?.map((modelview: any) => ({ id: modelview.id, name: modelview.name }));
   const objects = curmod?.objects;
-  const objectOptions = objects?.map((object) => ({ id: object.id, name: object.name }));
+  const objectOptions = objects?.map((object: any) => ({ id: object.id, name: object.name }));
   const objectviews = curmodelview?.objectviews;
-  const objectviewOptions = objectviews?.map((objectview) => ({ id: objectview.id, name: objectview.name }));
+  const objectviewOptions = objectviews?.map((objectview: any) => ({ id: objectview.id, name: objectview.name }));
 
   console.log('30 FocusParametersForm: ', models, curmod, objectviews, objectviewOptions, props);
 
-  useEffect(() => {
-    curmod = models.find((model) => model.id === focusModel.id);
-    modelviewOptions = modelviews?.map((modelview) => ({ id: modelview.id, name: modelview.name }));
-  }, [focusModel.id]);
+  const curmodRef = useRef(null);
 
-  function handleEdit(fieldName, fieldValue) { //
+  // const modelviewOptions = useRef<any[]>([]);
+
+  useEffect(() => {
+    const curmod = models.find((model: any) => model.id === focusModel.id);
+    curmodRef.current = curmod;
+    modelviewOptions.current = modelviews?.map((modelview: any) => ({ id: modelview.id, name: modelview.name }));
+  }, [focusModel.id, models, modelviewOptions, modelviews]);
+
+  function handleEdit(fieldName: string, fieldValue: any) { //
     console.log('68 handleEdit: ', fieldName, fieldValue);
     switch (fieldName) {
       case 'focusModel':
@@ -111,7 +116,7 @@ function FocusParametersForm(props) {
     }
   }
 
-  function handleSave(fieldName, fieldId, options) {
+  function handleSave(fieldName: string, fieldId: any, options: any[]) {
     console.log('103 handleSave: ', fieldName, fieldId, options);
     const oName = options?.find((option) => option.id === fieldId)?.name;
     const actionType = `SET_FOCUS_${fieldName.slice(5,).toUpperCase()}`;
@@ -123,10 +128,10 @@ function FocusParametersForm(props) {
     setEditingField(null);
   }
 
-  function handleEditField(fieldName) {
-    setIsEditing(true);
-    setEditingField(fieldName);
-  }
+  // function handleEditField(fieldName: string) {
+  //   setIsEditing(true);
+  //   setEditingField(fieldName);
+  // }
 
   return (
     <form>

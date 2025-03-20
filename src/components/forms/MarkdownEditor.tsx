@@ -12,9 +12,10 @@ import FocusParametersForm from "./EditFocusParameter";
 
 const debug = false
 
-function MarkdownEditor({ props }) {
+// function MarkdownEditor( props: any ) {
+const MarkdownEditor = ({ ph, reportType, modelInFocusId, edit }: { ph: any, reportType: any, modelInFocusId: any, edit: any }) => {
   // const [markdownString, setMarkdownString] = useState('# My Markdown Document\n\nThis is a paragraph of text.');
-  console.log('18 MarkdownEditor.tsx', props);
+  console.log('18 MarkdownEditor.tsx', ph);
 
   const [mdHeaderString, setMdHeaderString] = useState('');
   const [mdString, setMdString] = useState(``);
@@ -27,33 +28,38 @@ function MarkdownEditor({ props }) {
   const [selectedId, setSelectedId] = useState('');
   const [objview, setObjview] = useState(null);
 
-  const metamodels = useSelector(state => props.phData?.metis?.metamodels)  // selecting the models array
-  const focusModel = useSelector(state => props.phFocus?.focusModel)
-  const focusUser = useSelector(state => props.phUser?.focusUser)
-  const focusModelview = useSelector(state => props.phFocus?.focusModelview)
-  const focusObjectview = useSelector(state => props.phFocus?.focusObjectview)
-  const focusObject = useSelector(state => props.phFocus?.focusObject)
+  const metamodels = useSelector(state => ph.phData?.metis?.metamodels)  // selecting the models array
+  const focusModel = useSelector(state => ph.phFocus?.focusModel)
+  const focusUser = useSelector(state => ph.phUser?.focusUser)
+  const focusModelview = useSelector(state => ph.phFocus?.focusModelview)
+  const focusObjectview = useSelector(state => ph.phFocus?.focusObjectview)
+  const focusObject = useSelector(state => ph.phFocus?.focusObject)
 
-  const models = useSelector(state => props.phData?.metis?.models)  // selecting the models array
+  if (debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, ph);
+
+  const models = useSelector(state => ph.phData?.metis?.models)  // selecting the models array
+
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
+  const curmodelview = modelviews?.find((mv: any) => mv?.id === curmodel.modelviews.find((mv: any) => mv.id === focusModelview.id)?.id)
+  const curmetamodel = metamodels?.find((mm: any) => (mm) && mm.id === (curmodel?.metamodelRef))
   const objects = curmodel?.objects //.map((o: any) => o)
-  const curobjectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmodel?.relships.filter(r => r && currelshipviews?.find(crv => crv.relshipRef === r.id))
-  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find(mv => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
-  const curmodelview = modelviews?.find(mv => mv.id === focusModelview?.id)
-  const curmetamodel = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
+  const curobjectviews = modelviews?.objectviews
+  const currelshipviews = modelviews?.relshipviews
+  const currelationships = curmodel?.relships.filter((r: any) => r && currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
+  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find((mv: any) => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
 
-  let curobject = objects?.find(o => o.id === focusObject?.id)
-  console.log('41 Context', focusObjectview?.name, curobject?.name, curobjectviews?.find(ov => ov.id === focusObjectview?.id));
+
+  let curobject = (focusObject?.id === 'no objects selected') ? curmodelview : objects?.find((o: any) => o.id === focusObject?.id) || curmodelview
+  const curobjectview = (focusObjectview?.id === 'no objectview selected') ? curmodelview : modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov:any) => ov.id === focusObjectview?.id)
+    // console.log('51 Context', curobject, curobjectview, focusObjectview?.id, focusObject?.id, focusModelview?.id, curobjectviews, objects, curobjectviews?.filter(ov: any => ov.group === curobjectview?.id));
 
   let objectviewChildren = []
   let objectChildren = []
   console.log('45 Context', curobjectviews, focusModelview?.id,);
-  const curobjectview = curobjectviews?.find(ov => ov.id === focusObjectview?.id) //|| modelviews.find(mv => mv.id === focusModelview?.id)
+
   if (debug) console.log('47 Context', curobjectviews, curobjectview?.id, focusModelview);
-  console.log('48 Context', curobjectviews?.filter(ov => ov.group === curobjectview?.id))
+  console.log('48 Context', curobjectviews?.filter((ov: any) => ov.group === curobjectview?.id))
 
   function findObjectviewsWithCurrentObjectview(objectviews: any[], currentObjectviewId: string): any[] {
     return objectviews?.filter((objectview) => objectview.group === currentObjectviewId) || [];
@@ -73,21 +79,21 @@ function MarkdownEditor({ props }) {
 
   const title = 'children'
 
-  let orgLength = props.props.phFocus.focusProj?.org?.length || 0;
-  let repoLength = props.props.phFocus.focusProj?.repo?.length || 0;
-  let pathLength = props.props.phFocus.focusProj?.path?.length || 0;
-  let fileLength = props.props.phFocus.focusProj?.file?.length || 0;
-  let branchLength = props.props.phFocus.focusProj?.branch?.length || 0;
+  let orgLength = ph.phFocus.focusProj?.org?.length || 0;
+  let repoLength = ph.phFocus.focusProj?.repo?.length || 0;
+  let pathLength = ph.phFocus.focusProj?.path?.length || 0;
+  let fileLength = ph.phFocus.focusProj?.file?.length || 0;
+  let branchLength = ph.phFocus.focusProj?.branch?.length || 0;
 
-  let userLength = props.props.phFocus.focusUser?.name.length || 0;
+  let userLength = ph.phFocus.focusUser?.name.length || 0;
   let dateLength = new Date().toLocaleDateString().length;
   let timeLength = new Date().toLocaleTimeString().length;
 
   const handleAddObjectHeader = () => {
-    setMdHeaderString(` ${props.props.phFocus.focusProj?.name} \n\n --- \n\n`);
+    setMdHeaderString(` ${ph.phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
-  const fileName = `${props.props.phFocus.focusProj?.name}_${props.props.phFocus.focusModel?.name}_${props.props.phFocus.focusModelview?.name}`.replace(/ /g, '-');
+  const fileName = `${ph.phFocus.focusProj?.name}_${ph.phFocus.focusModel?.name}_${ph.phFocus.focusModelview?.name}`.replace(/ /g, '-');
   const svgFileName = `${fileName}.svg`
   const pngFileName = `${fileName}.png`
   const mdFileName = `${fileName}.md`
@@ -97,19 +103,19 @@ function MarkdownEditor({ props }) {
 
 
   let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
-  Project file: ${props.props.phFocus.focusProj?.file}
+  Project file: ${ph.phFocus.focusProj?.file}
 
   <details>
   <summary>More about the project ... </summary>
   <nobr>
     | ***Organisation:*** | ***Repository:*** | ***Path:*** | ***Project file:*** | ***Branch:*** |
     |  ${"-".repeat(orgLength + 4)} | ${"-".repeat(repoLength + 4)} | ${"-".repeat(pathLength + 4)} | ${"-".repeat(fileLength + 4)} | ${"-".repeat(branchLength + 4)} |
-    |  "${props.props.phFocus.focusProj?.org?.padEnd(2)}"  |  "${props.props.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${props.props.phFocus.focusProj?.path}"  |  "${props.props.phFocus.focusProj?.file}"  |  "${props.props.phFocus.focusProj?.branch}"  |
+    |  "${ph.phFocus.focusProj?.org?.padEnd(2)}"  |  "${ph.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${ph.phFocus.focusProj?.path}"  |  "${ph.phFocus.focusProj?.file}"  |  "${ph.phFocus.focusProj?.branch}"  |
     </nobr>
     <nobr> --- \n\n
     | user | date${" ".repeat(dateLength - 4)} | time${" ".repeat(timeLength - 4)} |
     | ${"-".repeat(userLength + 2)} | ${"-".repeat(dateLength + 2)} | ${"-".repeat(timeLength + 2)} |
-    | "${props.props.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
+    | "${ph.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
     </nobr>
   </details>
   `
@@ -133,7 +139,7 @@ function MarkdownEditor({ props }) {
     curmetamodel: curmetamodel,
     selectedId,
     setSelectedId,
-    curobject: curobject,
+    curobject: curobject || curmodelview,
     curtoobjects: objectChildren,
     objects: objects,
     includedKeys: ['name', 'description'],
@@ -146,7 +152,7 @@ function MarkdownEditor({ props }) {
   let markdownStringChildren = ObjDetailToMarkdown(mdFocusObjectProps)
 
 
-  console.log('101 MarkdownEditor.tsx', markdownStringChildren)
+  if (debug) console.log('101 MarkdownEditor.tsx', markdownStringChildren)
 
   const handleAddFooter = () => {
     setMdFooterString(
@@ -172,7 +178,7 @@ function MarkdownEditor({ props }) {
     )
   };
 
-  const CodeBlock = ({ language, value }) => {
+  const CodeBlock = ({ language, value }: { language: string, value: string }) => {
     return (
       <pre>
         <code className={`language-${language}`}>{value}</code>
@@ -180,7 +186,7 @@ function MarkdownEditor({ props }) {
     );
   };
 
-  const LinkRenderer = ({ href, children }) => {
+  const LinkRenderer = ({ href, children }: { href: string, children: React.ReactNode }) => {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer">
         {children}
@@ -188,7 +194,7 @@ function MarkdownEditor({ props }) {
     );
   };
 
-  const ImageRenderer = ({ src, alt }) => {
+  const ImageRenderer = ({ src, alt }: { src: string, alt: string }) => {
     return <img src={src} alt={alt} />;
   };
 
@@ -237,7 +243,7 @@ function MarkdownEditor({ props }) {
   };
 
   // useEffect (() => {
-  // setMdString(`***Children:*** \n\n  ---  \n\n`)
+  //  curobject = curmodelview
   // }, [])
 
   useEffect(() => {
@@ -246,7 +252,7 @@ function MarkdownEditor({ props }) {
 
   useEffect(() => {
     setMdString(markdownStringChildren)
-    console.log('222 MarkdownEditor.tsx', markdownStringChildren)
+    if (debug) console.log('222 MarkdownEditor.tsx', markdownStringChildren)
   }, [markdownStringChildren])
 
   useEffect(() => {

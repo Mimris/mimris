@@ -6,13 +6,40 @@ import { i } from "./SvgLetters";
 
 const debug = false
 
+export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Project from file
+    if (debug) console.log('10 ReadModelFromFile', props, e)
+    e.preventDefault();
+    const reader = new FileReader();
+    reader.fileName = '' // reset fileName
+    reader.fileName = (e.target.files[0]?.name)
+    if ((debug)) console.log('13 ReadModelFromFile', props, reader.fileName)
+    if (!reader.fileName) return null
+    reader.onload = async (e) => {
+        const text = (e.target.result)
+        if (debug) console.log('19 ReadModelFromFile', text)
+        let importedfile = JSON.parse(text)
+        // remove null models and models with only {} in them
+        const cleanedData = importedfile.phData.metis.models.filter(m => m && Object.keys(m).length > 0);
+        const filename = reader.fileName
+        data = cleanedData
+        if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+        props.dispatch('LOAD_TOSTORE_PHDATA', data.phData)
+        if (data.phFocus) props.dispatch('SET_FOCUS_PHFOCUS', data.phFocus)
+        props.dispatch('LOAD_TOSTORE_PHSOURCE', filename)
+        if (data.phUser) props.dispatch('LOAD_TOSTORE_PHUSER', data.phUser)
+        // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+        if (debug) console.log('29 ReadModelFromFile', filename, props)
+    };
+    reader.readAsText(e.target.files[0])
+}
+
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
 
     e.preventDefault();
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (debug) console.log('13 ReadModelFromFile', props, reader.fileName)
+    if ((debug)) console.log('13 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => {
         const text = (e.target.result)
@@ -33,18 +60,46 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const impMetamodel = (impMetamodels) && impMetamodels[0] // max one model in modelview file for now
 
         // ---------------------  Set up current model for merging of imported data ---------------------
-        const metis = props.phData.metis
-        const focus = props.phFocus
+        const metis = (props) ? props.phData.metis : importedfile.phData.metis
+        const focus = (props) ? props.phFocus : importedfile.phFocus
         const curmod = metis.models.find(m => m.id === focus.focusModel?.id)
         if (!curmod) return null
         const curmmod = metis.metamodels.find(m => m.id === curmod.metamodelRef)
-        const modelviews = curmod.modelviews
+        const modelviews = curmod.modelviews.filter(mv => (mv && mv.id != undefined) && mv) // filter out null or empthy modelviews
+    
         const curmodview = modelviews.find(mv => mv.id === focus.focusModelview?.id)
 
         let mmindex = (impMetamodel?.id) && props.phData.metis.metamodels.findIndex(m => m.id === impMetamodel?.id)
 
         // ---------------------  Set up imported model for merging of imported data ---------------------
         let data = importedfile
+
+        // remove model if it is empty or undefined
+        const metis2 = data.phData.metis
+        const models2 = metis2.models.filter(m => (m) && m) // filter out null models 
+        // const curmod2 = models2.find(m => m.id === focus.focusModel?.id) // current model
+        // const modelviews = curmod2.modelviews.filter(mv => (mv) && mv) // filter out null modelviews
+        // const curmodview2 = modelviews.find(mv => mv.id === focus.focusModelview?.id) || modelviews[0] // current modelview
+        const metamodels2 = metis2.metamodels.filter(mm => (mm) && mm) // filter out null metamodels
+        // const objects = curmod.objects.filter(o => (o) && o) // filter out null objects
+        // const relships = curmod.relships.filter(r => (r) && r) // filter out null relships  
+        if (debug) console.log('335 ReadModelFromFile', data)
+        data.phData = {
+            ...data.phData,
+            metis: {
+                ...data.phData.metis2,
+                models: models2,
+                metamodels: metamodels2,
+            },
+        }
+        const focusModel = models2.find(m => m.id === focus.focusModel?.id) || models2[0]
+        const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+        data.phFocus = {
+            ...data.phFocus,
+            focusModel: focusModel,
+            focusModelview: focusModelview,
+        }
+        if (!debug) console.log('98 ReadModelFromFile', data)
         // let data = (importedfile.phData)
         //     ?  importedfile // if phData exists, then use importedfile
         //     :  (importedfile.models) 
@@ -223,17 +278,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         // ------------------------------------  import based on diff importfiles ------------------------------------    
         if (!data.phData) { // if file is a project file, just skip the rest of this function
-
-
             // objettypes
             let otindex, otlength
-
-
-
             if (debug) console.log('75 ReadModelFromFile', editedmodelffobjects, editedmodelffobjects2)
-
-
-
             // modelviews
             let mvindex, mvlength
             mvindex = (impModelview?.id) && props.phData?.metis?.models[mindex]?.modelviews.findIndex(mv => mv.id === impModelview?.id) // current modelview index
@@ -249,15 +296,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             } else { // if modelview does not exist, then add it to props.phData.metis.models[mindex].modelviews
                 // tmpmv.push(modelff.modelview)
             }
-
-
-
-
-
             let oindex = (impObjects) && tmpo.findIndex(o => o.id === impObjects[0]?.id)
             const olength = tmpo.length
             if (oindex && (oindex < 0)) { oindex = olength } // oindex = -1, i.e.  not fond, which means adding a new object
-
             // ---------------------  replace existing with the imported (overwrite) ---------------------
             let rindex = impRelships ? props.phData.metis.models[mindex].relships.findIndex(r => (r) && r.id === impRelships[0]?.id) : null;
             const rlength = props.phData.metis.models[mindex].relships.length
@@ -266,12 +307,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             // const tmprels = props.phData.metis.models[mindex].relships
             // if (rindex >= 0) { tmprels.splice(rindex, 1) } // if relationship exist, then remove it from props.phData.metis.models[mindex].relships, i.e. the relationship will be replaced by the new relationship
             //  if metamodel already exist in props.phData.metis.metamodels, then replace it with the new metamodel
-
             const mmlength = props.phData.metis.metamodels.length;
             if (!mmindex || mmindex < 0) mmindex = mmlength// if metamodel exist, then replace it with the new metamodel
             if (debug) console.log('233 ReadModelFromFile', mindex, mvindex, mmindex)
         }
-
         // ---------------------  add metamodel if imorted  --------------------
         if (debug) console.log('237 ReadModelFromFile', filename, props,)
 
@@ -448,7 +487,8 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             }
         }
 
-        if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+
+        if (!debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)
@@ -471,7 +511,6 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         const mmlength = props.phData?.metis?.metamodels.length
         if (mmmindex < 0) { mmmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
         if (debug) console.log('174 ReadModelFromFile', metamodelff, mmmindex, mmlength);
-
         const data = {
             phData: {
                 ...props.phData,

@@ -9,7 +9,7 @@ import Post from '../components/helps/Post'
 import { sortByTitle } from '../components/utils/sortbytitle'
 
 
-export default function Home( { posts }) {
+export default function Home( { posts }: { posts: any[] }) {
   // console.log('12 ', posts);
   
   return (
@@ -24,7 +24,10 @@ export default function Home( { posts }) {
             {/* <Header /> */}
             <div className='posts'>
               {posts.map((post, index) => (
-                (post) && <Post key={index} post={post} />
+                (post) && 
+                <div key={index} className='card'>
+                  <Post key={index} post={post} />
+                </div>
               ))}
             </div>
           </main>

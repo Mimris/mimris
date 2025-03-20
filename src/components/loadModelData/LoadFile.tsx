@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
@@ -33,12 +33,19 @@ const LoadFile = (props: any) => {
   const modelNames = props.ph.phData?.metis?.models?.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels?.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
 
-  if (debug) console.log('26 LoadLocal', props, typeof (window));
+  if (debug) console.log('36 LoadLocal', props, typeof (window));
 
-  if (debug) console.log('28 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
-    phData: props.ph.phData,
+    phData: {
+      ...props.ph.phData,
+      metis: {
+        ...props.ph.phData.metis,
+        models: props.ph.phData.metis.models.filter(m => m),
+        metamodels: props.ph.phData.metis.metamodels.filter(mm => mm),
+      },
+    },
     phFocus: props.ph.phFocus,
     phUser: props.ph.phUser,
     phSource: props.phSource,
@@ -100,14 +107,18 @@ const LoadFile = (props: any) => {
     // const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
     // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
-    console.log('194 Loadfile', metamodels, data)
-
+    if (debug) console.log('194 Loadfile', metamodels, data)
+    if (!data) {
+      if (debug) console.log('196 Loadfile', data)
+      alert('No metamodel found in this modelview')
+      return
+    }
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
-    // replace the _MM in 
-    const filename = data.phData.metis.name//.replace('AKM-', '')
 
-    console.log('199 Loadfile', newmm, filename)
+    const filename = data.phData.metis.name
+
+    if (debug) console.log('199 Loadfile', newmm, filename)
     SaveAllToFile(data, filename, '_PR')
     const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
     SaveMetamodelToFile(newmm, metamodelname, '_MM')
@@ -200,7 +211,7 @@ const LoadFile = (props: any) => {
 
   return (
     <>
-      <span><button className="btn bg-light text-secondary py-1 px-2" onClick={toggle}><i className="fa fa-folder fa-lg me-2 ms-0 "></i>{buttonLabel}</button></span>
+      <span><button className="btn bg-secondary text-white py-1 pe-1" onClick={toggle}>File <i className="fa fa-file-import fa-lg  me-1 "></i><i className="fa fa-file-export fa-lg me-1 ms-1 "></i></button></span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0 d-flex flex-column">
@@ -215,7 +226,7 @@ const LoadFile = (props: any) => {
                 <h5>Model</h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current) </h6>
-                  <input className="select-input " type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input " title="Choose a file" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} placeholder="Choose a file" />
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export Models to file </h6>
@@ -237,7 +248,7 @@ const LoadFile = (props: any) => {
                 <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current)</h6>
-                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input" title="Select a file" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export Metamodel to file </h6>

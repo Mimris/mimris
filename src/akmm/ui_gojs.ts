@@ -50,6 +50,20 @@ export class goModel {
         if (debug) console.log('41 constants', constants, this);
     }
     // Methods
+    fixGoModel() {
+        for (let i=0; i<this.nodes.length; i++) {
+            let node = this.nodes[i];
+            if (!node instanceof goObjectNode) {
+                node = new goObjectNode(node.key, node.objectview);
+                for (let prop in node) {
+                    if (node[prop] !== this.nodes[i][prop]) {
+                        node[prop] = this.nodes[i][prop];
+                    }
+                }
+            }
+            this.node = node;
+        }
+    }
     getModelView() {
         return this.modelView;
     }
@@ -86,13 +100,13 @@ export class goModel {
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
-        if (!utils.isArrayEmpty(this.nodes)) {
+        if (this.nodes) {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                const objview = n.objectview as akm.cxObjectView;
-                if (objview && objview.id === objviewId) {
+                const objviewRef = n.key;
+                if (objviewRef === objviewId) {
                     return (n);
                 }
                 i++;
@@ -101,13 +115,13 @@ export class goModel {
         return retval;
     }
     findNodeByObjectId(objId: string): goObjectNode | null {
-        const retval: goObjectNode | null = null;
+        const retval: goObjectNode = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                if (n.object && n.object.id === objId) {
+                if (n.objectRef === objId) {
                     return (n);
                 }
                 i++;
@@ -115,13 +129,13 @@ export class goModel {
         }
         return retval;
     }
-    findNode(key: string): goObjectNode | null {
-        const retval: goObjectNode | null = null;
+    findNode(key: string): goObjectNode {
+        const retval: goObjectNode = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node: goObjectNode = this.nodes[i] as goObjectNode;
-                if (node.getKey() === key) {
+                if (node.key === key) {
                     return (node);
                 }
                 i++;
@@ -174,12 +188,13 @@ export class goModel {
     }
     findLinkByViewId(relviewId: string): goRelshipLink | null {
         const retval: goRelshipLink | null = null;
-        if (!utils.isArrayEmpty(this.links)) {
+        if (this.links) {
             let i = 0;
             while (i < this.links.length) {
                 const link = this.links[i];
                 const ll = link as goRelshipLink;
-                if (ll.relshipview && ll.relshipview.id === relviewId) {
+                const relviewRef = ll.key;
+                if (relviewRef === relviewId) {
                     return (ll);
                 }
                 i++;
@@ -410,9 +425,11 @@ export class goNode extends goMetaObject {
 
 export class goObjectNode extends goNode {
     objectview: akm.cxObjectView | null;
-    //objectview_0: akm.cxObjectView | null;
     object: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
+    objviewRef: string;
+    objRef: string;
+    objtypeRef: string;
     typename: string;
     typedescription: string;
     typeview: akm.cxObjectTypeView | null;
@@ -433,51 +450,57 @@ export class goObjectNode extends goNode {
     textscale: string;
     icon: string;
     image: string;
+    grabIsAllowed: boolean;
     isGroup: boolean | "";
     isExpanded: boolean | "";
     isSelected: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
-    constructor(key: string, objview: akm.cxObjectView) {
-        super(key, null);
-        this.name           = objview.name;
+    constructor(key: string, model: goModel, objview: akm.cxObjectView) {
+        super(key, model);
+        this.name           = objview?.name;
         this.category       = constants.gojs.C_OBJECT;
         this.objectview     = objview as akm.cxObjectView;
         this.object         = null as akm.cxObject;
         this.objecttype     = null as akm.cxObjectType;
+        this.objviewRef     = objview?.id;
+        this.objRef         = objview?.object?.id;
+        this.objtypeRef     = objview?.object?.type?.id;
         this.leftPorts      = null as akm.cxPort[];
         this.rightPorts     = null as akm.cxPort[];
         this.topPorts       = null as akm.cxPort[];
         this.bottomPorts    = null as akm.cxPort[];
         this.typename       = "";
         this.typedescription = "";
-        this.template       = objview.template;
-        // this.figure         = objview.figure;
-        // this.geometry       = objview.geometry;
-        this.fillcolor      = objview.fillcolor;
-        this.fillcolor2      = objview.fillcolor2;
-        this.strokecolor    = objview.strokecolor;
-        this.strokecolor2   = objview.strokecolor2;
-        this.strokewidth    = objview.strokewidth;
-        this.textcolor      = objview.textcolor;
-        this.textcolor2      = objview.textcolor2;
-        this.textscale      = objview.textscale;
-        this.icon           = objview.icon;
-        this.image          = objview.image;
-        this.isGroup        = objview.isGroup;
-        this.loc            = objview.loc;
-        this.size           = objview.size;
-        this.scale1         = objview.scale1;
-        this.memberscale    = objview.memberscale;
-        this.isExpanded     = objview.isExpanded;
-        this.isSelected     = objview.isSelected;
-        this.groupLayout    = objview.groupLayout;
-        this.group          = objview.group as akm.cxObjectView;
-        this.parent         = "";
+
 
         if (objview) {
-            const object = objview.getObject() as akm.cxObject;
+            this.template       = objview?.template;
+            // this.figure         = objview.figure;
+            // this.geometry       = objview.geometry;
+            this.fillcolor      = objview.fillcolor;
+            this.fillcolor2      = objview.fillcolor2;
+            this.strokecolor    = objview.strokecolor;
+            this.strokecolor2   = objview.strokecolor2;
+            this.strokewidth    = objview.strokewidth;
+            this.textcolor      = objview.textcolor;
+            this.textcolor2      = objview.textcolor2;
+            this.textscale      = objview.textscale;
+            this.icon           = objview.icon;
+            this.image          = objview.image;
+            this.isGroup        = objview.isGroup;
+            this.loc            = objview.loc;
+            this.size           = objview.size;
+            this.scale1         = objview.scale1;
+            this.memberscale    = objview.memberscale;
+            this.grabIsAllowed  = objview.grabIsAllowed;
+            this.isExpanded     = objview.isExpanded;
+            this.isSelected     = objview.isSelected;
+            this.groupLayout    = objview.groupLayout;
+            this.group          = objview.group as akm.cxObjectView;
+            this.parent         = "";
+            const object = objview?.getObject() as akm.cxObject;
             if (object && object instanceof akm.cxObject) {
                 this.object = object as akm.cxObject;
                 this.name = object.getName();
@@ -568,8 +591,8 @@ export class goObjectNode extends goNode {
         return false;
     }
     updateNode(data: any, diagram: any) {
-        if (this.typeview) {
-            const viewdata = this.typeview.getData();
+        if (data.typeview) {
+            const viewdata = data.typeview?.data;
             let data = (viewdata as any);
             let prop: string;
             for (prop in data) {
@@ -580,7 +603,7 @@ export class goObjectNode extends goNode {
     }
     getParentNode(model: goModel): goNode {
         const groupId = this.group;
-        if (groupId !== "") {
+        if (groupId !== "" && groupId !== undefined) {
             const nodes = model.nodes;
             for (let i = 0; i < nodes?.length; i++) {
                 const node = nodes[i] as goObjectNode;
@@ -731,6 +754,16 @@ export class goObjectNode extends goNode {
             this.bottomPorts = this.bottomPorts.filter(p => p.name !== name);
         }
     }
+    removeClassInstances() {
+        this.objectview = null;
+        this.object = null;
+        this.objecttype = null;
+        this.typeview = null;
+        this.leftPorts = null;
+        this.rightPorts = null;
+        this.topPorts = null;
+        this.bottomPorts = null;
+    }
 }
 
 export class goObjectTypeNode extends goNode {
@@ -816,6 +849,9 @@ export class goRelshipLink extends goLink {
     relshipview:        akm.cxRelationshipView | null;
     relship:            akm.cxRelationship | null;
     relshiptype:        akm.cxObjectType | akm.cxRelationshipType | null;
+    relviewRef:         string;
+    relshipRef:         string;
+    reltypeRef:         string;
     typename:           string;
     typedescription:    string;
     typeview:           akm.cxRelationshipTypeView | null;
@@ -831,6 +867,7 @@ export class goRelshipLink extends goLink {
     strokewidth:        string;
     textcolor:          string;
     textscale:          string;
+    dash:               string;
     fromArrow:          string;
     toArrow:            string;
     fromArrowColor:     string;
@@ -852,6 +889,9 @@ export class goRelshipLink extends goLink {
         this.relshipview     = relview;
         this.relship         = null;
         this.relshiptype     = null;
+        this.relviewRef      = relview?.id;
+        this.relshipRef      = relview?.relship?.id;
+        this.reltypeRef      = relview?.relship?.type?.id;
         this.typename        = "";
         this.typedescription = "";
         this.typeview        = null;
@@ -868,6 +908,7 @@ export class goRelshipLink extends goLink {
         this.strokewidth     = relview?.strokewidth;
         this.textcolor       = relview?.textcolor;
         this.textscale       = relview?.textscale;
+        this.dash            = relview?.dash;
         this.fromArrow       = relview?.fromArrow;
         this.fromArrowColor  = relview?.fromArrowColor;
         this.toArrow         = relview?.toArrow;
@@ -891,6 +932,7 @@ export class goRelshipLink extends goLink {
                 const reltype = relship.getType() as akm.cxRelationshipType;
                 if (reltype && reltype instanceof akm.cxRelationshipType) {
                     this.relshiptype = relship.type;
+                    this.reltypeRef = reltype.id;
                     this.typename = reltype.getName();
                     this.typedescription = this.relshiptype.getDescription();
                     this.name = this.relship.name;
@@ -1048,6 +1090,14 @@ export class goRelshipLink extends goLink {
                     diagram.model.setDataProperty(data, prop, data[prop])
             }
         }
+    }
+    removeClassInstances() {
+        this.relshipview = null;
+        this.relship = null;
+        this.relshiptype = null;
+        this.typeview = null;
+        this.fromNode = null;
+        this.toNode = null;
     }
 }
 

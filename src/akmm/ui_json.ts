@@ -1,13 +1,14 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false; 
 
 const utils = require('./utilities');
 import * as akm from './metamodeller';
 const constants = require('./constants');
 
-let jsnMetis = null;
+let jsnMetis: akm.cxMetis;
 
 export class jsnExportMetis {
+    id:                         string;
     name:                       string;
     description:                string;
     metamodels:                 jsnMetaModel[];
@@ -26,6 +27,7 @@ export class jsnExportMetis {
     currentTaskModelRef:        string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
+        this.id                             = metis.id;
         this.name                           = metis.name;
         this.description                    = metis.description;
         this.allowGenerateCurrentMetamodel  = metis.allowGenerateCurrentMetamodel;
@@ -195,7 +197,6 @@ export class jsnMetaModel {
     metamodelRefs:      string[];
     subMetamodelRefs:   string[];
     subModelRefs:       string[];
-    subMetamodels:      jsnMetaModel[] | null;
     subModels:          jsnModel[] | null;
     viewstyles:         jsnViewStyle[] | null;
     geometries:         jsnGeometry[] | null;
@@ -226,7 +227,7 @@ export class jsnMetaModel {
         this.metamodelRefs = [];
         this.subMetamodelRefs = [];
         this.subModelRefs = [];
-        this.subMetamodels = [];
+        // this.subMetamodels = [];
         this.subModels = [];
         this.viewstyles = [];
         this.geometries = [];
@@ -261,15 +262,7 @@ export class jsnMetaModel {
                 this.metamodelRefs.push(metamodel.id);
             }
         }
-        let subMetamodels = metamodel.getSubMetamodels();
-        if (subMetamodels) {
-            const cnt = subMetamodels.length;
-            for (let i = 0; i < cnt; i++) {
-                const subMetamodel = subMetamodels[i];
-                if (!subMetamodel) break;
-                this.subMetamodelRefs.push(subMetamodel.id);
-            }
-        }
+        this.subMetamodelRefs = metamodel.getSubMetamodelRefs();
         let subModels = metamodel.getSubModels();
         if (subModels) {
             const cnt = subModels.length;
@@ -663,25 +656,52 @@ export class jsnObjectType {
         this.markedAsDeleted = objtype.markedAsDeleted;
         this.modified       = objtype.modified;
         // Code
-        const props = objtype.getProperties(false);
+        let props: akm.cxProperty[];
+        try {
+            props = objtype?.getProperties(false);
+        } catch (error) {
+            props = [];
+        }
         let cnt = props?.length;
         for (let i = 0; i < cnt; i++) {
             const prop = props[i];
             this.addProperty(prop);
         }
-        const attrs = objtype.getAttributes();
+
+        let attrs: akm.cxAttribute[];
+        try {
+            attrs = objtype?.getAttributes();
+        } catch (error) {
+            attrs = [];
+        }
         cnt = attrs?.length;
         for (let i = 0; i < cnt; i++) {
             const attr = attrs[i];
             this.addAttribute(attr);            
         }
-        const ports = objtype.getPorts();
+
+        let ports: akm.cxPort[];
+        try {
+            const ports = objtype.getPorts();
+            for (let i = 0; i < cnt; i++) {
+                const port = ports[i];
+                this.addPort(port);
+            }
+        } catch (error) {
+            ports = [];
+        }
         cnt = ports?.length;
         for (let i = 0; i < cnt; i++) {
             const port = ports[i];
             this.addPort(port);
         }
-        const mtds = objtype.getMethods();
+
+        let mtds: akm.cxMethod[];
+        try {
+            mtds = objtype.getMethods();
+        } catch (error) {
+            mtds = [];
+        }   
         cnt = mtds?.length;
         for (let i = 0; i < cnt; i++) {
             const mtd = mtds[i];
@@ -744,6 +764,7 @@ export class jsnRelationshipType {
     name:           string;
     description:    string;
     typeviewRef:    string;
+    supertypes:     jsnObjectType[];
     properties:     jsnProperty[];
     relshipkind:    string;
     viewkind:       string;
@@ -765,6 +786,7 @@ export class jsnRelationshipType {
         this.toobjtypeRef   = reltype.toobjtypeRef ? reltype.toobjtypeRef : reltype.toObjtype?.id;
         this.typeviewRef    = "";
         this.description    = (reltype.description) ? reltype.description : "";
+        this.supertypes     = [];
         this.properties     = [];
         this.cardinality    = reltype.cardinality;
         this.cardinalityFrom = reltype.cardinalityFrom;
@@ -777,17 +799,41 @@ export class jsnRelationshipType {
             this.typeviewRef = (reltype.typeview) ? reltype.typeview.id : "";
         }
         // Code
-        const props = reltype.getProperties(true);
+        let props: akm.cxProperty[];
+        try {
+            props = reltype?.getProperties(false);
+        } catch (error) {
+            props = [];
+        }
         let cnt = props?.length;
         for (let i = 0; i < cnt; i++) {
             const prop = props[i];
             this.addProperty(prop);
         }
+
+        let supertypes: akm.cxObjectType[];
+        try {
+            supertypes = reltype.getSupertypes();
+        } catch (error) {
+            supertypes = [];
+        }
+        for (let i=0; i<supertypes.length; i++) {
+            const stype = supertypes[i];
+            if (stype)
+                this.addSupertype(stype);
+        }
     }
     addProperty(prop: akm.cxProperty) {
-        if (utils.objExists(prop)) {
+        if (prop) {
             const gProperty = new jsnProperty(prop);
             this.properties.push(gProperty);
+        }
+    }
+    
+    addSupertype(stype: akm.cxObjectType) {
+        if (stype) {
+            const gtype = new jsnObjectType(stype);
+            this.supertypes.push(gtype);
         }
     }
 }
@@ -846,6 +892,7 @@ export class jsnObjectTypeView {
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    grabIsAllowed:   boolean;
     template:        string;
     // figure:          string;
     // geometry:        string;
@@ -884,6 +931,7 @@ export class jsnObjectTypeView {
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
         this.image           = objtypeview.getImage();
+        this.grabIsAllowed   = objtypeview.grabIsAllowed;
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
         if (objtypeview.description)
@@ -1208,8 +1256,8 @@ export class jsnExportModel {
     }
     addModel(model: akm.cxModel, includeViews: boolean) {
         if (model) {
-            const gModel = new jsnModel(model, includeViews);
-            this.models.push(gModel);
+            const model = new jsnModel(model, includeViews);
+            this.models.push(model);
         }
     }
 }
@@ -1235,6 +1283,7 @@ export class jsnObject {
     abstract:        boolean;
     viewkind:        string;
     typeRef:         string;
+    parentModelRef:  string;
     typeName:        string;
     typeDescription: string;
     propertyValues:  any[];
@@ -1248,6 +1297,7 @@ export class jsnObject {
         this.description     = object.description ? object.description : "";
         this.abstract        = object.abstract;
         this.viewkind        = object.viewkind;
+        this.parentModelRef  = object.parentModelRef;
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.typeDescription = object.type ? object.type.description : "";
@@ -1291,13 +1341,15 @@ export class jsnObject {
 
         const properties = object.allProperties;
         if (debug) console.log('879 object, properties', object, properties);
-        for (let i=0; i<properties?.length; i++) {
-          const prop = properties[i];
-          if (!prop) continue;
-          const propname = prop.name;
-          const value = object.getStringValue2(propname);
-          if (debug) console.log('885 propname, value', propname, value);
-          this[propname] = value;                      
+        if (properties) {
+            for (let i=0; i<properties?.length; i++) {
+                const prop = properties[i];
+                if (!prop) continue;
+                const propname = prop.name;
+                const value = object.getStringValue2(propname);
+                if (debug) console.log('885 propname, value', propname, value);
+                this[propname] = value;                      
+            }
         }
         if (debug) console.log('888 this', this);
 
@@ -1311,6 +1363,7 @@ export class jsnObject {
                 this.ports.push(gPort);
             }
         }
+
     // Handle property values    }
     // addPropertyValue(val: akm.cxPropertyValue) {
     //     if (!val)
@@ -1472,13 +1525,41 @@ export class jsnRelationship {
 }
 
 export class jsnPropertyValue {
-    property:   akm.cxProperty;
+    property:   jsnProperty;
     value:      string;
-    constructor(propval: akm.cxPropertyValue) {
+    constructor(propval: jsnPropertyValue) {
         this.property   = propval.property;
         this.value      = propval.value;
     }
 }
+
+export class jsnPropertyGroup {
+    id:     string;
+    name:   string;
+    description: string;
+    propertyValues: jsnPropertyValue[];
+    constructor(id: string, name: string, description: string) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.propertyValues = new Array();
+    }
+    addPropertyValue(propval: jsnPropertyValue) {
+        this.propertyValues.push(propval);
+    }
+    getPropertyValues(): jsnPropertyValue[] {
+        return this.propertyValues;
+    }
+    findPropertyValue(propname: string): jsnPropertyValue | null {
+        for (let i = 0; i < this.propertyValues.length; i++) {
+            const propval = this.propertyValues[i];
+            if (propval.property.name === propname)
+                return propval;
+        }
+        return null;
+    }
+}
+
 export class jsnModelView {
     id:                 string;
     name:               string;
@@ -1489,7 +1570,7 @@ export class jsnModelView {
     showCardinality:    boolean;
     showRelshipNames:   boolean;
     askForRelshipName:  boolean;
-    includeInheritedReltypes: boolean;
+    includeInheritedReltypes: boolean | null;
     UseUMLrelshipkinds: boolean;
     modelRef:           string;
     viewstyleRef:       string;

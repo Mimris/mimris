@@ -145,10 +145,10 @@ export let readKeyValueArrays = (myArray: any[]) => {
         return;
     items.forEach(function (item) {
         Object.keys(item).forEach(function (key) {
-            console.log("key: " + key + " value " + item[key]);
+             if (debug) console.log("key: " + key + " value " + item[key]);
             const propkey = key;
             const propval = item[key];
-            console.log(propkey + ": " + propval);
+            if (debug) console.log(propkey + ": " + propval);
         });
     });
 }
@@ -160,54 +160,54 @@ export function findObjectsByType(objects: any, objecttypes: any,  objTypeName: 
    return objects.filter(o => o.typeRef === objtype?.id && o);
 }
 
-export function findObjectByName(objects: any, arg1: {}, restName: any) {
-    return objects.find(o => o.name === restName && o);
+export function findObjectByName(objects: any,  name: any) {
+    return objects.find(o => o.name === name && o);
 }
-export function findObjectByTitle(objects: any, arg1: {}, restTitle: any) {
-    return objects.find(o => o.name === restTitle && o);
+export function findObjectByNameOnly(objects: any, name: any) { // find object by name only, exclude version
+    const obj = objects.find(o => (o.name.split('.')[0] === name) && o);
+    if (debug) console.log('124 ',objects[0].name.split('.')[0], name, obj, objects);
+    return obj;
+}
+export function findObjectByNameVersion(objects: any,nameVersion: any) {
+    return objects.find(o => o.name === nameVersion && o);
+}
+export function findObjectByTitle(objects: any, title: any) {
+    return objects.find(o => o.title === title && o);
 }
 
 export function findFromObjects( o: any, objects: any, torships: any ) {
-    if (debug) console.log('120 findFromObjects', o, objects, torships);
-   
+    if (debug) console.log('174 findFromObjects', o, objects, torships);
     // const torships = relationships?.filter(r => r.toobjectRef === o.id && r); // find all relships to current obj object
     const fromObjs = torships?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find objects in the other end of the relationship
-    if (debug) console.log('124 ', torships, fromObjs);
-    return fromObjs
-    
+    if (debug) console.log('178 ', torships, fromObjs);
+    return fromObjs    
 }
 
 export function findToObjects( o: any, objects: any, fromrships: any ) {
-    if (debug) console.log('120 findToObjects', o, objects, fromrships);
-   
+    if (debug) console.log('184 findToObjects', o, objects, fromrships);
     // const fromrships = relationships?.filter(r => r.fromobjectRef === o.id && r); // find all relships to current obj object
     const toObjs = fromrships?.map(r => objects?.find(o => o.id  === r.toobjectRef)); // find objects in the other end of the relationship
-    if (debug) console.log('124 ', fromrships, toObjs);
-    return toObjs
-    
+    if (debug) console.log('187 ', fromrships, toObjs);
+    return toObjs  
 }
 
 export function findTopLevelObject( o: any, type: string, objects, relationships ) { // Todo: find top level object by traversing the relships
-
     // find to reationship and traverse relationships to find the top level object
     // hardcoded for now, by traversin 2 steps from the current object to the top level object
     if (debug) console.log('133 ', o.name);
     const torships1 = relationships?.filter(r => r.toobjectRef === o.id && r); // find all relships to current obj object
     const fromObj1 =  objects?.find(o => o.id  === torships1[0]?.fromobjectRef); // find object in the other end of the relationship (assuming only one)
     if (debug) console.log('135 ', fromObj1, torships1, torships1[0]);
-    
     // const fromObj1 = torships1?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
     const torships2 = relationships?.filter(r => r.toobjectRef === fromObj1?.id && r); // find all relships to current obj object
     if (debug) console.log('139 ', torships2);
     const fromObj2 =  (torships2[0]) && objects?.find(o => o.id  === torships2[0].fromobjectRef); // find object in the other end of the relationship (assuming only one)
     // const fromObj2 = torships1?.find(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
-    
     const topObj = fromObj1 || fromObj2;
     if (debug) console.log('140 ', fromObj1,  fromObj2, topObj);
-
     return topObj;
-    
 }
+
 
 export function findRelshipByToIdAndType(curRelships: any, toObjId: string, relType: string) {
     if (debug) console.log('151 ', curRelships, toObjId, relType);
@@ -218,5 +218,15 @@ export function findRelshipByFromIdToIdAndType(curRelships: any, fromObjId: stri
     if (debug) console.log('151 ', curRelships, toObjId, relType);
     const relship = (toObjId && fromObjId) ? curRelships?.find(r => r.fromobjectRef === fromObjId && r.toobjectRef === toObjId && r.typeRef === relType) : null;
     return relship;
+}
+
+export function copyNonObjectAttributes(source: any) {
+    const target: any = {};
+    for (const key in source) {
+        if (source.hasOwnProperty(key) && typeof source[key] !== 'object') {
+            target[key] = source[key];
+        }
+    }
+    return target;
 }
 

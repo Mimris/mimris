@@ -75,7 +75,7 @@ const page = (props) => {
             <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2025.03.20</CardTitle>
               <CardText >
-                &bull;Bug fix<br />
+                &bull;Bug fixes and layout enhancements<br />
               </CardText>
             </CardBody>
             <CardBody className="card-body h-100" >

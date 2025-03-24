@@ -1,20 +1,19 @@
 // @ts-nocheck
 const debug = false;
 
+import { LinkReshapingTool } from 'gojs';
+import { get } from 'http';
+import printf from 'printf';
+
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as uid from './ui_diagram';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
-import { LinkReshapingTool } from 'gojs';
-import { get } from 'http';
 import { core } from './constants';
 import context from '../pages/context';
 import { i } from '@/components/utils/SvgLetters';
-// const constants = require('./constants');
-// const printf = require('printf');
 import * as constants from './constants';
-import printf from 'printf';
 
 const grabIsAllowed = true;
 

@@ -2,9 +2,6 @@
 const debug = false; 
 
 import * as akm from './metamodeller';
-
-// const utils = require('./utilities');
-// const constants = require('./constants');
 import * as utils from './utilities';
 import * as constants from './constants';
 

@@ -28,8 +28,8 @@ const page = (props: any) => {
   // }
   // const metis = (props.phData) && props.phData.metis
   // const model = (metis) && metis.models[0]
-  const state = useSelector((state:any) => state)
-  const metis = (state.phData) && state.phData.metis
+  const data = useSelector((state:any) => state)
+  const metis = (data.phData) && data.phData.metis
   const metamodelsPre = (metis) ? JSON.stringify(metis) : []
   // console.log('22', (metis) && metis.metamodels);
   // const modelName = (metis) && metis.models[0].name
@@ -44,7 +44,7 @@ const page = (props: any) => {
 
   return (
     <div>
-      <Layout user={state.phUser?.focusUser}>
+      <Layout user={data.phUser?.focusUser}>
         <div>
           <h4>GraphQL Page </h4>
           

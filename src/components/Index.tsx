@@ -9,9 +9,10 @@ import {
   CardGroup, Card, CardImg, CardText, CardBody, CardHeader,
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
+import { toNamespacedPath } from "path";
+
 import Page from './page';
 import Blog from './Blog'
-import { toNamespacedPath } from "path";
 import GettingStarted from "./content/GettingStarted";
 import Project from "../components/Project";
 
@@ -24,21 +25,22 @@ const page = (props) => {
   const toggleRefresh = props.toggleRefresh
 
   /**  * Get the state and metie from the store  */
-  const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const metis = (state.phData) && state.phData.metis
+  const phData = useSelector((state: any) => state.phData) // Selecting the whole redux store
+  const phFocus = useSelector((state: any) => state.phFocus) // Selecting the whole redux store
+  const metis = (phData) && phData.metis
   const models = (metis) && metis.models  // selecting the models array
   const metamodels = (metis) && metis.metamodels
   // console.log('26 dia',  metis);
 
-  const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
-  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
+  const focusModel = useSelector(focusModel => phFocus?.focusModel)
+  const focusModelview = useSelector(focusModelview => phFocus?.focusModelview)
 
-  let gojsmodel = state.phFocus?.gojsModel
+  let gojsmodel = phFocus?.gojsModel
 
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
   //   GenGojsModel(state, dispatch)
-  //   gojsmodel = state.phFocus.gojsModel
+  //   gojsmodel = phFocus.gojsModel
   // }, [focusModelview])
 
   return (
@@ -70,6 +72,25 @@ const page = (props) => {
                   &bull; GraphQL shema reporting from Solution models!<br />
               </CardText>
             </CardBody> */}
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.03.20</CardTitle>
+              <CardText >
+                &bull;Bug fixes and layout enhancements<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.03.17</CardTitle>
+              <CardText >
+                &bull;Bug fixes <br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.03.11</CardTitle>
+              <CardText >
+                &bull;Added ModelSuite description <br />
+                &bull;Bug fixes <br />
+              </CardText>
+            </CardBody>
             <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2025.02.14</CardTitle>
               <CardText >

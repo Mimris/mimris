@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import '@fortawesome/fontawesome-free/css/all.css';
+
 import Selector from './Selector'
 import Context from '../FocusDetails'
 import EditFocusParameter from '../forms/EditFocusParameter'

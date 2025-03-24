@@ -18,21 +18,21 @@ const page = (props) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   /**  * Get the state and metie from the store  */
-  const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const metis = (state.phData) && state.phData.metis
+  const data = useSelector((state: any) => state) // Selecting the whole redux store
+  const metis = (data.phData) && data.phData.metis
   const models = (metis) && metis.models  // selecting the models array
   const metamodels = (metis) && metis.metamodels
   // console.log('26 dia',  metis);
 
-  const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
-  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
+  const focusModel = useSelector(focusModel => data.phFocus?.focusModel)
+  const focusModelview = useSelector(focusModelview => data.phFocus?.focusModelview)
 
-  let gojsmodel = state.phFocus?.gojsModel
+  let gojsmodel = data.phFocus?.gojsModel
 
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
   //   GenGojsModel(state, dispatch)
-  //   gojsmodel = state.phFocus.gojsModel
+  //   gojsmodel = data.phFocus.gojsModel
   // }, [focusModelview])
 
   return (

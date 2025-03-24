@@ -2,23 +2,25 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-const linkToLink = false;
 
 import * as go from 'gojs';
-
-import { SaveModelviewToSvgFile } from '../../utils/SaveModelToFile';
-{/* <script src="../release/go-debug.js"></script> */ }
-
 import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
+import { METHODS } from 'http';
+import { set } from 'immer/dist/internal';
+import { on } from 'process';
+import { RegexParser } from 'regex-parser';
+import printf from 'printf';
 import classnames from 'classnames';
 // import * as ReactModal from 'react-modal';
 // import Popup from 'reactjs-popup';
 // import 'reactjs-popup/dist/index.css';
+
 import { SelectionInspector } from '../components/SelectionInspector';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
@@ -32,27 +34,19 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-// const printf = require('printf');
-// const RegexParser = require("regex-parser");
-import { RegexParser } from 'regex-parser';
-import printf from 'printf';
-
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
-import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
-import { METHODS } from 'http';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
-import { set } from 'immer/dist/internal';
-import { on } from 'process';
 
+const linkToLink = false;
 const AllowTopLevel = true;
 
 interface DiagramProps {

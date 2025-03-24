@@ -9,7 +9,9 @@ import { useState, useEffect, useLayoutEffect, useRef, use } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import { type } from "os";
 import classnames from 'classnames';
+
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
@@ -33,12 +35,8 @@ import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 // import ProjectDetailsModal from "./modals/ProjectDetailsModal";
 import useLocalStorage from '../hooks/use-local-storage'
 import useSessionStorage from '../hooks/use-session-storage'
-
 import * as akm from '../akmm/metamodeller';
-import { type } from "os";
 import genGqlSchema from "../../pagestmp/genGqlSchema";
-// import * as uib from '../akmm/ui_buildmodels';
-// const constants = require('../akmm/constants');
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');

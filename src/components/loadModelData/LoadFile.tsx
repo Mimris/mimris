@@ -4,6 +4,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'rea
 import { useDispatch } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 import Select from "react-select"
+import { UniqueDirectiveNamesRule } from 'graphql';
+
 // import { loadData } from '../actions/actions'
 // import { loadState, saveState } from '../utils/LocalStorage'
 import useLocalStorage from '../../hooks/use-local-storage'
@@ -15,7 +17,6 @@ import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFil
 import CreateNewModel from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
-import { UniqueDirectiveNamesRule } from 'graphql';
 
 const LoadFile = (props: any) => {
 

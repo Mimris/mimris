@@ -2,13 +2,11 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-
 import * as React from 'react';
-import { InspectorRow } from './InspectorRow';
-// const toHex = require('colornames');
-// const printf = require('printf');
 import toHex from 'colornames';
 import printf from 'printf';
+
+import { InspectorRow } from './InspectorRow';
 import * as akm from '../../../akmm/metamodeller';
 import * as uic from '../../../akmm/ui_common';
 import * as uit from '../../../akmm/ui_templates';

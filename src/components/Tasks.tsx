@@ -32,8 +32,9 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const [taskFocusModel, setTaskFocusModel] = useState(props.taskFocusModel);
 
-  const state = useSelector((state) => state); // use RootState type
-  if (debug) console.log('24 Tasks state', state);
+  const phData = useSelector((state) => state.phData); 
+  const phFocus = useSelector((state) => state.phFocus);
+  if (debug) console.log('36 Tasks state', phData, phFocus);
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimizedTask, setMinimizedTask] = useState(true);
@@ -84,12 +85,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const [formValues, setFormValues] = useState({});
 
-  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
-  const models = useSelector(state => state.phData?.metis?.models);
-  let focusModel = useSelector(state => state.phFocus?.focusModel);
-  const focusModelview = useSelector(state => state.phFocus.focusModelview);
-  const focusTask = useSelector(state => state.phFocus.focusTask);
-  const focusRole = useSelector(state => state.phFocus.focusRole);
+  const metamodels = useSelector(state => phData?.metis?.metamodels);
+  const models = useSelector(state => phData?.metis?.models);
+  let focusModel = useSelector(state => phFocus?.focusModel);
+  const focusModelview = useSelector(state => phFocus.focusModelview);
+  const focusTask = useSelector(state => phFocus.focusTask);
+  const focusRole = useSelector(state => phFocus.focusRole);
   const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   if (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);

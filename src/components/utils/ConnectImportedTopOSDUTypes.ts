@@ -140,7 +140,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
             relId = (existRelship) ? existRelship.id : utils.createGuid();
             // relId = (existRelship) ? existRelship.id : utils.createGuid();
             reltypeRef = relshipType?.id //refersTo?.id || hasType?.id
-            if (debug) console.log('154 ', relName, description, fromobjectName, toobjectName);
+            if (debug) console.log('154 ', relName, fromobjectName, toobjectName);
 
             if (o.title === 'ColumnStratigraphicHorizonTopID') {
                 relName = hasType?.name + 'Top'
@@ -150,7 +150,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
                 relDescription = `${fromobjectName} has Base ${toobjectName}`;
             }
 
-            if (debug) console.log('164 ', relId, relName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
+            if (debug) console.log('164 ', relId, relName, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
             if ((debug)) console.log('165 relName: ', relName, 'from: ', fromobjectId, fromobjectName, 'to: ', toobjectId, toobjectName, 'existRelship: ', existRelship);
             if (toobjectId && fromobjectId) {
                 if (debug) console.log('166 ', relName, fromrelName, fromobjectName, torelName, toobjectName);
@@ -235,7 +235,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
                 relTitle = '';
 
 
-                if (debug) console.log('247 ', relId, relName, description, 'title:', relTitle, reltypeRef, 'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
+                if (debug) console.log('247 ', relId, relName, 'title:', relTitle, reltypeRef, 'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
                 if (debug) console.log('238 ', relId, relName, 'from : ', fromobjectName, 'to : ', toobjectName);
 
                 // if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {

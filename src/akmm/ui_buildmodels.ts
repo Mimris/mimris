@@ -7,8 +7,6 @@ import * as gjs from '../akmm/ui_gojs';
 import * as jsn from '../akmm/ui_json';
 import * as uic from '../akmm/ui_common';
 import { admin } from './constants';
-
-// const constants = require('../akmm/constants');
 import * as constants from './constants';
 
 let includeNoType = false;

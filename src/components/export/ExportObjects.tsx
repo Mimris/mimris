@@ -5,17 +5,17 @@ import { Modal, Button } from 'react-bootstrap';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
-import Markdown from 'markdown-to-jsx';
+// import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
+// import Markdown from 'markdown-to-jsx';
 
-import { ObjDetailTable } from '../forms/ObjDetailTable';
-import ObjectDetails from '../forms/ObjectDetails';
+// import { ObjDetailTable } from '../forms/ObjDetailTable';
+// import ObjectDetails from '../forms/ObjectDetails';
 // import { RelatedFromObjects } from './RelatedFromObjects';
 import { ObjectToCsv } from './ObjectCsv';
-
-import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
-import Selector from '../utils/Selector'
-import 'react-tabs/style/react-tabs.css';
+// import Selector from '../utils/Selector'
 // import PopupAMsg from '../utils/PopupAMsg';
+
+import 'react-tabs/style/react-tabs.css';
 
 const debug = false
 
@@ -24,7 +24,7 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
   const dispatch = useDispatch()
 
-  const [mdString, setMdString] = useState('Your markdown string here');
+  // const [mdString, setMdString] = useState('Your markdown string here');
   const [isCopied, setIsCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const handleClose = () => setShowModal(false);
@@ -40,7 +40,7 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
 
 
-  const [value, setValue] = useState("");
+  // const [value, setValue] = useState("");
   // const [visibleContext, setVisibleContext] = useState(true);
   const metamodels = ph?.phData?.metis?.metamodels
   const models = ph?.phData?.metis?.models

@@ -3,27 +3,23 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
-import useLocalStorage from '../hooks/use-local-storage'
-
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
-import classnames from 'classnames';
-
-import GoJSApp from "./gojs/GoJSApp";
-import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-import Selector from './utils/Selector'
-
-import { SaveModelviewToSvgFile, SaveModelviewToSvgFileAuto } from "./utils/SaveModelToFile";
-import { SaveAkmmUser } from "./utils/SaveAkmmUser";
-import ReportModule from "./export/ReportModule";
-
-import * as uib from '../akmm/ui_buildmodels';
-
+import { select } from "redux-saga/effects";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
-import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
+import useLocalStorage from '../hooks/use-local-storage'
 import { gojs } from "../akmm/constants";
-import { select } from "redux-saga/effects";
+import GoJSApp from "./gojs/GoJSApp";
+import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
+import Selector from './utils/Selector'
+import { SaveModelviewToSvgFile, SaveModelviewToSvgFileAuto } from "./utils/SaveModelToFile";
+import { SaveAkmmUser } from "./utils/SaveAkmmUser";
+import ReportModule from "./export/ReportModule";
+import * as uib from '../akmm/ui_buildmodels';
+import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
+
+import classnames from 'classnames';
 
 const debug = false;
 

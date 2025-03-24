@@ -91,10 +91,6 @@ const Page1 = (props: any) => {
         const data = locStore;
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
-        // window.location.reload();
-        // const timer = setTimeout(() => {
-        //   setRefresh(!refresh);
-        // }, 100);
         return () => clearTimeout(timer);
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);

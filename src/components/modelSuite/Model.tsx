@@ -1,17 +1,15 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { connect, useSelector, useDispatch } from 'react-redux';
-
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import classnames from 'classnames';
 
 import Page from '../page';
 import Palette from "../Palette";
 import Modeller from "../Modeller";
 import { loadMyModeldata } from "./LoadMyModeldata";
-import classnames from 'classnames';
 import * as akm from '../../akmm/metamodeller';
 // import * as uib from '../../akmm/ui_buildmodels';
-
 import GenGojsModel from "../GenGojsModel";
 import useLocalStorage from '../../hooks/use-local-storage'
 

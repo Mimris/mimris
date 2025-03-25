@@ -565,7 +565,7 @@ export function groupTop2(contextMenu: any, notation: string) {
     );
 }
 
-export function groupTop3(contextMenu: any, notation: string) {
+export function groupTop3(contextMenu: any, notation: string, textscale: number) {
     // Without ports
     return $(go.Panel, "Auto",
         {
@@ -628,7 +628,7 @@ export function groupTop3(contextMenu: any, notation: string) {
                 {
                     row: 1, 
                     column: 0, angle: 270,
-                    scale: 1.5,
+                    scale: textscale,
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
@@ -649,12 +649,13 @@ export function groupTop3(contextMenu: any, notation: string) {
                 {
                     row: 0, 
                     column: 1, 
+                    scale: textscale * 1.5,
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
-                    font: "Bold 20pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
+                    font: "Bold 14pt Sans-Serif",
+                    textAlign: "center",
+                    alignment: go.Spot.Center,
                     margin: new go.Margin(0, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
@@ -3434,7 +3435,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             )
         },
-        groupTop3(contextMenu, 'Icon'),
+        groupTop3(contextMenu, 'Icon', 1),
         );   
         groupTemplateMap.add("Lane", laneTemplate);
         addGroupTemplateName('Lane');
@@ -3469,7 +3470,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop3(contextMenu, 'Icon'),
+            groupTop3(contextMenu, 'Icon', 1.2),
         );
         groupTemplateMap.add("Pool", poolTemplate);
         addGroupTemplateName('Pool');

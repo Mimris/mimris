@@ -499,7 +499,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               const typeName = node.objecttype.name;
               if (typeName === 'Pool')
-                return true;
+                return false;
               return false;
             }),
           makeButton("Edit Attribute",

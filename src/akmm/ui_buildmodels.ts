@@ -324,6 +324,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         if (!objtype) objtype = metis.findObjectType(object.typeRef);
         const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
         if (typeview) {
+          if (!node.template) node.template = typeview.template;
+          if (node.template === "") node.template = typeview.template;
           if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
           if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
           if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
@@ -333,7 +335,6 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (node.icon === "") node.icon = typeview.icon;
           if (node.image === "") node.image = typeview.image;
           if (node.viewkind === "") node.viewkind = typeview.viewkind;
-          if (node.template === "") node.template = typeview.template;
         }
       }
     }

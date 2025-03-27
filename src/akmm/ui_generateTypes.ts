@@ -1791,8 +1791,13 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                             rtype = generateRelshipType(rel, relview, context);
                         }
                         if (rel.relshipviews?.length > 0) {
-                            let relview = rel.relshipviews[0];
-                            if (relview.template2) {
+                            let relview;
+                            for (let j=0; j<rel.relshipviews.length; j++) {
+                                relview = rel.relshipviews[j];
+                                relview = myModelview.findRelationshipView(relview.id);
+                                if (relview) break;
+                            }
+                            if (relview?.template2) {
                                 relview.template = relview.template2;
                             }
                         }

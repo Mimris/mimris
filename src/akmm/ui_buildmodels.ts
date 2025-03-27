@@ -128,6 +128,8 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
       // Hack
       const otype = metis.findObjectTypeByName(objtype.name);
+      if (otype.abstract)
+        continue;
       if (!typeview) {
         if (otype) {
           typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
@@ -549,7 +551,9 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
         let strokecolor = typeview?.strokecolor;
         let fillcolor = typeview?.fillcolor;
         if (objtype) {
-          if (!objtype.markedAsDeleted)
+          if (objtype.isAbstract())
+            includeObjtype = false;
+          else if (!objtype.markedAsDeleted)
             includeObjtype = true;
           else {
             if (debug) console.log('468 objtype', objtype);

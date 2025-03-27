@@ -619,8 +619,8 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                 $("SubGraphExpanderButton",
                     {
                         column: 0, angle: 270,
-                        margin: new go.Margin(0, 2, 2, 2), 
-                        alignment: go.Spot.Center,
+                        margin: new go.Margin(10, 2, 2, 2), 
+                        alignment: go.Spot.Top,
                         scale: 1.5,
                     },
                 ),  
@@ -633,9 +633,9 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
                     font: "Bold 14pt Sans-Serif",
-                    textAlign: "center",
-                    alignment: go.Spot.Center,
-                    margin: new go.Margin(10, 0, 0, 10),
+                    textAlign: "left",
+                    alignment: go.Spot.Top,
+                    margin: new go.Margin(5, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name"
@@ -654,9 +654,9 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
                     font: "Bold 14pt Sans-Serif",
-                    textAlign: "center",
-                    alignment: go.Spot.Center,
-                    margin: new go.Margin(0, 0, 0, 10),
+                    textAlign: "left",
+                    alignment: go.Spot.Top,
+                    margin: new go.Margin(0, 100, 0, 0),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name",

@@ -1,22 +1,12 @@
 Here are additional recommended documents for a professional open-source project:
 
-1. **LICENSE** (Essential)
-
-```markdown
-GNU GENERAL PUBLIC LICENSE
-Version 3, 29 June 2007
-
-Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
-...
-```
-
-2. **SECURITY.md** (Vulnerability Reporting)
+1. **SECURITY.md** (Vulnerability Reporting)
 
 ```markdown
 # Security Policy
 
 ## Reporting Vulnerabilities
-Email: security@graphicmodelingapp.com
+Email: security@mimris.com
 Response time: 72 hours
 Bounty program: Coming 2024
 
@@ -27,7 +17,7 @@ Bounty program: Coming 2024
 | < 2.0   | :x:                |
 ```
 
-3. **docs/ARCHITECTURE.md** (Technical Design)
+2. **docs/ARCHITECTURE.md** (Technical Design)
 
 ```markdown
 # System Architecture
@@ -42,7 +32,7 @@ Bounty program: Coming 2024
 [Insert Mermaid diagram]
 ```
 
-4. **CHANGELOG.md** (Release Notes)
+3. **CHANGELOG.md** (Release Notes)
 
 ```markdown
 # Changelog
@@ -57,7 +47,7 @@ Bounty program: Coming 2024
 ...
 ```
 
-5. **ROADMAP.md** (Future Plans)
+4. **ROADMAP.md** (Future Plans)
 
 ```markdown
 # Product Roadmap
@@ -71,7 +61,7 @@ Bounty program: Coming 2024
 - [ ] AI-assisted node creation
 ```
 
-6. **AUTHORS.md** (Credits)
+5. **AUTHORS.md** (Credits)
 
 ```markdown
 # Project Authors
@@ -85,7 +75,7 @@ Bounty program: Coming 2024
 [![Contributors](https://contrib.rocks/image?repo=yourusername/GraphicModelingApp)]
 ```
 
-7. **TESTING.md** (QA Process)
+6. **TESTING.md** (QA Process)
 
 ```markdown
 # Testing Strategy
@@ -99,8 +89,7 @@ Bounty program: Coming 2024
 - Visual regression testing
 ```
 
-8. **STYLEGUIDE.md** (Code Conventions)
-
+7. **STYLEGUIDE.md** (Code Conventions)
 ```markdown
 # Style Guide
 
@@ -113,7 +102,7 @@ Bounty program: Coming 2024
 - Normalized state shape
 ```
 
-9. **API_REFERENCE.md** (Developer Docs)
+8. **API_REFERENCE.md** (Developer Docs)
 
 ```markdown
 # Plugin API Reference
@@ -125,7 +114,7 @@ interface PluginConfig {
 }
 ```
 
-10. **SUPPORT.md** (User Help)
+9. **SUPPORT.md** (User Help)
 
 ```markdown
 # Getting Help
@@ -138,7 +127,7 @@ interface PluginConfig {
 Contact: enterprise@graphicmodelingapp.com
 ```
 
-11. **GOVERNANCE.md** (Project Management)
+10. **GOVERNANCE.md** (Project Management)
 
 ```markdown
 # Project Governance
@@ -152,7 +141,7 @@ Contact: enterprise@graphicmodelingapp.com
 - Security monitoring
 ```
 
-12. **.github/ISSUE_TEMPLATE** (Standardized Reporting)
+11. **.github/ISSUE_TEMPLATE** (Standardized Reporting)
 
 ```markdown
 ---

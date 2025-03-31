@@ -993,6 +993,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     let modelviewList = []; // constants.core.AKM_MODELVIEWS; // [];
     const myDiagram = context.myDiagram;
     const myMetis: akm.cxMetis = context.myMetis;
+    const myCurrentObjectview = context.myCurrentObjectview;
+    const myCurrentObject = myCurrentObjectview.object;
     // let sourcemodelview = buildTemporaryModelView(context);
     let sourcemodelview = context.myCurrentModelview;
     const args = context.args;
@@ -1094,8 +1096,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 const rel = relview?.relship;
                 relships.push(rel);
             }
-            relships = [... new Set(relships)];
             // Remove duplicates
+            relships = [... new Set(relships)];
             for (let i = 0; i <= objects?.length; i++) {
                 const obj = objects[i];
                 // if (!objview /*|| objview.markedAsDeleted*/)
@@ -1103,12 +1105,12 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 // let obj = objview.object;
                 if (!obj /*|| obj.markedAsDeleted*/)
                     continue;
-                if (obj.isOfType('Metamodel')) {
-                    const fromType = obj.type;
+                if (myCurrentObject.isOfType('Metamodel')) {
+                    const fromType = myCurrentObject.type;
                     let toType = myMetis.findObjectTypeByName(constants.types.AKM_METAMODEL);
                     // Follow 'hasSubMetamodel' relationships
-                    let containsType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, fromType, toType);
-                    const submetaObjects = getSubMetaModelObjects(obj, containsType);
+                    let hasSubMetamodelType = myMetis.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, fromType, toType);
+                    const submetaObjects = getSubMetaModelObjects(myCurrentObject, hasSubMetamodelType);
                     for (let i = 0; i < submetaObjects?.length; i++) {
                         const submetaObject = submetaObjects[i];
                         if (submetaObject) {
@@ -1487,7 +1489,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
-    const coreMetamodel = myMetis.findMetamodelByName("AKM-Core_MM");
+    const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_MM);
     let containsType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
     let containsTypeView = containsType?.typeview;
     let hasSubMetamodelType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);

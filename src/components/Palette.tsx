@@ -82,7 +82,7 @@ const Palette = (props: any) => {
 
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
-  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-META_MM')
   let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-IRTV_MM')
   let taskNodeDataArray: any[] = ndarr
 
@@ -105,7 +105,7 @@ const Palette = (props: any) => {
     (types) && setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
 
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
-    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-META_MM')
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
     irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -147,7 +147,7 @@ const Palette = (props: any) => {
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
       // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
-      const wotArr = (mmodel.name === 'AKM-Core_MM')
+      const wotArr = (mmodel.name === 'AKM-META_MM')
         ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
         : (mmodel.name === 'AKM-IRTV_MM')
           ? ['Container', 'Information', 'Role', 'Task', 'View']

@@ -1,4 +1,4 @@
-# Mimris-Modeling-App 🎨 
+# Mimris-Modeling-App 🎨
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-3178C6?logo=typescript)
@@ -69,7 +69,7 @@ Open-source Modelling tool with Graphical Diagram editor using cyclic   Entity-b
 # Clone the repository
 git clone https://github.com/Mimris/mimris-modelling-app.git
 cd mimris-modelling-app
-```
+```bash
 
 - **Install dependencies
 
@@ -94,8 +94,7 @@ npm run dev
 - Next.js v13+
 - GoJS v2.2+
 
-
-See [INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
+See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
 
 ## Usage 🖌️
 
@@ -132,6 +131,7 @@ See [INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
 ```
 
 ### Run Tests
+
 ```bash
 npm test (no tests yet)
 ```
@@ -194,7 +194,7 @@ export const nodeTemplate = (
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 We welcome contributions under these guidelines:
- 
+
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
@@ -225,9 +225,11 @@ Priority Areas:
 - 🧩 Add more modelling standards
 
 ## License 📄
+
 This project is licensed under the GNU General Public License v3.0 - see [LICENSE](LICENSE) file for details.
 
 **Key License Requirements:**
+
 - All derivative works must remain open-source
 - Modifications must be clearly marked
 - Source code must be distributed with any binaries
@@ -236,10 +238,10 @@ This project is licensed under the GNU General Public License v3.0 - see [LICENS
 
 ---
 
-**Maintained by** [Mimris] 
+**Maintained by** [Mimris]
 
 •
- 📧 <contact@example.com> 
- 
- • 
+ 📧 <contact@example.com>
+
+ •
 [Live Demo](kmmclient-alfa.vercel.app/modelling)

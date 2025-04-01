@@ -4,7 +4,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-3178C6?logo=typescript)
 ![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?logo=next.js)
 
-Open-source Modelling graphical editor tool with Entity-based modeling and Metamodelling capabilities
+Open-source Modelling tool with Graphical Diagram editor using cyclic   Entity-based Modeling and Metamodelling capabilities.
 
 ![App Screenshot](./public/images/MimrisApp.png)
 

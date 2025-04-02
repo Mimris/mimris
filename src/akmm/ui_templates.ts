@@ -618,23 +618,25 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
                 $("SubGraphExpanderButton",
                     {
-                        column: 0, angle: 270,
+                        column: 0, 
+                        angle: 270,
                         margin: new go.Margin(10, 2, 2, 2), 
-                        alignment: go.Spot.Top,
+                        alignment: go.Spot.Center,
                         scale: 1.5,
                     },
                 ),  
                 $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
                 {
                     row: 1, 
-                    column: 0, angle: 270,
+                    column: 0, 
+                    angle: 270,
                     scale: textscale,
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
                     font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
-                    alignment: go.Spot.Top,
+                    alignment: go.Spot.Left,
                     margin: new go.Margin(5, 0, 0, 10),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
@@ -655,7 +657,7 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                     editable: true,  // allow in-place editing by user
                     font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
-                    alignment: go.Spot.Top,
+                    alignment: go.Spot.Left,
                     margin: new go.Margin(0, 100, 0, 0),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,

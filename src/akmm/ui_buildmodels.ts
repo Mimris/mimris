@@ -128,13 +128,13 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
       // Hack
       const otype = metis.findObjectTypeByName(objtype.name);
-      if (otype.abstract)
-        continue;
-      if (!typeview) {
-        if (otype) {
-          typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
-        } else
-          typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+      if (!otype.abstract) {
+        if (!typeview) {
+          if (otype) {
+            typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
+          } else
+            typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+        }
       }
       // End hack
       objview.setTypeView(typeview);

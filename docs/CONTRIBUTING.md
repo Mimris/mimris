@@ -11,7 +11,6 @@ New to open source? Check out our [Good First Issues](https://github.com/mimris/
 ### Prerequisites
 
 - Node.js 18+
-- Yarn 1.22+
 - GoJS 3.0+ (free trial OK for development)
 - TypeScript 5.0+
 
@@ -20,7 +19,7 @@ New to open source? Check out our [Good First Issues](https://github.com/mimris/
 ```bash
 git clone https://github.com/yourusername/GraphicModelingApp.git
 cd GraphicModelingApp
-yarn install
+npm install
 Branch Strategy
 Create a new branch from main:
 

@@ -33,31 +33,29 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic   Entity-b
 
 ## 🏗️ Tech Stack
 
-- **Frontend Framework**: Next.js 13 (App Router)
+- **Frontend Framework**: Next.js 13 (Page Router)
 - **Language**: TypeScript 5+
 - **Diagram Library**: GoJS 3.0
 - **State Management**: Redux Toolkit
 - **Rendering**: React 18 (Server Components)
 - **Build System**: Turborepo
-- **Styling**: Tailwind CSS + CSS Modules
+- **Styling**: Tailwind CSS + CSS Modules + Shadcn
 
 ## ✨ Features
 
+- **Basic Knowledge graph**
+  - Object/node Relationship/edge arrays based on types defined in Metamodel with Objecttype and Relationshiptypes.
 - **📐 GoJS-Powered Node Editor**
-  - Hierarchical node diagrams with custom palettes
-  - Advanced link routing and automatic layout
-  - Undo/redo history with transaction management
+  - Objectview and Relationship in Modelviews(diagrams) for presentation of views.
+  - Advanced Relationship/link routing and automatic layout.
+  - Objectviewstyles to define visualisation of objects and relationships.
 - **Next.js Optimized Rendering**
-  - Hybrid SSR/CSR for complex diagrams
-  - Dynamic component loading with React Suspense
 - **Redux State Syncing**
   - Real-time collaboration through state synchronization
   - Time-travel debugging capabilities
 - **Type-Safe Development**
   - Strict TypeScript configuration
   - Generated API types from OpenAPI spe
-- Object/Node-based visual programming interface
-- Multi-format export (SVG, PNG, JSON, MD)
 - Customizable templates & components
 - Web based Cross-platform support (Windows/Linux/macOS)
 
@@ -98,11 +96,11 @@ See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
 
 ## Usage 🖌️
 
-### Basic Workflow
+### Basic user Workflow 
 
 1. Drag Objecttypes from the Palette in to the modelling area
 2. Connect nodes using relationships. Click on the obects edge and drag to another object to create a relationship
-3. Arrange the objects in the modelling area by dragging them to the desired position
+3. Arrange the objects in the modelling area by dragging them to the desired position and arrange them in Containers.
 4. Click on the Hamburger menu in the top left corner to open the menu to Save, Export or Import a model.
 
 ## Development 💻
@@ -133,7 +131,7 @@ See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
 ### Run Tests
 
 ```bash
-npm test (no tests yet)
+npm test (no tests implemented yet)
 ```
 
 ## 🧩 State Management
@@ -142,10 +140,10 @@ npm test (no tests yet)
 
 ```typescript
 initialState = {
-  phData,
-  phFocus,
-  phUser,
-  phSource,
+  phData, // Metamodel and Model data
+  phFocus, // Current focus data. i.e. focusModel, focusModelview, focusObjectvieiw etx.
+  phUser, // User preferences
+  phSource, // Sourcefile (local or github)
   lastUpdate: new Date().toISOString()
 }
 ```
@@ -210,7 +208,7 @@ Priority Areas:
 - 🧩 Migrate from Bootstrap CSS to TailwindCSS and Shadch
 - 🧩 Enhance GoJS Dialogs and Menus (Shadcn?)
 - 🧩 Add more examples and documentation
-- 🧩 Add more tests
+- 🧩 Add tests
 - 🧩 Add more components
 - 🧩 Add more features
 - 🧩 Add more templates
@@ -218,7 +216,7 @@ Priority Areas:
 - 🧩 Add more Metamodels
 - 🧩 Add more modelling tools
 - 🧩 Add more modelling languages
-- 🧩 Add more modelling paradigms
+- 🧩 Add more modelling paradigms/metamodels
 - 🧩 Add more modelling techniques
 - 🧩 Add more modelling methods
 - 🧩 Add more modelling frameworks

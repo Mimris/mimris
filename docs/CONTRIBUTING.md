@@ -2,6 +2,17 @@
 
 We welcome contributions from everyone! Before participating, please read our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## Table of Contents
+1. [First-Time Contributors](#first-time-contributors)
+2. [Development Setup](#development-setup)
+3. [Development Workflow](#development-workflow)
+4. [Technology-Specific Guidelines](#technology-specific-guidelines)
+5. [Testing](#testing)
+6. [Pull Request Process](#pull-request-process)
+7. [Documentation](#documentation)
+8. [Need Help?](#need-help)
+9. [Acknowledgements](#acknowledgements)
+
 ## 🚀 First-Time Contributors
 
 New to open source? Check out our [Good First Issues](https://github.com/mimris/modeller/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) labeled `good first issue`.

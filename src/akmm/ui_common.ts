@@ -917,7 +917,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
                     includeInherited = true;
-                    reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                    reltypes = metamodel.findRelationshipTypes0BetweenTypes(fromType, toType, includeInherited);
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
                             const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);

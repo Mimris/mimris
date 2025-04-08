@@ -117,7 +117,7 @@ const Navbar = (props) => {
 				<div className="navbar-nav d-flex justify-content-between align-items-top"
 					style={{ marginLeft: "1vw" }}
 				>
-					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>AKMM</strong>
+					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>Mimris</strong>
 					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">
 						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >version: {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />

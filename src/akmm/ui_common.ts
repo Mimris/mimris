@@ -917,7 +917,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
                     includeInherited = true;
-                    reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                    reltypes = metamodel.findRelationshipTypes0BetweenTypes(fromType, toType, includeInherited);
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
                             const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
@@ -3782,7 +3782,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     // repair ObjectTypeViews
     const modifiedMetamodels = new Array();
     const metamodels: akm.cxMetaModel[] = [];
-    const coreMetamodel = myMetis.findMetamodelByName("AKM-Core_MM");
+    const coreMetamodel = myMetis.findMetamodelByName("AKM-META_MM");
     const objtypeviews = getObjectTypeviews(coreMetamodel);
     coreMetamodel.objecttypeviews = objtypeviews;
     metamodels.push(coreMetamodel);
@@ -3791,7 +3791,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
 
     for (let i = 0; i < myMetis.metamodels?.length; i++) {
         const mmodel = myMetis.metamodels[i];
-        if (mmodel.name === 'AKM-Core_MM') continue;
+        if (mmodel.name === 'AKM-META_MM') continue;
         const objtypeviews = getObjectTypeviews(mmodel);
         mmodel.objecttypeviews = objtypeviews;
         metamodels.push(mmodel);

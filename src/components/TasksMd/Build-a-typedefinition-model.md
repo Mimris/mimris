@@ -5,9 +5,9 @@ This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_
 
 <details>  <summary>Create Initial Containers ...</summary>
 
-Let us start with an empty model and the built-in ***AKM-Core_MM*** metamodel:
+Let us start with an empty model and the built-in ***AKM-META_MM*** metamodel:
 
-![Initial page with blank modelling area and AKM-Core_MM types in the Palette](images/posts/modelling/image_model001.png)
+![Initial page with blank modelling area and AKM-META_MM types in the Palette](images/posts/modelling/image_model001.png)
 
 The left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.
 

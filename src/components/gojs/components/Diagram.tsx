@@ -472,7 +472,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //return false;
               return o.diagram.commandHandler.canPasteSelection();
             }),
-          makeButton("----------"),
+          makeButton("Add Lane(s)",
+            function (e: any, obj: any) {
+              const modifiedObjectViews = new Array();
+              const gjsNode = obj.part.data;
+              const selection = myDiagram.selection;
+              for (let it = selection.iterator; it?.next();) {
+                let n = it.value.data;
+                if (n?.objecttype?.name === 'Swimlane') {
+                  const lane: cxObjectView = n.objectview;
+                  lane.group = gjsNode.key;
+                  const jsnObjview = new jsn.jsnObjectView(lane);
+                  uic.addItemToList(modifiedObjectViews, jsnObjview);
+                }
+              }
+              modifiedObjectViews.map(mn => {
+                let data = (mn) && mn
+                if (mn.id) {
+                  data = JSON.parse(JSON.stringify(data));
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                }
+              })
+            },
+            function (o: any) {
+              // If objtype === 'Pool' or 'SwimPool' then true else false
+              const node = o.part.data;
+              const typeName = node.objecttype.name;
+              if (typeName === 'Pool')
+                return false;
+              return false;
+            }),
           makeButton("Edit Attribute",
             function (e: any, obj: any) {
               const node = obj.part.data;

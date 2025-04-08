@@ -367,7 +367,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       $("ToolTip", { margin: 4 },
         $(go.TextBlock, new go.Binding("text", "", diagramInfo),
           {
-            font: "bold 16pt sans-serif"
+            font: "bold 16px Arial, sans-serif"
           }
         ),
         // use a converter to display information about the diagram model

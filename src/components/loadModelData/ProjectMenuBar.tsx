@@ -260,7 +260,7 @@ export const ProjectMenuBar = (props: any) => {
         >
             <div className="context-item bg-white m-1">
                 <strong className="bg-light text-success ps-2 fs-4 d-flex" style={{ whiteSpace: "nowrap" }}>
-                    AKM Modeller
+                    Mimris Modeller
                 </strong>
                 {/* {(isLeftDropdownOpen) && */}
                 <div

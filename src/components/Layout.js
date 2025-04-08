@@ -13,7 +13,7 @@ const Layout = (props) => {
   const projName = "Mimris Modeling App" //props?.children?.props?.children?.props?.children[0]?.props?.props?.phData?.metis?.name || "AKMM APP";
   // const projSource = "AKMM Source file not found"//props.children.props.children.props.children[0].props.props.phSource || "AKMM Source file not found";
   // get projSource from props.children
-  const projSource = props?.children?.props?.children?.props?.children[0]?.props?.props?.phSource || "Mimiris Source file not found";
+  const projSource = props?.children?.props?.children?.props?.children[0]?.props?.props?.phSource || "Mimris Source file not found";
   // console.log("17 projName", projSource);
   // const projName = props.phSource;
   // const [darkMode, setDarkMode] = useDarkMode();

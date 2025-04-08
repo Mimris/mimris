@@ -224,7 +224,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
-    const myContext = modalContext.context;
+    const myContext = modalContext.myContext;
     let myDiagram = modalContext.myDiagram;
     if (!myDiagram) myDiagram = myContext.myDiagram;
     // const data = modalContext.data;

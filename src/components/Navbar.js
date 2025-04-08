@@ -75,7 +75,7 @@ const Navbar = (props) => {
 		if (domainName === "localhost") {
 			setVersion("local");
 		} else if (domainName === "akmmclient.vercel.app") {
-			setVersion("final");
+			setVersion("prod");
 		} else if (domainName === "akmmclient-beta.vercel.app") {
 			setVersion("beta");
 		} else if (domainName === "akmmclient-alfa.vercel.app") {
@@ -87,7 +87,7 @@ const Navbar = (props) => {
 
 	const options = [
 		{
-			label: 'Final version',
+			label: 'Prod version',
 			href: 'https://akmmclient.vercel.app/modelling',
 			active: domainName === 'akmmclient.vercel.app',
 		},

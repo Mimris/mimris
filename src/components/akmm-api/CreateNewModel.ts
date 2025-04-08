@@ -34,7 +34,7 @@ const CreateNewModel = (props: any) => {
   const createNewModelJson = () => {
 
     const newProjectName = 
-      (metamodelGenerated?.name === 'AKM-Core_MM')
+      (metamodelGenerated?.name === 'AKM-META_MM')
         ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
         : (metamodelGenerated.name === 'AKM-IRTV_MM')
           ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
@@ -44,7 +44,7 @@ const CreateNewModel = (props: any) => {
                 ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
                 : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
 
-    const newModelName = (metamodelGenerated?.name === 'AKM-Core_MM')
+    const newModelName = (metamodelGenerated?.name === 'AKM-META_MM')
       ? '01-Typedef_META'
       : (metamodelGenerated.name === 'AKM-IRTV_MM')
         ? '01-Concept_IRTV'
@@ -54,7 +54,7 @@ const CreateNewModel = (props: any) => {
             ? '01-OSDU-Typedef_META'
             : 'Basic-Models_META'
 
-    const newModelDesc = (metamodelGenerated?.name === 'AKM-Core_MM')
+    const newModelDesc = (metamodelGenerated?.name === 'AKM-META_MM')
       ? 'Type Definition Model, modeling with the EntityTypes'
       : (metamodelGenerated?.name === 'AKM-IRTV_MM')
         ? 'Concept Model, modeling based on IRTV (Information, Roles, Tasks, Views)'
@@ -94,7 +94,7 @@ const CreateNewModel = (props: any) => {
     if (debug) console.log('69 CreateNewModel', newmodel)
     const adminmodel = models.find((m: { name: string; }) => m.name === '_ADMIN_MODEL')
     const adminmetamodel = metamodels.find((m: { id: string; }) => m.id === adminmodel?.metamodelRef)
-    const coremetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-Core_MM')
+    const coremetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-META_MM')
     const irtvmetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-IRTV_MM')
     const popsmetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-POPS_MM')
     const repo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 'osdu-akm-models' : 'kavca-akm-models'

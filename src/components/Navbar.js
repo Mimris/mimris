@@ -75,7 +75,7 @@ const Navbar = (props) => {
 		if (domainName === "localhost") {
 			setVersion("local");
 		} else if (domainName === "akmmclient.vercel.app") {
-			setVersion("final");
+			setVersion("prod");
 		} else if (domainName === "akmmclient-beta.vercel.app") {
 			setVersion("beta");
 		} else if (domainName === "akmmclient-alfa.vercel.app") {
@@ -87,7 +87,7 @@ const Navbar = (props) => {
 
 	const options = [
 		{
-			label: 'Final version',
+			label: 'Prod version',
 			href: 'https://akmmclient.vercel.app/modelling',
 			active: domainName === 'akmmclient.vercel.app',
 		},
@@ -117,7 +117,7 @@ const Navbar = (props) => {
 				<div className="navbar-nav d-flex justify-content-between align-items-top"
 					style={{ marginLeft: "1vw" }}
 				>
-					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>Mimris</strong>
+					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>AKMM</strong>
 					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">
 						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >version: {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />
@@ -169,11 +169,11 @@ const Navbar = (props) => {
 						</li> */}
 				</ul>
 				{/* </div> */}
-				<div className="navbar-nav  ms-auto" style={{ borderRadius: "6px", marginRight: "25vw" }}>
+				<div className="navbar-nav  ms-auto" style={{ marginRight: "1vw" }}>
 					<span className="username d-flex justify-content-start align-items-center">
 						<FaUser color={(props.user?.name !== 'User') ? "green" : "red"} style={{ paddingRigth: "4px", verticalAlign: "baseline" }} />
 					</span>
-					<span className="ms-1">
+					<span className="ms-1 p-1 bg-light" >
 						{(props.user?.name !== 'User' && props.user?.name !== 'No GitHub User identified') ? props.user?.name : "Guest"}
 					</span>
 				</div>

@@ -189,6 +189,22 @@ const Page1 = (props: any) => {
   }, []);
 
   useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        data.username = data.username.charAt(0).toUpperCase() + data.username.slice(1);
+        console.log('Current Username:', data.username);
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: { focusUser: { name: data.username } } })
+      } catch (error) {
+        console.error('Error fetching username:', error);
+      }
+    };
+
+    fetchUsername();
+  }, []);
+
+  useEffect(() => {
     const locProps = { ...props, phMymetis: null }
     setMemorySessionState(locProps)
   }, [props.phSource])
